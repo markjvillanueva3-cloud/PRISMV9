@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "virtual_machining",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL VIRTUAL Machining 2024 Reference",
+  "categories": ["machine_simulation", "collision_check", "optimization", "verification"],
+  "operations": {
+    "vm_machine_kinematic_setup": {
+      "category": "machine_simulation",
+      "display_name": "Virtual Machine Kinematic Setup",
+      "description": "Define kinematic chain: bed → table → A-axis → C-axis → spindle → tool. Per-axis travel limits and home offsets.",
+      "parameter_count": 8,
+      "dialog_tabs": ["kinematics", "limits", "post"],
+      "parameters": {
+        "kinematics": {
+          "machine_type": { "type": "enum", "values": ["3_axis_vmc", "5_axis_table_table", "5_axis_head_table", "5_axis_head_head", "mill_turn_b_axis", "horizontal_4_axis"], "required": true },
+          "rotary_axis_1": { "type": "enum", "values": ["A", "B", "C"], "required": false },
+          "rotary_axis_2": { "type": "enum", "values": ["A", "B", "C"], "required": false }
+        },
+        "limits": {
+          "x_travel_mm": { "type": "number", "min": 100, "max": 10000, "required": true },
+          "y_travel_mm": { "type": "number", "min": 100, "max": 10000, "required": true },
+          "z_travel_mm": { "type": "number", "min": 100, "max": 5000, "required": true },
+          "rotary_1_range_deg": { "type": "number", "min": -360, "max": 720, "default": 360 }
+        },
+        "post": {
+          "post_processor_id": { "type": "string", "required": true }
+        }
+      }
+    },
+    "vm_collision_full": {
+      "category": "collision_check",
+      "display_name": "Full Machine Collision Check",
+      "description": "Tool, holder, spindle, axis brackets, table, fixture, stock. Detects all interference at simulation step resolution.",
+      "parameter_count": 6,
+      "dialog_tabs": ["scope", "resolution", "report"],
+      "parameters": {
+        "scope": {
+          "check_tool_holder": { "type": "boolean", "default": true },
+          "check_spindle_body": { "type": "boolean", "default": true },
+          "check_table_brackets": { "type": "boolean", "default": true },
+          "check_fixture_stock": { "type": "boolean", "default": true }
+        },
+        "resolution": {
+          "step_size_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.5 }
+        },
+        "report": {
+          "stop_on_first_collision": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "vm_collision_quick": {
+      "category": "collision_check",
+      "display_name": "Quick Tool-Stock Collision Check",
+      "description": "Fast check of tool & holder against stock only. Skip machine body. Use during programming iteration.",
+      "parameter_count": 4,
+      "dialog_tabs": ["scope", "resolution"],
+      "parameters": {
+        "scope": {
+          "check_tool": { "type": "boolean", "default": true },
+          "check_holder": { "type": "boolean", "default": true }
+        },
+        "resolution": {
+          "step_size_mm": { "type": "number", "min": 0.1, "max": 5, "default": 1 },
+          "check_only_rapids": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "vm_optimize_link": {
+      "category": "optimization",
+      "display_name": "Optimize Linking Moves & Air Cuts",
+      "description": "Reduce non-cutting time. Convert long rapids to retract-rapid-plunge sequences. Re-order operations.",
+      "parameter_count": 6,
+      "dialog_tabs": ["link", "rapid", "reorder"],
+      "parameters": {
+        "link": {
+          "min_link_distance_mm": { "type": "number", "min": 1, "max": 50, "default": 5 },
+          "use_arc_links": { "type": "boolean", "default": true }
+        },
+        "rapid": {
+          "convert_rapid_to_g1_threshold_mm": { "type": "number", "min": 1, "max": 100, "default": 10 },
+          "rapid_safe_z_mm": { "type": "number", "min": 5, "max": 200, "default": 25 }
+        },
+        "reorder": {
+          "reorder_by_tool": { "type": "boolean", "default": true },
+          "reorder_by_zone": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "vm_optimize_dynamics": {
+      "category": "optimization",
+      "display_name": "Dynamic Feed Optimization (Look-Ahead)",
+      "description": "Adjust feed for corners, axis acceleration limits, and look-ahead distance. Reduce machine wear.",
+      "parameter_count": 5,
+      "dialog_tabs": ["axis_limits", "corner", "look_ahead"],
+      "parameters": {
+        "axis_limits": {
+          "linear_accel_mm_s2": { "type": "number", "min": 100, "max": 50000, "default": 5000 },
+          "rotary_accel_deg_s2": { "type": "number", "min": 50, "max": 5000, "default": 1000 }
+        },
+        "corner": {
+          "corner_feed_pct": { "type": "number", "min": 10, "max": 100, "default": 50 }
+        },
+        "look_ahead": {
+          "look_ahead_blocks": { "type": "number", "min": 5, "max": 1000, "default": 100 },
+          "smooth_corner_radius_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.05 }
+        }
+      }
+    },
+    "vm_verify_part": {
+      "category": "verification",
+      "display_name": "Part Verification (Post-Sim Compare)",
+      "description": "Compare simulated stock model to part CAD model. Identify gouges and missed material.",
+      "parameter_count": 5,
+      "dialog_tabs": ["compare", "tolerances", "report"],
+      "parameters": {
+        "compare": {
+          "compare_method": { "type": "enum", "values": ["surface_deviation", "volumetric"], "default": "surface_deviation" }
+        },
+        "tolerances": {
+          "gouge_threshold_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.005 },
+          "excess_material_threshold_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 }
+        },
+        "report": {
+          "color_map_export": { "type": "boolean", "default": true },
+          "csv_per_face": { "type": "boolean", "default": false }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Full vs Quick Collision Modes",
+      "key_concepts": ["Quick = tool/holder only, fast", "Full = entire kinematic chain, slow but mandatory before metal cut"],
+      "best_practices": ["Quick during dev iteration", "Full before pressing GO on machine"]
+    },
+    {
+      "topic": "Look-Ahead Block Count",
+      "key_concepts": ["100 blocks = balanced general use", "Higher = smoother but more controller load"],
+      "best_practices": ["Match to machine controller spec (Heidenhain ~1024, Fanuc ~600)"]
+    },
+    {
+      "topic": "Gouge vs Excess Thresholds",
+      "key_concepts": ["Gouge ≥ 0.005mm = unacceptable on finished surface", "Excess ≥ 0.01mm = rework needed"],
+      "best_practices": ["Tighten thresholds for ≥IT7 fits"]
+    }
+  ]
+}

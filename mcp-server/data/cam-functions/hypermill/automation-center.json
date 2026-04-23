@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "automation_center",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL AUTOMATION Center 2024 Reference",
+  "categories": ["feature_recognition", "macro_template", "batch_processing", "knowledge_capture"],
+  "operations": {
+    "ac_recognize_holes": {
+      "category": "feature_recognition",
+      "display_name": "Recognize Hole Features (Auto)",
+      "description": "Scan part body for cylindrical features. Classify by type (drill, tap, ream, counterbore, countersink). Group by diameter.",
+      "parameter_count": 6,
+      "dialog_tabs": ["scan", "classification", "filter"],
+      "parameters": {
+        "scan": {
+          "scan_method": { "type": "enum", "values": ["full_body", "selected_faces", "by_color", "by_layer"], "default": "full_body" }
+        },
+        "classification": {
+          "classify_thread": { "type": "boolean", "default": true },
+          "classify_counterbore": { "type": "boolean", "default": true },
+          "classify_countersink": { "type": "boolean", "default": true }
+        },
+        "filter": {
+          "min_diameter_mm": { "type": "number", "min": 0.5, "max": 50, "default": 1 },
+          "max_diameter_mm": { "type": "number", "min": 1, "max": 200, "default": 50 }
+        }
+      }
+    },
+    "ac_recognize_pockets": {
+      "category": "feature_recognition",
+      "display_name": "Recognize Pocket / Slot / Boss",
+      "description": "Identify 2.5D prismatic features. Classify pocket vs slot vs boss vs island.",
+      "parameter_count": 5,
+      "dialog_tabs": ["scan", "classification"],
+      "parameters": {
+        "scan": {
+          "scan_method": { "type": "enum", "values": ["full_body", "selected_faces"], "default": "full_body" },
+          "min_depth_mm": { "type": "number", "min": 0.1, "max": 50, "default": 1 }
+        },
+        "classification": {
+          "classify_pocket": { "type": "boolean", "default": true },
+          "classify_slot": { "type": "boolean", "default": true },
+          "classify_boss": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "ac_macro_apply": {
+      "category": "macro_template",
+      "display_name": "Apply Job Template / Macro",
+      "description": "Apply pre-saved operation chain (rough → semi-finish → finish → drill) to a feature group. Material-aware parameter substitution.",
+      "parameter_count": 6,
+      "dialog_tabs": ["template", "binding", "overrides"],
+      "parameters": {
+        "template": {
+          "template_id": { "type": "string", "required": true },
+          "template_version": { "type": "string", "required": false }
+        },
+        "binding": {
+          "feature_group_id": { "type": "string", "required": true },
+          "material_id": { "type": "string", "required": true }
+        },
+        "overrides": {
+          "override_tools": { "type": "boolean", "default": false },
+          "override_feeds_pct": { "type": "number", "min": 50, "max": 200, "default": 100 }
+        }
+      }
+    },
+    "ac_macro_save": {
+      "category": "macro_template",
+      "display_name": "Save Operation Chain as Macro",
+      "description": "Capture current operation tree (with all parameters) as a reusable macro. Support parameterized substitution.",
+      "parameter_count": 5,
+      "dialog_tabs": ["scope", "parameters"],
+      "parameters": {
+        "scope": {
+          "macro_name": { "type": "string", "required": true },
+          "operation_ids": { "type": "string", "required": true }
+        },
+        "parameters": {
+          "parameterize_diameter": { "type": "boolean", "default": true },
+          "parameterize_depth": { "type": "boolean", "default": true },
+          "parameterize_material": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "ac_batch_process": {
+      "category": "batch_processing",
+      "display_name": "Batch Process Multiple Parts",
+      "description": "Run feature recognition + macro application + post for many parts overnight. Email report on completion.",
+      "parameter_count": 6,
+      "dialog_tabs": ["input", "process", "notification"],
+      "parameters": {
+        "input": {
+          "input_folder": { "type": "string", "required": true },
+          "file_pattern": { "type": "string", "default": "*.step" }
+        },
+        "process": {
+          "macro_id": { "type": "string", "required": true },
+          "max_parallel": { "type": "number", "min": 1, "max": 32, "default": 4 }
+        },
+        "notification": {
+          "email_on_completion": { "type": "boolean", "default": true },
+          "fail_on_first_error": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "ac_knowledge_capture": {
+      "category": "knowledge_capture",
+      "display_name": "Knowledge Capture from Production Run",
+      "description": "Record actual cycle time, surface finish, and operator overrides. Feed back into macro recommendations.",
+      "parameter_count": 5,
+      "dialog_tabs": ["data", "training"],
+      "parameters": {
+        "data": {
+          "include_cycle_times": { "type": "boolean", "default": true },
+          "include_surface_finish": { "type": "boolean", "default": true },
+          "include_operator_overrides": { "type": "boolean", "default": true }
+        },
+        "training": {
+          "min_samples_for_recommendation": { "type": "number", "min": 3, "max": 100, "default": 10 },
+          "confidence_threshold_pct": { "type": "number", "min": 50, "max": 99, "default": 80 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Feature Recognition Filter Discipline",
+      "key_concepts": ["Always set min_diameter to skip broken/cosmetic features", "Threading classification needs clean cylindrical surfaces"],
+      "best_practices": ["Run on STEP not STL — STL loses the cylindrical primitive"]
+    },
+    {
+      "topic": "Macro Parameterization",
+      "key_concepts": ["Always parameterize diameter/depth/material", "Store one macro per feature class, not per part"],
+      "best_practices": ["Tag macros with shop preference and material group"]
+    },
+    {
+      "topic": "Batch Parallelism",
+      "key_concepts": ["max_parallel ≤ CPU cores - 2", "I/O bound on STEP → 4 parallel typical sweet spot"],
+      "best_practices": ["Pre-warm tool/post libraries to cache before batch starts"]
+    }
+  ]
+}

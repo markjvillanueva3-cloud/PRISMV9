@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "3d_operations",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL 2024 3D Module Reference",
+  "categories": ["roughing", "finishing", "rest_machining"],
+  "operations": {
+    "rough_3d_zlevel": {
+      "category": "roughing",
+      "display_name": "3D Roughing — Z-Level Cavity",
+      "description": "Layered Z-level roughing with stock awareness. Standard cavity rough.",
+      "parameter_count": 12,
+      "dialog_tabs": ["geometry", "tool", "strategy", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "strategy": {
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 90, "default": 50 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0.3 },
+          "follow_pattern": { "type": "enum", "values": ["offset", "raster", "spiral"], "default": "offset" }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["helical", "ramp"], "default": "helical" },
+          "approach_helix_angle_deg": { "type": "number", "min": 1, "max": 30, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "rough_3d_adaptive": {
+      "category": "roughing",
+      "display_name": "3D Adaptive (HSC) Roughing",
+      "description": "High-speed adaptive trochoidal roughing. Constant engagement, deep DOC.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "engagement", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_loc_to_dia": { "type": "number", "min": 1, "max": 6, "default": 3 }
+        },
+        "engagement": {
+          "max_radial_engagement_pct": { "type": "number", "min": 1, "max": 25, "default": 8 },
+          "axial_doc_to_dia": { "type": "number", "min": 0.5, "max": 3, "default": 1.5 },
+          "smooth_path": { "type": "boolean", "default": true }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["helical", "ramp"], "default": "helical" },
+          "lead_in_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 25 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "finish_3d_zlevel": {
+      "category": "finishing",
+      "display_name": "3D Z-Level Finishing (Steep Walls)",
+      "description": "Z-constant waterline finishing for steep walls (≥30°). Best surface uniformity on vertical features.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "strategy", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "required": true }
+        },
+        "strategy": {
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.25 },
+          "min_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "finish_3d_offset": {
+      "category": "finishing",
+      "display_name": "3D Offset Finishing (Shallow Surfaces)",
+      "description": "3D offset for shallow surfaces (<30°). Uniform cusp height across all surface angles.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "offset", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "required": true }
+        },
+        "offset": {
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.4 },
+          "max_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "smooth_offsets": { "type": "boolean", "default": true }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "finish_3d_pencil": {
+      "category": "finishing",
+      "display_name": "3D Pencil Trace Finishing",
+      "description": "Single-pass corner-trace finishing along internal sharp edges. Tool radius must fit corner radius.",
+      "parameter_count": 8,
+      "dialog_tabs": ["geometry", "tool", "trace"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "trace": {
+          "min_internal_corner_radius_mm": { "type": "number", "min": 0.05, "max": 10, "default": 0.5 },
+          "trace_count": { "type": "number", "min": 1, "max": 5, "default": 1 },
+          "lead_in_type": { "type": "enum", "values": ["tangential", "vertical"], "default": "tangential" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.2 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "rest_3d": {
+      "category": "rest_machining",
+      "display_name": "3D Rest Machining (Stock-Model-Driven)",
+      "description": "Clear residue from a previous larger tool. Driven by stock model. Standard cascade tool.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "rest_source", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true }
+        },
+        "rest_source": {
+          "stock_model_id": { "type": "string", "required": true },
+          "previous_tool_diameter_mm": { "type": "number", "required": true },
+          "minimum_residue_mm": { "type": "number", "min": 0.01, "max": 2, "default": 0.1 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "strategy": {
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 2, "default": 0.2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 },
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Steep & Shallow Threshold (canonical 30°)",
+      "key_concepts": ["≥30° → Z-level waterline", "<30° → 3D offset"],
+      "best_practices": ["Steep & Shallow auto-pass for mixed geometry"]
+    },
+    {
+      "topic": "Adaptive Roughing Engagement",
+      "key_concepts": ["Canonical envelope: ≤8% radial, ≤1.5×D axial", "30-40% feed_per_tooth bonus"],
+      "best_practices": ["smooth_path=true mandatory at corners"]
+    },
+    {
+      "topic": "Pencil Trace Tool-Fit Requirement",
+      "key_concepts": ["Tool radius ≤ internal corner radius", "Tangential lead-in to avoid witness mark"],
+      "best_practices": ["Use small ball end mill matching smallest corner"]
+    }
+  ]
+}

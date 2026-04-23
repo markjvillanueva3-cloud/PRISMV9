@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "stock_fixture",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL 2024 Stock & Fixture Reference",
+  "categories": ["stock_definition", "fixture_definition", "stock_tracking", "clamping_strategy"],
+  "operations": {
+    "stock_box": {
+      "category": "stock_definition",
+      "display_name": "Box Stock",
+      "description": "Rectangular bar stock from min/max XYZ. Auto-fits part bounding box with offset.",
+      "parameter_count": 7,
+      "dialog_tabs": ["geometry", "wcs"],
+      "parameters": {
+        "geometry": {
+          "size_mode": { "type": "enum", "values": ["explicit", "auto_fit_offset"], "default": "auto_fit_offset" },
+          "offset_x_mm": { "type": "number", "min": 0, "max": 100, "default": 2 },
+          "offset_y_mm": { "type": "number", "min": 0, "max": 100, "default": 2 },
+          "offset_z_top_mm": { "type": "number", "min": 0, "max": 50, "default": 1 },
+          "offset_z_bottom_mm": { "type": "number", "min": 0, "max": 50, "default": 0 }
+        },
+        "wcs": {
+          "wcs_id": { "type": "string", "required": true },
+          "origin_corner": { "type": "enum", "values": ["min_xyz", "center_top", "center_bottom"], "default": "min_xyz" }
+        }
+      }
+    },
+    "stock_cylinder": {
+      "category": "stock_definition",
+      "display_name": "Cylinder Stock (Bar)",
+      "description": "Round bar stock with diameter + length. For mill-turn or lathe parts.",
+      "parameter_count": 6,
+      "dialog_tabs": ["geometry", "wcs"],
+      "parameters": {
+        "geometry": {
+          "diameter_mm": { "type": "number", "min": 5, "max": 500, "required": true },
+          "length_mm": { "type": "number", "min": 10, "max": 2000, "required": true },
+          "diameter_offset_mm": { "type": "number", "min": 0, "max": 25, "default": 1 },
+          "length_offset_mm": { "type": "number", "min": 0, "max": 50, "default": 2 }
+        },
+        "wcs": {
+          "wcs_id": { "type": "string", "required": true },
+          "axis": { "type": "enum", "values": ["x", "y", "z"], "default": "z" }
+        }
+      }
+    },
+    "stock_cast_step": {
+      "category": "stock_definition",
+      "display_name": "Cast/Forged Stock (STEP/STL)",
+      "description": "Import 3D model of casting or forging as stock. Realistic near-net-shape representation.",
+      "parameter_count": 5,
+      "dialog_tabs": ["import", "alignment"],
+      "parameters": {
+        "import": {
+          "file_format": { "type": "enum", "values": ["step", "stl", "iges", "parasolid"], "required": true },
+          "file_path": { "type": "string", "required": true }
+        },
+        "alignment": {
+          "align_method": { "type": "enum", "values": ["origin_match", "best_fit", "feature_align"], "default": "origin_match" },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.05 },
+          "iterative_closest_point": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "fixture_vise": {
+      "category": "fixture_definition",
+      "display_name": "Vise Fixture",
+      "description": "Standard vise (single station, double station, self-centering). Jaw collision envelope tracked.",
+      "parameter_count": 7,
+      "dialog_tabs": ["vise_type", "jaws", "envelope"],
+      "parameters": {
+        "vise_type": {
+          "vise_brand": { "type": "enum", "values": ["kurt", "snap_jaw", "mitee_bite", "schunk", "gerardi"], "required": true },
+          "jaw_width_mm": { "type": "number", "min": 50, "max": 500, "required": true },
+          "double_station": { "type": "boolean", "default": false }
+        },
+        "jaws": {
+          "jaw_type": { "type": "enum", "values": ["standard", "soft_aluminum", "soft_steel", "step_jaw", "machinable"], "default": "standard" },
+          "jaw_height_mm": { "type": "number", "min": 20, "max": 200, "required": true },
+          "grip_depth_mm": { "type": "number", "min": 5, "max": 50, "default": 10 }
+        },
+        "envelope": {
+          "include_collision_envelope": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "fixture_chuck": {
+      "category": "fixture_definition",
+      "display_name": "Chuck Fixture (3-jaw / 4-jaw / Collet)",
+      "description": "Lathe / mill-turn chuck. Collision envelope from chuck body + jaws.",
+      "parameter_count": 7,
+      "dialog_tabs": ["chuck", "jaws", "grip"],
+      "parameters": {
+        "chuck": {
+          "chuck_type": { "type": "enum", "values": ["3_jaw_self_centering", "4_jaw_independent", "collet_chuck", "magnetic"], "required": true },
+          "chuck_diameter_mm": { "type": "number", "min": 75, "max": 1000, "required": true }
+        },
+        "jaws": {
+          "jaw_count": { "type": "number", "min": 2, "max": 6, "default": 3 },
+          "jaw_height_mm": { "type": "number", "min": 20, "max": 200, "required": true },
+          "soft_jaws": { "type": "boolean", "default": false }
+        },
+        "grip": {
+          "grip_diameter_mm": { "type": "number", "min": 5, "max": 500, "required": true },
+          "grip_length_mm": { "type": "number", "min": 5, "max": 100, "default": 15 }
+        }
+      }
+    },
+    "stock_track_residue": {
+      "category": "stock_tracking",
+      "display_name": "Stock Residue Tracking (Per Operation)",
+      "description": "Maintain volumetric stock model after each operation. Drives rest machining and collision avoidance.",
+      "parameter_count": 5,
+      "dialog_tabs": ["resolution", "tracking"],
+      "parameters": {
+        "resolution": {
+          "voxel_size_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.5 },
+          "polygon_export": { "type": "boolean", "default": false }
+        },
+        "tracking": {
+          "track_per_operation": { "type": "boolean", "default": true },
+          "save_intermediate_stl": { "type": "boolean", "default": false },
+          "export_residue_min_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.1 }
+        }
+      }
+    },
+    "clamp_strategy_macro": {
+      "category": "clamping_strategy",
+      "display_name": "Clamp Repositioning Macro",
+      "description": "Re-clamp from front to back face. Auto-generated G-code break + operator step + restart logic.",
+      "parameter_count": 5,
+      "dialog_tabs": ["sequence", "verification"],
+      "parameters": {
+        "sequence": {
+          "first_clamp_face": { "type": "enum", "values": ["bottom", "front", "left", "right"], "required": true },
+          "second_clamp_face": { "type": "enum", "values": ["top", "back", "right", "left"], "required": true },
+          "reposition_macro_id": { "type": "string", "required": true }
+        },
+        "verification": {
+          "require_probing_after_reclamp": { "type": "boolean", "default": true },
+          "wcs_recompute": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Stock Offsets for Roughing Pass",
+      "key_concepts": ["XY offset 2mm minimum for parting witness", "Z-top offset 1mm for facing pass"],
+      "best_practices": ["Increase offset to 5mm for cast/forged stock to absorb scale"]
+    },
+    {
+      "topic": "Voxel Resolution for Rest Machining",
+      "key_concepts": ["0.5mm voxel = adequate for general work", "0.1mm voxel = finishing quality"],
+      "best_practices": ["Smaller voxel = exponentially more memory; pick smallest tool radius / 4"]
+    },
+    {
+      "topic": "Reclamp Probing Discipline",
+      "key_concepts": ["Always probe after reclamp", "WCS recompute mandatory", "Auto-generated reposition macros prevent operator error"],
+      "best_practices": ["Block program until probe results within tolerance"]
+    }
+  ]
+}

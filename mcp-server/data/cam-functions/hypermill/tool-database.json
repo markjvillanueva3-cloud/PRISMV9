@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "tool_database",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL 2024 Tool Database & TDM Reference",
+  "categories": ["tool_definition", "tool_assembly", "tool_measurement", "tool_lifecycle", "library_io"],
+  "operations": {
+    "tool_define_milling": {
+      "category": "tool_definition",
+      "display_name": "Define Milling Tool",
+      "description": "Create endmill / ballnose / bullnose / chamfer / drill / tap / face mill record. Geometry + cutting data per material.",
+      "parameter_count": 12,
+      "dialog_tabs": ["geometry", "cutting_data", "holder"],
+      "parameters": {
+        "geometry": {
+          "tool_type": { "type": "enum", "values": ["endmill", "ballnose", "bullnose", "chamfer", "drill", "tap", "face_mill", "thread_mill"], "required": true },
+          "diameter_mm": { "type": "number", "min": 0.1, "max": 200, "required": true },
+          "corner_radius_mm": { "type": "number", "min": 0, "max": 25, "default": 0 },
+          "flute_count": { "type": "number", "min": 1, "max": 12, "default": 4 },
+          "flute_length_mm": { "type": "number", "min": 1, "max": 300, "required": true },
+          "overall_length_mm": { "type": "number", "min": 5, "max": 500, "required": true }
+        },
+        "cutting_data": {
+          "material_group_iso": { "type": "enum", "values": ["P", "M", "K", "N", "S", "H"], "required": true },
+          "cutting_speed_m_min": { "type": "number", "min": 5, "max": 2000, "required": true },
+          "feed_per_tooth_mm": { "type": "number", "min": 0.001, "max": 1, "required": true },
+          "max_depth_of_cut_mm": { "type": "number", "min": 0.05, "max": 50, "required": true }
+        },
+        "holder": {
+          "holder_id": { "type": "string", "required": true },
+          "stickout_mm": { "type": "number", "min": 5, "max": 300, "required": true }
+        }
+      }
+    },
+    "tool_assembly_build": {
+      "category": "tool_assembly",
+      "display_name": "Build Tool Assembly (Tool + Holder + Adapter)",
+      "description": "Combine tool, holder, and adapter into a complete assembly for collision and reach checks.",
+      "parameter_count": 9,
+      "dialog_tabs": ["tool", "holder", "adapter", "envelope"],
+      "parameters": {
+        "tool": {
+          "tool_id": { "type": "string", "required": true }
+        },
+        "holder": {
+          "holder_type": { "type": "enum", "values": ["er_collet", "shrink_fit", "hydraulic", "weldon", "milling_chuck"], "required": true },
+          "holder_id": { "type": "string", "required": true }
+        },
+        "adapter": {
+          "adapter_type": { "type": "enum", "values": ["hsk_a63", "hsk_a100", "bt30", "bt40", "bt50", "capto_c5", "capto_c6"], "required": true },
+          "adapter_id": { "type": "string", "required": true }
+        },
+        "envelope": {
+          "stickout_mm": { "type": "number", "min": 5, "max": 300, "required": true },
+          "lower_taper_dia_mm": { "type": "number", "min": 5, "max": 100, "required": true },
+          "upper_taper_dia_mm": { "type": "number", "min": 5, "max": 150, "required": true },
+          "collision_envelope_step_mm": { "type": "number", "min": 0.1, "max": 5, "default": 0.5 }
+        }
+      }
+    },
+    "tool_measure_presetter": {
+      "category": "tool_measurement",
+      "display_name": "Import Presetter Measurement (Zoller / Speroni)",
+      "description": "Import measured length, diameter, runout from external presetter via TDM or DNC link.",
+      "parameter_count": 8,
+      "dialog_tabs": ["source", "import", "validation"],
+      "parameters": {
+        "source": {
+          "presetter_brand": { "type": "enum", "values": ["zoller", "speroni", "haimer", "kelch", "parlec", "bigkaiser"], "required": true },
+          "import_format": { "type": "enum", "values": ["dnc", "csv", "xml", "iso13399_step"], "required": true }
+        },
+        "import": {
+          "tool_id": { "type": "string", "required": true },
+          "measured_length_mm": { "type": "number", "min": 5, "max": 500, "required": true },
+          "measured_diameter_mm": { "type": "number", "min": 0.1, "max": 200, "required": true },
+          "measured_runout_um": { "type": "number", "min": 0, "max": 100, "required": true }
+        },
+        "validation": {
+          "max_runout_threshold_um": { "type": "number", "min": 1, "max": 50, "default": 10 },
+          "diameter_tolerance_um": { "type": "number", "min": 1, "max": 100, "default": 20 }
+        }
+      }
+    },
+    "tool_wear_track": {
+      "category": "tool_lifecycle",
+      "display_name": "Tool Wear & Life Tracking",
+      "description": "Track cumulative cut time, parts machined, and remaining life per tool.",
+      "parameter_count": 7,
+      "dialog_tabs": ["identity", "usage", "limits"],
+      "parameters": {
+        "identity": {
+          "tool_id": { "type": "string", "required": true },
+          "serial_number": { "type": "string", "required": true }
+        },
+        "usage": {
+          "cumulative_cut_time_min": { "type": "number", "min": 0, "max": 100000, "required": true },
+          "parts_machined": { "type": "number", "min": 0, "max": 1000000, "required": true },
+          "regrind_count": { "type": "number", "min": 0, "max": 20, "default": 0 }
+        },
+        "limits": {
+          "max_cut_time_min": { "type": "number", "min": 1, "max": 10000, "required": true },
+          "warning_threshold_pct": { "type": "number", "min": 50, "max": 95, "default": 85 }
+        }
+      }
+    },
+    "tool_library_export": {
+      "category": "library_io",
+      "display_name": "Export Tool Library (ISO 13399 / TDM)",
+      "description": "Export tool library to ISO 13399 STEP-compliant XML, TDM XML, or CAM-system-native (Mastercam, NX, Catia).",
+      "parameter_count": 6,
+      "dialog_tabs": ["selection", "format", "destination"],
+      "parameters": {
+        "selection": {
+          "include_assemblies": { "type": "boolean", "default": true },
+          "include_cutting_data": { "type": "boolean", "default": true },
+          "tool_filter": { "type": "string", "required": false }
+        },
+        "format": {
+          "export_format": { "type": "enum", "values": ["iso13399_step", "tdm_xml", "mastercam_tools", "nx_tools", "catia_tools", "csv"], "required": true }
+        },
+        "destination": {
+          "output_path": { "type": "string", "required": true },
+          "overwrite_existing": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "tool_library_import": {
+      "category": "library_io",
+      "display_name": "Import Tool Library",
+      "description": "Import tool library from ISO 13399 STEP, TDM XML, or other CAM systems with mapping rules.",
+      "parameter_count": 6,
+      "dialog_tabs": ["source", "mapping", "conflict"],
+      "parameters": {
+        "source": {
+          "import_format": { "type": "enum", "values": ["iso13399_step", "tdm_xml", "mastercam_tools", "nx_tools", "catia_tools", "csv"], "required": true },
+          "source_path": { "type": "string", "required": true }
+        },
+        "mapping": {
+          "auto_map_holder": { "type": "boolean", "default": true },
+          "default_iso_group": { "type": "enum", "values": ["P", "M", "K", "N", "S", "H"], "default": "P" }
+        },
+        "conflict": {
+          "on_duplicate": { "type": "enum", "values": ["skip", "overwrite", "rename"], "default": "skip" },
+          "validate_after_import": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "ISO 13399 Tool Data Exchange",
+      "key_concepts": ["STEP-compliant XML", "Cross-CAM portability", "Vendor-neutral tool data"],
+      "best_practices": ["Always export with cutting data", "Validate after import"]
+    },
+    {
+      "topic": "Tool Assembly Envelope for Collision Checks",
+      "key_concepts": ["Stickout drives reach", "Holder lower taper drives clearance", "Adapter type fixes spindle interface"],
+      "best_practices": ["Step ≤0.5mm for high-fidelity collision check"]
+    },
+    {
+      "topic": "Presetter Runout Threshold",
+      "key_concepts": ["≤10 μm runout for finishing tools", "≤25 μm acceptable for roughing"],
+      "best_practices": ["Reject any finishing tool above 10 μm", "Track runout drift over regrinds"]
+    }
+  ]
+}

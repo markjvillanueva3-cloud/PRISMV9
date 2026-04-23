@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL 2024 — Modern Flat-Schema Aggregator",
+  "description": "Unified index over 7 modern flat-schema hyperMILL catalogs (2D/3D/Tool DB/Stock & Fixture/VIRTUAL Machining/AUTOMATION Center/Post Processor). Distinct from legacy module/menu/dialog catalogs (5axis-operations.json, maxx-machining.json, turning-operations.json, drilling-operations.json) which use a different schema and are aggregated by HyperMillFunctionIndexEngine.",
+  "sections": {
+    "2d_operations": {
+      "section_key": "2d_operations",
+      "catalog_path": "2d-operations.json",
+      "operations_count": 8,
+      "parameters_count": 91
+    },
+    "3d_operations": {
+      "section_key": "3d_operations",
+      "catalog_path": "3d-operations.json",
+      "operations_count": 6,
+      "parameters_count": 61
+    },
+    "tool_database": {
+      "section_key": "tool_database",
+      "catalog_path": "tool-database.json",
+      "operations_count": 6,
+      "parameters_count": 48
+    },
+    "stock_fixture": {
+      "section_key": "stock_fixture",
+      "catalog_path": "stock-fixture.json",
+      "operations_count": 7,
+      "parameters_count": 42
+    },
+    "virtual_machining": {
+      "section_key": "virtual_machining",
+      "catalog_path": "virtual-machining.json",
+      "operations_count": 6,
+      "parameters_count": 34
+    },
+    "automation_center": {
+      "section_key": "automation_center",
+      "catalog_path": "automation-center.json",
+      "operations_count": 6,
+      "parameters_count": 33
+    },
+    "post_processor": {
+      "section_key": "post_processor",
+      "catalog_path": "post-processor.json",
+      "operations_count": 6,
+      "parameters_count": 32
+    }
+  },
+  "totals": {
+    "section_count": 7,
+    "operations_count": 45,
+    "parameters_count": 341
+  },
+  "category_index": {
+    "pocketing": ["2d_operations"],
+    "contouring": ["2d_operations"],
+    "facing_chamfer": ["2d_operations"],
+    "engraving_marking": ["2d_operations"],
+    "roughing": ["3d_operations"],
+    "finishing": ["3d_operations"],
+    "rest_machining": ["3d_operations"],
+    "tool_definition": ["tool_database"],
+    "tool_assembly": ["tool_database"],
+    "tool_measurement": ["tool_database"],
+    "tool_lifecycle": ["tool_database"],
+    "library_io": ["tool_database"],
+    "stock_definition": ["stock_fixture"],
+    "fixture_definition": ["stock_fixture"],
+    "stock_tracking": ["stock_fixture"],
+    "clamping_strategy": ["stock_fixture"],
+    "machine_simulation": ["virtual_machining"],
+    "collision_check": ["virtual_machining"],
+    "optimization": ["virtual_machining"],
+    "verification": ["virtual_machining"],
+    "feature_recognition": ["automation_center"],
+    "macro_template": ["automation_center"],
+    "batch_processing": ["automation_center"],
+    "knowledge_capture": ["automation_center"],
+    "post_definition": ["post_processor"],
+    "controller_dialect": ["post_processor"],
+    "code_generation": ["post_processor"],
+    "verification_post": ["post_processor"]
+  }
+}

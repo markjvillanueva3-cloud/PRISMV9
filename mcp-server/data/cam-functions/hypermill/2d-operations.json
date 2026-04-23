@@ -1,0 +1,709 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "2d_operations",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL 2024 2D Module Reference",
+  "categories": [
+    "pocketing",
+    "contouring",
+    "facing_chamfer",
+    "engraving_marking"
+  ],
+  "operations": {
+    "pocket_2d_rough": {
+      "category": "pocketing",
+      "display_name": "2D Pocket Roughing",
+      "description": "2.5D pocket roughing with offset/zigzag fill, climb-only default. Workhorse for prismatic pockets.",
+      "parameter_count": 14,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "strategy",
+        "macros"
+      ],
+      "parameters": {
+        "geometry": {
+          "boundary": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "depth_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 200,
+            "required": true
+          },
+          "stock_top_z_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_corner_radius_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "strategy": {
+          "fill_pattern": {
+            "type": "enum",
+            "values": [
+              "offset",
+              "zigzag",
+              "spiral"
+            ],
+            "default": "offset"
+          },
+          "stepover_pct_dia": {
+            "type": "number",
+            "min": 5,
+            "max": 90,
+            "default": 50
+          },
+          "stepdown_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 25,
+            "default": 2
+          },
+          "stock_to_leave_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "default": 0.3
+          },
+          "climb_only": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "macros": {
+          "approach_macro": {
+            "type": "enum",
+            "values": [
+              "helical",
+              "ramp",
+              "plunge"
+            ],
+            "default": "helical"
+          },
+          "approach_helix_angle_deg": {
+            "type": "number",
+            "min": 1,
+            "max": 30,
+            "default": 5
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    },
+    "pocket_2d_finish": {
+      "category": "pocketing",
+      "display_name": "2D Pocket Finishing (Wall + Floor)",
+      "description": "Wall and floor finishing pass for a previously roughed pocket. Single-pass at finish stock.",
+      "parameter_count": 13,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "macros"
+      ],
+      "parameters": {
+        "geometry": {
+          "boundary": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_corner_radius_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "passes": {
+          "include_wall_pass": {
+            "type": "boolean",
+            "default": true
+          },
+          "include_floor_pass": {
+            "type": "boolean",
+            "default": true
+          },
+          "wall_finish_thickness_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "default": 0.3
+          },
+          "floor_finish_thickness_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 2,
+            "default": 0.1
+          },
+          "spring_passes": {
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "default": 1
+          }
+        },
+        "macros": {
+          "approach_macro": {
+            "type": "enum",
+            "values": [
+              "tangent_arc",
+              "vertical_arc"
+            ],
+            "default": "tangent_arc"
+          },
+          "lead_in_radius_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 10,
+            "default": 1
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    },
+    "contour_2d": {
+      "category": "contouring",
+      "display_name": "2D Contour Milling (Inside/Outside Profile)",
+      "description": "Contour milling along closed/open boundary. Side compensation: inside/outside/on-curve.",
+      "parameter_count": 12,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "strategy",
+        "macros"
+      ],
+      "parameters": {
+        "geometry": {
+          "drive_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "strategy": {
+          "side": {
+            "type": "enum",
+            "values": [
+              "inside",
+              "outside",
+              "on_curve"
+            ],
+            "default": "outside"
+          },
+          "stepdown_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 25,
+            "default": 2
+          },
+          "number_of_levels": {
+            "type": "number",
+            "min": 1,
+            "max": 999,
+            "default": 5
+          },
+          "stock_to_leave_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "default": 0
+          }
+        },
+        "macros": {
+          "approach_macro": {
+            "type": "enum",
+            "values": [
+              "tangent_arc",
+              "linear",
+              "vertical"
+            ],
+            "default": "tangent_arc"
+          },
+          "lead_in_radius_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 10,
+            "default": 1
+          },
+          "lead_in_distance_mm": {
+            "type": "number",
+            "min": 0.5,
+            "max": 50,
+            "default": 5
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    },
+    "facing_2d": {
+      "category": "facing_chamfer",
+      "display_name": "2D Facing (Top Surface)",
+      "description": "Face-mill stock top to target Z. Lace pattern with face mill default.",
+      "parameter_count": 10,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "strategy"
+      ],
+      "parameters": {
+        "geometry": {
+          "boundary": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "stock_top_z_mm": {
+            "type": "number",
+            "required": true
+          },
+          "target_z_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "insert_count": {
+            "type": "number",
+            "min": 1,
+            "max": 24,
+            "default": 5
+          }
+        },
+        "strategy": {
+          "pattern": {
+            "type": "enum",
+            "values": [
+              "lace",
+              "one_way"
+            ],
+            "default": "lace"
+          },
+          "stepover_pct_dia": {
+            "type": "number",
+            "min": 30,
+            "max": 90,
+            "default": 75
+          },
+          "stepdown_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 10,
+            "default": 2
+          },
+          "raster_angle_deg": {
+            "type": "number",
+            "min": 0,
+            "max": 180,
+            "default": 0
+          }
+        }
+      }
+    },
+    "chamfer_2d": {
+      "category": "facing_chamfer",
+      "display_name": "2D Chamfer (Edge Break)",
+      "description": "Chamfer edge along a curve at a fixed angle. Standard 45° default; supports asymmetric chamfers.",
+      "parameter_count": 10,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "chamfer"
+      ],
+      "parameters": {
+        "geometry": {
+          "edge_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "follow_direction": {
+            "type": "enum",
+            "values": [
+              "forward",
+              "reverse"
+            ],
+            "default": "forward"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_chamfer_angle_deg": {
+            "type": "number",
+            "min": 15,
+            "max": 75,
+            "default": 45
+          }
+        },
+        "chamfer": {
+          "chamfer_size_mm": {
+            "type": "number",
+            "min": 0.05,
+            "max": 5,
+            "default": 0.5
+          },
+          "depth_below_curve_mm": {
+            "type": "number",
+            "min": -5,
+            "max": 5,
+            "default": 0
+          },
+          "spring_passes": {
+            "type": "number",
+            "min": 0,
+            "max": 3,
+            "default": 0
+          },
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "vertical"
+            ],
+            "default": "tangent"
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    },
+    "engrave_2d": {
+      "category": "engraving_marking",
+      "display_name": "2D Engraving (Text / Curve)",
+      "description": "Engrave text or curve onto a flat or planar surface. Constant-Z scribe with V-bit or end mill.",
+      "parameter_count": 10,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "engrave"
+      ],
+      "parameters": {
+        "geometry": {
+          "engrave_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "engrave_z_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_tip_angle_deg": {
+            "type": "number",
+            "min": 30,
+            "max": 180,
+            "default": 90
+          }
+        },
+        "engrave": {
+          "depth_mm": {
+            "type": "number",
+            "min": 0.05,
+            "max": 5,
+            "default": 0.2
+          },
+          "single_pass": {
+            "type": "boolean",
+            "default": true
+          },
+          "constant_width": {
+            "type": "boolean",
+            "default": false
+          },
+          "feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    },
+    "t_slot_2d": {
+      "category": "contouring",
+      "display_name": "T-Slot Milling (2D Undercut)",
+      "description": "Undercut T-slot milling using a T-slot cutter. Single-pass at slot depth with axial offset for the wing cut.",
+      "parameter_count": 12,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "slot",
+        "macros"
+      ],
+      "parameters": {
+        "geometry": {
+          "centerline": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "slot_top_z_mm": {
+            "type": "number",
+            "required": true
+          },
+          "slot_depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_neck_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_cutting_height_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "slot": {
+          "slot_width_mm": {
+            "type": "number",
+            "min": 1,
+            "max": 100,
+            "required": true
+          },
+          "side_offset_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "default": 0
+          },
+          "feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "macros": {
+          "approach_macro": {
+            "type": "enum",
+            "values": [
+              "lateral",
+              "tangent_arc"
+            ],
+            "default": "lateral"
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    },
+    "deburring_2d": {
+      "category": "facing_chamfer",
+      "display_name": "2D Deburring (Edge Break Chain)",
+      "description": "Auto-detect part edges and apply a small chamfer/round break. Used as a finishing pass for hand-tool replacement.",
+      "parameter_count": 10,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "deburr"
+      ],
+      "parameters": {
+        "geometry": {
+          "part": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "min_edge_length_mm": {
+            "type": "number",
+            "min": 0.5,
+            "max": 100,
+            "default": 2
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_tip_angle_deg": {
+            "type": "number",
+            "min": 60,
+            "max": 180,
+            "default": 90
+          }
+        },
+        "deburr": {
+          "break_size_mm": {
+            "type": "number",
+            "min": 0.05,
+            "max": 2,
+            "default": 0.2
+          },
+          "skip_inside_corners": {
+            "type": "boolean",
+            "default": true
+          },
+          "skip_below_z_mm": {
+            "type": "number",
+            "default": -1000
+          },
+          "feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          },
+          "safe_z_mm": {
+            "type": "number",
+            "min": 0,
+            "max": 200,
+            "default": 25
+          }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Pocket Roughing — Climb Only Default",
+      "key_concepts": [
+        "Climb milling reduces tool wear and built-up edge",
+        "Conventional only acceptable on poor-rigidity setups",
+        "Helical entry safe for any pocket > tool diameter"
+      ],
+      "best_practices": [
+        "Default climb_only=true; switch only when explicitly needed",
+        "Use stock_to_leave 0.3mm to leave material for finish pass",
+        "Helix entry angle 3-5° for steel, up to 8° for aluminum"
+      ]
+    },
+    {
+      "topic": "Contour Side Compensation (G41/G42)",
+      "key_concepts": [
+        "side=inside maps to G41 (left of motion direction) for outside-pocket contour",
+        "side=outside maps to G42 (right of motion) for outside-profile contour",
+        "Tangent-arc lead-in eliminates the witness mark from a sudden side comp engagement"
+      ],
+      "best_practices": [
+        "Always tangent-arc lead-in for visible-surface contours",
+        "Lead-in radius ≥ 1mm to give controller time to engage comp",
+        "Spring passes (0.0mm side stock) clean up controller-induced over/undercut"
+      ]
+    },
+    {
+      "topic": "Engraving — V-bit vs End Mill",
+      "key_concepts": [
+        "V-bit engraves variable-width strokes from depth (single-line text)",
+        "End mill engraves constant-width strokes (machined fonts)",
+        "constant_width=true enables outline-trace mode for V-bits"
+      ],
+      "best_practices": [
+        "V-bit 90° or 60° for general engraving",
+        "End mill 0.5-2mm for industrial part marking",
+        "Use single_pass=true for engrave depths ≤ 0.5mm"
+      ]
+    },
+    {
+      "topic": "T-Slot Cutter Safety",
+      "key_concepts": [
+        "T-slot cutter has a thin neck that limits side load",
+        "Always plunge through a pre-milled access slot — never plunge into solid stock",
+        "Side_offset advances cut wing-by-wing to avoid full-flute load"
+      ],
+      "best_practices": [
+        "Pre-mill an access slot wider than tool diameter",
+        "Side_offset 0.0mm OK only on small T-slot widths (≤1.5×D)",
+        "Reduce feed by 50% when cutting both wings simultaneously"
+      ]
+    }
+  ]
+}

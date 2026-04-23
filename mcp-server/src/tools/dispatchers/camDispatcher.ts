@@ -108,6 +108,7 @@ import { ACTION_PM_FINISHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerM
 import { ACTION_PM_5AXISROBOT_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMill5AxisRobotFunctionIndexActionSchemas.js";
 import { ACTION_PM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillFunctionIndexActionSchemas.js";
 import { ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/catiaMachiningFunctionIndexActionSchemas.js";
+import { ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS } from "../../schemas/hypermillExtendedFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -182,6 +183,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_PM_5AXISROBOT_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_PM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -279,6 +281,7 @@ let _pmFinishingIndex: any;
 let _pm5AxisRobotIndex: any;
 let _pmUnifiedIndex: any;
 let _catiaMachIndex: any;
+let _hmExtIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -605,6 +608,7 @@ async function getEngine(name: string): Promise<any> {
     case "pm5AxisRobotIndex": return _pm5AxisRobotIndex ??= (await import("../../engines/PowerMill5AxisRobotFunctionIndexEngine.js")).PowerMill5AxisRobotFunctionIndexEngine;
     case "pmUnifiedIndex": return _pmUnifiedIndex ??= (await import("../../engines/PowerMillFunctionIndexEngine.js")).PowerMillFunctionIndexEngine;
     case "catiaMachIndex": return _catiaMachIndex ??= (await import("../../engines/CATIAMachiningFunctionIndexEngine.js")).CATIAMachiningFunctionIndexEngine;
+    case "hmExtIndex": return _hmExtIndex ??= (await import("../../engines/HypermillExtendedFunctionIndexEngine.js")).HypermillExtendedFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1286,6 +1290,7 @@ export const ACTIONS = [
   "pm_5axisrobot_index", "pm_5axisrobot_summary", "pm_5axisrobot_list_ops", "pm_5axisrobot_get_op", "pm_5axisrobot_by_category", "pm_5axisrobot_find_param", "pm_5axisrobot_recommend", "pm_5axisrobot_classify_kinematic", "pm_5axisrobot_singularity_check", "pm_5axisrobot_robot_reach",
   "pm_index_manifest", "pm_index_section_list", "pm_index_section_stats", "pm_index_all_ops", "pm_index_find_op", "pm_index_find_param", "pm_index_category_universe", "pm_index_recommend", "pm_index_validate",
   "catia_mach_index", "catia_mach_summary", "catia_mach_list_ops", "catia_mach_get_op", "catia_mach_by_category", "catia_mach_find_param", "catia_mach_recommend", "catia_mach_classify_tolerance", "catia_mach_select_plan", "catia_mach_delmia_coverage",
+  "hm_ext_index", "hm_ext_summary", "hm_ext_list_sections", "hm_ext_section_stats", "hm_ext_list_ops", "hm_ext_find_op", "hm_ext_find_param", "hm_ext_categories", "hm_ext_recommend", "hm_ext_consistency",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7517,6 +7522,59 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "catia_mach_delmia_coverage": {
             const eng = await getEngine("catiaMachIndex");
             result = eng.delmiaSimulationCoverage(params.toolpath_length_mm, params.sample_step_mm);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM48: HypermillExtendedFunctionIndexEngine ──
+          case "hm_ext_index": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.getManifest();
+            break;
+          }
+          case "hm_ext_summary": {
+            const eng = await getEngine("hmExtIndex");
+            const manifest = eng.getManifest();
+            result = { totals: manifest.totals, section_count: Object.keys(manifest.sections).length };
+            break;
+          }
+          case "hm_ext_list_sections": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.getSectionList();
+            break;
+          }
+          case "hm_ext_section_stats": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.getSectionStats(params.section_key);
+            break;
+          }
+          case "hm_ext_list_ops": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.getAllOperations();
+            break;
+          }
+          case "hm_ext_find_op": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.findOperation(params.operation_id);
+            break;
+          }
+          case "hm_ext_find_param": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.findParameterAcrossSections(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "hm_ext_categories": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.getCategoryUniverse();
+            break;
+          }
+          case "hm_ext_recommend": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.recommendForFeature(params.feature, params.hint);
+            break;
+          }
+          case "hm_ext_consistency": {
+            const eng = await getEngine("hmExtIndex");
+            result = eng.validateConsistency();
             break;
           }
 

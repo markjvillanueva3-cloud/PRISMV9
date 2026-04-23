@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "section_key": "post_processor",
+  "version": "2024",
+  "extracted_from": "OPEN MIND hyperMILL Post Processor 2024 Reference",
+  "categories": ["post_definition", "controller_dialect", "code_generation", "verification"],
+  "operations": {
+    "post_define": {
+      "category": "post_definition",
+      "display_name": "Define Post Processor (Machine + Controller)",
+      "description": "Bind post script to machine kinematics and controller. Per-controller dialect (Heidenhain, Fanuc, Siemens, Mazak).",
+      "parameter_count": 7,
+      "dialog_tabs": ["binding", "dialect", "macros"],
+      "parameters": {
+        "binding": {
+          "machine_id": { "type": "string", "required": true },
+          "controller_id": { "type": "string", "required": true }
+        },
+        "dialect": {
+          "controller_dialect": { "type": "enum", "values": ["heidenhain_tnc640", "heidenhain_tnc7", "fanuc_31i", "fanuc_30i", "siemens_840d_sl", "siemens_one", "mazatrol_smooth_x", "okuma_osp_p300"], "required": true },
+          "metric_units": { "type": "boolean", "default": true }
+        },
+        "macros": {
+          "use_canned_cycles": { "type": "boolean", "default": true },
+          "use_subprograms": { "type": "boolean", "default": true },
+          "use_g68_2_tilted_plane": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "post_dialect_heidenhain": {
+      "category": "controller_dialect",
+      "display_name": "Heidenhain TNC Dialect Settings",
+      "description": "Conversational vs ISO output, FK programming, M128/M129 (TCPM), CYCL DEF format.",
+      "parameter_count": 5,
+      "dialog_tabs": ["format", "cycles"],
+      "parameters": {
+        "format": {
+          "output_mode": { "type": "enum", "values": ["conversational", "iso_din"], "default": "conversational" },
+          "use_fk_programming": { "type": "boolean", "default": false }
+        },
+        "cycles": {
+          "use_tcpm_m128": { "type": "boolean", "default": true },
+          "cycl_def_format_version": { "type": "enum", "values": ["v1", "v2", "v3"], "default": "v3" },
+          "use_dynamic_collision_monitoring": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "post_dialect_fanuc": {
+      "category": "controller_dialect",
+      "display_name": "Fanuc Dialect Settings",
+      "description": "G-code style (modal/non-modal), G43.4 vs G43.5 RTCP, macro variable conventions, custom subprograms.",
+      "parameter_count": 5,
+      "dialog_tabs": ["format", "rtcp", "macro"],
+      "parameters": {
+        "format": {
+          "decimal_format": { "type": "enum", "values": ["3.3", "4.3", "5.3"], "default": "4.3" }
+        },
+        "rtcp": {
+          "rtcp_mode": { "type": "enum", "values": ["g43_4", "g43_5", "none"], "default": "g43_4" },
+          "tilted_plane_g68_2": { "type": "boolean", "default": true }
+        },
+        "macro": {
+          "macro_var_start": { "type": "number", "min": 100, "max": 999, "default": 500 },
+          "use_subprograms_below_pct_repeat": { "type": "number", "min": 5, "max": 50, "default": 15 }
+        }
+      }
+    },
+    "post_generate_program": {
+      "category": "code_generation",
+      "display_name": "Generate NC Program",
+      "description": "Run post on operation chain → emit machine-ready G-code. Compute estimated cycle time.",
+      "parameter_count": 6,
+      "dialog_tabs": ["scope", "options", "output"],
+      "parameters": {
+        "scope": {
+          "operation_id_start": { "type": "string", "required": true },
+          "operation_id_end": { "type": "string", "required": false }
+        },
+        "options": {
+          "include_setup_sheet": { "type": "boolean", "default": true },
+          "include_cycle_time_estimate": { "type": "boolean", "default": true }
+        },
+        "output": {
+          "output_file": { "type": "string", "required": true },
+          "encoding": { "type": "enum", "values": ["ascii", "utf_8", "iso_8859_1"], "default": "ascii" }
+        }
+      }
+    },
+    "post_split_setups": {
+      "category": "code_generation",
+      "display_name": "Split Program by Setup",
+      "description": "Emit separate program file per setup or per pallet position. Auto-name with WCS.",
+      "parameter_count": 4,
+      "dialog_tabs": ["split", "naming"],
+      "parameters": {
+        "split": {
+          "split_by": { "type": "enum", "values": ["setup", "pallet", "fixture", "wcs"], "default": "setup" }
+        },
+        "naming": {
+          "prefix": { "type": "string", "default": "JOB" },
+          "use_wcs_in_filename": { "type": "boolean", "default": true },
+          "extension": { "type": "enum", "values": [".nc", ".tap", ".h", ".mpf"], "default": ".nc" }
+        }
+      }
+    },
+    "post_verify_simulate": {
+      "category": "verification",
+      "display_name": "Post-Generated Code Backplot",
+      "description": "Simulate the actual posted G-code (not the toolpath) to verify post correctness.",
+      "parameter_count": 5,
+      "dialog_tabs": ["scope", "checks"],
+      "parameters": {
+        "scope": {
+          "input_nc_file": { "type": "string", "required": true },
+          "machine_id": { "type": "string", "required": true }
+        },
+        "checks": {
+          "verify_modal_state": { "type": "boolean", "default": true },
+          "check_axis_limits": { "type": "boolean", "default": true },
+          "check_rapid_collisions": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "RTCP Mode Selection (Fanuc)",
+      "key_concepts": ["G43.4 = ISO compliant, type-1 RTCP", "G43.5 = type-2, axis-vector form, less common"],
+      "best_practices": ["Default to G43.4 unless machine docs require G43.5"]
+    },
+    {
+      "topic": "Heidenhain TCPM (M128/M129)",
+      "key_concepts": ["M128 = enable TCPM", "M129 = disable", "Always pair correctly to prevent rotary drift"],
+      "best_practices": ["Wrap each tilt operation in M128…M129"]
+    },
+    {
+      "topic": "Subprogram Threshold",
+      "key_concepts": ["Repeating ≥15% of program → use subprogram", "Reduces program size, improves controller load times"],
+      "best_practices": ["Don't sub for ≤3 repetitions; overhead outweighs gain"]
+    }
+  ]
+}
