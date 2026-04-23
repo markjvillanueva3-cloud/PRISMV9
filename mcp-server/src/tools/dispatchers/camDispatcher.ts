@@ -95,6 +95,7 @@ import { ACTION_LATHE_MASTERPOST_API_SCHEMAS } from "../../schemas/latheMasterPo
 import { ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS } from "../../schemas/fusion360FunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam25DFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_IMACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamIMachiningFunctionIndexActionSchemas.js";
+import { ACTION_SOLIDCAM_3D_HSS_HSR_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam3DHSSHSRFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -155,6 +156,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_IMACHINING_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_SOLIDCAM_3D_HSS_HSR_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -237,6 +239,8 @@ let _solidcamCodeGen: any;
 let _solidcam25dIndex: any;
 // CAM-EXHAUST-MS0/U-CAM34 — SolidCAMIMachiningFunctionIndexEngine singleton
 let _solidcamIMachiningIndex: any;
+// CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine singleton
+let _solidcam3DHSSHSRIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -548,6 +552,8 @@ async function getEngine(name: string): Promise<any> {
     case "solidcam25dIndex": return _solidcam25dIndex ??= (await import("../../engines/SolidCAM25DFunctionIndexEngine.js")).SolidCAM25DFunctionIndexEngine;
     // CAM-EXHAUST-MS0/U-CAM34 — SolidCAMIMachiningFunctionIndexEngine
     case "solidcamIMachiningIndex": return _solidcamIMachiningIndex ??= (await import("../../engines/SolidCAMIMachiningFunctionIndexEngine.js")).SolidCAMIMachiningFunctionIndexEngine;
+    // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine
+    case "solidcam3DHSSHSRIndex": return _solidcam3DHSSHSRIndex ??= (await import("../../engines/SolidCAM3DHSSHSRFunctionIndexEngine.js")).SolidCAM3DHSSHSRFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1211,6 +1217,8 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine (6 actions)
   "solidcam_25d_index", "solidcam_25d_summary", "solidcam_25d_list_ops", "solidcam_25d_get_op", "solidcam_25d_by_category", "solidcam_25d_imachining",
   "solidcam_imachining_index", "solidcam_imachining_summary", "solidcam_imachining_list_ops", "solidcam_imachining_get_op", "solidcam_imachining_by_category", "solidcam_imachining_wizard", "solidcam_imachining_find_param",
+  // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine (8 actions)
+  "solidcam_3d_hss_hsr_index", "solidcam_3d_hss_hsr_summary", "solidcam_3d_hss_hsr_list_ops", "solidcam_3d_hss_hsr_get_op", "solidcam_3d_hss_hsr_by_category", "solidcam_3d_hss_hsr_find_param", "solidcam_3d_hss_hsr_recommend", "solidcam_3d_hss_hsr_step_from_scallop",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -6583,6 +6591,49 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_imachining_find_param": {
             const eng = await getEngine("solidcamIMachiningIndex");
             result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM35: SolidCAM3DHSSHSRFunctionIndexEngine ──
+          case "solidcam_3d_hss_hsr_index": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_3d_hss_hsr_summary": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_3d_hss_hsr_list_ops": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_3d_hss_hsr_get_op": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_3d_hss_hsr_by_category": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_3d_hss_hsr_find_param": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "solidcam_3d_hss_hsr_recommend": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.recommendStrategy(params.wall_angle_deg, params.geometry_hint);
+            break;
+          }
+          case "solidcam_3d_hss_hsr_step_from_scallop": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            const step = eng.stepOverFromScallop(params.tool_radius_mm, params.scallop_height_mm);
+            result = { step_over_mm: step, valid: step !== null };
             break;
           }
 

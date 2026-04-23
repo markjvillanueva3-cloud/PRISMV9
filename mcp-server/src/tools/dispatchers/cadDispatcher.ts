@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -48,6 +48,7 @@ async function getEngine(name: string): Promise<any> {
     case "cadPipeline": return _cadPipeline ??= (await import("../../engines/CADTrainingPipelineOrchestratorEngine.js")).cadTrainingPipelineOrchestratorEngine;
     case "cadRegenTest": return _cadRegenTest ??= (await import("../../engines/CADRegenerationTestEngine.js")).cadRegenerationTestEngine;
     case "geoCompare": return _geoCompare ??= (await import("../../engines/CADGeometryComparisonEngine.js")).cadGeometryComparisonEngine;
+    case "cadRegistry": return _cadRegistry ??= (await import("../../engines/UniversalCADIndexEngine.js")).universalCADIndexEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -120,6 +121,8 @@ const ACTIONS = [
   // CAD Geometry Comparison Engine (U-CADC26)
   "geometry_compare_files", "geometry_extract_metrics", "geometry_batch_compare",
   "geometry_set_thresholds", "geometry_format_detect",
+  // Universal CAD Registry (U-CADC03)
+  "cad_registry_scan", "cad_registry_search", "cad_registry_get", "cad_registry_stats",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1045,6 +1048,44 @@ Params vary by action — pass relevant fields in params object.`,
               const format = engine.detectFormat(filePath);
               result = { success: true, format, path: filePath };
             }
+            break;
+          }
+          // ── Universal CAD Registry (U-CADC03) ──────────────────────────────
+          case "cad_registry_scan": {
+            const engine = await getEngine("cadRegistry");
+            const rootPaths = params?.root_paths ?? params?.rootPaths;
+            const options = params?.options ?? {};
+            const scanResult = await engine.scan(rootPaths, options);
+            result = { success: true, ...scanResult };
+            break;
+          }
+          case "cad_registry_search": {
+            const engine = await getEngine("cadRegistry");
+            const query = params?.query ?? params?.name ?? "";
+            const format = params?.format;
+            const customer = params?.customer;
+            const limit = params?.limit ?? 50;
+            const searchResult = engine.search({ query, format, customer, limit });
+            result = { success: true, ...searchResult };
+            break;
+          }
+          case "cad_registry_get": {
+            const engine = await getEngine("cadRegistry");
+            const filePath = params?.file_path ?? params?.filePath ?? params?.path;
+            if (!filePath) {
+              result = { success: false, error: "file_path required" };
+            } else {
+              const entry = engine.get(filePath);
+              result = entry
+                ? { success: true, entry }
+                : { success: false, error: `File not in registry: ${filePath}` };
+            }
+            break;
+          }
+          case "cad_registry_stats": {
+            const engine = await getEngine("cadRegistry");
+            const stats = engine.stats();
+            result = { success: true, ...stats };
             break;
           }
           default:
