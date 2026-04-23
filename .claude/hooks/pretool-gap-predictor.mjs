@@ -133,10 +133,7 @@ async function main() {
   }
 
   console.log(
-    JSON.stringify({
-      continue: true,
-      message: formatMessage(hits, filePath),
-    })
+    JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: formatMessage(hits, filePath), } })
   );
 }
 

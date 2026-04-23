@@ -193,10 +193,7 @@ function main() {
     "Proceeding anyway. Consider coordinating via state/shared/AGENT_CHAT.md",
   ].join("\n");
 
-  console.log(JSON.stringify({
-    continue: true,
-    message: msg,
-  }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: msg, } }));
 }
 
 main();
