@@ -13,7 +13,7 @@ const input = JSON.parse(readFileSync(0, 'utf8'));
 const { tool_name, tool_input } = input;
 
 if (tool_name !== 'Grep') {
-  console.log(JSON.stringify({ decision: 'allow' }));
+  console.log(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
@@ -85,7 +85,7 @@ if (suggestions.length > 0) {
   const last = state[key] || 0;
   const now = Date.now();
   if (now - last < RATE_WINDOW_MS) {
-    console.log(JSON.stringify({ decision: 'allow' }));
+    console.log(JSON.stringify({ continue: true }));
     process.exit(0);
   }
   state[key] = now;
@@ -101,10 +101,7 @@ if (suggestions.length > 0) {
     `  Checking indexes first can save 50-80% tokens vs full grep.`,
   ].join('\n');
 
-  console.log(JSON.stringify({
-    decision: 'allow',
-    message
-  }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: message } }));
 } else {
-  console.log(JSON.stringify({ decision: 'allow' }));
+  console.log(JSON.stringify({ continue: true }));
 }

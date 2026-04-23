@@ -13,7 +13,7 @@ const input = JSON.parse(readFileSync(0, 'utf8'));
 const { tool_name, tool_input } = input;
 
 if (tool_name !== 'Bash') {
-  console.log(JSON.stringify({ decision: 'allow' }));
+  console.log(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
@@ -33,7 +33,7 @@ const command = tool_input?.command || '';
 
 // Already using rtk
 if (command.trim().startsWith('rtk ')) {
-  console.log(JSON.stringify({ decision: 'allow' }));
+  console.log(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
@@ -60,7 +60,7 @@ for (const { pattern, savings, cmd } of rtkCandidates) {
     const key = cmd;
     const last = rateState[key] || 0;
     if (now - last < RATE_WINDOW_MS) {
-      console.log(JSON.stringify({ decision: 'allow' }));
+      console.log(JSON.stringify({ continue: true }));
       process.exit(0);
     }
     rateState[key] = now;
@@ -86,12 +86,9 @@ for (const { pattern, savings, cmd } of rtkCandidates) {
       `  RTK strips verbose output, keeps actionable info.`,
     ].join('\n');
 
-    console.log(JSON.stringify({
-      decision: 'allow',
-      message
-    }));
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: message } }));
     process.exit(0);
   }
 }
 
-console.log(JSON.stringify({ decision: 'allow' }));
+console.log(JSON.stringify({ continue: true }));

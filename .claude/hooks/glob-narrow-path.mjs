@@ -14,7 +14,7 @@ const input = JSON.parse(readFileSync(0, 'utf8'));
 const { tool_name, tool_input } = input;
 
 if (tool_name !== 'Glob') {
-  console.log(JSON.stringify({ decision: 'allow' }));
+  console.log(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
@@ -73,7 +73,7 @@ if (warnings.length > 0 || suggestions.length > 0) {
   const key = pattern;
   const now = Date.now();
   if (now - (rateState[key] || 0) < RATE_WINDOW_MS) {
-    console.log(JSON.stringify({ decision: 'allow' }));
+    console.log(JSON.stringify({ continue: true }));
     process.exit(0);
   }
   rateState[key] = now;
@@ -91,10 +91,7 @@ if (warnings.length > 0 || suggestions.length > 0) {
     '  Token impact: Broad globs can return 1000s of files, wasting context.',
   ].filter(Boolean).join('\n');
 
-  console.log(JSON.stringify({
-    decision: 'allow',
-    message
-  }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: message } }));
 } else {
-  console.log(JSON.stringify({ decision: 'allow' }));
+  console.log(JSON.stringify({ continue: true }));
 }

@@ -988,6 +988,7 @@ export const ACTIONS = [
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
+  "lathe_p2p_kg_ingest", "lathe_p2p_kg_find_similar", "lathe_p2p_kg_tools_for_material", "lathe_p2p_kg_customer_jobs", "lathe_p2p_kg_failures", "lathe_p2p_kg_stats", "lathe_p2p_kg_export", "lathe_p2p_kg_import", "lathe_p2p_kg_traverse", "lathe_p2p_kg_clear",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -3857,6 +3858,88 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintToProgramReasoningEngine.js"
             );
             result = lathePrintToProgramReasoningEngine.summarizeModes(params.trace);
+            break;
+          }
+
+          case "lathe_p2p_kg_ingest": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = lathePrintToProgramKnowledgeGraphEngine.ingest(params.input);
+            break;
+          }
+
+          case "lathe_p2p_kg_find_similar": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = lathePrintToProgramKnowledgeGraphEngine.findSimilarJobs(params.query);
+            break;
+          }
+
+          case "lathe_p2p_kg_tools_for_material": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = { tools: lathePrintToProgramKnowledgeGraphEngine.findToolsForMaterial(params.iso_group) };
+            break;
+          }
+
+          case "lathe_p2p_kg_customer_jobs": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = { jobs: lathePrintToProgramKnowledgeGraphEngine.findJobsForCustomer(params.customer_name) };
+            break;
+          }
+
+          case "lathe_p2p_kg_failures": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = { failures: lathePrintToProgramKnowledgeGraphEngine.findFailedJobs() };
+            break;
+          }
+
+          case "lathe_p2p_kg_stats": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = lathePrintToProgramKnowledgeGraphEngine.getStats();
+            break;
+          }
+
+          case "lathe_p2p_kg_export": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = lathePrintToProgramKnowledgeGraphEngine.exportGraph();
+            break;
+          }
+
+          case "lathe_p2p_kg_import": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            lathePrintToProgramKnowledgeGraphEngine.importGraph(params.snapshot);
+            result = { imported: true };
+            break;
+          }
+
+          case "lathe_p2p_kg_traverse": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            result = { nodes: lathePrintToProgramKnowledgeGraphEngine.traverse(params.node_id, params.max_depth ?? 2) };
+            break;
+          }
+
+          case "lathe_p2p_kg_clear": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import(
+              "../../engines/LathePrintToProgramKnowledgeGraphEngine.js"
+            );
+            lathePrintToProgramKnowledgeGraphEngine.clear();
+            result = { cleared: true };
             break;
           }
 
