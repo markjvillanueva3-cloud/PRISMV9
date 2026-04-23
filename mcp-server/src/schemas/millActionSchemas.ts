@@ -672,6 +672,30 @@ const fiveAxisToolSchema = z.object({
   gauge_length_mm: z.number().positive(),
 });
 
+// ============================================================================
+// P4-U13-TRIBAL: Mill tribal integration schema
+// ============================================================================
+
+const tribalIntegrateOp = z.enum(["adjust", "check_failures", "statistics", "integrate"]).describe("Tribal integration operation");
+
+const tribalMaterialIso = z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group");
+
+const tribalOpType = z.enum([
+  "face", "rough_profile", "finish_profile", "rough_pocket", "finish_pocket",
+  "drill", "peck_drill", "spot_drill", "tap", "chamfer", "contour",
+]).describe("Milling operation family understood by the tribal rule set");
+
+const mill_tribal_integrate = z.object({
+  op: tribalIntegrateOp,
+  material_iso: tribalMaterialIso.optional().describe("Material group (required for op=adjust / check_failures)"),
+  operation_type: tribalOpType.optional().describe("Operation type (required for op=adjust / check_failures)"),
+  tool_type: z.string().optional().describe("Tool family (defaults to flat_endmill for op=adjust)"),
+  tool_diameter_mm: optPosNum.describe("Tool diameter in mm (defaults to 12 for op=adjust)"),
+  rpm: z.number().nonnegative().optional().describe("Current RPM for op=check_failures"),
+  feed: z.number().nonnegative().optional().describe("Current feed (mm/min) for op=check_failures"),
+  doc: z.number().nonnegative().optional().describe("Current depth of cut (mm) for op=check_failures"),
+}).passthrough();
+
 const mill_five_axis_decide = z.object({
   ...millContext,
   part_features: z.array(partFeatureSchema),
@@ -770,4 +794,6 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_program_optimize,
   // P4-U12-5AX-DEC: Five-axis decision
   mill_five_axis_decide,
+  // P4-U13-TRIBAL: Mill tribal integration
+  mill_tribal_integrate,
 };

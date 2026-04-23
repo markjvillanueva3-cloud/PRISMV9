@@ -183,6 +183,13 @@ async function getFiveAxisDecisionEngine(): Promise<any> {
     .FiveAxisDecisionEngine);
 }
 
+// P4-U13-TRIBAL: Mill tribal integration engine lazy loader
+let _millTribalIntegration: any;
+async function getMillTribalIntegration(): Promise<any> {
+  return (_millTribalIntegration ??= (await import("../../engines/MillTribalIntegrationEngine.js"))
+    .millTribalIntegrationEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -225,6 +232,8 @@ const ACTIONS = [
   "mill_program_optimize",
   // P4-U12-5AX-DEC: Five-axis decision
   "mill_five_axis_decide",
+  // P4-U13-TRIBAL: Mill tribal integration
+  "mill_tribal_integrate",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -857,6 +866,36 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
         use_llm_reasoning: params.use_llm_reasoning ?? false,
       };
       return DecisionCls.decide(input);
+    }
+
+    // ── P4-U13-TRIBAL: Mill tribal integration ────────────────
+    case "mill_tribal_integrate": {
+      const tribal = await getMillTribalIntegration();
+      const op = params.op as string;
+      if (op === "statistics") return tribal.getStatistics();
+      if (op === "integrate") return await tribal.integrateWithTraining();
+      if (op === "adjust") {
+        const mat = params.material_iso as string;
+        const opType = params.operation_type as string;
+        const toolType = (params.tool_type as string) ?? "flat_endmill";
+        const dia = typeof params.tool_diameter_mm === "number" ? params.tool_diameter_mm : 12;
+        if (typeof mat !== "string" || typeof opType !== "string") {
+          return { error: "mill_tribal_integrate op=adjust requires material_iso + operation_type" };
+        }
+        return tribal.getAdjustment(mat, opType, toolType, dia);
+      }
+      if (op === "check_failures") {
+        const mat = params.material_iso as string;
+        const opType = params.operation_type as string;
+        const rpm = Number(params.rpm ?? 0);
+        const feed = Number(params.feed ?? 0);
+        const doc = Number(params.doc ?? 0);
+        if (typeof mat !== "string" || typeof opType !== "string") {
+          return { error: "mill_tribal_integrate op=check_failures requires material_iso + operation_type" };
+        }
+        return { failure_modes: tribal.checkFailureModes(mat, opType, rpm, feed, doc) };
+      }
+      return { error: `Unknown op for mill_tribal_integrate: ${op}` };
     }
 
     default:
