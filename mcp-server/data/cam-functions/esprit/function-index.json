@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "version": "2024",
+  "extracted_from": "Hexagon ESPRIT TNG / ESPRIT Classic 2024 — Unified Section Aggregator",
+  "description": "Unified index over 4 ESPRIT section catalogs: milling, lathe_millturn, wire_edm, knowledge_based_machining. Thin manifest pointing to per-section JSON. Cross-section operation_id duplicate detection via validateConsistency.",
+  "sections": {
+    "milling": {
+      "section_key": "milling",
+      "catalog_path": "milling.json",
+      "operations_count": 8,
+      "parameters_count": 87
+    },
+    "lathe_millturn": {
+      "section_key": "lathe_millturn",
+      "catalog_path": "lathe-millturn.json",
+      "operations_count": 9,
+      "parameters_count": 85
+    },
+    "wire_edm": {
+      "section_key": "wire_edm",
+      "catalog_path": "wire-edm.json",
+      "operations_count": 8,
+      "parameters_count": 59
+    },
+    "knowledge_based_machining": {
+      "section_key": "knowledge_based_machining",
+      "catalog_path": "knowledge-based-machining.json",
+      "operations_count": 7,
+      "parameters_count": 48
+    }
+  },
+  "totals": {
+    "section_count": 4,
+    "operations_count": 32,
+    "parameters_count": 279
+  },
+  "category_index": {
+    "pocket_2_5d": ["milling"],
+    "profile_2_5d": ["milling"],
+    "facing_2_5d": ["milling"],
+    "profitmilling": ["milling"],
+    "roughing_3d": ["milling"],
+    "finishing_3d": ["milling"],
+    "five_axis": ["milling"],
+    "drilling_milling": ["milling"],
+    "turn_roughing": ["lathe_millturn"],
+    "turn_finishing": ["lathe_millturn"],
+    "grooving_parting": ["lathe_millturn"],
+    "threading": ["lathe_millturn"],
+    "drilling_axial": ["lathe_millturn"],
+    "millturn_live": ["lathe_millturn"],
+    "swiss_type": ["lathe_millturn"],
+    "synchronization": ["lathe_millturn"],
+    "cut_2axis": ["wire_edm"],
+    "taper_4axis": ["wire_edm"],
+    "skim_pass": ["wire_edm"],
+    "auto_routing": ["wire_edm"],
+    "punch_die": ["wire_edm"],
+    "technology": ["wire_edm"],
+    "monitoring": ["wire_edm"],
+    "feature_recognition": ["knowledge_based_machining"],
+    "strategy_template": ["knowledge_based_machining"],
+    "macro_library": ["knowledge_based_machining"],
+    "probing": ["knowledge_based_machining"],
+    "stock_management": ["knowledge_based_machining"],
+    "tool_optimization": ["knowledge_based_machining"],
+    "multi_task": ["knowledge_based_machining"]
+  }
+}

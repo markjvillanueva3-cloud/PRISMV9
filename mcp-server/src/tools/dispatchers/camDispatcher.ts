@@ -113,6 +113,7 @@ import { ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espr
 import { ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritLatheMillTurnFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritWireEDMFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritKBMFunctionIndexActionSchemas.js";
+import { ACTION_ESPRIT_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -192,6 +193,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_ESPRIT_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -294,6 +296,7 @@ let _espritMill: any;
 let _espritLathe: any;
 let _espritWedm: any;
 let _espritKbm: any;
+let _espritIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -625,6 +628,7 @@ async function getEngine(name: string): Promise<any> {
     case "espritLathe": return _espritLathe ??= (await import("../../engines/ESPRITLatheMillTurnFunctionIndexEngine.js")).ESPRITLatheMillTurnFunctionIndexEngine;
     case "espritWedm": return _espritWedm ??= (await import("../../engines/ESPRITWireEDMFunctionIndexEngine.js")).ESPRITWireEDMFunctionIndexEngine;
     case "espritKbm": return _espritKbm ??= (await import("../../engines/ESPRITKBMFunctionIndexEngine.js")).ESPRITKBMFunctionIndexEngine;
+    case "espritIndex": return _espritIndex ??= (await import("../../engines/ESPRITFunctionIndexEngine.js")).ESPRITFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1311,6 +1315,7 @@ export const ACTIONS = [
   "esprit_lathe_index", "esprit_lathe_summary", "esprit_lathe_list_ops", "esprit_lathe_get_op", "esprit_lathe_by_category", "esprit_lathe_find_param", "esprit_lathe_recommend", "esprit_lathe_select_threading", "esprit_lathe_select_millturn_axis", "esprit_lathe_estimate_channel_sync",
   "esprit_wedm_index", "esprit_wedm_summary", "esprit_wedm_list_ops", "esprit_wedm_get_op", "esprit_wedm_by_category", "esprit_wedm_find_param", "esprit_wedm_recommend", "esprit_wedm_select_skim_schedule", "esprit_wedm_select_taper_plane", "esprit_wedm_compute_die_clearance", "esprit_wedm_estimate_cycle",
   "esprit_kbm_index", "esprit_kbm_summary", "esprit_kbm_list_ops", "esprit_kbm_get_op", "esprit_kbm_by_category", "esprit_kbm_find_param", "esprit_kbm_recommend", "esprit_kbm_select_scan_depth", "esprit_kbm_probe_tolerance_for_it", "esprit_kbm_estimate_consolidation",
+  "esprit_index", "esprit_summary", "esprit_list_sections", "esprit_section_stats", "esprit_list_ops", "esprit_find_op", "esprit_find_param", "esprit_categories", "esprit_recommend", "esprit_consistency",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7304,6 +7309,59 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "esprit_kbm_estimate_consolidation": {
             const eng = await getEngine("espritKbm");
             result = eng.estimateConsolidationSavings(params.tool_count, params.diameter_tolerance_pct, params.max_consolidation_per_tool);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM53: ESPRITFunctionIndexEngine (unified) ──
+          case "esprit_index": {
+            const eng = await getEngine("espritIndex");
+            result = eng.getManifest();
+            break;
+          }
+          case "esprit_summary": {
+            const eng = await getEngine("espritIndex");
+            const manifest = eng.getManifest();
+            result = { totals: manifest.totals, section_count: Object.keys(manifest.sections).length };
+            break;
+          }
+          case "esprit_list_sections": {
+            const eng = await getEngine("espritIndex");
+            result = eng.getSectionList();
+            break;
+          }
+          case "esprit_section_stats": {
+            const eng = await getEngine("espritIndex");
+            result = eng.getSectionStats(params.section_key);
+            break;
+          }
+          case "esprit_list_ops": {
+            const eng = await getEngine("espritIndex");
+            result = eng.getAllOperations();
+            break;
+          }
+          case "esprit_find_op": {
+            const eng = await getEngine("espritIndex");
+            result = eng.findOperation(params.operation_id);
+            break;
+          }
+          case "esprit_find_param": {
+            const eng = await getEngine("espritIndex");
+            result = eng.findParameterAcrossSections(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "esprit_categories": {
+            const eng = await getEngine("espritIndex");
+            result = eng.getCategoryUniverse();
+            break;
+          }
+          case "esprit_recommend": {
+            const eng = await getEngine("espritIndex");
+            result = eng.recommendForFeature(params.feature, params.hint);
+            break;
+          }
+          case "esprit_consistency": {
+            const eng = await getEngine("espritIndex");
+            result = eng.validateConsistency();
             break;
           }
 
