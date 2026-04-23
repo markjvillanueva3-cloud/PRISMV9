@@ -219,6 +219,8 @@ let _cpsParser: any, _okumaParam: any, _ppCapMatrix: any;
 let _solidcamCodeGen: any;
 // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine singleton
 let _solidcam25dIndex: any;
+// CAM-EXHAUST-MS0/U-CAM34 — SolidCAMIMachiningFunctionIndexEngine singleton
+let _solidcamIMachiningIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -528,6 +530,8 @@ async function getEngine(name: string): Promise<any> {
     case "solidcamCodeGen": return _solidcamCodeGen ??= (await import("../../engines/SolidCAMCodeGeneratorEngine.js")).solidCAMCodeGeneratorEngine;
     // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine
     case "solidcam25dIndex": return _solidcam25dIndex ??= (await import("../../engines/SolidCAM25DFunctionIndexEngine.js")).SolidCAM25DFunctionIndexEngine;
+    // CAM-EXHAUST-MS0/U-CAM34 — SolidCAMIMachiningFunctionIndexEngine
+    case "solidcamIMachiningIndex": return _solidcamIMachiningIndex ??= (await import("../../engines/SolidCAMIMachiningFunctionIndexEngine.js")).SolidCAMIMachiningFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1106,6 +1110,7 @@ export const ACTIONS = [
   "solidcam_code_generate", "solidcam_code_templates",
   // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine (6 actions)
   "solidcam_25d_index", "solidcam_25d_summary", "solidcam_25d_list_ops", "solidcam_25d_get_op", "solidcam_25d_by_category", "solidcam_25d_imachining",
+  "solidcam_imachining_index", "solidcam_imachining_summary", "solidcam_imachining_list_ops", "solidcam_imachining_get_op", "solidcam_imachining_by_category", "solidcam_imachining_wizard", "solidcam_imachining_find_param",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -4963,6 +4968,43 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_25d_imachining": {
             const eng = await getEngine("solidcam25dIndex");
             result = eng.getIMachiningParams();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM34: SolidCAMIMachiningFunctionIndexEngine ─
+          case "solidcam_imachining_index": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_imachining_summary": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_imachining_list_ops": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_imachining_get_op": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_imachining_by_category": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_imachining_wizard": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getWizardParams();
+            break;
+          }
+          case "solidcam_imachining_find_param": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
             break;
           }
 
