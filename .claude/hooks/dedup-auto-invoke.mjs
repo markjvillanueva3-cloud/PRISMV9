@@ -132,8 +132,11 @@ ${allMatches.map(m => `  - ${m}`).join('\n')}
 
   console.log(JSON.stringify({
     decision: 'approve',
-    additionalContext: warning
-  }));
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: warning,
+      }
+    }));
 }
 
 main().catch(() => {

@@ -70,8 +70,11 @@ async function main() {
 
   console.log(JSON.stringify({
     continue: true,
-    additionalContext: context
-  }));
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: context,
+      }
+    }));
 }
 
 main().catch(() => {

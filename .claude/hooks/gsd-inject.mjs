@@ -114,5 +114,8 @@ parts.push('**Commands**: /pdf-learn, /video-learn, /forge-triple, /dedup, /wire
 
 console.log(JSON.stringify({
   continue: true,
-  additionalContext: parts.join('\n')
-}));
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: parts.join('\n'),
+      }
+    }));
