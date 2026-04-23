@@ -1,23 +1,13 @@
 #!/usr/bin/env node
 /**
  * session-id-pin.mjs — Pins THIS chat's session_id to every PID in the
- * hook process's ancestry chain.
- *
- * PROBLEM: When a Bash tool call (spawned from a Claude Code chat) later
- * invokes stable-session-id.mjs, its process.ppid is NOT Claude Code's PID
- * — Windows git-bash forks subshells, so the immediate parent of node is
- * some intermediate shell. The ONLY guaranteed-shared ancestor between
- * "hook node process" and "future bash-spawned node process" is Claude
- * Code itself, several levels up the chain.
- *
- * SOLUTION: This hook walks its OWN ancestry chain (depth ≤ 8) and writes
- * the session_id → pid mapping for EVERY ancestor. Future stable-session-id
- * invocations walk their own ancestry and find the intersection (Claude
- * Code's PID) — deterministic across concurrent chats.
- *
- * Stale entries (>8h) are GC'd on each fire.
+ * hook process's ancestry chain, so later Bash-spawned stable-session-id
+ * invocations can find the shared Claude-Code ancestor.
  *
  * FIRES ON: UserPromptSubmit, SessionStart
+ *
+ * Performance: single WMIC call returns (PID,PPID) for every process;
+ * we then walk the chain in-memory. No per-ancestor shellouts.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -27,16 +17,22 @@ import { spawnSync } from "node:child_process";
 const PIN_FILE = "H:/prism/state/shared/handoffs/.active-sessions-by-pid.json";
 const STALE_MS = 8 * 60 * 60 * 1000;
 const MAX_ANCESTRY_DEPTH = 8;
-
 const WIN_WMIC = "C:/Windows/System32/wbem/WMIC.exe";
-const WIN_PS = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";
+// Hard internal deadline — always exit well before the 1500ms hook timeout.
+const DEADLINE_MS = 1200;
+const startMs = Date.now();
+const timeLeft = () => DEADLINE_MS - (Date.now() - startMs);
 
-function atomicWrite(fp, data) {
-  fs.mkdirSync(path.dirname(fp), { recursive: true });
-  const tmp = `${fp}.${process.pid}.${Date.now().toString(36)}.tmp`;
+function safeEmit() {
+  try { process.stdout.write(JSON.stringify({ continue: true })); } catch { /* stdout closed */ }
+}
+
+function atomicWrite(filePath, data) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const tmp = `${filePath}.${process.pid}.${Date.now().toString(36)}.tmp`;
   try {
     fs.writeFileSync(tmp, data);
-    fs.renameSync(tmp, fp);
+    fs.renameSync(tmp, filePath);
   } catch (err) {
     try { fs.unlinkSync(tmp); } catch { /* ignore */ }
     throw err;
@@ -46,10 +42,6 @@ function atomicWrite(fp, data) {
 function loadRegistry() {
   try { return JSON.parse(fs.readFileSync(PIN_FILE, "utf-8")); }
   catch { return { pids: {}, updated: null }; }
-}
-
-function saveRegistry(reg) {
-  atomicWrite(PIN_FILE, JSON.stringify(reg, null, 2) + "\n");
 }
 
 function gc(reg) {
@@ -63,39 +55,60 @@ function gc(reg) {
   return reg;
 }
 
-function getParentPid(pid) {
+/**
+ * Load the full (pid → ppid) map in a single WMIC call on Windows,
+ * or a single /proc scan on Linux. Falls back to empty map on any error.
+ */
+function loadProcessTree() {
   try {
     if (process.platform === "win32") {
-      if (fs.existsSync(WIN_WMIC)) {
-        const r = spawnSync(WIN_WMIC, ["process", "where", `processid=${pid}`, "get", "parentprocessid", "/value"], { encoding: "utf-8", timeout: 1500 });
-        if (r.status === 0 && r.stdout) {
-          const m = r.stdout.match(/ParentProcessId=(\d+)/);
-          if (m) return Number(m[1]);
+      if (!fs.existsSync(WIN_WMIC)) return new Map();
+      const budget = Math.max(400, Math.min(timeLeft() - 200, 900));
+      const result = spawnSync(
+        WIN_WMIC,
+        ["process", "get", "processid,parentprocessid", "/format:csv"],
+        { encoding: "utf-8", timeout: budget }
+      );
+      if (result.status !== 0 || !result.stdout) return new Map();
+      const map = new Map();
+      for (const rawLine of result.stdout.split(/\r?\n/)) {
+        const line = rawLine.trim();
+        if (!line || line.startsWith("Node,")) continue;
+        const parts = line.split(",");
+        if (parts.length < 3) continue;
+        const ppid = Number(parts[parts.length - 2]);
+        const pid = Number(parts[parts.length - 1]);
+        if (Number.isFinite(pid) && Number.isFinite(ppid) && pid > 0) {
+          map.set(pid, ppid);
         }
       }
-      if (fs.existsSync(WIN_PS)) {
-        const r = spawnSync(WIN_PS, ["-NoProfile", "-Command", `Get-CimInstance Win32_Process -Filter "ProcessId=${pid}" | Select-Object -ExpandProperty ParentProcessId`], { encoding: "utf-8", timeout: 3000 });
-        if (r.status === 0 && r.stdout) {
-          const n = Number(r.stdout.trim());
-          if (Number.isFinite(n) && n > 0) return n;
-        }
-      }
-      return null;
-    } else {
-      const status = fs.readFileSync(`/proc/${pid}/status`, "utf-8");
-      const m = status.match(/^PPid:\s*(\d+)/m);
-      return m ? Number(m[1]) : null;
+      return map;
     }
-  } catch { return null; }
+    const map = new Map();
+    for (const entry of fs.readdirSync("/proc")) {
+      const pid = Number(entry);
+      if (!Number.isFinite(pid) || pid <= 0) continue;
+      try {
+        const status = fs.readFileSync(`/proc/${pid}/status`, "utf-8");
+        const ppidMatch = status.match(/^PPid:\s*(\d+)/m);
+        if (ppidMatch) map.set(pid, Number(ppidMatch[1]));
+      } catch { /* process vanished */ }
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
 }
 
-function collectAncestors(startPid, maxDepth = MAX_ANCESTRY_DEPTH) {
+function collectAncestors(startPid, tree) {
   const chain = [];
+  const seen = new Set();
   let pid = Number(startPid);
   let depth = 0;
-  while (pid && pid > 1 && depth < maxDepth) {
+  while (pid && pid > 1 && depth < MAX_ANCESTRY_DEPTH && !seen.has(pid)) {
     chain.push(pid);
-    const ppid = getParentPid(pid);
+    seen.add(pid);
+    const ppid = tree.get(pid);
     if (!ppid || ppid === pid) break;
     pid = ppid;
     depth++;
@@ -115,14 +128,16 @@ function readStdinJson() {
 function main() {
   const input = readStdinJson() || {};
   const sessionId = input.session_id || input.sessionId;
-  if (!sessionId) { process.stdout.write(JSON.stringify({ continue: true })); return; }
+  if (!sessionId || timeLeft() <= 0) { safeEmit(); return; }
 
-  const reg = gc(loadRegistry());
-  const ancestors = collectAncestors(process.ppid || process.pid);
+  const tree = loadProcessTree();
+  const ancestors = tree.size > 0
+    ? collectAncestors(process.ppid || process.pid, tree)
+    : [process.ppid || process.pid];
+
   const nowIso = new Date().toISOString();
+  const reg = gc(loadRegistry());
 
-  // Pin the ENTIRE ancestry chain — stable-session-id's process will share
-  // at least one of these PIDs (Claude Code itself).
   for (const pid of ancestors) {
     const key = String(pid);
     const prev = reg.pids[key];
@@ -136,10 +151,13 @@ function main() {
     };
   }
   reg.updated = nowIso;
-  try { saveRegistry(reg); } catch { /* non-fatal */ }
 
-  process.stdout.write(JSON.stringify({ continue: true }));
+  try {
+    if (timeLeft() > 50) atomicWrite(PIN_FILE, JSON.stringify(reg, null, 2) + "\n");
+  } catch { /* non-fatal — next fire will retry */ }
+
+  safeEmit();
 }
 
 try { main(); }
-catch { try { process.stdout.write(JSON.stringify({ continue: true })); } catch { /* give up */ } }
+catch { safeEmit(); }
