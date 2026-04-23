@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
+// Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
+process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
 /**
  * grep-index-first.mjs - PreToolUse Grep
  * Suggests checking MASTER_INDEX before expensive grep searches.
