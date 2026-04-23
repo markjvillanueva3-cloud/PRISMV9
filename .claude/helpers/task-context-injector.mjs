@@ -27,7 +27,7 @@ async function readPosition() {
 async function main() {
   const originalPrompt = process.env.TOOL_INPUT_prompt ?? "";
   if (!originalPrompt.trim()) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -46,5 +46,5 @@ async function main() {
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

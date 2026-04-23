@@ -21,9 +21,15 @@
  */
 
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
-const REPO = "H:/prism";
+const REPO = process.env.PRISM_GIT_REPO || "H:/prism";
 const PUSH_TIMEOUT_MS = 30000;
+const REMOTE_LOCK_FILE = process.env.PRISM_GIT_REMOTE_LOCK_FILE || "H:/prism/state/shared/GIT_LOCK_REMOTE.json";
+const REMOTE_LOCK_TTL_MS = Number(process.env.PRISM_GIT_REMOTE_LOCK_TTL_MS || 180000);
+const DRY_RUN = process.env.PRISM_GIT_SYNC_DRY_RUN === "1";
 
 function git(args, opts = {}) {
   try {
@@ -41,6 +47,100 @@ function git(args, opts = {}) {
 
 function isOk(r) { return typeof r === "string"; }
 
+function lockHolder() {
+  return `git-sync-stop:${os.hostname()}:pid-${process.pid}`;
+}
+
+function readJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  } catch {
+    return null;
+  }
+}
+
+function isLiveLock(lock) {
+  const createdAt = new Date(lock?.createdAt || 0).getTime();
+  const expiresAt = new Date(lock?.expiresAt || 0).getTime();
+  const deadline = Number.isFinite(expiresAt) && expiresAt > 0 ? expiresAt : createdAt + REMOTE_LOCK_TTL_MS;
+  return Number.isFinite(deadline) && Date.now() < deadline;
+}
+
+function acquireRemoteLock() {
+  const holder = lockHolder();
+  fs.mkdirSync(path.dirname(REMOTE_LOCK_FILE), { recursive: true });
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const existing = readJson(REMOTE_LOCK_FILE);
+    if (existing && existing.holder !== holder && isLiveLock(existing)) {
+      return {
+        ok: false,
+        holder,
+        message: `remote git lock held by ${existing.holder}; skipping auto-push to avoid cross-session clobber`,
+      };
+    }
+
+    if (existing && !isLiveLock(existing)) {
+      try { fs.unlinkSync(REMOTE_LOCK_FILE); } catch {}
+    }
+
+    const lock = {
+      kind: "git-remote",
+      holder,
+      pid: process.pid,
+      hostname: os.hostname(),
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + REMOTE_LOCK_TTL_MS).toISOString(),
+    };
+
+    try {
+      const fd = fs.openSync(REMOTE_LOCK_FILE, "wx");
+      try {
+        fs.writeFileSync(fd, `${JSON.stringify(lock, null, 2)}\n`, "utf-8");
+      } finally {
+        fs.closeSync(fd);
+      }
+      return { ok: true, holder };
+    } catch (err) {
+      if (err?.code !== "EEXIST") throw err;
+    }
+  }
+
+  const existing = readJson(REMOTE_LOCK_FILE);
+  return {
+    ok: false,
+    holder,
+    message: `remote git lock unavailable${existing?.holder ? `; held by ${existing.holder}` : ""}`,
+  };
+}
+
+function releaseRemoteLock(holder) {
+  try {
+    const existing = readJson(REMOTE_LOCK_FILE);
+    if (existing?.holder === holder) {
+      fs.unlinkSync(REMOTE_LOCK_FILE);
+    }
+  } catch {
+    // Non-fatal; stale locks expire by TTL.
+  }
+}
+
+function pushWithRemoteLock(args) {
+  const lock = acquireRemoteLock();
+  if (!lock.ok) {
+    return { blocked: true, error: lock.message, stderr: lock.message };
+  }
+
+  try {
+    if (DRY_RUN) {
+      return `dry-run: git ${args.join(" ")}`;
+    }
+    return git(args, { timeout: PUSH_TIMEOUT_MS });
+  } finally {
+    releaseRemoteLock(lock.holder);
+  }
+}
+
 function main() {
   const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
   if (!isOk(branch) || branch === "HEAD") {
@@ -55,9 +155,13 @@ function main() {
   if (!hasUpstream) {
     // First-ever push for this branch — establish upstream.
     process.stdout.write(`git-sync-stop: '${branch}' has no upstream — pushing with -u\n`);
-    const r = git(["push", "-u", "origin", branch], { timeout: PUSH_TIMEOUT_MS });
-    if (isOk(r)) {
+    const r = pushWithRemoteLock(["push", "-u", "origin", branch]);
+    if (isOk(r) && r.startsWith("dry-run:")) {
+      process.stdout.write(`git-sync-stop: ${r}\n`);
+    } else if (isOk(r)) {
       process.stdout.write(`git-sync-stop: ✓ pushed ${branch} → origin/${branch} (upstream set)\n`);
+    } else if (r.blocked) {
+      process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
     } else {
       process.stdout.write(
         `git-sync-stop: push failed for ${branch}\n` +
@@ -93,9 +197,13 @@ function main() {
 
   // Pure ahead — safe to push.
   process.stdout.write(`git-sync-stop: pushing ${ahead} commit(s) ${branch} → ${upstream}\n`);
-  const r = git(["push"], { timeout: PUSH_TIMEOUT_MS });
-  if (isOk(r)) {
+  const r = pushWithRemoteLock(["push"]);
+  if (isOk(r) && r.startsWith("dry-run:")) {
+    process.stdout.write(`git-sync-stop: ${r}\n`);
+  } else if (isOk(r)) {
     process.stdout.write(`git-sync-stop: ✓ pushed ${branch} (${ahead} commits)\n`);
+  } else if (r.blocked) {
+    process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
   } else {
     process.stdout.write(
       `git-sync-stop: push failed for ${branch}\n` +

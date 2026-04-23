@@ -71,7 +71,7 @@ function main() {
     hookInput = JSON.parse(stdin);
   } catch {
     // Not a hook call
-    process.stdout.write(JSON.stringify({ decision: "allow" }));
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -80,7 +80,7 @@ function main() {
 
   // Only track Edit, Write, MultiEdit tools
   if (!["Edit", "Write", "MultiEdit"].includes(toolName)) {
-    process.stdout.write(JSON.stringify({ decision: "allow" }));
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -100,7 +100,7 @@ function main() {
   }
 
   if (filePaths.length === 0) {
-    process.stdout.write(JSON.stringify({ decision: "allow" }));
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -137,7 +137,7 @@ function main() {
   saveOwnership(state);
 
   // Always allow — this is just tracking
-  process.stdout.write(JSON.stringify({ decision: "allow" }));
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main();

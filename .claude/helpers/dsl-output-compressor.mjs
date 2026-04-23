@@ -88,7 +88,7 @@ function main() {
   const output = collectOutputText();
 
   if (output.length < MIN_COMPRESS_LENGTH) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -101,7 +101,7 @@ function main() {
       additionalContext: `DSL COMPRESSION: Output compressed ${savedPct}% (~${Math.round(savedChars / 3.8)} tokens saved). Legend: Vc=cutting_speed, SS=stainless_steel, EM=end_mill, MIL=milling, VMC=vertical_mill, PC=prism_calc. Use /dsl-legend for full map.`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

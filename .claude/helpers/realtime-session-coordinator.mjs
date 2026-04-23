@@ -203,8 +203,8 @@ async function main() {
       additionalContext: parts.join("\n"),
     }));
   } else {
-    console.log("{}");
+    console.log(JSON.stringify({ continue: true }));
   }
 }
 
-main().catch(() => console.log("{}"));
+main().catch(() => console.log(JSON.stringify({ continue: true })));

@@ -48,7 +48,7 @@ async function main() {
   const cmd = process.env.TOOL_INPUT_command ?? "";
   const success = (process.env.TOOL_SUCCESS ?? "false") === "true";
   if (!success || !cmd.trim()) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -153,9 +153,9 @@ async function main() {
     }
   }
 
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

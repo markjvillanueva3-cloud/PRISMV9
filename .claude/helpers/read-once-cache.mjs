@@ -63,19 +63,19 @@ async function preToolUse() {
   const limit = toolInput.limit || process.env.TOOL_INPUT_limit || "";
 
   if (!filePath) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   // Always allow targeted reads (offset/limit)
   if (offset || limit) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   // Always allow exempt files
   if (isExempt(filePath)) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -84,7 +84,7 @@ async function preToolUse() {
   const entry = registry[normalized];
 
   if (!entry) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -92,7 +92,7 @@ async function preToolUse() {
   const currentMtime = await getFileMtime(filePath);
   if (currentMtime > entry.mtime) {
     // File changed — allow re-read, will be tracked again in PostToolUse
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -100,7 +100,11 @@ async function preToolUse() {
   const ago = Math.round((Date.now() - entry.readTime) / 1000);
   const agoText = ago < 60 ? `${ago}s` : `${Math.round(ago / 60)}m`;
   process.stdout.write(JSON.stringify({
-    additionalContext: `READ-ONCE: You already read ${normalized.split("/").pop()} ${agoText} ago and it hasn't changed. Use your existing knowledge of this file instead of re-reading it.`,
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      additionalContext: `READ-ONCE: You already read ${normalized.split("/").pop()} ${agoText} ago and it hasn't changed. Use your existing knowledge of this file instead of re-reading it.`,
+    },
   }));
 }
 
@@ -109,7 +113,7 @@ async function postToolUse() {
   const toolInput = stdinInput.tool_input || {};
   const filePath = (toolInput.file_path || process.env.TOOL_INPUT_file_path || "").trim();
   if (!filePath) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -132,14 +136,14 @@ async function postToolUse() {
   }
 
   await writeRegistry(registry);
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 // ─── Entry point: detect mode from env ──────────────────────
 const mode = process.env.READ_ONCE_MODE ?? "pre";
 
 if (mode === "post") {
-  postToolUse().catch(() => process.stdout.write("{}"));
+  postToolUse().catch(() => process.stdout.write(JSON.stringify({ continue: true })));
 } else {
-  preToolUse().catch(() => process.stdout.write("{}"));
+  preToolUse().catch(() => process.stdout.write(JSON.stringify({ continue: true })));
 }

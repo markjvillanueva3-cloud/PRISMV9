@@ -228,7 +228,7 @@ async function main() {
   } else if (guidance) {
     process.stdout.write(JSON.stringify({ additionalContext: guidance }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 
@@ -271,5 +271,5 @@ if (process.argv[2] === "report") {
     console.log("Economy state reset");
   })();
 } else {
-  main().catch(() => process.stdout.write("{}"));
+  main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));
 }

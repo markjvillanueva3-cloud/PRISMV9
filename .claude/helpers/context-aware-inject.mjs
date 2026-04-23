@@ -189,7 +189,7 @@ function main() {
       additionalContext: `[CTX] ${context}`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

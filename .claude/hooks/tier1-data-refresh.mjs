@@ -86,5 +86,5 @@ async function main() {
 
 main().catch((err) => {
   process.stderr.write(`[tier1-refresh] ${err?.message ?? err}\n`);
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

@@ -30,10 +30,10 @@ async function main(rawInput) {
         additionalContext: `## Active Goals\n${goalList}\n\nKeep these goals in mind as you respond.`
       }));
     } else {
-      console.log(JSON.stringify({}));
+      console.log(JSON.stringify({ continue: true }));
     }
   } catch (error) {
-    console.log(JSON.stringify({}));
+    console.log(JSON.stringify({ continue: true }));
   }
 }
 

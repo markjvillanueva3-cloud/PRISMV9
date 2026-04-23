@@ -73,8 +73,11 @@ for (const { pattern, savings, cmd } of rtkCandidates) {
     // Special case: suggest tool replacement for cat/ls
     if (cmd.includes('Read tool') || cmd.includes('Glob tool')) {
       console.log(JSON.stringify({
-        decision: 'allow',
-        message: `💡 Consider using ${cmd} for better token efficiency.`
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          additionalContext: `💡 Consider using ${cmd} for better token efficiency.`,
+        },
       }));
       process.exit(0);
     }
