@@ -5,7 +5,7 @@
   "track": "CAD-COMPLETE",
   "status": "in_progress",
   "created_at": "2026-04-19",
-  "updated_at": "2026-04-23T14:54:56.576Z",
+  "updated_at": "2026-04-23T21:05:00.335730+00:00",
   "target_omega": 1,
   "scrutiny_score": 1,
   "scrutiny_rounds": 17,
@@ -102,7 +102,7 @@
   },
   "total_units": 336,
   "ml_learning_goal": "Draw ANY CAD file from scratch via trial/error learning — remember every successful feature pattern, auto-generate templates for part families, get exponentially faster",
-  "completed_units": 0,
+  "completed_units": 50,
   "sessions_estimate": {
     "p50": 269,
     "p90": 394
@@ -600,7 +600,12 @@
             "Dispatcher integration tests green (16/16)",
             "Engine tests green (28/28)"
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "status": "complete",
           "completedAt": "2026-04-23T20:30:00.000Z"
         },
@@ -614,7 +619,12 @@
             "Tests pass: 35 new + 166 existing = 201/201 green",
             "Mate type enum (0-6) and view orientation (8 variants) fully covered"
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "status": "complete",
           "completedAt": "2026-04-23T22:30:00.000Z"
         }
@@ -636,8 +646,8 @@
       "units": [
         {
           "id": "U-CADC13",
-          "title": "U-CADC13 — CAD-COMPLETE-MS0 unit 1",
-          "description": "CAD-COMPLETE-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "title": "U-CADC13 — NACAAirfoilEngine (aerospace airfoil generation)",
+          "description": "NACAAirfoilEngine: NACA 4-digit + 5-digit (standard & reflexed) generators with Abbott & von Doenhoff canonical formulae, cosine LE clustering, UIUC Selig-format .dat parser. 27 engine tests + 14 dispatcher-integration tests. 3 new cadDispatcher actions: naca_generate_4digit, naca_generate_5digit, naca_parse_uiuc_dat. Zod schemas with .describe() for MCP tool visibility.",
           "exit_conditions": [
             "Implementation complete per unit description",
             "Tests pass: npx vitest run (≥10 cases for engines)",
@@ -650,7 +660,8 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "status": "pending"
+          "status": "complete",
+          "completed_at": "2026-04-23T21:05:00.335730+00:00"
         },
         {
           "id": "U-CADC14",

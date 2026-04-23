@@ -147,6 +147,28 @@ const cadRegenThresholdsSchema = z.object({
   set: z.record(z.number()).optional(),
 });
 
+// ── NACA Airfoil Engine Actions (U-CADC13) ────────────────────────────────────
+const nacaGenerate4DigitSchema = z.object({
+  designation: z.string().describe("4-digit NACA designator (e.g. '2412', '0012'). 'NACA' prefix and dashes/spaces are stripped automatically."),
+  numPoints: z.number().optional().describe("Points per surface (upper + lower). Floor 3. Default 81."),
+  chord: z.number().optional().describe("Chord length in the caller's units (typically meters). Default 1."),
+  cosineSpacing: z.boolean().optional().describe("Use cosine clustering at leading edge. Default true."),
+  closedTrailingEdge: z.boolean().optional().describe("Use a4 = -0.1036 for zero-thickness TE. Default true."),
+});
+
+const nacaGenerate5DigitSchema = z.object({
+  designation: z.string().describe("5-digit NACA designator (e.g. '23012'). Supports standard {210,220,230,240,250} and reflexed {221,231,241,251} camber tags from NACA TR-537."),
+  numPoints: z.number().optional().describe("Points per surface. Floor 3. Default 81."),
+  chord: z.number().optional().describe("Chord length scaling. Default 1."),
+  cosineSpacing: z.boolean().optional().describe("Use cosine clustering at leading edge. Default true."),
+  closedTrailingEdge: z.boolean().optional().describe("Use a4 = -0.1036 for zero-thickness TE. Default true."),
+});
+
+const nacaParseUIUCDatSchema = z.object({
+  content: z.string().describe("Raw text of a UIUC Airfoil Database Selig-format .dat file."),
+  chord: z.number().optional().describe("Chord scaling applied to parsed coordinates. Default 1."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -183,4 +205,8 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   cad_regen_batch: cadRegenBatchSchema,
   cad_regen_compare: cadRegenCompareSchema,
   cad_regen_thresholds: cadRegenThresholdsSchema,
+  // NACA Airfoil Engine (U-CADC13)
+  naca_generate_4digit: nacaGenerate4DigitSchema,
+  naca_generate_5digit: nacaGenerate5DigitSchema,
+  naca_parse_uiuc_dat: nacaParseUIUCDatSchema,
 };
