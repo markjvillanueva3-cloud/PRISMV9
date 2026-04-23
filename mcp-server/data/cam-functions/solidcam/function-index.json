@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "system_id": "solidcam",
+  "version": "2024.1",
+  "description": "Unified SolidCAM CAM Function Index — assembled from per-section catalogs (2.5D, 3D HSS/HSR, 5-axis, iMachining, turning, mill-turn).",
+  "sections": {
+    "2.5d_operations": {
+      "file": "2.5d-operations.json",
+      "operation_count": 12,
+      "parameter_count": 209,
+      "operation_ids": [
+        "chamfer_milling",
+        "contour_3axis",
+        "drill",
+        "engrave",
+        "face_milling",
+        "imachining_2d",
+        "pocket_2d",
+        "profile_2d",
+        "reaming",
+        "slot_milling",
+        "t_slot",
+        "thread_mill"
+      ],
+      "categories": [],
+      "training_topic_count": 5
+    },
+    "3d-hss-hsr": {
+      "file": "3d-hss-hsr.json",
+      "operation_count": 13,
+      "parameter_count": 325,
+      "operation_ids": [
+        "hsr_rest_roughing",
+        "hsr_roughing",
+        "hss_3d_corner",
+        "hss_3d_stepover",
+        "hss_boundary",
+        "hss_combined_finish",
+        "hss_constant_z",
+        "hss_linear",
+        "hss_morph",
+        "hss_pencil_trace",
+        "hss_radial",
+        "hss_rest_finish",
+        "hss_spiral"
+      ],
+      "categories": [],
+      "training_topic_count": 6
+    },
+    "5-axis": {
+      "file": "5-axis.json",
+      "operation_count": 12,
+      "parameter_count": 300,
+      "operation_ids": [
+        "5x_drive_surface",
+        "5x_indexed_3plus2",
+        "5x_morph",
+        "5x_multiblade",
+        "5x_normal_to_surface",
+        "5x_parallel_to_curve",
+        "5x_parallel_to_surface",
+        "5x_port",
+        "5x_swarf",
+        "5x_through_curve",
+        "5x_through_point",
+        "5x_undercut"
+      ],
+      "categories": [],
+      "training_topic_count": 6
+    },
+    "imachining": {
+      "file": "imachining.json",
+      "operation_count": 4,
+      "parameter_count": 129,
+      "operation_ids": [
+        "imachining_2d_full",
+        "imachining_3d",
+        "technology_wizard",
+        "tool_database"
+      ],
+      "categories": [],
+      "training_topic_count": 5
+    },
+    "millturn": {
+      "file": "millturn.json",
+      "operation_count": 12,
+      "parameter_count": 188,
+      "operation_ids": [
+        "mt_balanced_turning",
+        "mt_bar_feeder_advance",
+        "mt_c_axis_drilling",
+        "mt_c_axis_polar_milling",
+        "mt_live_mill_face",
+        "mt_live_mill_radial",
+        "mt_multi_channel_sync",
+        "mt_sub_spindle_part_off",
+        "mt_sub_spindle_pickup",
+        "mt_swiss_type_turning",
+        "mt_thread_chasing_sync",
+        "mt_y_axis_milling"
+      ],
+      "categories": [
+        "live_tooling",
+        "c_axis",
+        "y_axis",
+        "sub_spindle",
+        "multi_channel",
+        "swiss_type",
+        "specialty"
+      ],
+      "training_topic_count": 7
+    },
+    "turning": {
+      "file": "turning.json",
+      "operation_count": 13,
+      "parameter_count": 232,
+      "operation_ids": [
+        "turn_drill_axial",
+        "turn_finish_external",
+        "turn_finish_face",
+        "turn_finish_internal",
+        "turn_groove_external",
+        "turn_groove_face",
+        "turn_part_off",
+        "turn_profile_recursive",
+        "turn_rough_external",
+        "turn_rough_face",
+        "turn_rough_internal",
+        "turn_thread_external",
+        "turn_thread_internal"
+      ],
+      "categories": [
+        "roughing",
+        "finishing",
+        "grooving_parting",
+        "threading",
+        "drilling",
+        "specialty"
+      ],
+      "training_topic_count": 6
+    }
+  },
+  "expected_totals": {
+    "sections": 6,
+    "operations": 66,
+    "parameters": 1383
+  }
+}
