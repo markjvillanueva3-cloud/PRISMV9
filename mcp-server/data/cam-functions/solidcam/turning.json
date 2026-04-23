@@ -1,0 +1,1632 @@
+{
+  "schemaVersion": 1,
+  "system_id": "solidcam",
+  "section_key": "turning",
+  "version": "2024.1",
+  "extracted_from": "SolidCAM 2024 Turning + Mill-Turn Reference (PDF p. 412-587)",
+  "categories": [
+    "roughing",
+    "finishing",
+    "grooving_parting",
+    "threading",
+    "drilling",
+    "specialty"
+  ],
+  "operations": {
+    "turn_rough_external": {
+      "category": "roughing",
+      "display_name": "External Rough Turning",
+      "description": "OD roughing with constant DOC strategy or stock-driven recursive offset; supports cylindrical, taper, and contour profiles.",
+      "parameter_count": 24,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "levels",
+        "passes",
+        "lead_in_out",
+        "link",
+        "misc",
+        "cycle"
+      ],
+      "parameters": {
+        "geometry": {
+          "profile_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "stock_curve": {
+            "type": "geometry_ref",
+            "required": false
+          },
+          "machining_side": {
+            "type": "enum",
+            "values": [
+              "right",
+              "left"
+            ],
+            "default": "right"
+          },
+          "spindle_orientation": {
+            "type": "enum",
+            "values": [
+              "main",
+              "sub"
+            ],
+            "default": "main"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "insert_shape": {
+            "type": "enum",
+            "values": [
+              "C",
+              "D",
+              "S",
+              "T",
+              "V",
+              "W",
+              "R"
+            ]
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 6.4,
+            "default": 0.8
+          },
+          "approach_angle_deg": {
+            "type": "number",
+            "min": 0,
+            "max": 95,
+            "default": 95
+          }
+        },
+        "levels": {
+          "z_start_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_end_mm": {
+            "type": "number",
+            "required": true
+          },
+          "x_safety_mm": {
+            "type": "number",
+            "default": 5
+          }
+        },
+        "passes": {
+          "doc_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 12,
+            "default": 2.5
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.05,
+            "max": 1,
+            "default": 0.3
+          },
+          "stock_to_leave_radial_mm": {
+            "type": "number",
+            "default": 0.4
+          },
+          "stock_to_leave_axial_mm": {
+            "type": "number",
+            "default": 0.2
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 200
+          },
+          "spindle_max_rpm": {
+            "type": "number",
+            "default": 4000
+          },
+          "constant_surface_speed": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 2
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "default": 2
+          },
+          "rapid_retract": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "link": {
+          "between_passes": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          },
+          "clearance_x_mm": {
+            "type": "number",
+            "default": 3
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "tsc",
+              "mql"
+            ],
+            "default": "flood"
+          }
+        }
+      }
+    },
+    "turn_rough_internal": {
+      "category": "roughing",
+      "display_name": "Internal (Boring) Rough Turning",
+      "description": "ID roughing for bores; tracks boring bar overhang and computes vibration risk against L/D ratio.",
+      "parameter_count": 22,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "levels",
+        "passes",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "bore_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "min_bore_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "spindle_orientation": {
+            "type": "enum",
+            "values": [
+              "main",
+              "sub"
+            ],
+            "default": "main"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "boring_bar_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "boring_bar_overhang_mm": {
+            "type": "number",
+            "required": true
+          },
+          "ld_ratio_warn_above": {
+            "type": "number",
+            "default": 4
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 2,
+            "default": 0.4
+          }
+        },
+        "levels": {
+          "z_start_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_end_mm": {
+            "type": "number",
+            "required": true
+          },
+          "x_safety_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "passes": {
+          "doc_mm": {
+            "type": "number",
+            "min": 0.05,
+            "max": 4,
+            "default": 0.8
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.03,
+            "max": 0.4,
+            "default": 0.15
+          },
+          "stock_to_leave_radial_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 150
+          },
+          "spindle_max_rpm": {
+            "type": "number",
+            "default": 3000
+          },
+          "deflection_limit_mm": {
+            "type": "number",
+            "default": 0.05
+          }
+        },
+        "lead_in_out": {
+          "approach_axial_mm": {
+            "type": "number",
+            "default": 1.5
+          },
+          "retract_to_center": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "link": {
+          "between_passes": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "feed"
+          },
+          "chip_break_dwell_sec": {
+            "type": "number",
+            "default": 0.1
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "tsc"
+          }
+        }
+      }
+    },
+    "turn_rough_face": {
+      "category": "roughing",
+      "display_name": "Face Rough Turning",
+      "description": "Rough facing operation, X-axis dominant; constant DOC stepping in Z.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "levels",
+        "passes",
+        "lead_in_out",
+        "link"
+      ],
+      "parameters": {
+        "geometry": {
+          "face_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "outer_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "inner_diameter_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "insert_shape": {
+            "type": "enum",
+            "values": [
+              "C",
+              "S",
+              "T",
+              "W"
+            ]
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "default": 0.8
+          }
+        },
+        "levels": {
+          "z_face_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_safety_mm": {
+            "type": "number",
+            "default": 3
+          }
+        },
+        "passes": {
+          "doc_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 6,
+            "default": 1.5
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.25
+          },
+          "stock_to_leave_axial_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 220
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "od_to_id",
+              "id_to_od"
+            ],
+            "default": "od_to_id"
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "link": {
+          "between_passes": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          },
+          "clearance_z_mm": {
+            "type": "number",
+            "default": 2
+          }
+        }
+      }
+    },
+    "turn_finish_external": {
+      "category": "finishing",
+      "display_name": "External Finish Turning",
+      "description": "Single-pass profile finishing; supports nose-radius compensation and feed reduction at corners.",
+      "parameter_count": 17,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "lead_in_out",
+        "link",
+        "feed_control",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "profile_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "machining_side": {
+            "type": "enum",
+            "values": [
+              "right",
+              "left"
+            ],
+            "default": "right"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 1.6,
+            "default": 0.4
+          },
+          "tool_wear_offset_register": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "passes": {
+          "spring_pass_count": {
+            "type": "integer",
+            "min": 0,
+            "max": 3,
+            "default": 1
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.03,
+            "max": 0.3,
+            "default": 0.1
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 280
+          },
+          "use_nose_radius_comp": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "lead_in_out": {
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "arc",
+              "tangent",
+              "perpendicular"
+            ],
+            "default": "arc"
+          },
+          "lead_radius_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "link": {
+          "between_features": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "smooth"
+            ],
+            "default": "smooth"
+          }
+        },
+        "feed_control": {
+          "corner_feed_factor": {
+            "type": "number",
+            "min": 0.1,
+            "max": 1,
+            "default": 0.5
+          },
+          "arc_feed_factor": {
+            "type": "number",
+            "min": 0.5,
+            "max": 1,
+            "default": 0.85
+          },
+          "feed_reduction_distance_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "mist",
+              "off"
+            ],
+            "default": "flood"
+          },
+          "deburr_at_end": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "turn_finish_internal": {
+      "category": "finishing",
+      "display_name": "Internal Finish (Boring)",
+      "description": "Bore finishing pass; flags resonance risk if overhang exceeds 5×D.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "lead_in_out",
+        "link",
+        "feed_control"
+      ],
+      "parameters": {
+        "geometry": {
+          "bore_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "min_bore_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "boring_bar_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "boring_bar_overhang_mm": {
+            "type": "number",
+            "required": true
+          },
+          "ld_ratio_warn_above": {
+            "type": "number",
+            "default": 4
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "default": 0.2
+          }
+        },
+        "passes": {
+          "spring_pass_count": {
+            "type": "integer",
+            "min": 0,
+            "max": 2,
+            "default": 1
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.08
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 200
+          }
+        },
+        "lead_in_out": {
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "arc",
+              "tangent"
+            ],
+            "default": "arc"
+          },
+          "lead_radius_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "link": {
+          "between_features": {
+            "type": "enum",
+            "values": [
+              "smooth",
+              "rapid"
+            ],
+            "default": "smooth"
+          }
+        },
+        "feed_control": {
+          "corner_feed_factor": {
+            "type": "number",
+            "default": 0.6
+          },
+          "deflection_target_mm": {
+            "type": "number",
+            "default": 0.02
+          },
+          "use_damped_bar": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "turn_finish_face": {
+      "category": "finishing",
+      "display_name": "Face Finish Turning",
+      "description": "Face finishing single pass; supports flat or contoured face geometry.",
+      "parameter_count": 13,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "face_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "outer_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "inner_diameter_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "default": 0.4
+          }
+        },
+        "passes": {
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.1
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 280
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "od_to_id",
+              "id_to_od"
+            ],
+            "default": "od_to_id"
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 1
+          },
+          "retract_to_safety": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "link": {
+          "smooth_arc_radius_mm": {
+            "type": "number",
+            "default": 0.3
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "mist"
+            ],
+            "default": "flood"
+          },
+          "use_nose_radius_comp": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "turn_groove_external": {
+      "category": "grooving_parting",
+      "display_name": "External Grooving",
+      "description": "OD grooving with full-width or peck modes; chip-control via partial retracts.",
+      "parameter_count": 18,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "groove_strategy",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "groove_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "groove_width_mm": {
+            "type": "number",
+            "required": true
+          },
+          "groove_depth_mm": {
+            "type": "number",
+            "required": true
+          },
+          "groove_count": {
+            "type": "integer",
+            "min": 1,
+            "default": 1
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "insert_width_mm": {
+            "type": "number",
+            "required": true
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "default": 0.2
+          }
+        },
+        "passes": {
+          "doc_per_peck_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 5,
+            "default": 1
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.02,
+            "max": 0.2,
+            "default": 0.08
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 150
+          }
+        },
+        "groove_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "plunge",
+              "ramp",
+              "ramp_with_pecking"
+            ],
+            "default": "plunge"
+          },
+          "peck_retract_mm": {
+            "type": "number",
+            "default": 0.5
+          },
+          "dwell_at_bottom_sec": {
+            "type": "number",
+            "default": 0.2
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 1.5
+          }
+        },
+        "link": {
+          "between_grooves": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          },
+          "clearance_x_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "flood"
+          },
+          "edge_chamfer_mm": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "turn_groove_face": {
+      "category": "grooving_parting",
+      "display_name": "Face Grooving",
+      "description": "Face grooving with radial-stepping support; X-axis dominant.",
+      "parameter_count": 15,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "groove_strategy",
+        "lead_in_out",
+        "link"
+      ],
+      "parameters": {
+        "geometry": {
+          "groove_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "outer_radius_mm": {
+            "type": "number",
+            "required": true
+          },
+          "inner_radius_mm": {
+            "type": "number",
+            "required": true
+          },
+          "groove_depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "insert_width_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "passes": {
+          "doc_per_peck_mm": {
+            "type": "number",
+            "default": 0.8
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.06
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 130
+          }
+        },
+        "groove_strategy": {
+          "stepping": {
+            "type": "enum",
+            "values": [
+              "plunge_only",
+              "stepped_radial"
+            ],
+            "default": "stepped_radial"
+          },
+          "step_radial_mm": {
+            "type": "number",
+            "default": 0.5
+          },
+          "dwell_at_bottom_sec": {
+            "type": "number",
+            "default": 0.3
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 1.5
+          }
+        },
+        "link": {
+          "retract_to_safety": {
+            "type": "boolean",
+            "default": true
+          },
+          "clearance_z_mm": {
+            "type": "number",
+            "default": 2
+          }
+        }
+      }
+    },
+    "turn_part_off": {
+      "category": "grooving_parting",
+      "display_name": "Cut-Off / Part-Off",
+      "description": "Parting operation with optional chamfer at break and pull-back; supports sub-spindle catch.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "strategy",
+        "lead_in_out",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "z_part_position_mm": {
+            "type": "number",
+            "required": true
+          },
+          "outer_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "x_break_diameter_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "blade_width_mm": {
+            "type": "number",
+            "required": true
+          },
+          "blade_overhang_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "passes": {
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.02,
+            "max": 0.15,
+            "default": 0.05
+          },
+          "feed_reduction_at_break_mm": {
+            "type": "number",
+            "default": 1.5
+          },
+          "feed_reduction_factor": {
+            "type": "number",
+            "default": 0.5
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 110
+          }
+        },
+        "strategy": {
+          "chamfer_at_break_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "pull_back_distance_mm": {
+            "type": "number",
+            "default": 0.8
+          },
+          "use_sub_spindle_catch": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "tsc"
+          },
+          "spindle_brake_at_break": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "turn_thread_external": {
+      "category": "threading",
+      "display_name": "External Single-Point Threading (G76)",
+      "description": "OD threading with constant chip area infeed; supports multi-start, alternating flanks, and modified flank infeed.",
+      "parameter_count": 22,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "thread_data",
+        "passes",
+        "infeed_strategy",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "thread_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "spindle_orientation": {
+            "type": "enum",
+            "values": [
+              "main",
+              "sub"
+            ],
+            "default": "main"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "insert_partial_or_full": {
+            "type": "enum",
+            "values": [
+              "partial_profile",
+              "full_profile"
+            ],
+            "default": "partial_profile"
+          },
+          "thread_angle_deg": {
+            "type": "number",
+            "default": 60
+          }
+        },
+        "thread_data": {
+          "thread_standard": {
+            "type": "enum",
+            "values": [
+              "metric",
+              "unified",
+              "bsp",
+              "npt",
+              "acme",
+              "trapezoidal"
+            ],
+            "default": "metric"
+          },
+          "major_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "pitch_mm": {
+            "type": "number",
+            "required": true
+          },
+          "thread_length_mm": {
+            "type": "number",
+            "required": true
+          },
+          "starts": {
+            "type": "integer",
+            "min": 1,
+            "max": 12,
+            "default": 1
+          },
+          "hand": {
+            "type": "enum",
+            "values": [
+              "right",
+              "left"
+            ],
+            "default": "right"
+          }
+        },
+        "passes": {
+          "depth_of_thread_mm": {
+            "type": "number",
+            "required": true
+          },
+          "first_pass_doc_mm": {
+            "type": "number",
+            "default": 0.4
+          },
+          "min_doc_mm": {
+            "type": "number",
+            "default": 0.05
+          },
+          "spring_passes": {
+            "type": "integer",
+            "min": 0,
+            "max": 5,
+            "default": 1
+          }
+        },
+        "infeed_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "radial",
+              "modified_flank",
+              "alternating_flank"
+            ],
+            "default": "modified_flank"
+          },
+          "infeed_angle_deg": {
+            "type": "number",
+            "default": 29
+          },
+          "constant_chip_area": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "lead_in_out": {
+          "thread_lead_in_mm": {
+            "type": "number",
+            "default": 5
+          },
+          "thread_lead_out_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "link": {
+          "retract_x_mm": {
+            "type": "number",
+            "default": 5
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "flood"
+          }
+        }
+      }
+    },
+    "turn_thread_internal": {
+      "category": "threading",
+      "display_name": "Internal Threading (G76 ID)",
+      "description": "Internal single-point threading; tracks boring bar deflection and minimum pitch diameter.",
+      "parameter_count": 19,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "thread_data",
+        "passes",
+        "infeed_strategy",
+        "lead_in_out",
+        "link"
+      ],
+      "parameters": {
+        "geometry": {
+          "thread_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "min_pitch_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "boring_bar_overhang_mm": {
+            "type": "number",
+            "required": true
+          },
+          "thread_angle_deg": {
+            "type": "number",
+            "default": 60
+          }
+        },
+        "thread_data": {
+          "thread_standard": {
+            "type": "enum",
+            "values": [
+              "metric",
+              "unified",
+              "bsp",
+              "npt"
+            ],
+            "default": "metric"
+          },
+          "minor_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "pitch_mm": {
+            "type": "number",
+            "required": true
+          },
+          "thread_length_mm": {
+            "type": "number",
+            "required": true
+          },
+          "starts": {
+            "type": "integer",
+            "min": 1,
+            "max": 6,
+            "default": 1
+          },
+          "hand": {
+            "type": "enum",
+            "values": [
+              "right",
+              "left"
+            ],
+            "default": "right"
+          }
+        },
+        "passes": {
+          "depth_of_thread_mm": {
+            "type": "number",
+            "required": true
+          },
+          "first_pass_doc_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "spring_passes": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        "infeed_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "radial",
+              "modified_flank"
+            ],
+            "default": "modified_flank"
+          },
+          "infeed_angle_deg": {
+            "type": "number",
+            "default": 29
+          }
+        },
+        "lead_in_out": {
+          "thread_lead_in_mm": {
+            "type": "number",
+            "default": 4
+          },
+          "thread_lead_out_mm": {
+            "type": "number",
+            "default": 1.5
+          }
+        },
+        "link": {
+          "retract_to_center": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "turn_drill_axial": {
+      "category": "drilling",
+      "display_name": "Axial Drilling on Center",
+      "description": "Drilling along Z on spindle centerline; supports peck cycles G83 and chip evacuation.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "peck_strategy",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "z_start_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_depth_mm": {
+            "type": "number",
+            "required": true
+          },
+          "x_position_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "drill_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "point_angle_deg": {
+            "type": "number",
+            "default": 118
+          },
+          "tip_compensation": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "passes": {
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.02,
+            "max": 0.5,
+            "default": 0.15
+          },
+          "rpm": {
+            "type": "number",
+            "default": 1200
+          },
+          "use_css": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "peck_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "none",
+              "g73_chip_break",
+              "g83_full_retract"
+            ],
+            "default": "g83_full_retract"
+          },
+          "peck_depth_mm": {
+            "type": "number",
+            "default": 3
+          },
+          "retract_clearance_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "lead_in_out": {
+          "approach_clearance_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "link": {
+          "rapid_to_next": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc",
+              "mist"
+            ],
+            "default": "tsc"
+          }
+        }
+      }
+    },
+    "turn_profile_recursive": {
+      "category": "specialty",
+      "display_name": "Recursive Stock-Following Profile (Like G71)",
+      "description": "Stock-aware recursive roughing that follows raw stock contour and converges on finish profile; emulates Fanuc G71 type II.",
+      "parameter_count": 18,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "stock",
+        "passes",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "finish_profile": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "machining_side": {
+            "type": "enum",
+            "values": [
+              "right",
+              "left"
+            ],
+            "default": "right"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "nose_radius_mm": {
+            "type": "number",
+            "default": 0.8
+          },
+          "approach_angle_deg": {
+            "type": "number",
+            "default": 95
+          }
+        },
+        "stock": {
+          "stock_curve": {
+            "type": "geometry_ref",
+            "required": false
+          },
+          "raw_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "raw_length_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "passes": {
+          "doc_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 8,
+            "default": 2
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.25
+          },
+          "stock_to_leave_radial_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "stock_to_leave_axial_mm": {
+            "type": "number",
+            "default": 0.15
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 220
+          },
+          "max_passes": {
+            "type": "integer",
+            "default": 50
+          }
+        },
+        "lead_in_out": {
+          "engage_distance_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "link": {
+          "between_passes": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          },
+          "use_g71_template": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "flood"
+          }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Constant Surface Speed (CSS) vs Constant RPM",
+      "key_concepts": [
+        "G96 holds vc constant by varying RPM as diameter changes",
+        "G97 holds RPM constant — required for threading and parting near center",
+        "spindle_max_rpm clamps the upper bound on G96 to protect chuck/spindle"
+      ],
+      "best_practices": [
+        "Use G96 for facing and OD turning, switch to G97 within 2-3mm of center",
+        "Always declare spindle_max_rpm — runaway spindle on small diameters destroys parts and chucks"
+      ]
+    },
+    {
+      "topic": "Boring Bar L/D Ratio",
+      "key_concepts": [
+        "L/D = overhang_mm / bar_diameter_mm — primary indicator of vibration risk",
+        "Steel bar tolerable to ~4×D; carbide ~6×D; damped ~10×D",
+        "Deflection scales with L^3 and inversely with D^4 — small diameter changes are huge"
+      ],
+      "best_practices": [
+        "Reduce DOC and feed by 30-50% beyond 4×D ratio",
+        "Switch to anti-vibration (damped) bars before chasing parameters",
+        "Use TSC coolant to clear chips that compound chatter at high L/D"
+      ]
+    },
+    {
+      "topic": "Threading Infeed Strategies",
+      "key_concepts": [
+        "Radial: chip thickens each pass; cuts on both flanks — short tool life on coarse pitches",
+        "Modified flank (~29°): cuts on leading flank only; rubs trailing — longest tool life, best surface",
+        "Alternating flank: switches sides each pass — best chip control, used on large pitches"
+      ],
+      "best_practices": [
+        "Use modified flank for most general threads (M ≥ 1.5, UNC ≥ 1/4-20)",
+        "Alternating flank for pitch ≥ 3mm or trapezoidal/ACME forms",
+        "Always include 1+ spring passes to stabilize the flank profile"
+      ]
+    },
+    {
+      "topic": "Constant Chip Area Pass Scheduling",
+      "key_concepts": [
+        "First pass cuts the deepest, subsequent passes cut progressively less",
+        "Doc_n = first_doc × √(1/n) keeps chip cross-section roughly constant",
+        "Prevents tool overload on later passes (chip cross-section grows with depth)"
+      ],
+      "best_practices": [
+        "Use Sandvik formula doc_n = doc_1 × sqrt((n-1+1)/n) variant in production",
+        "Clamp min_doc to keep tool from rubbing — final passes should still cut, not burnish"
+      ]
+    },
+    {
+      "topic": "Part-Off Strategy & Sub-Spindle Catch",
+      "key_concepts": [
+        "Feed reduction near break (typ. 1-2mm before center) prevents spike load",
+        "Pull-back retract distance protects blade tip from stub kick-out",
+        "Sub-spindle catch enables continuous bar work without operator intervention"
+      ],
+      "best_practices": [
+        "Always reduce feed at break — full feed at center fractures inserts",
+        "Sub-spindle pickup pressure must match part rigidity (low for thin, high for slugs)",
+        "Add 0.3mm chamfer at break for clean edge with no burr"
+      ]
+    },
+    {
+      "topic": "Stock-Following Recursive Roughing (G71-style)",
+      "key_concepts": [
+        "Rather than constant DOC, follows actual stock contour",
+        "Reduces air cuts on near-net stock (forgings, castings)",
+        "Emulates Fanuc G71 type II behavior in CAM-generated G-code"
+      ],
+      "best_practices": [
+        "Provide accurate stock_curve for forgings/castings or air time wastes cycle",
+        "Cap max_passes to prevent runaway loops on degenerate geometry",
+        "Verify rough vs finish profile leave-stock matches downstream finishing offset"
+      ]
+    }
+  ]
+}

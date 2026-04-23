@@ -98,6 +98,8 @@ import { ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidc
 import { ACTION_SOLIDCAM_IMACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamIMachiningFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_3D_HSS_HSR_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam3DHSSHSRFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_5_AXIS_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam5AxisFunctionIndexActionSchemas.js";
+import { ACTION_SOLIDCAM_TURNING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamTurningFunctionIndexActionSchemas.js";
+import { ACTION_SOLIDCAM_MILLTURN_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamMillTurnFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -160,6 +162,8 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_SOLIDCAM_IMACHINING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_3D_HSS_HSR_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_5_AXIS_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_SOLIDCAM_TURNING_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_SOLIDCAM_MILLTURN_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -245,6 +249,8 @@ let _solidcamIMachiningIndex: any;
 // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine singleton
 let _solidcam3DHSSHSRIndex: any;
 let _solidcam5AxisIndex: any;
+let _solidcamTurningIndex: any;
+let _solidcamMillTurnIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -559,6 +565,8 @@ async function getEngine(name: string): Promise<any> {
     // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine
     case "solidcam3DHSSHSRIndex": return _solidcam3DHSSHSRIndex ??= (await import("../../engines/SolidCAM3DHSSHSRFunctionIndexEngine.js")).SolidCAM3DHSSHSRFunctionIndexEngine;
     case "solidcam5AxisIndex": return _solidcam5AxisIndex ??= (await import("../../engines/SolidCAM5AxisFunctionIndexEngine.js")).SolidCAM5AxisFunctionIndexEngine;
+    case "solidcamTurningIndex": return _solidcamTurningIndex ??= (await import("../../engines/SolidCAMTurningFunctionIndexEngine.js")).SolidCAMTurningFunctionIndexEngine;
+    case "solidcamMillTurnIndex": return _solidcamMillTurnIndex ??= (await import("../../engines/SolidCAMMillTurnFunctionIndexEngine.js")).SolidCAMMillTurnFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1228,6 +1236,8 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine (8 actions)
   "solidcam_3d_hss_hsr_index", "solidcam_3d_hss_hsr_summary", "solidcam_3d_hss_hsr_list_ops", "solidcam_3d_hss_hsr_get_op", "solidcam_3d_hss_hsr_by_category", "solidcam_3d_hss_hsr_find_param", "solidcam_3d_hss_hsr_recommend", "solidcam_3d_hss_hsr_step_from_scallop",
   "solidcam_5_axis_index", "solidcam_5_axis_summary", "solidcam_5_axis_list_ops", "solidcam_5_axis_get_op", "solidcam_5_axis_by_category", "solidcam_5_axis_find_param", "solidcam_5_axis_recommend", "solidcam_5_axis_validate_axis", "solidcam_5_axis_singularity",
+  "solidcam_turning_index", "solidcam_turning_summary", "solidcam_turning_list_ops", "solidcam_turning_get_op", "solidcam_turning_by_category", "solidcam_turning_find_param", "solidcam_turning_recommend", "solidcam_turning_css", "solidcam_turning_boring_bar", "solidcam_turning_thread_passes",
+  "solidcam_millturn_index", "solidcam_millturn_summary", "solidcam_millturn_list_ops", "solidcam_millturn_get_op", "solidcam_millturn_by_category", "solidcam_millturn_find_param", "solidcam_millturn_recommend", "solidcam_millturn_sync_check", "solidcam_millturn_polar_feed", "solidcam_millturn_wait_barriers",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -6857,6 +6867,110 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_5_axis_singularity": {
             const eng = await getEngine("solidcam5AxisIndex");
             result = eng.singularityCheck(params.tilt_deg);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM37 (turning): SolidCAMTurningFunctionIndexEngine ──
+          case "solidcam_turning_index": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_turning_summary": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_turning_list_ops": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_turning_get_op": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_turning_by_category": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_turning_find_param": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "solidcam_turning_recommend": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.recommendByFeature(params.feature);
+            break;
+          }
+          case "solidcam_turning_css": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.calculateCSS(params.diameter_mm, params.css_m_per_min, params.max_rpm);
+            break;
+          }
+          case "solidcam_turning_boring_bar": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.boringBarLDRatio(params.overhang_mm, params.bar_diameter_mm);
+            break;
+          }
+          case "solidcam_turning_thread_passes": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.threadPassSchedule(params.depth_of_thread_mm, params.first_pass_doc_mm, params.min_doc_mm, params.spring_passes ?? 1);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM37 (mill-turn): SolidCAMMillTurnFunctionIndexEngine ──
+          case "solidcam_millturn_index": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_millturn_summary": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_millturn_list_ops": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_millturn_get_op": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_millturn_by_category": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_millturn_find_param": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "solidcam_millturn_recommend": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.recommendByFeature(params.feature);
+            break;
+          }
+          case "solidcam_millturn_sync_check": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.validateSubSpindleSync(params.rpm_main, params.rpm_sub, params.tolerance_rpm);
+            break;
+          }
+          case "solidcam_millturn_polar_feed": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.polarFeedAtRadius(params.linear_feed_mm_per_min, params.radius_mm, params.min_radius_mm);
+            break;
+          }
+          case "solidcam_millturn_wait_barriers": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.validateWaitBarriers(params.main_count, params.sub_count);
             break;
           }
 

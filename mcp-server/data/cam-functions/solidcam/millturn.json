@@ -1,0 +1,1410 @@
+{
+  "schemaVersion": 1,
+  "system_id": "solidcam",
+  "section_key": "millturn",
+  "version": "2024.1",
+  "extracted_from": "SolidCAM 2024 Mill-Turn Reference (PDF p. 588-742)",
+  "categories": [
+    "live_tooling",
+    "c_axis",
+    "y_axis",
+    "sub_spindle",
+    "multi_channel",
+    "swiss_type",
+    "specialty"
+  ],
+  "operations": {
+    "mt_live_mill_face": {
+      "category": "live_tooling",
+      "display_name": "Live-Tool Face Milling (Driven Tool, Polar)",
+      "description": "Face milling with rotating live tool while spindle is C-axis indexed; uses radial milling head with Y or polar interpolation.",
+      "parameter_count": 17,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "polar_interp",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "feature_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "z_face_mm": {
+            "type": "number",
+            "required": true
+          },
+          "spindle_orientation": {
+            "type": "enum",
+            "values": [
+              "main",
+              "sub"
+            ],
+            "default": "main"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "live_tool_max_rpm": {
+            "type": "number",
+            "default": 6000
+          }
+        },
+        "passes": {
+          "doc_axial_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 10,
+            "default": 2
+          },
+          "feed_per_tooth_mm": {
+            "type": "number",
+            "min": 0.02,
+            "max": 0.3,
+            "default": 0.1
+          },
+          "stepover_pct": {
+            "type": "number",
+            "min": 10,
+            "max": 95,
+            "default": 60
+          }
+        },
+        "polar_interp": {
+          "use_polar_g12_1": {
+            "type": "boolean",
+            "default": true
+          },
+          "interp_axis": {
+            "type": "enum",
+            "values": [
+              "x_c",
+              "y_c"
+            ],
+            "default": "x_c"
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 2
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "default": 5
+          }
+        },
+        "link": {
+          "between_passes": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          },
+          "clearance_z_mm": {
+            "type": "number",
+            "default": 5
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc",
+              "mist"
+            ],
+            "default": "flood"
+          },
+          "spindle_brake_on": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "mt_live_mill_radial": {
+      "category": "live_tooling",
+      "display_name": "Live-Tool Radial Milling (Cross-Drilled Features)",
+      "description": "Radial drilling/milling on the OD using live tools and C-axis positioning (e.g. cross holes, flats, radial slots).",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "c_axis_setup",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "feature_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "od_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "feature_count": {
+            "type": "integer",
+            "min": 1,
+            "default": 1
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "passes": {
+          "doc_radial_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 10,
+            "default": 1.5
+          },
+          "feed_per_tooth_mm": {
+            "type": "number",
+            "default": 0.08
+          },
+          "rpm": {
+            "type": "number",
+            "default": 4000
+          }
+        },
+        "c_axis_setup": {
+          "c_clamp_mode": {
+            "type": "enum",
+            "values": [
+              "clamped",
+              "live_indexed"
+            ],
+            "default": "clamped"
+          },
+          "c_indexing_deg": {
+            "type": "number",
+            "default": 0
+          },
+          "c_speed_deg_per_min": {
+            "type": "number",
+            "default": 1800
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 1.5
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "link": {
+          "between_features": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "tsc"
+          },
+          "spindle_orientation": {
+            "type": "enum",
+            "values": [
+              "main",
+              "sub"
+            ],
+            "default": "main"
+          }
+        }
+      }
+    },
+    "mt_c_axis_drilling": {
+      "category": "c_axis",
+      "display_name": "C-Axis Indexed Drilling (Bolt Circles, Patterns)",
+      "description": "Drilling at C-axis-indexed positions; supports bolt circles, hole patterns, and angular patterns on the face or OD.",
+      "parameter_count": 15,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "peck_strategy",
+        "c_axis_setup",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "hole_pattern": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "z_start_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "drill_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "point_angle_deg": {
+            "type": "number",
+            "default": 118
+          }
+        },
+        "passes": {
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.02,
+            "max": 0.5,
+            "default": 0.12
+          },
+          "rpm": {
+            "type": "number",
+            "default": 1500
+          }
+        },
+        "peck_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "none",
+              "g73",
+              "g83"
+            ],
+            "default": "g83"
+          },
+          "peck_depth_mm": {
+            "type": "number",
+            "default": 3
+          },
+          "retract_clearance_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "c_axis_setup": {
+          "c_indexing_mode": {
+            "type": "enum",
+            "values": [
+              "index_then_drill",
+              "polar"
+            ],
+            "default": "index_then_drill"
+          },
+          "c_clamp_between_holes": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "link": {
+          "rapid_between_holes": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc",
+              "mist"
+            ],
+            "default": "tsc"
+          }
+        }
+      }
+    },
+    "mt_c_axis_polar_milling": {
+      "category": "c_axis",
+      "display_name": "Polar Milling (G12.1 Pocket / Slot)",
+      "description": "Milling polar contours and pockets using G12.1 (Fanuc) / G7.1 (Mitsubishi) polar coordinate interpolation.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "polar_setup",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "polar_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "z_face_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "passes": {
+          "doc_axial_mm": {
+            "type": "number",
+            "default": 1
+          },
+          "feed_per_tooth_mm": {
+            "type": "number",
+            "default": 0.08
+          },
+          "stepover_pct": {
+            "type": "number",
+            "default": 50
+          },
+          "rpm": {
+            "type": "number",
+            "default": 5000
+          }
+        },
+        "polar_setup": {
+          "polar_g_code": {
+            "type": "enum",
+            "values": [
+              "G12.1",
+              "G7.1"
+            ],
+            "default": "G12.1"
+          },
+          "x_min_radius_mm": {
+            "type": "number",
+            "default": 0.5
+          },
+          "feed_correction_at_center": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "lead_in_out": {
+          "lead_in_radius_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "link": {
+          "exit_polar_at_end": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "flood"
+          },
+          "tip_compensation": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "mt_y_axis_milling": {
+      "category": "y_axis",
+      "display_name": "Y-Axis Linear Milling",
+      "description": "True linear Y-axis milling for off-center features (key slots, flat pads, square pockets); requires machine with physical Y-axis.",
+      "parameter_count": 15,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "passes",
+        "y_axis_setup",
+        "lead_in_out",
+        "link",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "feature_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "y_offset_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z_depth_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "passes": {
+          "doc_axial_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 8,
+            "default": 1.5
+          },
+          "feed_per_tooth_mm": {
+            "type": "number",
+            "default": 0.1
+          },
+          "stepover_pct": {
+            "type": "number",
+            "default": 65
+          },
+          "rpm": {
+            "type": "number",
+            "default": 5500
+          }
+        },
+        "y_axis_setup": {
+          "y_max_travel_mm": {
+            "type": "number",
+            "required": true
+          },
+          "y_clearance_mm": {
+            "type": "number",
+            "default": 5
+          },
+          "use_physical_y": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "lead_in_out": {
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "arc",
+              "ramp",
+              "perpendicular"
+            ],
+            "default": "arc"
+          }
+        },
+        "link": {
+          "between_passes": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "rapid"
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc",
+              "mist"
+            ],
+            "default": "flood"
+          }
+        }
+      }
+    },
+    "mt_sub_spindle_pickup": {
+      "category": "sub_spindle",
+      "display_name": "Sub-Spindle Pickup (Hand-Off)",
+      "description": "Sub-spindle picks up workpiece from main spindle for second-side machining; supports synchronized pickup or part-off pickup.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "pickup_strategy",
+        "spindle_sync",
+        "force_control",
+        "z_motion",
+        "safety",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "main_spindle_z_mm": {
+            "type": "number",
+            "required": true
+          },
+          "sub_spindle_z_target_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "pickup_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "synchronized_pickup",
+              "part_off_then_pickup",
+              "z_advance_only"
+            ],
+            "default": "synchronized_pickup"
+          },
+          "approach_speed_mm_per_min": {
+            "type": "number",
+            "default": 200
+          }
+        },
+        "spindle_sync": {
+          "sync_rpm": {
+            "type": "number",
+            "default": 500
+          },
+          "sync_phase_offset_deg": {
+            "type": "number",
+            "default": 0
+          },
+          "rigid_sync": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "force_control": {
+          "pickup_pressure_bar": {
+            "type": "number",
+            "min": 0.5,
+            "max": 30,
+            "default": 8
+          },
+          "force_monitor_enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "max_thrust_n": {
+            "type": "number",
+            "default": 800
+          }
+        },
+        "z_motion": {
+          "z_overlap_mm": {
+            "type": "number",
+            "default": 3
+          },
+          "z_dwell_at_grip_sec": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "safety": {
+          "verify_chuck_open": {
+            "type": "boolean",
+            "default": true
+          },
+          "abort_on_overforce": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "coolant_during_pickup": {
+            "type": "enum",
+            "values": [
+              "off",
+              "mist"
+            ],
+            "default": "off"
+          },
+          "controller": {
+            "type": "enum",
+            "values": [
+              "fanuc",
+              "mitsubishi",
+              "siemens"
+            ],
+            "default": "fanuc"
+          }
+        }
+      }
+    },
+    "mt_sub_spindle_part_off": {
+      "category": "sub_spindle",
+      "display_name": "Sub-Spindle Part-Off & Eject",
+      "description": "Final part-off with sub-spindle catching, then ejection to parts conveyor or bin; includes optional probe verification.",
+      "parameter_count": 15,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "part_off_strategy",
+        "sub_spindle_sync",
+        "ejection",
+        "safety",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "z_part_off_mm": {
+            "type": "number",
+            "required": true
+          },
+          "outer_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "blade_width_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "part_off_strategy": {
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.05
+          },
+          "feed_reduction_at_break_mm": {
+            "type": "number",
+            "default": 1.5
+          },
+          "break_feed_factor": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "sub_spindle_sync": {
+          "sync_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "rigid_sync": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "ejection": {
+          "destination": {
+            "type": "enum",
+            "values": [
+              "catcher",
+              "conveyor",
+              "bin"
+            ],
+            "default": "catcher"
+          },
+          "eject_air_blast_sec": {
+            "type": "number",
+            "default": 0.5
+          },
+          "verify_part_present": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "safety": {
+          "abort_if_unsynced": {
+            "type": "boolean",
+            "default": true
+          },
+          "spindle_brake_after_break": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "misc": {
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "flood",
+              "tsc"
+            ],
+            "default": "tsc"
+          }
+        }
+      }
+    },
+    "mt_balanced_turning": {
+      "category": "multi_channel",
+      "display_name": "Balanced Turning (Two Tools, Opposing Sides)",
+      "description": "Two turrets/tools cutting opposite sides of the same OD simultaneously; reduces deflection and cycle time on long shafts.",
+      "parameter_count": 17,
+      "dialog_tabs": [
+        "geometry",
+        "channel_a",
+        "channel_b",
+        "sync",
+        "passes",
+        "deflection",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "profile_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "shaft_length_mm": {
+            "type": "number",
+            "required": true
+          },
+          "ld_ratio_alert_above": {
+            "type": "number",
+            "default": 8
+          }
+        },
+        "channel_a": {
+          "tool_a_id": {
+            "type": "string",
+            "required": true
+          },
+          "side_a": {
+            "type": "enum",
+            "values": [
+              "front",
+              "rear"
+            ],
+            "default": "front"
+          },
+          "doc_a_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "channel_b": {
+          "tool_b_id": {
+            "type": "string",
+            "required": true
+          },
+          "side_b": {
+            "type": "enum",
+            "values": [
+              "front",
+              "rear"
+            ],
+            "default": "rear"
+          },
+          "doc_b_mm": {
+            "type": "number",
+            "default": 2
+          }
+        },
+        "sync": {
+          "wait_code": {
+            "type": "string",
+            "default": "M400"
+          },
+          "z_offset_between_tools_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "passes": {
+          "feed_per_rev_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 200
+          }
+        },
+        "deflection": {
+          "use_steady_rest": {
+            "type": "boolean",
+            "default": false
+          },
+          "deflection_target_mm": {
+            "type": "number",
+            "default": 0.05
+          },
+          "deflection_compensation": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "controller": {
+            "type": "enum",
+            "values": [
+              "fanuc_dual",
+              "mitsubishi_dual",
+              "okuma_osp"
+            ],
+            "default": "fanuc_dual"
+          }
+        }
+      }
+    },
+    "mt_multi_channel_sync": {
+      "category": "multi_channel",
+      "display_name": "Main + Sub-Spindle Multi-Channel Sync",
+      "description": "Coordinated machining where main spindle runs one channel and sub-spindle runs another simultaneously; uses M-code wait barriers.",
+      "parameter_count": 15,
+      "dialog_tabs": [
+        "channels",
+        "sync_strategy",
+        "wait_barriers",
+        "axis_lock",
+        "abort_handling",
+        "misc"
+      ],
+      "parameters": {
+        "channels": {
+          "main_channel_program": {
+            "type": "string",
+            "required": true
+          },
+          "sub_channel_program": {
+            "type": "string",
+            "required": true
+          },
+          "channel_count": {
+            "type": "integer",
+            "min": 2,
+            "max": 4,
+            "default": 2
+          }
+        },
+        "sync_strategy": {
+          "mode": {
+            "type": "enum",
+            "values": [
+              "wait_codes",
+              "rendezvous",
+              "free_running"
+            ],
+            "default": "wait_codes"
+          },
+          "wait_timeout_sec": {
+            "type": "number",
+            "default": 30
+          }
+        },
+        "wait_barriers": {
+          "main_wait_codes": {
+            "type": "string",
+            "default": "M400 M401 M402"
+          },
+          "sub_wait_codes": {
+            "type": "string",
+            "default": "M400 M401 M402"
+          },
+          "barrier_count": {
+            "type": "integer",
+            "default": 3
+          }
+        },
+        "axis_lock": {
+          "lock_main_z_during_sub": {
+            "type": "boolean",
+            "default": false
+          },
+          "shared_b_axis": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "abort_handling": {
+          "abort_both_on_alarm": {
+            "type": "boolean",
+            "default": true
+          },
+          "retract_to_safety_on_abort": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "misc": {
+          "controller": {
+            "type": "enum",
+            "values": [
+              "fanuc_30i",
+              "mitsubishi_m800",
+              "okuma_osp_p300"
+            ],
+            "default": "fanuc_30i"
+          },
+          "verify_e_stop_paths": {
+            "type": "boolean",
+            "default": true
+          },
+          "log_sync_events": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "mt_swiss_type_turning": {
+      "category": "swiss_type",
+      "display_name": "Swiss-Type Turning (Sliding Headstock)",
+      "description": "Swiss-style turning with sliding headstock and guide bushing; supports z-stationary cutting where stock advances through guide bushing.",
+      "parameter_count": 17,
+      "dialog_tabs": [
+        "geometry",
+        "guide_bushing",
+        "passes",
+        "headstock_motion",
+        "tool_zones",
+        "lead_in_out",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "profile_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "stock_length_mm": {
+            "type": "number",
+            "required": true
+          },
+          "stock_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "guide_bushing": {
+          "guide_bushing_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "guide_bushing_clearance_mm": {
+            "type": "number",
+            "default": 0.02
+          },
+          "guideless_mode": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "passes": {
+          "doc_mm": {
+            "type": "number",
+            "min": 0.05,
+            "max": 4,
+            "default": 0.5
+          },
+          "feed_per_rev_mm": {
+            "type": "number",
+            "min": 0.02,
+            "max": 0.3,
+            "default": 0.05
+          },
+          "css_m_per_min": {
+            "type": "number",
+            "default": 180
+          }
+        },
+        "headstock_motion": {
+          "z1_advance_mm": {
+            "type": "number",
+            "required": true
+          },
+          "z1_retract_to_collet": {
+            "type": "boolean",
+            "default": true
+          },
+          "z1_max_advance_mm": {
+            "type": "number",
+            "default": 200
+          }
+        },
+        "tool_zones": {
+          "tool_zone": {
+            "type": "enum",
+            "values": [
+              "main_gang",
+              "back_tool_post",
+              "live_tool_top",
+              "back_working_attachment"
+            ],
+            "default": "main_gang"
+          },
+          "zone_collision_check": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "lead_in_out": {
+          "approach_distance_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "misc": {
+          "controller": {
+            "type": "enum",
+            "values": [
+              "citizen_l20",
+              "tornos_swiss_gt",
+              "star_sb20",
+              "fanuc_swiss"
+            ],
+            "default": "citizen_l20"
+          },
+          "coolant": {
+            "type": "enum",
+            "values": [
+              "high_pressure",
+              "tsc",
+              "flood"
+            ],
+            "default": "high_pressure"
+          }
+        }
+      }
+    },
+    "mt_thread_chasing_sync": {
+      "category": "specialty",
+      "display_name": "Synchronized Thread Chasing (Multi-Pass with Sub-Pickup)",
+      "description": "Threading on transferred (sub-spindle) part with phase-synchronized pickup so thread starts align across operations.",
+      "parameter_count": 16,
+      "dialog_tabs": [
+        "geometry",
+        "thread_data",
+        "phase_sync",
+        "passes",
+        "infeed_strategy",
+        "lead_in_out",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "thread_curve": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "spindle": {
+            "type": "enum",
+            "values": [
+              "main",
+              "sub"
+            ],
+            "default": "sub"
+          }
+        },
+        "thread_data": {
+          "major_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "pitch_mm": {
+            "type": "number",
+            "required": true
+          },
+          "thread_length_mm": {
+            "type": "number",
+            "required": true
+          },
+          "starts": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        "phase_sync": {
+          "phase_offset_deg": {
+            "type": "number",
+            "default": 0
+          },
+          "use_pickup_index": {
+            "type": "boolean",
+            "default": true
+          },
+          "phase_tolerance_deg": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "passes": {
+          "depth_of_thread_mm": {
+            "type": "number",
+            "required": true
+          },
+          "first_pass_doc_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "spring_passes": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        "infeed_strategy": {
+          "type": {
+            "type": "enum",
+            "values": [
+              "radial",
+              "modified_flank"
+            ],
+            "default": "modified_flank"
+          }
+        },
+        "lead_in_out": {
+          "thread_lead_in_mm": {
+            "type": "number",
+            "default": 4
+          },
+          "thread_lead_out_mm": {
+            "type": "number",
+            "default": 1.5
+          }
+        },
+        "misc": {
+          "controller": {
+            "type": "enum",
+            "values": [
+              "fanuc",
+              "mitsubishi"
+            ],
+            "default": "fanuc"
+          }
+        }
+      }
+    },
+    "mt_bar_feeder_advance": {
+      "category": "specialty",
+      "display_name": "Bar Feeder Advance & Stop",
+      "description": "Bar feeder pushes new stock to part-stop after part-off; supports magazine bar feeders and short-bar pickup.",
+      "parameter_count": 13,
+      "dialog_tabs": [
+        "geometry",
+        "feeder",
+        "advance_strategy",
+        "stop_position",
+        "verification",
+        "misc"
+      ],
+      "parameters": {
+        "geometry": {
+          "stock_length_mm": {
+            "type": "number",
+            "required": true
+          },
+          "remnant_length_mm": {
+            "type": "number",
+            "default": 100
+          }
+        },
+        "feeder": {
+          "feeder_type": {
+            "type": "enum",
+            "values": [
+              "magazine",
+              "short_bar",
+              "single_bar"
+            ],
+            "default": "magazine"
+          },
+          "max_bar_length_mm": {
+            "type": "number",
+            "default": 3700
+          },
+          "feed_speed_mm_per_min": {
+            "type": "number",
+            "default": 5000
+          }
+        },
+        "advance_strategy": {
+          "stop_against": {
+            "type": "enum",
+            "values": [
+              "part_stop",
+              "live_tool_stop",
+              "sub_spindle_stop"
+            ],
+            "default": "part_stop"
+          },
+          "advance_pressure_bar": {
+            "type": "number",
+            "default": 4
+          }
+        },
+        "stop_position": {
+          "z_stop_mm": {
+            "type": "number",
+            "required": true
+          },
+          "stop_dwell_sec": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "verification": {
+          "verify_bar_present": {
+            "type": "boolean",
+            "default": true
+          },
+          "verify_remnant_threshold_mm": {
+            "type": "number",
+            "default": 80
+          }
+        },
+        "misc": {
+          "controller": {
+            "type": "enum",
+            "values": [
+              "fanuc",
+              "mitsubishi",
+              "okuma"
+            ],
+            "default": "fanuc"
+          },
+          "coolant_during_advance": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "C-Axis Indexing vs C-Axis Live Interpolation",
+      "key_concepts": [
+        "Indexed: spindle is treated as a C rotary, clamped at angles for drilling/milling",
+        "Live: spindle interpolates angularly while machining (G12.1 polar, full XYC moves)",
+        "Live mode requires C-axis brake released and tighter dynamic tuning"
+      ],
+      "best_practices": [
+        "Use indexed mode for hole patterns (faster, more rigid)",
+        "Use live mode for polar contours, slots that span >90°, or tangent feature transitions",
+        "Always re-engage C-clamp before high-load axial cuts to protect the C-axis motor"
+      ]
+    },
+    {
+      "topic": "Sub-Spindle Pickup Pressure",
+      "key_concepts": [
+        "Too low: part slips during transfer → scrap and possible crash",
+        "Too high: part marking, deformation, or chuck damage on thin walls",
+        "Pressure should match part rigidity (low for thin tubes, high for solid stock)"
+      ],
+      "best_practices": [
+        "Always enable force monitoring + abort_on_overforce — prevents driving sub into main",
+        "Verify chuck open status before commanding sync RPM",
+        "Use synchronized pickup (rigid_sync=true) for threading or precision second ops"
+      ]
+    },
+    {
+      "topic": "Wait Codes & Multi-Channel Sync",
+      "key_concepts": [
+        "M400/M401/M402 (Fanuc) are arbitrary barrier codes — both channels must reach to proceed",
+        "Mitsubishi uses !L codes; Okuma uses WAIT/WAITS macros",
+        "Deadlock if one channel exits before reaching its matching barrier"
+      ],
+      "best_practices": [
+        "Pair every wait code on main with the same code on sub — count them in code review",
+        "Always set wait_timeout_sec to recover from operator-aborted single-channel runs",
+        "Diagram channel sync points before writing code — flowchart prevents deadlocks"
+      ]
+    },
+    {
+      "topic": "Y-Axis vs Polar Interpolation",
+      "key_concepts": [
+        "True Y-axis: physical linear axis, full feedrate, tight tolerances (±0.005mm)",
+        "Polar (G12.1): synthesized via X+C, slower, looser at low radii, fails at center",
+        "Polar feed correction (G12.1 modal) keeps surface speed near center"
+      ],
+      "best_practices": [
+        "Prefer true Y for any feature off-center where tolerance matters",
+        "Polar OK for shallow milling, slot-pocket hybrids that don't cross center",
+        "If polar must approach center: enable feed correction + set x_min_radius_mm > 0"
+      ]
+    },
+    {
+      "topic": "Swiss-Type Guide Bushing Clearance",
+      "key_concepts": [
+        "Standard clearance 0.01-0.03mm (per side) keeps stock concentric without binding",
+        "Too tight: galling, bar bind, broken stock",
+        "Too loose: chatter, surface finish degradation, loss of tolerance",
+        "Guideless mode supports certain Citizen/Tornos machines for short parts"
+      ],
+      "best_practices": [
+        "Match guide bushing diameter to ground stock (h7 typical)",
+        "Use polished bushing for stainless and titanium to prevent galling",
+        "For parts <2×D in length, guideless mode + face support gives best tolerance"
+      ]
+    },
+    {
+      "topic": "Balanced Turning Deflection Reduction",
+      "key_concepts": [
+        "Two tools cutting opposing sides cancel radial force → deflection ~50% lower",
+        "L/D >8 shafts benefit dramatically (deflection scales with L^3)",
+        "Requires precise z-offset to avoid one tool finishing what the other is roughing"
+      ],
+      "best_practices": [
+        "Set z_offset_between_tools_mm so each tool stays in its own zone",
+        "Use deflection_compensation to bias tool position based on predicted deflection",
+        "Below L/D=4, balanced turning adds complexity without measurable benefit"
+      ]
+    },
+    {
+      "topic": "Bar Feeder Remnant Management",
+      "key_concepts": [
+        "Each cycle removes part_length + cut-off width from bar",
+        "When remnant < threshold, machine should stop and call for new bar",
+        "Magazine feeders cycle automatically; short-bar feeders need manual reload"
+      ],
+      "best_practices": [
+        "Set verify_remnant_threshold_mm to part_length × 1.5 + grip_length",
+        "Always verify_bar_present before each cycle — prevents air-cuts and crashes",
+        "For high-mix work, log remnant lengths to optimize stock allocation across jobs"
+      ]
+    }
+  ]
+}
