@@ -219,9 +219,10 @@ function buildInjection(data, intent) {
 
   // Intent-driven protocol reminder
   if (intent === "create") {
+    const n = data.engineCount ? `${data.engineCount}+` : "thousands of";
     lines.push(
       "**Before creating:** run `duplicationGuardEngine.checkBeforeCreating()` or the `/dedup` skill. " +
-      "Check `ENGINE_DIGEST.md` first — the system has 2500+ engines. " +
+      `Check \`ENGINE_DIGEST.md\` first — the system has ${n} engines. ` +
       "Use `/forge-triple` to ship engine + skill + hook together.",
     );
   } else if (intent === "query") {
@@ -243,6 +244,16 @@ function buildInjection(data, intent) {
     "commit subject `[SCOPE]/U-ID: title` (use `[MAIN]` prefix when outside scope worktree).",
   );
 
+  // Terse hook-audit notice so other chats don't re-run the same cuts
+  // or chase "missing" advisory output. Dynamic presence check keeps it
+  // accurate if the audit is ever reverted.
+  if (data.hookAuditActive) {
+    lines.push(
+      "**Hook audit active:** 23 advisory hooks short-circuited for token economy — " +
+      "see `.claude/helpers/apply-hook-fixes.mjs` to audit or revert (marker: `DISABLED_TOKEN_REDUX_2026_04_23`).",
+    );
+  }
+
   return lines.join("\n");
 }
 
@@ -263,6 +274,12 @@ async function main() {
       safeRead(SOURCES.inventory, 8 * 1024),
       readJson(SOURCES.roadmapIdx),
     ]);
+    let hookAuditActive = false;
+    try {
+      const helper = await safeRead(path.join(REPO_ROOT, ".claude/helpers/apply-hook-fixes.mjs"), 8 * 1024);
+      hookAuditActive = !!helper && helper.includes("DISABLED_TOKEN_REDUX_2026_04_23");
+    } catch { /* non-fatal */ }
+
     data = {
       generated_at: Date.now(),
       phase: extractPhase(position),
@@ -270,6 +287,7 @@ async function main() {
       engineCount: extractEngineCount(inventory),
       inProgress: extractInProgressMilestones(roadmapIdx),
       recentLanes: extractRecentLanes(chat),
+      hookAuditActive,
     };
     await writeCache(data);
   }
