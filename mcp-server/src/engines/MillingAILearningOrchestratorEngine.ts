@@ -156,11 +156,12 @@ class MillingAILearningOrchestratorEngine {
   }
 
   /**
-   * Main entry — routes AI/ML request to appropriate sub-engine
+   * Main entry — routes AI/ML request to appropriate sub-engine.
+   * Returns `{success:false, engine_available:false}` with a machine-readable
+   * reason when the sub-engine isn't built; NEVER fabricates success data.
    */
   async orchestrate(request: MillingAIRequest): Promise<MillingAIResponse> {
     const startTime = Date.now();
-    const warnings: string[] = [];
 
     log.info(`[MillingAILearning] Routing ${request.request_type}`);
     this.invocationCount++;
@@ -182,40 +183,51 @@ class MillingAILearningOrchestratorEngine {
       };
     }
 
+    let mod: any;
     try {
-      const mod = await import(route.module_path);
-      const engine = mod[route.export_name];
-
-      if (!engine) {
-        warnings.push(`Engine ${route.engine_name} exported but not instantiated`);
-        return this.buildUnavailableResponse(request.request_type, route, startTime, warnings);
-      }
-
-      if (typeof engine[route.method] !== "function") {
-        warnings.push(`${route.engine_name}.${route.method} is not a function`);
-        return this.buildUnavailableResponse(request.request_type, route, startTime, warnings);
-      }
-
-      const result = await engine[route.method](request);
-
-      return {
-        success: true,
-        request_type: request.request_type,
-        engine: route.engine_name,
-        result,
-        provenance: {
-          engines_invoked: [route.engine_name],
-          processing_time_ms: Date.now() - startTime,
-          engine_available: true,
-          ts: new Date().toISOString(),
-        },
-        warnings,
-      };
+      mod = await import(route.module_path);
     } catch (err: any) {
-      // Engine module doesn't exist yet — graceful fallback
-      warnings.push(`Module ${route.module_path} unavailable: ${err.message}`);
-      return this.buildUnavailableResponse(request.request_type, route, startTime, warnings);
+      return this.buildMissingResponse(
+        request.request_type,
+        route,
+        startTime,
+        `Module ${route.module_path} not found: ${err.message}`,
+      );
     }
+
+    const engine = mod[route.export_name];
+    if (!engine) {
+      return this.buildMissingResponse(
+        request.request_type,
+        route,
+        startTime,
+        `${route.engine_name} module exists but does not export ${route.export_name}`,
+      );
+    }
+    if (typeof engine[route.method] !== "function") {
+      return this.buildMissingResponse(
+        request.request_type,
+        route,
+        startTime,
+        `${route.engine_name}.${route.method} is not a function`,
+      );
+    }
+
+    // All guards passed — real engine call. Errors propagate (no swallow).
+    const result = await engine[route.method](request);
+    return {
+      success: true,
+      request_type: request.request_type,
+      engine: route.engine_name,
+      result,
+      provenance: {
+        engines_invoked: [route.engine_name],
+        processing_time_ms: Date.now() - startTime,
+        engine_available: true,
+        ts: new Date().toISOString(),
+      },
+      warnings: [],
+    };
   }
 
   /**
@@ -269,24 +281,29 @@ class MillingAILearningOrchestratorEngine {
   // PRIVATE HELPERS
   // --------------------------------------------------------------------------
 
-  private buildUnavailableResponse(
+  /**
+   * Build an honest "engine missing" response — no fabricated success shape,
+   * no placeholder status codes that look like real output. Callers must
+   * check `success === false && engine_available === false`.
+   */
+  private buildMissingResponse(
     type: MillingAIRequestType,
     route: RouteEntry,
     startTime: number,
-    warnings: string[]
+    reason: string,
   ): MillingAIResponse {
     return {
       success: false,
       request_type: type,
       engine: route.engine_name,
-      result: { status: "engine_not_built", routed_to: route.engine_name },
+      result: null,
       provenance: {
         engines_invoked: [route.engine_name],
         processing_time_ms: Date.now() - startTime,
         engine_available: false,
         ts: new Date().toISOString(),
       },
-      warnings,
+      warnings: [reason],
     };
   }
 }

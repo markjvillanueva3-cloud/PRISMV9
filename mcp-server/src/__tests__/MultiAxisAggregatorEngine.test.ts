@@ -42,7 +42,8 @@ describe("MultiAxisAggregatorEngine (standalone)", () => {
       request_type: "kinematic_fk",
       joint_values: [0, 0, 0, 0, 0],
     });
-    expect((response.result as any).status).toBe("engine_not_built");
+    expect(response.result).toBeNull();
+    expect(response.provenance.engine_available).toBe(false);
     expect(response.provenance.engine_available).toBe(false);
   });
 
