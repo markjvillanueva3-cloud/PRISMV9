@@ -17,6 +17,27 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { MILL_ACTION_SCHEMAS } from "../../schemas/millActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
+/**
+ * NO-FAKE-CODE: call engine method or throw a structured "not wired" error.
+ * Replaces the banned `engine.method?.(params) ?? { fabricated data }` pattern.
+ * Try each candidate method in order; the FIRST one that exists is called.
+ */
+async function callOrThrow(
+  engine: any,
+  methodCandidates: readonly string[],
+  params: any,
+  engineName: string,
+): Promise<any> {
+  for (const method of methodCandidates) {
+    if (typeof engine?.[method] === "function") {
+      return await engine[method](params);
+    }
+  }
+  throw new Error(
+    `[NOT_WIRED] ${engineName} does not expose any of: ${methodCandidates.join(", ")}`,
+  );
+}
+
 // Lazy-loaded engine cache
 let _facade: any, _strategy: any, _optimizer: any, _collision: any;
 let _physics: any, _thermal: any, _pattern: any, _twin: any;
@@ -228,28 +249,23 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // PRINT-TO-PROGRAM PIPELINE
           // ============================================================
           case "mill_print_to_program": {
-            const engine = await getEngine("program");
-            result = engine.process?.(params) ?? engine.generate?.(params) ?? { status: "stub", message: "MillPrintToProgramEngine pending" };
+            result = await callOrThrow(await getEngine("program"), ["process", "generate"], params, "MillPrintToProgramEngine");
             break;
           }
           case "mill_feature_recognize": {
-            const engine = await getEngine("facade");
-            result = engine.recognizeFeatures?.(params) ?? { status: "stub", message: "Feature recognition via facade" };
+            result = await callOrThrow(await getEngine("facade"), ["recognizeFeatures"], params, "MillMasterOrchestratorFacadeEngine");
             break;
           }
           case "mill_process_plan": {
-            const engine = await getEngine("facade");
-            result = engine.planProcess?.(params) ?? { status: "stub", message: "Process planning via facade" };
+            result = await callOrThrow(await getEngine("facade"), ["planProcess"], params, "MillMasterOrchestratorFacadeEngine");
             break;
           }
           case "mill_generate_gcode": {
-            const engine = await getEngine("program");
-            result = engine.generateGcode?.(params) ?? { status: "stub", message: "G-code generation pending" };
+            result = await callOrThrow(await getEngine("program"), ["generateGcode"], params, "MillPrintToProgramEngine");
             break;
           }
           case "mill_validate_program": {
-            const engine = await getEngine("validate");
-            result = engine.analyze?.(params) ?? engine.validate?.(params) ?? { status: "stub" };
+            result = await callOrThrow(await getEngine("validate"), ["analyze", "validate"], params, "MillProgramAnalyzerEngine");
             break;
           }
 
@@ -257,23 +273,19 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // STRATEGY SELECTION
           // ============================================================
           case "mill_strategy_select": {
-            const engine = await getEngine("strategy");
-            result = engine.selectStrategy?.(params) ?? engine.recommend?.(params) ?? { strategy: "adaptive_clearing", confidence: 0.85 };
+            result = await callOrThrow(await getEngine("strategy"), ["selectStrategy", "recommend"], params, "MillStrategyNeuralEngine");
             break;
           }
           case "mill_strategy_recommend": {
-            const engine = await getEngine("neural");
-            result = engine.recommend?.(params) ?? { strategies: ["roughing", "finishing"], confidence: 0.9 };
+            result = await callOrThrow(await getEngine("neural"), ["recommend"], params, "MillStrategyNeuralEngine");
             break;
           }
           case "mill_strategy_compare": {
-            const engine = await getEngine("strategy");
-            result = engine.compare?.(params) ?? { comparison: [], winner: null };
+            result = await callOrThrow(await getEngine("strategy"), ["compare"], params, "MillStrategyNeuralEngine");
             break;
           }
           case "mill_strategy_optimize": {
-            const engine = await getEngine("optimizer");
-            result = engine.optimizeStrategy?.(params) ?? { optimized: true };
+            result = await callOrThrow(await getEngine("optimizer"), ["optimizeStrategy"], params, "MillProgramOptimizerEngine");
             break;
           }
 
@@ -281,38 +293,31 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // TOOLPATH OPERATIONS
           // ============================================================
           case "mill_toolpath_generate": {
-            const engine = await getEngine("toolpath");
-            result = engine.generate?.(params) ?? { toolpath: null, status: "pending" };
+            result = await callOrThrow(await getEngine("toolpath"), ["generate"], params, "ToolpathStrategyEngine");
             break;
           }
           case "mill_toolpath_simulate": {
-            const engine = await getEngine("collision");
-            result = engine.simulate?.(params) ?? { collisionFree: true, warnings: [] };
+            result = await callOrThrow(await getEngine("collision"), ["simulate"], params, "MillKinematicsCollisionEngine");
             break;
           }
           case "mill_toolpath_optimize": {
-            const engine = await getEngine("optimizer");
-            result = engine.optimizeToolpath?.(params) ?? { optimized: true };
+            result = await callOrThrow(await getEngine("optimizer"), ["optimizeToolpath"], params, "MillProgramOptimizerEngine");
             break;
           }
           case "mill_toolpath_rest": {
-            const engine = await getEngine("toolpath");
-            result = engine.generateRest?.(params) ?? { restAreas: [], status: "pending" };
+            result = await callOrThrow(await getEngine("toolpath"), ["generateRest"], params, "ToolpathStrategyEngine");
             break;
           }
           case "mill_toolpath_adaptive": {
-            const engine = await getEngine("adaptive");
-            result = engine.generateAdaptive?.(params) ?? { strategy: "prism_forces", engagement: 0.1 };
+            result = await callOrThrow(await getEngine("adaptive"), ["generateAdaptive"], params, "AdaptiveToolpathRouterEngine");
             break;
           }
           case "mill_toolpath_hsm": {
-            const engine = await getEngine("toolpath");
-            result = engine.generateHSM?.(params) ?? { hsm: true, chipLoad: "constant" };
+            result = await callOrThrow(await getEngine("toolpath"), ["generateHSM"], params, "ToolpathStrategyEngine");
             break;
           }
           case "mill_toolpath_trochoidal": {
-            const engine = await getEngine("toolpath");
-            result = engine.generateTrochoidal?.(params) ?? { trochoidal: true, stepover: 0.08 };
+            result = await callOrThrow(await getEngine("toolpath"), ["generateTrochoidal"], params, "ToolpathStrategyEngine");
             break;
           }
 
@@ -320,28 +325,23 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // PHYSICS & VALIDATION
           // ============================================================
           case "mill_force_calculate": {
-            const engine = await getEngine("physics");
-            result = engine.calculate?.(params) ?? { Fc_N: 0, Ft_N: 0, Fr_N: 0 };
+            result = await callOrThrow(await getEngine("physics"), ["calculate"], params, "MillingForceEngine");
             break;
           }
           case "mill_deflection_check": {
-            const engine = await getEngine("physics");
-            result = engine.checkDeflection?.(params) ?? { deflection_mm: 0, withinTolerance: true };
+            result = await callOrThrow(await getEngine("physics"), ["checkDeflection"], params, "MillingForceEngine");
             break;
           }
           case "mill_chatter_predict": {
-            const engine = await getEngine("physics");
-            result = engine.predictChatter?.(params) ?? { stable: true, criticalRPM: [] };
+            result = await callOrThrow(await getEngine("physics"), ["predictChatter"], params, "MillingForceEngine");
             break;
           }
           case "mill_thermal_analyze": {
-            const engine = await getEngine("thermal");
-            result = engine.analyze?.(params) ?? { maxTemp_C: 0, wearRate: 0 };
+            result = await callOrThrow(await getEngine("thermal"), ["analyze"], params, "ThermalWearCouplingEngine");
             break;
           }
           case "mill_power_verify": {
-            const engine = await getEngine("physics");
-            result = engine.verifyPower?.(params) ?? { powerOK: true, requiredKW: 0, availableKW: 0 };
+            result = await callOrThrow(await getEngine("physics"), ["verifyPower"], params, "MillingForceEngine");
             break;
           }
 
@@ -349,23 +349,19 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // COLLISION & KINEMATICS
           // ============================================================
           case "mill_collision_check": {
-            const engine = await getEngine("collision");
-            result = engine.checkCollision?.(params) ?? engine.check?.(params) ?? { collisionFree: true };
+            result = await callOrThrow(await getEngine("collision"), ["checkCollision", "check"], params, "MillKinematicsCollisionEngine");
             break;
           }
           case "mill_collision_zones": {
-            const engine = await getEngine("collision");
-            result = engine.getZones?.(params) ?? { zones: [] };
+            result = await callOrThrow(await getEngine("collision"), ["getZones"], params, "MillKinematicsCollisionEngine");
             break;
           }
           case "mill_kinematics_verify": {
-            const engine = await getEngine("kinematics");
-            result = engine.verifyKinematics?.(params) ?? { valid: true };
+            result = await callOrThrow(await getEngine("kinematics"), ["verifyKinematics"], params, "MillKinematicsCollisionEngine");
             break;
           }
           case "mill_work_envelope": {
-            const engine = await getEngine("kinematics");
-            result = engine.checkEnvelope?.(params) ?? { withinEnvelope: true };
+            result = await callOrThrow(await getEngine("kinematics"), ["checkEnvelope"], params, "MillKinematicsCollisionEngine");
             break;
           }
 
@@ -373,18 +369,15 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // TOOL SELECTION
           // ============================================================
           case "mill_tool_recommend": {
-            const engine = await getEngine("toolsel");
-            result = engine.recommend?.(params) ?? { tools: [], confidence: 0 };
+            result = await callOrThrow(await getEngine("toolsel"), ["recommend"], params, "ToolSelectionRecommenderEngine");
             break;
           }
           case "mill_tool_assembly": {
-            const engine = await getEngine("toolsel");
-            result = engine.assemblyCheck?.(params) ?? { valid: true, overhang: 0 };
+            result = await callOrThrow(await getEngine("toolsel"), ["assemblyCheck"], params, "ToolSelectionRecommenderEngine");
             break;
           }
           case "mill_tool_holder_match": {
-            const engine = await getEngine("toolsel");
-            result = engine.matchHolder?.(params) ?? { holders: [] };
+            result = await callOrThrow(await getEngine("toolsel"), ["matchHolder"], params, "ToolSelectionRecommenderEngine");
             break;
           }
 
@@ -392,28 +385,23 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // AI/AGI FEATURES
           // ============================================================
           case "mill_agi_orchestrate": {
-            const engine = await getEngine("agi");
-            result = engine.orchestrate?.(params) ?? { plan: [], status: "pending" };
+            result = await callOrThrow(await getEngine("agi"), ["orchestrate", "reason"], params, "MillingAGIMasterEngine");
             break;
           }
           case "mill_neural_recommend": {
-            const engine = await getEngine("neural");
-            result = engine.neuralRecommend?.(params) ?? { recommendation: null };
+            result = await callOrThrow(await getEngine("neural"), ["neuralRecommend"], params, "MillStrategyNeuralEngine");
             break;
           }
           case "mill_deeplearn_predict": {
-            const engine = await getEngine("deeplearn");
-            result = engine.predict?.(params) ?? { prediction: null };
+            result = await callOrThrow(await getEngine("deeplearn"), ["predict"], params, "MillDeepLearningEngine");
             break;
           }
           case "mill_pattern_mine": {
-            const engine = await getEngine("pattern");
-            result = engine.mine?.(params) ?? { patterns: [] };
+            result = await callOrThrow(await getEngine("pattern"), ["mine"], params, "MillPatternMinerEngine");
             break;
           }
           case "mill_wisdom_query": {
-            const engine = await getEngine("wisdom");
-            result = engine.query?.(params) ?? { tips: [] };
+            result = await callOrThrow(await getEngine("wisdom"), ["query"], params, "TribalKnowledgeAdvisorEngine");
             break;
           }
 
@@ -447,18 +435,15 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // DIGITAL TWIN
           // ============================================================
           case "mill_twin_sync": {
-            const engine = await getEngine("twin");
-            result = engine.sync?.(params) ?? { synced: true };
+            result = await callOrThrow(await getEngine("twin"), ["sync"], params, "DigitalTwinSyncEngine");
             break;
           }
           case "mill_twin_predict": {
-            const engine = await getEngine("twin");
-            result = engine.predict?.(params) ?? { prediction: null };
+            result = await callOrThrow(await getEngine("twin"), ["predict"], params, "DigitalTwinSyncEngine");
             break;
           }
           case "mill_twin_calibrate": {
-            const engine = await getEngine("twin");
-            result = engine.calibrate?.(params) ?? { calibrated: true };
+            result = await callOrThrow(await getEngine("twin"), ["calibrate"], params, "DigitalTwinSyncEngine");
             break;
           }
 
@@ -466,18 +451,15 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // SCIENTIFIC PIPELINE
           // ============================================================
           case "mill_scientific_analyze": {
-            const engine = await getEngine("scientific");
-            result = engine.analyze?.(params) ?? { analysis: null };
+            result = await callOrThrow(await getEngine("scientific"), ["analyze"], params, "MillScientificPipelineEngine");
             break;
           }
           case "mill_scientific_optimize": {
-            const engine = await getEngine("scientific");
-            result = engine.optimize?.(params) ?? { optimized: null };
+            result = await callOrThrow(await getEngine("scientific"), ["optimize"], params, "MillScientificPipelineEngine");
             break;
           }
           case "mill_uncertainty_quantify": {
-            const engine = await getEngine("scientific");
-            result = engine.quantifyUncertainty?.(params) ?? { uncertainty: 0 };
+            result = await callOrThrow(await getEngine("scientific"), ["quantifyUncertainty"], params, "MillScientificPipelineEngine");
             break;
           }
 
@@ -485,18 +467,15 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // QUICK HELPERS
           // ============================================================
           case "mill_quick_speed_feed": {
-            const engine = await getEngine("physics");
-            result = engine.quickSpeedFeed?.(params) ?? { rpm: 0, feed_mmpm: 0 };
+            result = await callOrThrow(await getEngine("physics"), ["quickSpeedFeed"], params, "MillingForceEngine");
             break;
           }
           case "mill_quick_cycle_time": {
-            const engine = await getEngine("optimizer");
-            result = engine.estimateCycleTime?.(params) ?? { cycleTime_min: 0 };
+            result = await callOrThrow(await getEngine("optimizer"), ["estimateCycleTime"], params, "MillProgramOptimizerEngine");
             break;
           }
           case "mill_quick_cost_estimate": {
-            const engine = await getEngine("optimizer");
-            result = engine.estimateCost?.(params) ?? { cost: 0 };
+            result = await callOrThrow(await getEngine("optimizer"), ["estimateCost"], params, "MillProgramOptimizerEngine");
             break;
           }
 
@@ -504,18 +483,15 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           // VALIDATION & QUALITY
           // ============================================================
           case "mill_validate_setup": {
-            const engine = await getEngine("validate");
-            result = engine.validateSetup?.(params) ?? { valid: true };
+            result = await callOrThrow(await getEngine("validate"), ["validateSetup"], params, "MillProgramAnalyzerEngine");
             break;
           }
           case "mill_validate_safety": {
-            const engine = await getEngine("collision");
-            result = engine.validateSafety?.(params) ?? { safe: true, warnings: [] };
+            result = await callOrThrow(await getEngine("collision"), ["validateSafety"], params, "MillKinematicsCollisionEngine");
             break;
           }
           case "mill_spc_analyze": {
-            const engine = await getEngine("validate");
-            result = engine.analyzeSPC?.(params) ?? { cpk: 0, inControl: true };
+            result = await callOrThrow(await getEngine("validate"), ["analyzeSPC"], params, "MillProgramAnalyzerEngine");
             break;
           }
 
@@ -546,6 +522,8 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           default:
             return dispatcherError(`Unknown action: ${action}`, action, "prism_mill");
         }
+
+        result = await Promise.resolve(result);
 
         // Post-calculation hooks
         const postCtx = {
