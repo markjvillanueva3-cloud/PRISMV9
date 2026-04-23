@@ -66,6 +66,8 @@ export const FeatureInputSchema = z.object({
   ra_um_target: z.number().optional(),
   cpk_target: z.number().optional(),
   is_critical: z.boolean().optional(),
+  /** Which end of the part this feature is accessed from. Drives setup/pickup decisions. */
+  access_end: z.enum(["front", "back"]).optional(),
 });
 export type FeatureInput = z.infer<typeof FeatureInputSchema>;
 
