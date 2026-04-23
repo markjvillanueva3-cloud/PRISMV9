@@ -78,9 +78,14 @@ if (existing && (now - existing.timestamp < CACHE_TTL_MS)) {
   process.exit(0);
 }
 
-// Record this search
-const resultText = typeof tool_result === 'string' ? tool_result : JSON.stringify(tool_result);
-const resultCount = (resultText.match(/\n/g) || []).length;
+// Record this search — tool_result may be undefined (e.g., Grep returned no content field)
+let resultText = '';
+if (typeof tool_result === 'string') {
+  resultText = tool_result;
+} else if (tool_result && typeof tool_result === 'object') {
+  resultText = JSON.stringify(tool_result);
+}
+const resultCount = resultText ? (resultText.match(/\n/g) || []).length : 0;
 
 cache.entries[cacheKey] = {
   pattern: tool_input?.pattern,

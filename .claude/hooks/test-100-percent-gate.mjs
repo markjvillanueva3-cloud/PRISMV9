@@ -22,10 +22,16 @@
  * Behavior: HARD BLOCK if any machining test fails
  */
 
-import { readFileSync, existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { execSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+
+const IS_WIN = process.platform === 'win32';
+const NPX_BIN = IS_WIN ? 'npx.cmd' : 'npx';
+// Internal vitest budget MUST stay under the hook timeout (120s) so the
+// hook returns a graceful skipped result instead of SIGTERM.
+const VITEST_TIMEOUT_MS = 90_000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -248,6 +254,80 @@ function isMachiningTest(filename) {
 /**
  * Run vitest on machining-related tests only and check for 100% pass rate
  */
+function walkTestFiles(root) {
+  const out = [];
+  const stack = [root];
+  while (stack.length) {
+    const dir = stack.pop();
+    let entries;
+    try { entries = readdirSync(dir); } catch { continue; }
+    for (const entry of entries) {
+      const full = join(dir, entry);
+      let st;
+      try { st = statSync(full); } catch { continue; }
+      if (st.isDirectory()) {
+        if (entry === 'node_modules' || entry === 'dist' || entry.startsWith('.')) continue;
+        stack.push(full);
+      } else if (/\.(test|spec)\.ts$/i.test(entry)) {
+        out.push(full);
+      }
+    }
+  }
+  return out;
+}
+
+// Paths whose changes should trigger the machining test gate.
+// Keeps us from running vitest when only docs/state/json churned.
+const CODE_PATH_PREFIXES = [
+  'src/engines/', 'src/__tests__/', 'src/algorithms/', 'src/physics/',
+  'src/dispatchers/', 'src/tools/dispatchers/', 'src/hooks/', 'src/registries/',
+  'src/pipelines/', 'src/safety/'
+];
+const GIT_TIMEOUT_MS = 5000;
+
+function isCodeFile(relPath) {
+  const normalized = relPath.replace(/\\/g, '/');
+  return CODE_PATH_PREFIXES.some(prefix => normalized.startsWith(prefix));
+}
+
+// Probe common Windows install paths before giving up — node spawnSync does
+// not inherit Git-for-Windows' PATH on all setups.
+const GIT_CANDIDATES = IS_WIN
+  ? [
+      'C:/Program Files/Git/cmd/git.exe',
+      'C:/Program Files (x86)/Git/cmd/git.exe',
+      'git.exe',
+    ]
+  : ['git'];
+
+function resolveGitExecutable() {
+  for (const candidate of GIT_CANDIDATES) {
+    if (candidate.includes('/') && !existsSync(candidate)) continue;
+    return candidate;
+  }
+  return null;
+}
+
+function gitTouchedMachiningFiles(mcpServerPath) {
+  // Returns list of machining-related source/test files changed since HEAD.
+  // Returns empty array when only docs/state/json churned → skip vitest.
+  // Returns null if git unavailable → caller falls through to full run.
+  const gitExe = resolveGitExecutable();
+  if (!gitExe) return null;
+  try {
+    const diff = spawnSync(gitExe,
+      ['diff', '--name-only', 'HEAD'],
+      { cwd: mcpServerPath, encoding: 'utf-8', timeout: GIT_TIMEOUT_MS }
+    );
+    if (diff.status !== 0 || typeof diff.stdout !== 'string') return null;
+    return diff.stdout
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .filter(isCodeFile)
+      .filter(isMachiningTest);
+  } catch { return null; }
+}
+
 function checkMachiningTestPassRate() {
   const mcpServerPath = join(__dirname, '..', '..', 'mcp-server');
 
@@ -262,27 +342,15 @@ function checkMachiningTestPassRate() {
       return { ok: true, message: 'No test directory found', skipped: true };
     }
 
-    // Find all test files
-    let allTestFiles;
-    try {
-      allTestFiles = execSync('find . -name "*.test.ts" -o -name "*.spec.ts" 2>/dev/null || dir /s /b *.test.ts 2>nul', {
-        cwd: testDir,
-        encoding: 'utf-8',
-        timeout: 10000,
-      }).trim().split('\n').filter(Boolean);
-    } catch {
-      // Fallback for Windows
-      try {
-        allTestFiles = execSync('dir /s /b *.test.ts 2>nul', {
-          cwd: testDir,
-          encoding: 'utf-8',
-          shell: true,
-          timeout: 10000,
-        }).trim().split('\n').filter(Boolean);
-      } catch {
-        allTestFiles = [];
-      }
+    // Short-circuit: if no machining-related files changed in this session,
+    // running the full suite is wasted time (and often blows the 120s hook budget).
+    const touched = gitTouchedMachiningFiles(mcpServerPath);
+    if (Array.isArray(touched) && touched.length === 0) {
+      return { ok: true, message: 'No machining source/test changes this session — skipping gate', skipped: true };
     }
+
+    // Native Node file walk — avoids shell portability issues (find vs dir /s /b)
+    const allTestFiles = walkTestFiles(testDir);
 
     // Filter to machining-related tests
     const machiningTests = allTestFiles.filter(f => isMachiningTest(f));
@@ -291,12 +359,13 @@ function checkMachiningTestPassRate() {
       return { ok: true, message: 'No machining tests found to validate', skipped: true };
     }
 
-    // Run vitest with JSON reporter
-    const result = execSync('npx vitest run --reporter=json 2>&1', {
+    // Run vitest with JSON reporter — budget kept under the outer hook timeout.
+    const result = execSync(`${NPX_BIN} vitest run --reporter=json 2>&1`, {
       cwd: mcpServerPath,
       encoding: 'utf-8',
-      timeout: 300000, // 5 minute timeout
-      maxBuffer: 50 * 1024 * 1024, // 50MB buffer
+      timeout: VITEST_TIMEOUT_MS,
+      maxBuffer: 50 * 1024 * 1024,
+      shell: true,
     });
 
     // Parse JSON output

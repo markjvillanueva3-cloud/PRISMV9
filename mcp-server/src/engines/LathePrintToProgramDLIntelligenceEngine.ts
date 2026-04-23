@@ -205,7 +205,19 @@ class LathePrintToProgramDLIntelligenceEngine {
   }
 
   /**
-   * Apply attention mechanism: softmax(w·s) then weighted sum for logit.
+   * Apply attention mechanism. The logit is built from the SAME per-feature
+   * contributions (attention × raw_score) that are exposed in top_risk_factors,
+   * so the displayed attention_weight faithfully reflects each factor's
+   * influence on the prediction.
+   *
+   * Steps:
+   *   1. score_i = w_i · s_i  (prior weight × normalized raw score)
+   *   2. attention_i = softmax(score_i)  (interpretable, sums to 1)
+   *   3. rawScore = Σ score_i            (unnormalized risk accumulator)
+   *   4. logit = piecewise(rawScore)     (safe/rising/high-risk segments)
+   *
+   * Because attention_i is monotonically increasing in score_i, top-ranked
+   * attention entries are exactly the top contributors to the logit.
    */
   private applyAttention(features: Record<string, number>): {
     attention: Record<string, number>;
@@ -218,7 +230,7 @@ class LathePrintToProgramDLIntelligenceEngine {
       return w * s;
     });
 
-    // Softmax for interpretability (attention display only)
+    // Softmax for interpretability. Same scores drive both attention and logit.
     const maxScore = Math.max(...scores);
     const exps = scores.map(s => Math.exp(s - maxScore));
     const sumExp = exps.reduce((a, b) => a + b, 0);
@@ -227,11 +239,10 @@ class LathePrintToProgramDLIntelligenceEngine {
     const attention: Record<string, number> = {};
     keys.forEach((k, i) => { attention[k] = attentionWeights[i]; });
 
-    // Logit from raw weighted sum — preserves signal amplitude.
-    // Σ(w_i · s_i) where w sums to ~1, so raw is in [0, 1].
-    // Piecewise mapping: safe region shallow, risky region steep so any
-    // high-weight signal (envelope=0.25, hard material=0.18) can push
-    // the prediction above "moderate" threshold.
+    // Logit from the raw per-feature contributions. w sums to ~1, s in [0,1],
+    // so rawScore is in [0, 1]. Piecewise mapping: safe region shallow, risky
+    // region steep so any high-weight signal (envelope=0.25, hard material=0.18)
+    // can push the prediction above "moderate" threshold.
     const rawScore = scores.reduce((a, b) => a + b, 0);
     const logit = rawScore < 0.08
       ? -4 + rawScore * 12.5   // [0, 0.08] → [-4, -3]: clearly safe
@@ -253,7 +264,13 @@ class LathePrintToProgramDLIntelligenceEngine {
   }
 
   /**
-   * Rank risk factors by their contribution (attention × raw score)
+   * Rank risk factors by their direct contribution to the logit.
+   *
+   * contribution = w_i · s_i — the exact per-feature term that is summed
+   * into rawScore (and thus drives the logit). Attention_weight is the
+   * softmax of these same contributions, so the attention ranking and the
+   * contribution ranking agree. A reader can interpret `attention_weight`
+   * as the influence share of that factor in the prediction.
    */
   private rankRiskFactors(
     features: Record<string, number>,
@@ -267,7 +284,7 @@ class LathePrintToProgramDLIntelligenceEngine {
         factor: k,
         raw_score: raw,
         attention_weight: attn,
-        contribution: raw * attn * weight,
+        contribution: raw * weight,
       };
     }).sort((a, b) => b.contribution - a.contribution);
   }
