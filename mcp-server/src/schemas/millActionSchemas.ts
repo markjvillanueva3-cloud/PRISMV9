@@ -646,6 +646,45 @@ const mill_program_optimize = z.object({
 }).passthrough();
 
 // ============================================================================
+// P4-U12-5AX-DEC: Five-axis decision schema
+// ============================================================================
+
+const partFeatureSchema = z.object({
+  feature_type: z.enum(["freeform_surface", "ruled_surface", "impeller_blade",
+    "deep_cavity", "undercut", "multi_face", "port"]),
+  required_orientations: z.array(z.object({
+    i: z.number(), j: z.number(), k: z.number(),
+  })),
+  surface_tolerance_mm: z.number().positive(),
+  scallop_height_mm: optPosNum,
+  max_depth_mm: z.number().positive(),
+  min_tool_length_mm: z.number().positive(),
+  has_undercuts: z.boolean(),
+  has_thin_walls: z.boolean(),
+  accessibility_score: z.number().min(0).max(1),
+});
+
+const fiveAxisToolSchema = z.object({
+  type: z.enum(["ball_nose", "bull_nose", "flat_end", "lollipop", "barrel"]),
+  diameter_mm: z.number().positive(),
+  flute_length_mm: z.number().positive(),
+  overall_length_mm: z.number().positive(),
+  gauge_length_mm: z.number().positive(),
+});
+
+const mill_five_axis_decide = z.object({
+  ...millContext,
+  part_features: z.array(partFeatureSchema),
+  tool: fiveAxisToolSchema,
+  batch_size: z.number().positive(),
+  operator_skill: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
+  feed_rate_mm_per_min: z.number().nonnegative(),
+  machine: z.any().optional().describe("MachineKinematics; defaults to OKUMA_M460V_5AX"),
+  include_reasoning: optBool,
+  use_llm_reasoning: optBool,
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -729,4 +768,6 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_turn_orchestrate,
   // P4-U11-OPT: Program optimizer
   mill_program_optimize,
+  // P4-U12-5AX-DEC: Five-axis decision
+  mill_five_axis_decide,
 };

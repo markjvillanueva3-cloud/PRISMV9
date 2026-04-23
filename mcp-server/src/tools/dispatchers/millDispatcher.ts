@@ -176,6 +176,13 @@ async function getMillProgramOptimizer(): Promise<any> {
     .millProgramOptimizerEngine);
 }
 
+// P4-U12-5AX-DEC: Five-axis decision engine lazy loader
+let _fiveAxisDecide: any;
+async function getFiveAxisDecisionEngine(): Promise<any> {
+  return (_fiveAxisDecide ??= (await import("../../engines/FiveAxisDecisionEngine.js"))
+    .FiveAxisDecisionEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -216,6 +223,8 @@ const ACTIONS = [
   "mill_five_axis_aggregate", "mill_multi_axis_aggregate", "mill_turn_orchestrate",
   // P4-U11-OPT: Program optimizer
   "mill_program_optimize",
+  // P4-U12-5AX-DEC: Five-axis decision
+  "mill_five_axis_decide",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -829,6 +838,25 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
         return result ?? { error: `Could not optimize ${params.file_path}` };
       }
       return { error: `Unknown op for mill_program_optimize: ${op}` };
+    }
+
+    // ── P4-U12-5AX-DEC: Five-axis decision ────────────────────
+    case "mill_five_axis_decide": {
+      const DecisionCls = await getFiveAxisDecisionEngine();
+      // Build full input — use OKUMA default if machine not provided
+      const { OKUMA_M460V_5AX } = await import("../../engines/FiveAxisDecisionEngine.js");
+      const input = {
+        part_features: params.part_features ?? [],
+        machine: params.machine ?? OKUMA_M460V_5AX,
+        tool: params.tool,
+        material: params.material,
+        batch_size: params.batch_size,
+        operator_skill: params.operator_skill,
+        feed_rate_mm_per_min: params.feed_rate_mm_per_min,
+        include_reasoning: params.include_reasoning ?? false,
+        use_llm_reasoning: params.use_llm_reasoning ?? false,
+      };
+      return DecisionCls.decide(input);
     }
 
     default:
