@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "system_id": "powermill",
+  "version": "2024",
+  "description": "Unified PowerMill CAM Function Index — assembled from per-section catalogs (roughing, finishing, 5-axis & robot machining).",
+  "sections": {
+    "roughing": {
+      "file": "roughing.json",
+      "operation_count": 12,
+      "parameter_count": 189,
+      "operation_ids": [
+        "adaptive_clearance_boundary",
+        "drill_for_clearance",
+        "model_area_clearance",
+        "offset_area_clearance",
+        "plunge_mill_pocket",
+        "plunge_roughing",
+        "profile_area_clearance",
+        "raster_area_clearance",
+        "rest_roughing",
+        "slice_area_clearance",
+        "stock_model_management",
+        "vortex_clearance"
+      ],
+      "categories": [
+        "model_area_clearance",
+        "vortex",
+        "plunge",
+        "adaptive",
+        "rest_and_helpers"
+      ],
+      "training_topic_count": 6
+    },
+    "finishing": {
+      "file": "finishing.json",
+      "operation_count": 12,
+      "parameter_count": 180,
+      "operation_ids": [
+        "constant_z",
+        "constant_z_rest",
+        "corner_finishing",
+        "offset_3d",
+        "offset_3d_rest",
+        "optimised_constant_z",
+        "pattern_finish",
+        "pencil_finish",
+        "radial_finish",
+        "raster_finish",
+        "spiral_finish",
+        "steep_and_shallow"
+      ],
+      "categories": [
+        "steep_shallow",
+        "constant_z",
+        "offset_3d",
+        "raster_radial_spiral",
+        "pattern_corner"
+      ],
+      "training_topic_count": 6
+    },
+    "5axis_robot": {
+      "file": "5axis-robot.json",
+      "operation_count": 12,
+      "parameter_count": 187,
+      "operation_ids": [
+        "blade_simul5",
+        "curve_5axis",
+        "index_3plus2",
+        "port_simul5",
+        "projection_5axis",
+        "robot_config",
+        "robot_post",
+        "robot_reach",
+        "robot_trim",
+        "swarf_simul5",
+        "tool_axis_strategy",
+        "wireframe_swarf"
+      ],
+      "categories": [
+        "swarf_blade_port",
+        "tool_axis",
+        "positional",
+        "wireframe",
+        "robot"
+      ],
+      "training_topic_count": 6
+    }
+  },
+  "expected_totals": {
+    "sections": 3,
+    "operations": 36,
+    "parameters": 556
+  }
+}
