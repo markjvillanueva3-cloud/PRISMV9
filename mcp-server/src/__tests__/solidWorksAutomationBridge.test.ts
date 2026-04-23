@@ -244,17 +244,21 @@ describe("SolidWorksAutomationBridge (mock mode)", () => {
 
   describe("missing exe error", () => {
     it("throws clear error with build instructions when exe is absent", async () => {
-      // Temporarily disable mock mode and mock existsSync to return false
+      // _mockMode is a lazy getter that reads env on every call — so env must
+      // stay "0" through the call, not just at construction. Restore after.
       const { existsSync } = await import("fs");
       vi.mocked(existsSync).mockReturnValueOnce(false);
 
       process.env["PRISM_CAD_MOCK"] = "0";
       const liveBridge = new SolidWorksAutomationBridge();
-      process.env["PRISM_CAD_MOCK"] = "1"; // restore
 
-      await expect(liveBridge.open("/part.sldprt")).rejects.toThrow(
-        /build\.bat/i
-      );
+      try {
+        await expect(liveBridge.open("/part.sldprt")).rejects.toThrow(
+          /build\.bat/i
+        );
+      } finally {
+        process.env["PRISM_CAD_MOCK"] = "1"; // restore
+      }
     });
   });
 

@@ -66,3 +66,20 @@ export function safeWriteSync(filePath: string, data: string, encoding: BufferEn
     throw err;
   }
 }
+
+/**
+ * Sync atomic-ish write for small state files used by source-run dispatchers.
+ * Writes a sibling temp file, then renames it into place.
+ */
+export function safeWriteSync(
+  targetPath: string,
+  content: string,
+  encoding: BufferEncoding = "utf-8"
+): void {
+  const tmpPath = `${targetPath}.tmp`;
+  const dir = dirname(targetPath);
+
+  syncFs.mkdirSync(dir, { recursive: true });
+  syncFs.writeFileSync(tmpPath, content, { encoding });
+  syncFs.renameSync(tmpPath, targetPath);
+}
