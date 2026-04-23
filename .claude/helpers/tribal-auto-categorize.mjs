@@ -118,14 +118,14 @@ function categorizeTip(tip) {
 async function main() {
   try {
     if (!fs.existsSync(TIPS_PATH)) {
-      process.stdout.write(JSON.stringify({ decision: "allow", reason: "No tribal tips file found" }));
+      process.stdout.write(JSON.stringify({ continue: true }));
       return;
     }
 
     const raw = fs.readFileSync(TIPS_PATH, "utf-8");
     const tips = JSON.parse(raw);
     if (!Array.isArray(tips)) {
-      process.stdout.write(JSON.stringify({ decision: "allow", reason: "Invalid tips format" }));
+      process.stdout.write(JSON.stringify({ continue: true }));
       return;
     }
 
@@ -143,14 +143,19 @@ async function main() {
       fs.appendFileSync(LOG_PATH, logLine);
     }
 
+    const msg = recategorized > 0
+      ? `Auto-categorized ${recategorized} tribal knowledge tips on session stop`
+      : `All ${tips.length} tribal tips already categorized`;
     process.stdout.write(JSON.stringify({
-      decision: "allow",
-      reason: recategorized > 0
-        ? `Auto-categorized ${recategorized} tribal knowledge tips on session stop`
-        : `All ${tips.length} tribal tips already categorized`,
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "Stop",
+        additionalContext: msg,
+      },
     }));
   } catch (err) {
-    process.stdout.write(JSON.stringify({ decision: "allow", reason: `Auto-categorize error: ${err.message}` }));
+    // Fail silently — never block stop on auto-categorize error
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 
