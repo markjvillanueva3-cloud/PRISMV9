@@ -28,14 +28,14 @@ const CLOSEOUT_STEPS = [
     name: "hook-helper-janitor",
     script: `${__dirname}/node-process-janitor.mjs`,
     args: [],
-    timeoutMs: 8000,
+    timeoutMs: 4000,
     skipOnDryRun: true,
   },
   {
     name: "prism-codex-orphan-cleaner",
     script: `${REPO_ROOT}/.claude/helpers/node-orphan-cleaner.mjs`,
     args: ["--force", "--reason=stop-hook", "--min-age=3", ...(DRY_RUN ? ["--dry-run"] : [])],
-    timeoutMs: 18000,
+    timeoutMs: 5000,
   },
 ];
 
