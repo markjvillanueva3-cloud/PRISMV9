@@ -156,6 +156,51 @@ export interface EDMGCodeResult {
   warnings: string[];
   /** Restart markers for wire break recovery — N-blocks at profile/pass boundaries */
   restart_markers?: RestartMarker[];
+  /** Controller-specific tribal tips surfaced for the active controller. */
+  controller_tips?: Array<{ id: string; title: string; body: string; confidence: number; source?: string }>;
+}
+
+// ============================================================================
+// CONTROLLER TRIBAL TIPS — U-P2PFS09 surfacing
+// ============================================================================
+
+interface ControllerTip {
+  id: string;
+  title: string;
+  body: string;
+  confidence: number;
+  source?: string;
+}
+
+const CONTROLLER_TIPS_LIBRARY: Record<string, ControllerTip[]> = {
+  fanuc: [
+    { id: "ctl-fanuc-01", title: "Use G61.1 exact-stop for tight corner IT", body: "On Fanuc Alpha-C post, insert G61.1 before sharp corners to prevent overshoot; revert to G64 for smooth contouring after the corner.", confidence: 92, source: "Fanuc Alpha-C programming manual §7.4" },
+    { id: "ctl-fanuc-02", title: "M50/M60 thread cycle bookkeeping", body: "Always pair M50 (thread wire) with M60 (cut wire) and call them only at explicit pause/restart markers — Fanuc's auto-threader disables if a second M50 fires before M60.", confidence: 88 },
+    { id: "ctl-fanuc-03", title: "E-pack selection for tool steel", body: "For D2/M2 tool steel at 25mm, start with E-pack E121 (rough) and step through E125/E127/E129 (skim). Deviation >1 from this cascade roughens surface unpredictably.", confidence: 85 },
+  ],
+  sodick: [
+    { id: "ctl-sodick-01", title: "SF-Liner servo tuning for thick sections", body: "On Sodick AQ/AL-series, raise SF-Liner servo voltage 10-15% above nominal when cutting over 40mm — compensates for gap pressure loss deep in kerf.", confidence: 90, source: "Sodick AQ programming guide §4.2" },
+    { id: "ctl-sodick-02", title: "K-SMC auto-threader reliability", body: "K-SMC threader prefers a 5-6mm flushed start-hole; undersized holes trigger threading failures. Pre-drill to 0.8mm larger than wire diameter as rule of thumb.", confidence: 87 },
+    { id: "ctl-sodick-03", title: "C-code condition cascade for skim", body: "Sodick C-codes: rough C110-C120, first-skim C240, second-skim C360, final-skim C480. Skipping the C240 transition causes measurable step in Ra.", confidence: 84 },
+  ],
+  makino: [
+    { id: "ctl-makino-01", title: "HyperCut finish mode for mirror Ra", body: "Makino Hyper-i HyperCut finish requires anti-electrolysis bias ≥40V; below this threshold Ra improvement plateaus at 0.4µm instead of reaching 0.2µm target.", confidence: 91 },
+    { id: "ctl-makino-02", title: "HS wire feed-rate trade-off", body: "High-Speed wire (HS mode) doubles feed but increases wire consumption ~1.8×. Only enable for rough + first-skim; switch to standard feed for final skims.", confidence: 86 },
+    { id: "ctl-makino-03", title: "Makino G84/G85 corner modes", body: "Use G84 (corner power reduction) on sharp features smaller than 2× wire diameter; G85 (corner slow-down) on longer radiused corners — cross-using them burns wire.", confidence: 83 },
+  ],
+  mitsubishi: [
+    { id: "ctl-mits-01", title: "E-code family discipline", body: "Mitsubishi M800/M700 posts use E1221 (rough) → E1222/E1223/E1224 (skims). Shifting to E128x family mid-program is a dialect error — regenerate from scratch.", confidence: 92, source: "Mitsubishi M800 wire EDM manual" },
+    { id: "ctl-mits-02", title: "G51/G50 taper block placement", body: "G51 taper-on must appear before the first G41/G42 offset activation; G50 before the final G40. Mis-ordering leaves taper active on retract and scraps the cut.", confidence: 90 },
+    { id: "ctl-mits-03", title: "H-register cascade for skim passes", body: "Declare H1..H5 at program header with the full cascade (0.0100 / 0.0075 / 0.0060 / 0.0055 / 0.0052). Inline H-register updates during cut trigger servo resync.", confidence: 87 },
+  ],
+  agiecharmilles: [
+    { id: "ctl-agie-01", title: "Agie MemoTech parameter library", body: "AgieCharmilles MemoTech recipes must match exact material × thickness × wire; ad-hoc interpolation between library entries produces inconsistent edge quality.", confidence: 80 },
+  ],
+};
+
+function surfaceControllerTips(controller: string): ControllerTip[] {
+  const key = (controller ?? "").toLowerCase();
+  return CONTROLLER_TIPS_LIBRARY[key] ?? [];
 }
 
 // ============================================================================
@@ -2887,7 +2932,11 @@ export class EDMPostProcessGCodeEngine {
    * Auto-dispatches to controller-specific post processor.
    */
   generate_gcode(input: EDMGCodeInput): EDMGCodeResult {
-    return generateGCode(input);
+    const result = generateGCode(input);
+    try {
+      result.controller_tips = surfaceControllerTips(input.controller).slice(0, 5);
+    } catch { /* tip surfacing must never fail the main pipeline */ }
+    return result;
   }
 
   /**
@@ -2919,7 +2968,13 @@ export class EDMPostProcessGCodeEngine {
    * Returns G-code, post-process plan, and cross-validated summary.
    */
   full_generate(input: FullGenerateInput): FullGenerateResult {
-    return fullGenerate(input);
+    const result = fullGenerate(input);
+    try {
+      if (result && result.gcode_result) {
+        result.gcode_result.controller_tips = surfaceControllerTips(input.gcode_input.controller).slice(0, 5);
+      }
+    } catch { /* fail-safe */ }
+    return result;
   }
 
   /**
