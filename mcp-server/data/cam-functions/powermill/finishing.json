@@ -1,0 +1,498 @@
+{
+  "schemaVersion": 1,
+  "system_id": "powermill",
+  "section_key": "finishing",
+  "version": "2024",
+  "extracted_from": "Autodesk PowerMill 2024 Reference Help (Finishing Strategies — Steep & Shallow, Optimised Constant Z, Constant Z, Constant Z Rest, 3D Offset, 3D Offset Rest, Raster, Radial, Spiral, Pattern, Pencil, Corner Finishing)",
+  "categories": [
+    "steep_shallow",
+    "constant_z",
+    "offset_3d",
+    "raster_radial_spiral",
+    "pattern_corner"
+  ],
+  "operations": {
+    "steep_and_shallow": {
+      "category": "steep_shallow",
+      "display_name": "Steep & Shallow Finishing",
+      "description": "Auto-splits the model into steep (≥ threshold) and shallow (< threshold) regions and applies waterline finish to steep + 3D offset to shallow in one strategy. Canonical threshold: 30°.",
+      "parameter_count": 21,
+      "dialog_tabs": ["geometry", "tool", "split", "steep_path", "shallow_path", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 },
+          "tool_holder_check": { "type": "boolean", "default": true }
+        },
+        "split": {
+          "threshold_angle_deg": { "type": "number", "min": 1, "max": 89, "default": 30 },
+          "overlap_angle_deg": { "type": "number", "min": 0, "max": 10, "default": 2 }
+        },
+        "steep_path": {
+          "steep_strategy": { "type": "enum", "values": ["constant_z", "optimised_constant_z"], "default": "optimised_constant_z" },
+          "steep_stepdown_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.3 },
+          "steep_stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 }
+        },
+        "shallow_path": {
+          "shallow_strategy": { "type": "enum", "values": ["3d_offset", "raster", "radial", "spiral"], "default": "3d_offset" },
+          "shallow_stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.4 },
+          "shallow_raster_angle_deg": { "type": "number", "min": 0, "max": 180, "default": 0 },
+          "shallow_stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "horizontal_arc", "ramp"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "lead_out_type": { "type": "enum", "values": ["arc", "vertical", "straight"], "default": "arc" },
+          "transition_strategy": { "type": "enum", "values": ["skim", "raise_to_safe_z", "smooth"], "default": "smooth" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "optimised_constant_z": {
+      "category": "steep_shallow",
+      "display_name": "Optimised Constant Z",
+      "description": "Constant-Z waterline that adapts stepdown based on local surface slope — finer on shallow regions, coarser on truly steep. PowerMill's modern replacement for plain Constant Z when finishing mixed geometry.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "tool", "adaptive_stepdown", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "adaptive_stepdown": {
+          "min_stepdown_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.1 },
+          "max_stepdown_mm": { "type": "number", "min": 0.1, "max": 10, "default": 0.5 },
+          "stepdown_curvature_factor": { "type": "number", "min": 0.1, "max": 5, "default": 1.0 },
+          "min_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 },
+          "z_top_mm": { "type": "number", "required": false },
+          "z_bottom_mm": { "type": "number", "required": false }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "ramp", "vertical_arc"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "transition_strategy": { "type": "enum", "values": ["smooth", "skim", "raise_to_safe_z"], "default": "smooth" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "constant_z": {
+      "category": "constant_z",
+      "display_name": "Constant Z (Waterline)",
+      "description": "Classic horizontal-slice waterline finish — single contour at each Z level. Best for steep walls (≥ threshold) with constant-rigidity tool engagement.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "tool", "stepdown", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "stepdown": {
+          "stepdown_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.25 },
+          "min_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "use_part_stepdown": { "type": "boolean", "default": false }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "z_top_mm": { "type": "number", "required": false },
+          "z_bottom_mm": { "type": "number", "required": false },
+          "include_flats": { "type": "boolean", "default": true },
+          "flats_strategy": { "type": "enum", "values": ["raster", "offset", "spiral"], "default": "offset" }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "horizontal_arc"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "lead_out_type": { "type": "enum", "values": ["arc", "vertical", "straight"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "constant_z_rest": {
+      "category": "constant_z",
+      "display_name": "Constant Z Rest",
+      "description": "Constant-Z waterline restricted to the residue from a previous larger tool. Driven by stock model. Standard cascade: finish with bigger tool → rest with smaller.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "rest_source", "tool", "stepdown", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true }
+        },
+        "rest_source": {
+          "stock_model_id": { "type": "string", "required": true },
+          "previous_tool_id": { "type": "string", "required": true },
+          "previous_tool_diameter_mm": { "type": "number", "required": true },
+          "minimum_residue_mm": { "type": "number", "min": 0.01, "max": 2, "default": 0.1 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "stepdown": {
+          "stepdown_mm": { "type": "number", "min": 0.01, "max": 2, "default": 0.15 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 2 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "offset_3d": {
+      "category": "offset_3d",
+      "display_name": "3D Offset Finishing",
+      "description": "Equidistant offset toolpath that follows surface flow lines — produces uniform cusp height across all surface angles. Best for shallow-to-moderate slopes (< 30°).",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "tool", "offset", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "offset": {
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.4 },
+          "max_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "smooth_offsets": { "type": "boolean", "default": true },
+          "offset_count": { "type": "number", "min": 1, "max": 9999, "default": 9999 }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 },
+          "z_top_mm": { "type": "number", "required": false },
+          "z_bottom_mm": { "type": "number", "required": false }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "horizontal_arc"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "transition_strategy": { "type": "enum", "values": ["smooth", "skim", "raise_to_safe_z"], "default": "smooth" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "offset_3d_rest": {
+      "category": "offset_3d",
+      "display_name": "3D Offset Rest Finishing",
+      "description": "3D offset restricted to residue from a previous tool. Catches shallow areas a steep+shallow combo missed when corners or fillets are tighter than the previous tool's radius.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "rest_source", "tool", "offset", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true }
+        },
+        "rest_source": {
+          "stock_model_id": { "type": "string", "required": true },
+          "previous_tool_id": { "type": "string", "required": true },
+          "previous_tool_diameter_mm": { "type": "number", "required": true },
+          "minimum_residue_mm": { "type": "number", "min": 0.01, "max": 2, "default": 0.05 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "offset": {
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 2, "default": 0.2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 2 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "raster_finish": {
+      "category": "raster_radial_spiral",
+      "display_name": "Raster Finishing",
+      "description": "Lace/zigzag finish at constant XY raster angle — fastest cycle on near-flat tops, but cusp height varies with surface slope (worst on slopes orthogonal to raster).",
+      "parameter_count": 15,
+      "dialog_tabs": ["geometry", "tool", "raster", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "raster": {
+          "raster_angle_deg": { "type": "number", "min": 0, "max": 180, "default": 0 },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.3 },
+          "lace_or_one_way": { "type": "enum", "values": ["lace", "one_way"], "default": "lace" }
+        },
+        "limits": {
+          "max_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "ramp"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 0.5 },
+          "transition_strategy": { "type": "enum", "values": ["smooth", "skim", "raise_to_safe_z"], "default": "skim" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "radial_finish": {
+      "category": "raster_radial_spiral",
+      "display_name": "Radial Finishing",
+      "description": "Toolpath radiating outward from a center point — used for round bosses, dish bottoms, conical surfaces, and sphere caps. Stepover constant in angular degrees from center.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "radial", "limits"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "radial": {
+          "center_x_mm": { "type": "number", "required": true },
+          "center_y_mm": { "type": "number", "required": true },
+          "start_angle_deg": { "type": "number", "min": 0, "max": 360, "default": 0 },
+          "end_angle_deg": { "type": "number", "min": 0, "max": 360, "default": 360 },
+          "angular_stepover_deg": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "max_radius_mm": { "type": "number", "min": 0, "max": 1000, "default": 100 }
+        },
+        "limits": {
+          "max_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 89 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "spiral_finish": {
+      "category": "raster_radial_spiral",
+      "display_name": "Spiral Finishing",
+      "description": "Continuous spiral from center outward (or vice versa) — eliminates the lifts that lace patterns require. Best for circular bosses, hubs, and round pockets.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "spiral", "limits"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "spiral": {
+          "center_x_mm": { "type": "number", "required": true },
+          "center_y_mm": { "type": "number", "required": true },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.3 },
+          "direction": { "type": "enum", "values": ["outward", "inward"], "default": "outward" },
+          "max_radius_mm": { "type": "number", "min": 0, "max": 1000, "default": 100 },
+          "smooth_transitions": { "type": "boolean", "default": true }
+        },
+        "limits": {
+          "max_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "pattern_finish": {
+      "category": "pattern_corner",
+      "display_name": "Pattern Finishing",
+      "description": "Toolpath driven by user-defined wireframe pattern (curves on the model). Lets the operator hand-direct the path direction across a surface where automatic strategies struggle.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "pattern", "limits"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "drive_pattern": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "pattern": {
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.3 },
+          "embedded_pattern": { "type": "boolean", "default": false },
+          "pattern_count": { "type": "number", "min": 1, "max": 999, "default": 1 },
+          "morph_between_patterns": { "type": "boolean", "default": false }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "pencil_finish": {
+      "category": "pattern_corner",
+      "display_name": "Pencil Trace Finishing",
+      "description": "Single-pass corner-trace finishing along internal sharp edges — reaches into corners that other strategies leave residue in. Tool radius MUST be ≤ internal corner radius.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "trace", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "trace": {
+          "min_internal_corner_radius_mm": { "type": "number", "min": 0.05, "max": 10, "default": 0.5 },
+          "trace_count": { "type": "number", "min": 1, "max": 5, "default": 1 },
+          "trace_offset_mm": { "type": "number", "min": 0, "max": 2, "default": 0 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "tangential"], "default": "tangential" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.2 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "corner_finishing": {
+      "category": "pattern_corner",
+      "display_name": "Corner Finishing (Multi-Pass Stock Reduction)",
+      "description": "Multi-pass strategy that systematically clears corner residue left by a larger tool. Combines pencil trace + along-corner + across-corner passes. Driven by reference tool diameter.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "reference", "passes", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "reference": {
+          "reference_tool_diameter_mm": { "type": "number", "required": true },
+          "reference_tool_corner_radius_mm": { "type": "number", "default": 0 },
+          "minimum_corner_residue_mm": { "type": "number", "min": 0.01, "max": 2, "default": 0.05 }
+        },
+        "passes": {
+          "include_pencil_pass": { "type": "boolean", "default": true },
+          "include_along_pass": { "type": "boolean", "default": true },
+          "include_across_pass": { "type": "boolean", "default": true },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 2, "default": 0.2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "tangential"], "default": "tangential" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Steep vs Shallow Threshold Angle",
+      "key_concepts": [
+        "Canonical threshold = 30° — steep above, shallow below",
+        "overlap_angle of 1-3° prevents a visible witness line at the boundary",
+        "Steep gets waterline (constant Z); shallow gets 3D offset or raster"
+      ],
+      "best_practices": [
+        "Use Steep & Shallow as the single-shot finish for mixed geometry",
+        "Lower threshold (e.g. 25°) when raster pattern shows on shallow regions",
+        "Raise threshold (e.g. 35°) when waterline scallops show on steep regions"
+      ]
+    },
+    {
+      "topic": "Constant Z Stepdown for Hard Materials",
+      "key_concepts": [
+        "Stepdown drives cusp height on steep walls: cusp ≈ stepdown · sin(angle)",
+        "Hard materials (≥ 50 HRC) need stepdown ≤ 0.10mm to control tool wear",
+        "Optimised Constant Z auto-tightens stepdown on shallow regions"
+      ],
+      "best_practices": [
+        "Hardened steel: 0.05-0.10mm stepdown, ball end mill, climb only",
+        "Aluminum: 0.20-0.40mm stepdown, single pass acceptable",
+        "Use Constant Z Rest after the bigger tool's pass to clean up corners"
+      ]
+    },
+    {
+      "topic": "3D Offset vs Raster — Surface Quality Tradeoffs",
+      "key_concepts": [
+        "3D Offset = uniform cusp height across all surface angles",
+        "Raster = directional cusp height varies with surface slope",
+        "3D Offset cycle time is 10-30% longer than raster on same surface"
+      ],
+      "best_practices": [
+        "Cosmetic surfaces: 3D Offset for uniform finish",
+        "Raster acceptable on concealed surfaces where cycle time matters",
+        "Pattern at 45° to dominant surface flow if forced to use raster"
+      ]
+    },
+    {
+      "topic": "Pencil Trace for Corner Cleanup",
+      "key_concepts": [
+        "Pencil trace requires tool radius ≤ internal corner radius (else tool can't enter)",
+        "Single-pass strategy — multiple traces only via trace_count + offset",
+        "Tangential lead-in is mandatory to avoid witness mark at entry"
+      ],
+      "best_practices": [
+        "Always run pencil trace as a final cleanup after main finish",
+        "Use small ball end mill (≤ smallest internal corner radius)",
+        "If pencil leaves visible residue, follow with corner_finishing multi-pass"
+      ]
+    },
+    {
+      "topic": "Radial vs Spiral — When to Pick Which",
+      "key_concepts": [
+        "Radial = toolpath radiates from center; constant angular stepover",
+        "Spiral = continuous in-spiral or out-spiral; constant linear stepover",
+        "Spiral has zero retracts; Radial has 1 retract per radial line"
+      ],
+      "best_practices": [
+        "Spiral: round pockets, hubs, bosses — eliminates lifts",
+        "Radial: dish bottoms, conical surfaces, spheres — easier to compensate by zone",
+        "On complex geometry, spiral leaves a visible center seam — start a touch off-axis"
+      ]
+    },
+    {
+      "topic": "Rest Finishing Cascade after Steep & Shallow",
+      "key_concepts": [
+        "Steep & Shallow with a big ball mill leaves residue in tight corners",
+        "Constant Z Rest catches steep-corner residue; 3D Offset Rest catches shallow-corner residue",
+        "Cascade rule: rest tool diameter ≤ 0.5× previous (same as roughing rest)"
+      ],
+      "best_practices": [
+        "Standard chain: Steep & Shallow (12mm) → Constant Z Rest (6mm) → 3D Offset Rest (3mm) → Pencil (1mm)",
+        "Always use stock model to drive rest ops — not a duplicate full-area pass",
+        "Verify stock model after each setup change to avoid silent invalidation"
+      ]
+    }
+  ]
+}
