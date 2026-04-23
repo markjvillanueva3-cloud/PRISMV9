@@ -16,8 +16,10 @@
  *     with a larger brief). This one is a per-prompt nudge, not a reset.
  *   - Hard-capped at 1400 chars (~350 tokens) so injection stays cheap.
  *
- * Output: {"continue": true, "message": "<brief>"}  — the harness appends
- * `message` to the prompt context. On failure: {"continue": true} only.
+ * Output: {"continue": true, "hookSpecificOutput": {"hookEventName":
+ * "UserPromptSubmit", "additionalContext": "<brief>"}} — the harness
+ * appends `additionalContext` to the prompt context. On failure: {"continue": true} only.
+ * (Previously used `message:` which Claude Code silently ignored — bug fixed 2026-04-23.)
  *
  * Skip policy:
  *   - If the user prompt starts with "/" (slash command), skip — slash
@@ -43,7 +45,9 @@ const STATIC_BRIEF = [
   "",
   "**Token budget** — parallel independent tool calls in ONE message · `rtk <cmd>` for bash · MCP dispatcher actions > reimplementation · `Glob`/`Grep` over bash find/grep · `Read` with `offset`/`limit` on large files · don't re-read files you just wrote · delegate broad research to Agent with Explore subagent.",
   "",
-  "**Safety gates** — Omega ≥ 0.70 to release · S(x) ≥ 0.70 on safety-critical code · never inline Kienzle/Taylor/material constants.",
+  "**Safety gates (TIERED — see `state/shared/omega-thresholds.json`)** — shop-floor output (G-code, feed/speed → real machine): Ω≥0.95, S(x)≥0.98 (five-sigma). Production release: Ω≥0.90, S(x)≥0.95 (four-sigma). Proven-out: Ω≥0.85, S(x)≥0.90. Sim/explore: Ω≥0.70. **Default to `shop_floor` tier when in doubt.** Never inline Kienzle/Taylor/material constants.",
+  "",
+  "**Authoritative rules** — `H:/prism/CLAUDE.md` (project) + `H:/.claude/CLAUDE.md` (user) are canonical. Slash commands MUST obey both.",
   "",
 ].join("\n");
 
@@ -108,19 +112,39 @@ function main() {
     prompt = String(j.prompt || j.user_prompt || "").trim();
   } catch { /* ignore */ }
 
-  // Skip slash commands — they have their own context and injecting here
-  // would double-inject with the command's own template.
+  // For slash commands, inject a compact CLAUDE.md-reference header instead
+  // of the full brief. The command's own template provides the action-specific
+  // context; we just need to remind that CLAUDE.md rules are authoritative.
   if (prompt.startsWith("/")) {
-    console.log(JSON.stringify({ continue: true }));
+    const slashBrief = [
+      "## ★ Slash-command execution rules",
+      "Project `H:/prism/CLAUDE.md` + user `H:/.claude/CLAUDE.md` are authoritative.",
+      "Follow Karpathy discipline (classify → simplify → surgical → goal-driven). No stubs, no inline physics constants.",
+      "Safety tier: default to `shop_floor` (Ω≥0.95, S(x)≥0.98) unless the command explicitly says otherwise. See `state/shared/omega-thresholds.json`.",
+      "Check existing engines via `ENGINE_DIGEST.md` before creating; `duplicationGuardEngine.mustCheckBeforeCreating()` for any new asset.",
+    ].join("\n");
+    console.log(JSON.stringify({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: slashBrief,
+      },
+    }));
     return;
   }
 
   const sid = currentSessionId();
   const dynamic = buildDynamic(sid);
-  let message = STATIC_BRIEF + dynamic;
-  if (message.length > MAX_CHARS) message = message.slice(0, MAX_CHARS) + "\n[… truncated]";
+  let brief = STATIC_BRIEF + dynamic;
+  if (brief.length > MAX_CHARS) brief = brief.slice(0, MAX_CHARS) + "\n[… truncated]";
 
-  console.log(JSON.stringify({ continue: true, message }));
+  console.log(JSON.stringify({
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: "UserPromptSubmit",
+      additionalContext: brief,
+    },
+  }));
 }
 
 try { main(); } catch { console.log(JSON.stringify({ continue: true })); }

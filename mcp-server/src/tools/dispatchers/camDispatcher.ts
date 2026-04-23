@@ -30,6 +30,7 @@
  *   CumulativeStockChainEngine, FeatureClusteringEngine, ProductionPackageEngine
  */
 import { z } from "zod";
+import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_CAM_SCHEMAS } from "../../schemas/camActionSchemas.js";
@@ -986,6 +987,7 @@ export const ACTIONS = [
   "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
+  "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1563,6 +1565,11 @@ Params vary by action — pass relevant fields in params object.`,
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_cam] Action: ${action}`);
       let result: any;
+      // MS-P0.5-COORD vars hoisted to outer scope so post-switch awareness/ledger blocks see them
+      let _awareness: any = null;
+      let _awarenessKeywords: string[] = [];
+      let _isWedmAction = false;
+      let _entryAt = Date.now();
       try {
         // H1-MS2: Auto-normalize snake_case → camelCase params
         let params = rawParams;
@@ -1597,11 +1604,7 @@ Params vary by action — pass relevant fields in params object.`,
           };
         }
 
-        // MS-P0.5-COORD U-P0.5-COORD-08: Multi-agent dispatch coordination for WEDM-relevant CAM actions
-        let _awareness: any = null;
-        let _awarenessKeywords: string[] = [];
-        let _isWedmAction = false;
-        let _entryAt = Date.now();
+        // MS-P0.5-COORD U-P0.5-COORD-08: Multi-agent dispatch coordination for WEDM-relevant CAM actions (vars hoisted above)
         try {
           const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
           _isWedmAction = wedmAwarenessAdoptionEngine.isWedmAction("cam", action);
@@ -3814,6 +3817,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintToProgramDLIntelligenceEngine.js"
             );
             result = { weights: lathePrintToProgramDLIntelligenceEngine.exportWeights() };
+            break;
+          }
+
+          case "lathe_p2p_reason_explain": {
+            const { lathePrintToProgramReasoningEngine } = await import(
+              "../../engines/LathePrintToProgramReasoningEngine.js"
+            );
+            result = lathePrintToProgramReasoningEngine.explain(params.input);
+            break;
+          }
+
+          case "lathe_p2p_reason_markdown": {
+            const { lathePrintToProgramReasoningEngine } = await import(
+              "../../engines/LathePrintToProgramReasoningEngine.js"
+            );
+            result = { markdown: lathePrintToProgramReasoningEngine.exportMarkdown(params.trace) };
+            break;
+          }
+
+          case "lathe_p2p_reason_json": {
+            const { lathePrintToProgramReasoningEngine } = await import(
+              "../../engines/LathePrintToProgramReasoningEngine.js"
+            );
+            result = { json: lathePrintToProgramReasoningEngine.exportJSON(params.trace) };
+            break;
+          }
+
+          case "lathe_p2p_reason_filter": {
+            const { lathePrintToProgramReasoningEngine } = await import(
+              "../../engines/LathePrintToProgramReasoningEngine.js"
+            );
+            result = { steps: lathePrintToProgramReasoningEngine.filterSteps(params.trace, params.filter ?? {}) };
+            break;
+          }
+
+          case "lathe_p2p_reason_mode_summary": {
+            const { lathePrintToProgramReasoningEngine } = await import(
+              "../../engines/LathePrintToProgramReasoningEngine.js"
+            );
+            result = lathePrintToProgramReasoningEngine.summarizeModes(params.trace);
             break;
           }
 
