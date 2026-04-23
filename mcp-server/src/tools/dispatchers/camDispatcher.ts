@@ -102,6 +102,7 @@ import { ACTION_SOLIDCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamFu
 import { ACTION_NXCAM_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamMillingFunctionIndexActionSchemas.js";
 import { ACTION_NXCAM_TURNING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamTurningFunctionIndexActionSchemas.js";
 import { ACTION_NXCAM_FBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFBMFunctionIndexActionSchemas.js";
+import { ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -170,6 +171,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_NXCAM_MILLING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_NXCAM_TURNING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_NXCAM_FBM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -261,6 +263,7 @@ let _solidcamUnifiedIndex: any;
 let _nxcamMillingIndex: any;
 let _nxcamTurningIndex: any;
 let _nxcamFBMIndex: any;
+let _nxcamUnifiedIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -581,6 +584,7 @@ async function getEngine(name: string): Promise<any> {
     case "nxcamMillingIndex": return _nxcamMillingIndex ??= (await import("../../engines/NXCAMMillingFunctionIndexEngine.js")).NXCAMMillingFunctionIndexEngine;
     case "nxcamTurningIndex": return _nxcamTurningIndex ??= (await import("../../engines/NXCAMTurningFunctionIndexEngine.js")).NXCAMTurningFunctionIndexEngine;
     case "nxcamFBMIndex": return _nxcamFBMIndex ??= (await import("../../engines/NXCAMFBMFunctionIndexEngine.js")).NXCAMFBMFunctionIndexEngine;
+    case "nxcamUnifiedIndex": return _nxcamUnifiedIndex ??= (await import("../../engines/NXCAMFunctionIndexEngine.js")).NXCAMFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1256,6 +1260,7 @@ export const ACTIONS = [
   "nxcam_milling_index", "nxcam_milling_summary", "nxcam_milling_list_ops", "nxcam_milling_get_op", "nxcam_milling_by_category", "nxcam_milling_find_param", "nxcam_milling_recommend", "nxcam_milling_scallop", "nxcam_milling_adaptive_check",
   "nxcam_turning_index", "nxcam_turning_summary", "nxcam_turning_list_ops", "nxcam_turning_get_op", "nxcam_turning_by_category", "nxcam_turning_find_param", "nxcam_turning_recommend", "nxcam_turning_nose_radius", "nxcam_turning_taylor", "nxcam_turning_teach_validate",
   "nxcam_fbm_index", "nxcam_fbm_summary", "nxcam_fbm_list_ops", "nxcam_fbm_get_op", "nxcam_fbm_by_category", "nxcam_fbm_find_param", "nxcam_fbm_recommend", "nxcam_fbm_classify_pocket_depth", "nxcam_fbm_smallest_fit_tool", "nxcam_fbm_match_rule", "nxcam_fbm_group_efficiency",
+  "nxcam_index_manifest", "nxcam_index_section_list", "nxcam_index_section_stats", "nxcam_index_all_ops", "nxcam_index_find_op", "nxcam_index_find_param", "nxcam_index_category_universe", "nxcam_index_recommend", "nxcam_index_validate",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7191,6 +7196,52 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "nxcam_fbm_group_efficiency": {
             const eng = await getEngine("nxcamFBMIndex");
             result = eng.featureGroupEfficiency(params.feature_count, params.tool_count);
+            break;
+          }
+          // ── CAM-EXHAUST-MS0/U-CAM42: NXCAMFunctionIndexEngine ──
+          case "nxcam_index_manifest": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.getManifest();
+            break;
+          }
+          case "nxcam_index_section_list": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.getSectionList();
+            break;
+          }
+          case "nxcam_index_section_stats": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.getSectionStats(params.section_key);
+            break;
+          }
+          case "nxcam_index_all_ops": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.getAllOperations();
+            break;
+          }
+          case "nxcam_index_find_op": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.findOperation(params.operation_id);
+            break;
+          }
+          case "nxcam_index_find_param": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.findParameterAcrossSections(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "nxcam_index_category_universe": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.getCategoryUniverse();
+            break;
+          }
+          case "nxcam_index_recommend": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.recommendForFeature(params.feature, params.hint);
+            break;
+          }
+          case "nxcam_index_validate": {
+            const eng = await getEngine("nxcamUnifiedIndex");
+            result = eng.validateConsistency();
             break;
           }
 

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "system_id": "nxcam",
+  "version": "2306",
+  "description": "Unified NX CAM Function Index — assembled from per-section catalogs (milling, turning, FBM/feature-based machining).",
+  "sections": {
+    "milling": {
+      "file": "milling.json",
+      "operation_count": 13,
+      "parameter_count": 196,
+      "operation_ids": [
+        "adaptive_milling",
+        "auto_3d_fbm",
+        "cavity_mill",
+        "face_milling",
+        "fixed_contour",
+        "planar_mill",
+        "planar_profile",
+        "sequential_mill",
+        "surface_contour",
+        "swarf_drive",
+        "variable_contour",
+        "variable_streamline",
+        "zlevel_profile"
+      ],
+      "categories": [
+        "fixed_axis_3plus2",
+        "variable_axis",
+        "adaptive",
+        "sequential",
+        "prismatic_finish",
+        "feature_based"
+      ],
+      "training_topic_count": 6
+    },
+    "turning": {
+      "file": "turning.json",
+      "operation_count": 12,
+      "parameter_count": 159,
+      "operation_ids": [
+        "centerline_drill",
+        "finish_bore_id",
+        "finish_face",
+        "finish_turn_od",
+        "groove_od",
+        "manual_bore",
+        "rough_bore_id",
+        "rough_face",
+        "rough_turn_od",
+        "teach_mode",
+        "thread_id",
+        "thread_od"
+      ],
+      "categories": [
+        "rough",
+        "finish",
+        "groove",
+        "thread",
+        "drill_bore",
+        "teach"
+      ],
+      "training_topic_count": 6
+    },
+    "fbm": {
+      "file": "fbm.json",
+      "operation_count": 12,
+      "parameter_count": 165,
+      "operation_ids": [
+        "auto_feature_recognition",
+        "feature_cad_sync",
+        "feature_group_operation",
+        "feature_painting",
+        "hole_feature_recognition",
+        "machining_knowledge_library",
+        "machining_knowledge_rule",
+        "manual_feature_create",
+        "pocket_feature_recognition",
+        "template_auto_3d",
+        "template_hole_making",
+        "template_library_mgmt"
+      ],
+      "categories": [
+        "feature_recognition",
+        "manual_feature",
+        "machining_knowledge",
+        "process_template",
+        "feature_group"
+      ],
+      "training_topic_count": 6
+    }
+  },
+  "expected_totals": {
+    "sections": 3,
+    "operations": 37,
+    "parameters": 520
+  }
+}
