@@ -56,10 +56,10 @@ export interface ValidationIssue {
 export interface ValidationResult {
   /** Whether all inputs passed validation */
   valid: boolean;
-  /** List of validation errors if any */
-  errors: string[];
-  /** List of validation warnings (non-blocking) */
-  warnings: string[];
+  /** List of validation errors if any (optional, derive from issues if needed) */
+  errors?: string[];
+  /** List of validation warnings (non-blocking, optional) */
+  warnings?: string[];
   /** Structured issues for AlgorithmEngine compatibility */
   issues: ValidationIssue[];
   /** Corrected/clamped input values if any were out of range */
@@ -126,31 +126,44 @@ export interface AlgorithmMeta {
   /** Human-readable name */
   name: string;
   /** Algorithm version (semver) */
-  version: string;
+  version?: string;
   /** Domain: physics, thermal, surface, stability, etc. */
-  domain: "physics" | "thermal" | "surface" | "stability" | "constitutive" | "toolpath";
+  domain?:
+    | "physics" | "thermal" | "surface" | "stability" | "constitutive" | "toolpath"
+    | "force" | "signal" | "planning" | "optimization" | "tool_life" | "ml"
+    | "dynamics" | "control" | "numerical" | "power" | "collision" | "geometry";
   /** Category within domain */
-  category: string;
+  category?: string;
   /** Brief description */
   description: string;
   /** Primary equation in plain text */
-  equation_plain: string;
+  equation_plain?: string;
   /** Primary equation in LaTeX */
   equation_latex?: string;
+  /** Formula identifier for calculation tracing */
+  formula?: string;
   /** Published references */
-  references: LiteratureReference[];
+  references?: LiteratureReference[];
+  /** Alias for references (backward compatibility) */
+  reference?: string;
+  /** Safety classification for this algorithm */
+  safety_class?: string;
   /** Known assumptions */
-  assumptions: string[];
+  assumptions?: string[];
   /** Known limitations */
-  limitations: string[];
+  limitations?: string[];
   /** Valid input ranges */
-  valid_ranges: Record<string, { min: number; max: number; unit: string }>;
+  valid_ranges?: Record<string, { min: number; max: number; unit: string }>;
   /** ISO material groups this algorithm applies to (empty = all) */
-  applicable_materials: ISOGroup[];
+  applicable_materials?: ISOGroup[];
   /** When this algorithm was last validated */
-  last_validated: string;
+  last_validated?: string;
   /** Validation score from last audit */
   validation_score?: number;
+  /** Input field descriptions for documentation (string or detailed object) */
+  inputs?: Record<string, string | { type: string; description: string; unit?: string }>;
+  /** Output field descriptions for documentation */
+  outputs?: Record<string, string | { type: string; description: string; unit?: string }>;
 }
 
 // ─── Algorithm Interface ───────────────────────────────────────────
@@ -163,7 +176,7 @@ export interface AlgorithmInput {
   /** Material ID or full material physics data */
   material?: string | MaterialPhysics;
   /** Optional ISO group override */
-  iso_group?: ISOGroup;
+  iso_group?: ISOGroup | string;
 }
 
 /**
@@ -184,10 +197,10 @@ export interface AlgorithmOutput {
 /**
  * Generic algorithm interface — all PRISM physics models implement this.
  *
- * @template I Input type extending AlgorithmInput
- * @template O Output type extending AlgorithmOutput
+ * @template I Input type (algorithm-specific)
+ * @template O Output type (algorithm-specific)
  */
-export interface Algorithm<I extends AlgorithmInput, O extends AlgorithmOutput> {
+export interface Algorithm<I, O> {
   /**
    * Validate inputs before calculation.
    * Returns validation result with errors/warnings.
