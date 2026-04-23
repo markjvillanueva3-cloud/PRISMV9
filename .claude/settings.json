@@ -31,11 +31,34 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-reorient-inject.mjs",
             "timeout": 3000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/lathe-p2p-suggest.mjs",
+            "timeout": 1500,
+            "continueOnError": true
           }
         ]
       }
     ],
     "PreToolUse": [
+      {
+        "matcher": "mcp__.*__prism_business|prism_business",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/erp-quote-variance-guard.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agi-safety-envelope-guard.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
@@ -66,6 +89,17 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pretool-context-forecast.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Read|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-route-suggest.mjs",
             "timeout": 1500,
             "continueOnError": true
           }
@@ -188,6 +222,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-reorient-capture.mjs",
             "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/posttool-mcp-backend-audit.mjs",
+            "timeout": 50000,
             "continueOnError": true
           }
         ]
