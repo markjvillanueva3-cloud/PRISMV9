@@ -110,6 +110,9 @@ let _latheAutoQuoteFromPrint: any;
 let _billing: any;
 let _latheReconciliation: any;
 let _latheScheduler: any;
+let _latheOrderLifecycle: any;
+let _lathePOAutomation: any;
+let _latheInventory: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -317,6 +320,18 @@ async function getEngine(name: string): Promise<any> {
       return _latheScheduler ??= (
         await import("../../engines/LatheJobSchedulingEngine.js")
       ).latheJobSchedulingEngine;
+    case "latheOrderLifecycle":
+      return _latheOrderLifecycle ??= (
+        await import("../../engines/LatheCustomerOrderLifecycleEngine.js")
+      ).latheCustomerOrderLifecycleEngine;
+    case "lathePOAutomation":
+      return _lathePOAutomation ??= (
+        await import("../../engines/LathePurchaseOrderAutomationEngine.js")
+      ).lathePurchaseOrderAutomationEngine;
+    case "latheInventory":
+      return _latheInventory ??= (
+        await import("../../engines/LatheInventoryIntelligenceEngine.js")
+      ).latheInventoryIntelligenceEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -740,6 +755,21 @@ const ACTIONS = [
   // ── Lathe Job Scheduling (U-LTH50, P5 ERP) ──
   "lathe_job_schedule",
   "lathe_job_from_quote",
+  // ── Lathe Order Lifecycle (U-LTH51) ──
+  "lathe_order_create",
+  "lathe_order_transition",
+  "lathe_order_get",
+  "lathe_order_list",
+  "lathe_order_audit",
+  "lathe_order_pipeline",
+  // ── Lathe PO Automation (U-LTH52) ──
+  "lathe_po_build",
+  // ── Lathe Inventory Intelligence (U-LTH53) ──
+  "lathe_inv_upsert",
+  "lathe_inv_movement",
+  "lathe_inv_snapshot",
+  "lathe_inv_alerts",
+  "lathe_inv_get",
 ] as const;
 
 /** Registers business dispatcher.
@@ -3229,6 +3259,72 @@ Params vary by action — pass relevant fields in params object.`,
           case "lathe_job_from_quote": {
             const engine = await getEngine("latheScheduler");
             result = engine.jobFromQuote(params.quote, params.extras);
+            break;
+          }
+
+          // ── Lathe Order Lifecycle (U-LTH51) ──
+          case "lathe_order_create": {
+            const engine = await getEngine("latheOrderLifecycle");
+            result = engine.createOrder(params as any);
+            break;
+          }
+          case "lathe_order_transition": {
+            const engine = await getEngine("latheOrderLifecycle");
+            result = engine.transition(params as any);
+            break;
+          }
+          case "lathe_order_get": {
+            const engine = await getEngine("latheOrderLifecycle");
+            result = engine.getOrder(params.order_id);
+            break;
+          }
+          case "lathe_order_list": {
+            const engine = await getEngine("latheOrderLifecycle");
+            result = engine.listOrders({ customer: params.customer, state: params.state });
+            break;
+          }
+          case "lathe_order_audit": {
+            const engine = await getEngine("latheOrderLifecycle");
+            result = engine.getAuditLog(params.order_id);
+            break;
+          }
+          case "lathe_order_pipeline": {
+            const engine = await getEngine("latheOrderLifecycle");
+            result = engine.pipelineSummary();
+            break;
+          }
+
+          // ── Lathe PO Automation (U-LTH52) ──
+          case "lathe_po_build": {
+            const engine = await getEngine("lathePOAutomation");
+            result = engine.build(params as any);
+            break;
+          }
+
+          // ── Lathe Inventory Intelligence (U-LTH53) ──
+          case "lathe_inv_upsert": {
+            const engine = await getEngine("latheInventory");
+            result = engine.upsertItem(params as any);
+            break;
+          }
+          case "lathe_inv_movement": {
+            const engine = await getEngine("latheInventory");
+            result = engine.recordMovement(params as any);
+            break;
+          }
+          case "lathe_inv_snapshot": {
+            const engine = await getEngine("latheInventory");
+            result = engine.snapshot();
+            break;
+          }
+          case "lathe_inv_alerts": {
+            const engine = await getEngine("latheInventory");
+            result = engine.alerts();
+            break;
+          }
+          case "lathe_inv_get": {
+            const engine = await getEngine("latheInventory");
+            result = engine.getItem(params.sku);
             break;
           }
 
