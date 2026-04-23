@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: SLO budget tracker consumed by deploy gates + reliability dashboards, not a direct user action
 /**
  * ErrorBudgetEngine — U-FORE-17 (Reliability Substrate)
  *

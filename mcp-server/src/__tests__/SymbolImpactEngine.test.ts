@@ -102,4 +102,25 @@ describe("SymbolImpactEngine", () => {
     expect(impact.affectedFiles.length).toBe(0);
     expect(impact.riskLevel).toBe("low");
   }, 30_000);
+
+  it("ADV: totalDeclarations reports at least the engine's own declaration", async () => {
+    const e = new SymbolImpactEngine();
+    const impact = await e.analyze({
+      targetFile: engineFile,
+      symbolName: "myFunc",
+      scopeFiles: [engineFile, testFile, dispatcherFile],
+    });
+    expect(impact.totalDeclarations).toBeGreaterThanOrEqual(1);
+  }, 30_000);
+
+  it("ADV: testFiles subset is disjoint from dispatcherFiles subset", async () => {
+    const e = new SymbolImpactEngine();
+    const impact = await e.analyze({
+      targetFile: engineFile,
+      symbolName: "myFunc",
+      scopeFiles: [engineFile, testFile, dispatcherFile],
+    });
+    const overlap = impact.testFiles.filter((f) => impact.dispatcherFiles.includes(f));
+    expect(overlap.length).toBe(0);
+  }, 30_000);
 });

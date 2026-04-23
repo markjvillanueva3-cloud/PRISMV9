@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: used as library by other engines/hooks (e.g. state persistence); dispatcher wiring tracked separately under reliability ops
 /**
  * AtomicWritesEngine — U-FORE-17 (Reliability Substrate)
  */

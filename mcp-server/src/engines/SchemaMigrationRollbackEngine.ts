@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: schema upgrade/downgrade substrate consumed by migration scripts + state-repair workflows; registerMigration takes callables that cannot round-trip through JSON-RPC
 /**
  * SchemaMigrationRollbackEngine — U-FORE-17 (Reliability Substrate)
  *

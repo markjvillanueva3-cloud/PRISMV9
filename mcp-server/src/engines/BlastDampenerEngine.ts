@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: library helper for destructive-op rate limiting; invoked by hooks, not a standalone dispatcher action
 /**
  * BlastDampenerEngine — U-FORE-17 (Reliability Substrate)
  *
