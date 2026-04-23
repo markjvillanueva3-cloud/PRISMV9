@@ -107,6 +107,7 @@ import { ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMi
 import { ACTION_PM_FINISHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillFinishingFunctionIndexActionSchemas.js";
 import { ACTION_PM_5AXISROBOT_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMill5AxisRobotFunctionIndexActionSchemas.js";
 import { ACTION_PM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillFunctionIndexActionSchemas.js";
+import { ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/catiaMachiningFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -180,6 +181,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_PM_FINISHING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_PM_5AXISROBOT_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_PM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -276,6 +278,7 @@ let _pmRoughingIndex: any;
 let _pmFinishingIndex: any;
 let _pm5AxisRobotIndex: any;
 let _pmUnifiedIndex: any;
+let _catiaMachIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -601,6 +604,7 @@ async function getEngine(name: string): Promise<any> {
     case "pmFinishingIndex": return _pmFinishingIndex ??= (await import("../../engines/PowerMillFinishingFunctionIndexEngine.js")).PowerMillFinishingFunctionIndexEngine;
     case "pm5AxisRobotIndex": return _pm5AxisRobotIndex ??= (await import("../../engines/PowerMill5AxisRobotFunctionIndexEngine.js")).PowerMill5AxisRobotFunctionIndexEngine;
     case "pmUnifiedIndex": return _pmUnifiedIndex ??= (await import("../../engines/PowerMillFunctionIndexEngine.js")).PowerMillFunctionIndexEngine;
+    case "catiaMachIndex": return _catiaMachIndex ??= (await import("../../engines/CATIAMachiningFunctionIndexEngine.js")).CATIAMachiningFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1281,6 +1285,7 @@ export const ACTIONS = [
   "pm_finishing_index", "pm_finishing_summary", "pm_finishing_list_ops", "pm_finishing_get_op", "pm_finishing_by_category", "pm_finishing_find_param", "pm_finishing_recommend", "pm_finishing_classify_steep_shallow", "pm_finishing_stepover_for_cusp", "pm_finishing_pencil_feasibility",
   "pm_5axisrobot_index", "pm_5axisrobot_summary", "pm_5axisrobot_list_ops", "pm_5axisrobot_get_op", "pm_5axisrobot_by_category", "pm_5axisrobot_find_param", "pm_5axisrobot_recommend", "pm_5axisrobot_classify_kinematic", "pm_5axisrobot_singularity_check", "pm_5axisrobot_robot_reach",
   "pm_index_manifest", "pm_index_section_list", "pm_index_section_stats", "pm_index_all_ops", "pm_index_find_op", "pm_index_find_param", "pm_index_category_universe", "pm_index_recommend", "pm_index_validate",
+  "catia_mach_index", "catia_mach_summary", "catia_mach_list_ops", "catia_mach_get_op", "catia_mach_by_category", "catia_mach_find_param", "catia_mach_recommend", "catia_mach_classify_tolerance", "catia_mach_select_plan", "catia_mach_delmia_coverage",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7461,6 +7466,57 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "pm_index_validate": {
             const eng = await getEngine("pmUnifiedIndex");
             result = eng.validateConsistency();
+            break;
+          }
+          // ── CAM-EXHAUST-MS0/U-CAM47: CATIAMachiningFunctionIndexEngine ──
+          case "catia_mach_index": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "catia_mach_summary": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "catia_mach_list_ops": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "catia_mach_get_op": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "catia_mach_by_category": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "catia_mach_find_param": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "catia_mach_recommend": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "catia_mach_classify_tolerance": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.classifyToleranceGrade(params.IT_grade);
+            break;
+          }
+          case "catia_mach_select_plan": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.selectMachiningPlan(params.complexity_score);
+            break;
+          }
+          case "catia_mach_delmia_coverage": {
+            const eng = await getEngine("catiaMachIndex");
+            result = eng.delmiaSimulationCoverage(params.toolpath_length_mm, params.sample_step_mm);
             break;
           }
 
