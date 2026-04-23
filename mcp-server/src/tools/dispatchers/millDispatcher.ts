@@ -136,6 +136,20 @@ async function getSurfaceFinish(): Promise<any> {
     .surfaceFinishPredictorEngine);
 }
 
+// P4-U08-EST: Cycle time estimator engine lazy loader
+let _cycleTimeEstimator: any;
+async function getCycleTimeEstimator(): Promise<any> {
+  return (_cycleTimeEstimator ??= (await import("../../engines/CycleTimeEstimatorEngine.js"))
+    .cycleTimeEstimatorEngine);
+}
+
+// P4-U09-VAL: G-code validation engine lazy loader
+let _gcodeValidator: any;
+async function getGcodeValidator(): Promise<any> {
+  return (_gcodeValidator ??= (await import("../../engines/GCodeValidationEngine.js"))
+    .gcodeValidationEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -409,10 +423,36 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
       return facade.orchestrate({ ...params, type: "agi" });
     case "mill_sequence_optimize":
       return pending("P73-U05-SEQUENCE-OPTIMIZE", "MillOperationSequenceOptimizerEngine lands in P73");
-    case "mill_cycle_time_estimate":
-      return facade.orchestrate({ ...params, type: "scientific" });
-    case "mill_toolpath_validate":
-      return facade.orchestrate({ ...params, type: "validate" });
+    case "mill_cycle_time_estimate": {
+      // P4-U08-EST: Direct wiring to CycleTimeEstimatorEngine
+      // Physics: S-curve velocity profiles, corner deceleration, servo settling,
+      // block processing overhead, tool change time, spindle accel
+      const estimator = await getCycleTimeEstimator();
+      const controllerType = (params.controller ?? "fanuc").toLowerCase();
+      const config = {
+        controller: controllerType as "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma",
+        machine_profile: params.machine_profile,
+        include_breakdown: params.include_breakdown ?? true,
+        path_tolerance: params.path_tolerance ?? 0.01,
+        model_look_ahead: params.model_look_ahead ?? true,
+        kinematics_override: params.kinematics_override,
+      };
+      return estimator.estimateFromGCode(params.gcode, config);
+    }
+    case "mill_toolpath_validate": {
+      // P4-U09-VAL: Direct wiring to GCodeValidationEngine
+      // Modal state tracking, arc geometry, G/M-code support per controller,
+      // machine envelope checking
+      const validator = await getGcodeValidator();
+      const controller = (params.controller ?? "FANUC").toUpperCase() as "FANUC" | "HAAS" | "MAZAK";
+      const result = validator.validate(params.gcode, controller);
+      // Optionally check machine envelope if provided
+      if (params.machine_envelope && typeof validator.checkEnvelope === "function") {
+        const envelopeResult = validator.checkEnvelope(params.gcode, params.machine_envelope);
+        return { ...result, envelope: envelopeResult };
+      }
+      return result;
+    }
 
     // ── Machine + fixture + holder ──────────────────────────────
     case "mill_machine_select":

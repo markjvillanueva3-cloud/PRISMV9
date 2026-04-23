@@ -245,15 +245,43 @@ const mill_sequence_optimize = z.object({
   objective: z.enum(["cycle_time", "tool_changes", "setups", "total_cost"]).default("total_cost"),
 }).passthrough();
 
+// P4-U08-EST: CycleTimeEstimatorEngine schema — physics-based estimation
 const mill_cycle_time_estimate = z.object({
   ...millContext,
-  toolpath_length_mm: posNum,
-  air_cut_mm: optPosNum,
+  gcode: z.string().describe("G-code program text to estimate"),
+  controller: z.enum(["fanuc", "haas", "siemens", "heidenhain", "mazak", "okuma"])
+    .default("fanuc").describe("CNC controller family for kinematic defaults"),
+  machine_profile: optStr.describe("Machine profile key (haas_vf2, dmg_dmu50, fanuc_robodrill, etc.)"),
+  include_breakdown: optBool.describe("Include per-tool time breakdown").default(true),
+  path_tolerance: optPosNum.describe("Path tolerance in mm for corner decel model (default 0.01)"),
+  model_look_ahead: optBool.describe("Model controller look-ahead feed blending (default true)"),
+  kinematics_override: z.object({
+    rapid_rate_xy: optPosNum.describe("XY rapid traverse mm/min"),
+    rapid_rate_z: optPosNum.describe("Z rapid traverse mm/min"),
+    max_acceleration: optPosNum.describe("Max acceleration mm/s²"),
+    max_jerk: optPosNum.describe("Max jerk mm/s³"),
+    servo_settling_time: optPosNum.describe("Servo settling time ms"),
+    look_ahead_blocks: z.number().int().positive().optional().describe("Look-ahead buffer depth"),
+    block_processing_time: optPosNum.describe("Block processing time ms per line"),
+    tool_change_time: optPosNum.describe("Tool change time seconds (chip-to-chip)"),
+    spindle_accel_time: optPosNum.describe("Spindle acceleration time seconds"),
+  }).optional().describe("Custom kinematic overrides merged on profile"),
 }).passthrough();
 
+// P4-U09-VAL: GCodeValidationEngine schema — modal state + arc + envelope checking
 const mill_toolpath_validate = z.object({
   ...millContext,
-  toolpath_file: optStr.describe("Path to G-code or toolpath artifact"),
+  gcode: z.string().describe("G-code program text to validate"),
+  controller: z.enum(["FANUC", "HAAS", "MAZAK"]).default("FANUC")
+    .describe("Controller family for G/M-code support validation"),
+  machine_envelope: z.object({
+    xMin: z.number(), xMax: z.number(),
+    yMin: z.number(), yMax: z.number(),
+    zMin: z.number(), zMax: z.number(),
+    aMin: optNum, aMax: optNum,
+    cMin: optNum, cMax: optNum,
+    cContinuous: optBool.describe("C-axis continuous rotation"),
+  }).optional().describe("Machine work envelope for boundary checking"),
 }).passthrough();
 
 // ============================================================================
