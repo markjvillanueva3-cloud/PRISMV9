@@ -90,7 +90,7 @@ ${missingEngines.map(e => `║   ✗ ${e}`).join('\n')}
 ║ Use /dedup to check if a similar engine already exists.
 ╚══════════════════════════════════════════════════════════════╝
 `;
-    console.log(JSON.stringify({ continue: true, message: warning }));
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: warning } }));
     return;
   }
 

@@ -20,7 +20,7 @@
  * - Generate component skeletons from Figma frames
  */
 
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, promises as fsPromises } from 'fs';
 import { resolve, basename } from 'path';
 
 const WEB_COMPONENTS_PATH = 'mcp-server/web/src/components';
@@ -117,9 +117,10 @@ function generateFigmaContext(componentName, figmaState) {
 async function main() {
   let input;
   try {
-    input = JSON.parse(await require('fs').promises.readFile('/dev/stdin', 'utf8'));
+    // /dev/stdin is POSIX-only. Read from fd 0 for cross-platform (Windows).
+    input = JSON.parse(readFileSync(0, 'utf-8'));
   } catch {
-    console.log(JSON.stringify({ decision: 'approve' }));
+    console.log(JSON.stringify({ continue: true }));
     return;
   }
 

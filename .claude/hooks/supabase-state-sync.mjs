@@ -21,7 +21,7 @@
  * - Audit trail of all changes
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { resolve, basename } from 'path';
 
 const PRISM_ROOT = 'H:/prism';
@@ -74,7 +74,7 @@ function getStateFiles() {
     for (const file of SYNC_FILES) {
       const fullPath = resolve(STATE_DIR, file);
       if (existsSync(fullPath)) {
-        const stat = require('fs').statSync(fullPath);
+        const stat = statSync(fullPath);
         files[file] = {
           path: fullPath,
           mtime: stat.mtime.toISOString(),
