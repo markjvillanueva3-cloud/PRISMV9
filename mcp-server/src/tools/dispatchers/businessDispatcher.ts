@@ -108,6 +108,7 @@ let _recordTimeline: any;
 let _toolInventoryOrchestrator: any;
 let _latheAutoQuoteFromPrint: any;
 let _billing: any;
+let _latheReconciliation: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -307,6 +308,10 @@ async function getEngine(name: string): Promise<any> {
       return _billing ??= (
         await import("../../engines/BillingEngine.js")
       ).billingEngine;
+    case "latheReconciliation":
+      return _latheReconciliation ??= (
+        await import("../../engines/LatheActualCostReconciliationEngine.js")
+      ).latheActualCostReconciliationEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -724,6 +729,9 @@ const ACTIONS = [
   // ── Lathe Auto-Quote From Print (U-LTH48, P5 ERP) ──
   "lathe_auto_quote_from_print",
   "lathe_auto_quote_reconcile",
+  // ── Lathe Actual Cost Reconciliation (U-LTH49, P5 ERP) ──
+  "lathe_actual_cost_reconcile",
+  "lathe_actual_cost_accuracy",
 ] as const;
 
 /** Registers business dispatcher.
@@ -3189,6 +3197,18 @@ Params vary by action — pass relevant fields in params object.`,
           case "lathe_auto_quote_reconcile": {
             const engine = await getEngine("latheAutoQuoteFromPrint");
             result = engine.reconcileAgainstActual(params.quote, params.actual_cost_usd);
+            break;
+          }
+
+          // ── Lathe Actual Cost Reconciliation (U-LTH49) ──
+          case "lathe_actual_cost_reconcile": {
+            const engine = await getEngine("latheReconciliation");
+            result = engine.reconcile(params as any);
+            break;
+          }
+          case "lathe_actual_cost_accuracy": {
+            const engine = await getEngine("latheReconciliation");
+            result = engine.getAccuracyStats(params.customer, params.material_iso_group);
             break;
           }
 
