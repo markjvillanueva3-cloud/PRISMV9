@@ -115,6 +115,10 @@ let _lathePOAutomation: any;
 let _latheInventory: any;
 let _latheProfitability: any;
 let _latheERPOrchestrator: any;
+let _latheAGIBridge: any;
+let _latheAGILearning: any;
+let _latheAGIKnowledge: any;
+let _latheAGISafety: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -342,6 +346,22 @@ async function getEngine(name: string): Promise<any> {
       return _latheERPOrchestrator ??= (
         await import("../../engines/LatheERPOrchestratorEngine.js")
       ).latheERPOrchestratorEngine;
+    case "latheAGIBridge":
+      return _latheAGIBridge ??= (
+        await import("../../engines/LatheAGIFeatureBridgeEngine.js")
+      ).latheAGIFeatureBridgeEngine;
+    case "latheAGILearning":
+      return _latheAGILearning ??= (
+        await import("../../engines/LatheAGIContinuousLearningEngine.js")
+      ).latheAGIContinuousLearningEngine;
+    case "latheAGIKnowledge":
+      return _latheAGIKnowledge ??= (
+        await import("../../engines/LatheAGIKnowledgeUnificationEngine.js")
+      ).latheAGIKnowledgeUnificationEngine;
+    case "latheAGISafety":
+      return _latheAGISafety ??= (
+        await import("../../engines/LatheAGISafetyContainmentEngine.js")
+      ).latheAGISafetyContainmentEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -786,6 +806,18 @@ const ACTIONS = [
   "lathe_profit_get",
   // ── Lathe ERP Orchestrator (U-LTH57) ──
   "lathe_erp_full",
+  // ── Lathe AGI Substrate (U-LTH58..U-LTH61) ──
+  "lathe_agi_reason",
+  "lathe_agi_history",
+  "lathe_agi_confidence",
+  "lathe_agi_feedback",
+  "lathe_agi_adjustment",
+  "lathe_agi_kg_upsert_node",
+  "lathe_agi_kg_upsert_edge",
+  "lathe_agi_kg_query",
+  "lathe_agi_kg_trace",
+  "lathe_agi_kg_stats",
+  "lathe_agi_safety_check",
 ] as const;
 
 /** Registers business dispatcher.
@@ -3365,6 +3397,63 @@ Params vary by action — pass relevant fields in params object.`,
           case "lathe_erp_full": {
             const engine = await getEngine("latheERPOrchestrator");
             result = engine.erpFull(params as any);
+            break;
+          }
+
+          // ── Lathe AGI Substrate (U-LTH58..U-LTH61) ──
+          case "lathe_agi_reason": {
+            const engine = await getEngine("latheAGIBridge");
+            result = engine.reason(params as any);
+            break;
+          }
+          case "lathe_agi_history": {
+            const engine = await getEngine("latheAGIBridge");
+            result = engine.history({ feature: params.feature, limit: params.limit });
+            break;
+          }
+          case "lathe_agi_confidence": {
+            const engine = await getEngine("latheAGIBridge");
+            result = engine.confidenceStats();
+            break;
+          }
+          case "lathe_agi_feedback": {
+            const engine = await getEngine("latheAGILearning");
+            result = engine.recordFeedback(params as any);
+            break;
+          }
+          case "lathe_agi_adjustment": {
+            const engine = await getEngine("latheAGILearning");
+            result = { multiplier: engine.predictAdjustment(params.feature, params.key) };
+            break;
+          }
+          case "lathe_agi_kg_upsert_node": {
+            const engine = await getEngine("latheAGIKnowledge");
+            result = engine.upsertNode(params as any);
+            break;
+          }
+          case "lathe_agi_kg_upsert_edge": {
+            const engine = await getEngine("latheAGIKnowledge");
+            result = engine.upsertEdge(params as any);
+            break;
+          }
+          case "lathe_agi_kg_query": {
+            const engine = await getEngine("latheAGIKnowledge");
+            result = engine.query(params as any);
+            break;
+          }
+          case "lathe_agi_kg_trace": {
+            const engine = await getEngine("latheAGIKnowledge");
+            result = engine.traceReasoning(params as any);
+            break;
+          }
+          case "lathe_agi_kg_stats": {
+            const engine = await getEngine("latheAGIKnowledge");
+            result = engine.stats();
+            break;
+          }
+          case "lathe_agi_safety_check": {
+            const engine = await getEngine("latheAGISafety");
+            result = engine.check(params as any);
             break;
           }
 
