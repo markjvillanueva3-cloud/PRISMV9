@@ -111,6 +111,7 @@ import { ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/cat
 import { ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS } from "../../schemas/hypermillExtendedFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritMillingFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritLatheMillTurnFunctionIndexActionSchemas.js";
+import { ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritWireEDMFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -188,6 +189,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -288,6 +290,7 @@ let _catiaMachIndex: any;
 let _hmExtIndex: any;
 let _espritMill: any;
 let _espritLathe: any;
+let _espritWedm: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -617,6 +620,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmExtIndex": return _hmExtIndex ??= (await import("../../engines/HypermillExtendedFunctionIndexEngine.js")).HypermillExtendedFunctionIndexEngine;
     case "espritMill": return _espritMill ??= (await import("../../engines/ESPRITMillingFunctionIndexEngine.js")).ESPRITMillingFunctionIndexEngine;
     case "espritLathe": return _espritLathe ??= (await import("../../engines/ESPRITLatheMillTurnFunctionIndexEngine.js")).ESPRITLatheMillTurnFunctionIndexEngine;
+    case "espritWedm": return _espritWedm ??= (await import("../../engines/ESPRITWireEDMFunctionIndexEngine.js")).ESPRITWireEDMFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1301,6 +1305,7 @@ export const ACTIONS = [
   "hm_ext_index", "hm_ext_summary", "hm_ext_list_sections", "hm_ext_section_stats", "hm_ext_list_ops", "hm_ext_find_op", "hm_ext_find_param", "hm_ext_categories", "hm_ext_recommend", "hm_ext_consistency",
   "esprit_mill_index", "esprit_mill_summary", "esprit_mill_list_ops", "esprit_mill_get_op", "esprit_mill_by_category", "esprit_mill_find_param", "esprit_mill_recommend", "esprit_mill_classify_doc", "esprit_mill_profitmilling_envelope", "esprit_mill_select_drill",
   "esprit_lathe_index", "esprit_lathe_summary", "esprit_lathe_list_ops", "esprit_lathe_get_op", "esprit_lathe_by_category", "esprit_lathe_find_param", "esprit_lathe_recommend", "esprit_lathe_select_threading", "esprit_lathe_select_millturn_axis", "esprit_lathe_estimate_channel_sync",
+  "esprit_wedm_index", "esprit_wedm_summary", "esprit_wedm_list_ops", "esprit_wedm_get_op", "esprit_wedm_by_category", "esprit_wedm_find_param", "esprit_wedm_recommend", "esprit_wedm_select_skim_schedule", "esprit_wedm_select_taper_plane", "esprit_wedm_compute_die_clearance", "esprit_wedm_estimate_cycle",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7185,6 +7190,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "esprit_lathe_estimate_channel_sync": {
             const eng = await getEngine("espritLathe");
             result = eng.estimateChannelSync(params.channel_count, params.avg_op_seconds);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM51: ESPRITWireEDMFunctionIndexEngine ──
+          case "esprit_wedm_index": {
+            const eng = await getEngine("espritWedm");
+            result = eng.getIndex();
+            break;
+          }
+          case "esprit_wedm_summary": {
+            const eng = await getEngine("espritWedm");
+            result = eng.getSummary();
+            break;
+          }
+          case "esprit_wedm_list_ops": {
+            const eng = await getEngine("espritWedm");
+            result = eng.listOperations();
+            break;
+          }
+          case "esprit_wedm_get_op": {
+            const eng = await getEngine("espritWedm");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "esprit_wedm_by_category": {
+            const eng = await getEngine("espritWedm");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "esprit_wedm_find_param": {
+            const eng = await getEngine("espritWedm");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "esprit_wedm_recommend": {
+            const eng = await getEngine("espritWedm");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "esprit_wedm_select_skim_schedule": {
+            const eng = await getEngine("espritWedm");
+            result = eng.selectSkimSchedule(params.target_ra_um);
+            break;
+          }
+          case "esprit_wedm_select_taper_plane": {
+            const eng = await getEngine("espritWedm");
+            result = eng.selectTaperReferencePlane(params.thickness_mm, params.taper_angle_deg, params.guide_uv_max_mm);
+            break;
+          }
+          case "esprit_wedm_compute_die_clearance": {
+            const eng = await getEngine("espritWedm");
+            result = eng.computeDieClearance(params.thickness_mm, params.material_iso, params.fineblanking ?? false);
+            break;
+          }
+          case "esprit_wedm_estimate_cycle": {
+            const eng = await getEngine("espritWedm");
+            result = eng.estimateCycleTime(params.area_mm2, params.thickness_mm, params.skim_count);
             break;
           }
 

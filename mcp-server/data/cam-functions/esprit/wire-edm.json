@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "wire_edm",
+  "version": "2024",
+  "extracted_from": "Hexagon ESPRIT TNG / ESPRIT Classic 2024 Wire EDM Module Reference",
+  "categories": ["cut_2axis", "taper_4axis", "skim_pass", "auto_routing", "punch_die", "technology", "monitoring"],
+  "operations": {
+    "wire_2axis_cut": {
+      "category": "cut_2axis",
+      "display_name": "2-Axis Wire Cut (XY)",
+      "description": "Standard 2-axis wire cut with offset compensation. Multi-pass roughing + skims.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "wire", "compensation", "approach"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true },
+          "stock_thickness_mm": { "type": "number", "min": 0.5, "max": 400, "required": true },
+          "is_internal": { "type": "boolean", "default": false }
+        },
+        "wire": {
+          "wire_diameter_mm": { "type": "number", "min": 0.05, "max": 0.5, "default": 0.25 },
+          "wire_material": { "type": "enum", "values": ["brass", "coated_brass", "molybdenum", "tungsten", "stratified"], "default": "brass" }
+        },
+        "compensation": {
+          "offset_mm": { "type": "number", "min": 0, "max": 0.5, "required": true },
+          "side": { "type": "enum", "values": ["left", "right"], "required": true }
+        },
+        "approach": {
+          "lead_in_mode": { "type": "enum", "values": ["normal", "tangent_arc", "ramp"], "default": "normal" },
+          "lead_in_distance_mm": { "type": "number", "min": 0.5, "max": 50, "default": 5 },
+          "start_hole_diameter_mm": { "type": "number", "min": 0.3, "max": 5, "default": 1 }
+        }
+      }
+    },
+    "wire_4axis_taper": {
+      "category": "taper_4axis",
+      "display_name": "4-Axis Tapered Cut (XY/UV)",
+      "description": "Synchronized XY/UV taper cutting. Constant or variable taper per segment.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "taper", "wire", "approach"],
+      "parameters": {
+        "geometry": {
+          "lower_chain_id": { "type": "string", "required": true },
+          "upper_chain_id": { "type": "string", "required": false },
+          "stock_thickness_mm": { "type": "number", "min": 1, "max": 400, "required": true }
+        },
+        "taper": {
+          "taper_mode": { "type": "enum", "values": ["constant_angle", "two_chain_sync", "variable_per_segment"], "default": "constant_angle" },
+          "taper_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "taper_reference_plane": { "type": "enum", "values": ["lower", "upper", "midplane"], "default": "lower" }
+        },
+        "wire": {
+          "wire_diameter_mm": { "type": "number", "min": 0.05, "max": 0.5, "default": 0.25 },
+          "wire_tension_N": { "type": "number", "min": 5, "max": 30, "default": 12 }
+        },
+        "approach": {
+          "lead_in_distance_mm": { "type": "number", "min": 0.5, "max": 50, "default": 5 },
+          "start_hole_diameter_mm": { "type": "number", "min": 0.3, "max": 5, "default": 1 },
+          "guide_uv_max_mm": { "type": "number", "min": 1, "max": 100, "default": 30 }
+        }
+      }
+    },
+    "wire_skim_pass": {
+      "category": "skim_pass",
+      "display_name": "Skim Pass Schedule",
+      "description": "Multi-pass finish strategy after rough cut. 1-4 skims with decreasing power for surface finish.",
+      "parameter_count": 8,
+      "dialog_tabs": ["pass_schedule", "technology"],
+      "parameters": {
+        "pass_schedule": {
+          "skim_count": { "type": "number", "min": 0, "max": 5, "default": 2 },
+          "first_skim_offset_um": { "type": "number", "min": 5, "max": 200, "default": 30 },
+          "step_offset_um": { "type": "number", "min": 1, "max": 50, "default": 10 },
+          "final_skim_offset_um": { "type": "number", "min": 1, "max": 50, "default": 5 }
+        },
+        "technology": {
+          "energy_per_skim_pct": { "type": "number", "min": 5, "max": 50, "default": 20 },
+          "feed_per_skim_mm_min": { "type": "number", "min": 0.5, "max": 10, "default": 2 },
+          "target_ra_um": { "type": "number", "min": 0.1, "max": 5, "default": 0.8 },
+          "wire_change_between_skims": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "wire_auto_route": {
+      "category": "auto_routing",
+      "display_name": "Auto Routing (Multi-Cavity)",
+      "description": "Automatically sequence multiple cavities. Optimize wire path between cavities, minimize travel.",
+      "parameter_count": 6,
+      "dialog_tabs": ["cavities", "routing"],
+      "parameters": {
+        "cavities": {
+          "cavity_chain_ids": { "type": "string", "required": true },
+          "cavity_count": { "type": "number", "min": 1, "max": 200, "required": true }
+        },
+        "routing": {
+          "routing_strategy": { "type": "enum", "values": ["nearest_neighbor", "two_opt", "row_by_row", "operator_defined"], "default": "two_opt" },
+          "auto_thread_between": { "type": "boolean", "default": true },
+          "preserve_tabs": { "type": "boolean", "default": true },
+          "tab_width_mm": { "type": "number", "min": 0.5, "max": 10, "default": 2 }
+        }
+      }
+    },
+    "wire_punch_die": {
+      "category": "punch_die",
+      "display_name": "Punch / Die Pair Generation",
+      "description": "Auto-generate matched punch + die from single profile. Handles relief, taper, land thickness.",
+      "parameter_count": 8,
+      "dialog_tabs": ["geometry", "punch", "die"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true },
+          "stock_thickness_mm": { "type": "number", "min": 1, "max": 50, "required": true }
+        },
+        "punch": {
+          "punch_offset_mm": { "type": "number", "min": -0.05, "max": 0.05, "default": -0.005 },
+          "punch_taper_angle_deg": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "die": {
+          "die_clearance_pct_thickness": { "type": "number", "min": 1, "max": 15, "default": 5 },
+          "die_land_mm": { "type": "number", "min": 0.5, "max": 10, "default": 2 },
+          "die_relief_angle_deg": { "type": "number", "min": 0, "max": 5, "default": 0.5 },
+          "die_relief_depth_mm": { "type": "number", "min": 1, "max": 30, "default": 5 }
+        }
+      }
+    },
+    "wire_technology_select": {
+      "category": "technology",
+      "display_name": "Technology / Generator Setting",
+      "description": "Select machine-specific technology table by material, thickness, wire, and surface target.",
+      "parameter_count": 6,
+      "dialog_tabs": ["selection", "monitoring"],
+      "parameters": {
+        "selection": {
+          "machine_brand": { "type": "enum", "values": ["agie_charmilles", "sodick", "makino", "mitsubishi", "fanuc"], "required": true },
+          "material_iso": { "type": "enum", "values": ["P", "M", "K", "N", "S", "H"], "required": true },
+          "thickness_mm": { "type": "number", "min": 1, "max": 400, "required": true },
+          "wire_diameter_mm": { "type": "number", "min": 0.05, "max": 0.5, "required": true }
+        },
+        "monitoring": {
+          "target_ra_um": { "type": "number", "min": 0.1, "max": 5, "default": 0.8 },
+          "auto_adapt_to_thickness_change": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "wire_break_recovery": {
+      "category": "monitoring",
+      "display_name": "Wire Break Recovery Strategy",
+      "description": "Define how machine recovers from wire break — re-thread, retreat, or operator alert.",
+      "parameter_count": 5,
+      "dialog_tabs": ["recovery"],
+      "parameters": {
+        "recovery": {
+          "recovery_mode": { "type": "enum", "values": ["auto_rethread", "retreat_and_alert", "alert_only"], "default": "auto_rethread" },
+          "max_rethread_attempts": { "type": "number", "min": 1, "max": 10, "default": 3 },
+          "retreat_distance_mm": { "type": "number", "min": 0.1, "max": 20, "default": 2 },
+          "alert_email": { "type": "string", "required": false },
+          "log_to_file": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "wire_corner_strategy": {
+      "category": "cut_2axis",
+      "display_name": "Corner Strategy (Sharp / Radius / Slow Down)",
+      "description": "How wire handles inside corners — sharp pause, programmed radius, or feed-rate slowdown.",
+      "parameter_count": 5,
+      "dialog_tabs": ["corner_handling"],
+      "parameters": {
+        "corner_handling": {
+          "corner_mode": { "type": "enum", "values": ["sharp_pause", "auto_radius", "feed_slowdown", "operator_path"], "default": "auto_radius" },
+          "min_corner_radius_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.15 },
+          "slowdown_distance_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "slowdown_feed_pct": { "type": "number", "min": 10, "max": 100, "default": 30 },
+          "pause_dwell_seconds": { "type": "number", "min": 0, "max": 10, "default": 0.5 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Skim Pass Discipline",
+      "key_concepts": ["First skim takes the bulk of the rough overcut", "Final skim defines surface finish + size hold"],
+      "best_practices": ["2 skims for ≤Ra 1.6μm; 3-4 skims for ≤Ra 0.4μm precision"]
+    },
+    {
+      "topic": "Taper Cutting Reference Plane",
+      "key_concepts": ["lower = wire stays vertical at bottom", "upper = vertical at top", "midplane = balanced UV travel"],
+      "best_practices": ["Pick reference plane to minimize UV excursion vs guide envelope"]
+    },
+    {
+      "topic": "Die Clearance Selection",
+      "key_concepts": ["5% of thickness for general blanking", "8-10% for thick high-strength steel", "<3% for fineblanking"],
+      "best_practices": ["Always cut die first to verify clearance before punch"]
+    },
+    {
+      "topic": "Auto-Routing for Multi-Cavity Production",
+      "key_concepts": ["two_opt minimizes total travel", "row_by_row predictable for operators", "preserve tabs to keep slugs from dropping"],
+      "best_practices": ["Use auto_thread_between for hands-off overnight runs"]
+    }
+  ]
+}
