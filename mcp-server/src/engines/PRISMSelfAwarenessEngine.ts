@@ -584,6 +584,54 @@ ${m.knownGaps.length > 0 ? `Gaps: ${m.knownGaps.join(", ")}` : ""}`;
       }
     }
 
+    // Search hooks, including Codex bridge hooks. These are capability surfaces,
+    // not just lifecycle plumbing.
+    for (const hook of manifest.hooks) {
+      const nameLower = hook.name.toLowerCase();
+      const eventLower = hook.event.toLowerCase();
+      const pathLower = hook.path.toLowerCase();
+
+      let score = 0;
+      for (const term of queryTerms) {
+        if (nameLower.includes(term)) score += 3;
+        if (eventLower.includes(term)) score += 1;
+        if (pathLower.includes(term)) score += 2;
+      }
+
+      if (score > 0) {
+        matches.push({
+          capability: hook.name,
+          confidence: Math.min(score / queryTerms.length / 3, 1) * 0.75,
+          path: hook.path,
+        });
+      }
+    }
+
+    // Search skills and command surfaces so Codex can discover its own operating
+    // instructions and profile-side PRISM skills.
+    for (const skill of manifest.skills) {
+      const nameLower = skill.name.toLowerCase();
+      const descLower = (skill.description || "").toLowerCase();
+      const triggerLower = (skill.triggers || []).join(" ").toLowerCase();
+      const pathLower = skill.path.toLowerCase();
+
+      let score = 0;
+      for (const term of queryTerms) {
+        if (nameLower.includes(term)) score += 3;
+        if (descLower.includes(term)) score += 2;
+        if (triggerLower.includes(term)) score += 2;
+        if (pathLower.includes(term)) score += 1;
+      }
+
+      if (score > 0) {
+        matches.push({
+          capability: skill.name,
+          confidence: Math.min(score / queryTerms.length / 3, 1) * 0.8,
+          path: skill.path,
+        });
+      }
+    }
+
     // Sort by confidence
     matches.sort((a, b) => b.confidence - a.confidence);
 
@@ -1638,6 +1686,8 @@ Path: H:/prism/mcp-server/src/data/`;
             tags: resource.domains
           });
         }
+      } catch (err) {
+        log("error", `Failed to load hooks from ${root.dir}: ${err}`);
       }
     }
 
@@ -1741,6 +1791,8 @@ Engine: src/engines/TribalKnowledgeEngine.ts`;
           severity: "recommended",
           reasoning: "Drilling: through-tool. Milling: flood or mist. Hard turning: dry or MQL."
         }
+      } catch (err) {
+        log("error", `Failed to load skills from ${root.dir}: ${err}`);
       }
     ];
 

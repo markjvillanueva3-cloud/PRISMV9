@@ -4232,6 +4232,18 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          case "wedm_print_to_program": {
+            const engine = await getEngine("printToProgram");
+            result = await engine.generate(params);
+            break;
+          }
+
+          case "auto_print_to_program_run": {
+            const engine = await getEngine("autoPrintBridge");
+            result = await engine.runAutoPipeline(params);
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

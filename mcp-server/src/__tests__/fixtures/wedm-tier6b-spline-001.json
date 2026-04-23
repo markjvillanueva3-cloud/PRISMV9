@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schemas/wedmTier6Fixture.schema.json",
+  "schemaVersion": 1,
+  "part_id": "WEDM-TIER6B-SPLINE-001",
+  "part_type": "spline_broach",
+  "material": "WC",
+  "material_grade": "K10",
+  "hardness_hrc": 92,
+  "thickness_mm": 18,
+  "part_width_mm": 45,
+  "part_height_mm": 45,
+  "wire_diameter_mm": 0.20,
+  "spark_gap_mm": 0.018,
+  "spline_geometry": {
+    "type": "internal_involute",
+    "standard": "AGMA_2000_A88",
+    "number_of_teeth": 16,
+    "module_mm": 2.0,
+    "pressure_angle_deg": 30,
+    "pitch_diameter_mm": 32.0,
+    "base_circle_diameter_mm": 27.71,
+    "major_diameter_mm": 36.0,
+    "minor_diameter_mm": 28.0,
+    "form_diameter_mm": 29.5,
+    "root_fillet_radius_mm": 0.35,
+    "tip_fillet_radius_mm": 0.25,
+    "fit_class": "H7/h6",
+    "runout_tolerance_mm": 0.005,
+    "profile_tolerance_mm": 0.008,
+    "lead_tolerance_mm_per_25mm": 0.006
+  },
+  "corners": [
+    { "id": "inv-root-1", "radius_mm": 0.35, "angle_deg": 60, "x": 14.0, "y": 0 },
+    { "id": "inv-tip-1", "radius_mm": 0.25, "angle_deg": 30, "x": 18.0, "y": 0 }
+  ],
+  "slots": [],
+  "machine_envelope_x_mm": 500,
+  "machine_envelope_y_mm": 350,
+  "machine_envelope_z_mm": 250,
+  "reference_toolpath_length_mm": 285.0,
+  "reference_nc_lines": 1240,
+  "skim_cuts": 3,
+  "target_surface_finish_ra_um": 0.4,
+  "metadata": {
+    "created": "2026-04-22",
+    "source": "MS-P3-TIER6B/U-P3-T6B-01",
+    "description": "16-tooth internal involute spline broach, WC K10 carbide, AGMA 2000-A88, tight H7/h6 fit",
+    "jm_die_reference": "JM-SPLINE-2024-001",
+    "involute_formula": "r(θ) = r_b * sqrt(1 + θ²) where θ = tan(α) - α (roll angle)"
+  }
+}
