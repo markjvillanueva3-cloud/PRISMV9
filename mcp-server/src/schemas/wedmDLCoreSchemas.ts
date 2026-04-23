@@ -153,4 +153,67 @@ export const WEDM_DL_CORE_SCHEMAS = {
     lr: posNum.optional(),
     seed: z.number().int().optional(),
   }).passthrough(),
+
+  // MS-P5-GNN boundary schemas
+  wedm_lattice_build: z.object({
+    includePublished: z.boolean().optional(),
+    includeComposed: z.boolean().optional(),
+    includeHistory: z.boolean().optional(),
+    neighborK: z.number().int().positive().optional(),
+    outputPath: z.string().optional(),
+  }).passthrough().optional(),
+
+  wedm_lattice_stats: z.object({}).passthrough().optional(),
+
+  wedm_lattice_get_node: z.object({
+    id: z.string().min(1),
+  }).passthrough(),
+
+  wedm_gnn_init: z.object({
+    seed: z.number().int().optional(),
+  }).passthrough().optional(),
+
+  wedm_gnn_attend: z.object({
+    center: numArray,
+    neighbors: z.array(numArray),
+  }).passthrough(),
+
+  wedm_gnn_train: z.object({
+    steps: z.number().int().positive().optional(),
+    lr: posNum.optional(),
+    sampleSeed: z.number().int().optional(),
+    epsilon: posNum.optional(),
+  }).passthrough().optional(),
+
+  wedm_gnn_save: z.object({
+    path: z.string().optional(),
+  }).passthrough().optional(),
+
+  wedm_gnn_load: z.object({
+    path: z.string().optional(),
+  }).passthrough().optional(),
+
+  wedm_gnn_is_stale: z.object({
+    staleAgeDays: posNum.optional(),
+    minNewJobs: z.number().int().nonnegative().optional(),
+  }).passthrough().optional(),
+
+  wedm_graph_query: z.object({
+    query: numArray,
+    k: z.number().int().positive().optional(),
+    ef: z.number().int().positive().optional(),
+    seed: z.number().int().optional(),
+  }).passthrough(),
+
+  wedm_graph_query_cell: z.object({
+    mat: z.string().min(1),
+    mach: z.string().min(1),
+    wire: z.string().min(1),
+    wireDiameterMm: posNum,
+    thicknessMm: posNum,
+    raTargetUm: posNum,
+    k: z.number().int().positive().optional(),
+    ef: z.number().int().positive().optional(),
+    seed: z.number().int().optional(),
+  }).passthrough(),
 } as const;
