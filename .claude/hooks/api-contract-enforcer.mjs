@@ -199,7 +199,10 @@ async function main() {
     const noteStr = issues.slice(0, 4).map(i => `• [${i.id}] ${i.message}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `API CONTRACT NOTE:\n${noteStr}\n→ ${issues[0].suggestion}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `API CONTRACT NOTE:\n${noteStr}\n→ ${issues[0].suggestion}`,
+      }
     }));
     return;
   }

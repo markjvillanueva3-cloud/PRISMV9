@@ -149,10 +149,7 @@ async function main() {
     lines.push('```');
   }
 
-  console.log(JSON.stringify({
-    continue: true,
-    message: lines.join('\n'),
-  }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: lines.join('\n'), } }));
 }
 
 main().catch(() => {

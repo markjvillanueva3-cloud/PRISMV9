@@ -279,7 +279,10 @@ async function main() {
 
     console.log(JSON.stringify({
       continue: true,
-      message: `COMPLEXITY WARNING — Consider refactoring:\n${warnings}${infoStr}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `COMPLEXITY WARNING — Consider refactoring:\n${warnings}${infoStr}`,
+      }
     }));
     return;
   }
@@ -288,7 +291,10 @@ async function main() {
     const infoStr = infos.map(i => `• ${i.message}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `COMPLEXITY NOTE:\n${infoStr}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `COMPLEXITY NOTE:\n${infoStr}`,
+      }
     }));
     return;
   }
