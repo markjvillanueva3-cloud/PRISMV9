@@ -77,12 +77,25 @@ async function main() {
   const toolName = input.tool_name || input.toolName || "";
   const toolInput = input.tool_input || input.input || {};
 
-  if (!["Write", "Edit", "MultiEdit"].includes(toolName)) {
+  // Only fire on Write (new file creation). Edits to existing files
+  // already follow the pattern — the reminder is redundant noise.
+  if (toolName !== "Write") {
     process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   const filePath = toolInput.file_path || toolInput.filePath || "";
+
+  // Suppress when the file already exists on disk — this is effectively
+  // a rewrite, not a first-time create, so the pattern hint is not useful.
+  try {
+    const fs = await import("node:fs");
+    if (filePath && fs.existsSync(filePath)) {
+      process.stdout.write(JSON.stringify({ continue: true }));
+      return;
+    }
+  } catch { /* fall through */ }
+
   const pattern = detectPattern(filePath);
 
   if (pattern) {
