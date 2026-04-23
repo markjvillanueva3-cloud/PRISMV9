@@ -16,7 +16,26 @@
  *
  * FIRES ON: UserPromptSubmit
  * BLOCKING: never — adds context only
+ *
+ * RATE-LIMITED: injects at most once per 5 minutes per detected discipline
+ * bucket. The directive is ~300 tokens per discipline × up to 2 disciplines
+ * = 600 tokens on every prompt without limiting, which dominated session
+ * context in long iterative builds.
  */
+
+import { readFileSync as _rateRead, writeFileSync as _rateWrite, existsSync as _rateExists, mkdirSync as _rateMkdir } from "node:fs";
+import { join as _rateJoin, dirname as _rateDirname } from "node:path";
+import _rateOs from "node:os";
+const _RATE_WINDOW_MS = 5 * 60 * 1000;
+const _RATE_FILE = _rateJoin(_rateOs.tmpdir(), "prism-hook-state", "discipline-expert-inject.last.json");
+function _loadRate() { try { return JSON.parse(_rateRead(_RATE_FILE, "utf8")); } catch { return {}; } }
+function _saveRate(s) {
+  try {
+    const dir = _rateDirname(_RATE_FILE);
+    if (!_rateExists(dir)) _rateMkdir(dir, { recursive: true });
+    _rateWrite(_RATE_FILE, JSON.stringify(s));
+  } catch { /* ignore */ }
+}
 
 // ============================================================================
 // DISCIPLINE DEFINITIONS
@@ -959,6 +978,21 @@ async function main() {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
+
+  // Rate-limit: skip if we've injected this same discipline set recently.
+  const _rateNow = Date.now();
+  const _rateState = _loadRate();
+  const _rateKey = detected.map((d) => d.discipline).sort().join("+");
+  const _lastAt = _rateState[_rateKey] ?? 0;
+  if (_rateNow - _lastAt < _RATE_WINDOW_MS) {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+  _rateState[_rateKey] = _rateNow;
+  for (const k of Object.keys(_rateState)) {
+    if (_rateNow - _rateState[k] > _RATE_WINDOW_MS * 10) delete _rateState[k];
+  }
+  _saveRate(_rateState);
 
   const lines = [];
   lines.push('━'.repeat(70));

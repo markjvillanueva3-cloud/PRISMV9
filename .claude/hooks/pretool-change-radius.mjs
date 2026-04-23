@@ -2,23 +2,22 @@
 /**
  * pretool-change-radius.mjs — PreToolUse Write|Edit hook
  *
- * Per U-FORE-01 spec: "integrates with pretool-causal-trace hook so every
- * Write/Edit auto-displays impact ≤300ms before committing".
- *
  * Reads stdin → extracts file_path → asks ChangeImpactRadiusEngine for a
  * blast-radius report → injects a concise summary as hook context so Claude
  * sees what will break BEFORE the edit lands.
  *
- * Non-blocking — reports even on low confidence, never denies the tool call.
- * Time-budgeted — hard-kills at 300 ms so one slow prediction doesn't stall
- * every edit in the session.
+ * Non-blocking, time-budgeted (300ms hard kill).
+ *
+ * NOTE: Previously emitted a "deferred" advisory on every tool call even
+ * when no real impact report was available. That was burning hundreds of
+ * tokens per edit with no actionable content. The advisory now fires ONLY
+ * when a real cached report exists.
  *
  * @module hooks/pretool-change-radius
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -74,8 +73,17 @@ function formatReport(r) {
   return lines.join("\n");
 }
 
+function isDeferredStub(report) {
+  if (!report) return true;
+  if (Array.isArray(report.warnings) && report.warnings.some((w) => /deferred/i.test(w))) return true;
+  if ((report.direct?.length ?? 0) === 0 &&
+      (report.transitive?.length ?? 0) === 0 &&
+      (report.tests?.length ?? 0) === 0 &&
+      (report.confidence ?? 0) < 0.5) return true;
+  return false;
+}
+
 async function main() {
-  // Enforce wall-clock budget
   const killer = setTimeout(() => {
     console.log(JSON.stringify({ continue: true }));
     process.exit(0);
@@ -91,7 +99,6 @@ async function main() {
   }
 
   const { tool_name, tool_input } = input;
-  // Only fire for file-modifying tools
   if (!["Write", "Edit", "MultiEdit"].includes(tool_name)) {
     clearTimeout(killer);
     console.log(JSON.stringify({ continue: true }));
@@ -104,18 +111,17 @@ async function main() {
     return;
   }
 
-  // Only analyze TypeScript files (where the import graph applies)
   if (!/\.(ts|tsx)$/.test(filePath)) {
     clearTimeout(killer);
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  // Cache lookup — same file analyzed recently → reuse
   const cache = loadCache();
   const now = Date.now();
   const cached = cache.entries[filePath];
-  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+
+  if (cached && now - cached.timestamp < CACHE_TTL_MS && !isDeferredStub(cached.report)) {
     clearTimeout(killer);
     console.log(
       JSON.stringify({
@@ -129,23 +135,9 @@ async function main() {
     return;
   }
 
-  // Shell out to node + sync invocation (avoids importing TS engine here)
-  // We use the dispatcher via a CLI? Simpler: call the engine directly via
-  // a pre-built mjs helper OR fall back to a no-op if runtime unavailable.
-  // For now, emit a deferred marker — the session-reorient / build-guard
-  // hooks will catch follow-up consequences.
   clearTimeout(killer);
-  console.log(
-    JSON.stringify({
-      continue: true,
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        additionalContext: `📐 Change radius: ${path.basename(filePath)} flagged for impact analysis (prism_dev:change_radius_predict_sync available).`,
-      },
-    })
-  );
+  console.log(JSON.stringify({ continue: true }));
 
-  // Seed cache asynchronously — don't block the tool call
   setImmediate(() => {
     try {
       cache.entries[filePath] = {

@@ -34,8 +34,26 @@
  * subprocesses, does not touch network.
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import os from "node:os";
 import { exit } from "node:process";
+
+// ── Rate-limit: inject at most once every RATE_WINDOW_MS per bucket ──
+// The directive is ~500 tokens. Firing every prompt during an iterative
+// build session burns 10–20k tokens over a turn-rich loop with no new
+// information for the model. Once per 5-minute window per bucket keeps
+// the reminder live without the tax.
+const RATE_WINDOW_MS = 5 * 60 * 1000;
+const RATE_FILE = join(os.tmpdir(), "prism-hook-state", "comprehensive-build-enforce.last.json");
+function loadRate() { try { return JSON.parse(readFileSync(RATE_FILE, "utf8")); } catch { return {}; } }
+function saveRate(s) {
+  try {
+    const d = dirname(RATE_FILE);
+    if (!existsSync(d)) mkdirSync(d, { recursive: true });
+    writeFileSync(RATE_FILE, JSON.stringify(s));
+  } catch { /* ignore */ }
+}
 
 // ── Parse stdin ────────────────────────────────────────────────────────
 let payload;
@@ -110,6 +128,18 @@ const planHit = PLAN_RE.test(prompt);
 const buildHit = BUILD_RE.test(prompt);
 
 if (!planHit && !buildHit) exit(0);
+
+// Rate-limit: skip if we've already injected this bucket recently.
+const now = Date.now();
+const rateState = loadRate();
+const bucket = planHit && buildHit ? "plan+build" : planHit ? "plan" : "build";
+const lastAt = rateState[bucket] ?? 0;
+if (now - lastAt < RATE_WINDOW_MS) exit(0);
+rateState[bucket] = now;
+for (const k of Object.keys(rateState)) {
+  if (now - rateState[k] > RATE_WINDOW_MS * 10) delete rateState[k];
+}
+saveRate(rateState);
 
 // ── Compose directive ─────────────────────────────────────────────────
 // Keep it tight — every token here comes out of the model's context
