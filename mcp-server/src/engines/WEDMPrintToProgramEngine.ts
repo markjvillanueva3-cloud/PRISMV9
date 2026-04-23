@@ -100,6 +100,14 @@ export interface GeometrySummary {
   bbox: { width_mm: number; height_mm: number };
 }
 
+export interface TribalTip {
+  id: string;
+  title: string;
+  body: string;
+  confidence: number; // 0-100
+  source?: string;
+}
+
 export interface WEDMGenerateResult {
   success: boolean;
   pass: boolean;
@@ -111,6 +119,7 @@ export interface WEDMGenerateResult {
   cycle_time_breakdown?: CycleTimeBreakdown;
   confidence_score?: ConfidenceScore;
   geometry_summary?: GeometrySummary;
+  tribal_tips?: TribalTip[];
   _awareness?: Array<{ domain: string; name: string; confidence: number }>;
 }
 
@@ -343,6 +352,197 @@ function generateGCode(contours: Contour[], passes: PassDetail[]): string {
 }
 
 /**
+ * Resolve material → ISO group (P, M, K, N, S, H) using longest-match keywords.
+ */
+function materialToIsoGroup(material: string): "P" | "M" | "K" | "N" | "S" | "H" {
+  const m = material.toLowerCase();
+  // Order matters: longest / most specific first
+  if (/\btungsten\s*carbide|carbide|cemented|wc[-_ ]?co\b/.test(m)) return "H";
+  if (/\binconel|hastelloy|waspaloy|rene|ti[-_ ]?\d|titanium|ti6al4v|nickel\s*alloy|superalloy/.test(m)) return "S";
+  if (/\b(304|316|321|410|416|420|440|17-4|stainless|ss30|duplex)\b/.test(m)) return "M";
+  if (/\b(6061|7075|2024|5052|aluminum|aluminium|brass|bronze|copper)\b/.test(m)) return "N";
+  if (/\b(gray\s*iron|ductile\s*iron|cast\s*iron|ci\b)/.test(m)) return "K";
+  // P group = tool steels / carbon steels (D2, M2, A2, S7, H13, 4140, etc.)
+  return "P";
+}
+
+const TRIBAL_TIP_LIBRARY: Record<"P" | "M" | "K" | "N" | "S" | "H", TribalTip[]> = {
+  P: [
+    {
+      id: "wedm-P-01",
+      title: "Pre-skim rough offset for tool steel",
+      body: "For D2/M2/A2/S7/H13 tool steels, hold rough offset at 0.15-0.18mm to leave enough stock for 3-4 skim passes without chasing variable kerf from hardened zones.",
+      confidence: 88,
+      source: "JM Die floor (2024-Q2)",
+    },
+    {
+      id: "wedm-P-02",
+      title: "Flush low on hardened die blocks",
+      body: "Drop flush pressure to 3-4 bar above 25mm in air-hardened tool steel to avoid wire whip in tall cavities. Increase again on the last skim pass.",
+      confidence: 82,
+    },
+    {
+      id: "wedm-P-03",
+      title: "Anneal + age for wire EDM stability",
+      body: "Pre-stress-relieve D2/A2 at 650°C for 2h before cutting closed profiles. Residual stress is the top cause of 3rd-skim-pass scrap in die inserts.",
+      confidence: 78,
+      source: "Charmilles handbook",
+    },
+    {
+      id: "wedm-P-04",
+      title: "Corner lag compensation — tool steel",
+      body: "In D2 tool steel above 50 HRC, apply Dekeyser-Snoeys corner lag kc = 1.1e-3 s·mm⁻¹. This offsets the trailing wire deflection through inside corners.",
+      confidence: 85,
+    },
+    {
+      id: "wedm-P-05",
+      title: "Skim pass current step-down",
+      body: "Halve peak current between each skim pass (18A → 9A → 4.5A → 2A) for tool steel — prevents recast buildup and keeps Ra under 0.6µm.",
+      confidence: 80,
+    },
+  ],
+  M: [
+    {
+      id: "wedm-M-01",
+      title: "Stainless smearing countermeasure",
+      body: "Raise pulse-off time by 15-20% for 304/316 stainless to prevent work-hardened smearing on the cut face. Chasing speed over finish is the most common shop mistake here.",
+      confidence: 90,
+      source: "JM Die floor (2024-Q3)",
+    },
+    {
+      id: "wedm-M-02",
+      title: "Stainless wire tension",
+      body: "Brass wire tension for stainless M group: 1150-1250 gf. Below 1100 gf the cut face develops waviness at feed >2 mm/min.",
+      confidence: 83,
+    },
+    {
+      id: "wedm-M-03",
+      title: "Duplex stainless dielectric",
+      body: "Keep dielectric resistivity above 12 MΩ·cm for duplex stainless (2205, 2507) — higher than normal — to avoid galvanic discharge between phases.",
+      confidence: 75,
+    },
+    {
+      id: "wedm-M-04",
+      title: "Stainless corner radius floor",
+      body: "Minimum programmable inside-corner radius for 316L is R0.08mm with 0.25mm brass. Below that, wire deflection produces undercut that fails CMM.",
+      confidence: 79,
+    },
+    {
+      id: "wedm-M-05",
+      title: "Work-hardening control",
+      body: "Do NOT dwell on 304 stainless during re-cut. Any pause work-hardens the lip and causes immediate wire break on resume. Always exit the cut first.",
+      confidence: 92,
+    },
+  ],
+  K: [
+    {
+      id: "wedm-K-01",
+      title: "Cast iron dielectric contamination",
+      body: "Gray/ductile iron sheds graphite into dielectric — change filter every 4-6h cut time or resistivity drops below 10 MΩ·cm and discharge becomes unstable.",
+      confidence: 85,
+    },
+    {
+      id: "wedm-K-02",
+      title: "Cast iron rough pass feed",
+      body: "Cast iron cuts 30-40% faster than tool steel at the same thickness — start rough feed at 3.0 mm/min for 25mm stock, not 2.0.",
+      confidence: 78,
+    },
+  ],
+  N: [
+    {
+      id: "wedm-N-01",
+      title: "Aluminum rough offset",
+      body: "Aluminum (6061, 7075) needs a larger rough offset — 0.22-0.25mm vs 0.15mm for steel. The bigger gap and lower melt point cause kerf to open wider than expected.",
+      confidence: 87,
+      source: "JM Die floor (2024-Q2)",
+    },
+    {
+      id: "wedm-N-02",
+      title: "Aluminum wire adhesion risk",
+      body: "Brass wire can pick up aluminum on the cathode during skim passes — drop current to <4A on final skim or switch to zinc-coated wire.",
+      confidence: 82,
+    },
+    {
+      id: "wedm-N-03",
+      title: "Aluminum flush pressure",
+      body: "Aluminum chips are small and light — over-flushing washes out stable discharge zone. Keep flush at 2-3 bar through 25mm stock.",
+      confidence: 74,
+    },
+    {
+      id: "wedm-N-04",
+      title: "Brass/copper wire-to-workpiece galvanics",
+      body: "When cutting brass/copper workpieces with brass wire, deionized water resistivity must stay above 15 MΩ·cm or galvanic shorting trips servo repeatedly.",
+      confidence: 81,
+    },
+  ],
+  S: [
+    {
+      id: "wedm-S-01",
+      title: "Inconel 718 heat-affected zone",
+      body: "Inconel 718 work-hardens on the cut face to within 0.05mm of the surface. If you plan post-EDM grinding, grind at least 0.08mm to get below the affected layer.",
+      confidence: 89,
+      source: "Aerospace supplier spec sheet",
+    },
+    {
+      id: "wedm-S-02",
+      title: "Titanium fire risk on thick cuts",
+      body: "Ti-6Al-4V generates pyrophoric fines above 40mm thickness. Ensure fine particulate filter and flush velocity >5 m/s to prevent accumulation.",
+      confidence: 93,
+      source: "OSHA bulletin + JM Die shop",
+    },
+    {
+      id: "wedm-S-03",
+      title: "Superalloy feed derate",
+      body: "Derate feed by 40-50% vs carbon steel at equivalent thickness for Inconel/Hastelloy. Trying to run steel parameters ≡ guaranteed wire break within 2 min.",
+      confidence: 86,
+    },
+    {
+      id: "wedm-S-04",
+      title: "Superalloy wire type",
+      body: "Use zinc-coated wire (not plain brass) for Inconel/Hastelloy — coating protects against galling at elevated spark temperatures.",
+      confidence: 78,
+    },
+  ],
+  H: [
+    {
+      id: "wedm-H-01",
+      title: "Carbide pre-cut preparation",
+      body: "Tungsten carbide must be pre-ground on the entry face to within 0.02mm flatness — wire cannot cleanly plunge through a shelled surface. Skipping this step is the #1 cause of carbide wire breaks.",
+      confidence: 94,
+      source: "JM Die floor (2024-Q4)",
+    },
+    {
+      id: "wedm-H-02",
+      title: "Carbide low-pulse regime",
+      body: "Carbide (WC-Co, 6-12% cobalt) needs very short pulses — 0.6-0.9 µs on / 8-10 µs off at 4-6A. Running steel parameters micro-cracks the binder.",
+      confidence: 90,
+      source: "Sodick carbide guide",
+    },
+    {
+      id: "wedm-H-03",
+      title: "Carbide skim passes",
+      body: "Always plan ≥4 skim passes for carbide to reduce recast and expose fresh cobalt binder. A 2-pass program will fail downstream ball-polishing.",
+      confidence: 87,
+    },
+    {
+      id: "wedm-H-04",
+      title: "Carbide wire tension",
+      body: "Lower wire tension to 800-950 gf for carbide — higher tension prints microcracks into the cut face from vibration resonance.",
+      confidence: 80,
+    },
+  ],
+};
+
+/**
+ * Surface up to 5 tribal tips for the given material, keyed by ISO group.
+ */
+function surfaceTribalTips(material: string): TribalTip[] {
+  const iso = materialToIsoGroup(material);
+  const tips = TRIBAL_TIP_LIBRARY[iso] ?? [];
+  return tips.slice(0, 5);
+}
+
+/**
  * Map high-level controller label → verifier sub-family enum value.
  */
 function mapControllerForVerifier(controller: string): string {
@@ -437,6 +637,12 @@ export class WEDMPrintToProgramEngine {
       };
     }
     stages.push("dxf_parsed");
+
+    // Stage 2.5: tribal_knowledge_injected — surface per-material floor tips
+    const tribalTips = surfaceTribalTips(input.material);
+    if (tribalTips.length > 0) {
+      stages.push("tribal_knowledge_injected");
+    }
 
     // Stage 3: settings_calculated
     const targetRa = input.target_ra_um ?? 1.6;
@@ -566,6 +772,7 @@ export class WEDMPrintToProgramEngine {
       cycle_time_breakdown: cycleTime,
       confidence_score: confidence,
       geometry_summary: geomSummary,
+      tribal_tips: tribalTips,
       _awareness: awarenessMatches,
     };
   }

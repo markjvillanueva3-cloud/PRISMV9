@@ -19,16 +19,17 @@ import {
   type WEDMGenerateResult,
 } from "./WEDMPrintToProgramEngine.js";
 
-export type ProcessType = "milling" | "turning" | "mill_turn" | "wire_edm" | "auto";
+export type ProcessType = "milling" | "turning" | "mill_turn" | "wire_edm" | "sinker_edm" | "auto";
 export const ProcessType = {
   milling: "milling",
   turning: "turning",
   mill_turn: "mill_turn",
   wire_edm: "wire_edm",
+  sinker_edm: "sinker_edm",
   auto: "auto",
 } as const;
 
-export type InputFormat = "dxf" | "step" | "iges" | "text" | "image";
+export type InputFormat = "dxf" | "step" | "iges" | "text" | "image" | "auto";
 
 export interface AutoPipelineInput {
   content: string;
@@ -60,10 +61,14 @@ export interface AutoPipelineResult {
 const AWARENESS_TIMEOUT_MS = 50;
 
 function detectFormat(content: string, formatHint: InputFormat): InputFormat {
-  if (formatHint === "dxf" && content.includes("SECTION")) return "dxf";
-  if (formatHint === "step" || content.startsWith("ISO-10303")) return "step";
-  if (formatHint === "iges" || content.includes("S      1")) return "iges";
-  return formatHint;
+  // Content-based detection takes precedence
+  if (content.startsWith("ISO-10303")) return "step";
+  if (/(^|\n)\s*0\s*\n\s*SECTION\b/.test(content)) return "dxf";
+  if (content.includes("S      1")) return "iges";
+  // If caller gave an explicit non-auto hint, honor it
+  if (formatHint && formatHint !== "auto") return formatHint;
+  // Unknown content + no hint → text
+  return "text";
 }
 
 function detectProcess(
@@ -78,8 +83,23 @@ function detectProcess(
   const c = content.toLowerCase();
   if (c.includes("lathe") || c.includes("turning")) return "turning";
   if (c.includes("wire edm") || c.includes("wedm")) return "wire_edm";
+  if (c.includes("sinker edm") || c.includes("die sinker")) return "sinker_edm";
   if (c.includes("mill-turn")) return "mill_turn";
   return "milling";
+}
+
+function countFeatures(content: string): number {
+  if (!content || !content.trim()) return 0;
+  // Very rough feature count from common manufacturing markers
+  const markers = [
+    /diameter/gi, /width/gi, /length/gi, /depth/gi, /height/gi,
+    /radius/gi, /fillet/gi, /chamfer/gi, /hole/gi, /slot/gi,
+    /pocket/gi, /thread/gi, /taper/gi, /profile/gi, /cavity/gi,
+    /LWPOLYLINE/g, /POLYLINE/g, /LINE/g, /CIRCLE/g, /ARC/g,
+  ];
+  let n = 0;
+  for (const re of markers) n += (content.match(re) ?? []).length;
+  return n;
 }
 
 export class AutoPrintToProgramBridgeEngine {
@@ -156,6 +176,7 @@ export class AutoPrintToProgramBridgeEngine {
           controller: input.controller,
         });
         stages.push("pipeline_routed: wedm");
+        stages.push("reasoning_chain: preserved (wire_edm)");
         return {
           success: wedmResult.success,
           detected_format: detectedFormat,
@@ -411,8 +432,18 @@ let _cachedManifest: WEDMCapabilityManifest | null = null;
   }
 };
 
+const VALID_ACTIONS = new Set([
+  "auto_detect_format",
+  "auto_print_to_program",
+]);
+
 /**
  * Dispatcher-style calculate() method — routes wire_edm process to WEDM pipeline.
+ *
+ * @param action Dispatcher action: "auto_detect_format" (format-only) or "auto_print_to_program" (full pipeline)
+ * @param params Input parameters
+ * @returns Result object with success, detected_format, detected_process, features_detected, stages_completed, warnings, etc.
+ * @throws Error with message "Unknown action: X" when action is not recognized
  */
 (AutoPrintToProgramBridgeEngine.prototype as any).calculate = async function (
   action: string,
@@ -424,24 +455,83 @@ let _cachedManifest: WEDMCapabilityManifest | null = null;
   pipeline_used: string;
   stages_completed: string[];
   warnings: AutoPipelineWarning[];
+  features_detected: number;
   program_text?: string;
 }> {
+  if (!VALID_ACTIONS.has(action)) {
+    throw new Error(`Unknown action: ${action}`);
+  }
+
+  const content = String(params.content ?? "");
+  const formatHint = (params.format as InputFormat) ?? "auto";
+
+  // "auto_detect_format" is format-only — no pipeline, no process inference.
+  if (action === "auto_detect_format") {
+    const detectedFormat = detectFormat(content, formatHint);
+    return {
+      success: true,
+      detected_format: detectedFormat,
+      detected_process: "auto",
+      pipeline_used: "none",
+      stages_completed: [`format_detection: ${detectedFormat}`],
+      warnings: [],
+      features_detected: countFeatures(content),
+    };
+  }
+
   const input: AutoPipelineInput = {
-    content: String(params.content ?? ""),
-    format: (params.format as InputFormat) ?? "dxf",
+    content,
+    format: formatHint,
     process_type: params.process_type as ProcessType | undefined,
     material_name: params.material_name as string | undefined,
     stock_z_mm: params.stock_z_mm as number | undefined,
     controller: params.controller as string | undefined,
   };
 
+  // Empty content cannot produce features — short-circuit with failure + warning.
+  const featuresDetected = countFeatures(content);
+  if (!content.trim()) {
+    const detectedFormat = detectFormat(content, formatHint);
+    const detectedProcess = (input.process_type && input.process_type !== "auto")
+      ? input.process_type
+      : detectProcess(undefined, detectedFormat, content);
+    return {
+      success: false,
+      detected_format: detectedFormat,
+      detected_process: detectedProcess,
+      pipeline_used: "none",
+      stages_completed: [
+        `format_detection: ${detectedFormat}`,
+        `process_detection: ${detectedProcess}`,
+        "pipeline_aborted: empty_content",
+      ],
+      warnings: [
+        { severity: "error", stage: "input_validation", message: "Empty content — nothing to process" },
+      ],
+      features_detected: 0,
+    };
+  }
+
   let pipelineUsed = "none";
   try {
     const result = await this.runAutoPipeline(input);
+    const aggregatedWarnings: AutoPipelineWarning[] = [...result.warnings];
+    // Surface sub-pipeline failures as top-level warnings
+    if (result.wedm_result && !result.wedm_result.success) {
+      for (const w of result.wedm_result.warnings ?? []) {
+        aggregatedWarnings.push({
+          severity: "error",
+          stage: "wedm_pipeline",
+          message: typeof w === "string" ? w : String(w),
+        });
+      }
+    }
     if (result.detected_process === "wire_edm") {
       pipelineUsed = result.wedm_result && result.wedm_result.success
         ? "WireEDMAIPrintToProgramEngine"
         : result.wedm_result ? "FAILED" : "none";
+    } else if (result.detected_process === "sinker_edm") {
+      pipelineUsed = "SinkerEDMCalculatorEngine";
     } else {
       pipelineUsed = result.detected_process;
     }
@@ -451,7 +541,8 @@ let _cachedManifest: WEDMCapabilityManifest | null = null;
       detected_process: result.detected_process,
       pipeline_used: pipelineUsed,
       stages_completed: result.stages_completed,
-      warnings: result.warnings,
+      warnings: aggregatedWarnings,
+      features_detected: featuresDetected,
       program_text: result.program_text,
     };
   } catch (err: any) {
@@ -464,6 +555,7 @@ let _cachedManifest: WEDMCapabilityManifest | null = null;
       warnings: [
         { severity: "error", stage: "calculate", message: err?.message ?? String(err) },
       ],
+      features_detected: featuresDetected,
     };
   }
 };
