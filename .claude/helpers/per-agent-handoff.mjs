@@ -548,10 +548,19 @@ function parseArgs(argv) {
 
 const { cmd, args } = parseArgs(process.argv);
 
-// Resolve identity: prefer --terminal for stable cross-invocation identity
+// Resolve identity: prefer --terminal for stable cross-invocation identity.
+// If --terminal is passed but no session mapping exists (i.e. the caller didn't
+// explicitly `register`), AUTO-REGISTER it. Previous behavior fell through to
+// inferAgentIdentity → pid-${process.pid} → created a NEW HANDOFF-Agent@HOST_pid-NNNN.md
+// file on every hook invocation because hook PIDs change each fire. That left
+// 100+ orphan handoffs in state/shared/handoffs/.
 let identity;
 if (args.terminal) {
-  const session = getSessionId(args.terminal);
+  let session = getSessionId(args.terminal);
+  if (!session && cmd !== "unregister") {
+    const family = args.agentFamily || "Claude";
+    session = registerSession(args.terminal, family);
+  }
   if (session) {
     identity = {
       family: session.family,
