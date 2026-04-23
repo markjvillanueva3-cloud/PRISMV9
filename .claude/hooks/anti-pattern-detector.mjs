@@ -220,10 +220,12 @@ async function main() {
   const infos = violations.filter(v => v.severity === 'info');
 
   if (blocks.length > 0) {
+    // PreToolUse block contract: {decision:"block", reason:"..."}.
+    // {continue:false, message:} is silently dropped.
     const reasons = blocks.map(b => `• [${b.id}] ${b.message}\n  → ${b.suggestion}`).join('\n');
     console.log(JSON.stringify({
-      continue: false,
-      message: `ANTI-PATTERN DETECTOR — BLOCKED (security risk)\n\n${reasons}\n\nFix these issues before writing.`,
+      decision: "block",
+      reason: `ANTI-PATTERN DETECTOR — BLOCKED (security risk)\n\n${reasons}\n\nFix these issues before writing.`,
     }));
     return;
   }
@@ -233,7 +235,10 @@ async function main() {
     const warnings = all.map(w => `• [${w.id}] ${w.message}\n  → ${w.suggestion}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `ANTI-PATTERN WARNING:\n${warnings}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `ANTI-PATTERN WARNING:\n${warnings}`,
+      }
     }));
     return;
   }

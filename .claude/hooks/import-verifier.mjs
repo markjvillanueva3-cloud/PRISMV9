@@ -289,7 +289,10 @@ async function main() {
     const warnings = warns.map(w => `• [${w.type}] ${w.message}\n  → ${w.suggestion}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `IMPORT VERIFICATION WARNING:\n${warnings}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `IMPORT VERIFICATION WARNING:\n${warnings}`,
+      }
     }));
     return;
   }
@@ -298,7 +301,10 @@ async function main() {
     const infoStr = infos.map(i => `• ${i.message}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `IMPORT NOTE:\n${infoStr}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `IMPORT NOTE:\n${infoStr}`,
+      }
     }));
     return;
   }

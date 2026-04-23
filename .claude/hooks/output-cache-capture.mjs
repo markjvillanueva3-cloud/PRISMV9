@@ -98,7 +98,10 @@ async function main() {
     saveCache(cache);
     console.log(JSON.stringify({
       continue: true,
-      message: `Output cache: captured ${newBlocks} new reusable blocks`
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `Output cache: captured ${newBlocks} new reusable blocks`,
+      }
     }));
   } else {
     console.log(JSON.stringify({ continue: true }));

@@ -169,7 +169,10 @@ async function main() {
     const warnings = warns.slice(0, 3).map(w => `• [${w.id}] ${w.message}\n  → ${w.suggestion}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `ASYNC PATTERN WARNING:\n${warnings}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `ASYNC PATTERN WARNING:\n${warnings}`,
+      }
     }));
     return;
   }
@@ -178,7 +181,10 @@ async function main() {
     const infoStr = infos.slice(0, 3).map(i => `• ${i.message}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `ASYNC PATTERN NOTE:\n${infoStr}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `ASYNC PATTERN NOTE:\n${infoStr}`,
+      }
     }));
     return;
   }

@@ -153,7 +153,10 @@ async function main() {
     const noteStr = issues.slice(0, 4).map(i => `• ${i.message}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `MAGIC NUMBER NOTE:\n${noteStr}\n→ ${issues[0].suggestion}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `MAGIC NUMBER NOTE:\n${noteStr}\n→ ${issues[0].suggestion}`,
+      }
     }));
     return;
   }

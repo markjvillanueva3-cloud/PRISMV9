@@ -108,9 +108,11 @@ async function main() {
 
   const reasons = analyzeTestContent(filePath, content);
   if (reasons.length > 0) {
+    // PreToolUse block contract: {decision:"block", reason:"..."}.
+    // {continue:false, message:} is silently dropped.
     console.log(JSON.stringify({
-      continue: false,
-      message: `TEST LEGITIMACY GATE — BLOCKED\n\n${path.basename(filePath)} is not valid coverage:\n${reasons.slice(0, 6).map((reason) => `- ${reason}`).join("\n")}\n\nWrite real assertions against real behavior. Synthetic loops, placeholder assertions, and mocked critical-domain SUTs do not count.`,
+      decision: "block",
+      reason: `TEST LEGITIMACY GATE — BLOCKED\n\n${path.basename(filePath)} is not valid coverage:\n${reasons.slice(0, 6).map((reason) => `- ${reason}`).join("\n")}\n\nWrite real assertions against real behavior. Synthetic loops, placeholder assertions, and mocked critical-domain SUTs do not count.`,
     }));
     return;
   }
