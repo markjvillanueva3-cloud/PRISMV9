@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "knowledge_based_machining",
+  "version": "2024",
+  "extracted_from": "Hexagon ESPRIT TNG / ESPRIT Classic 2024 Knowledge-Based Machining + Macro + Probe Reference",
+  "categories": ["feature_recognition", "strategy_template", "macro_library", "probing", "stock_management", "tool_optimization", "multi_task"],
+  "operations": {
+    "kbm_recognize_features": {
+      "category": "feature_recognition",
+      "display_name": "Knowledge-Based Feature Recognition",
+      "description": "Auto-classify holes, pockets, slots, bosses, threads, and freeform faces from CAD body. ESPRIT FX baseline.",
+      "parameter_count": 9,
+      "dialog_tabs": ["scan", "classifiers", "filter"],
+      "parameters": {
+        "scan": {
+          "scan_method": { "type": "enum", "values": ["full_body", "selected_faces", "by_color", "by_layer"], "default": "full_body" },
+          "scan_depth": { "type": "enum", "values": ["surface", "topology", "deep"], "default": "topology" }
+        },
+        "classifiers": {
+          "classify_holes": { "type": "boolean", "default": true },
+          "classify_pockets": { "type": "boolean", "default": true },
+          "classify_slots": { "type": "boolean", "default": true },
+          "classify_threads": { "type": "boolean", "default": true },
+          "classify_freeform": { "type": "boolean", "default": false }
+        },
+        "filter": {
+          "min_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "default": 1 },
+          "max_aspect_ratio": { "type": "number", "min": 1, "max": 30, "default": 10 }
+        }
+      }
+    },
+    "kbm_apply_strategy": {
+      "category": "strategy_template",
+      "display_name": "Apply Strategy Template to Feature Group",
+      "description": "Bind feature group to a saved strategy template (rough → semi-finish → finish chain). Material-aware overrides.",
+      "parameter_count": 7,
+      "dialog_tabs": ["binding", "overrides"],
+      "parameters": {
+        "binding": {
+          "feature_group_id": { "type": "string", "required": true },
+          "template_id": { "type": "string", "required": true },
+          "material_id": { "type": "string", "required": true }
+        },
+        "overrides": {
+          "feed_pct": { "type": "number", "min": 50, "max": 200, "default": 100 },
+          "speed_pct": { "type": "number", "min": 50, "max": 150, "default": 100 },
+          "stock_to_leave_override_mm": { "type": "number", "min": 0, "max": 5, "required": false },
+          "skip_if_existing": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "kbm_save_template": {
+      "category": "strategy_template",
+      "display_name": "Save Strategy Template",
+      "description": "Capture current operation chain as reusable template. Parameterize diameter, depth, material.",
+      "parameter_count": 6,
+      "dialog_tabs": ["scope", "parameterize"],
+      "parameters": {
+        "scope": {
+          "template_name": { "type": "string", "required": true },
+          "operation_ids_csv": { "type": "string", "required": true },
+          "feature_class": { "type": "enum", "values": ["hole", "pocket", "slot", "boss", "thread", "freeform"], "required": true }
+        },
+        "parameterize": {
+          "parameterize_diameter": { "type": "boolean", "default": true },
+          "parameterize_depth": { "type": "boolean", "default": true },
+          "parameterize_material": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "kbm_macro_chain": {
+      "category": "macro_library",
+      "display_name": "Macro Chain (Multi-Step Recipe)",
+      "description": "Composable recipe: rough → drill → tap → chamfer → deburr. Each step has fail-fast or skip-on-error policy.",
+      "parameter_count": 7,
+      "dialog_tabs": ["chain", "policy"],
+      "parameters": {
+        "chain": {
+          "macro_name": { "type": "string", "required": true },
+          "steps_csv": { "type": "string", "required": true },
+          "step_count": { "type": "number", "min": 1, "max": 50, "required": true }
+        },
+        "policy": {
+          "on_step_fail": { "type": "enum", "values": ["fail_fast", "skip_step", "continue", "operator_decide"], "default": "fail_fast" },
+          "auto_link_setups": { "type": "boolean", "default": true },
+          "rollback_on_fail": { "type": "boolean", "default": false },
+          "log_to_file": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "kbm_probe_inspection": {
+      "category": "probing",
+      "display_name": "Probe-Based In-Process Inspection",
+      "description": "Auto-generate probing routine for WCS, fixture offset, and feature inspection.",
+      "parameter_count": 8,
+      "dialog_tabs": ["scope", "routine", "tolerance"],
+      "parameters": {
+        "scope": {
+          "probe_targets": { "type": "enum", "values": ["wcs_only", "wcs_plus_critical", "all_features", "user_defined"], "default": "wcs_plus_critical" },
+          "feature_ids_csv": { "type": "string", "required": false }
+        },
+        "routine": {
+          "probe_id": { "type": "string", "required": true },
+          "approach_distance_mm": { "type": "number", "min": 0.5, "max": 25, "default": 5 },
+          "probe_feed_mm_min": { "type": "number", "min": 50, "max": 1000, "default": 200 }
+        },
+        "tolerance": {
+          "wcs_tolerance_mm": { "type": "number", "min": 0.001, "max": 0.5, "default": 0.025 },
+          "feature_tolerance_mm": { "type": "number", "min": 0.001, "max": 0.5, "default": 0.05 },
+          "abort_on_out_of_tolerance": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "kbm_stock_track": {
+      "category": "stock_management",
+      "display_name": "Stock Model Tracking (KBM-Driven)",
+      "description": "Maintain stock-aware model across operations. Drives rest machining, collision, cycle-time prediction.",
+      "parameter_count": 5,
+      "dialog_tabs": ["resolution", "tracking"],
+      "parameters": {
+        "resolution": {
+          "voxel_size_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.5 }
+        },
+        "tracking": {
+          "track_per_operation": { "type": "boolean", "default": true },
+          "save_intermediate": { "type": "boolean", "default": false },
+          "export_residue_threshold_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.1 },
+          "auto_chain_to_rest_machining": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "kbm_tool_optimize": {
+      "category": "tool_optimization",
+      "display_name": "Tool List Optimization (KBM-Driven)",
+      "description": "Reduce magazine count by consolidating compatible tools. Diameter / corner radius / material tier merge rules.",
+      "parameter_count": 6,
+      "dialog_tabs": ["scope", "merge_rules"],
+      "parameters": {
+        "scope": {
+          "tool_list_id": { "type": "string", "required": true },
+          "target_machine_id": { "type": "string", "required": true }
+        },
+        "merge_rules": {
+          "diameter_tolerance_pct": { "type": "number", "min": 0, "max": 10, "default": 2 },
+          "corner_radius_tolerance_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0.05 },
+          "merge_across_materials": { "type": "boolean", "default": false },
+          "max_consolidation_per_tool": { "type": "number", "min": 1, "max": 10, "default": 4 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Feature Recognition Best Practices",
+      "key_concepts": ["Run on STEP not STL — STL loses cylindrical primitive", "Filter min_diameter to skip cosmetic features", "Threading needs clean cylinder + helix"],
+      "best_practices": ["Set scan_depth=deep only when topology is incomplete; deep scans are slow"]
+    },
+    {
+      "topic": "Template vs Macro vs Recipe",
+      "key_concepts": ["Template = parameterized op chain bound to feature group", "Macro = step sequence with policy", "Recipe = full job-level orchestration"],
+      "best_practices": ["Templates for repeat features, macros for cross-cutting policy, recipes for end-to-end jobs"]
+    },
+    {
+      "topic": "Probing Tolerance Discipline",
+      "key_concepts": ["WCS tolerance ≤ 0.025mm typical", "Feature tolerance ≤ 0.05mm for IT8", "Always abort on out-of-tolerance"],
+      "best_practices": ["Probe BEFORE finish pass, not after — finishing won't recover from drift"]
+    },
+    {
+      "topic": "Tool List Consolidation",
+      "key_concepts": ["2% diameter tolerance is safe for general work", "Don't merge across materials unless coatings are universal"],
+      "best_practices": ["Start with max_consolidation_per_tool=4; larger merges hide errors"]
+    }
+  ]
+}

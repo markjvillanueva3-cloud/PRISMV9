@@ -112,6 +112,7 @@ import { ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS } from "../../schemas/
 import { ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritMillingFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritLatheMillTurnFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritWireEDMFunctionIndexActionSchemas.js";
+import { ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritKBMFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -190,6 +191,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -291,6 +293,7 @@ let _hmExtIndex: any;
 let _espritMill: any;
 let _espritLathe: any;
 let _espritWedm: any;
+let _espritKbm: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -621,6 +624,7 @@ async function getEngine(name: string): Promise<any> {
     case "espritMill": return _espritMill ??= (await import("../../engines/ESPRITMillingFunctionIndexEngine.js")).ESPRITMillingFunctionIndexEngine;
     case "espritLathe": return _espritLathe ??= (await import("../../engines/ESPRITLatheMillTurnFunctionIndexEngine.js")).ESPRITLatheMillTurnFunctionIndexEngine;
     case "espritWedm": return _espritWedm ??= (await import("../../engines/ESPRITWireEDMFunctionIndexEngine.js")).ESPRITWireEDMFunctionIndexEngine;
+    case "espritKbm": return _espritKbm ??= (await import("../../engines/ESPRITKBMFunctionIndexEngine.js")).ESPRITKBMFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1306,6 +1310,7 @@ export const ACTIONS = [
   "esprit_mill_index", "esprit_mill_summary", "esprit_mill_list_ops", "esprit_mill_get_op", "esprit_mill_by_category", "esprit_mill_find_param", "esprit_mill_recommend", "esprit_mill_classify_doc", "esprit_mill_profitmilling_envelope", "esprit_mill_select_drill",
   "esprit_lathe_index", "esprit_lathe_summary", "esprit_lathe_list_ops", "esprit_lathe_get_op", "esprit_lathe_by_category", "esprit_lathe_find_param", "esprit_lathe_recommend", "esprit_lathe_select_threading", "esprit_lathe_select_millturn_axis", "esprit_lathe_estimate_channel_sync",
   "esprit_wedm_index", "esprit_wedm_summary", "esprit_wedm_list_ops", "esprit_wedm_get_op", "esprit_wedm_by_category", "esprit_wedm_find_param", "esprit_wedm_recommend", "esprit_wedm_select_skim_schedule", "esprit_wedm_select_taper_plane", "esprit_wedm_compute_die_clearance", "esprit_wedm_estimate_cycle",
+  "esprit_kbm_index", "esprit_kbm_summary", "esprit_kbm_list_ops", "esprit_kbm_get_op", "esprit_kbm_by_category", "esprit_kbm_find_param", "esprit_kbm_recommend", "esprit_kbm_select_scan_depth", "esprit_kbm_probe_tolerance_for_it", "esprit_kbm_estimate_consolidation",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7247,6 +7252,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "esprit_wedm_estimate_cycle": {
             const eng = await getEngine("espritWedm");
             result = eng.estimateCycleTime(params.area_mm2, params.thickness_mm, params.skim_count);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM52: ESPRITKBMFunctionIndexEngine ──
+          case "esprit_kbm_index": {
+            const eng = await getEngine("espritKbm");
+            result = eng.getIndex();
+            break;
+          }
+          case "esprit_kbm_summary": {
+            const eng = await getEngine("espritKbm");
+            result = eng.getSummary();
+            break;
+          }
+          case "esprit_kbm_list_ops": {
+            const eng = await getEngine("espritKbm");
+            result = eng.listOperations();
+            break;
+          }
+          case "esprit_kbm_get_op": {
+            const eng = await getEngine("espritKbm");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "esprit_kbm_by_category": {
+            const eng = await getEngine("espritKbm");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "esprit_kbm_find_param": {
+            const eng = await getEngine("espritKbm");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "esprit_kbm_recommend": {
+            const eng = await getEngine("espritKbm");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "esprit_kbm_select_scan_depth": {
+            const eng = await getEngine("espritKbm");
+            result = eng.selectScanDepth(params.part_complexity_score);
+            break;
+          }
+          case "esprit_kbm_probe_tolerance_for_it": {
+            const eng = await getEngine("espritKbm");
+            result = eng.probeToleranceForIT(params.it_grade);
+            break;
+          }
+          case "esprit_kbm_estimate_consolidation": {
+            const eng = await getEngine("espritKbm");
+            result = eng.estimateConsolidationSavings(params.tool_count, params.diameter_tolerance_pct, params.max_consolidation_per_tool);
             break;
           }
 
