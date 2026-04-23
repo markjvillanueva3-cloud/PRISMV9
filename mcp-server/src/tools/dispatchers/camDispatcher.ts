@@ -103,6 +103,7 @@ import { ACTION_NXCAM_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcam
 import { ACTION_NXCAM_TURNING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamTurningFunctionIndexActionSchemas.js";
 import { ACTION_NXCAM_FBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFBMFunctionIndexActionSchemas.js";
 import { ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFunctionIndexActionSchemas.js";
+import { ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillRoughingFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -172,6 +173,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_NXCAM_TURNING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_NXCAM_FBM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -264,6 +266,7 @@ let _nxcamMillingIndex: any;
 let _nxcamTurningIndex: any;
 let _nxcamFBMIndex: any;
 let _nxcamUnifiedIndex: any;
+let _pmRoughingIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -585,6 +588,7 @@ async function getEngine(name: string): Promise<any> {
     case "nxcamTurningIndex": return _nxcamTurningIndex ??= (await import("../../engines/NXCAMTurningFunctionIndexEngine.js")).NXCAMTurningFunctionIndexEngine;
     case "nxcamFBMIndex": return _nxcamFBMIndex ??= (await import("../../engines/NXCAMFBMFunctionIndexEngine.js")).NXCAMFBMFunctionIndexEngine;
     case "nxcamUnifiedIndex": return _nxcamUnifiedIndex ??= (await import("../../engines/NXCAMFunctionIndexEngine.js")).NXCAMFunctionIndexEngine;
+    case "pmRoughingIndex": return _pmRoughingIndex ??= (await import("../../engines/PowerMillRoughingFunctionIndexEngine.js")).PowerMillRoughingFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1261,6 +1265,7 @@ export const ACTIONS = [
   "nxcam_turning_index", "nxcam_turning_summary", "nxcam_turning_list_ops", "nxcam_turning_get_op", "nxcam_turning_by_category", "nxcam_turning_find_param", "nxcam_turning_recommend", "nxcam_turning_nose_radius", "nxcam_turning_taylor", "nxcam_turning_teach_validate",
   "nxcam_fbm_index", "nxcam_fbm_summary", "nxcam_fbm_list_ops", "nxcam_fbm_get_op", "nxcam_fbm_by_category", "nxcam_fbm_find_param", "nxcam_fbm_recommend", "nxcam_fbm_classify_pocket_depth", "nxcam_fbm_smallest_fit_tool", "nxcam_fbm_match_rule", "nxcam_fbm_group_efficiency",
   "nxcam_index_manifest", "nxcam_index_section_list", "nxcam_index_section_stats", "nxcam_index_all_ops", "nxcam_index_find_op", "nxcam_index_find_param", "nxcam_index_category_universe", "nxcam_index_recommend", "nxcam_index_validate",
+  "pm_roughing_index", "pm_roughing_summary", "pm_roughing_list_ops", "pm_roughing_get_op", "pm_roughing_by_category", "pm_roughing_find_param", "pm_roughing_recommend", "pm_roughing_vortex_check", "pm_roughing_rest_worthwhile", "pm_roughing_plunge_validate",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7242,6 +7247,57 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "nxcam_index_validate": {
             const eng = await getEngine("nxcamUnifiedIndex");
             result = eng.validateConsistency();
+            break;
+          }
+          // ── CAM-EXHAUST-MS0/U-CAM43: PowerMillRoughingFunctionIndexEngine ──
+          case "pm_roughing_index": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "pm_roughing_summary": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "pm_roughing_list_ops": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "pm_roughing_get_op": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "pm_roughing_by_category": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "pm_roughing_find_param": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "pm_roughing_recommend": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "pm_roughing_vortex_check": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.vortexEngagementCheck(params.radial_engagement_pct, params.axial_doc_to_dia_ratio);
+            break;
+          }
+          case "pm_roughing_rest_worthwhile": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.restMachiningWorthwhile(params.previous_tool_diameter_mm, params.current_tool_diameter_mm);
+            break;
+          }
+          case "pm_roughing_plunge_validate": {
+            const eng = await getEngine("pmRoughingIndex");
+            result = eng.plungeStrategyValidate(params.slot_width_mm, params.tool_diameter_mm, params.plunge_feed_pct);
             break;
           }
 

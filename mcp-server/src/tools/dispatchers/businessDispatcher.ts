@@ -106,6 +106,7 @@ let _saasAPI: any;
 let _approvalWorkflow: any;
 let _recordTimeline: any;
 let _toolInventoryOrchestrator: any;
+let _latheAutoQuoteFromPrint: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -297,6 +298,10 @@ async function getEngine(name: string): Promise<any> {
       return _toolInventoryOrchestrator ??= (
         await import("../../engines/ToolInventoryOrchestratorEngine.js")
       ).toolInventoryOrchestratorEngine;
+    case "latheAutoQuoteFromPrint":
+      return _latheAutoQuoteFromPrint ??= (
+        await import("../../engines/LatheAutoQuoteFromPrintEngine.js")
+      ).latheAutoQuoteFromPrintEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -711,6 +716,9 @@ const ACTIONS = [
   // ── Accounting Hardening (additional) ──
   "accounting_audit",
   "accounting_validate",
+  // ── Lathe Auto-Quote From Print (U-LTH48, P5 ERP) ──
+  "lathe_auto_quote_from_print",
+  "lathe_auto_quote_reconcile",
 ] as const;
 
 /** Registers business dispatcher.
@@ -3155,6 +3163,18 @@ Params vary by action — pass relevant fields in params object.`,
           case "accounting_audit": {
             const { accountingHardeningEngine: aheAudit } = await import("../../engines/AccountingHardeningEngine.js");
             result = aheAudit.bankReconciliation(params as any);
+            break;
+          }
+
+          // ── Lathe Auto-Quote From Print (U-LTH48) ──
+          case "lathe_auto_quote_from_print": {
+            const engine = await getEngine("latheAutoQuoteFromPrint");
+            result = engine.generateQuote(params as any);
+            break;
+          }
+          case "lathe_auto_quote_reconcile": {
+            const engine = await getEngine("latheAutoQuoteFromPrint");
+            result = engine.reconcileAgainstActual(params.quote, params.actual_cost_usd);
             break;
           }
 
