@@ -1640,6 +1640,15 @@ Params vary by action — pass relevant fields in params object.`,
             result = engine.getBalanceSheet(params.as_of);
             break;
           }
+          case "gl_record_wip_to_cogs": {
+            const engine = await getEngine("generalLedger");
+            result = engine.recordWipToCogs({
+              job_id: params.job_id ?? "",
+              amount: params.amount ?? 0,
+              date: params.date ?? new Date().toISOString().slice(0, 10),
+            });
+            break;
+          }
 
           // ── Capacity Planning ──
           case "capacity_machines": {
