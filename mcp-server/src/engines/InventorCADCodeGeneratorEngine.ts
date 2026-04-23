@@ -61,6 +61,8 @@ const INVENTOR_SUPPORTED_OPS = new Set([
   "sketch_mirror",
   "sketch_trim",
   "sketch_extend",
+  "sketch_fillet",
+  "sketch_chamfer",
   "sketch_dimension",
   "sketch_constraint",
   // Features
@@ -79,6 +81,8 @@ const INVENTOR_SUPPORTED_OPS = new Set([
   "feature_decal",
   "feature_thread",
   "feature_coil",
+  "feature_split",
+  "feature_move_face",
   // Patterns
   "pattern_rectangular",
   "pattern_circular",
@@ -93,6 +97,22 @@ const INVENTOR_SUPPORTED_OPS = new Set([
   "work_plane",
   "work_axis",
   "work_point",
+  // Surface
+  "surface_extrude",
+  "surface_stitch",
+  // Body
+  "mirror_body",
+  // Sheet metal (Inventor kSheetMetalPartDocumentObject)
+  "sheet_metal_init",
+  "sheet_metal_face",
+  "sheet_metal_flange",
+  "sheet_metal_contour_flange",
+  "sheet_metal_hem",
+  "sheet_metal_bend",
+  "sheet_metal_corner_seam",
+  "sheet_metal_punch",
+  "sheet_metal_unfold",
+  "sheet_metal_refold",
   // Assembly
   "assembly_place",
   "assembly_constrain",
@@ -305,6 +325,12 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
       case "sketch_extend":
         this.emitSketchExtend(op, em);
         break;
+      case "sketch_fillet":
+        this.emitSketchFillet(op, em);
+        break;
+      case "sketch_chamfer":
+        this.emitSketchChamfer(op, em);
+        break;
       case "sketch_dimension":
         this.emitSketchDimension(op, em);
         break;
@@ -358,6 +384,12 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
       case "feature_coil":
         this.emitFeatureCoil(op, em);
         break;
+      case "feature_split":
+        this.emitFeatureSplit(op, em);
+        break;
+      case "feature_move_face":
+        this.emitFeatureMoveFace(op, em);
+        break;
 
       // Pattern operations
       case "pattern_rectangular":
@@ -396,6 +428,51 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
         break;
       case "work_point":
         this.emitWorkPoint(op, em);
+        break;
+
+      // Surface operations
+      case "surface_extrude":
+        this.emitSurfaceExtrude(op, em);
+        break;
+      case "surface_stitch":
+        this.emitSurfaceStitch(op, em);
+        break;
+
+      // Body operations
+      case "mirror_body":
+        this.emitMirrorBody(op, em);
+        break;
+
+      // Sheet metal operations
+      case "sheet_metal_init":
+        this.emitSheetMetalInit(op, em);
+        break;
+      case "sheet_metal_face":
+        this.emitSheetMetalFace(op, em);
+        break;
+      case "sheet_metal_flange":
+        this.emitSheetMetalFlange(op, em);
+        break;
+      case "sheet_metal_contour_flange":
+        this.emitSheetMetalContourFlange(op, em);
+        break;
+      case "sheet_metal_hem":
+        this.emitSheetMetalHem(op, em);
+        break;
+      case "sheet_metal_bend":
+        this.emitSheetMetalBend(op, em);
+        break;
+      case "sheet_metal_corner_seam":
+        this.emitSheetMetalCornerSeam(op, em);
+        break;
+      case "sheet_metal_punch":
+        this.emitSheetMetalPunch(op, em);
+        break;
+      case "sheet_metal_unfold":
+        this.emitSheetMetalUnfold(op, em);
+        break;
+      case "sheet_metal_refold":
+        this.emitSheetMetalRefold(op, em);
         break;
 
       // Assembly operations
@@ -643,20 +720,61 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitSketchMirror(op: CADOperation, em: CADEmitter): void {
-    em.line("' Mirror sketch entities about center line");
+    // Inventor has no single-call mirror; the canonical iLogic idiom is:
+    //   1. Create mirror axis (construction line)
+    //   2. For each paired entity, add GeometricConstraint.AddSymmetry across the axis.
+    // Caller supplies mirror_line (two-point form) and entity_pairs (1-based indices).
+    const mirrorLine = op.args["mirror_line"] as
+      | { x1: number; y1: number; x2: number; y2: number }
+      | undefined;
+    const pairs = (op.args["entity_pairs"] as Array<[number, number]>) || [];
+    const x1 = mirrorLine?.x1 ?? 0;
+    const y1 = mirrorLine?.y1 ?? 0;
+    const x2 = mirrorLine?.x2 ?? 100;
+    const y2 = mirrorLine?.y2 ?? 0;
+
+    em.line("' Mirror sketch entities across construction axis");
     em.line(
-      "oSketch.MoveSketchObjects(oSketch.SketchEntities, oApp.TransientGeometry.CreatePoint2d(0, 0), True, True, oSketch.SketchLines.Item(1))"
+      `Dim mirrorAxis As SketchLine = oSketch.SketchLines.AddByTwoPoints(oApp.TransientGeometry.CreatePoint2d(${x1}, ${y1}), oApp.TransientGeometry.CreatePoint2d(${x2}, ${y2}))`
     );
+    em.line("mirrorAxis.Construction = True");
+    for (const [a, b] of pairs) {
+      em.line(
+        `oSketch.GeometricConstraints.AddSymmetry(oSketch.SketchEntities.Item(${a}), oSketch.SketchEntities.Item(${b}), mirrorAxis)`
+      );
+    }
+    if (pairs.length === 0) {
+      em.warn(
+        "sketch_mirror called without entity_pairs — axis created but no symmetry constraints emitted",
+        "info"
+      );
+    }
   }
 
   private emitSketchTrim(op: CADOperation, em: CADEmitter): void {
-    em.line("' Trim (manual trim not directly scriptable - use constraints)");
-    em.warn("sketch_trim requires manual interaction in Inventor", "info");
+    // Inventor has no public trim-at-intersection API. Closest equivalent is
+    // deleting the unwanted segment after intersection split. Caller supplies
+    // entity_index (1-based) of the segment to remove.
+    const index = this.requireArg<number>(op, "entity_index", "number");
+    em.line(`' Trim: delete sketch entity at index ${index}`);
+    em.line(
+      `If oSketch.SketchEntities.Count >= ${index} Then oSketch.SketchEntities.Item(${index}).Delete`
+    );
   }
 
   private emitSketchExtend(op: CADOperation, em: CADEmitter): void {
-    em.line("' Extend (manual extend not directly scriptable)");
-    em.warn("sketch_extend requires manual interaction in Inventor", "info");
+    // Functional extend = move endpoint of target line to the target point.
+    const index = this.requireArg<number>(op, "entity_index", "number");
+    const endpoint = this.optionalArg<string>(op, "endpoint", "end"); // "start" | "end"
+    const tx = this.requireArg<number>(op, "target_x", "number");
+    const ty = this.requireArg<number>(op, "target_y", "number");
+
+    const endpointRef =
+      endpoint === "start" ? "StartSketchPoint" : "EndSketchPoint";
+    em.line(`' Extend line ${index} endpoint ${endpoint} to (${tx}, ${ty})`);
+    em.line(
+      `oSketch.SketchLines.Item(${index}).${endpointRef}.MoveTo(oApp.TransientGeometry.CreatePoint2d(${tx}, ${ty}))`
+    );
   }
 
   private emitSketchDimension(op: CADOperation, em: CADEmitter): void {
@@ -673,9 +791,65 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitSketchConstraint(op: CADOperation, em: CADEmitter): void {
+    // Inventor GeometricConstraints API maps each type to a distinct Add* call.
+    // Reference: Autodesk Inventor API Help / GeometricConstraints object.
     const type = this.requireArg<string>(op, "type", "string");
-    em.line(`' Add ${type} constraint`);
-    em.line(`' Constraint application depends on selected entities`);
+    const idxA = this.requireArg<number>(op, "entity_a", "number");
+    const idxB = this.optionalArg<number>(op, "entity_b", 0);
+    const normalized = type.toLowerCase();
+
+    const singleEntity = new Set([
+      "horizontal",
+      "vertical",
+      "fix",
+      "ground",
+    ]);
+    const pairEntity = new Set([
+      "parallel",
+      "perpendicular",
+      "coincident",
+      "concentric",
+      "tangent",
+      "equal",
+      "collinear",
+      "smooth",
+    ]);
+
+    em.line(`' Add ${normalized} constraint`);
+    if (singleEntity.has(normalized)) {
+      const callMap: Record<string, string> = {
+        horizontal: "AddHorizontal",
+        vertical: "AddVertical",
+        fix: "AddGround",
+        ground: "AddGround",
+      };
+      em.line(
+        `oSketch.GeometricConstraints.${callMap[normalized]}(oSketch.SketchEntities.Item(${idxA}))`
+      );
+    } else if (pairEntity.has(normalized)) {
+      if (idxB <= 0) {
+        throw new Error(
+          `sketch_constraint '${normalized}' requires entity_b (1-based index)`
+        );
+      }
+      const callMap: Record<string, string> = {
+        parallel: "AddParallel",
+        perpendicular: "AddPerpendicular",
+        coincident: "AddCoincident",
+        concentric: "AddConcentric",
+        tangent: "AddTangent",
+        equal: "AddEqualLength",
+        collinear: "AddCollinear",
+        smooth: "AddSmooth",
+      };
+      em.line(
+        `oSketch.GeometricConstraints.${callMap[normalized]}(oSketch.SketchEntities.Item(${idxA}), oSketch.SketchEntities.Item(${idxB}))`
+      );
+    } else {
+      throw new Error(
+        `sketch_constraint: unknown type '${type}' (valid: horizontal, vertical, fix, parallel, perpendicular, coincident, concentric, tangent, equal, collinear, smooth)`
+      );
+    }
   }
 
   // ── Feature Emission ────────────────────────────────────────────────────────
@@ -725,25 +899,92 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitFeatureLoft(op: CADOperation, em: CADEmitter): void {
+    // Loft needs ≥2 cross-sections (sketch indices, 1-based) plus optional
+    // rail sketches. Reference: LoftFeatures.CreateLoftDefinition.
+    const sectionSketches = op.args["sections"] as number[] | undefined;
+    const railSketches = (op.args["rails"] as number[]) || [];
+    const operation = this.optionalArg<string>(op, "operation", "join");
+
+    if (!Array.isArray(sectionSketches) || sectionSketches.length < 2) {
+      throw new Error(
+        `feature_loft requires 'sections' array of ≥2 sketch indices (got ${sectionSketches?.length ?? 0})`
+      );
+    }
+
+    const opMap: Record<string, string> = {
+      join: "kJoinOperation",
+      cut: "kCutOperation",
+      intersect: "kIntersectOperation",
+      new_body: "kNewBodyOperation",
+    };
+    const opEnum = opMap[operation] ?? "kJoinOperation";
+
     this.featureCounter++;
-    em.line(`' Loft feature ${this.featureCounter}`);
+    em.line(`' Loft feature ${this.featureCounter} over ${sectionSketches.length} sections`);
     em.line("_feature_idx += 1");
-    em.line("Dim loftSections As ObjectCollection");
-    em.line("loftSections = oApp.TransientObjects.CreateObjectCollection()");
-    em.line("' Add profiles to loftSections collection");
-    em.line(
-      "oFeature = oDef.Features.LoftFeatures.AddLoftFeature(loftSections, PartFeatureOperationEnum.kJoinOperation, False)"
-    );
+    em.line("Dim loftSections As ObjectCollection = oApp.TransientObjects.CreateObjectCollection()");
+    for (const s of sectionSketches) {
+      em.line(
+        `loftSections.Add(oDef.Sketches.Item(${s}).Profiles.AddForSolid())`
+      );
+    }
+    if (railSketches.length > 0) {
+      em.line("Dim loftRails As ObjectCollection = oApp.TransientObjects.CreateObjectCollection()");
+      for (const r of railSketches) {
+        em.line(
+          `loftRails.Add(oDef.Sketches.Item(${r}).SketchEntities.Item(1))`
+        );
+      }
+      em.line(
+        `Dim loftDef As LoftDefinition = oDef.Features.LoftFeatures.CreateLoftDefinition(loftSections, PartFeatureOperationEnum.${opEnum})`
+      );
+      em.line("loftDef.LoftRails = loftRails");
+      em.line("oFeature = oDef.Features.LoftFeatures.Add(loftDef)");
+    } else {
+      em.line(
+        `Dim loftDef As LoftDefinition = oDef.Features.LoftFeatures.CreateLoftDefinition(loftSections, PartFeatureOperationEnum.${opEnum})`
+      );
+      em.line("oFeature = oDef.Features.LoftFeatures.Add(loftDef)");
+    }
   }
 
   private emitFeatureSweep(op: CADOperation, em: CADEmitter): void {
+    // Sweep requires a profile sketch and a path sketch (distinct).
+    // Reference: SweepFeatures.AddUsingPath.
+    const profileSketch = this.requireArg<number>(op, "profile_sketch", "number");
+    const pathSketch = this.requireArg<number>(op, "path_sketch", "number");
+    const operation = this.optionalArg<string>(op, "operation", "join");
+    const taper = this.optionalArg<number>(op, "taper_angle", 0);
+
+    if (profileSketch === pathSketch) {
+      throw new Error(
+        `feature_sweep: profile_sketch and path_sketch must be distinct (got ${profileSketch} for both)`
+      );
+    }
+
+    const opMap: Record<string, string> = {
+      join: "kJoinOperation",
+      cut: "kCutOperation",
+      intersect: "kIntersectOperation",
+      new_body: "kNewBodyOperation",
+    };
+    const opEnum = opMap[operation] ?? "kJoinOperation";
+
     this.featureCounter++;
-    em.line(`' Sweep feature ${this.featureCounter}`);
+    em.line(`' Sweep feature ${this.featureCounter} (profile sketch ${profileSketch}, path sketch ${pathSketch})`);
     em.line("_feature_idx += 1");
-    em.line("oProfile = oSketch.Profiles.AddForSolid()");
     em.line(
-      "oFeature = oDef.Features.SweepFeatures.AddSimple(oProfile, oSketch, PartFeatureOperationEnum.kJoinOperation)"
+      `Dim sweepProfile As Profile = oDef.Sketches.Item(${profileSketch}).Profiles.AddForSolid()`
     );
+    em.line(
+      `Dim sweepPath As SketchEntity = oDef.Sketches.Item(${pathSketch}).SketchEntities.Item(1)`
+    );
+    em.line(
+      `oFeature = oDef.Features.SweepFeatures.AddUsingPath(sweepProfile, sweepPath, PartFeatureOperationEnum.${opEnum})`
+    );
+    if (taper !== 0) {
+      em.line(`oFeature.TaperAngle.Value = ${taper} * PI / 180`);
+    }
   }
 
   private emitFeatureHole(op: CADOperation, em: CADEmitter): void {
@@ -866,8 +1107,24 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitFeatureDecal(op: CADOperation, em: CADEmitter): void {
-    em.line("' Decal feature (image-based, requires external file)");
-    em.warn("feature_decal requires manual setup in Inventor", "info");
+    // Decal = SketchImage applied to a face. Reference: DecalFeatures.Add.
+    const imageFile = this.requireArg<string>(op, "image_file", "string");
+    const faceIndex = this.optionalArg<number>(op, "face_index", 1);
+    const wrapToFace = this.optionalArg<boolean>(op, "wrap_to_face", false);
+    const escaped = imageFile.replace(/\\/g, "\\\\");
+
+    this.featureCounter++;
+    em.line(`' Decal feature ${this.featureCounter} from ${imageFile}`);
+    em.line("_feature_idx += 1");
+    em.line(
+      `Dim decalImg As SketchImage = oSketch.SketchImages.Add("${escaped}", oApp.TransientGeometry.CreatePoint2d(0, 0), False, False)`
+    );
+    em.line(
+      `Dim decalFace As Face = oDef.Features.Item(oDef.Features.Count).Faces.Item(${faceIndex})`
+    );
+    em.line(
+      `oFeature = oDef.Features.DecalFeatures.Add(decalImg, decalFace, ${wrapToFace ? "True" : "False"})`
+    );
   }
 
   private emitFeatureThread(op: CADOperation, em: CADEmitter): void {
@@ -1040,10 +1297,61 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitAssemblyConstrain(op: CADOperation, em: CADEmitter): void {
-    const type = this.optionalArg<string>(op, "type", "mate");
+    // Inventor AssemblyConstraints API: AddMateConstraint / AddAngleConstraint /
+    // AddTangentConstraint / AddInsertConstraint / AddFlushConstraint.
+    const type = this.optionalArg<string>(op, "type", "mate").toLowerCase();
+    const occA = this.requireArg<number>(op, "occurrence_a", "number");
+    const occB = this.requireArg<number>(op, "occurrence_b", "number");
+    const faceA = this.optionalArg<number>(op, "face_a", 1);
+    const faceB = this.optionalArg<number>(op, "face_b", 1);
+    const offset = this.optionalArg<number>(op, "offset", 0);
+    const angle = this.optionalArg<number>(op, "angle", 0);
 
-    em.line(`' Add ${type} constraint`);
-    em.line("' Constraint application requires face/edge selection");
+    const valid = new Set(["mate", "flush", "angle", "tangent", "insert"]);
+    if (!valid.has(type)) {
+      throw new Error(
+        `assembly_constrain: unknown type '${type}' (valid: mate, flush, angle, tangent, insert)`
+      );
+    }
+
+    em.line(
+      `' ${type} constraint between occurrence ${occA} face ${faceA} and occurrence ${occB} face ${faceB}`
+    );
+    em.line(
+      `Dim faceA${this.featureCounter} As Face = oDef.Occurrences.Item(${occA}).Definition.SurfaceBodies.Item(1).Faces.Item(${faceA})`
+    );
+    em.line(
+      `Dim faceB${this.featureCounter} As Face = oDef.Occurrences.Item(${occB}).Definition.SurfaceBodies.Item(1).Faces.Item(${faceB})`
+    );
+
+    switch (type) {
+      case "mate":
+        em.line(
+          `oDef.Constraints.AddMateConstraint(faceA${this.featureCounter}, faceB${this.featureCounter}, ${offset})`
+        );
+        break;
+      case "flush":
+        em.line(
+          `oDef.Constraints.AddFlushConstraint(faceA${this.featureCounter}, faceB${this.featureCounter}, ${offset})`
+        );
+        break;
+      case "angle":
+        em.line(
+          `oDef.Constraints.AddAngleConstraint(faceA${this.featureCounter}, faceB${this.featureCounter}, ${angle} * PI / 180)`
+        );
+        break;
+      case "tangent":
+        em.line(
+          `oDef.Constraints.AddTangentConstraint(faceA${this.featureCounter}, faceB${this.featureCounter}, TangentConstraintSolutionTypeEnum.kTangentInsideSolutionType, ${offset})`
+        );
+        break;
+      case "insert":
+        em.line(
+          `oDef.Constraints.AddInsertConstraint(oDef.Occurrences.Item(${occA}).Definition.SurfaceBodies.Item(1).Edges.Item(${faceA}), oDef.Occurrences.Item(${occB}).Definition.SurfaceBodies.Item(1).Edges.Item(${faceB}), InsertConstraintAxesOppositionEnum.kOppositeAxesOpposition, ${offset})`
+        );
+        break;
+    }
+    this.featureCounter++;
   }
 
   private emitAssemblyGround(op: CADOperation, em: CADEmitter): void {
@@ -1052,10 +1360,44 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitAssemblyJoint(op: CADOperation, em: CADEmitter): void {
-    const type = this.optionalArg<string>(op, "type", "rigid");
+    // Inventor Joints API (2014+): Joints.CreateRigidJointDefinition /
+    // CreateRotationalJointDefinition / CreateSliderJointDefinition /
+    // CreateCylindricalJointDefinition / CreatePlanarJointDefinition /
+    // CreateBallJointDefinition.
+    const type = this.optionalArg<string>(op, "type", "rigid").toLowerCase();
+    const occA = this.requireArg<number>(op, "occurrence_a", "number");
+    const occB = this.requireArg<number>(op, "occurrence_b", "number");
+    const originA = this.optionalArg<number>(op, "origin_a", 1);
+    const originB = this.optionalArg<number>(op, "origin_b", 1);
 
-    em.line(`' Add ${type} joint`);
-    em.line("' Joint application requires geometry selection");
+    const factoryMap: Record<string, string> = {
+      rigid: "CreateRigidJointDefinition",
+      rotational: "CreateRotationalJointDefinition",
+      slider: "CreateSliderJointDefinition",
+      cylindrical: "CreateCylindricalJointDefinition",
+      planar: "CreatePlanarJointDefinition",
+      ball: "CreateBallJointDefinition",
+    };
+    const factory = factoryMap[type];
+    if (!factory) {
+      throw new Error(
+        `assembly_joint: unknown type '${type}' (valid: rigid, rotational, slider, cylindrical, planar, ball)`
+      );
+    }
+
+    em.line(
+      `' ${type} joint between occurrence ${occA} origin ${originA} and occurrence ${occB} origin ${originB}`
+    );
+    em.line(
+      `Dim origA As JointOrigin = oDef.Occurrences.Item(${occA}).JointOrigins.Item(${originA})`
+    );
+    em.line(
+      `Dim origB As JointOrigin = oDef.Occurrences.Item(${occB}).JointOrigins.Item(${originB})`
+    );
+    em.line(
+      `Dim jointDef As JointDefinition = oDef.Joints.${factory}(origA.GeometryProxy, origB.GeometryProxy)`
+    );
+    em.line("oDef.Joints.Add(jointDef)");
   }
 
   // ── Parameter Emission ──────────────────────────────────────────────────────
@@ -1083,48 +1425,633 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
 
   // ── Import/Export Emission ──────────────────────────────────────────────────
 
+  // Inventor TranslatorAddIn class IDs. These are stable across Inventor 2014+.
+  // Reference: Autodesk Inventor API Help → ApplicationAddIns.ItemById.
+  private static readonly TRANSLATOR_CLASS_IDS = {
+    step: "{90AF7F40-0C01-11D5-8E83-0010B541CD80}",
+    iges: "{90AF7F44-0C01-11D5-8E83-0010B541CD80}",
+    stl: "{533E9A98-FC3B-11D4-8E7E-0010B541CD80}",
+    dxf: "{C24E3AC4-122E-11D5-8E91-0010B541CD80}",
+  } as const;
+
   private emitImportStep(op: CADOperation, em: CADEmitter): void {
     const filePath = this.requireArg<string>(op, "file", "string");
+    const escaped = filePath.replace(/\\/g, "\\\\");
 
     em.line(`' Import STEP: ${filePath}`);
     em.line(
-      `oApp.Documents.Open("${filePath.replace(/\\/g, "\\\\")}", True)`
+      `Dim stepTrans As TranslatorAddIn = CType(oApp.ApplicationAddIns.ItemById("${InventorCADCodeGeneratorEngine.TRANSLATOR_CLASS_IDS.step}"), TranslatorAddIn)`
     );
+    em.line(
+      "Dim stepCtx As TranslationContext = oApp.TransientObjects.CreateTranslationContext"
+    );
+    em.line(
+      "stepCtx.Type = IOMechanismEnum.kFileBrowseIOMechanism"
+    );
+    em.line(
+      "Dim stepOptions As NameValueMap = oApp.TransientObjects.CreateNameValueMap"
+    );
+    em.line(
+      `Dim stepData As DataMedium = oApp.TransientObjects.CreateDataMedium`
+    );
+    em.line(`stepData.FileName = "${escaped}"`);
+    em.line("Call stepTrans.Open(stepData, stepCtx, stepOptions, oDoc)");
   }
 
   private emitImportIges(op: CADOperation, em: CADEmitter): void {
     const filePath = this.requireArg<string>(op, "file", "string");
+    const escaped = filePath.replace(/\\/g, "\\\\");
 
     em.line(`' Import IGES: ${filePath}`);
     em.line(
-      `oApp.Documents.Open("${filePath.replace(/\\/g, "\\\\")}", True)`
+      `Dim igesTrans As TranslatorAddIn = CType(oApp.ApplicationAddIns.ItemById("${InventorCADCodeGeneratorEngine.TRANSLATOR_CLASS_IDS.iges}"), TranslatorAddIn)`
     );
+    em.line(
+      "Dim igesCtx As TranslationContext = oApp.TransientObjects.CreateTranslationContext"
+    );
+    em.line("igesCtx.Type = IOMechanismEnum.kFileBrowseIOMechanism");
+    em.line(
+      "Dim igesOptions As NameValueMap = oApp.TransientObjects.CreateNameValueMap"
+    );
+    em.line(
+      "Dim igesData As DataMedium = oApp.TransientObjects.CreateDataMedium"
+    );
+    em.line(`igesData.FileName = "${escaped}"`);
+    em.line("Call igesTrans.Open(igesData, igesCtx, igesOptions, oDoc)");
   }
 
   private emitExportStep(op: CADOperation, em: CADEmitter): void {
     const filePath = this.requireArg<string>(op, "file", "string");
+    const protocol = this.optionalArg<number>(op, "protocol", 214); // AP214
+    const appProtocol = this.optionalArg<number>(op, "application_protocol", 3); // 3 = CD + PMI
+    const escaped = filePath.replace(/\\/g, "\\\\");
 
-    em.line(`' Export STEP: ${filePath}`);
+    em.line(`' Export STEP (AP${protocol}): ${filePath}`);
     em.line(
-      `oDoc.SaveAs("${filePath.replace(/\\/g, "\\\\")}", True)`
+      `Dim stepExp As TranslatorAddIn = CType(oApp.ApplicationAddIns.ItemById("${InventorCADCodeGeneratorEngine.TRANSLATOR_CLASS_IDS.step}"), TranslatorAddIn)`
+    );
+    em.line(
+      "Dim stepExpCtx As TranslationContext = oApp.TransientObjects.CreateTranslationContext"
+    );
+    em.line(
+      "stepExpCtx.Type = IOMechanismEnum.kFileBrowseIOMechanism"
+    );
+    em.line(
+      "Dim stepExpOpts As NameValueMap = oApp.TransientObjects.CreateNameValueMap"
+    );
+    em.line(
+      `Call stepExpOpts.Add("ApplicationProtocolType", ${appProtocol})`
+    );
+    em.line(
+      `Call stepExpOpts.Add("Author", "PRISM")`
+    );
+    em.line(
+      "Dim stepExpData As DataMedium = oApp.TransientObjects.CreateDataMedium"
+    );
+    em.line(`stepExpData.FileName = "${escaped}"`);
+    em.line(
+      "Call stepExp.SaveCopyAs(oDoc, stepExpCtx, stepExpOpts, stepExpData)"
     );
   }
 
   private emitExportStl(op: CADOperation, em: CADEmitter): void {
     const filePath = this.requireArg<string>(op, "file", "string");
+    const binary = this.optionalArg<boolean>(op, "binary", true);
+    const units = this.optionalArg<string>(op, "units", "millimeter");
+    const resolution = this.optionalArg<string>(op, "resolution", "high"); // high | medium | low | custom
+    const escaped = filePath.replace(/\\/g, "\\\\");
 
-    em.line(`' Export STL: ${filePath}`);
+    const unitEnum: Record<string, number> = {
+      millimeter: 2,
+      centimeter: 3,
+      meter: 4,
+      inch: 5,
+      foot: 6,
+    };
+    const resEnum: Record<string, number> = {
+      high: 0,
+      medium: 1,
+      low: 2,
+      custom: 3,
+    };
+
+    em.line(`' Export STL (${binary ? "binary" : "ASCII"}): ${filePath}`);
     em.line(
-      `oDoc.SaveAs("${filePath.replace(/\\/g, "\\\\")}", True)`
+      `Dim stlExp As TranslatorAddIn = CType(oApp.ApplicationAddIns.ItemById("${InventorCADCodeGeneratorEngine.TRANSLATOR_CLASS_IDS.stl}"), TranslatorAddIn)`
     );
+    em.line(
+      "Dim stlCtx As TranslationContext = oApp.TransientObjects.CreateTranslationContext"
+    );
+    em.line("stlCtx.Type = IOMechanismEnum.kFileBrowseIOMechanism");
+    em.line(
+      "Dim stlOpts As NameValueMap = oApp.TransientObjects.CreateNameValueMap"
+    );
+    em.line(`Call stlOpts.Add("OutputFileType", ${binary ? 0 : 1})`);
+    em.line(
+      `Call stlOpts.Add("ExportUnits", ${unitEnum[units] ?? 2})`
+    );
+    em.line(
+      `Call stlOpts.Add("Resolution", ${resEnum[resolution] ?? 0})`
+    );
+    em.line(
+      "Dim stlData As DataMedium = oApp.TransientObjects.CreateDataMedium"
+    );
+    em.line(`stlData.FileName = "${escaped}"`);
+    em.line("Call stlExp.SaveCopyAs(oDoc, stlCtx, stlOpts, stlData)");
   }
 
   private emitExportDxf(op: CADOperation, em: CADEmitter): void {
     const filePath = this.requireArg<string>(op, "file", "string");
+    const dxfVersion = this.optionalArg<number>(op, "dxf_version", 2013);
+    const explodeText = this.optionalArg<boolean>(op, "explode_text", false);
+    const escaped = filePath.replace(/\\/g, "\\\\");
 
-    em.line(`' Export DXF: ${filePath}`);
+    em.line(`' Export DXF (${dxfVersion}): ${filePath}`);
     em.line(
-      `oDoc.SaveAs("${filePath.replace(/\\/g, "\\\\")}", True)`
+      `Dim dxfExp As TranslatorAddIn = CType(oApp.ApplicationAddIns.ItemById("${InventorCADCodeGeneratorEngine.TRANSLATOR_CLASS_IDS.dxf}"), TranslatorAddIn)`
+    );
+    em.line(
+      "Dim dxfCtx As TranslationContext = oApp.TransientObjects.CreateTranslationContext"
+    );
+    em.line("dxfCtx.Type = IOMechanismEnum.kFileBrowseIOMechanism");
+    em.line(
+      "Dim dxfOpts As NameValueMap = oApp.TransientObjects.CreateNameValueMap"
+    );
+    em.line(
+      `Call dxfOpts.Add("FileVersion", ${dxfVersion})`
+    );
+    em.line(
+      `Call dxfOpts.Add("ExplodeTextIntoPolylines", ${explodeText ? "True" : "False"})`
+    );
+    em.line(
+      "Dim dxfData As DataMedium = oApp.TransientObjects.CreateDataMedium"
+    );
+    em.line(`dxfData.FileName = "${escaped}"`);
+    em.line("Call dxfExp.SaveCopyAs(oDoc, dxfCtx, dxfOpts, dxfData)");
+  }
+
+  // ── Sheet Metal Emission ────────────────────────────────────────────────────
+  // Inventor sheet metal uses PartDocument with kSheetMetalPartDocumentObject
+  // and a ComponentDefinition exposed as SheetMetalComponentDefinition.
+  // Reference: Autodesk Inventor API — SheetMetalFeatures object.
+
+  private emitSheetMetalInit(op: CADOperation, em: CADEmitter): void {
+    const thickness = this.optionalArg<number>(op, "thickness", 1.5);
+    const materialName = this.optionalArg<string>(
+      op,
+      "material",
+      "Default_MM.ipm"
+    );
+    const kFactor = this.optionalArg<number>(op, "k_factor", 0.44);
+
+    em.line("' Sheet metal part initialization");
+    em.line(
+      `Dim smDoc As PartDocument = ThisApplication.Documents.Add(kPartDocumentObject, ThisApplication.FileManager.GetTemplateFile(kPartDocumentObject, kDefaultDraftingStandard, kDefault_MeasureUnitsSpecifier, "Sheet Metal.ipt"))`
+    );
+    em.line(
+      "Dim oSmDef As SheetMetalComponentDefinition = CType(smDoc.ComponentDefinition, SheetMetalComponentDefinition)"
+    );
+    em.line(
+      `Dim oStyle As SheetMetalStyle = oSmDef.SheetMetalStyles.Item("${materialName}")`
+    );
+    em.line("oSmDef.ActiveSheetMetalStyle = oStyle");
+    em.line(
+      `oSmDef.Thickness.Value = ${thickness}`
+    );
+    em.line(
+      `oSmDef.FlatPatternDef.KFactor.Value = ${kFactor}`
+    );
+  }
+
+  private emitSheetMetalFace(op: CADOperation, em: CADEmitter): void {
+    // Base face = first face feature on a sheet profile.
+    const profileSketch = this.optionalArg<number>(op, "profile_sketch", 1);
+    const doubleSided = this.optionalArg<boolean>(op, "double_sided", false);
+
+    this.featureCounter++;
+    em.line(`' Sheet metal base face ${this.featureCounter}`);
+    em.line("_feature_idx += 1");
+    em.line(
+      `Dim smFaceProfile As Profile = oDef.Sketches.Item(${profileSketch}).Profiles.AddForSolid()`
+    );
+    em.line(
+      `Dim faceDef As FaceFeatureDefinition = oSmDef.FaceFeatures.CreateFaceFeatureDefinition(smFaceProfile)`
+    );
+    if (doubleSided) {
+      em.line("faceDef.BendFromCenterline = True");
+    }
+    em.line("oFeature = oSmDef.FaceFeatures.Add(faceDef)");
+  }
+
+  private emitSheetMetalFlange(op: CADOperation, em: CADEmitter): void {
+    // Edge flange — adds flange off one or more edges at angle/length.
+    const edgeIndex = this.requireArg<number>(op, "edge_index", "number");
+    const length = this.requireArg<number>(op, "length", "number");
+    const angle = this.optionalArg<number>(op, "angle", 90);
+    const flangeExtent = this.optionalArg<string>(op, "extent", "edge"); // "edge" | "width"
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal flange ${this.featureCounter} on edge ${edgeIndex} (angle ${angle}°, length ${length})`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim flangeEdges As EdgeCollection = ThisApplication.TransientObjects.CreateEdgeCollection()"
+    );
+    em.line(
+      `flangeEdges.Add(oSmDef.Features.Item(oSmDef.Features.Count).Edges.Item(${edgeIndex}))`
+    );
+    em.line(
+      `Dim flangeDef As FlangeDefinition = oSmDef.FlangeFeatures.CreateFlangeDefinition(flangeEdges, ${length}, ${angle} * PI / 180)`
+    );
+    if (flangeExtent === "width") {
+      em.line(
+        "flangeDef.WidthExtent = oSmDef.FlangeFeatures.CreateWidthExtent(WidthExtentTypeEnum.kTypeWidthWidthExtent)"
+      );
+    }
+    em.line("oFeature = oSmDef.FlangeFeatures.Add(flangeDef)");
+  }
+
+  private emitSheetMetalContourFlange(
+    op: CADOperation,
+    em: CADEmitter
+  ): void {
+    // Contour flange = flange driven by open sketch profile + edge direction.
+    const profileSketch = this.requireArg<number>(op, "profile_sketch", "number");
+    const edgeIndex = this.requireArg<number>(op, "edge_index", "number");
+    const width = this.optionalArg<number>(op, "width", 25);
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal contour flange ${this.featureCounter} (sketch ${profileSketch}, edge ${edgeIndex})`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      `Dim cfPath As SketchEntity = oDef.Sketches.Item(${profileSketch}).SketchEntities.Item(1)`
+    );
+    em.line(
+      `Dim cfEdge As Edge = oSmDef.Features.Item(oSmDef.Features.Count).Edges.Item(${edgeIndex})`
+    );
+    em.line(
+      `Dim cfDef As ContourFlangeDefinition = oSmDef.ContourFlangeFeatures.CreateContourFlangeDefinition(cfPath, cfEdge, ${width})`
+    );
+    em.line("oFeature = oSmDef.ContourFlangeFeatures.Add(cfDef)");
+  }
+
+  private emitSheetMetalHem(op: CADOperation, em: CADEmitter): void {
+    // Hem types: single, teardrop, rolled, double.
+    const edgeIndex = this.requireArg<number>(op, "edge_index", "number");
+    const hemType = this.optionalArg<string>(op, "hem_type", "single");
+    const gap = this.optionalArg<number>(op, "gap", 0.1);
+    const length = this.optionalArg<number>(op, "length", 5);
+
+    const typeMap: Record<string, string> = {
+      single: "HemTypeEnum.kSingleHem",
+      teardrop: "HemTypeEnum.kTeardropHem",
+      rolled: "HemTypeEnum.kRolledHem",
+      double: "HemTypeEnum.kDoubleHem",
+    };
+    const typeEnum = typeMap[hemType];
+    if (!typeEnum) {
+      throw new Error(
+        `sheet_metal_hem: unknown hem_type '${hemType}' (valid: single, teardrop, rolled, double)`
+      );
+    }
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal hem ${this.featureCounter} (${hemType}) on edge ${edgeIndex}`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim hemEdges As EdgeCollection = ThisApplication.TransientObjects.CreateEdgeCollection()"
+    );
+    em.line(
+      `hemEdges.Add(oSmDef.Features.Item(oSmDef.Features.Count).Edges.Item(${edgeIndex}))`
+    );
+    em.line(
+      `Dim hemDef As HemDefinition = oSmDef.HemFeatures.CreateHemDefinition(${typeEnum}, hemEdges)`
+    );
+    em.line(`hemDef.Gap = ${gap}`);
+    em.line(`hemDef.Length = ${length}`);
+    em.line("oFeature = oSmDef.HemFeatures.Add(hemDef)");
+  }
+
+  private emitSheetMetalBend(op: CADOperation, em: CADEmitter): void {
+    // Bend two faces together by edge index + bend angle.
+    const edgeIndex = this.requireArg<number>(op, "edge_index", "number");
+    const radius = this.optionalArg<number>(op, "radius", 0);
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal bend ${this.featureCounter} on edge ${edgeIndex} (radius ${radius || "default"})`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim bendEdges As EdgeCollection = ThisApplication.TransientObjects.CreateEdgeCollection()"
+    );
+    em.line(
+      `bendEdges.Add(oSmDef.Features.Item(oSmDef.Features.Count).Edges.Item(${edgeIndex}))`
+    );
+    em.line(
+      "Dim bendDef As BendDefinition = oSmDef.BendFeatures.CreateBendDefinition(bendEdges)"
+    );
+    if (radius > 0) {
+      em.line(`bendDef.BendRadius.Value = ${radius}`);
+    }
+    em.line("oFeature = oSmDef.BendFeatures.Add(bendDef)");
+  }
+
+  private emitSheetMetalCornerSeam(op: CADOperation, em: CADEmitter): void {
+    const edgeA = this.requireArg<number>(op, "edge_a", "number");
+    const edgeB = this.requireArg<number>(op, "edge_b", "number");
+    const seamType = this.optionalArg<string>(op, "seam_type", "no_overlap");
+    const gap = this.optionalArg<number>(op, "gap", 0.1);
+
+    const typeMap: Record<string, string> = {
+      no_overlap: "CornerSeamTypeEnum.kCornerSeamNoOverlap",
+      overlap: "CornerSeamTypeEnum.kCornerSeamOverlap",
+      reverse_overlap: "CornerSeamTypeEnum.kCornerSeamReverseOverlap",
+    };
+    const typeEnum = typeMap[seamType];
+    if (!typeEnum) {
+      throw new Error(
+        `sheet_metal_corner_seam: unknown seam_type '${seamType}' (valid: no_overlap, overlap, reverse_overlap)`
+      );
+    }
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal corner seam ${this.featureCounter} (${seamType}) between edges ${edgeA}, ${edgeB}`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim csEdges As EdgeCollection = ThisApplication.TransientObjects.CreateEdgeCollection()"
+    );
+    em.line(
+      `csEdges.Add(oSmDef.Features.Item(oSmDef.Features.Count).Edges.Item(${edgeA}))`
+    );
+    em.line(
+      `csEdges.Add(oSmDef.Features.Item(oSmDef.Features.Count).Edges.Item(${edgeB}))`
+    );
+    em.line(
+      `Dim csDef As CornerSeamDefinition = oSmDef.CornerSeamFeatures.CreateCornerSeamDefinition(csEdges, ${typeEnum})`
+    );
+    em.line(`csDef.Gap.Value = ${gap}`);
+    em.line("oFeature = oSmDef.CornerSeamFeatures.Add(csDef)");
+  }
+
+  private emitSheetMetalPunch(op: CADOperation, em: CADEmitter): void {
+    // Punch inserts an iFeature (.ide file) on a sheet metal face at sketch point.
+    const ideFile = this.requireArg<string>(op, "ide_file", "string");
+    const sketchPoint = this.optionalArg<number>(op, "sketch_point_index", 1);
+    const escaped = ideFile.replace(/\\/g, "\\\\");
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal punch ${this.featureCounter} from iFeature ${ideFile}`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      `Dim punchDef As PunchToolDefinition = oSmDef.PunchToolFeatures.CreatePunchToolDefinition("${escaped}")`
+    );
+    em.line(
+      `punchDef.InputSketch = oSketch.SketchPoints.Item(${sketchPoint}).Parent`
+    );
+    em.line("oFeature = oSmDef.PunchToolFeatures.Add(punchDef)");
+  }
+
+  private emitSheetMetalUnfold(op: CADOperation, em: CADEmitter): void {
+    // Unfold temporarily flattens one or more bends.
+    const bendIndices = (op.args["bend_indices"] as number[]) || [];
+    if (bendIndices.length === 0) {
+      throw new Error(
+        "sheet_metal_unfold requires bend_indices (array of 1+ feature indices)"
+      );
+    }
+
+    this.featureCounter++;
+    em.line(
+      `' Sheet metal unfold ${this.featureCounter} (${bendIndices.length} bends)`
+    );
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim unfoldObjects As ObjectCollection = ThisApplication.TransientObjects.CreateObjectCollection()"
+    );
+    for (const idx of bendIndices) {
+      em.line(`unfoldObjects.Add(oSmDef.Features.Item(${idx}))`);
+    }
+    em.line(
+      "Dim unfoldStationary As Face = oSmDef.SurfaceBodies.Item(1).Faces.Item(1)"
+    );
+    em.line(
+      "oFeature = oSmDef.UnfoldFeatures.Add(unfoldStationary, unfoldObjects)"
+    );
+  }
+
+  private emitSheetMetalRefold(op: CADOperation, em: CADEmitter): void {
+    const unfoldIndex = this.optionalArg<number>(op, "unfold_index", 0);
+
+    this.featureCounter++;
+    em.line(`' Sheet metal refold ${this.featureCounter}`);
+    em.line("_feature_idx += 1");
+    if (unfoldIndex > 0) {
+      em.line(
+        `Dim refoldTarget As UnfoldFeature = CType(oSmDef.Features.Item(${unfoldIndex}), UnfoldFeature)`
+      );
+      em.line(
+        "oFeature = oSmDef.RefoldFeatures.Add(refoldTarget.UnfoldedFaces, refoldTarget)"
+      );
+    } else {
+      em.line(
+        "' Refold most recent unfold feature"
+      );
+      em.line(
+        "For Each smFeat As PartFeature In oSmDef.Features"
+      );
+      em.line(
+        "    If TypeOf smFeat Is UnfoldFeature Then"
+      );
+      em.line(
+        "        oFeature = oSmDef.RefoldFeatures.Add(CType(smFeat, UnfoldFeature).UnfoldedFaces, CType(smFeat, UnfoldFeature))"
+      );
+      em.line(
+        "    End If"
+      );
+      em.line("Next");
+    }
+  }
+
+  // ── Sketch Fillet / Chamfer ─────────────────────────────────────────────────
+
+  private emitSketchFillet(op: CADOperation, em: CADEmitter): void {
+    // Reference: SketchArcs.AddByFillet (Inventor API).
+    const radius = this.requireArg<number>(op, "radius", "number");
+    const lineA = this.requireArg<number>(op, "line_a", "number");
+    const lineB = this.requireArg<number>(op, "line_b", "number");
+
+    em.line(`' Sketch fillet radius ${radius} between lines ${lineA} and ${lineB}`);
+    em.line(
+      `oSketch.SketchArcs.AddByFillet(oSketch.SketchLines.Item(${lineA}), oSketch.SketchLines.Item(${lineB}), ${radius})`
+    );
+  }
+
+  private emitSketchChamfer(op: CADOperation, em: CADEmitter): void {
+    // Reference: SketchLines.AddByChamfer (Inventor API).
+    const distance = this.requireArg<number>(op, "distance", "number");
+    const lineA = this.requireArg<number>(op, "line_a", "number");
+    const lineB = this.requireArg<number>(op, "line_b", "number");
+
+    em.line(`' Sketch chamfer ${distance}mm between lines ${lineA} and ${lineB}`);
+    em.line(
+      `oSketch.SketchLines.AddByChamfer(oSketch.SketchLines.Item(${lineA}), oSketch.SketchLines.Item(${lineB}), ${distance}, ${distance})`
+    );
+  }
+
+  // ── Feature Split / Move Face ───────────────────────────────────────────────
+
+  private emitFeatureSplit(op: CADOperation, em: CADEmitter): void {
+    // Reference: SplitFeatures.Add (splits body by face or work surface).
+    const splitTool = this.requireArg<string>(op, "tool", "string"); // "work_plane" | "surface"
+    const toolIndex = this.optionalArg<number>(op, "tool_index", 1);
+    const direction = this.optionalArg<string>(op, "direction", "positive");
+
+    const dirMap: Record<string, string> = {
+      positive: "PartFeatureExtentDirectionEnum.kPositiveExtentDirection",
+      negative: "PartFeatureExtentDirectionEnum.kNegativeExtentDirection",
+      both: "PartFeatureExtentDirectionEnum.kSymmetricExtentDirection",
+    };
+    const dirEnum = dirMap[direction] ?? dirMap.positive;
+
+    this.featureCounter++;
+    em.line(`' Split feature ${this.featureCounter} using ${splitTool} ${toolIndex}`);
+    em.line("_feature_idx += 1");
+    const toolRef =
+      splitTool === "work_plane"
+        ? `oDef.WorkPlanes.Item(${toolIndex})`
+        : `oDef.WorkSurfaces.Item(${toolIndex})`;
+    em.line(
+      `oFeature = oDef.Features.SplitFeatures.AddSplitPart(${toolRef}, True, ${dirEnum})`
+    );
+  }
+
+  private emitFeatureMoveFace(op: CADOperation, em: CADEmitter): void {
+    // Reference: MoveFaceFeatures.Add (translate or rotate face set).
+    const mode = this.optionalArg<string>(op, "mode", "translate"); // "translate" | "rotate"
+    const faceIndex = this.requireArg<number>(op, "face_index", "number");
+    const dx = this.optionalArg<number>(op, "dx", 0);
+    const dy = this.optionalArg<number>(op, "dy", 0);
+    const dz = this.optionalArg<number>(op, "dz", 0);
+    const angle = this.optionalArg<number>(op, "angle", 0);
+
+    if (mode !== "translate" && mode !== "rotate") {
+      throw new Error(
+        `feature_move_face: mode must be 'translate' or 'rotate' (got '${mode}')`
+      );
+    }
+
+    this.featureCounter++;
+    em.line(`' Move face ${faceIndex} via ${mode}`);
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim moveFaces As FaceCollection = oApp.TransientObjects.CreateFaceCollection()"
+    );
+    em.line(
+      `moveFaces.Add(oDef.Features.Item(oDef.Features.Count).Faces.Item(${faceIndex}))`
+    );
+    if (mode === "translate") {
+      em.line(
+        `Dim dirVec As UnitVector = oApp.TransientGeometry.CreateUnitVector(${dx}, ${dy}, ${dz})`
+      );
+      const mag = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      em.line(
+        `oFeature = oDef.Features.MoveFaceFeatures.AddFreeFormTranslate(moveFaces, dirVec, ${mag})`
+      );
+    } else {
+      em.line(
+        `Dim rotAxis As WorkAxis = oDef.WorkAxes.Item(1)`
+      );
+      em.line(
+        `oFeature = oDef.Features.MoveFaceFeatures.AddFreeFormRotate(moveFaces, rotAxis, ${angle} * PI / 180)`
+      );
+    }
+  }
+
+  // ── Surface Emission ────────────────────────────────────────────────────────
+
+  private emitSurfaceExtrude(op: CADOperation, em: CADEmitter): void {
+    // Reference: ExtrudeFeatures + PartFeatureOperationEnum.kSurfaceOperation.
+    const length = this.requireArg<number>(op, "length", "number");
+    const direction = this.optionalArg<string>(op, "direction", "positive");
+    const dir =
+      direction === "negative"
+        ? "PartFeatureExtentDirectionEnum.kNegativeExtentDirection"
+        : direction === "symmetric"
+          ? "PartFeatureExtentDirectionEnum.kSymmetricExtentDirection"
+          : "PartFeatureExtentDirectionEnum.kPositiveExtentDirection";
+
+    this.featureCounter++;
+    em.line(`' Surface extrude ${this.featureCounter} (length ${length})`);
+    em.line("_feature_idx += 1");
+    em.line("oProfile = oSketch.Profiles.AddForSurface(oSketch.SketchEntities.Item(1))");
+    em.line(
+      `oFeature = oDef.Features.ExtrudeFeatures.AddByDistanceExtent(oProfile, ${length}, ${dir}, PartFeatureOperationEnum.kSurfaceOperation)`
+    );
+  }
+
+  private emitSurfaceStitch(op: CADOperation, em: CADEmitter): void {
+    // Reference: StitchFeatures.Add — joins surface bodies into a quilt.
+    const surfaceIds = (op.args["surface_indices"] as number[]) || [];
+    const tolerance = this.optionalArg<number>(op, "tolerance", 0.001);
+
+    if (surfaceIds.length < 2) {
+      throw new Error(
+        `surface_stitch requires 'surface_indices' array of ≥2 (got ${surfaceIds.length})`
+      );
+    }
+
+    this.featureCounter++;
+    em.line(`' Stitch ${surfaceIds.length} surface bodies (tol ${tolerance})`);
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim stitchSurfaces As ObjectCollection = oApp.TransientObjects.CreateObjectCollection()"
+    );
+    for (const id of surfaceIds) {
+      em.line(`stitchSurfaces.Add(oDef.SurfaceBodies.Item(${id}))`);
+    }
+    em.line(
+      `oFeature = oDef.Features.StitchFeatures.Add(stitchSurfaces, ${tolerance}, True)`
+    );
+  }
+
+  // ── Body Mirror ─────────────────────────────────────────────────────────────
+
+  private emitMirrorBody(op: CADOperation, em: CADEmitter): void {
+    // Reference: MirrorFeatures.Add with body selection.
+    const bodyIndex = this.optionalArg<number>(op, "body_index", 1);
+    const mirrorPlane = this.optionalArg<string>(op, "mirror_plane", "XY");
+
+    const planeMap: Record<string, string> = {
+      XY: "oDef.WorkPlanes.Item(3)",
+      XZ: "oDef.WorkPlanes.Item(2)",
+      YZ: "oDef.WorkPlanes.Item(1)",
+    };
+    const planeRef = planeMap[mirrorPlane];
+    if (!planeRef) {
+      throw new Error(
+        `mirror_body: mirror_plane must be XY, XZ, or YZ (got '${mirrorPlane}')`
+      );
+    }
+
+    this.featureCounter++;
+    em.line(`' Mirror body ${bodyIndex} across ${mirrorPlane}`);
+    em.line("_feature_idx += 1");
+    em.line(
+      "Dim mirrorBodies As ObjectCollection = oApp.TransientObjects.CreateObjectCollection()"
+    );
+    em.line(`mirrorBodies.Add(oDef.SurfaceBodies.Item(${bodyIndex}))`);
+    em.line(
+      `oFeature = oDef.Features.MirrorFeatures.AddByDefinition(oDef.Features.MirrorFeatures.CreateDefinition(mirrorBodies, ${planeRef}))`
     );
   }
 
