@@ -20,6 +20,11 @@ const ENGINES_DIR = resolve(PRISM_ROOT, 'mcp-server/src/engines');
 const HOOKS_DIR = resolve(PRISM_ROOT, '.claude/hooks');
 const SKILLS_DIR = resolve(PRISM_ROOT, '.claude/commands');
 
+// Outer hook timeout is 3000ms; guarantee we exit well before that.
+const DEADLINE_MS = 2500;
+const startMs = Date.now();
+const timeLeft = () => DEADLINE_MS - (Date.now() - startMs);
+
 function getSessionStartTime() {
   try {
     if (existsSync(SESSION_START_FILE)) {
@@ -88,10 +93,13 @@ async function main() {
   const totalNew = newEngines.length + newHooks.length + newSkills.length;
 
   if (totalNew === 0) {
-    console.log(JSON.stringify({
-      decision: 'approve',
-      message: 'No new assets created this session'
-    }));
+    console.log(JSON.stringify({ continue: true, message: 'No new assets created this session' }));
+    return;
+  }
+
+  // Registry I/O can be slow on the multi-MB JSON; bail near the deadline.
+  if (timeLeft() < 800) {
+    console.log(JSON.stringify({ continue: true, message: `deferred registry update (${totalNew} new assets)` }));
     return;
   }
 
