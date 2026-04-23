@@ -164,9 +164,12 @@ class LathePrintSequencePlannerEngine {
     for (let i = 0; i < sortedRecs.length; i++) {
       const rec = sortedRecs[i];
       const feature = features.find(f => f.id === rec.featureId);
+      const prevFeature = i > 0
+        ? features.find(f => f.id === sortedRecs[i - 1].featureId)
+        : undefined;
 
       // Check if setup change needed
-      const needsSetupChange = this.requiresSetupChange(rec, feature, i);
+      const needsSetupChange = this.requiresSetupChange(rec, feature, i, prevFeature);
       if (needsSetupChange && i > 0) {
         setupChangeCount++;
         currentSetup = `OP${(setupChangeCount + 1) * 10}`;
@@ -281,20 +284,45 @@ class LathePrintSequencePlannerEngine {
   }
 
   /**
-   * Determine if setup change is required for this op
+   * Determine if setup change is required for this op.
+   *
+   * A setup change (OP20/OP30) is triggered when a feature cannot be reached
+   * from the current chuck orientation. Canonical cues:
+   *   1. access_end === "back": feature explicitly marked rear-access
+   *   2. previous op accessed front AND this feature accesses back (or vice versa)
+   *   3. groove_face on one end followed by groove_face on the other end
+   *
+   * Returns true when the op must start on a new setup (OP20+).
    */
   private requiresSetupChange(
     rec: StrategyRecommendation,
     feature: FeatureInput | undefined,
-    index: number
+    index: number,
+    prevFeature: FeatureInput | undefined
   ): boolean {
     if (index === 0) return false;
-    // Parting, back-face ops typically need sub-spindle pickup
-    const backSideOps = ["groove_face", "undercut"];
-    if (feature && backSideOps.includes(feature.type)) {
-      return false; // Could be same setup with live tool
+    if (!feature) return false;
+
+    const thisEnd = feature.access_end ?? "front";
+    const prevEnd = prevFeature?.access_end ?? "front";
+
+    // Explicit end transition — always a setup change
+    if (thisEnd !== prevEnd) return true;
+
+    // Two groove_face features on default orientation imply opposing ends
+    // (one on the front face, one on the rear face) unless both carry the
+    // same explicit access_end. If access_end is unset on both, treat the
+    // second groove_face as a back-side pickup.
+    if (
+      feature.type === "groove_face" &&
+      prevFeature?.type === "groove_face" &&
+      feature.access_end === undefined &&
+      prevFeature.access_end === undefined
+    ) {
+      return true;
     }
-    return false; // Conservative: default to single setup
+
+    return false;
   }
 
   /**

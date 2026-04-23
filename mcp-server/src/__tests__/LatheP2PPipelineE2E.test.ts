@@ -294,20 +294,37 @@ describe("Lathe P2P Full Pipeline E2E", () => {
 
   describe("Dispatcher Wiring Completeness", () => {
     const requiredActions = [
+      // Stage 1: Ingest (U-LTH33)
+      "lathe_p2p_ingest", "lathe_p2p_ingest_batch", "lathe_p2p_validate_extraction",
+      // Stage 2: Feature recognition (U-LTH34)
+      "lathe_p2p_recognize_features", "lathe_p2p_recognize_batch",
+      "lathe_p2p_feature_taxonomy", "lathe_p2p_recognition_stats",
+      // Stage 3: Tolerance propagation (U-LTH35)
+      "lathe_p2p_tolerance_propagate", "lathe_p2p_tolerance_batch",
+      "lathe_p2p_tolerance_stats", "lathe_p2p_tolerance_validate",
+      // Stage 4: Strategy selection (U-LTH36)
       "lathe_p2p_strategy_select", "lathe_p2p_strategy_batch", "lathe_p2p_strategy_plan",
       "lathe_p2p_strategy_stats", "lathe_p2p_strategy_validate",
+      // Stage 5: Sequence planning (U-LTH37)
       "lathe_p2p_sequence_plan", "lathe_p2p_sequence_summarize", "lathe_p2p_sequence_autofix",
+      // Stage 6: Setup selection (U-LTH38)
       "lathe_p2p_setup_select", "lathe_p2p_setup_from_features",
       "lathe_p2p_setup_validate", "lathe_p2p_setup_infer_geometry",
+      // Stage 7: Toolpath generation (U-LTH39)
       "lathe_p2p_toolpath_generate", "lathe_p2p_toolpath_validate",
       "lathe_p2p_toolpath_gcode", "lathe_p2p_toolpath_cycle_time",
+      // Stage 8: Emit (U-LTH40)
       "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
+      // Stage 9: Signoff (U-LTH41)
       "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve",
       "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
+      // Stage 10: DL review (U-LTH42)
       "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives",
       "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
+      // Stage 11: Reasoning (U-LTH43)
       "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown",
       "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
+      // Stage 12: Knowledge graph (U-LTH44)
       "lathe_p2p_kg_ingest", "lathe_p2p_kg_find_similar", "lathe_p2p_kg_tools_for_material",
       "lathe_p2p_kg_customer_jobs", "lathe_p2p_kg_failures", "lathe_p2p_kg_stats",
       "lathe_p2p_kg_export", "lathe_p2p_kg_import", "lathe_p2p_kg_traverse", "lathe_p2p_kg_clear",
@@ -317,9 +334,10 @@ describe("Lathe P2P Full Pipeline E2E", () => {
       expect(camActions).toContain(action);
     });
 
-    it("total lathe_p2p_* action count is at least 45", () => {
+    it("total lathe_p2p_* action count is exactly 56 (full P4 pipeline)", () => {
       const p2pActions = (camActions as readonly string[]).filter(a => a.startsWith("lathe_p2p_"));
-      expect(p2pActions.length).toBeGreaterThanOrEqual(45);
+      expect(p2pActions.length).toBe(56);
+      expect(requiredActions.length).toBe(56);
     });
   });
 
