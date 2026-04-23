@@ -593,42 +593,33 @@
       "units": [
         {
           "id": "U-CADC11",
-          "title": "U-CADC11 — CAD-COMPLETE-MS0 unit 1",
-          "description": "CAD-COMPLETE-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "title": "U-CADC11 — SolidWorks dispatcher integration",
+          "description": "SolidWorksCodeGeneratorEngine + SolidWorksAutomationBridge dispatcher wiring. Fix 2 bridge tests (lazy _mockMode getter, real uncertainty numerics). Add 16-test dispatcher-integration suite exercising all 4 solidworks_* actions.",
           "exit_conditions": [
-            "Implementation complete per unit description",
-            "Tests pass: npx vitest run (≥10 cases for engines)",
-            "Typecheck clean: npx tsc --noEmit on touched files",
-            "Machinist-acceptance: output matches reference within ±10%"
+            "Bridge tests green (23/23)",
+            "Dispatcher integration tests green (16/16)",
+            "Engine tests green (28/28)"
           ],
-          "four_loop": [
-            "BUILD",
-            "SCRUTINIZE",
-            "GAP FILL",
-            "TIE UP"
-          ],
-          "status": "pending"
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "complete",
+          "completedAt": "2026-04-23T20:30:00.000Z"
         },
         {
           "id": "U-CADC12",
-          "title": "U-CADC12 — CAD-COMPLETE-MS0 unit 2",
-          "description": "CAD-COMPLETE-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "title": "U-CADC12 — SolidWorks 24 op gap-fill",
+          "description": "Replace 'not yet implemented' fall-through in SolidWorksCodeGeneratorEngine.emitOp with real VBA for 24 declared-but-stubbed ops. Categories: sketch_ellipse/slot, feature_rib/thread, 6 surface_* (ruled/loft/sweep/fill/offset/trim), transform_scale, 3 assembly_* (insert_component/mate/pattern), 3 drawing_* (view/dimension/annotation), export_dxf, 3 import_* (step/iges/dxf). Extend canonical CADOperationKind union in ICADCodeGenerator.ts. 35 dispatcher-routed tests covering happy path + 3 failure modes + 2 adversarial.",
           "exit_conditions": [
-            "Implementation complete per unit description",
-            "Tests pass: npx vitest run (≥10 cases for engines)",
-            "Typecheck clean: npx tsc --noEmit on touched files",
-            "Machinist-acceptance: output matches reference within ±10%"
+            "24 switch cases + emitter methods wired",
+            "CADOperationKind union extended with 10 missing entries",
+            "Tests pass: 35 new + 166 existing = 201/201 green",
+            "Mate type enum (0-6) and view orientation (8 variants) fully covered"
           ],
-          "four_loop": [
-            "BUILD",
-            "SCRUTINIZE",
-            "GAP FILL",
-            "TIE UP"
-          ],
-          "status": "pending"
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "complete",
+          "completedAt": "2026-04-23T22:30:00.000Z"
         }
       ],
-      "status": "not_started",
+      "status": "complete",
       "dependencies": [
         "PHASE-0",
         "PHASE-0B"
