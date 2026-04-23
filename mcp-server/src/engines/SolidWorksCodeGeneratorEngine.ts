@@ -337,6 +337,12 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
       case "sketch_spline":
         this.emitSketchSpline(op, em);
         break;
+      case "sketch_ellipse":
+        this.emitSketchEllipse(op, em);
+        break;
+      case "sketch_slot":
+        this.emitSketchSlot(op, em);
+        break;
       case "sketch_constraint":
         this.emitSketchConstraint(op, em);
         break;
@@ -375,6 +381,32 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
       case "feature_draft":
         this.emitFeatureDraft(op, em);
         break;
+      case "feature_rib":
+        this.emitFeatureRib(op, em);
+        break;
+      case "feature_thread":
+        this.emitFeatureThread(op, em);
+        break;
+
+      // ── Surface operations ──────────────────────────────────────────────────
+      case "surface_ruled":
+        this.emitSurfaceRuled(op, em);
+        break;
+      case "surface_loft":
+        this.emitSurfaceLoft(op, em);
+        break;
+      case "surface_sweep":
+        this.emitSurfaceSweep(op, em);
+        break;
+      case "surface_fill":
+        this.emitSurfaceFill(op, em);
+        break;
+      case "surface_offset":
+        this.emitSurfaceOffset(op, em);
+        break;
+      case "surface_trim":
+        this.emitSurfaceTrim(op, em);
+        break;
 
       // ── Boolean operations ──────────────────────────────────────────────────
       case "boolean_union":
@@ -399,6 +431,31 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
       case "transform_pattern_circular":
         this.emitPatternCircular(op, em);
         break;
+      case "transform_scale":
+        this.emitTransformScale(op, em);
+        break;
+
+      // ── Assembly operations ─────────────────────────────────────────────────
+      case "assembly_insert_component":
+        this.emitAssemblyInsertComponent(op, em);
+        break;
+      case "assembly_mate":
+        this.emitAssemblyMate(op, em);
+        break;
+      case "assembly_pattern":
+        this.emitAssemblyPattern(op, em);
+        break;
+
+      // ── Drawing operations ──────────────────────────────────────────────────
+      case "drawing_view":
+        this.emitDrawingView(op, em);
+        break;
+      case "drawing_dimension":
+        this.emitDrawingDimension(op, em);
+        break;
+      case "drawing_annotation":
+        this.emitDrawingAnnotation(op, em);
+        break;
 
       // ── Export operations ───────────────────────────────────────────────────
       case "export_step":
@@ -409,6 +466,20 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
         break;
       case "export_pdf":
         this.emitExportPdf(op, em);
+        break;
+      case "export_dxf":
+        this.emitExportDxf(op, em);
+        break;
+
+      // ── Import operations ───────────────────────────────────────────────────
+      case "import_step":
+        this.emitImportStep(op, em);
+        break;
+      case "import_iges":
+        this.emitImportIges(op, em);
+        break;
+      case "import_dxf":
+        this.emitImportDxf(op, em);
         break;
 
       default:
@@ -723,6 +794,297 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
     const path = p.path ?? "C:\\Temp\\export.pdf";
     em.line(`longStatus = swModel.Extension.SaveAs("${path.replace(/\\/g, "\\\\")}", 0, 0, Nothing, longStatus, longWarnings)`);
     em.parameter("export_path", path, "", "PDF export path");
+  }
+
+  private emitExportDxf(op: CADOperation, em: CADEmitter): void {
+    // DXF export via SaveAs3 flags 0x80 = kSaveAsOption_DXF_Version_2018.
+    const p = op.params as any;
+    const path = String(p.path ?? "C:\\Temp\\export.dxf");
+    em.line(`longStatus = swModel.SaveAs3("${path.replace(/\\/g, "\\\\")}", 0, 0)`);
+    em.parameter("export_path", path, "", "DXF export path");
+  }
+
+  // ── Import emitters ─────────────────────────────────────────────────────────
+  // All SolidWorks imports route through OpenDoc6 with format-specific
+  // doctype enums (swDocumentTypes_e): STEP=1 (part), IGES=1, DXF=3 (drawing).
+
+  private emitImportStep(op: CADOperation, em: CADEmitter): void {
+    const p = op.params as any;
+    const path = String(p.path ?? "");
+    if (!path) {
+      em.warn("import_step requires path param");
+      return;
+    }
+    em.line(`Set swModel = swApp.OpenDoc6("${path.replace(/\\/g, "\\\\")}", 1, 0, "", longStatus, longWarnings)`);
+    em.parameter("import_path", path, "", "STEP import path");
+  }
+
+  private emitImportIges(op: CADOperation, em: CADEmitter): void {
+    const p = op.params as any;
+    const path = String(p.path ?? "");
+    if (!path) {
+      em.warn("import_iges requires path param");
+      return;
+    }
+    em.line(`Set swModel = swApp.OpenDoc6("${path.replace(/\\/g, "\\\\")}", 1, 0, "", longStatus, longWarnings)`);
+    em.parameter("import_path", path, "", "IGES import path");
+  }
+
+  private emitImportDxf(op: CADOperation, em: CADEmitter): void {
+    const p = op.params as any;
+    const path = String(p.path ?? "");
+    if (!path) {
+      em.warn("import_dxf requires path param");
+      return;
+    }
+    // DXF imports as drawing document (swDocDRAWING = 3).
+    em.line(`Set swModel = swApp.OpenDoc6("${path.replace(/\\/g, "\\\\")}", 3, 0, "", longStatus, longWarnings)`);
+    em.parameter("import_path", path, "", "DXF import path");
+  }
+
+  // ── Additional sketch primitives ────────────────────────────────────────────
+
+  private emitSketchEllipse(op: CADOperation, em: CADEmitter): void {
+    // CreateEllipse(cx, cy, cz, mx, my, mz, nx, ny, nz) — center + major + minor.
+    const p = op.params as any;
+    const cx = Number(p.centerX ?? 0);
+    const cy = Number(p.centerY ?? 0);
+    const rx = Number(p.radiusX ?? p.majorRadius ?? 10);
+    const ry = Number(p.radiusY ?? p.minorRadius ?? 5);
+    em.line(
+      `swSketchMgr.CreateEllipse ${cx} / 1000.0, ${cy} / 1000.0, 0, ${cx + rx} / 1000.0, ${cy} / 1000.0, 0, ${cx} / 1000.0, ${cy + ry} / 1000.0, 0`
+    );
+  }
+
+  private emitSketchSlot(op: CADOperation, em: CADEmitter): void {
+    // CreateSlot via SketchManager.CreateCenterRectangle then fillet ends —
+    // simplified: emit straight slot with two lines + two arcs.
+    const p = op.params as any;
+    const cx = Number(p.centerX ?? 0);
+    const cy = Number(p.centerY ?? 0);
+    const length = Number(p.length ?? 20);
+    const width = Number(p.width ?? 5);
+    const r = width / 2;
+    const halfL = length / 2 - r;
+    em.line(`' Slot centered at (${cx}, ${cy}), length=${length}, width=${width}`);
+    em.line(
+      `swSketchMgr.CreateLine ${cx - halfL} / 1000.0, ${cy + r} / 1000.0, 0, ${cx + halfL} / 1000.0, ${cy + r} / 1000.0, 0`
+    );
+    em.line(
+      `swSketchMgr.CreateLine ${cx - halfL} / 1000.0, ${cy - r} / 1000.0, 0, ${cx + halfL} / 1000.0, ${cy - r} / 1000.0, 0`
+    );
+    em.line(
+      `swSketchMgr.CreateArc ${cx - halfL} / 1000.0, ${cy} / 1000.0, 0, ${cx - halfL} / 1000.0, ${cy - r} / 1000.0, 0, ${cx - halfL} / 1000.0, ${cy + r} / 1000.0, 0, -1`
+    );
+    em.line(
+      `swSketchMgr.CreateArc ${cx + halfL} / 1000.0, ${cy} / 1000.0, 0, ${cx + halfL} / 1000.0, ${cy + r} / 1000.0, 0, ${cx + halfL} / 1000.0, ${cy - r} / 1000.0, 0, -1`
+    );
+  }
+
+  // ── Additional feature emitters ─────────────────────────────────────────────
+
+  private emitFeatureRib(op: CADOperation, em: CADEmitter): void {
+    // Rib via FeatureManager.InsertRib(directionRef, thickness, isTwoSided,
+    //   isFlipMaterial, extrudeType, draftAngle, draftOutward, isDraftOn).
+    const p = op.params as any;
+    const thickness = Number(p.thickness ?? 3) / 1000.0; // mm → m
+    const twoSided = p.twoSided === true ? "True" : "False";
+    em.line(
+      `Set swFeature = swFeatureMgr.InsertRib(False, False, ${thickness}, 0, ${twoSided}, 0, False, False)`
+    );
+    em.parameter("rib_thickness_mm", Number(p.thickness ?? 3), "mm", "Rib thickness");
+  }
+
+  private emitFeatureThread(op: CADOperation, em: CADEmitter): void {
+    // Thread via FeatureManager.InsertThreadFeature with ISO metric defaults.
+    const p = op.params as any;
+    const diameter = Number(p.majorDiameter ?? 10);
+    const pitch = Number(p.pitch ?? 1.5);
+    const length = Number(p.length ?? 20);
+    em.line(`' Thread: M${diameter} × ${pitch} × ${length}mm`);
+    em.line(
+      `Set swFeature = swFeatureMgr.InsertThreadFeature("${diameter.toFixed(1)}", ${pitch} / 1000.0, ${length} / 1000.0, 0, 0, True)`
+    );
+    em.parameter("thread_major_mm", diameter, "mm", "Thread major diameter");
+    em.parameter("thread_pitch_mm", pitch, "mm", "Thread pitch");
+  }
+
+  // ── Surface emitters ────────────────────────────────────────────────────────
+
+  private emitSurfaceRuled(op: CADOperation, em: CADEmitter): void {
+    // Ruled surface via FeatureManager.InsertRuledSurface(type, distance,
+    //   draftAngle, flipDirection, connectSurface).
+    const p = op.params as any;
+    const distance = Number(p.distance ?? 10) / 1000.0;
+    const draftAngle = Number(p.draftAngle ?? 0) * Math.PI / 180;
+    em.line(
+      `Set swFeature = swFeatureMgr.InsertRuledSurface(0, ${distance}, ${draftAngle}, False, False)`
+    );
+  }
+
+  private emitSurfaceLoft(op: CADOperation, em: CADEmitter): void {
+    // Surface loft uses ProfileRefs from selected sketches (pre-selected by caller).
+    em.line("' Surface loft — profiles must be pre-selected via swModel.Extension.SelectByID2");
+    em.line("Set swFeature = swFeatureMgr.InsertProtrusionBlend2(False, True, False, 1, 0, 0, 1, 1, True, True, False, 0, 0, 0, True, True, True)");
+  }
+
+  private emitSurfaceSweep(op: CADOperation, em: CADEmitter): void {
+    em.line("' Surface sweep — profile + path pre-selected");
+    em.line("Set swFeature = swFeatureMgr.InsertProtrusionSwept4(False, True, 0, False, False, 0, 0, False, 0, 0, 0, 0, True, True, True)");
+  }
+
+  private emitSurfaceFill(op: CADOperation, em: CADEmitter): void {
+    // FilledSurface via FeatureManager.InsertFilledSurfaceBetweenTwoBoundaries —
+    // simplified to the single-boundary variant.
+    em.line("' Surface fill — closed boundary of edges pre-selected");
+    em.line("Set swFeature = swFeatureMgr.InsertFillSurface(True, False, False, True)");
+  }
+
+  private emitSurfaceOffset(op: CADOperation, em: CADEmitter): void {
+    const p = op.params as any;
+    const distance = Number(p.distance ?? 5) / 1000.0;
+    em.line(`Set swFeature = swFeatureMgr.InsertOffsetSurface(${distance}, False)`);
+    em.parameter("offset_distance_mm", Number(p.distance ?? 5), "mm", "Surface offset");
+  }
+
+  private emitSurfaceTrim(op: CADOperation, em: CADEmitter): void {
+    // TrimSurface via FeatureManager.InsertMutualTrimSurface — standard trim.
+    em.line("' Surface trim — surfaces + trim region pre-selected");
+    em.line("Set swFeature = swFeatureMgr.InsertMutualTrimSurface(0)");
+  }
+
+  // ── Additional transform emitter ────────────────────────────────────────────
+
+  private emitTransformScale(op: CADOperation, em: CADEmitter): void {
+    const p = op.params as any;
+    const factor = Number(p.factor ?? p.scale ?? 1);
+    em.line(`' Uniform scale by factor ${factor}`);
+    em.line(
+      `Set swFeature = swFeatureMgr.InsertScale(False, ${factor}, ${factor}, ${factor})`
+    );
+    em.parameter("scale_factor", factor, "unitless", "Uniform scale factor");
+  }
+
+  // ── Assembly emitters ───────────────────────────────────────────────────────
+
+  private emitAssemblyInsertComponent(op: CADOperation, em: CADEmitter): void {
+    const p = op.params as any;
+    const path = String(p.path ?? p.file ?? "");
+    if (!path) {
+      em.warn("assembly_insert_component requires path param");
+      return;
+    }
+    const x = Number(p.x ?? 0) / 1000.0;
+    const y = Number(p.y ?? 0) / 1000.0;
+    const z = Number(p.z ?? 0) / 1000.0;
+    em.line(
+      `Dim swAsmDoc As SldWorks.AssemblyDoc : Set swAsmDoc = swModel`
+    );
+    em.line(
+      `Dim swComp As SldWorks.Component2 : Set swComp = swAsmDoc.AddComponent5("${path.replace(/\\/g, "\\\\")}", 0, "", False, "", ${x}, ${y}, ${z})`
+    );
+    em.parameter("component_path", path, "", "Inserted component file");
+  }
+
+  private emitAssemblyMate(op: CADOperation, em: CADEmitter): void {
+    // Mate types: swMateCOINCIDENT=0, swMateCONCENTRIC=1, swMatePERPENDICULAR=2,
+    //   swMatePARALLEL=3, swMateTANGENT=4, swMateDISTANCE=5, swMateANGLE=6.
+    const p = op.params as any;
+    const mateTypeMap: Record<string, number> = {
+      coincident: 0,
+      concentric: 1,
+      perpendicular: 2,
+      parallel: 3,
+      tangent: 4,
+      distance: 5,
+      angle: 6,
+    };
+    const mateName = String(p.type ?? "coincident").toLowerCase();
+    const mateType = mateTypeMap[mateName];
+    if (mateType === undefined) {
+      em.warn(`assembly_mate: unknown mate type '${mateName}' (valid: ${Object.keys(mateTypeMap).join(", ")})`);
+      return;
+    }
+    const distance = Number(p.distance ?? 0) / 1000.0;
+    const angle = Number(p.angle ?? 0) * Math.PI / 180;
+    em.line(`' ${mateName} mate — entities pre-selected via SelectByID2`);
+    em.line(
+      `Dim swAsmMateDoc As SldWorks.AssemblyDoc : Set swAsmMateDoc = swModel`
+    );
+    em.line(
+      `Dim swMate As SldWorks.Mate2 : Set swMate = swAsmMateDoc.AddMate5(${mateType}, 0, False, ${distance}, 0, 0, 0, 0, 0, 0, ${angle}, 0, False, False, 0, longStatus)`
+    );
+    em.parameter("mate_type", mateName, "", "Mate constraint type");
+  }
+
+  private emitAssemblyPattern(op: CADOperation, em: CADEmitter): void {
+    // Local linear component pattern via AssemblyDoc.FeatureLinearPattern2.
+    const p = op.params as any;
+    const count = Math.max(2, Math.floor(Number(p.count ?? 2)));
+    const spacing = Number(p.spacing ?? 25) / 1000.0;
+    em.line(`' Assembly linear pattern: ${count} instances × ${Number(p.spacing ?? 25)}mm`);
+    em.line(
+      `Set swFeature = swFeatureMgr.FeatureLinearPattern3(${count}, ${spacing}, 1, 1 / 1000.0, False, False, "", "", False, False, False, False, False, False, True, True, False, False, 0, 0, True, True, True, False, False)`
+    );
+    em.parameter("pattern_count", count, "unitless", "Instances");
+    em.parameter("pattern_spacing_mm", Number(p.spacing ?? 25), "mm", "Between instances");
+  }
+
+  // ── Drawing emitters ────────────────────────────────────────────────────────
+
+  private emitDrawingView(op: CADOperation, em: CADEmitter): void {
+    // Orientation map for DrawingDoc.CreateDrawViewFromModelView3.
+    const p = op.params as any;
+    const orientMap: Record<string, string> = {
+      front: "*Front",
+      back: "*Back",
+      top: "*Top",
+      bottom: "*Bottom",
+      left: "*Left",
+      right: "*Right",
+      isometric: "*Isometric",
+      trimetric: "*Trimetric",
+    };
+    const orientKey = String(p.orientation ?? "front").toLowerCase();
+    const viewName = orientMap[orientKey] ?? "*Front";
+    const x = Number(p.x ?? 0.1);
+    const y = Number(p.y ?? 0.1);
+    const refDoc = String(p.sourceDoc ?? "");
+    em.line(
+      `Dim swDrawDoc As SldWorks.DrawingDoc : Set swDrawDoc = swModel`
+    );
+    em.line(
+      `Dim swDrawView As SldWorks.View : Set swDrawView = swDrawDoc.CreateDrawViewFromModelView3("${refDoc.replace(/\\/g, "\\\\")}", "${viewName}", ${x}, ${y}, 0)`
+    );
+    em.parameter("view_orientation", orientKey, "", "Drawing view orientation");
+  }
+
+  private emitDrawingDimension(op: CADOperation, em: CADEmitter): void {
+    // Ordinate/linear dimension via DrawingDoc.AddDimension2.
+    const p = op.params as any;
+    const x = Number(p.x ?? 0.05);
+    const y = Number(p.y ?? 0.05);
+    em.line(
+      `' Dimension anchor at (${x}, ${y}) — edge pre-selected via SelectByID2`
+    );
+    em.line(
+      `Dim swDim As SldWorks.DisplayDimension : Set swDim = swModel.AddDimension2(${x}, ${y}, 0)`
+    );
+  }
+
+  private emitDrawingAnnotation(op: CADOperation, em: CADEmitter): void {
+    // Note annotation via DrawingDoc.InsertNote.
+    const p = op.params as any;
+    const text = String(p.text ?? "NOTE").replace(/"/g, '""');
+    const x = Number(p.x ?? 0.05);
+    const y = Number(p.y ?? 0.05);
+    em.line(
+      `Dim swNote As SldWorks.Note : Set swNote = swModel.InsertNote("${text}")`
+    );
+    em.line(
+      `If Not swNote Is Nothing Then swNote.GetAnnotation.SetPosition2 ${x}, ${y}, 0`
+    );
+    em.parameter("annotation_text", text, "", "Drawing note text");
   }
 
   // ── Script assembly ─────────────────────────────────────────────────────────

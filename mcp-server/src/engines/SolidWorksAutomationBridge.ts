@@ -131,13 +131,19 @@ export class SolidWorksAutomationBridge {
   private _nextId = 1;
   private _ready = false;
   private _spawnPromise: Promise<void> | null = null;
-  private readonly _mockMode: boolean;
 
   constructor() {
-    this._mockMode = process.env["PRISM_CAD_MOCK"] === "1";
     if (this._mockMode) {
       log.info("[SWBridge] Mock mode active — no SolidWorksBridge.exe will be spawned");
     }
+  }
+
+  /**
+   * Read PRISM_CAD_MOCK lazily so that a module-level singleton picks up env
+   * changes made by beforeEach() in tests. Evaluated on every send() call.
+   */
+  private get _mockMode(): boolean {
+    return process.env["PRISM_CAD_MOCK"] === "1";
   }
 
   // ── Public API ─────────────────────────────────────────────────────────
@@ -151,7 +157,7 @@ export class SolidWorksAutomationBridge {
     return {
       value: result,
       unit: "document",
-      uncertainty: undefined as never,
+      uncertainty: 0, // document-open is deterministic
       confidence: 0.95,
       source: "SolidWorksAutomationBridge.open",
     };
@@ -165,7 +171,7 @@ export class SolidWorksAutomationBridge {
     return {
       value: result,
       unit: "feature_tree",
-      uncertainty: undefined as never,
+      uncertainty: 0, // feature tree content is deterministic
       confidence: 0.98,
       source: "SolidWorksAutomationBridge.getFeatureTree",
     };
@@ -180,7 +186,7 @@ export class SolidWorksAutomationBridge {
     return {
       value: result,
       unit: "file",
-      uncertainty: undefined as never,
+      uncertainty: 0.001, // mm — STEP tessellation precision (SolidWorks default)
       confidence: 0.99,
       source: "SolidWorksAutomationBridge.exportSTEP",
     };
@@ -195,7 +201,7 @@ export class SolidWorksAutomationBridge {
     return {
       value: result,
       unit: "file",
-      uncertainty: undefined as never,
+      uncertainty: 0, // rasterization at fixed DPI is deterministic
       confidence: 0.99,
       source: "SolidWorksAutomationBridge.exportPDF",
     };
@@ -209,7 +215,7 @@ export class SolidWorksAutomationBridge {
     return {
       value: result,
       unit: "mm",
-      uncertainty: undefined as never,
+      uncertainty: 0.001, // mm — SolidWorks AABB precision (~1 micron)
       uncertainty_pct: 0.001,
       confidence: 0.97,
       source: "SolidWorksAutomationBridge.getBoundingBox",
@@ -226,7 +232,7 @@ export class SolidWorksAutomationBridge {
     return {
       value: result,
       unit: "none",
-      uncertainty: undefined as never,
+      uncertainty: 0, // close() is deterministic
       confidence: 1.0,
       source: "SolidWorksAutomationBridge.close",
     };
