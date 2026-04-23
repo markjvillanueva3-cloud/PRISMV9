@@ -190,6 +190,13 @@ async function getMillTribalIntegration(): Promise<any> {
     .millTribalIntegrationEngine);
 }
 
+// P4-U14-PATMINE: Mill pattern miner engine lazy loader
+let _millPatternMiner: any;
+async function getMillPatternMiner(): Promise<any> {
+  return (_millPatternMiner ??= (await import("../../engines/MillPatternMinerEngine.js"))
+    .millPatternMinerEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -234,6 +241,8 @@ const ACTIONS = [
   "mill_five_axis_decide",
   // P4-U13-TRIBAL: Mill tribal integration
   "mill_tribal_integrate",
+  // P4-U14-PATMINE: Mill pattern miner
+  "mill_pattern_mine",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -896,6 +905,40 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
         return { failure_modes: tribal.checkFailureModes(mat, opType, rpm, feed, doc) };
       }
       return { error: `Unknown op for mill_tribal_integrate: ${op}` };
+    }
+
+    // ── P4-U14-PATMINE: Mill pattern miner ─────────────────────
+    case "mill_pattern_mine": {
+      const miner = await getMillPatternMiner();
+      const op = params.op as string;
+      if (op === "mine_haas") {
+        const programs = Array.isArray(params.programs) ? params.programs : null;
+        if (!programs) return { error: "mill_pattern_mine op=mine_haas requires programs[]" };
+        return miner.mineHaas(programs);
+      }
+      if (op === "mine_hurco") {
+        const programs = Array.isArray(params.programs) ? params.programs : null;
+        if (!programs) return { error: "mill_pattern_mine op=mine_hurco requires programs[]" };
+        return miner.mineHurco(programs);
+      }
+      if (op === "mine_rokuroku") {
+        const programs = Array.isArray(params.programs) ? params.programs : null;
+        if (!programs) return { error: "mill_pattern_mine op=mine_rokuroku requires programs[]" };
+        return miner.mineRokuRoku(programs);
+      }
+      if (op === "mine_all") {
+        const programs = Array.isArray(params.programs) ? params.programs : null;
+        if (!programs) return { error: "mill_pattern_mine op=mine_all requires programs[] with controller field" };
+        return miner.mineAll(programs);
+      }
+      if (op === "engagement_patterns") {
+        const mineResult = params.result;
+        if (!mineResult || typeof mineResult !== "object") {
+          return { error: "mill_pattern_mine op=engagement_patterns requires result=MillMineResult" };
+        }
+        return { patterns: miner.getEngagementPatterns(mineResult) };
+      }
+      return { error: `Unknown op for mill_pattern_mine: ${op}` };
     }
 
     default:

@@ -709,6 +709,23 @@ const mill_five_axis_decide = z.object({
 }).passthrough();
 
 // ============================================================================
+// P4-U14-PATMINE: Mill pattern miner schema
+// ============================================================================
+
+const patternMineOp = z.enum([
+  "mine_haas", "mine_hurco", "mine_rokuroku", "mine_all", "engagement_patterns",
+]).describe("Pattern mining operation target");
+
+const mill_pattern_mine = z.object({
+  op: patternMineOp,
+  programs: z.array(z.any()).optional().describe(
+    "Parsed program entries. For mine_haas/mine_hurco/mine_rokuroku: [{filename, parsed}]. " +
+    "For mine_all: [{filename, controller, parsed}] where controller ∈ haas|hurco|rokuroku.",
+  ),
+  result: z.any().optional().describe("MillMineResult (required for op=engagement_patterns)"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -796,4 +813,6 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_five_axis_decide,
   // P4-U13-TRIBAL: Mill tribal integration
   mill_tribal_integrate,
+  // P4-U14-PATMINE: Mill pattern miner
+  mill_pattern_mine,
 };
