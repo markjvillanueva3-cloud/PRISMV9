@@ -16,9 +16,10 @@ import {
 
 describe("MillMasterOrchestratorFacadeEngine wiring", () => {
   describe("route registration", () => {
-    it("should have all 7 request types registered", () => {
+    it("should have all 19 request types registered (7 original + 12 P1-U10)", () => {
       const types = millMasterOrchestratorFacadeEngine.getRequestTypes();
-      expect(types).toHaveLength(7);
+      expect(types).toHaveLength(19);
+      // Original 7
       expect(types).toContain("print_to_program");
       expect(types).toContain("scientific");
       expect(types).toContain("agi");
@@ -26,6 +27,19 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
       expect(types).toContain("quick");
       expect(types).toContain("wisdom");
       expect(types).toContain("adaptive");
+      // P1-U10 additions
+      expect(types).toContain("ai_learning");
+      expect(types).toContain("mill_turn");
+      expect(types).toContain("five_axis");
+      expect(types).toContain("multi_axis");
+      expect(types).toContain("tribal_writeback");
+      expect(types).toContain("pattern_sync");
+      expect(types).toContain("blueprint_bridge");
+      expect(types).toContain("model_load");
+      expect(types).toContain("hive_sync");
+      expect(types).toContain("customer_learn");
+      expect(types).toContain("outcome_replan");
+      expect(types).toContain("jmdie_refresh");
     });
 
     it("should have named sub-orchestrators for each type", () => {
@@ -37,6 +51,19 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
         quick: "MillQuickHelpers",
         wisdom: "TribalKnowledgeAdvisor",
         adaptive: "AdaptiveToolpathRouter",
+        // P1-U10 extensions
+        ai_learning: "MillingAILearningOrchestratorEngine",
+        mill_turn: "MillTurnOrchestrationEngine",
+        five_axis: "FiveAxisAggregatorEngine",
+        multi_axis: "MultiAxisAggregatorEngine",
+        tribal_writeback: "TribalKnowledgeAdvisor",
+        pattern_sync: "MillPatternMinerEngine",
+        blueprint_bridge: "MillPrintToProgramEngine",
+        model_load: "MillDeepLearningEngine",
+        hive_sync: "HiveSyncCoordinator",
+        customer_learn: "MillingMetaLearningEngine",
+        outcome_replan: "MillMasterOrchestratorFacadeEngine",
+        jmdie_refresh: "PRISMSelfAwarenessEngine",
       };
 
       for (const [type, name] of Object.entries(expectedNames)) {

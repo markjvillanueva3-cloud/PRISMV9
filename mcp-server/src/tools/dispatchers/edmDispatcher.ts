@@ -31,10 +31,11 @@ import { WEDM_GAP_VOLTAGE_SCHEMAS } from "../../schemas/wedmGapVoltageSchemas.js
 import { WEDM_MRR_SCHEMAS } from "../../schemas/wedmMRRSchemas.js";
 import { WEDM_WIRE_STRESS_SCHEMAS } from "../../schemas/wedmWireStressSchemas.js";
 import { WEDM_WIRE_TENSION_OPT_SCHEMAS } from "../../schemas/wedmWireTensionOptSchemas.js";
+import { WEDM_WEIBULL_SCHEMAS } from "../../schemas/wedmWeibullSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 // Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS };
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -60,6 +61,7 @@ let _gapVoltage: any;
 let _mrrPhysics: any;
 let _wireStress: any;
 let _wireTensionOpt: any;
+let _weibull: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -97,6 +99,7 @@ async function getEngine(name: string): Promise<any> {
     case "mrrPhysics": return _mrrPhysics ??= (await import("../../engines/WEDMMRRPhysicsEngine.js")).wedmMRRPhysicsEngine;
     case "wireStress": return _wireStress ??= (await import("../../engines/WEDMWireStressAnalysisEngine.js")).wedmWireStressAnalysisEngine;
     case "wireTensionOpt": return _wireTensionOpt ??= (await import("../../engines/WEDMWireTensionOptimizerEngine.js")).wedmWireTensionOptimizerEngine;
+    case "weibull": return _weibull ??= (await import("../../engines/WEDMWeibullWireLifeEngine.js")).wedmWeibullWireLifeEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -246,6 +249,10 @@ const ACTIONS = [
 
   // WEDM-BIZ-MS0: Wire Tension Optimizer (geometry + material → optimal tension)
   "wedm_wire_tension_optimize", "wedm_wire_tension_compare_scenarios",
+
+  // WEDM-BIZ-MS0: Weibull Wire Life (β, η, MTTF, CI, percentile, survival curve)
+  "wedm_weibull_fit", "wedm_weibull_failure_probability", "wedm_weibull_percentile",
+  "wedm_weibull_compare_groups", "wedm_weibull_survival_curve",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1370,6 +1377,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_wire_tension_compare_scenarios": {
             const engine = await getEngine("wireTensionOpt");
             result = engine.compareScenarios(params.scenarios);
+            break;
+          }
+
+          case "wedm_weibull_fit": {
+            const engine = await getEngine("weibull");
+            result = engine.fit(params);
+            break;
+          }
+
+          case "wedm_weibull_failure_probability": {
+            const engine = await getEngine("weibull");
+            result = engine.failureProbability(params);
+            break;
+          }
+
+          case "wedm_weibull_percentile": {
+            const engine = await getEngine("weibull");
+            result = engine.percentile(params);
+            break;
+          }
+
+          case "wedm_weibull_compare_groups": {
+            const engine = await getEngine("weibull");
+            result = engine.compareGroups(params);
+            break;
+          }
+
+          case "wedm_weibull_survival_curve": {
+            const engine = await getEngine("weibull");
+            result = engine.survivalCurve(params.beta, params.eta_min, params.points);
             break;
           }
 

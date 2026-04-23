@@ -1,9 +1,9 @@
 /**
  * prism_cad — CAD/Geometry Dispatcher
  *
- * 65 actions: geometry (3), mesh (3), feature (2), stock/wcs/dfm (5), grasshopper (4),
+ * 71 actions: geometry (3), mesh (3), feature (2), stock/wcs/dfm (5), grasshopper (4),
  *   sketch (5), part (7), part_library (2), assembly (6),
- *   cad_taxonomy (3), cadquery (5), f360_codegen (4), f360_live (14), blueprint (2)
+ *   cad_taxonomy (9), cadquery (5), f360_codegen (4), f360_live (14), blueprint (2)
  *
  * Engine dependencies: CADKernelEngine, GeometryEngine, MeshEngine,
  *   FeatureRecognitionEngine, StockModelEngine, WorkCoordinateEngine,
@@ -69,6 +69,8 @@ const ACTIONS = [
   "assembly_position", "assembly_bom", "assembly_to_cadquery",
   // CAD Operation Taxonomy
   "cad_taxonomy_lookup", "cad_taxonomy_list", "cad_taxonomy_generate",
+  "cad_taxonomy_aerospace", "cad_taxonomy_search", "cad_taxonomy_compatibility",
+  "cad_taxonomy_validate", "cad_taxonomy_stats", "cad_taxonomy_suggest",
   // CadQuery Code Generator
   "cadquery_generate_script", "cadquery_step_by_step", "cadquery_validate_syntax",
   "cadquery_execute_script", "cadquery_codegen_prompt",
@@ -441,13 +443,43 @@ Params vary by action — pass relevant fields in params object.`,
           case "cad_taxonomy_list": {
             const tx = await getEngine("cadTaxonomy");
             result = params.category
-              ? tx.getOperationsByCategory(params.category)
+              ? tx.getByCategory(params.category)
               : tx.getAllOperations();
             break;
           }
           case "cad_taxonomy_generate": {
             const tx = await getEngine("cadTaxonomy");
             result = { code: tx.generateCadQueryCode(params.action ?? params) };
+            break;
+          }
+          case "cad_taxonomy_aerospace": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.getAerospaceOperations();
+            break;
+          }
+          case "cad_taxonomy_search": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.search(params.query ?? "");
+            break;
+          }
+          case "cad_taxonomy_compatibility": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.checkCompatibility(params.operation_id, params.system);
+            break;
+          }
+          case "cad_taxonomy_validate": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.validateParams(params.operation_id, params.params ?? {});
+            break;
+          }
+          case "cad_taxonomy_stats": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.getStats();
+            break;
+          }
+          case "cad_taxonomy_suggest": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.suggestForUseCase(params.description ?? "");
             break;
           }
           // ── CadQuery Code Generator ──
