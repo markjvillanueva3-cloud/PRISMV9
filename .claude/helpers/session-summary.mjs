@@ -76,9 +76,9 @@ async function main() {
   ].join("\n");
 
   await fs.writeFile(PATHS.summaryFile, summary, "utf8");
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

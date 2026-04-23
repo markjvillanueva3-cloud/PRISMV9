@@ -8,7 +8,7 @@
  * - Run safely from shell startup/exit and a lightweight scheduled task
  */
 import { execFileSync } from 'child_process';
-import { appendFileSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const args = new Set(process.argv.slice(2));
@@ -28,6 +28,11 @@ const LOG_DIR = join('H:', 'prism', 'state', 'shared');
 const LOG_FILE = join(LOG_DIR, 'node-orphan-cleaner.log');
 const STATE_FILE = join(LOG_DIR, 'node-orphan-cleaner.state.json');
 const TEMP_DIR = process.env.TEMP || 'C:\\Temp';
+const POWERSHELL = (() => {
+  const systemRoot = process.env.SystemRoot || 'C:\\Windows';
+  const fullPath = join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+  return existsSync(fullPath) ? fullPath : 'powershell';
+})();
 
 const KEEP_PATTERNS = [
   /node_modules[\\/]+vite[\\/]+bin[\\/]+vite\.js/i,
@@ -138,7 +143,7 @@ foreach ($proc in $procs) {
   const tempScript = join(TEMP_DIR, `prism_node_list_${process.pid}.ps1`);
   try {
     writeFileSync(tempScript, psScript);
-    const output = execFileSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tempScript], {
+    const output = execFileSync(POWERSHELL, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tempScript], {
       timeout: 15000,
       encoding: 'utf-8',
     }).trim();

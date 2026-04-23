@@ -97,7 +97,7 @@ async function resolveFileCode(code) {
 async function main() {
   const userMessage = process.env.USER_MESSAGE || process.env.PROMPT || "";
   if (!userMessage) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -140,8 +140,8 @@ async function main() {
       additionalContext: `SHORTCODE EXPANSION: ${expansions.join(" | ")}. Use the expanded forms in MCP tool calls.`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

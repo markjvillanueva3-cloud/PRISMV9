@@ -20,18 +20,18 @@ function main() {
   const success = (process.env.TOOL_SUCCESS ?? "false") === "true";
 
   if (success) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   if (!cmd.includes("tsc")) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   const output = collectOutput();
   if (output.length < MIN_OUTPUT_LENGTH) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -56,7 +56,7 @@ function main() {
   }
 
   if (totalErrors < 3) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 

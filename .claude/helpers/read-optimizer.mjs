@@ -48,7 +48,7 @@ async function countLines(filePath) {
 }
 
 function printContext(additionalContext) {
-  process.stdout.write(`${JSON.stringify(additionalContext ? { additionalContext } : {})}`);
+  process.stdout.write(`${JSON.stringify(additionalContext ? { continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext } } : { continue: true })}`);
 }
 
 async function main() {

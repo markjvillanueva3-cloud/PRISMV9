@@ -157,7 +157,7 @@ function main() {
   const output = collectOutputText();
 
   if (!isGitCommand(command) || output.length < 500) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -184,7 +184,7 @@ function main() {
       additionalContext: `${condensed}\n\n[Condensed ${savedPct}% — ~${Math.round(savedChars / 4)} tokens saved. Use 'git show <hash>' for full details.]`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

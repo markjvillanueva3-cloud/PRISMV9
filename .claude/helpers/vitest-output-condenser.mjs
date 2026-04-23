@@ -108,7 +108,7 @@ function main() {
 
   // Only process test commands with significant output
   if (!isTestCommand(command) || output.length < 1000) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -145,7 +145,7 @@ function main() {
     }
   }
 
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main();

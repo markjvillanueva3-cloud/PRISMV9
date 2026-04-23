@@ -64,7 +64,7 @@ function main() {
       }),
     );
   } else {
-    process.stdout.write(JSON.stringify({}));
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

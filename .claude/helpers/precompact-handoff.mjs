@@ -258,8 +258,40 @@ function generateSmartResume(identity) {
   return parts.join(". ");
 }
 
+function resolveTerminalFromHookStdinOrHelper() {
+  // (1) Claude Code's PreCompact hook pipes JSON with session_id on stdin.
+  //     Use that directly — it's the most stable anchor and survives /compact.
+  try {
+    if (!process.stdin.isTTY) {
+      const raw = fs.readFileSync(0, "utf-8");
+      if (raw && raw.trim().startsWith("{")) {
+        const j = JSON.parse(raw);
+        const sid = j?.session_id || j?.sessionId;
+        if (typeof sid === "string" && sid.length >= 8) return `claude-${sid.slice(0, 8)}`;
+      }
+    }
+  } catch { /* ignore */ }
+  // (2) Fall back to the stable-session-id helper (uses transcript-file
+  //     exact match after the 2026-04-23 fix).
+  try {
+    const r = spawnSync(process.execPath, [path.resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], {
+      encoding: "utf-8", timeout: 2000,
+    });
+    const id = (r.stdout || "").trim();
+    if (id) return id;
+  } catch { /* ignore */ }
+  return null;
+}
+
 function main() {
   const args = parseArgs(process.argv);
+
+  // Resolve terminal: prefer --terminal arg, then stdin session_id, then
+  // stable-session-id helper. Eliminates the old `auto-${ppid}` phantom.
+  if (!args.terminal) {
+    const autoTerminal = resolveTerminalFromHookStdinOrHelper();
+    if (autoTerminal) args.terminal = autoTerminal;
+  }
 
   // Resolve identity
   let identity;
@@ -296,12 +328,12 @@ function main() {
   const writeArgs = [
     handoffScript,
     "write",
-    "--terminal", args.terminal || `auto-${process.ppid}`,
+    "--terminal", args.terminal || `auto-${process.ppid}`, // per-agent-handoff auto-registers the terminal on first use
     "--resume", resume,
     "--state", `Pre-compact snapshot (RESUME ${resumeSource})`,
   ];
 
-  const result = spawnSync("node", writeArgs, {
+  const result = spawnSync(process.execPath, writeArgs, {
     encoding: "utf8",
     windowsHide: true,
     cwd: PRISM_ROOT,

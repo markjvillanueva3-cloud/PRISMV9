@@ -91,7 +91,7 @@ async function main() {
 
   // Only fire for MCP prism tools
   if (!toolName.startsWith("mcp__prism")) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -121,8 +121,8 @@ async function main() {
       additionalContext: `MCP POST: ${parts.join(" | ")}`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

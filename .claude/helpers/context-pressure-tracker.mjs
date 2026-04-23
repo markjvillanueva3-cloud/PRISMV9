@@ -45,7 +45,7 @@ async function main() {
   const outputLen = collectOutputLength();
 
   if (outputLen < MIN_OUTPUT_SIZE) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -71,7 +71,7 @@ async function main() {
     return;
   }
 
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

@@ -179,4 +179,4 @@ async function main() {
   emit({});
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

@@ -121,7 +121,7 @@ function main() {
 
   // Only fire for MCP prism tools
   if (!toolName.startsWith("mcp__prism")) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -152,7 +152,7 @@ function main() {
       additionalContext: `MCP ACTION: ${parts.join(" | ")}`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

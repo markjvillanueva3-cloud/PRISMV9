@@ -89,7 +89,7 @@ async function main() {
   }
 
   if (reasons.length === 0) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -102,5 +102,5 @@ async function main() {
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

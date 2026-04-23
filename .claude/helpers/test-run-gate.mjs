@@ -52,7 +52,7 @@ function readSessionWriteSet() {
 }
 
 if (!/(vitest|npm\s+(run\s+)?test)/i.test(command)) {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
@@ -99,4 +99,4 @@ if (analysis.summary) {
   process.exit(0);
 }
 
-process.stdout.write("{}");
+process.stdout.write(JSON.stringify({ continue: true }));

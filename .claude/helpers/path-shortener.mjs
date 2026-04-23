@@ -76,14 +76,14 @@ function main() {
 
   // Only process if output has paths and is substantial
   if (output.length < 200) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   // Check if output contains PRISM paths
   const hasPrismPaths = /[Hh]:[\\\/]prism|\/h\/prism/i.test(output);
   if (!hasPrismPaths) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -97,7 +97,7 @@ function main() {
       additionalContext: `[Paths shortened: ${savedPct}% — ~${Math.round(savedChars / 4)} tokens. Full paths: H:\\prism\\mcp-server\\src\\ = src/]`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

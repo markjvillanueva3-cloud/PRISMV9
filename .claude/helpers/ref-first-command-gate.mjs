@@ -14,7 +14,7 @@ const promptRaw = process.env.PROMPT ?? process.argv.slice(2).join(" ") ?? "";
 
 // Guard against excessively large prompts (pasted files, etc.)
 if (promptRaw.length > 10000) {
-  process.stdout.write(JSON.stringify({}));
+  process.stdout.write(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
@@ -151,5 +151,5 @@ if (shouldInject) {
 
   process.stdout.write(JSON.stringify({ additionalContext: directive }));
 } else {
-  process.stdout.write(JSON.stringify({}));
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
