@@ -974,6 +974,7 @@ export const ACTIONS = [
   "lathe_p2p_setup_select", "lathe_p2p_setup_from_features", "lathe_p2p_setup_validate", "lathe_p2p_setup_infer_geometry",
   "lathe_p2p_toolpath_generate", "lathe_p2p_toolpath_validate", "lathe_p2p_toolpath_gcode", "lathe_p2p_toolpath_cycle_time",
   "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
+  "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -3714,6 +3715,51 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintProgramEmitterEngine.js"
             );
             result = lathePrintProgramEmitterEngine.dryRun(params.program, params.options);
+            break;
+          }
+
+          case "lathe_p2p_signoff_generate": {
+            const { lathePrintProgramSignoffEngine } = await import(
+              "../../engines/LathePrintProgramSignoffEngine.js"
+            );
+            result = lathePrintProgramSignoffEngine.generatePackage(params.input);
+            break;
+          }
+
+          case "lathe_p2p_signoff_approve": {
+            const { lathePrintProgramSignoffEngine } = await import(
+              "../../engines/LathePrintProgramSignoffEngine.js"
+            );
+            result = lathePrintProgramSignoffEngine.approve(
+              params.package,
+              params.role,
+              params.approver_name,
+              params.notes
+            );
+            break;
+          }
+
+          case "lathe_p2p_signoff_markdown": {
+            const { lathePrintProgramSignoffEngine } = await import(
+              "../../engines/LathePrintProgramSignoffEngine.js"
+            );
+            result = { markdown: lathePrintProgramSignoffEngine.exportMarkdown(params.package) };
+            break;
+          }
+
+          case "lathe_p2p_signoff_json": {
+            const { lathePrintProgramSignoffEngine } = await import(
+              "../../engines/LathePrintProgramSignoffEngine.js"
+            );
+            result = { json: lathePrintProgramSignoffEngine.exportJSON(params.package) };
+            break;
+          }
+
+          case "lathe_p2p_signoff_is_approved": {
+            const { lathePrintProgramSignoffEngine } = await import(
+              "../../engines/LathePrintProgramSignoffEngine.js"
+            );
+            result = { fully_approved: lathePrintProgramSignoffEngine.isFullyApproved(params.package) };
             break;
           }
 
