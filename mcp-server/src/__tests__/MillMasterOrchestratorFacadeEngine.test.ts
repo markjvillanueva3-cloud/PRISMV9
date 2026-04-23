@@ -235,6 +235,112 @@ describe("MillMasterOrchestratorFacadeEngine — P1-U10 Extended", () => {
       expect(tipsP).toContain("ISO P");
       expect(tipsN).toContain("ISO N");
     });
+
+    // P1-U11-specific coverage (≥10 cases floor)
+    it.each(["P", "M", "K", "N", "S", "H"] as const)(
+      "tribal tips generated for ISO group %s",
+      async (iso) => {
+        const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+          request_type: "print_to_program",
+          iso_group: iso,
+        });
+        const result = response.result as any;
+        expect(result.include_tribal).toBe(true);
+        expect(result.tribal_tips.length).toBeGreaterThan(0);
+        expect(result.tribal_tips.every((t: string) => t.includes(`ISO ${iso}`))).toBe(true);
+      }
+    );
+
+    it("print_to_program without iso_group still returns tips (defaults to P)", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+      });
+      const result = response.result as any;
+      expect(result.include_tribal).toBe(true);
+      expect(result.tribal_tips.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("tribal payload stable across repeated calls (determinism)", async () => {
+      const r1 = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "P",
+      });
+      const r2 = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "P",
+      });
+      const t1 = (r1.result as any).tribal_tips;
+      const t2 = (r2.result as any).tribal_tips;
+      expect(t1).toEqual(t2);
+    });
+
+    it("tribal tips include climb-milling guidance (baseline rule)", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "P",
+      });
+      const tipsJoined = (response.result as any).tribal_tips.join(" ").toLowerCase();
+      expect(tipsJoined).toContain("climb");
+    });
+
+    it("tribal tips include chip-color thermal guidance", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "M",
+      });
+      const tipsJoined = (response.result as any).tribal_tips.join(" ").toLowerCase();
+      expect(tipsJoined).toContain("chip");
+    });
+
+    it("features-populated request preserves tribal default", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "K",
+        features: [
+          { id: "F1", type: "pocket" },
+          { id: "F2", type: "hole" },
+          { id: "F3", type: "slot" },
+        ],
+      });
+      const result = response.result as any;
+      expect(result.features_recognized).toBe(3);
+      expect(result.include_tribal).toBe(true);
+    });
+
+    it("explicit include_tribal=true matches default behavior", async () => {
+      const respImplicit = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "S",
+      });
+      const respExplicit = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "S",
+        ...({ include_tribal: true } as any),
+      });
+      expect((respImplicit.result as any).tribal_tips).toEqual(
+        (respExplicit.result as any).tribal_tips
+      );
+    });
+
+    it("include_tribal=false suppresses tips (empty array)", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "H",
+        ...({ include_tribal: false } as any),
+      });
+      const result = response.result as any;
+      expect(result.include_tribal).toBe(false);
+      expect(result.tribal_tips).toEqual([]);
+    });
+
+    it("provenance tracks print_to_program invocation", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+        iso_group: "N",
+      });
+      expect(response.provenance.engines_invoked).toContain("MillP2POrchestrator");
+      expect(response.provenance.processing_time_ms).toBeGreaterThanOrEqual(0);
+    });
   });
 
   describe("Failure Modes", () => {
