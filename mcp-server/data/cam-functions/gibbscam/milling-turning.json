@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "system_id": "gibbscam",
+  "section_key": "milling_turning",
+  "version": "14",
+  "extracted_from": "GibbsCAM 14 Production Milling + Production Turning + MTM (Mill/Turn) Reference",
+  "categories": ["mill_2_5d", "mill_3d", "mill_5axis", "lathe_turn", "lathe_mill_turn", "drilling", "wire_edm"],
+  "operations": {
+    "mill_pocket": {
+      "category": "mill_2_5d",
+      "display_name": "2.5D Pocket (Contour / Spiral / High-Speed)",
+      "description": "Standard 2.5D pocket. GibbsCAM supports contour, spiral, and VoluMill high-speed options.",
+      "parameter_count": 12,
+      "dialog_tabs": ["geometry", "tool", "strategy", "approach"],
+      "parameters": {
+        "geometry": {
+          "boundary_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 250, "required": true },
+          "depth_mode": { "type": "enum", "values": ["absolute_z", "depth_from_top", "to_face"], "default": "depth_from_top" }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true },
+          "tool_corner_radius_mm": { "type": "number", "min": 0, "max": 25, "default": 0 }
+        },
+        "strategy": {
+          "pattern": { "type": "enum", "values": ["contour", "spiral", "volumill_hsm", "raster"], "default": "contour" },
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 95, "default": 50 },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 25, "default": 2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "approach": {
+          "entry_macro": { "type": "enum", "values": ["helical", "ramp", "plunge", "predrilled"], "default": "helical" },
+          "helix_angle_deg": { "type": "number", "min": 1, "max": 30, "default": 5 }
+        }
+      }
+    },
+    "mill_profile": {
+      "category": "mill_2_5d",
+      "display_name": "2.5D Profile / Contour",
+      "description": "Open / closed contour with cutter compensation and lead-in/out.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "comp", "approach"],
+      "parameters": {
+        "geometry": {
+          "profile_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 250, "required": true },
+          "z_passes": { "type": "number", "min": 1, "max": 30, "default": 1 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true }
+        },
+        "comp": {
+          "comp_mode": { "type": "enum", "values": ["computer", "g41", "g42", "off"], "default": "computer" },
+          "side": { "type": "enum", "values": ["left", "right", "on"], "required": true }
+        },
+        "approach": {
+          "lead_type": { "type": "enum", "values": ["arc", "tangent_line", "perpendicular"], "default": "arc" },
+          "lead_radius_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 }
+        }
+      }
+    },
+    "mill_volumill_rough": {
+      "category": "mill_3d",
+      "display_name": "VoluMill 3D Adaptive Roughing",
+      "description": "GibbsCAM's licensed adaptive high-performance clearing. Constant engagement, deep DOC.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "engagement", "macros"],
+      "parameters": {
+        "geometry": {
+          "part_id": { "type": "string", "required": true },
+          "stock_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 50, "required": true }
+        },
+        "engagement": {
+          "max_radial_engagement_pct": { "type": "number", "min": 1, "max": 25, "default": 10 },
+          "axial_doc_to_dia": { "type": "number", "min": 0.5, "max": 3, "default": 2 },
+          "smooth_arcs": { "type": "boolean", "default": true }
+        },
+        "macros": {
+          "entry_macro": { "type": "enum", "values": ["helical", "ramp", "predrilled"], "default": "helical" },
+          "lead_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 25 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "mill_3d_finish": {
+      "category": "mill_3d",
+      "display_name": "3D Surface Finish (Z-Level / Scallop)",
+      "description": "Z-level waterline, 3D offset scallop, or pencil finish — selectable by surface angle.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "strategy", "macros"],
+      "parameters": {
+        "geometry": {
+          "part_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 50, "required": true },
+          "tool_corner_radius_mm": { "type": "number", "min": 0, "max": 25, "required": true }
+        },
+        "strategy": {
+          "finish_mode": { "type": "enum", "values": ["zlevel_waterline", "scallop_3d_offset", "pencil_corner"], "default": "zlevel_waterline" },
+          "stepdown_or_stepover_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.25 },
+          "min_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 }
+        },
+        "macros": {
+          "lead_mode": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "lead_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "mill_5axis_simul": {
+      "category": "mill_5axis",
+      "display_name": "5-Axis Simultaneous (Swarf / Contour)",
+      "description": "Full simultaneous 5-axis. Swarf on ruled surfaces or contour with tool-axis control.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "axis"],
+      "parameters": {
+        "geometry": {
+          "drive_surface_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 50, "required": true },
+          "tool_loc_to_dia": { "type": "number", "min": 2, "max": 6, "default": 3 }
+        },
+        "axis": {
+          "axis_mode": { "type": "enum", "values": ["normal_to_drive", "lead_lag", "swarf_align", "user_vector"], "default": "swarf_align" },
+          "lead_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "tilt_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "rtcp_mode": { "type": "enum", "values": ["g43_4", "g43_5", "none"], "default": "g43_4" },
+          "safe_distance_mm": { "type": "number", "min": 1, "max": 100, "default": 10 }
+        }
+      }
+    },
+    "lathe_rough": {
+      "category": "lathe_turn",
+      "display_name": "Lathe Roughing (Contour)",
+      "description": "OD / ID / Face roughing with contour following. Constant chip, CSS mode.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "profile_id": { "type": "string", "required": true },
+          "face": { "type": "enum", "values": ["od", "id", "face"], "required": true },
+          "z_start_mm": { "type": "number", "min": -1000, "max": 1000, "required": true },
+          "z_end_mm": { "type": "number", "min": -1000, "max": 1000, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "insert_nose_radius_mm": { "type": "number", "min": 0.1, "max": 3.2, "default": 0.4 }
+        },
+        "strategy": {
+          "depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 10, "default": 2 },
+          "stock_to_leave_radial_mm": { "type": "number", "min": 0, "max": 5, "default": 0.3 },
+          "stock_to_leave_axial_mm": { "type": "number", "min": 0, "max": 5, "default": 0.1 },
+          "css_g96": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "lathe_thread": {
+      "category": "lathe_turn",
+      "display_name": "Lathe Threading (G76 Multi-Pass)",
+      "description": "OD/ID single-point threading with radial/modified/alternating infeed.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "infeed"],
+      "parameters": {
+        "geometry": {
+          "thread_id": { "type": "string", "required": true },
+          "major_diameter_mm": { "type": "number", "min": 1, "max": 500, "required": true },
+          "pitch_mm": { "type": "number", "min": 0.2, "max": 10, "required": true },
+          "length_mm": { "type": "number", "min": 1, "max": 500, "required": true },
+          "is_internal": { "type": "boolean", "default": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_angle_deg": { "type": "number", "min": 30, "max": 60, "default": 60 }
+        },
+        "infeed": {
+          "infeed_mode": { "type": "enum", "values": ["radial", "modified_flank", "alternating_flank"], "default": "modified_flank" },
+          "first_pass_doc_mm": { "type": "number", "min": 0.05, "max": 1.5, "default": 0.4 },
+          "spring_passes": { "type": "number", "min": 0, "max": 5, "default": 1 }
+        }
+      }
+    },
+    "mtm_mill_turn_sync": {
+      "category": "lathe_mill_turn",
+      "display_name": "MTM Mill-Turn Synchronization",
+      "description": "GibbsCAM MTM — multi-turret, sub-spindle synchronization on mill-turn lathes.",
+      "parameter_count": 8,
+      "dialog_tabs": ["channels", "sync", "spindles"],
+      "parameters": {
+        "channels": {
+          "channel_count": { "type": "number", "min": 1, "max": 4, "required": true },
+          "primary_channel_id": { "type": "string", "required": true }
+        },
+        "sync": {
+          "sync_mode": { "type": "enum", "values": ["wait_all", "wait_any", "phase_sync"], "default": "wait_all" },
+          "wait_code": { "type": "string", "default": "M111" },
+          "timeout_seconds": { "type": "number", "min": 1, "max": 300, "default": 60 }
+        },
+        "spindles": {
+          "main_spindle_id": { "type": "string", "default": "S1" },
+          "sub_spindle_id": { "type": "string", "required": false },
+          "handoff_grip_mm": { "type": "number", "min": 0.5, "max": 50, "required": false }
+        }
+      }
+    },
+    "drill_canned": {
+      "category": "drilling",
+      "display_name": "Drilling — Canned Cycles",
+      "description": "G81/G82/G83/G73/G84/G85 with peck, dwell, tap variants.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "cycle"],
+      "parameters": {
+        "geometry": {
+          "hole_pattern_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 500, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G81_drill", "G82_drill_dwell", "G83_deep_peck", "G73_high_speed_peck", "G84_tap", "G85_ream"], "required": true },
+          "peck_depth_mm": { "type": "number", "min": 0.1, "max": 50, "default": 3 },
+          "dwell_seconds": { "type": "number", "min": 0, "max": 10, "default": 0 },
+          "retract_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 },
+          "tap_pitch_mm": { "type": "number", "min": 0.2, "max": 6, "required": false }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "VoluMill Adaptive Envelope",
+      "key_concepts": ["Same canonical 10% radial / 2×D axial as ESPRIT ProfitMilling", "Licensed Celeritive module"],
+      "best_practices": ["Use VoluMill for any hardened-steel cavity > 20mm³"]
+    },
+    {
+      "topic": "GibbsCAM Nomenclature",
+      "key_concepts": ["'Process' = what ESPRIT calls an 'operation'", "'Tile' = workpiece setup", "'TMS' = Tool Management System"],
+      "best_practices": ["GibbsCAM lingo differs — always disambiguate 'process' when sharing with Mastercam users"]
+    },
+    {
+      "topic": "MTM Multi-Channel Discipline",
+      "key_concepts": ["Up to 4 channels on multi-turret lathes", "Phase_sync for spindle-to-spindle handoff", "wait_all = barrier"],
+      "best_practices": ["Always probe pickup after main↔sub handoff"]
+    }
+  ]
+}

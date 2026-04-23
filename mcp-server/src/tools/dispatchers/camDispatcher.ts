@@ -114,6 +114,7 @@ import { ACTION_ESPRIT_LATHE_MILLTURN_FUNCTION_INDEX_SCHEMAS } from "../../schem
 import { ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritWireEDMFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritKBMFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritFunctionIndexActionSchemas.js";
+import { ACTION_GIBBSCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/gibbsCAMFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -194,6 +195,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_GIBBSCAM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -297,6 +299,7 @@ let _espritLathe: any;
 let _espritWedm: any;
 let _espritKbm: any;
 let _espritIndex: any;
+let _gibbsCam: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -629,6 +632,7 @@ async function getEngine(name: string): Promise<any> {
     case "espritWedm": return _espritWedm ??= (await import("../../engines/ESPRITWireEDMFunctionIndexEngine.js")).ESPRITWireEDMFunctionIndexEngine;
     case "espritKbm": return _espritKbm ??= (await import("../../engines/ESPRITKBMFunctionIndexEngine.js")).ESPRITKBMFunctionIndexEngine;
     case "espritIndex": return _espritIndex ??= (await import("../../engines/ESPRITFunctionIndexEngine.js")).ESPRITFunctionIndexEngine;
+    case "gibbsCam": return _gibbsCam ??= (await import("../../engines/GibbsCAMFunctionIndexEngine.js")).GibbsCAMFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1316,6 +1320,7 @@ export const ACTIONS = [
   "esprit_wedm_index", "esprit_wedm_summary", "esprit_wedm_list_ops", "esprit_wedm_get_op", "esprit_wedm_by_category", "esprit_wedm_find_param", "esprit_wedm_recommend", "esprit_wedm_select_skim_schedule", "esprit_wedm_select_taper_plane", "esprit_wedm_compute_die_clearance", "esprit_wedm_estimate_cycle",
   "esprit_kbm_index", "esprit_kbm_summary", "esprit_kbm_list_ops", "esprit_kbm_get_op", "esprit_kbm_by_category", "esprit_kbm_find_param", "esprit_kbm_recommend", "esprit_kbm_select_scan_depth", "esprit_kbm_probe_tolerance_for_it", "esprit_kbm_estimate_consolidation",
   "esprit_index", "esprit_summary", "esprit_list_sections", "esprit_section_stats", "esprit_list_ops", "esprit_find_op", "esprit_find_param", "esprit_categories", "esprit_recommend", "esprit_consistency",
+  "gibbs_index", "gibbs_summary", "gibbs_list_ops", "gibbs_get_op", "gibbs_by_category", "gibbs_find_param", "gibbs_recommend", "gibbs_volumill_envelope", "gibbs_mtm_sync_policy", "gibbs_term_translate",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7362,6 +7367,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "esprit_consistency": {
             const eng = await getEngine("espritIndex");
             result = eng.validateConsistency();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM54: GibbsCAMFunctionIndexEngine ──
+          case "gibbs_index": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.getIndex();
+            break;
+          }
+          case "gibbs_summary": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.getSummary();
+            break;
+          }
+          case "gibbs_list_ops": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.listOperations();
+            break;
+          }
+          case "gibbs_get_op": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "gibbs_by_category": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "gibbs_find_param": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "gibbs_recommend": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "gibbs_volumill_envelope": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.volumillEnvelope();
+            break;
+          }
+          case "gibbs_mtm_sync_policy": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.mtmChannelSyncPolicy(params.channel_count, params.has_sub_spindle);
+            break;
+          }
+          case "gibbs_term_translate": {
+            const eng = await getEngine("gibbsCam");
+            result = eng.gibbsTermTranslate(params.gibbs_term);
             break;
           }
 
