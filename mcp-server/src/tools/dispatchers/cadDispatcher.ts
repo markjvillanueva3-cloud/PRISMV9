@@ -655,35 +655,74 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: true, registry: engine.getRegistry() };
             break;
           }
-          // SolidWorks Code Generator (U-CADC10)
+          // SolidWorks Code Generator (U-CADC11)
           case "solidworks_generate_script": {
             const engine = await getEngine("swGen");
             const ops = params.operations ?? [];
             const context = { partName: params.partName ?? "PRISMPart", units: params.units ?? "mm" };
-            const buildResult = engine.buildScript(ops, context);
-            result = { success: true, script: buildResult.script.body, warnings: buildResult.warnings, parameters: buildResult.script.parameters, lineage: buildResult.script.lineage };
+            // buildScript returns CADScript<string> directly (not {script, warnings}).
+            const script = engine.buildScript(ops, context);
+            result = {
+              success: true,
+              script: script.body,
+              filename: script.filename,
+              warnings: script.warnings,
+              parameters: Object.fromEntries(script.parameters),
+              lineage: script.lineage,
+            };
             break;
           }
           case "solidworks_build_part": {
             const engine = await getEngine("swGen");
             const ops = params.operations ?? [];
             const context = { partName: params.partName ?? "PRISMPart", units: params.units ?? "mm", outputDir: params.outputDir };
-            const buildResult = engine.buildScript(ops, context);
-            const execResult = await engine.executeScript(buildResult.script, context);
-            result = { success: execResult.success, script: buildResult.script.body, outputPath: execResult.outputPath, executionTime: execResult.executionTime, warnings: buildResult.warnings, errors: execResult.errors };
+            const script = engine.buildScript(ops, context);
+            const execResult = await engine.executeScript(script, context);
+            result = {
+              success: execResult.ok ?? true,
+              script: script.body,
+              output: execResult.output,
+              durationMs: execResult.durationMs,
+              warnings: script.warnings,
+              error: execResult.error,
+            };
             break;
           }
           case "solidworks_execute": {
             const engine = await getEngine("swGen");
-            const script = { body: params.script, language: "vba" as const, cadSystem: "solidworks" as const, parameters: [], lineage: [] };
+            const script = {
+              body: String(params.script ?? ""),
+              cadSystem: "solidworks" as const,
+              filename: params.filename ?? "script.swp",
+              parameters: new Map(),
+              lineage: [],
+              warnings: [],
+              imports: new Set<string>(),
+            };
             const context = { partName: params.partName ?? "PRISMPart", units: params.units ?? "mm" };
             const execResult = await engine.executeScript(script, context);
-            result = { success: execResult.success, outputPath: execResult.outputPath, executionTime: execResult.executionTime, logs: execResult.logs, errors: execResult.errors };
+            result = {
+              success: execResult.ok ?? true,
+              output: execResult.output,
+              durationMs: execResult.durationMs,
+              logs: execResult.logs ?? [],
+              error: execResult.error,
+            };
             break;
           }
           case "solidworks_capabilities": {
             const engine = await getEngine("swGen");
-            result = { success: true, cadSystem: engine.cadSystem, capabilities: engine.capabilities };
+            const caps = engine.capabilities;
+            // Normalize Set<string> → string[] so JSON serialization preserves
+            // the supported-op list over the MCP wire.
+            const supportedOps = caps.supportedOps instanceof Set
+              ? Array.from(caps.supportedOps)
+              : caps.supportedOps;
+            result = {
+              success: true,
+              cadSystem: engine.cadSystem,
+              capabilities: { ...caps, supportedOps },
+            };
             break;
           }
           // Mastercam Code Generator (U-CADC11)

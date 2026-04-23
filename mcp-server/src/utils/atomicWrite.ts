@@ -14,6 +14,7 @@
  */
 
 import { promises as fs } from "node:fs";
+import * as syncFs from "node:fs";
 import { dirname } from "node:path";
 
 /**
@@ -48,4 +49,21 @@ export async function atomicWriteJson(
 ): Promise<void> {
   const content = JSON.stringify(data, null, indent);
   await atomicWrite(targetPath, content);
+}
+
+/**
+ * Sync atomic-ish write for small state files used by source-run dispatchers.
+ * Writes a sibling temp file, then renames it into place.
+ */
+export function safeWriteSync(
+  targetPath: string,
+  content: string,
+  encoding: BufferEncoding = "utf-8"
+): void {
+  const tmpPath = `${targetPath}.tmp`;
+  const dir = dirname(targetPath);
+
+  syncFs.mkdirSync(dir, { recursive: true });
+  syncFs.writeFileSync(tmpPath, content, { encoding });
+  syncFs.renameSync(tmpPath, targetPath);
 }

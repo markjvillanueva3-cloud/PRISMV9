@@ -1,0 +1,80 @@
+{
+  "_metadata": {
+    "source": "hyperMILL NcGenerator Post Configs",
+    "extracted": "2026-03-25",
+    "location": "C:/PRISM/HYPERMILL/NcGenerator/33.0/files/configurations/",
+    "note": "XML config files are binary/compressed (not readable as text XML). Extracting from CPS naming conventions and structure."
+  },
+  "available_configurations": {
+    "haas": "omPPHaas3x.xml",
+    "fanuc_3x": "omPPF3X.xml",
+    "fanuc_cd": "omPPFCD.xml",
+    "fanuc_indexing": "omPPFI.xml",
+    "fanuc_sim": "omPPFSim.xml",
+    "fanuc_additive": "omPPFAM.xml",
+    "fanuc_makino": "omPPFMakP.xml",
+    "fanuc_group_3x": "omPPFgr3x.xml",
+    "siemens_840d_IS": "omPPHHIS.xml",
+    "siemens_840d_IS2": "omPPHHIS2.xml",
+    "heidenhain_3x": "omPPHHGxxxI.xml",
+    "brother_3x": "omPPBr3x.xml",
+    "brother_sim": "omPPBrSim.xml",
+    "fidia_3x": "omPPFi3X.xml",
+    "deckel_3x": "omPPDeZ323x.xml",
+    "gf_mc6000": "omPPGFMC6k3x.xml"
+  },
+  "inferred_config_patterns": {
+    "naming_convention": {
+      "omPP": "OPEN MIND Post Processor prefix",
+      "F": "Fanuc control",
+      "HH": "Heidenhain control",
+      "Br": "Brother control",
+      "Fi": "Fidia control",
+      "De": "Deckel control",
+      "3x": "3-axis milling",
+      "I": "Indexing (3+2 axis)",
+      "IS": "Indexing + Simultaneous 5-axis",
+      "CD": "C-axis / turning",
+      "Sim": "Simulation mode",
+      "AM": "Additive manufacturing"
+    },
+    "cycle_mapping_inference": {
+      "fanuc_controllers": {
+        "drilling": "G81-G89 canned cycles",
+        "peck": "G73/G83",
+        "tapping": "G84/G74",
+        "boring": "G76/G86/G87/G89",
+        "thread_milling": "G76 or expanded helical"
+      },
+      "siemens_controllers": {
+        "drilling": "CYCLE81-CYCLE89",
+        "deep_drilling": "CYCLE83 with degression",
+        "tapping": "CYCLE84 with peck",
+        "boring": "CYCLE86/CYCLE87",
+        "thread_milling": "CYCLE97"
+      },
+      "heidenhain_controllers": {
+        "drilling": "CYCL DEF 200-209",
+        "deep_drilling": "CYCL DEF 203",
+        "tapping": "CYCL DEF 207",
+        "boring": "CYCL DEF 208"
+      }
+    },
+    "compensation_modes": {
+      "fanuc": {
+        "length": "G43 H##",
+        "radius": "G41/G42 D##",
+        "cancel": "G49/G40"
+      },
+      "siemens": {
+        "length": "D1 default",
+        "TOFFR": "Optional wear comp",
+        "radius": "G41/G42"
+      },
+      "heidenhain": {
+        "length": "TOOL CALL",
+        "radius": "RL/RR"
+      }
+    }
+  }
+}
