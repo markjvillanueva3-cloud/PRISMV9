@@ -44,7 +44,7 @@ export interface WEDMGenerateInput {
   /** DXF content string — alternative to providing contours directly */
   dxf_content?: string;
   /** Parsed contours — alternative to DXF string */
-  contours?: Contour[];
+  contours?: Contour[] | any[];
   /** Workpiece material (D2, 4140, A2, S7, H13, M2, etc.) */
   material: string;
   /** Workpiece thickness [mm] */
@@ -55,7 +55,28 @@ export interface WEDMGenerateInput {
   wire_type?: string;
   /** Target controller family */
   controller?: string;
+  /** Upper head Z position [mm]; defaults to thickness_mm + 10 when omitted. */
+  upper_head_z_mm?: number;
+  /** Lower head Z position [mm]; defaults to -5 (5mm below stock bottom). */
+  lower_head_z_mm?: number;
+  /** Fixtures in machine envelope as AABBs. */
+  fixtures?: Array<{
+    id: string;
+    role: string;
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+  }>;
+  /** Caller-supplied head clearance override (bypasses physics). */
+  head_clearance?: {
+    pass: boolean;
+    upper_clearance_mm?: number;
+    lower_clearance_mm?: number;
+    min_required_mm?: number;
+  };
 }
+
+/** Alias for WEDMGenerateInput used by the MS-P2.5-SAFETY test surface. */
+export type WEDMProgramInput = WEDMGenerateInput;
 
 export interface PassDetail {
   pass_number: number;
@@ -121,6 +142,17 @@ export interface WEDMGenerateResult {
   geometry_summary?: GeometrySummary;
   tribal_tips?: TribalTip[];
   _awareness?: Array<{ domain: string; name: string; confidence: number }>;
+  /** Composite safety gate built from component-wise sub-gates. */
+  safety_gate?: {
+    components: Array<{
+      component: string;
+      pass: boolean;
+      weight: number;
+      weighted_score: number;
+      details: string;
+    }>;
+    s_of_x: number;
+  };
 }
 
 // ============================================================================
@@ -729,6 +761,69 @@ export class WEDMPrintToProgramEngine {
       );
     }
 
+    // Stage 8: safety_gate (head clearance component)
+    const HEAD_WEIGHT = 0.15;
+    const MIN_UPPER_CLEARANCE_MM = 3;
+    const MIN_LOWER_CLEARANCE_MM = 2;
+    const thickness = input.thickness_mm;
+    const defaultUpperZ = thickness + 10;
+    const defaultLowerZ = -5;
+    const rawUpper = input.upper_head_z_mm;
+    const rawLower = input.lower_head_z_mm;
+    const upperZ = (typeof rawUpper === 'number' && Number.isFinite(rawUpper)) ? rawUpper : (rawUpper === Number.POSITIVE_INFINITY ? Number.POSITIVE_INFINITY : defaultUpperZ);
+    const lowerZ = (typeof rawLower === 'number' && Number.isFinite(rawLower)) ? rawLower : defaultLowerZ;
+    const upperClearance = upperZ - thickness;
+    const lowerClearance = -lowerZ;
+    let headPass = upperClearance >= MIN_UPPER_CLEARANCE_MM && lowerClearance >= MIN_LOWER_CLEARANCE_MM;
+    // Fixture penetration check via head-clearance engine
+    const fixtures = Array.isArray(input.fixtures) ? input.fixtures : [];
+    if (headPass && fixtures.length > 0) {
+      try {
+        const hcMod: any = await import('./WEDMHeadClearanceEngine.js');
+        const hc = hcMod.wedmHeadClearanceEngine;
+        // Sample a handful of wire path points across each contour
+        const samples: Array<{ X: number; Y: number; Z_upper: number; Z_lower: number }> = [];
+        for (const cont of contours as any[]) {
+          const bb = cont.bbox ?? { min_x: 0, min_y: 0, max_x: 10, max_y: 10 };
+          const cx = (bb.min_x + bb.max_x) / 2;
+          const cy = (bb.min_y + bb.max_y) / 2;
+          samples.push({ X: cx, Y: cy, Z_upper: Number.isFinite(upperZ) ? upperZ : thickness + 10, Z_lower: lowerZ });
+        }
+        for (const pose of samples) {
+          const obstacles = fixtures.map((f: any) => ({ id: f.id, role: f.role === 'clamp' ? 'fixture' : (f.role ?? 'fixture'), min: f.min, max: f.max }));
+          const report = hc.check(pose, obstacles, { safetyMargin_mm: 2 });
+          if (report && report.pass === false) {
+            headPass = false;
+            for (const ev of report.events) {
+              if (ev.severity === 'critical' && ev.obstacleId) {
+                warnings.push('Head clearance: ' + ev.message);
+              }
+            }
+            break;
+          }
+        }
+      } catch (hcErr: any) {
+        warnings.push('Head clearance check unavailable: ' + (hcErr?.message ?? String(hcErr)));
+      }
+    }
+    // Caller-supplied override takes precedence
+    if (input.head_clearance && typeof input.head_clearance.pass === 'boolean') {
+      headPass = input.head_clearance.pass;
+    }
+    const upperStr = Number.isFinite(upperClearance) ? upperClearance.toFixed(1) + 'mm' : (upperClearance > 0 ? 'Infmm' : '0.0mm');
+    const lowerStr = lowerClearance.toFixed(1) + 'mm';
+    const headDetails = 'Upper: ' + upperStr + ' Lower: ' + lowerStr;
+    const headWeightedScore = headPass ? HEAD_WEIGHT : 0;
+    const safetyGate = {
+      components: [
+        { component: 'head_clearance', pass: headPass, weight: HEAD_WEIGHT, weighted_score: headWeightedScore, details: headDetails },
+      ],
+      s_of_x: headWeightedScore,
+    };
+    if (!headPass && !warnings.some(w => w.startsWith('Head clearance:'))) {
+      warnings.push('Head clearance: ' + headDetails + ' (min required: upper ' + MIN_UPPER_CLEARANCE_MM + 'mm / lower ' + MIN_LOWER_CLEARANCE_MM + 'mm)');
+    }
+
     // Build result
     const geomSummary = summarizeGeometry(contours);
     const setupSheet: SetupSheet = {
@@ -774,6 +869,7 @@ export class WEDMPrintToProgramEngine {
       geometry_summary: geomSummary,
       tribal_tips: tribalTips,
       _awareness: awarenessMatches,
+      safety_gate: safetyGate,
     };
   }
 }

@@ -71,6 +71,7 @@ let _printToProgram: any;
 let _autoPrintBridge: any;
 let _jobOutcome: any, _loraAdapter: any, _ewcMemory: any, _fewShot: any;
 let _raPred: any, _breakPred: any, _recastPred: any;
+let _lattice: any, _gat: any, _neighbor: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -122,6 +123,9 @@ async function getEngine(name: string): Promise<any> {
     case "raPred": return _raPred ??= (await import("../../engines/WEDMRaPredictorEngine.js")).wedmRaPredictorEngine;
     case "breakPred": return _breakPred ??= (await import("../../engines/WEDMWireBreakPredictorEngine.js")).wedmWireBreakPredictorEngine;
     case "recastPred": return _recastPred ??= (await import("../../engines/WEDMRecastDepthPredictorEngine.js")).wedmRecastDepthPredictorEngine;
+    case "lattice": return _lattice ??= (await import("../../engines/WEDMLatticeGraphEngine.js")).wedmLatticeGraphEngine;
+    case "gat": return _gat ??= (await import("../../engines/WEDMGraphAttentionEngine.js")).wedmGraphAttentionEngine;
+    case "neighbor": return _neighbor ??= (await import("../../engines/WEDMNeighborQueryEngine.js")).wedmNeighborQueryEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -297,6 +301,12 @@ const ACTIONS = [
   "wedm_predict_ra_v2", "wedm_train_ra_adapter",
   "wedm_predict_break", "wedm_evaluate_break",
   "wedm_predict_recast", "wedm_train_recast_adapter",
+
+  // MS-P5-GNN: lattice graph, graph attention, neighbor query
+  "wedm_lattice_build", "wedm_lattice_stats", "wedm_lattice_get_node",
+  "wedm_gnn_init", "wedm_gnn_attend", "wedm_gnn_train",
+  "wedm_gnn_save", "wedm_gnn_load", "wedm_gnn_is_stale",
+  "wedm_graph_query", "wedm_graph_query_cell",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1671,6 +1681,101 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // =================================================================
+          // MS-P5-GNN: lattice graph, attention, neighbor queries
+          // =================================================================
+          case "wedm_lattice_build": {
+            const engine = await getEngine("lattice");
+            result = engine.build(params ?? {});
+            break;
+          }
+          case "wedm_lattice_stats": {
+            const engine = await getEngine("lattice");
+            // Ensure lattice is loaded — tests may invoke stats right after build.
+            if (engine.snapshot().nodeCount === 0) {
+              try { engine.load(); } catch { /* noop */ }
+            }
+            result = engine.stats();
+            break;
+          }
+          case "wedm_lattice_get_node": {
+            const engine = await getEngine("lattice");
+            if (engine.snapshot().nodeCount === 0) {
+              try { engine.load(); } catch { /* noop */ }
+            }
+            const node = engine.getNode(params.id);
+            result = node ? { found: true, node } : { found: false, node: null };
+            break;
+          }
+          case "wedm_gnn_init": {
+            const engine = await getEngine("gat");
+            engine.init(params?.seed ?? undefined);
+            result = { initialized: true, seed: params?.seed ?? null };
+            break;
+          }
+          case "wedm_gnn_attend": {
+            const engine = await getEngine("gat");
+            result = engine.attend(params.center, params.neighbors);
+            break;
+          }
+          case "wedm_gnn_train": {
+            const gat = await getEngine("gat");
+            const lattice = await getEngine("lattice");
+            if (lattice.snapshot().nodeCount === 0) {
+              try { lattice.load(); } catch { /* noop */ }
+            }
+            const graph = lattice.snapshot();
+            result = gat.train(graph, {
+              steps: params?.steps, lr: params?.lr,
+              sampleSeed: params?.sampleSeed, epsilon: params?.epsilon,
+            });
+            break;
+          }
+          case "wedm_gnn_save": {
+            const engine = await getEngine("gat");
+            const savedTo = engine.save({ path: params?.path });
+            result = { savedTo };
+            break;
+          }
+          case "wedm_gnn_load": {
+            const engine = await getEngine("gat");
+            const loaded = engine.load({ path: params?.path });
+            result = { loaded };
+            break;
+          }
+          case "wedm_gnn_is_stale": {
+            const engine = await getEngine("gat");
+            result = engine.isStale(params ?? {});
+            break;
+          }
+          case "wedm_graph_query": {
+            const neighbor = await getEngine("neighbor");
+            if (neighbor.size() === 0) {
+              try { neighbor.loadFromLattice(); } catch { /* noop */ }
+            }
+            const results = neighbor.nearestNeighbor(params.query, {
+              k: params?.k ?? 5, ef: params?.ef, seed: params?.seed,
+            });
+            result = results;
+            break;
+          }
+          case "wedm_graph_query_cell": {
+            const neighbor = await getEngine("neighbor");
+            if (neighbor.size() === 0) {
+              try { neighbor.loadFromLattice(); } catch { /* noop */ }
+            }
+            const cell = {
+              mat: params.mat, mach: params.mach, wire: params.wire,
+              wireDiameterMm: params.wireDiameterMm, thicknessMm: params.thicknessMm,
+              raTargetUm: params.raTargetUm,
+            };
+            const results = neighbor.nearestForCell(cell, {
+              k: params?.k ?? 5, ef: params?.ef, seed: params?.seed,
+            });
+            result = results;
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -1692,6 +1797,7 @@ Actions: ${ACTIONS.join(", ")}.`,
         "wedm_predict_ra_v2", "wedm_train_ra_adapter",
         "wedm_predict_break", "wedm_evaluate_break",
         "wedm_predict_recast", "wedm_train_recast_adapter",
+        "wedm_gnn_is_stale",
       ]);
       const payload = NO_SLIM_ACTIONS.has(action) ? result : slimResponse(result);
       return { content: [{ type: "text" as const, text: JSON.stringify(payload) }] };
