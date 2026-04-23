@@ -380,7 +380,7 @@ function deny(reason) {
 }
 
 function warn(reason) {
-  console.log(JSON.stringify({ continue: true, message: reason }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: reason } }));
   exit(0);
 }
 

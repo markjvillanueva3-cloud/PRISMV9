@@ -219,11 +219,12 @@ async function main() {
   const warns = violations.filter(v => v.severity === 'warn');
 
   if (blocks.length > 0) {
-    // Hard block
+    // Hard block — PreToolUse contract is {decision:"block", reason:"..."}.
+    // {continue:false, message:} is silently dropped (tool proceeds anyway).
     const reasons = blocks.map(b => `• ${b.message}`).join('\n');
     console.log(JSON.stringify({
-      continue: false,
-      message: `CODE COMPLETENESS GATE — BLOCKED\n\nMaster coders don't ship:\n${reasons}\n\nFix these issues before writing.`,
+      decision: "block",
+      reason: `CODE COMPLETENESS GATE — BLOCKED\n\nMaster coders don't ship:\n${reasons}\n\nFix these issues before writing.`,
     }));
     return;
   }
@@ -233,7 +234,10 @@ async function main() {
     const warnings = warns.map(w => `• ${w.message}`).join('\n');
     console.log(JSON.stringify({
       continue: true,
-      message: `CODE COMPLETENESS WARNING:\n${warnings}`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `CODE COMPLETENESS WARNING:\n${warnings}`,
+      }
     }));
     return;
   }

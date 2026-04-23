@@ -432,7 +432,7 @@ function main() {
   const result = checkMachiningTestPassRate();
 
   if (result.skipped) {
-    console.log(JSON.stringify({ continue: true, message: result.message }));
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: result.message } }));
     process.exit(0);
   }
 
@@ -494,10 +494,7 @@ function main() {
   }
 
   // Success
-  console.log(JSON.stringify({
-    continue: true,
-    message: result.message,
-  }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: result.message, } }));
   process.exit(0);
 }
 

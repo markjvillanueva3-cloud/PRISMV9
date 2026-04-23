@@ -33,13 +33,19 @@ function main() {
     // Output success for hook system
     console.log(JSON.stringify({
       continue: true,
-      message: `Settings baseline saved: ${baselinePath}`
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `Settings baseline saved: ${baselinePath}`,
+      }
     }));
   } catch (err) {
     // Don't block session start on errors
     console.log(JSON.stringify({
       continue: true,
-      message: `Settings baseline skipped: ${err.message}`
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `Settings baseline skipped: ${err.message}`,
+      }
     }));
   }
 
