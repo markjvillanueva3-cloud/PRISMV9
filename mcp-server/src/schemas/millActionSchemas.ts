@@ -634,6 +634,18 @@ const mill_turn_orchestrate = z.object({
 }).passthrough();
 
 // ============================================================================
+// P4-U11-OPT: Program optimizer schema
+// ============================================================================
+
+const programOptimizerOp = z.enum(["list", "report", "optimize"]).describe("Program optimizer operation");
+
+const mill_program_optimize = z.object({
+  ...millContext,
+  op: programOptimizerOp,
+  file_path: z.string().optional().describe("NC program file path (required for op='optimize')"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -715,4 +727,6 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_five_axis_aggregate,
   mill_multi_axis_aggregate,
   mill_turn_orchestrate,
+  // P4-U11-OPT: Program optimizer
+  mill_program_optimize,
 };

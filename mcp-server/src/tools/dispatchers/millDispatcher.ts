@@ -169,6 +169,13 @@ async function getMillTurnOrchestration(): Promise<any> {
     .millTurnOrchestrationEngine);
 }
 
+// P4-U11-OPT: Mill program optimizer lazy loader
+let _millProgramOptimizer: any;
+async function getMillProgramOptimizer(): Promise<any> {
+  return (_millProgramOptimizer ??= (await import("../../engines/MillProgramOptimizerEngine.js"))
+    .millProgramOptimizerEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -207,6 +214,8 @@ const ACTIONS = [
   "mill_machine_db_mills", "mill_machine_db_capabilities",
   // P1-U09-L2-AGG: L2 aggregator actions
   "mill_five_axis_aggregate", "mill_multi_axis_aggregate", "mill_turn_orchestrate",
+  // P4-U11-OPT: Program optimizer
+  "mill_program_optimize",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -804,6 +813,22 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
         return await orch.invoke(member, method, ...args);
       }
       return { error: `Unknown op for mill_turn_orchestrate: ${op}` };
+    }
+
+    // ── P4-U11-OPT: Program optimizer ─────────────────────────
+    case "mill_program_optimize": {
+      const opt = await getMillProgramOptimizer();
+      const op = params.op as string;
+      if (op === "list") return { optimizations: opt.getOptimizations() };
+      if (op === "report") return { report: opt.generateReport() };
+      if (op === "optimize") {
+        if (typeof params.file_path !== "string") {
+          return { error: "mill_program_optimize op=optimize requires string file_path" };
+        }
+        const result = await opt.optimizeProgram(params.file_path);
+        return result ?? { error: `Could not optimize ${params.file_path}` };
+      }
+      return { error: `Unknown op for mill_program_optimize: ${op}` };
     }
 
     default:
