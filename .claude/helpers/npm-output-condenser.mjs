@@ -99,7 +99,7 @@ function main() {
 
   // Only process package manager commands with significant output
   if (!isPackageManagerCommand(command) || output.length < 500) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -144,7 +144,7 @@ function main() {
       additionalContext: `${condensed}\n\n[${savedPct}% condensed — ~${Math.round(savedChars / 4)} tokens saved]`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

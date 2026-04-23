@@ -12,7 +12,7 @@ function cacheFileForUrl(url) {
 async function main() {
   const url = (process.env.TOOL_INPUT_url ?? "").trim();
   if (!url) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -36,9 +36,9 @@ async function main() {
   }
 
   await fs.writeFile(cacheFile, `${new Date().toISOString()}\n`, "utf8");
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { inferAgentIdentity } from "./agent-identity.mjs";
+import { syncRoadmapToQueue } from "./sync-roadmap-queue.mjs";
 
 const FILES = {
   queueJson: "H:\\prism\\state\\shared\\TASK_QUEUE.json",
@@ -40,6 +41,15 @@ async function readJson(filePath, fallback) {
     return JSON.parse(await fs.readFile(filePath, "utf8"));
   } catch {
     return fallback;
+  }
+}
+
+async function pathExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -116,9 +126,48 @@ function isPreferredForIdentity(task, identity) {
 // --- Queue operations ---
 
 async function loadQueue() {
-  return normalizeQueue(
-    await readJson(FILES.queueJson, { version: 1, updated_at: now(), tasks: [] }),
-  );
+  const existingQueue = await readJson(FILES.queueJson, null);
+  if (existingQueue && Array.isArray(existingQueue.tasks)) {
+    return normalizeQueue(existingQueue);
+  }
+
+  const recoveryReason = await pathExists(FILES.queueJson)
+    ? "TASK_QUEUE.json exists but is invalid or unreadable"
+    : "TASK_QUEUE.json is missing";
+
+  try {
+    const sync = await syncRoadmapToQueue();
+    const recoveredQueue = await readJson(FILES.queueJson, null);
+    if (recoveredQueue && Array.isArray(recoveredQueue.tasks)) {
+      const loadNotice = `${recoveryReason}; auto-recovered from roadmap-index.json`;
+      recoveredQueue.recovered_from_roadmap = {
+        at: now(),
+        reason: recoveryReason,
+        total: sync.total,
+        by_status: sync.by_status,
+      };
+      await writeJson(FILES.queueJson, recoveredQueue);
+      const normalized = normalizeQueue(recoveredQueue);
+      normalized.load_notice = loadNotice;
+      return normalized;
+    }
+  } catch (err) {
+    return normalizeQueue({
+      version: 1,
+      updated_at: now(),
+      source: "empty fallback after roadmap queue recovery failed",
+      load_notice: `${recoveryReason}; recovery failed: ${err instanceof Error ? err.message : String(err)}`,
+      tasks: [],
+    });
+  }
+
+  return normalizeQueue({
+    version: 1,
+    updated_at: now(),
+    source: "empty fallback after roadmap queue recovery produced no queue",
+    load_notice: `${recoveryReason}; recovery produced no valid queue`,
+    tasks: [],
+  });
 }
 
 async function saveQueue(queue) {
@@ -204,6 +253,9 @@ async function cmdList(identity) {
     your_tasks: [],
     your_family_available: [],
   };
+  if (queue.load_notice) {
+    result.notice = queue.load_notice;
+  }
 
   for (const t of queue.tasks) {
     result.by_status[t.status] = (result.by_status[t.status] || 0) + 1;
@@ -235,7 +287,13 @@ async function cmdNext(identity) {
     });
 
   if (available.length === 0) {
-    return { ok: true, command: "next", task: null, message: `No available tasks for ${identity.family}` };
+    return {
+      ok: true,
+      command: "next",
+      task: null,
+      notice: queue.load_notice,
+      message: `No available tasks for ${identity.family}`,
+    };
   }
 
   return {
@@ -243,6 +301,7 @@ async function cmdNext(identity) {
     command: "next",
     task: available[0],
     remaining: available.length - 1,
+    notice: queue.load_notice,
     message: `Next task: ${available[0].id} — ${available[0].title}`,
   };
 }

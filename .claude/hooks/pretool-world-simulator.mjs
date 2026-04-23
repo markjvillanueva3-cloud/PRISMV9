@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
  * pretool-world-simulator.mjs — U-AI01 WorldSimulator PreTool Hook
+ * PP-0.18 U-AGI9
  *
  * Predicts tool outcomes before execution using PredictiveWorldSimulatorEngine.
  * Logs predictions to WORLD_SIM_PREDICTIONS.jsonl for PostTool calibration.

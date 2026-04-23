@@ -9,7 +9,7 @@
  * optimized. They represent empirical shop reality, not physics-optimal.
  *
  * When a Write targets data/ingestion_cache/** and the content references
- * JM DIE source paths (H:/prism/JM DIE/ or resources/**/JMDie/):
+ * JM DIE source paths (H:/prism/JM DIE/ or resources/.../JMDie/):
  *
  *   1. VALIDATE: source_quality MUST be 'empirical_shop_reality_unoptimized'
  *   2. REJECT: if source_quality claims 'vendor_published_recommended' or

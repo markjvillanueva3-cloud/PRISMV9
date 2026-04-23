@@ -247,7 +247,7 @@ export async function syncRoadmapToQueue(opts = {}) {
     version: 1,
     updated_at: ts,
     updated: ts,
-    source: "roadmap-index.json (532 milestones)",
+    source: `roadmap-index.json (${milestones.length} milestones)`,
     roadmap_version: index.version || "unknown",
     total: tasks.length,
     tasks,

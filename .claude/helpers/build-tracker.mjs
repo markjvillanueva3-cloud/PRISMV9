@@ -13,10 +13,12 @@
  * Net effect: replaces N×30s tsc runs with 1 well-timed suggestion,
  * saving 60-120s per session while maintaining build confidence.
  */
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import process from "node:process";
+import { CACHE_DIR } from "./hook-cache.mjs";
 
-const STATE_FILE = "/tmp/prism-build-tracker.json";
+const STATE_FILE = process.env.PRISM_BUILD_TRACKER_STATE || path.join(CACHE_DIR, "build-tracker-state.json");
 const BUILD_THRESHOLD = 5; // suggest build check after N source edits
 const HIGH_RISK_THRESHOLD = 2; // suggest immediately after N high-risk edits
 
@@ -48,7 +50,8 @@ function loadState() {
 
 function saveState(state) {
   try {
-    writeFileSync(STATE_FILE, JSON.stringify(state));
+    mkdirSync(path.dirname(STATE_FILE), { recursive: true });
+    writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
   } catch { /* non-critical */ }
 }
 
@@ -123,7 +126,7 @@ async function main() {
   let suggestion = null;
 
   if (risk === "critical") {
-    suggestion = `PHYSICS EDIT (${filePath.split("/").pop()}): Run \`npx tsc --noEmit\` soon — physics constants affect all pipelines.`;
+    suggestion = `PHYSICS EDIT (${filePath.split("/").pop()}): Run \`npx tsc --noEmit\` soon - physics constants affect all pipelines.`;
   } else if (highRiskEdits.length >= HIGH_RISK_THRESHOLD && sourceEdits.length >= BUILD_THRESHOLD) {
     const categories = [...new Set(highRiskEdits.map((e) => e.category))].join(", ");
     suggestion = `BUILD CHECK SUGGESTED: ${sourceEdits.length} source edits (${highRiskEdits.length} high-risk: ${categories}) since last check. Run \`npx tsc --noEmit\` to verify.`;

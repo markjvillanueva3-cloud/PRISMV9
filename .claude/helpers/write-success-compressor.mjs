@@ -58,7 +58,7 @@ function main() {
 
   // Only process Write/Edit tools
   if (!["Write", "Edit", "MultiEdit"].includes(toolName)) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -69,7 +69,7 @@ function main() {
                     output.includes("File created");
 
   if (!isSuccess || output.length < 50) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -86,7 +86,7 @@ function main() {
       additionalContext: `[${savedPct}% condensed: ${compact}]`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 

@@ -48,9 +48,9 @@ async function main() {
     return;
   }
 
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

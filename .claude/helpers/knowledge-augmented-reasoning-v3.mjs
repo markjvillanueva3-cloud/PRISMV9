@@ -595,13 +595,13 @@ async function main() {
   }
 
   if (!prompt || prompt.length < 10) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   const domains = detectDomains(prompt);
   if (domains.length === 0) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -609,4 +609,4 @@ async function main() {
   process.stdout.write(JSON.stringify({ additionalContext: injection }));
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

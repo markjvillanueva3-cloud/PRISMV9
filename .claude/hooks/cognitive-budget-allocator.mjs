@@ -14,7 +14,8 @@ import * as path from "path";
 
 const BUDGET_STATE_FILE = "H:/prism/mcp-server/data/state/COGNITIVE_BUDGET.json";
 const SESSION_MEMORY_FILE = "H:/prism/state/SESSION_MEMORY.json";
-const MAX_CONTEXT_TOKENS = 200000;
+// Opus 4.7 [1m] = 1,000,000 tokens. Override via env PRISM_MAX_CONTEXT_TOKENS.
+const MAX_CONTEXT_TOKENS = Number(process.env.PRISM_MAX_CONTEXT_TOKENS) || 1_000_000;
 
 const LIFECYCLE_PHASES = {
   EXPLORATION: { tokenBudget: 0.3, description: "discovery and planning" },

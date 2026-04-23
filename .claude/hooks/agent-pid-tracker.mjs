@@ -90,7 +90,7 @@ async function main() {
 
   // Only track Agent tool calls
   if (toolName !== "Agent") {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -136,8 +136,8 @@ async function main() {
       additionalContext: `📋 Tracking ${agentProcesses.length} agent process(es) for cleanup: PIDs ${agentProcesses.map(p => p.pid).join(", ")}`,
     }));
   } else {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
   }
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

@@ -15,6 +15,7 @@ import { dirname, join } from 'node:path';
 
 const DEV_OUTCOMES_PATH = 'H:/prism/mcp-server/data/state/dev-outcomes.jsonl';
 const PATTERN_SUMMARY_PATH = 'H:/prism/mcp-server/data/state/dev-pattern-summary.json';
+const TEST_COVERAGE_INDEX_PATH = 'H:/prism/mcp-server/data/state/TEST_COVERAGE_INDEX.json';
 
 // Read stdin
 let input = '';
@@ -69,16 +70,30 @@ function detectOutcome(cmd, out) {
 
   // Test outcomes
   if (cmd.includes('vitest') || cmd.includes('npm test')) {
-    const passMatch = out.match(/(\d+)\s+pass/i);
-    const failMatch = out.match(/(\d+)\s+fail/i);
-    const passed = passMatch ? parseInt(passMatch[1]) : 0;
-    const failed = failMatch ? parseInt(failMatch[1]) : 0;
+    const testsLine = out.match(/^\s*Tests\s+([^\r\n]+)/im)?.[1] || '';
+    const filesLine = out.match(/^\s*Test Files\s+([^\r\n]+)/im)?.[1] || '';
+    const passMatch = testsLine.match(/(\d+)\s+passed?/i) || out.match(/(\d+)\s+passed?/i) || out.match(/(\d+)\s+pass/i);
+    const failMatch = testsLine.match(/(\d+)\s+failed?/i) || out.match(/(\d+)\s+failed?/i) || out.match(/(\d+)\s+fail/i);
+    const totalMatch = testsLine.match(/\((\d+)\)/);
+    const filePassMatch = filesLine.match(/(\d+)\s+passed?/i);
+    const fileFailMatch = filesLine.match(/(\d+)\s+failed?/i);
+    const fileTotalMatch = filesLine.match(/\((\d+)\)/);
+    const passed = passMatch ? parseInt(passMatch[1], 10) : 0;
+    const failed = failMatch ? parseInt(failMatch[1], 10) : 0;
+    const total = totalMatch ? parseInt(totalMatch[1], 10) : passed + failed;
+    const filesPassed = filePassMatch ? parseInt(filePassMatch[1], 10) : 0;
+    const filesFailed = fileFailMatch ? parseInt(fileFailMatch[1], 10) : 0;
+    const filesTotal = fileTotalMatch ? parseInt(fileTotalMatch[1], 10) : filesPassed + filesFailed;
 
     return {
       type: 'test',
       outcome: failed > 0 ? 'partial' : 'success',
       passed,
       failed,
+      total,
+      filesPassed,
+      filesFailed,
+      filesTotal,
       domain: 'vitest'
     };
   }
@@ -113,6 +128,39 @@ if (!outcome) {
   process.exit(0);
 }
 
+function updateTestCoverageIndex(outcome, command) {
+  if (outcome.type !== 'test') return;
+
+  const now = Date.now();
+  const prior = existsSync(TEST_COVERAGE_INDEX_PATH)
+    ? JSON.parse(readFileSync(TEST_COVERAGE_INDEX_PATH, 'utf8') || '{}')
+    : {};
+
+  const record = {
+    ...prior,
+    schemaVersion: 1,
+    timestamp: now,
+    lastRun: now,
+    command,
+    source: 'dev-outcome-tracker',
+    runner: 'vitest',
+    passed: outcome.passed,
+    failed: outcome.failed,
+    failing: outcome.failed,
+    total: outcome.total || outcome.passed + outcome.failed,
+    testFiles: {
+      passed: outcome.filesPassed,
+      failed: outcome.filesFailed,
+      total: outcome.filesTotal || outcome.filesPassed + outcome.filesFailed,
+    },
+    lastOutcome: outcome.outcome,
+  };
+
+  const dir = dirname(TEST_COVERAGE_INDEX_PATH);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(TEST_COVERAGE_INDEX_PATH, JSON.stringify(record, null, 2));
+}
+
 // ============================================================================
 // RECORD OUTCOME
 // ============================================================================
@@ -128,6 +176,7 @@ try {
   const dir = dirname(DEV_OUTCOMES_PATH);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(DEV_OUTCOMES_PATH, JSON.stringify(record) + '\n', { flag: 'a' });
+  updateTestCoverageIndex(outcome, command);
 } catch { /* ignore */ }
 
 // ============================================================================

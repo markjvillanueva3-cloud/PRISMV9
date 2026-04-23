@@ -119,7 +119,7 @@ async function checkDuplicateSearch(pattern, path) {
 
 function printContext(additionalContext) {
   process.stdout.write(
-    `${JSON.stringify(additionalContext ? { additionalContext } : {})}`,
+    `${JSON.stringify(additionalContext ? { continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext } } : { continue: true })}`,
   );
 }
 

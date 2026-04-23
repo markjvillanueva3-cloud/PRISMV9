@@ -1,0 +1,30 @@
+{
+  "description": "HTTP hook templates for future use. These require a local telemetry server.",
+  "templates": {
+    "telemetry_post": {
+      "type": "http",
+      "url": "http://localhost:9090/api/telemetry",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-Session": "$CLAUDE_SESSION_ID"
+      },
+      "timeout": 5
+    },
+    "build_status_webhook": {
+      "type": "http",
+      "url": "http://localhost:9090/api/build-status",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeout": 5
+    },
+    "slack_notification": {
+      "type": "http",
+      "url": "https://hooks.slack.com/services/PLACEHOLDER",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeout": 10
+    }
+  }
+}

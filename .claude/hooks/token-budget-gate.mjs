@@ -20,7 +20,9 @@ import * as fs from "fs";
 
 const SESSION_MEMORY = "H:/prism/state/SESSION_MEMORY.json";
 const CHECKPOINT_STATE = "H:/prism/mcp-server/data/state/CHECKPOINT_TRACKER.json";
-const MAX_CONTEXT_TOKENS = 200000;
+// Opus 4.7 [1m] = 1,000,000 token context window.
+// Override via env PRISM_MAX_CONTEXT_TOKENS for future model swaps.
+const MAX_CONTEXT_TOKENS = Number(process.env.PRISM_MAX_CONTEXT_TOKENS) || 1_000_000;
 const AVG_TOKENS_PER_MESSAGE = 600;
 const AVG_TOKENS_PER_EDIT = 400;
 
@@ -72,7 +74,8 @@ function getBudgetTier(usedTokens) {
 
   if (percentRemaining > 50) return { tier: "GREEN", percent: percentRemaining };
   if (percentRemaining > 30) return { tier: "YELLOW", percent: percentRemaining };
-  return { tier: "RED", percent: percentRemaining };
+  if (percentRemaining > 15) return { tier: "RED", percent: percentRemaining };
+  return { tier: "CRITICAL", percent: percentRemaining };
 }
 
 function detectHeavySkill(prompt) {
@@ -93,19 +96,25 @@ async function main() {
 
   let ctx = "";
 
-  if (budget.tier === "RED") {
+  if (budget.tier === "CRITICAL") {
+    // Auto-compaction handles context exhaustion — do NOT nag the user to run /compact.
+    // The reorientation system (session-reorient-inject.mjs + prompt-rules-inject.mjs)
+    // keeps drift in check every 15 prompts and every turn respectively.
+    // Only still write the marker so session-handoff-auto can pick it up on the
+    // natural compaction boundary; emit no additionalContext.
+    try {
+      fs.writeFileSync("H:/prism/state/shared/.auto-compact-triggered", new Date().toISOString());
+    } catch { /* ignore */ }
+    ctx = "";
+  } else if (budget.tier === "RED") {
     if (heavySkill) {
-      ctx = `⚠️ TOKEN BUDGET CRITICAL (${budget.percent.toFixed(0)}% remaining)\n` +
-            `Heavy operation "${heavySkill}" blocked — run /compact first.\n` +
-            `Suggested: /precompact → /compact → then retry.`;
+      ctx = `⚠️ Heavy operation "${heavySkill}" may exhaust remaining ${budget.percent.toFixed(0)}% — consider splitting the task.`;
     } else {
-      ctx = `🔴 Token budget low (${budget.percent.toFixed(0)}% remaining) — consider /compact soon.`;
+      ctx = ""; // Auto-compaction handles this tier
     }
   } else if (budget.tier === "YELLOW") {
-    if (heavySkill) {
-      ctx = `⚡ Token budget moderate (${budget.percent.toFixed(0)}% remaining)\n` +
-            `"${heavySkill}" may exhaust context — consider /slim or /precompact first.`;
-    }
+    // Auto-compaction handles this — no nag
+    ctx = "";
   }
 
   if (ctx) {

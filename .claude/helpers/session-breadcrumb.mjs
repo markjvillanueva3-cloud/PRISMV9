@@ -20,7 +20,7 @@ function runGit(args) {
 async function main() {
   const command = process.env.TOOL_INPUT_command ?? "";
   if (!command.includes("git commit")) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -35,5 +35,5 @@ async function main() {
 }
 
 main().catch(() => {
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 });

@@ -53,15 +53,44 @@ function getOtherActiveSessions() {
   const now = Date.now();
   const myId = getMySessionId();
 
+  function pushUnique(session) {
+    const key = `${session.id || ""}:${session.work || ""}`;
+    if (others.some((item) => `${item.id || ""}:${item.work || ""}` === key)) {
+      return;
+    }
+    others.push(session);
+  }
+
   // Check ACTIVE_WORK_REGISTRY
   try {
     if (fs.existsSync(WORK_REGISTRY)) {
       const registry = JSON.parse(fs.readFileSync(WORK_REGISTRY, "utf-8"));
+
+      // Schema v2 used by shared coordination: { active: [...] }.
+      for (const active of registry.active || []) {
+        const sessionId = String(active.session_id || active.session || active.instance || active.family || "shared-active");
+        if (sessionId === myId) continue;
+        const timestamp = active.lastSeen || active.last_seen || active.updated || active.started || active.claimed_at || registry.updated || 0;
+        const lastSeen = new Date(timestamp || 0).getTime();
+        const age = Number.isFinite(lastSeen) && lastSeen > 0 ? now - lastSeen : 0;
+        const track = active.track || active.milestone || active.name || active.type || "active-work";
+        const description = active.description || active.currentWork || active.current || active.notes || "";
+
+        pushUnique({
+          id: sessionId,
+          work: description ? `${track}: ${description}` : track,
+          family: active.family || "Session",
+          units: active.activeUnits || active.units || [],
+          minutesAgo: age > 0 ? Math.round(age / 60000) : 0,
+        });
+      }
+
+      // Legacy/work-broadcast schema: { sessions: { [sessionId]: ... } }.
       for (const [sessionId, session] of Object.entries(registry.sessions || {})) {
         if (sessionId === myId) continue;
         const lastSeen = new Date(session.lastSeen || 0).getTime();
         if (now - lastSeen < STALE_THRESHOLD_MS) {
-          others.push({
+          pushUnique({
             id: sessionId.split("-").pop(), // Just PID
             work: session.currentWork || "unknown",
             units: (session.activeUnits || []).slice(0, 3),
@@ -84,10 +113,17 @@ function getOtherActiveSessions() {
           // Check if already in others
           const pid = instanceId.match(/pid-(\d+)/)?.[1];
           if (pid && !others.find((o) => o.id === pid)) {
-            others.push({
+            pushUnique({
               id: pid,
               work: instance.current || "unknown",
               family: instance.agent_family,
+              minutesAgo: Math.round((now - lastUpdated) / 60000),
+            });
+          } else if (!pid && instance.agent_instance !== myId) {
+            pushUnique({
+              id: instance.agent_instance || instanceId,
+              work: instance.current || "unknown",
+              family: instance.agent_family || instance.agent,
               minutesAgo: Math.round((now - lastUpdated) / 60000),
             });
           }

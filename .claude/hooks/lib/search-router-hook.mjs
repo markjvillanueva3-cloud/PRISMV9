@@ -1,0 +1,132 @@
+#!/usr/bin/env node
+/**
+ * search-router-hook.mjs — PreToolUse Grep|Glob
+ *
+ * Intercepts search operations and checks PRISM_KEYWORD_ROUTES.json + MASTER_INDEX_COMPACT.md
+ * for known patterns. If a match is found, injects additionalContext with exact file paths,
+ * dispatcher actions, and skills — eliminating the need for broad filesystem scans.
+ *
+ * ROI: Each intercepted search saves ~200-500 tokens of Grep/Glob output.
+ * Over a session with 30-50 searches, that's 6K-25K tokens saved.
+ */
+import { readFileSync } from 'fs';
+
+const ROUTES_PATH = 'H:/prism/mcp-server/data/docs/PRISM_KEYWORD_ROUTES.json';
+const MASTER_INDEX_PATH = 'H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md';
+
+let routes = null;
+let masterIndex = null;
+
+// Load routes (cached after first call)
+function loadRoutes() {
+  if (routes) return routes;
+  try {
+    const data = JSON.parse(readFileSync(ROUTES_PATH, 'utf-8'));
+    routes = data.routes;
+    return routes;
+  } catch {
+    return null;
+  }
+}
+
+// Load master index summary (cached)
+function loadMasterIndex() {
+  if (masterIndex) return masterIndex;
+  try {
+    masterIndex = readFileSync(MASTER_INDEX_PATH, 'utf-8');
+    return masterIndex;
+  } catch {
+    return null;
+  }
+}
+
+// Extract search pattern from tool input
+function getSearchPattern(input) {
+  // Grep: pattern field
+  if (input.tool_input?.pattern) return input.tool_input.pattern.toLowerCase();
+  // Glob: use pattern but extract meaningful part (strip wildcards)
+  if (input.tool_input?.glob) return input.tool_input.glob.replace(/[*?{}]/g, ' ').toLowerCase().trim();
+  return '';
+}
+
+// Match search pattern against keyword routes
+function findMatches(pattern, routes) {
+  const matches = [];
+  // Strip regex special chars safely (avoid character class issues)
+  const patternLower = pattern.toLowerCase().replace(/\\/g, '').replace(/[.*+?^${}()|/]/g, ' ').replace(/\[/g, '').replace(/\]/g, '').trim();
+
+  for (const [keyword, route] of Object.entries(routes)) {
+    // Check if search pattern contains the keyword
+    const keywordWords = keyword.split(' ');
+    const patternContainsKeyword = keywordWords.every(w => patternLower.includes(w));
+    // Or if keyword contains the search pattern (for short searches)
+    const keywordContainsPattern = patternLower.length >= 3 && keyword.includes(patternLower);
+
+    if (patternContainsKeyword || keywordContainsPattern) {
+      matches.push({ keyword, ...route });
+    }
+  }
+
+  // Sort by relevance — exact matches first, then partial
+  return matches.sort((a, b) => {
+    const aExact = a.keyword === patternLower ? 1 : 0;
+    const bExact = b.keyword === patternLower ? 1 : 0;
+    return bExact - aExact;
+  }).slice(0, 3); // Top 3 matches
+}
+
+// Format matches as context
+function formatContext(matches, pattern) {
+  if (matches.length === 0) return null;
+
+  const lines = [`SEARCH ROUTER: "${pattern}" matched ${matches.length} known route(s):`];
+
+  for (const m of matches) {
+    lines.push(`  [${m.keyword}] ${m.description}`);
+    if (m.files?.length) lines.push(`    Files: ${m.files.join(', ')}`);
+    if (m.actions?.length) lines.push(`    Actions: ${m.actions.join(', ')}`);
+    if (m.skills?.length) lines.push(`    Skills: ${m.skills.join(', ')}`);
+  }
+
+  lines.push('Consider reading these files directly instead of scanning.');
+  return lines.join('\n');
+}
+
+// Windows-safe stdin read (ESM resolves /dev/stdin relative to import URL)
+function readStdin() {
+  try { return readFileSync('/dev/stdin', 'utf-8'); }
+  catch { return readFileSync(0, 'utf-8'); } // fd 0 = stdin
+}
+
+// Main
+try {
+  const input = JSON.parse(readStdin());
+  const pattern = getSearchPattern(input);
+
+  if (!pattern || pattern.length < 3) {
+    console.log(JSON.stringify({ continue: true }));
+    process.exit(0);
+  }
+
+  const routeMap = loadRoutes();
+  if (!routeMap) {
+    console.log(JSON.stringify({ continue: true }));
+    process.exit(0);
+  }
+
+  const matches = findMatches(pattern, routeMap);
+
+  if (matches.length > 0) {
+    const context = formatContext(matches, pattern);
+    console.log(JSON.stringify({
+      continue: true,
+      additionalContext: context
+    }));
+  } else {
+    // No keyword match — still allow the search but suggest index-first approach
+    console.log(JSON.stringify({ continue: true }));
+  }
+} catch (err) {
+  // Never block on hook failure
+  console.log(JSON.stringify({ continue: true }));
+}

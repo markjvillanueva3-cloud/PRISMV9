@@ -44,19 +44,19 @@ async function readJson(p) {
 async function main() {
   const cache = await readJson(INTENT_CACHE);
   if (!cache || !cache.timestamp) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   const age = Date.now() - new Date(cache.timestamp).getTime();
   if (age > STALE_MS) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   const categories = cache.categories || [];
   if (categories.length === 0) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -67,7 +67,7 @@ async function main() {
 
   if (dock && oll) {
     // Stack is already up — silent
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -88,4 +88,4 @@ async function main() {
   process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: ctx } }));
 }
 
-main().catch(() => process.stdout.write("{}"));
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

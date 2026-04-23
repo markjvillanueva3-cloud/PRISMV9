@@ -35,13 +35,13 @@ function main() {
   const command = (toolInput.command || process.env.TOOL_INPUT_command || "").trim();
 
   if (!command) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
   // Already using rtk
   if (command.startsWith("rtk ")) {
-    process.stdout.write("{}");
+    process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -64,7 +64,7 @@ function main() {
     return;
   }
 
-  process.stdout.write("{}");
+  process.stdout.write(JSON.stringify({ continue: true }));
 }
 
 main();

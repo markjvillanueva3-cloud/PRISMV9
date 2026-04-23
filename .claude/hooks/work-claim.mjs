@@ -11,11 +11,43 @@
 
 import * as fs from "fs";
 import * as os from "os";
+import * as path from "path";
 
-const AGENT_CHAT = "H:/prism/state/shared/AGENT_CHAT.md";
-const CLAIMS_FILE = "H:/prism/state/shared/WORK_CLAIMS.json";
-const CLAIM_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
+const AGENT_CHAT = process.env.PRISM_AGENT_CHAT || "H:/prism/state/shared/AGENT_CHAT.md";
+const CLAIMS_FILE = process.env.PRISM_WORK_CLAIMS_FILE || "H:/prism/state/shared/WORK_CLAIMS.json";
+const CLAIM_EXPIRY_MS = Number(process.env.PRISM_WORK_CLAIM_TTL_MS || 2 * 60 * 60 * 1000);
 const MAX_CHAT_LINES = 100;
+const SIGNIFICANT_EXTENSIONS = new Set([
+  ".cjs",
+  ".css",
+  ".json",
+  ".js",
+  ".md",
+  ".mjs",
+  ".ps1",
+  ".py",
+  ".sh",
+  ".ts",
+  ".tsx",
+  ".toml",
+  ".yaml",
+  ".yml",
+]);
+const SIGNIFICANT_SEGMENTS = [
+  "/.claude/",
+  "/.codex/",
+  "/mcp-server/",
+  "/scripts/",
+  "/src/",
+  "/state/shared/",
+];
+const LOW_SIGNAL_RUNTIME_FILES = new Set([
+  "AGENT_CHAT.md",
+  "AGENT_CHAT.jsonl",
+  "AGENT_WORKBOARD.md",
+  "AGENT_WORKBOARD.json",
+  "CLAIM_EVENTS.jsonl",
+]);
 
 function getSessionId() {
   const pid = process.ppid || process.pid;
@@ -25,14 +57,21 @@ function getSessionId() {
 function loadClaims() {
   try {
     if (fs.existsSync(CLAIMS_FILE)) {
-      return JSON.parse(fs.readFileSync(CLAIMS_FILE, "utf-8"));
+      const claims = JSON.parse(fs.readFileSync(CLAIMS_FILE, "utf-8"));
+      if (!claims.claims || typeof claims.claims !== "object") {
+        claims.claims = {};
+      }
+      return claims;
     }
   } catch {}
-  return { claims: {}, schemaVersion: 1 };
+  return { claims: {}, schemaVersion: 2 };
 }
 
 function saveClaims(claims) {
   try {
+    fs.mkdirSync(path.dirname(CLAIMS_FILE), { recursive: true });
+    claims.schemaVersion = Math.max(Number(claims.schemaVersion || 1), 2);
+    claims.updatedAt = new Date().toISOString();
     fs.writeFileSync(CLAIMS_FILE, JSON.stringify(claims, null, 2));
   } catch {}
 }
@@ -56,27 +95,87 @@ function postToChat(message) {
   } catch {}
 }
 
+function normalizeSlashes(value) {
+  return String(value || "").replace(/\\/g, "/");
+}
+
+function normalizeResource(filePath) {
+  let normalized = normalizeSlashes(filePath).trim();
+  if (!normalized) return "";
+
+  if (/^[a-zA-Z]:\//.test(normalized)) {
+    normalized = `${normalized[0].toUpperCase()}:${normalized.slice(2)}`;
+  }
+
+  const lower = normalized.toLowerCase();
+  const prismIndex = lower.indexOf("/prism/");
+  if (prismIndex >= 0) {
+    normalized = `H:/PRISM/${normalized.slice(prismIndex + "/prism/".length)}`;
+  }
+
+  return normalized;
+}
+
+function basenameOfResource(resource) {
+  return normalizeSlashes(resource).split("/").filter(Boolean).pop() || resource;
+}
+
+function isSignificantPath(filePath) {
+  const resource = normalizeResource(filePath);
+  if (!resource) return false;
+
+  const base = basenameOfResource(resource);
+  if (LOW_SIGNAL_RUNTIME_FILES.has(base) || base.endsWith(".log")) return false;
+
+  const lower = resource.toLowerCase();
+  const ext = path.extname(base).toLowerCase();
+  return SIGNIFICANT_EXTENSIONS.has(ext) && SIGNIFICANT_SEGMENTS.some((segment) => lower.includes(segment));
+}
+
+function claimTime(claim) {
+  const t = new Date(claim?.at || claim?.claimed_at || claim?.claimedAt || claim?.updatedAt || 0).getTime();
+  return Number.isFinite(t) ? t : 0;
+}
+
 function checkAndClaim(resource) {
   const claims = loadClaims();
   const now = Date.now();
   const myId = getSessionId();
+  const normalizedResource = normalizeResource(resource);
+  const legacyResource = basenameOfResource(normalizedResource);
 
   // Clean expired claims
   for (const [res, claim] of Object.entries(claims.claims)) {
-    if (now - new Date(claim.at).getTime() > CLAIM_EXPIRY_MS) {
+    const at = claimTime(claim);
+    if (!at || now - at > CLAIM_EXPIRY_MS) {
       delete claims.claims[res];
     }
   }
 
-  // Check if already claimed by someone else
-  const existing = claims.claims[resource];
+  // Check both the new normalized key and the legacy basename key so older
+  // sessions still get collision protection while the registry migrates.
+  const existing = claims.claims[normalizedResource] || claims.claims[legacyResource];
   if (existing && existing.by !== myId) {
-    const age = Math.round((now - new Date(existing.at).getTime()) / 60000);
+    const age = Math.round((now - claimTime(existing)) / 60000);
     return { conflict: true, holder: existing.by, minutesAgo: age };
   }
 
-  // Claim it
-  claims.claims[resource] = { by: myId, at: new Date().toISOString() };
+  // Claim by normalized path to avoid basename collisions across subsystems.
+  const claim = {
+    kind: "file",
+    resource: normalizedResource,
+    file_path: normalizedResource,
+    basename: legacyResource,
+    by: myId,
+    session_id: myId,
+    hostname: os.hostname(),
+    pid: process.ppid || process.pid,
+    at: new Date().toISOString(),
+  };
+  claims.claims[normalizedResource] = claim;
+  if (legacyResource !== normalizedResource && claims.claims[legacyResource]?.by === myId) {
+    delete claims.claims[legacyResource];
+  }
   saveClaims(claims);
 
   return { conflict: false };
@@ -98,19 +197,17 @@ async function main() {
   const toolInput = data.tool_input || {};
   const filePath = toolInput.file_path || "";
 
-  // Only care about significant paths
-  if (!filePath.includes("Engine") && !filePath.includes("Dispatcher") && !filePath.includes("settings")) {
+  if (!isSignificantPath(filePath)) {
     process.exit(0);
   }
 
-  // Extract resource name
-  const resource = filePath.split("/").pop().split("\\").pop();
+  const resource = normalizeResource(filePath);
 
   // Check claim
   const result = checkAndClaim(resource);
 
   if (result.conflict) {
-    postToChat(`CONFLICT: ${resource} claimed by ${result.holder} (${result.minutesAgo}m ago)`);
+    postToChat(`CONFLICT: ${basenameOfResource(resource)} claimed by ${result.holder} (${result.minutesAgo}m ago)`);
     console.log(JSON.stringify({
       additionalContext: `[WorkClaim] WARNING: ${resource} is being edited by ${result.holder} (${result.minutesAgo}m ago). Coordinate to avoid conflicts!`,
     }));
