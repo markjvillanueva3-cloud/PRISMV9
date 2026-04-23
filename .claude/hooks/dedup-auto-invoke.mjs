@@ -133,7 +133,7 @@ ${allMatches.map(m => `  - ${m}`).join('\n')}
   console.log(JSON.stringify({
     decision: 'approve',
       hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
+        hookEventName: "PreToolUse",
         additionalContext: warning,
       }
     }));

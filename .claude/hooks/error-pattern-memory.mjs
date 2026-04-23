@@ -185,7 +185,7 @@ async function main() {
       if (data.lastError && toolOutput.includes('0 errors')) {
         data.lastError = null;
         saveMemory(data);
-        console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: '✓ Error resolved — pattern learned', } }));
+        console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: '✓ Error resolved — pattern learned', } }));
         return;
       }
       console.log(JSON.stringify({ continue: true }));

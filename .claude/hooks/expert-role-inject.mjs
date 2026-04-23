@@ -33,7 +33,7 @@ async function main() {
   console.log(JSON.stringify({
     continue: true,
       hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
+        hookEventName: "SessionStart",
         additionalContext: EXPERT_ROLE,
       }
     }));
