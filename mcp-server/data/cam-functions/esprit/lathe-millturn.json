@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "lathe_millturn",
+  "version": "2024",
+  "extracted_from": "Hexagon ESPRIT TNG / ESPRIT Classic 2024 Lathe + Mill-Turn + Swiss Reference",
+  "categories": ["turn_roughing", "turn_finishing", "grooving_parting", "threading", "drilling_axial", "millturn_live", "swiss_type", "synchronization"],
+  "operations": {
+    "turn_rough_od": {
+      "category": "turn_roughing",
+      "display_name": "Turning — OD Roughing (G71-style)",
+      "description": "Outside-diameter roughing along Z. Multi-pass with stock-to-leave for finishing.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true },
+          "stock_diameter_mm": { "type": "number", "min": 5, "max": 500, "required": true },
+          "z_start_mm": { "type": "number", "min": -1000, "max": 1000, "required": true },
+          "z_end_mm": { "type": "number", "min": -1000, "max": 1000, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "insert_nose_radius_mm": { "type": "number", "min": 0.1, "max": 3.2, "default": 0.4 },
+          "approach_angle_deg": { "type": "number", "min": 0, "max": 180, "default": 95 }
+        },
+        "strategy": {
+          "depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 10, "default": 2 },
+          "stock_to_leave_radial_mm": { "type": "number", "min": 0, "max": 5, "default": 0.3 },
+          "stock_to_leave_axial_mm": { "type": "number", "min": 0, "max": 5, "default": 0.1 },
+          "css_mode_g96": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "turn_finish_od": {
+      "category": "turn_finishing",
+      "display_name": "Turning — OD Finishing (G70-style)",
+      "description": "Single-pass profile finish following stock-to-leave from roughing.",
+      "parameter_count": 8,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "insert_nose_radius_mm": { "type": "number", "min": 0.1, "max": 1.6, "default": 0.4 }
+        },
+        "strategy": {
+          "feed_per_rev_mm": { "type": "number", "min": 0.02, "max": 0.5, "default": 0.1 },
+          "css_speed_m_min": { "type": "number", "min": 50, "max": 600, "required": true },
+          "min_rpm": { "type": "number", "min": 100, "max": 5000, "default": 500 },
+          "max_rpm": { "type": "number", "min": 100, "max": 8000, "default": 4000 },
+          "css_mode_g96": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "groove_part_off": {
+      "category": "grooving_parting",
+      "display_name": "Grooving / Parting Off",
+      "description": "Plunge grooving for OD/ID grooves and part-off cycles.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "groove_chain_id": { "type": "string", "required": true },
+          "groove_width_mm": { "type": "number", "min": 0.5, "max": 50, "required": true },
+          "groove_depth_mm": { "type": "number", "min": 0.5, "max": 100, "required": true },
+          "is_part_off": { "type": "boolean", "default": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "insert_width_mm": { "type": "number", "min": 0.5, "max": 10, "required": true }
+        },
+        "strategy": {
+          "peck_count": { "type": "number", "min": 1, "max": 20, "default": 1 },
+          "retract_per_peck_mm": { "type": "number", "min": 0, "max": 5, "default": 0.5 },
+          "feed_per_rev_mm": { "type": "number", "min": 0.01, "max": 0.3, "default": 0.05 }
+        }
+      }
+    },
+    "thread_single_point": {
+      "category": "threading",
+      "display_name": "Single-Point Threading (G76)",
+      "description": "External or internal threading with multi-pass infeed (radial / modified-flank / alternating).",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "infeed"],
+      "parameters": {
+        "geometry": {
+          "thread_chain_id": { "type": "string", "required": true },
+          "major_diameter_mm": { "type": "number", "min": 1, "max": 500, "required": true },
+          "pitch_mm": { "type": "number", "min": 0.2, "max": 10, "required": true },
+          "thread_length_mm": { "type": "number", "min": 1, "max": 500, "required": true },
+          "is_internal": { "type": "boolean", "default": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_angle_deg": { "type": "number", "min": 30, "max": 60, "default": 60 }
+        },
+        "infeed": {
+          "infeed_mode": { "type": "enum", "values": ["radial", "modified_flank", "alternating_flank"], "default": "modified_flank" },
+          "first_pass_doc_mm": { "type": "number", "min": 0.05, "max": 1.5, "default": 0.4 },
+          "spring_passes": { "type": "number", "min": 0, "max": 5, "default": 1 },
+          "lead_in_mm": { "type": "number", "min": 1, "max": 20, "default": 4 }
+        }
+      }
+    },
+    "drill_axial": {
+      "category": "drilling_axial",
+      "display_name": "Axial Drilling on Lathe",
+      "description": "Centerline / off-center drilling using stationary or live tool. Peck-deep capable.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "cycle"],
+      "parameters": {
+        "geometry": {
+          "x_position_mm": { "type": "number", "min": -300, "max": 300, "required": true },
+          "y_position_mm": { "type": "number", "min": -300, "max": 300, "default": 0 },
+          "z_start_mm": { "type": "number", "min": -1000, "max": 1000, "required": true },
+          "z_end_mm": { "type": "number", "min": -1000, "max": 1000, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true },
+          "is_live_tool": { "type": "boolean", "default": false }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G81_drill", "G83_deep_peck", "G73_high_speed_peck", "G84_tap"], "default": "G81_drill" },
+          "peck_depth_mm": { "type": "number", "min": 0.1, "max": 50, "default": 5 },
+          "tap_pitch_mm": { "type": "number", "min": 0.2, "max": 6, "required": false }
+        }
+      }
+    },
+    "millturn_radial_milling": {
+      "category": "millturn_live",
+      "display_name": "Mill-Turn — Radial Live-Tool Milling",
+      "description": "C-axis indexed pocketing/profiling using live spindle on lathe turret. Polar interpolation supported.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "axis_setup", "strategy"],
+      "parameters": {
+        "geometry": {
+          "feature_chain_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 100, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 30, "required": true }
+        },
+        "axis_setup": {
+          "use_polar_interpolation_g12_1": { "type": "boolean", "default": true },
+          "c_axis_index_deg": { "type": "number", "min": 0, "max": 360, "default": 0 },
+          "spindle_brake_mode": { "type": "enum", "values": ["m19_orient", "m24_clamp", "none"], "default": "m24_clamp" }
+        },
+        "strategy": {
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 90, "default": 50 },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 10, "default": 1 },
+          "follow_pattern": { "type": "enum", "values": ["offset", "spiral"], "default": "offset" },
+          "safe_x_mm": { "type": "number", "min": 5, "max": 300, "default": 50 }
+        }
+      }
+    },
+    "millturn_y_axis_pocket": {
+      "category": "millturn_live",
+      "display_name": "Mill-Turn — Y-Axis Pocketing",
+      "description": "Live-tool pocket using true Y-axis (no polar emulation). Best for off-axis features needing linear motion.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "boundary_chain_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 50, "required": true },
+          "y_offset_mm": { "type": "number", "min": -100, "max": 100, "default": 0 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 30, "required": true }
+        },
+        "strategy": {
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 90, "default": 50 },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 10, "default": 1 },
+          "approach_macro": { "type": "enum", "values": ["helical", "ramp", "plunge"], "default": "helical" },
+          "safe_y_mm": { "type": "number", "min": 1, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "swiss_main_sub_handoff": {
+      "category": "swiss_type",
+      "display_name": "Swiss-Type Main↔Sub Handoff",
+      "description": "Coordinate part transfer from main to sub spindle on Swiss / opposed-spindle lathe.",
+      "parameter_count": 9,
+      "dialog_tabs": ["spindles", "transfer", "synchronization"],
+      "parameters": {
+        "spindles": {
+          "main_spindle_id": { "type": "string", "default": "S1" },
+          "sub_spindle_id": { "type": "string", "default": "S2" }
+        },
+        "transfer": {
+          "transfer_method": { "type": "enum", "values": ["pickup", "synchronous_grip", "bar_pull"], "required": true },
+          "grip_position_mm": { "type": "number", "min": 0.5, "max": 50, "required": true },
+          "transfer_rpm": { "type": "number", "min": 0, "max": 6000, "default": 1000 }
+        },
+        "synchronization": {
+          "sync_mode": { "type": "enum", "values": ["spindle_sync", "phase_sync", "torque_sync"], "default": "spindle_sync" },
+          "wait_signal": { "type": "string", "required": false },
+          "post_transfer_chuck_clamp_force_kN": { "type": "number", "min": 1, "max": 100, "default": 10 },
+          "verify_part_pickup": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "channel_synchronization": {
+      "category": "synchronization",
+      "display_name": "Multi-Channel Synchronization (Mazatrol/Fanuc)",
+      "description": "Coordinate two or more channels (turret 1 + turret 2 + sub-spindle) on multi-tasking lathe.",
+      "parameter_count": 7,
+      "dialog_tabs": ["channels", "sync_codes"],
+      "parameters": {
+        "channels": {
+          "channel_1_id": { "type": "string", "required": true },
+          "channel_2_id": { "type": "string", "required": true },
+          "channel_3_id": { "type": "string", "required": false }
+        },
+        "sync_codes": {
+          "wait_code": { "type": "string", "default": "M111" },
+          "release_code": { "type": "string", "default": "M112" },
+          "sync_strategy": { "type": "enum", "values": ["wait_all", "wait_any", "barrier"], "default": "wait_all" },
+          "timeout_seconds": { "type": "number", "min": 1, "max": 300, "default": 60 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Threading Infeed Modes",
+      "key_concepts": ["radial = symmetric flank wear", "modified_flank = better chip flow", "alternating = balanced wear, complex"],
+      "best_practices": ["Modified-flank is the safe default for ≥1mm pitch"]
+    },
+    {
+      "topic": "Mill-Turn Polar vs True Y",
+      "key_concepts": ["G12.1/G13.1 polar interpolation emulates Y on C-axis machines", "True Y is direct linear motion"],
+      "best_practices": ["Use true Y when machine has it — better surface finish"]
+    },
+    {
+      "topic": "Sub-Spindle Handoff Discipline",
+      "key_concepts": ["Synchronous grip = both spindles spinning at same RPM during transfer", "Verify part pickup before releasing main"],
+      "best_practices": ["Always probe part position after pickup before resuming machining"]
+    },
+    {
+      "topic": "Multi-Channel Synchronization",
+      "key_concepts": ["wait_all = barrier semantics (all channels stop until released)", "wait_any = first-to-arrive proceeds"],
+      "best_practices": ["Use barrier for cycle-time-critical handoffs", "Use wait_any for opportunistic parallel work"]
+    }
+  ]
+}
