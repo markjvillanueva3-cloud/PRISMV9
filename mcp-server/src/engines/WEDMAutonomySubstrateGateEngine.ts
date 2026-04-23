@@ -456,8 +456,14 @@ class WEDMAutonomySubstrateGateEngine {
       getHumanRole?: () => string;
       getCapabilities?: () => Record<AutonomyCapability, boolean>;
     };
-    const canFn = eng.can ?? (() => false);
-    const capsFromMock = eng.getCapabilities?.();
+    // Bind methods to preserve `this` — mock engines may return plain objects
+    // but the real WEDMAutonomyEngine needs its prototype context.
+    const canFn: (cap: AutonomyCapability) => boolean = typeof eng.can === "function"
+      ? (cap) => eng.can!.call(wedmAutonomyEngine, cap)
+      : () => false;
+    const capsFromMock = typeof eng.getCapabilities === "function"
+      ? eng.getCapabilities.call(wedmAutonomyEngine)
+      : undefined;
     const capabilities: Record<AutonomyCapability, boolean> = capsFromMock ?? {
       suggest_parameters: canFn("suggest_parameters"),
       auto_adjust_parameters: canFn("auto_adjust_parameters"),
@@ -465,8 +471,12 @@ class WEDMAutonomySubstrateGateEngine {
       execute_job_unattended: canFn("execute_job_unattended"),
       self_modify_policy: canFn("self_modify_policy"),
     };
-    const levelName = eng.getName?.() ?? LEVEL_REQUIREMENTS[currentLevel]?.name ?? "Unknown";
-    const humanRole = eng.getHumanRole?.() ?? "operator";
+    const levelName = typeof eng.getName === "function"
+      ? eng.getName.call(wedmAutonomyEngine)
+      : (LEVEL_REQUIREMENTS[currentLevel]?.name ?? "Unknown");
+    const humanRole = typeof eng.getHumanRole === "function"
+      ? eng.getHumanRole.call(wedmAutonomyEngine)
+      : "operator";
 
     return {
       currentLevel,

@@ -419,7 +419,7 @@ describe("WEDMGapVoltageControlEngine", () => {
     });
 
     it("high debris warns but passes", () => {
-      const { thresholds } = EDM_PHYSICS.debris_short_circuit;
+      const thresholds = EDM_PHYSICS.debris_short_circuit.ppm_thresholds;
       const result = wedmGapVoltageControlEngine.validateParameters({
         dielectric_type: "deionized_water",
         debris_ppm: thresholds.warning + 10, // Above warning but below critical

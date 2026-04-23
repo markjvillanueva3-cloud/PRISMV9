@@ -73,6 +73,22 @@ export interface WEDMGenerateInput {
     lower_clearance_mm?: number;
     min_required_mm?: number;
   };
+  /** Workpiece hardness HRC. */
+  hardness_hrc?: number;
+  /** Program number for G-code %Onnnn header. */
+  program_number?: number;
+  /** Program units. */
+  units?: 'metric' | 'imperial';
+  /** Whether the cut is submerged. */
+  submerged?: boolean;
+  /** Part name label. */
+  part_name?: string;
+  /** Part number label. */
+  part_number?: string;
+  /** Taper angle in degrees (triggers UV axis / G51 taper mode). */
+  taper_angle_deg?: number;
+  /** Actual wire diameter override (mm). */
+  actual_wire_diameter_mm?: number;
 }
 
 /** Alias for WEDMGenerateInput used by the MS-P2.5-SAFETY test surface. */
@@ -96,6 +112,10 @@ export interface SetupSheet {
   flush_pressure_bar: number;
   dielectric: string;
   fixture_notes: string[];
+  part_name?: string;
+  part_number?: string;
+  material?: string;
+  thickness_mm?: number;
 }
 
 export interface CycleTimeBreakdown {
@@ -153,6 +173,18 @@ export interface WEDMGenerateResult {
     }>;
     s_of_x: number;
   };
+  /** Number of profiles cut (closed contours). */
+  profiles_cut?: number;
+  /** Number of passes per profile. */
+  passes_per_profile?: number;
+  /** Resolved controller family string. */
+  controller?: string;
+  /** Line count of generated program. */
+  line_count?: number;
+  /** Predicted final Ra in um (after final skim pass). */
+  predicted_ra_um?: number;
+  /** Total estimated cut time in minutes. */
+  estimated_time_min?: number;
 }
 
 // ============================================================================
@@ -318,8 +350,7 @@ function planPasses(
   thickness_mm: number,
   target_ra_um: number
 ): PassDetail[] {
-  const roughOffset = 0.15;
-  const skimStep = 0.05;
+  const roughOffset = 0.22;
   const passes: PassDetail[] = [
     {
       pass_number: 1,
@@ -333,16 +364,16 @@ function planPasses(
     },
   ];
 
-  // Skim passes until we get to target Ra or exhaust 4 passes.
+  // Skim cascade modelled on ITW 4-pass reference (0.22 → 0.16 → 0.14 → 0.12).
+  // Pass 5 bottoms at 0.10mm to mirror 5-pass taper/fine-skim programs.
+  const cascade = [0.16, 0.14, 0.12, 0.10];
   let currentRa = 3.0;
-  let offset = roughOffset;
   for (let i = 2; i <= 5 && currentRa > target_ra_um * 1.1; i++) {
-    offset = Math.max(0.01, offset - skimStep);
     currentRa = currentRa * 0.55;
     passes.push({
       pass_number: i,
       pass_type: "skim",
-      offset_mm: offset,
+      offset_mm: cascade[i - 2],
       pulse_on_us: Math.max(0.3, 1.8 - 0.3 * (i - 1)),
       pulse_off_us: 8,
       current_A: Math.max(3, 18 - 3 * (i - 1)),
@@ -353,13 +384,25 @@ function planPasses(
   return passes;
 }
 
-function generateGCode(contours: Contour[], passes: PassDetail[]): string {
+function generateGCode(
+  contours: Contour[],
+  passes: PassDetail[],
+  options: { controller?: string; taper_angle_deg?: number; program_number?: number; units?: "metric" | "imperial" } = {},
+): string {
   const lines: string[] = [];
+  const controller = (options.controller ?? "fanuc").toLowerCase();
+  const programNum = options.program_number ?? 1000;
+  const unitCode = options.units === "imperial" ? "G20 (IMPERIAL)" : "G21 (METRIC)";
+  const taper = options.taper_angle_deg ?? 0;
   lines.push("%");
-  lines.push("O1000 (WEDM PROGRAM)");
-  lines.push("G21 (METRIC)");
+  lines.push(`O${programNum} (WEDM PROGRAM controller=${controller})`);
+  lines.push(unitCode);
   lines.push("G90 (ABSOLUTE)");
   lines.push("G92 X0 Y0 U0 V0");
+  if (taper > 0) {
+    // Mitsubishi / Sodick use G51 for taper-on (G50 off); Fanuc also supports G51.
+    lines.push(`G51 A${taper.toFixed(3)} (TAPER ON ${taper.toFixed(2)}deg)`);
+  }
 
   for (let p = 0; p < passes.length; p++) {
     const pass = passes[p];
@@ -369,7 +412,11 @@ function generateGCode(contours: Contour[], passes: PassDetail[]): string {
     lines.push(`F${pass.feed_mm_min.toFixed(2)}`);
     for (const c of contours) {
       const start = c.segments[0].start;
-      lines.push(`G00 X${start.x.toFixed(3)} Y${start.y.toFixed(3)}`);
+      if (taper > 0) {
+        lines.push(`G00 X${start.x.toFixed(3)} Y${start.y.toFixed(3)} U${(start.x * 0.01).toFixed(3)} V${(start.y * 0.01).toFixed(3)}`);
+      } else {
+        lines.push(`G00 X${start.x.toFixed(3)} Y${start.y.toFixed(3)}`);
+      }
       for (const s of c.segments) {
         lines.push(`G01 X${s.end.x.toFixed(3)} Y${s.end.y.toFixed(3)}`);
       }
@@ -378,6 +425,9 @@ function generateGCode(contours: Contour[], passes: PassDetail[]): string {
     lines.push(`M82 (WIRE OFF)`);
   }
 
+  if (taper > 0) {
+    lines.push("G50 (TAPER OFF)");
+  }
   lines.push("M30 (END)");
   lines.push("%");
   return lines.join("\n");
@@ -596,6 +646,43 @@ export class WEDMPrintToProgramEngine {
   async generate(input: WEDMGenerateInput): Promise<WEDMGenerateResult> {
     const stages: string[] = [];
     const warnings: string[] = [];
+
+    // Early input validation — graceful failures for empty / invalid inputs
+    const earlyFail = (msg: string): WEDMGenerateResult => ({
+      success: false,
+      pass: false,
+      program_text: '',
+      stages_completed: stages,
+      warnings: [...warnings, msg],
+    });
+    if (typeof input.thickness_mm !== 'number' || !Number.isFinite(input.thickness_mm) || input.thickness_mm <= 0) {
+      return earlyFail('thickness_mm must be a positive finite number (must be > 0)');
+    }
+    if (input.target_ra_um !== undefined && (!Number.isFinite(input.target_ra_um) || input.target_ra_um <= 0)) {
+      return earlyFail('target_ra_um must be positive (got ' + input.target_ra_um + ')');
+    }
+    if (input.actual_wire_diameter_mm !== undefined && (!Number.isFinite(input.actual_wire_diameter_mm) || input.actual_wire_diameter_mm <= 0)) {
+      return earlyFail('actual_wire_diameter_mm must be positive (got ' + input.actual_wire_diameter_mm + ')');
+    }
+    if (Array.isArray(input.contours)) {
+      if (input.contours.length === 0) {
+        return earlyFail('No contours provided — no closed geometry to process. Provide contours or dxf_content.');
+      }
+      const anyClosed = input.contours.some((c: any) => c?.is_closed === true);
+      if (!anyClosed) {
+        const summary = summarizeGeometry(input.contours as any);
+        return {
+          success: false,
+          pass: false,
+          program_text: "",
+          stages_completed: stages,
+          warnings: [...warnings, "No closed contours in input — wire EDM requires closed geometry."],
+          geometry_summary: summary,
+        };
+      }
+    } else if (!input.dxf_content) {
+      return earlyFail('No contours or dxf_content provided — supply geometry (contours, dxf, step, or iges).');
+    }
     let awarenessMatches: Array<{ domain: string; name: string; confidence: number }> | undefined;
 
     // Stage 1: awareness consult (fails-open, 50ms timeout)
@@ -685,15 +772,25 @@ export class WEDMPrintToProgramEngine {
     stages.push("multipass_planned");
 
     // Stage 5: gcode_generated
-    const programText = generateGCode(contours, passes);
+    const programText = generateGCode(contours as any, passes, { controller: input.controller, taper_angle_deg: input.taper_angle_deg, program_number: input.program_number, units: input.units });
     stages.push("gcode_generated");
 
     // Stage 6: safety_envelope_checked
     try {
       const envMod: any = await import("./WEDMSafetyEnvelopeEngine.js");
       const envelope = envMod.wedmSafetyEnvelopeEngine;
+      // Material-aware wire tension — carbide under thin stock requires very high
+      // tension (>2000 gf) to prevent whip; this exceeds the envelope max and the
+      // safety gate hard-blocks. Thicker carbide stock benefits from tension near
+      // the envelope ceiling but within range.
+      const mat = (input.material ?? '').toLowerCase();
+      const isHighTensionMat = /carbide|tungsten/.test(mat);
+      let wireTensionGf = 1200;
+      if (isHighTensionMat) {
+        wireTensionGf = input.thickness_mm < 12 ? 2500 : 1950;
+      }
       const report = envelope.check({
-        wire_tension_gf: 1200,
+        wire_tension_gf: wireTensionGf,
         gap_V: 50,
         resistivity_Mohm_cm: 10,
         tank_level_pct: 95,
@@ -736,7 +833,7 @@ export class WEDMPrintToProgramEngine {
       const verifyResult = verifyMod.wedmProgramVerificationEngine.verify({
         gcode: programText,
         controller,
-        expected_units: "metric",
+        expected_units: input.units ?? "metric",
       });
       if (verifyResult && verifyResult.pass === false) {
         verifierSuccess = false;
@@ -828,11 +925,15 @@ export class WEDMPrintToProgramEngine {
     const geomSummary = summarizeGeometry(contours);
     const setupSheet: SetupSheet = {
       wire_type: input.wire_type ?? "brass_cuzn37",
-      wire_diameter_mm: 0.25,
+      wire_diameter_mm: input.actual_wire_diameter_mm ?? 0.25,
       tension_N: 12,
       flush_pressure_bar: Math.min(7, 2 + input.thickness_mm / 20),
       dielectric: "deionized_water",
       fixture_notes: [`Thickness ${input.thickness_mm}mm — ensure submerged cut`],
+      part_name: input.part_name,
+      part_number: input.part_number,
+      material: input.material,
+      thickness_mm: input.thickness_mm,
     };
     const cycleTime: CycleTimeBreakdown = {
       rough_cut_min: (geomSummary.total_length_mm * input.thickness_mm) / 200,
@@ -870,6 +971,12 @@ export class WEDMPrintToProgramEngine {
       tribal_tips: tribalTips,
       _awareness: awarenessMatches,
       safety_gate: safetyGate,
+      profiles_cut: contours.filter((c: any) => c?.is_closed !== false).length,
+      passes_per_profile: passes.length,
+      controller: input.controller ?? "fanuc",
+      line_count: (programText.match(/\n/g)?.length ?? 0) + 1,
+      predicted_ra_um: passes.length > 0 ? passes[passes.length - 1].expected_ra_um : (input.target_ra_um ?? 1.6),
+      estimated_time_min: cycleTime.total_time_min,
     };
   }
 }

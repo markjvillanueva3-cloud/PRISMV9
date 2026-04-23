@@ -391,8 +391,8 @@ class WEDMGapVoltageControlEngine {
       suggested_corrections.gap_distance_um = EDM_PHYSICS.gap_voltage.max_gap_um - 10;
     }
 
-    // Check debris
-    const { thresholds } = EDM_PHYSICS.debris_short_circuit;
+    // Check debris (PPM thresholds, distinct from SC_ratio thresholds)
+    const thresholds = EDM_PHYSICS.debris_short_circuit.ppm_thresholds;
     if (input.debris_ppm > thresholds.critical) {
       errors.push(`Debris critical: ${input.debris_ppm}ppm > ${thresholds.critical}ppm`);
     } else if (input.debris_ppm > thresholds.warning) {

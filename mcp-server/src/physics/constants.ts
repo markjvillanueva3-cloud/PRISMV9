@@ -225,6 +225,12 @@ export const EDM_PHYSICS = {
       warning: 0.003,
       critical: 0.008,
     },
+    /** PPM-scale debris concentration thresholds for operator-facing validation. */
+    ppm_thresholds: {
+      safe: 50,
+      warning: 200,
+      critical: 500,
+    },
     source: "Klocke 'Fertigungsverfahren Band 3' §5.2.3; Cetin et al. 2003",
   },
 
