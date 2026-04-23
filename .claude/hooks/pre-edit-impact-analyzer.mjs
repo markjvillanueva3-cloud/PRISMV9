@@ -150,15 +150,9 @@ async function main() {
   if (riskLevel === "critical") {
     stats.highRiskBlocked++;
     saveStats(stats);
-    console.log(JSON.stringify({
-      continue: true,
-      message: warning
-    }));
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: warning } }));
   } else {
-    console.log(JSON.stringify({
-      continue: true,
-      message: warning
-    }));
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: warning } }));
   }
 }
 

@@ -120,7 +120,10 @@ async function main() {
     console.log(
       JSON.stringify({
         continue: true,
-        message: formatReport(cached.report),
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          additionalContext: formatReport(cached.report),
+        },
       })
     );
     return;
@@ -135,7 +138,10 @@ async function main() {
   console.log(
     JSON.stringify({
       continue: true,
-      message: `📐 Change radius: ${path.basename(filePath)} flagged for impact analysis (prism_dev:change_radius_predict_sync available).`,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `📐 Change radius: ${path.basename(filePath)} flagged for impact analysis (prism_dev:change_radius_predict_sync available).`,
+      },
     })
   );
 
