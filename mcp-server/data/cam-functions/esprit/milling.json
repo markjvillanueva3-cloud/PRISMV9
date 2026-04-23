@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "milling",
+  "version": "2024",
+  "extracted_from": "Hexagon ESPRIT TNG / ESPRIT Classic 2024 Milling Module Reference",
+  "categories": ["pocket_2_5d", "profile_2_5d", "facing_2_5d", "profitmilling", "roughing_3d", "finishing_3d", "five_axis", "drilling_milling"],
+  "operations": {
+    "pocket_2_5d": {
+      "category": "pocket_2_5d",
+      "display_name": "2.5D Pocketing (Standard)",
+      "description": "Standard 2.5D pocket with offset / parallel / spiral patterns. Stock-aware single-tool pass.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "tool", "strategy", "macros"],
+      "parameters": {
+        "geometry": {
+          "boundary_chain_id": { "type": "string", "required": true },
+          "depth_mode": { "type": "enum", "values": ["absolute_z", "relative_to_top", "to_face"], "default": "absolute_z" },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 250, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true },
+          "tool_corner_radius_mm": { "type": "number", "min": 0, "max": 25, "default": 0 }
+        },
+        "strategy": {
+          "pattern": { "type": "enum", "values": ["offset", "parallel", "spiral", "high_speed"], "default": "offset" },
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 95, "default": 50 },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 25, "default": 2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["helical", "ramp", "plunge"], "default": "helical" },
+          "approach_helix_angle_deg": { "type": "number", "min": 1, "max": 30, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "profile_2_5d": {
+      "category": "profile_2_5d",
+      "display_name": "2.5D Profile / Contour",
+      "description": "Open or closed profile contour with cutter compensation, multiple Z-passes.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "compensation", "macros"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 250, "required": true },
+          "z_passes": { "type": "number", "min": 1, "max": 30, "default": 1 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true }
+        },
+        "compensation": {
+          "comp_mode": { "type": "enum", "values": ["computer", "control_g41", "control_g42", "off"], "default": "computer" },
+          "side": { "type": "enum", "values": ["left", "right", "on"], "required": true }
+        },
+        "macros": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "tangent_line", "perpendicular"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "facing_2_5d": {
+      "category": "facing_2_5d",
+      "display_name": "2.5D Facing",
+      "description": "Top-surface facing with raster / spiral / one-way patterns. Stock-aware multi-Z.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "boundary_chain_id": { "type": "string", "required": true },
+          "z_top_mm": { "type": "number", "min": -100, "max": 250, "required": true },
+          "z_bottom_mm": { "type": "number", "min": -100, "max": 250, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 5, "max": 200, "required": true }
+        },
+        "strategy": {
+          "pattern": { "type": "enum", "values": ["raster", "spiral", "one_way"], "default": "raster" },
+          "stepover_pct_dia": { "type": "number", "min": 30, "max": 95, "default": 75 },
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "leave_stock_mm": { "type": "number", "min": 0, "max": 2, "default": 0.1 }
+        }
+      }
+    },
+    "profitmilling_pocket": {
+      "category": "profitmilling",
+      "display_name": "ProfitMilling Adaptive Pocket",
+      "description": "ESPRIT's patented constant-engagement adaptive clearing. Deep DOC, low radial. Tool life extension up to 5×.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "tool", "engagement", "macros"],
+      "parameters": {
+        "geometry": {
+          "boundary_chain_id": { "type": "string", "required": true },
+          "stock_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 1, "max": 250, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 50, "required": true },
+          "tool_loc_to_dia": { "type": "number", "min": 1, "max": 6, "default": 3 }
+        },
+        "engagement": {
+          "max_radial_engagement_pct": { "type": "number", "min": 1, "max": 25, "default": 10 },
+          "axial_doc_to_dia": { "type": "number", "min": 0.5, "max": 3, "default": 2 },
+          "min_radius_pct_dia": { "type": "number", "min": 5, "max": 30, "default": 10 },
+          "smooth_corners": { "type": "boolean", "default": true }
+        },
+        "macros": {
+          "entry_macro": { "type": "enum", "values": ["helical", "predrilled_hole", "ramp"], "default": "helical" },
+          "lead_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 25 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "rough_3d_zlevel": {
+      "category": "roughing_3d",
+      "display_name": "3D Z-Level Roughing",
+      "description": "Layered Z-level cavity roughing with stock awareness. Standard fallback for non-adaptive.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "strategy", "macros"],
+      "parameters": {
+        "geometry": {
+          "part_id": { "type": "string", "required": true },
+          "stock_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 100, "required": true },
+          "tool_corner_radius_mm": { "type": "number", "min": 0, "max": 25, "default": 0 }
+        },
+        "strategy": {
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 90, "default": 50 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0.3 },
+          "follow_pattern": { "type": "enum", "values": ["offset", "raster", "spiral"], "default": "offset" }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["helical", "ramp"], "default": "helical" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "finish_3d_steep_shallow": {
+      "category": "finishing_3d",
+      "display_name": "3D Steep & Shallow Finishing",
+      "description": "Auto-routes Z-level for steep walls (≥30°) and 3D offset for shallow (<30°) in one operation.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "split", "macros"],
+      "parameters": {
+        "geometry": {
+          "part_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 50, "required": true },
+          "tool_corner_radius_mm": { "type": "number", "min": 0, "max": 25, "required": true }
+        },
+        "split": {
+          "split_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "steep_stepdown_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.25 },
+          "shallow_stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.4 }
+        },
+        "macros": {
+          "approach_macro": { "type": "enum", "values": ["arc", "vertical_arc"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "five_axis_swarf": {
+      "category": "five_axis",
+      "display_name": "5-Axis Swarf Machining",
+      "description": "Side-of-tool simultaneous 5-axis on ruled surfaces. RTCP/TCPC required on machine.",
+      "parameter_count": 11,
+      "dialog_tabs": ["geometry", "tool", "axis_strategy", "macros"],
+      "parameters": {
+        "geometry": {
+          "drive_surface_id": { "type": "string", "required": true },
+          "check_surface_id": { "type": "string", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 50, "required": true },
+          "tool_loc_to_dia": { "type": "number", "min": 2, "max": 6, "required": true }
+        },
+        "axis_strategy": {
+          "tool_axis_mode": { "type": "enum", "values": ["normal_to_drive", "lead_lag", "swarf_align"], "default": "swarf_align" },
+          "lead_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "tilt_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 }
+        },
+        "macros": {
+          "approach_arc_radius_mm": { "type": "number", "min": 0.5, "max": 20, "default": 3 },
+          "rotary_fast_motion": { "type": "boolean", "default": false },
+          "safe_distance_mm": { "type": "number", "min": 1, "max": 100, "default": 10 }
+        }
+      }
+    },
+    "drilling_canned": {
+      "category": "drilling_milling",
+      "display_name": "Drilling — Canned Cycles",
+      "description": "G81/G82/G83/G73/G84/G85 with chip-break, dwell, peck, tap, ream variants.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "cycle"],
+      "parameters": {
+        "geometry": {
+          "hole_chain_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 500, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G81_drill", "G82_drill_dwell", "G83_deep_peck", "G73_high_speed_peck", "G84_tap", "G85_ream"], "required": true },
+          "peck_depth_mm": { "type": "number", "min": 0.1, "max": 50, "default": 3 },
+          "dwell_seconds": { "type": "number", "min": 0, "max": 10, "default": 0 },
+          "retract_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 },
+          "rapid_safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 },
+          "tap_pitch_mm": { "type": "number", "min": 0.2, "max": 6, "required": false }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "ProfitMilling Engagement Envelope (canonical)",
+      "key_concepts": ["≤10% radial", "≤2×D axial DOC", "smooth corners mandatory"],
+      "best_practices": ["Bumps tool life ~5× vs conventional pocket on hardened steel"]
+    },
+    {
+      "topic": "Steep & Shallow 30° Threshold",
+      "key_concepts": ["Z-level for ≥30° walls", "3D offset for <30° surfaces"],
+      "best_practices": ["One operation, two cycles auto-routed by surface angle"]
+    },
+    {
+      "topic": "5-Axis Swarf Tool Axis Modes",
+      "key_concepts": ["swarf_align follows ruled-surface generator", "lead/tilt for clearance over witness lines"],
+      "best_practices": ["Always run on RTCP/TCPC-capable controller (G43.4)"]
+    },
+    {
+      "topic": "Drilling Cycle Selection",
+      "key_concepts": ["G83 deep-peck for L/D > 4", "G73 high-speed peck for shallow chip clearance", "G84 tap requires tap_pitch"],
+      "best_practices": ["Use G82 dwell on flat-bottom blind holes for size hold"]
+    }
+  ]
+}

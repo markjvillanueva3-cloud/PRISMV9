@@ -109,6 +109,7 @@ import { ACTION_PM_5AXISROBOT_FUNCTION_INDEX_SCHEMAS } from "../../schemas/power
 import { ACTION_PM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillFunctionIndexActionSchemas.js";
 import { ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/catiaMachiningFunctionIndexActionSchemas.js";
 import { ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS } from "../../schemas/hypermillExtendedFunctionIndexActionSchemas.js";
+import { ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritMillingFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -184,6 +185,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_PM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CATIA_MACHINING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_HYPERMILL_EXTENDED_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_ESPRIT_MILLING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -282,6 +284,7 @@ let _pm5AxisRobotIndex: any;
 let _pmUnifiedIndex: any;
 let _catiaMachIndex: any;
 let _hmExtIndex: any;
+let _espritMill: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -609,6 +612,7 @@ async function getEngine(name: string): Promise<any> {
     case "pmUnifiedIndex": return _pmUnifiedIndex ??= (await import("../../engines/PowerMillFunctionIndexEngine.js")).PowerMillFunctionIndexEngine;
     case "catiaMachIndex": return _catiaMachIndex ??= (await import("../../engines/CATIAMachiningFunctionIndexEngine.js")).CATIAMachiningFunctionIndexEngine;
     case "hmExtIndex": return _hmExtIndex ??= (await import("../../engines/HypermillExtendedFunctionIndexEngine.js")).HypermillExtendedFunctionIndexEngine;
+    case "espritMill": return _espritMill ??= (await import("../../engines/ESPRITMillingFunctionIndexEngine.js")).ESPRITMillingFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1291,6 +1295,7 @@ export const ACTIONS = [
   "pm_index_manifest", "pm_index_section_list", "pm_index_section_stats", "pm_index_all_ops", "pm_index_find_op", "pm_index_find_param", "pm_index_category_universe", "pm_index_recommend", "pm_index_validate",
   "catia_mach_index", "catia_mach_summary", "catia_mach_list_ops", "catia_mach_get_op", "catia_mach_by_category", "catia_mach_find_param", "catia_mach_recommend", "catia_mach_classify_tolerance", "catia_mach_select_plan", "catia_mach_delmia_coverage",
   "hm_ext_index", "hm_ext_summary", "hm_ext_list_sections", "hm_ext_section_stats", "hm_ext_list_ops", "hm_ext_find_op", "hm_ext_find_param", "hm_ext_categories", "hm_ext_recommend", "hm_ext_consistency",
+  "esprit_mill_index", "esprit_mill_summary", "esprit_mill_list_ops", "esprit_mill_get_op", "esprit_mill_by_category", "esprit_mill_find_param", "esprit_mill_recommend", "esprit_mill_classify_doc", "esprit_mill_profitmilling_envelope", "esprit_mill_select_drill",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7071,6 +7076,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_index_validate": {
             const eng = await getEngine("solidcamUnifiedIndex");
             result = eng.validateConsistency();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM49: ESPRITMillingFunctionIndexEngine ──
+          case "esprit_mill_index": {
+            const eng = await getEngine("espritMill");
+            result = eng.getIndex();
+            break;
+          }
+          case "esprit_mill_summary": {
+            const eng = await getEngine("espritMill");
+            result = eng.getSummary();
+            break;
+          }
+          case "esprit_mill_list_ops": {
+            const eng = await getEngine("espritMill");
+            result = eng.listOperations();
+            break;
+          }
+          case "esprit_mill_get_op": {
+            const eng = await getEngine("espritMill");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "esprit_mill_by_category": {
+            const eng = await getEngine("espritMill");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "esprit_mill_find_param": {
+            const eng = await getEngine("espritMill");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "esprit_mill_recommend": {
+            const eng = await getEngine("espritMill");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "esprit_mill_classify_doc": {
+            const eng = await getEngine("espritMill");
+            result = eng.classifyDocStrategy(params.material_iso, params.hardness_hb);
+            break;
+          }
+          case "esprit_mill_profitmilling_envelope": {
+            const eng = await getEngine("espritMill");
+            result = eng.profitmillingEnvelope();
+            break;
+          }
+          case "esprit_mill_select_drill": {
+            const eng = await getEngine("espritMill");
+            result = eng.selectDrillCycle(params.L_over_D, params.blind ?? false, params.tap ?? false);
             break;
           }
 
