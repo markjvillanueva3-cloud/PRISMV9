@@ -102,8 +102,11 @@ Use existing asset if functionality overlaps >50%.
 
   console.log(JSON.stringify({
     decision: 'approve',
-    additionalContext: warning
-  }));
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: warning,
+      }
+    }));
 }
 
 main().catch(() => {

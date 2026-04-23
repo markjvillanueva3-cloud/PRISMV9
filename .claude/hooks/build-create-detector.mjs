@@ -118,8 +118,11 @@ If a similar asset exists, USE IT instead of creating a duplicate.
 
   console.log(JSON.stringify({
     decision: 'approve',
-    additionalContext: context
-  }));
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: context,
+      }
+    }));
 }
 
 main().catch(() => {
