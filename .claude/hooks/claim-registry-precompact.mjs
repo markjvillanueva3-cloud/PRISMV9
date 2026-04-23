@@ -16,7 +16,7 @@ const REG = resolve("H:/prism/.claude/helpers/roadmap-claim-registry.mjs");
 
 function terminalId() {
   try {
-    const r = spawnSync("node", [resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], {
+    const r = spawnSync(process.execPath, [resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], {
       encoding: "utf-8",
       timeout: 2000,
     });
@@ -28,7 +28,7 @@ function terminalId() {
 
 function main() {
   const tid = terminalId();
-  const r = spawnSync("node", [REG, "compact-flush", "--terminal", tid], {
+  const r = spawnSync(process.execPath, [REG, "compact-flush", "--terminal", tid], {
     encoding: "utf-8",
     timeout: 3000,
   });

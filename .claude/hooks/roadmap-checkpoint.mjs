@@ -12,7 +12,7 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
 import { randomUUID } from 'crypto';
 
@@ -24,7 +24,7 @@ const MILESTONES_DIR = join(PRISM_ROOT, 'mcp-server/data/milestones');
 // Get stable session ID (or generate one)
 function getSessionId() {
   try {
-    const result = execSync('node H:/prism/.claude/helpers/stable-session-id.mjs', {
+    const result = execSync(`"${process.execPath}" H:/prism/.claude/helpers/stable-session-id.mjs`, {
       encoding: 'utf8', timeout: 3000
     }).trim();
     return result || `anon-${randomUUID().slice(0, 8)}`;
@@ -78,12 +78,13 @@ function atomicWrite(filepath, content) {
   const tmpPath = `${filepath}.tmp.${process.pid}`;
   try {
     writeFileSync(tmpPath, content, 'utf8');
-    // Rename is atomic on most filesystems
-    const fs = require('fs');
-    fs.renameSync(tmpPath, filepath);
+    // Rename is atomic on most filesystems. Use the already-imported fs
+    // namespace — `require` is not available in .mjs modules, so the prior
+    // version threw ReferenceError and the whole checkpoint silently failed.
+    renameSync(tmpPath, filepath);
     return true;
   } catch (e) {
-    try { require('fs').unlinkSync(tmpPath); } catch {}
+    try { unlinkSync(tmpPath); } catch {}
     return false;
   }
 }

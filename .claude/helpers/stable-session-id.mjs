@@ -18,6 +18,7 @@ import os from "node:os";
 
 const SESSION_CACHE_FILE = "H:/prism/state/shared/handoffs/.stable-session-cache.json";
 const STALE_SESSION_HOURS = 8; // Sessions older than this are considered stale
+const TRANSCRIPT_ACTIVE_MS = 5 * 60 * 1000; // Only treat a transcript as "this chat" if modified in last 5 min
 
 function loadCache() {
   try {
@@ -50,17 +51,35 @@ function readStdinSessionId() {
 
 function readClaudeTranscriptSessionId() {
   // Second-best anchor: Claude Code writes transcript JSONL files under
-  // ~/.claude/projects/<project-hash>/<session-id>.jsonl. The most recently
-  // modified one within this project dir is almost always this chat's session.
+  // ~/.claude/projects/<project-hash>/<session-id>.jsonl.
+  //
+  // CRITICAL: prefer EXACT directory match, not substring. Previous substring
+  // filter caused `H--prism-session-efficiency` to pick up `H--prism` transcripts
+  // from a concurrent chat, stealing its session_id and writing handoffs to the
+  // wrong chat's file. Exact match first; substring is only a last-resort fallback.
   try {
     const home = os.homedir();
     if (!home) return null;
     const projectsRoot = path.join(home, ".claude", "projects");
     if (!fs.existsSync(projectsRoot)) return null;
+
     const cwd = process.cwd().replace(/\\/g, "-").replace(/[:/\\.]/g, "-");
-    const projectDirs = fs.readdirSync(projectsRoot)
-      .filter((d) => d.includes(cwd) || cwd.includes(d.replace(/^-+/, "")));
+    const allDirs = fs.readdirSync(projectsRoot);
+
+    // (1) Exact match on sanitized cwd
+    let projectDirs = allDirs.filter((d) => d === cwd);
+    // (2) Fallback: only accept a substring match if NO exact match and the
+    //     candidate dir is as specific as possible (longest name wins, avoiding
+    //     `H--prism` hijacking `H--prism-session-efficiency`).
+    if (projectDirs.length === 0) {
+      const candidates = allDirs.filter((d) => d.includes(cwd) || cwd.includes(d));
+      if (candidates.length) {
+        candidates.sort((a, b) => b.length - a.length);
+        projectDirs = [candidates[0]];
+      }
+    }
     if (projectDirs.length === 0) return null;
+
     let best = null;
     for (const pd of projectDirs) {
       const full = path.join(projectsRoot, pd);
@@ -74,8 +93,9 @@ function readClaudeTranscriptSessionId() {
         }
       }
     }
-    // Only use if modified within last 8 hours — else it's a stale session
-    if (best && (Date.now() - best.mtime) < 8 * 60 * 60 * 1000) {
+    // Only use if modified very recently — an active chat has its transcript
+    // being written AS we run. Older = stale / not this session.
+    if (best && (Date.now() - best.mtime) < TRANSCRIPT_ACTIVE_MS) {
       return best.id;
     }
   } catch { /* ignore */ }
@@ -92,22 +112,25 @@ function getStableIdentifier() {
     return `claude-sid-${process.env.CLAUDE_SESSION_ID.slice(0, 36)}`;
   }
 
-  // (3) Terminal env var (stable within a terminal window)
+  // (3) Claude transcript file (most recent ACTIVE transcript in this project).
+  //     Moved BEFORE terminal env vars because env vars like WT_SESSION are per
+  //     terminal-window, not per-chat — two chats in the same Windows Terminal
+  //     would share it. The transcript file is per-chat by construction.
+  const txSid = readClaudeTranscriptSessionId();
+  if (txSid) return `claude-tx-${txSid}`;
+
+  // (4) Terminal env var (only if unique per chat — VSCODE_GIT_ASKPASS_NODE
+  //     REMOVED because it's a binary path shared across every VS Code terminal).
   const candidates = [
-    process.env.WT_SESSION,           // Windows Terminal session
+    process.env.WT_SESSION,           // Windows Terminal session (per-pane GUID)
     process.env.TERM_SESSION_ID,      // macOS Terminal
     process.env.TERMINAL_SESSION_ID,  // Generic
     process.env.CONEMU_SESSION_ID,    // ConEmu
     process.env.WEZTERM_SESSION_ID,   // WezTerm
-    process.env.VSCODE_GIT_ASKPASS_NODE, // VS Code terminals have this
   ];
   for (const c of candidates) {
     if (c && c.trim()) return `env-${c.trim().slice(0, 32)}`;
   }
-
-  // (4) Claude transcript file (most recent in this project — survives /compact)
-  const txSid = readClaudeTranscriptSessionId();
-  if (txSid) return `claude-tx-${txSid}`;
 
   // (5) Fallback: machine + 15-min time slot (degraded — rotates every 15 min)
   const machine = os.hostname() || "unknown";

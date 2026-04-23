@@ -8,9 +8,18 @@
 
 import { readFileSync } from "fs";
 
-const input = JSON.parse(readFileSync(process.stdin.fd, "utf8"));
+// PreToolUse hooks must never crash — a thrown exception before the final
+// JSON emit is interpreted by the harness as a block. Guard every step.
+let input = {};
+try {
+  if (!process.stdin.isTTY) {
+    const raw = readFileSync(0, "utf8");
+    if (raw && raw.trim().startsWith("{")) input = JSON.parse(raw);
+  }
+} catch { /* fall through with empty input */ }
 const toolName = input.tool_name || "";
-const params = input.tool_params || {};
+// Claude Code sends `tool_input`, not `tool_params` — prior code was dead.
+const params = input.tool_input || input.tool_params || {};
 
 // AI System Routing Table
 const AI_ROUTING = {
