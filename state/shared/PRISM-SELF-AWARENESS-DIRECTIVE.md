@@ -22,7 +22,7 @@ const existing = await duplicationGuardEngine.searchExisting("keyword");
 // Get full summary of what exists
 const summary = await duplicationGuardEngine.getExistingSummary();
 ```
-**Current Counts:** 2,510 engines | 499 formulas | 53 algorithms | 5,658 actions | 181 hooks
+**Current Counts:** 631 engines | 499 formulas | 53 algorithms | 5,707 actions | 521 hooks
 
 ## 🧠 CREATIVE REASONING — Think Outside the Box
 **For optimal, innovative, hybrid solutions:**
@@ -70,8 +70,8 @@ const insight = crossDisciplinaryEngine.deepReason("your manufacturing problem")
 
 ## Quick Reference (Token-Efficient)
 ```
-PRISM: 90 dispatchers, 5,658 actions, 2,510 engines
-Formulas: 499 | Algorithms: 53 | Hooks: 181 | Skills: 134
+PRISM: 88 dispatchers, 5,707 actions, 631 engines
+Formulas: 499 | Algorithms: 53 | Hooks: 521 | Skills: 39
 
 H: DRIVE AWARENESS:
   JM DIE: 24,545 CNC programs | 100+ customers | H:/PRISM/JM DIE
@@ -95,50 +95,55 @@ DOMAINS: turning, milling, drilling, grinding, EDM, threading, 5-axis, swiss, la
 ```typescript
 import { prismSelfAwarenessEngine } from "src/engines/PRISMSelfAwarenessEngine.js";
 
-// Find capabilities by query
-const result = engine.whatCanIDo("calculate speed and feed");
-// Returns: { results: [{ action: "speed_feed", confidence: 0.9, ... }] }
+// Refresh or read the live manifest
+const manifest = await prismSelfAwarenessEngine.getManifest();
+await prismSelfAwarenessEngine.refreshManifest();
 
-// Get best action for a task
-const action = engine.howDoI("quote this part");
-// Returns: { dispatcher: "prism_business", action: "quote_estimate", ... }
+// Find capabilities by query across engines, actions, hooks, skills, and Codex surfaces
+const capabilities = await prismSelfAwarenessEngine.findCapabilities("calculate speed and feed");
+// Returns: [{ capability, confidence, engine?, dispatcher?, action?, path? }]
 
 // Find engines for a domain
-const engines = engine.whoHandles("cutting force");
-// Returns: [{ name: "KienzleForceModelEngine", ... }]
+const engines = await prismSelfAwarenessEngine.findEngines("cutting force");
+// Returns: [{ name, path, confidence, capabilities, reason }]
 
 // Check if we can handle a request
-const gap = engine.analyzeGap("complex manufacturing request");
-// Returns: { canHandle: true/false, suggestions: [...], externalSources: [...] }
+const gap = await prismSelfAwarenessEngine.analyzeGaps("complex manufacturing request");
+// Returns: { hasCapability, confidence, matches, suggestions, missingCapabilities }
 
-// Get compact manifest for context injection (~500 tokens)
-const manifest = engine.getCompactManifest();
+// Recommend AI features for a task
+const aiFeatures = await prismSelfAwarenessEngine.recommendAIFeatures("deep reasoning cutting strategy");
+// Returns: [{ feature, reason, priority, engines, actions }]
 
-// JM DIE DIRECT ACCESS
-const customerPath = engine.getJMDieCustomerPath("ALCOA");
+// Recommend milling-specific AI features
+const millFeatures = await prismSelfAwarenessEngine.recommendMillFeatures("5-axis roughing D2");
+// Returns: [{ feature, reason, priority, engines, actions }]
+
+// JM DIE direct customer path
+const customerPath = prismSelfAwarenessEngine.getJMDieCustomerPath("ALCOA");
 // Returns: "H:/PRISM/JM DIE/CNC LATHE/ALCOA"
 
-const lathePaths = engine.getJMDieProgramPaths("lathe");
-// Returns: ["H:/PRISM/JM DIE/CNC LATHE", ...]
-
-const customers = engine.searchJMDieCustomer("fast");
-// Returns: [{ name: "FASTENAL", path: "...", machineTypes: [...] }]
-
 // TRIBAL KNOWLEDGE
-const tips = engine.searchTribalKnowledge("thin wall milling");
-// Returns: [{ tipId, title, category, confidence, source, tags }]
+const tips = await prismSelfAwarenessEngine.searchTribalKnowledge("thin wall milling");
+// Returns: [{ tip, category, source, confidence }]
 
 // PLAYBOOK RULES
-const rules = engine.searchPlaybookRules("roughing depth");
-// Returns: [{ ruleId, title, category, severity, reasoning }]
+const rules = await prismSelfAwarenessEngine.searchPlaybookRules("roughing depth");
+// Returns: string[]
+```
 
-// WEB SEARCH
-const searches = engine.generateWebSearch("carbide insert selection");
-// Returns: [{ source, query, suggestedTopics, trustLevel }]
+## Codex Self-Awareness CLI
 
-// FULL DRIVE AWARENESS
-const awareness = engine.getFullDriveAwareness();
-// Returns comprehensive H: drive context for injection
+Use the Codex helper for shell-side routing, H: drive lookup, and compact context injection:
+
+```powershell
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs kernel --mode minimal
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs capability "calculate cutting force"
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs task "quote this part"
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs gap "new capability idea"
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs locate "JM DIE"
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs drive --category jm_die
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs full-drive
 ```
 
 ## JM DIE Direct Access
@@ -408,10 +413,10 @@ TASK-DECOMPOSITION: For quote/plan/design tasks
 | NIST | Research | 98% | materials, properties, constants |
 
 ## Usage Guidelines
-1. **Before implementing new features**: Run `whatCanIDo(feature)` to check if capability exists
-2. **Before creating new engines**: Run `whoHandles(domain)` to find existing engines
-3. **When unsure about approach**: Run `analyzeGap(request)` for suggestions
-4. **For external data**: Use `findRelevantSources(topic)` to get trusted sources
+1. **Before implementing new features**: Run `findCapabilities(feature)` or `codex-self-awareness.mjs capability "<feature>"` to check if capability exists
+2. **Before creating new engines**: Run `findEngines(domain)` and `/dedup` to find existing engines before adding anything
+3. **When unsure about approach**: Run `analyzeGaps(request)` or `codex-self-awareness.mjs gap "<request>"` for suggestions
+4. **For external data**: Prefer local vendor catalogs, SourceCatalogAggregator, tribal knowledge, and playbook rules first; use `/pdf-learn` for documents/PDFs and `/video-learn` for videos/tutorials; browse reputable manufacturer/standards sources only when local evidence is insufficient
 
 ## Key Files
 - Self-Awareness: `src/engines/PRISMSelfAwarenessEngine.ts` (66 tests)
@@ -425,6 +430,16 @@ TASK-DECOMPOSITION: For quote/plan/design tasks
 - SessionStart hook: Auto-injects context
 - Compaction survival: Preserves minimal context
 - MEMORY.md: Cross-session self-awareness sync
+
+## Codex Context Kernel
+Use the compact kernel before broad H-drive orientation, after compaction, or when Codex needs Claude-parity startup context:
+
+```powershell
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs kernel --mode minimal
+node H:\PRISM\.claude\helpers\codex-self-awareness.mjs kernel --mode minimal --json
+```
+
+The kernel composes the current roadmap gate, active-work count, command-bridge health, critical slash-command resolution, SVI live lines, canonical PRISM paths, and warm-start rules. It is a fresh generated context pack, not permanent memory; refresh it before trusting broad H-drive assumptions.
 
 ## 📱 Codex Frontend Canonical Reference
 **Scrutiny R5 is THE reference for what Codex built on the frontend and where the gaps are:**
