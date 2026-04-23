@@ -99,7 +99,7 @@ async function main() {
     console.log(JSON.stringify({
       continue: true,
       hookSpecificOutput: {
-        hookEventName: "PreToolUse",
+        hookEventName: "Stop",
         additionalContext: `Output cache: captured ${newBlocks} new reusable blocks`,
       }
     }));

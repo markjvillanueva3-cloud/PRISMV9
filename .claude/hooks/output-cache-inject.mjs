@@ -52,7 +52,7 @@ async function main() {
 Top templates: ${topBlocks.slice(0, 5).map(b => `[CACHED:${b.id}] (${b.category})`).join(', ')}
 Use prism_dev:output_cache_get to retrieve full content.`;
 
-  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: summary } }));
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: summary } }));
 }
 
 main().catch(() => {
