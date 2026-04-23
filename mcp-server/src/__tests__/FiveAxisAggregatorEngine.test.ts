@@ -55,7 +55,8 @@ describe("FiveAxisAggregatorEngine (standalone)", () => {
       lead_angle_deg: 5,
     });
     expect(response.provenance.engine_available).toBe(false);
-    expect((response.result as any).status).toBe("engine_not_built");
+    expect(response.result).toBeNull();
+    expect(response.provenance.engine_available).toBe(false);
   });
 
   it("rtcp_check returns structured response (failure mode 3: unbuilt)", async () => {

@@ -47,31 +47,24 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
     });
   });
 
-  describe("print_to_program routing", () => {
-    it("should route print_to_program and return program details", async () => {
+  describe("print_to_program routing — unwired, throws NotWiredError", () => {
+    it("returns success=false with null result (no fake program output)", async () => {
       const request: MillOrchestrationRequest = {
         request_type: "print_to_program",
         material: "6061-T6",
         iso_group: "N",
         features: [{ id: "F1", type: "pocket" }],
       };
-
       const response = await millMasterOrchestratorFacadeEngine.orchestrate(request);
-
-      expect(response.success).toBe(true);
+      expect(response.success).toBe(false);
       expect(response.request_type).toBe("print_to_program");
-      expect(response.result).toHaveProperty("program_number");
-      expect(response.result).toHaveProperty("cycle_time_min");
+      expect(response.result).toBeNull();
       expect(response.provenance.engines_invoked).toContain("MillP2POrchestrator");
     });
 
-    it("should stamp provenance with processing time", async () => {
-      const request: MillOrchestrationRequest = {
-        request_type: "print_to_program",
-      };
-
+    it("provenance still stamps processing time on failure", async () => {
+      const request: MillOrchestrationRequest = { request_type: "print_to_program" };
       const response = await millMasterOrchestratorFacadeEngine.orchestrate(request);
-
       expect(response.provenance.processing_time_ms).toBeGreaterThanOrEqual(0);
       expect(response.provenance.ts).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     });
@@ -111,40 +104,33 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
     });
   });
 
-  describe("agi routing", () => {
-    it("should return reasoning chain for AGI request", async () => {
+  describe("agi routing — delegates to MillingAGIMasterEngine.reason()", () => {
+    it("returns reasoning chain from real AGI engine", async () => {
       const request: MillOrchestrationRequest = {
         request_type: "agi",
         intent: "Machine a 50x30x15mm pocket in 7075-T6 aluminum",
         reasoning_mode: "chain_of_thought",
       };
-
       const response = await millMasterOrchestratorFacadeEngine.orchestrate(request);
-
       expect(response.success).toBe(true);
       expect(response.provenance.engines_invoked).toContain("MillingAGIMasterEngine");
       const result = response.result as any;
-      expect(result.reasoning_steps).toBeDefined();
-      expect(result.reasoning_steps.length).toBeGreaterThan(0);
-      expect(result.recommendation).toBeDefined();
+      expect(Array.isArray(result.reasoning_steps)).toBe(true);
+      expect(result.reasoning_mode).toBe("chain_of_thought");
+      expect(result.intent).toBe("Machine a 50x30x15mm pocket in 7075-T6 aluminum");
     });
   });
 
-  describe("validate routing", () => {
-    it("should validate program and return safety score", async () => {
+  describe("validate routing — unwired, no fabricated safety score", () => {
+    it("returns success=false (validation engine not yet built)", async () => {
       const request: MillOrchestrationRequest = {
         request_type: "validate",
         gcode: "G0 X0 Y0 Z50\nG1 Z-10 F500\nM30",
       };
-
       const response = await millMasterOrchestratorFacadeEngine.orchestrate(request);
-
-      expect(response.success).toBe(true);
-      const result = response.result as any;
-      expect(result.valid).toBe(true);
-      expect(result.safety_score).toBeGreaterThanOrEqual(0);
-      expect(result.safety_score).toBeLessThanOrEqual(1);
-      expect(result.checks_performed).toContain("collision");
+      expect(response.success).toBe(false);
+      expect(response.result).toBeNull();
+      expect(response.warnings.join(" ")).toMatch(/ProgramAnalyzer|CollisionEngine|not yet/i);
     });
   });
 
@@ -162,7 +148,8 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
       const result = response.result as any;
       expect(result.rpm).toBeGreaterThan(0);
       expect(result.feed_mmpm).toBeGreaterThan(0);
-      expect(result.sfm).toBeGreaterThan(0);
+      expect(result.vc_mpm).toBeGreaterThan(0);
+      expect(result.formulas_used).toContain("cutting_speed_to_rpm");
     });
 
     it("should calculate quick speed/feed for steel", async () => {
@@ -181,27 +168,22 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
     });
   });
 
-  describe("wisdom routing", () => {
-    it("should return tribal knowledge tips for roughing query", async () => {
+  describe("wisdom routing — unwired, no fabricated tips", () => {
+    it("returns success=false and points callers to prism_knowledge:tribal_search", async () => {
       const request: MillOrchestrationRequest = {
         request_type: "wisdom",
         query: "roughing",
         domain: "milling",
       };
-
       const response = await millMasterOrchestratorFacadeEngine.orchestrate(request);
-
-      expect(response.success).toBe(true);
-      expect(response.provenance.engines_invoked).toContain("TribalKnowledgeAdvisor");
-      const result = response.result as any;
-      expect(result.tips).toBeDefined();
-      expect(result.tips.length).toBeGreaterThan(0);
-      expect(result.sources).toBeDefined();
+      expect(response.success).toBe(false);
+      expect(response.result).toBeNull();
+      expect(response.warnings.join(" ")).toMatch(/tribal_search|TribalKnowledge|not yet/i);
     });
   });
 
-  describe("adaptive routing", () => {
-    it("should return adaptive toolpath parameters", async () => {
+  describe("adaptive routing — unwired, no fabricated toolpath", () => {
+    it("returns success=false (AdaptiveToolpathRouterEngine not yet built)", async () => {
       const request: MillOrchestrationRequest = {
         request_type: "adaptive",
         iso_group: "P",
@@ -210,12 +192,10 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
 
       const response = await millMasterOrchestratorFacadeEngine.orchestrate(request);
 
-      expect(response.success).toBe(true);
+      expect(response.success).toBe(false);
+      expect(response.result).toBeNull();
       expect(response.provenance.engines_invoked).toContain("AdaptiveToolpathRouter");
-      const result = response.result as any;
-      expect(result.strategy).toBe("prism_forces");
-      expect(result.engagement_percent).toBeGreaterThan(0);
-      expect(result.chip_load_constant).toBe(true);
+      expect(response.warnings.join(" ")).toMatch(/not wired|not yet built|AdaptiveToolpathRouter/i);
     });
   });
 
@@ -234,21 +214,22 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
   });
 
   describe("helper methods", () => {
-    it("recognizeFeatures should return feature array with confidence", async () => {
+    it("recognizeFeatures returns feature array with confidence", async () => {
+      // recognizeFeatures is a helper stub that fabricates fixture features —
+      // keeping it for now as it's only called internally and returns
+      // documented placeholder shape. Callers should use a real recognizer.
       const result = await millMasterOrchestratorFacadeEngine.recognizeFeatures({});
-
-      expect(result.features).toBeDefined();
+      expect(Array.isArray(result.features)).toBe(true);
       expect(result.features.length).toBeGreaterThan(0);
       expect(result.confidence).toBeGreaterThan(0);
       expect(result.confidence).toBeLessThanOrEqual(1);
     });
 
-    it("planProcess should return operations and sequence", async () => {
+    it("planProcess returns operations and sequence", async () => {
       const result = await millMasterOrchestratorFacadeEngine.planProcess({});
-
-      expect(result.operations).toBeDefined();
+      expect(Array.isArray(result.operations)).toBe(true);
       expect(result.operations.length).toBeGreaterThan(0);
-      expect(result.sequence).toBeDefined();
+      expect(Array.isArray(result.sequence)).toBe(true);
       expect(result.sequence.length).toBe(result.operations.length);
     });
 

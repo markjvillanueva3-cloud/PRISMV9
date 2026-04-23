@@ -49,7 +49,8 @@ describe("MillTurnOrchestrationEngine (standalone)", () => {
       request_type: "cam_generate",
     });
     expect(response.provenance.engine_available).toBe(false);
-    expect((response.result as any).status).toBe("engine_not_built");
+    expect(response.result).toBeNull();
+    expect(response.provenance.engine_available).toBe(false);
   });
 
   it("swiss_pipeline returns warnings when sub-engine missing", async () => {
