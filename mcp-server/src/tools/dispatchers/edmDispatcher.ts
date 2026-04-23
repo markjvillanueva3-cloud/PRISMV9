@@ -72,6 +72,7 @@ let _autoPrintBridge: any;
 let _jobOutcome: any, _loraAdapter: any, _ewcMemory: any, _fewShot: any;
 let _raPred: any, _breakPred: any, _recastPred: any;
 let _lattice: any, _gat: any, _neighbor: any;
+let _tribalTipLearner: any, _autonomyGate: any, _tribalRuntime: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -126,6 +127,9 @@ async function getEngine(name: string): Promise<any> {
     case "lattice": return _lattice ??= (await import("../../engines/WEDMLatticeGraphEngine.js")).wedmLatticeGraphEngine;
     case "gat": return _gat ??= (await import("../../engines/WEDMGraphAttentionEngine.js")).wedmGraphAttentionEngine;
     case "neighbor": return _neighbor ??= (await import("../../engines/WEDMNeighborQueryEngine.js")).wedmNeighborQueryEngine;
+    case "tribalTipLearner": return _tribalTipLearner ??= (await import("../../engines/WEDMTribalTipLearnerEngine.js")).wedmTribalTipLearnerEngine;
+    case "autonomyGate": return _autonomyGate ??= (await import("../../engines/WEDMAutonomySubstrateGateEngine.js")).wedmAutonomySubstrateGateEngine;
+    case "tribalRuntime": return _tribalRuntime ??= (await import("../../engines/WEDMTribalRuntimeEngine.js")).wedmTribalRuntimeEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -1773,6 +1777,43 @@ Actions: ${ACTIONS.join(", ")}.`,
               k: params?.k ?? 5, ef: params?.ef, seed: params?.seed,
             });
             result = results;
+            break;
+          }
+
+          // Tribal tip learner / autonomy substrate gate / tribal runtime
+          case "wedm_tip_learner_process": {
+            const engine = await getEngine("tribalTipLearner");
+            result = await engine.processQueue(params?.maxCandidates ?? 50, params?.autoApproveThreshold ?? 0.85);
+            break;
+          }
+          case "wedm_tip_learner_stats": {
+            const engine = await getEngine("tribalTipLearner");
+            result = engine.getStats();
+            break;
+          }
+          case "wedm_tip_learner_approved": {
+            const engine = await getEngine("tribalTipLearner");
+            result = { tips: engine.getApprovedTips(params?.limit ?? 100) };
+            break;
+          }
+          case "wedm_autonomy_gate_status": {
+            const engine = await getEngine("autonomyGate");
+            result = engine.getStatus();
+            break;
+          }
+          case "wedm_autonomy_gate_metrics": {
+            const engine = await getEngine("autonomyGate");
+            result = engine.getMetrics();
+            break;
+          }
+          case "wedm_tribal_runtime_stats": {
+            const engine = await getEngine("tribalRuntime");
+            result = engine.getStats();
+            break;
+          }
+          case "wedm_tribal_runtime_select": {
+            const engine = await getEngine("tribalRuntime");
+            result = engine.select(params ?? {});
             break;
           }
 
