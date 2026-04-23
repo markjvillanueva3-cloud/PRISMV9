@@ -291,8 +291,11 @@ async function main() {
 
   console.log(JSON.stringify({
     continue: true,
-    additionalContext: lines.join('\n'),
-  }));
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: lines.join('\n'),
+      }
+    }));
 }
 
 main().catch(() => {

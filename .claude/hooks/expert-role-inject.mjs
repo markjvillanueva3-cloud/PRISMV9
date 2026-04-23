@@ -32,8 +32,11 @@ async function main() {
   // Output the role reminder as additional context
   console.log(JSON.stringify({
     continue: true,
-    additionalContext: EXPERT_ROLE
-  }));
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: EXPERT_ROLE,
+      }
+    }));
 }
 
 main().catch(() => process.exit(0));

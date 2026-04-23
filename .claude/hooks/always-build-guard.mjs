@@ -306,8 +306,11 @@ if (goalStack.goals?.[0]?.turns > 2) {
 if (contextParts.length > 0) {
   console.log(JSON.stringify({
     continue: true,
-    additionalContext: contextParts.join("\n\n")
-  }));
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: contextParts.join("\n\n"),
+      }
+    }));
 } else {
   console.log(JSON.stringify({ continue: true }));
 }
