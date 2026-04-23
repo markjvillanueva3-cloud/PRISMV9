@@ -1,0 +1,496 @@
+{
+  "schemaVersion": 1,
+  "system_id": "powermill",
+  "section_key": "5axis_robot",
+  "version": "2024",
+  "extracted_from": "Autodesk PowerMill 2024 Reference Help (5-Axis Strategies — Swarf, Blade, Port, Tool Axis, Projection, 3+2, Curve, Wireframe Swarf) + PowerMill Robot Module (Configuration, Reach, Trim, Post)",
+  "categories": [
+    "swarf_blade_port",
+    "tool_axis",
+    "positional",
+    "wireframe",
+    "robot"
+  ],
+  "operations": {
+    "swarf_simul5": {
+      "category": "swarf_blade_port",
+      "display_name": "Swarf Machining (5-axis simul)",
+      "description": "Flank-cuts a ruled drive surface with the side of an end mill — full 5-axis simultaneous tool-axis change. Standard for shrouded-impeller hubs, ruled-wall housings, scroll surfaces.",
+      "parameter_count": 22,
+      "dialog_tabs": ["geometry", "tool", "drive_surface", "tool_axis", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "drive_surface": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 },
+          "tool_loc_mm": { "type": "number", "required": true }
+        },
+        "drive_surface": {
+          "drive_method": { "type": "enum", "values": ["isoparametric", "ruled_curves", "boundary_pair"], "default": "isoparametric" },
+          "u_direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward" },
+          "v_step_count": { "type": "number", "min": 1, "max": 999, "default": 50 }
+        },
+        "tool_axis": {
+          "axis_mode": { "type": "enum", "values": ["normal_to_drive", "tilt_to_drive", "swarf_through_curves"], "default": "swarf_through_curves" },
+          "lead_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "lag_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 30 }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "stay_off_blade_tip_mm": { "type": "number", "min": 0, "max": 10, "default": 0.5 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "tangential", "vertical"], "default": "tangential" },
+          "lead_in_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 2 },
+          "transition_strategy": { "type": "enum", "values": ["smooth", "raise_to_safe_z"], "default": "smooth" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "blade_simul5": {
+      "category": "swarf_blade_port",
+      "display_name": "Blade Machining (Impeller / Blisk)",
+      "description": "Specialised impeller/blisk strategy: roughing slices between blades, finishing the suction/pressure side, hub fillet + leading-edge cleanup. Multi-blade pattern with collision-aware tool axis.",
+      "parameter_count": 24,
+      "dialog_tabs": ["geometry", "tool", "blade_def", "stages", "tool_axis", "limits"],
+      "parameters": {
+        "geometry": {
+          "blade_surface": { "type": "geometry_ref", "required": true },
+          "hub_surface": { "type": "geometry_ref", "required": true },
+          "shroud_surface": { "type": "geometry_ref", "required": false },
+          "blade_count": { "type": "number", "min": 1, "max": 64, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "required": true },
+          "tool_taper_angle_deg": { "type": "number", "min": 0, "max": 30, "default": 0 }
+        },
+        "blade_def": {
+          "leading_edge_curve": { "type": "geometry_ref", "required": true },
+          "trailing_edge_curve": { "type": "geometry_ref", "required": true },
+          "twist_axis_curve": { "type": "geometry_ref", "required": false }
+        },
+        "stages": {
+          "include_rough_slice": { "type": "boolean", "default": true },
+          "include_finish_pressure_side": { "type": "boolean", "default": true },
+          "include_finish_suction_side": { "type": "boolean", "default": true },
+          "include_hub_fillet": { "type": "boolean", "default": true },
+          "include_leading_edge_cleanup": { "type": "boolean", "default": true }
+        },
+        "tool_axis": {
+          "axis_mode": { "type": "enum", "values": ["normal_to_part", "lead_lag", "interpolate", "swarf"], "default": "lead_lag" },
+          "lead_angle_deg": { "type": "number", "min": 0, "max": 30, "default": 5 },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 25 }
+        },
+        "limits": {
+          "stock_to_leave_blade_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "stock_to_leave_hub_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "min_passage_width_mm": { "type": "number", "min": 0.5, "max": 100, "default": 3 },
+          "collision_safety_margin_mm": { "type": "number", "min": 0, "max": 5, "default": 0.5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 500, "default": 50 }
+        }
+      }
+    },
+    "port_simul5": {
+      "category": "swarf_blade_port",
+      "display_name": "Port Machining (Intake / Exhaust)",
+      "description": "Cylinder-head port machining — long, curved, narrow internal passage with a bulging tool. Tool-axis follows port centerline curve; stock model maintained between in-axial and exit operations.",
+      "parameter_count": 19,
+      "dialog_tabs": ["geometry", "tool", "centerline", "tool_axis", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "port_surface": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 },
+          "is_lollipop_or_taper": { "type": "boolean", "default": false }
+        },
+        "centerline": {
+          "centerline_curve": { "type": "geometry_ref", "required": true },
+          "section_count_along_curve": { "type": "number", "min": 5, "max": 999, "default": 50 },
+          "stepover_around_section_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.5 }
+        },
+        "tool_axis": {
+          "axis_mode": { "type": "enum", "values": ["follow_centerline", "interpolate", "fixed_to_curve"], "default": "follow_centerline" },
+          "lead_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 45 }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0.1 },
+          "minimum_port_diameter_mm": { "type": "number", "min": 1, "max": 100, "default": 10 },
+          "collision_safety_margin_mm": { "type": "number", "min": 0, "max": 5, "default": 0.5 }
+        },
+        "linking": {
+          "entry_strategy": { "type": "enum", "values": ["axial", "ramp_along_centerline", "helical"], "default": "axial" },
+          "exit_strategy": { "type": "enum", "values": ["axial", "ramp_along_centerline"], "default": "axial" },
+          "retract_along_centerline": { "type": "boolean", "default": true },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 500, "default": 50 }
+        }
+      }
+    },
+    "tool_axis_strategy": {
+      "category": "tool_axis",
+      "display_name": "Tool Axis Strategy (Standalone)",
+      "description": "Standalone tool-axis-control op layered onto another driven path — useful for retro-fitting an axis policy onto an existing 3-axis or wireframe path without rebuilding it.",
+      "parameter_count": 16,
+      "dialog_tabs": ["target_path", "axis_mode", "limits", "smoothing"],
+      "parameters": {
+        "target_path": {
+          "source_toolpath_id": { "type": "string", "required": true },
+          "preserve_xyz": { "type": "boolean", "default": true },
+          "rebuild_links": { "type": "boolean", "default": false }
+        },
+        "axis_mode": {
+          "axis_mode": { "type": "enum", "values": ["normal_to_part", "lead_lag", "fixed_vector", "from_point", "to_point", "interpolate"], "default": "lead_lag" },
+          "lead_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 5 },
+          "lag_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "fixed_vector_x": { "type": "number", "required": false },
+          "fixed_vector_y": { "type": "number", "required": false },
+          "fixed_vector_z": { "type": "number", "required": false }
+        },
+        "limits": {
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "min_tool_axis_change_deg": { "type": "number", "min": 0, "max": 5, "default": 0.1 },
+          "stay_within_machine_envelope": { "type": "boolean", "default": true }
+        },
+        "smoothing": {
+          "smooth_axis_changes": { "type": "boolean", "default": true },
+          "smoothing_filter_count": { "type": "number", "min": 1, "max": 20, "default": 5 },
+          "max_axis_change_per_mm_deg": { "type": "number", "min": 0.1, "max": 30, "default": 5 },
+          "preserve_corner_axis": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "projection_5axis": {
+      "category": "tool_axis",
+      "display_name": "Projection 5-Axis Finishing",
+      "description": "Project a 2D pattern (raster, radial, spiral, pencil) onto a 3D surface using a chosen projection vector, with simultaneous tool-axis tilt to keep the tool away from gouges.",
+      "parameter_count": 15,
+      "dialog_tabs": ["geometry", "pattern", "projection", "tool_axis"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "pattern": {
+          "pattern_type": { "type": "enum", "values": ["raster", "radial", "spiral", "pencil"], "default": "raster" },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.3 },
+          "raster_angle_deg": { "type": "number", "min": 0, "max": 180, "default": 0 }
+        },
+        "projection": {
+          "projection_vector_x": { "type": "number", "default": 0 },
+          "projection_vector_y": { "type": "number", "default": 0 },
+          "projection_vector_z": { "type": "number", "default": 1 },
+          "projection_origin_z_mm": { "type": "number", "required": false }
+        },
+        "tool_axis": {
+          "axis_mode": { "type": "enum", "values": ["fixed_to_projection", "lead_lag", "normal_to_part"], "default": "lead_lag" },
+          "lead_angle_deg": { "type": "number", "min": 0, "max": 30, "default": 5 },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "smooth_axis_changes": { "type": "boolean", "default": true },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 1, "default": 0 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "index_3plus2": {
+      "category": "positional",
+      "display_name": "3+2 Positional (Indexed) Machining",
+      "description": "Locks rotary axes at a fixed orientation, then runs a normal 3-axis strategy in that frame. The 'safest' way to access undercut features without simul-5 toolpath complexity.",
+      "parameter_count": 13,
+      "dialog_tabs": ["orientation", "child_strategy", "transitions"],
+      "parameters": {
+        "orientation": {
+          "wcs_id": { "type": "string", "required": true },
+          "rotary_a_deg": { "type": "number", "min": -180, "max": 180, "default": 0 },
+          "rotary_b_deg": { "type": "number", "min": -180, "max": 180, "default": 0 },
+          "rotary_c_deg": { "type": "number", "min": -360, "max": 360, "default": 0 },
+          "tcp_offset_mm": { "type": "number", "min": -50, "max": 50, "default": 0 }
+        },
+        "child_strategy": {
+          "child_strategy_id": { "type": "string", "required": true },
+          "inherit_tool": { "type": "boolean", "default": true },
+          "inherit_feed_speed": { "type": "boolean", "default": true }
+        },
+        "transitions": {
+          "rotate_at_safe_z": { "type": "boolean", "default": true },
+          "rotation_feed_rate_pct": { "type": "number", "min": 10, "max": 100, "default": 50 },
+          "verify_no_collision_during_rotation": { "type": "boolean", "default": true },
+          "max_axis_change_per_block_deg": { "type": "number", "min": 1, "max": 90, "default": 30 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 500, "default": 50 }
+        }
+      }
+    },
+    "curve_5axis": {
+      "category": "positional",
+      "display_name": "5-Axis Curve Machining",
+      "description": "Runs the tool along a user-defined 3D curve with controlled tool axis — used for engraving on freeform surfaces, edge breaking on complex contours, deburring along trim curves.",
+      "parameter_count": 13,
+      "dialog_tabs": ["curve", "tool", "axis", "linking"],
+      "parameters": {
+        "curve": {
+          "drive_curve": { "type": "geometry_ref", "required": true },
+          "drive_curve_offset_mm": { "type": "number", "min": -10, "max": 10, "default": 0 },
+          "follow_direction": { "type": "enum", "values": ["forward", "reverse", "lace"], "default": "forward" }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "depth_below_curve_mm": { "type": "number", "min": -10, "max": 10, "default": 0 }
+        },
+        "axis": {
+          "axis_mode": { "type": "enum", "values": ["normal_to_curve", "fixed_vector", "follow_curve_tangent", "interpolate"], "default": "normal_to_curve" },
+          "lead_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 30 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["tangential", "arc", "vertical"], "default": "tangential" },
+          "lead_in_length_mm": { "type": "number", "min": 0.1, "max": 20, "default": 2 },
+          "lead_out_type": { "type": "enum", "values": ["tangential", "arc", "vertical"], "default": "tangential" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "wireframe_swarf": {
+      "category": "wireframe",
+      "display_name": "Wireframe Swarf Machining",
+      "description": "Swarf machining driven by paired 3D wireframe curves (top + bottom) instead of a surface. Useful for prototyping or when surface geometry is unavailable.",
+      "parameter_count": 11,
+      "dialog_tabs": ["wireframe", "tool", "axis", "limits"],
+      "parameters": {
+        "wireframe": {
+          "top_curve": { "type": "geometry_ref", "required": true },
+          "bottom_curve": { "type": "geometry_ref", "required": true },
+          "step_count_along_curves": { "type": "number", "min": 5, "max": 999, "default": 50 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_loc_mm": { "type": "number", "required": true }
+        },
+        "axis": {
+          "axis_mode": { "type": "enum", "values": ["swarf_through_curves", "interpolate"], "default": "swarf_through_curves" },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 89, "default": 30 }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "lead_in_type": { "type": "enum", "values": ["tangential", "arc"], "default": "tangential" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "robot_config": {
+      "category": "robot",
+      "display_name": "Robot Configuration (Cell Setup)",
+      "description": "Defines the robot kinematic chain — 6-axis articulated arm with link lengths, joint limits, base offset relative to part. PowerMill Robot module entry point.",
+      "parameter_count": 16,
+      "dialog_tabs": ["identity", "kinematics", "joint_limits", "tcp"],
+      "parameters": {
+        "identity": {
+          "robot_id": { "type": "string", "required": true },
+          "vendor": { "type": "enum", "values": ["abb", "kuka", "fanuc", "yaskawa", "staubli", "universal_robots", "custom"], "required": true },
+          "model_name": { "type": "string", "required": true }
+        },
+        "kinematics": {
+          "base_offset_x_mm": { "type": "number", "default": 0 },
+          "base_offset_y_mm": { "type": "number", "default": 0 },
+          "base_offset_z_mm": { "type": "number", "default": 0 },
+          "upper_arm_length_mm": { "type": "number", "min": 100, "max": 5000, "required": true },
+          "forearm_length_mm": { "type": "number", "min": 100, "max": 5000, "required": true },
+          "wrist_offset_mm": { "type": "number", "min": 0, "max": 1000, "default": 0 }
+        },
+        "joint_limits": {
+          "j1_min_max_deg": { "type": "string", "default": "-180,180" },
+          "j2_min_max_deg": { "type": "string", "default": "-90,90" },
+          "j3_min_max_deg": { "type": "string", "default": "-180,180" },
+          "j4_min_max_deg": { "type": "string", "default": "-180,180" },
+          "j5_min_max_deg": { "type": "string", "default": "-130,130" }
+        },
+        "tcp": {
+          "tcp_offset_x_mm": { "type": "number", "default": 0 },
+          "tcp_offset_y_mm": { "type": "number", "default": 0 }
+        }
+      }
+    },
+    "robot_reach": {
+      "category": "robot",
+      "display_name": "Robot Reach / Singularity Validation",
+      "description": "Pre-flight validation: simulates the entire toolpath against the robot's reach envelope and joint limits. Reports out-of-reach points, singularities, and joint-limit violations.",
+      "parameter_count": 13,
+      "dialog_tabs": ["target_path", "envelope", "singularity", "report"],
+      "parameters": {
+        "target_path": {
+          "robot_id": { "type": "string", "required": true },
+          "toolpath_id": { "type": "string", "required": true },
+          "test_density": { "type": "enum", "values": ["coarse_50", "medium_500", "fine_5000", "exhaustive"], "default": "medium_500" }
+        },
+        "envelope": {
+          "minimum_reach_margin_mm": { "type": "number", "min": 0, "max": 500, "default": 50 },
+          "maximum_reach_margin_mm": { "type": "number", "min": 0, "max": 500, "default": 100 },
+          "include_holder_envelope": { "type": "boolean", "default": true }
+        },
+        "singularity": {
+          "wrist_singularity_threshold_deg": { "type": "number", "min": 0, "max": 30, "default": 5 },
+          "elbow_singularity_threshold_deg": { "type": "number", "min": 0, "max": 30, "default": 3 },
+          "shoulder_singularity_threshold_deg": { "type": "number", "min": 0, "max": 30, "default": 5 }
+        },
+        "report": {
+          "stop_on_first_violation": { "type": "boolean", "default": false },
+          "export_violations_csv": { "type": "boolean", "default": true },
+          "auto_smooth_axis_at_singularity": { "type": "boolean", "default": true },
+          "max_violations_to_report": { "type": "number", "min": 1, "max": 10000, "default": 100 }
+        }
+      }
+    },
+    "robot_trim": {
+      "category": "robot",
+      "display_name": "Robot Trim Machining",
+      "description": "Path-projection trimming on composite parts (CFRP, GFRP, foam molds) — robot end-effector follows a trim curve at constant offset along surface normal.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "robot", "trim", "process"],
+      "parameters": {
+        "geometry": {
+          "part_surface": { "type": "geometry_ref", "required": true },
+          "trim_curve": { "type": "geometry_ref", "required": true }
+        },
+        "robot": {
+          "robot_id": { "type": "string", "required": true },
+          "end_effector_type": { "type": "enum", "values": ["router", "ultrasonic_knife", "waterjet_head", "laser_head"], "default": "router" }
+        },
+        "trim": {
+          "trim_offset_mm": { "type": "number", "min": -10, "max": 10, "default": 0 },
+          "depth_into_part_mm": { "type": "number", "min": 0, "max": 50, "default": 5 },
+          "follow_direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward" },
+          "approach_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 0 }
+        },
+        "process": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feed_mm_per_min": { "type": "number", "required": true },
+          "dust_extraction_enabled": { "type": "boolean", "default": true },
+          "lead_in_distance_mm": { "type": "number", "min": 0, "max": 50, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 500, "default": 100 }
+        }
+      }
+    },
+    "robot_post": {
+      "category": "robot",
+      "display_name": "Robot Post-Processor (Vendor Output)",
+      "description": "Converts robot toolpath into vendor-native program format — RAPID for ABB, KRL for KUKA, TPP for Fanuc, INFORM for Yaskawa. Each dialect has different motion-block and frame-definition syntax.",
+      "parameter_count": 12,
+      "dialog_tabs": ["target_robot", "output", "motion"],
+      "parameters": {
+        "target_robot": {
+          "robot_id": { "type": "string", "required": true },
+          "vendor_dialect": { "type": "enum", "values": ["abb_rapid", "kuka_krl", "fanuc_tpp", "yaskawa_inform", "staubli_val3", "universal_urscript"], "required": true },
+          "controller_version": { "type": "string", "required": false }
+        },
+        "output": {
+          "output_file_path": { "type": "string", "required": true },
+          "include_singularity_warnings": { "type": "boolean", "default": true },
+          "split_by_setup": { "type": "boolean", "default": true }
+        },
+        "motion": {
+          "default_motion_type": { "type": "enum", "values": ["lin", "ptp", "circ"], "default": "lin" },
+          "default_speed_mm_per_sec": { "type": "number", "min": 1, "max": 5000, "default": 100 },
+          "default_zone_mm": { "type": "number", "min": 0, "max": 100, "default": 1 },
+          "include_joint_motion_at_setup_change": { "type": "boolean", "default": true },
+          "include_origin_block": { "type": "boolean", "default": true },
+          "include_end_block": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Swarf vs Tilted-Tool Axis on Ruled Surfaces",
+      "key_concepts": [
+        "Swarf = full-flute side-cut on ruled surface; one pass per V step",
+        "Tilted tool axis = tip cuts with controlled lead/lag; multi-pass",
+        "Swarf is faster but requires the surface to be truly ruled"
+      ],
+      "best_practices": [
+        "Verify ruled-surface check before assigning swarf — non-ruled surfaces gouge",
+        "Lead 5° + lag 0° gives a good compromise for tilted-tool finishing",
+        "Always set max_tilt to limit holder collision"
+      ]
+    },
+    {
+      "topic": "Impeller / Blisk Blade Strategy Selection",
+      "key_concepts": [
+        "Stages: rough_slice → finish_pressure_side → finish_suction_side → hub_fillet → leading_edge_cleanup",
+        "Tool axis: lead_lag for general blade finishing; swarf for the hub fillet",
+        "min_passage_width_mm constrains tool diameter (typical impeller: 3-5mm passage → 2-3mm ball mill)"
+      ],
+      "best_practices": [
+        "Run all 5 stages in order; skipping leading-edge cleanup leaves a fillet blend mark",
+        "collision_safety_margin 0.5mm minimum — blade flutter at hub junction is unforgiving",
+        "Verify in simulation first — impeller crashes cost a $10k+ blank"
+      ]
+    },
+    {
+      "topic": "3+2 Positional vs Full 5-Axis",
+      "key_concepts": [
+        "3+2 = lock rotary axes at fixed angle, run 3-axis in that frame — simpler, more predictable",
+        "Full 5-axis = continuous rotary motion during cut — needed only for true freeform like impellers",
+        "Most production parts can use 3+2 for 80%+ of features"
+      ],
+      "best_practices": [
+        "Default to 3+2 — only escalate to full 5-axis when feature requires continuous tool tilt",
+        "rotate_at_safe_z = true to avoid collision during axis change",
+        "Verify no collision during rotation BEFORE the cut — multi-axis machines do not stop on touch"
+      ]
+    },
+    {
+      "topic": "Singularity Avoidance & Tool-Axis Smoothing",
+      "key_concepts": [
+        "Table-table machine singularity: A=0° (C undefined); avoid passing through pole",
+        "Head-head machine singularity: B=0°; same problem in different frame",
+        "Robot wrist singularity: J5=0° (J4 and J6 collinear) — robot stalls trying to flip"
+      ],
+      "best_practices": [
+        "Set min_tool_axis_change_deg = 0.1 to filter near-zero motions that stall the controller",
+        "smoothing_filter_count 3-5 passes will eliminate ripple at singularity approaches",
+        "auto_smooth_axis_at_singularity = true; avoids manual rework on every collision report"
+      ]
+    },
+    {
+      "topic": "Robot vs CNC Spindle — Kinematic Tradeoffs",
+      "key_concepts": [
+        "Robot reach = upper_arm + forearm + wrist_offset; minimum reach = |upper - forearm|",
+        "Robot is much more compliant than a CNC spindle — cutting force ≤ 100 N for accuracy",
+        "Robot is best at: trim, deburr, polish, paint, assembly — not hard milling"
+      ],
+      "best_practices": [
+        "Validate reach with the entire toolpath, not just endpoints",
+        "Use robot_reach pre-flight before posting — runtime reach failures crash the robot",
+        "For force >100N applications, use a CNC spindle — robot accuracy degrades catastrophically"
+      ]
+    },
+    {
+      "topic": "Robot Post-Processor Vendor Dialect Differences",
+      "key_concepts": [
+        "ABB RAPID: PROC main(), MoveL/MoveJ/MoveC, robtarget format",
+        "KUKA KRL: DEF main(), LIN/PTP/CIRC, FRAME and POS data types",
+        "Fanuc TPP: PROGRAM, L (linear) / J (joint) / C (circular), POSREG",
+        "Yaskawa INFORM: NOP/MOVL/MOVJ/MOVC, P-variable for positions"
+      ],
+      "best_practices": [
+        "Always include_singularity_warnings — operator needs to see them in the program",
+        "split_by_setup = true so each setup has its own program file (easier to re-run)",
+        "Verify zone parameter behavior — fine zone (z=0) vs coarse zone (z=100mm) drives smooth vs jerky motion"
+      ]
+    }
+  ]
+}
