@@ -150,6 +150,25 @@ async function getGcodeValidator(): Promise<any> {
     .gcodeValidationEngine);
 }
 
+// P1-U09-L2-AGG: L2 aggregator lazy loaders
+let _fiveAxisAgg: any;
+async function getFiveAxisAggregator(): Promise<any> {
+  return (_fiveAxisAgg ??= (await import("../../engines/FiveAxisAggregatorEngine.js"))
+    .fiveAxisAggregatorEngine);
+}
+
+let _multiAxisAgg: any;
+async function getMultiAxisAggregator(): Promise<any> {
+  return (_multiAxisAgg ??= (await import("../../engines/MultiAxisAggregatorEngine.js"))
+    .multiAxisAggregatorEngine);
+}
+
+let _millTurnOrch: any;
+async function getMillTurnOrchestration(): Promise<any> {
+  return (_millTurnOrch ??= (await import("../../engines/MillTurnOrchestrationEngine.js"))
+    .millTurnOrchestrationEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -186,6 +205,8 @@ const ACTIONS = [
   // P4-U03-MACHDB: JM Die machine database
   "mill_machine_db_get", "mill_machine_db_list", "mill_machine_db_filter",
   "mill_machine_db_mills", "mill_machine_db_capabilities",
+  // P1-U09-L2-AGG: L2 aggregator actions
+  "mill_five_axis_aggregate", "mill_multi_axis_aggregate", "mill_turn_orchestrate",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -738,6 +759,51 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
           g_code_dialect: config.gCodeDialect,
         },
       });
+    }
+
+    // ── P1-U09-L2-AGG: L2 aggregators ─────────────────────────
+    case "mill_five_axis_aggregate": {
+      const agg = await getFiveAxisAggregator();
+      const op = params.op as string;
+      if (op === "list") return { members: agg.list(), count: agg.count() };
+      if (op === "count") return { count: agg.count() };
+      if (op === "self_awareness") return agg.getSelfAwareness();
+      if (op === "invoke") {
+        const member = params.member;
+        const method = params.method;
+        const args = Array.isArray(params.args) ? params.args : [];
+        return await agg.invoke(member, method, ...args);
+      }
+      return { error: `Unknown op for mill_five_axis_aggregate: ${op}` };
+    }
+    case "mill_multi_axis_aggregate": {
+      const agg = await getMultiAxisAggregator();
+      const op = params.op as string;
+      if (op === "list") return { members: agg.list(), count: agg.count() };
+      if (op === "count") return { count: agg.count() };
+      if (op === "self_awareness") return agg.getSelfAwareness();
+      if (op === "invoke") {
+        const member = params.member;
+        const method = params.method;
+        const args = Array.isArray(params.args) ? params.args : [];
+        return await agg.invoke(member, method, ...args);
+      }
+      return { error: `Unknown op for mill_multi_axis_aggregate: ${op}` };
+    }
+    case "mill_turn_orchestrate": {
+      const orch = await getMillTurnOrchestration();
+      const op = params.op as string;
+      if (op === "list") return { members: orch.list(), count: orch.count() };
+      if (op === "count") return { count: orch.count() };
+      if (op === "self_awareness") return orch.getSelfAwareness();
+      if (op === "route") return orch.route(params.ctx ?? {});
+      if (op === "invoke") {
+        const member = params.member;
+        const method = params.method;
+        const args = Array.isArray(params.args) ? params.args : [];
+        return await orch.invoke(member, method, ...args);
+      }
+      return { error: `Unknown op for mill_turn_orchestrate: ${op}` };
     }
 
     default:

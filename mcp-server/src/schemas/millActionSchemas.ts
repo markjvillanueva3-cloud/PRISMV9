@@ -586,6 +586,54 @@ const mill_machine_db_capabilities = z.object({
 }).passthrough();
 
 // ============================================================================
+// P1-U09-L2-AGG: Aggregator schemas
+// ============================================================================
+
+const aggregatorOp = z.enum(["list", "count", "self_awareness", "invoke"]).describe("Aggregator operation");
+const aggregatorOpWithRoute = z.enum(["list", "count", "self_awareness", "invoke", "route"]).describe("Aggregator operation (includes route)");
+
+const fiveAxisMember = z.enum([
+  "orchestration", "ai_ultra", "deep_learning", "cam_integration",
+  "toolpath_integration", "toolpath_synthesis", "post", "decision", "cad_template",
+]);
+
+const multiAxisMember = z.enum(["kinematic", "print_to_program", "toolpath"]);
+
+const millTurnMember = z.enum(["mill_turn", "swiss"]);
+
+const mill_five_axis_aggregate = z.object({
+  ...millContext,
+  op: aggregatorOp,
+  member: fiveAxisMember.optional().describe("Target member for op=invoke"),
+  method: z.string().optional().describe("Method name for op=invoke"),
+  args: z.array(z.any()).optional().describe("Positional args for method"),
+}).passthrough();
+
+const mill_multi_axis_aggregate = z.object({
+  ...millContext,
+  op: aggregatorOp,
+  member: multiAxisMember.optional().describe("Target member for op=invoke"),
+  method: z.string().optional().describe("Method name for op=invoke"),
+  args: z.array(z.any()).optional().describe("Positional args for method"),
+}).passthrough();
+
+const millTurnRouteCtx = z.object({
+  machine_class: z.enum(["mill-turn", "swiss"]).optional(),
+  has_guide_bushing: z.boolean().optional(),
+  has_sub_spindle: z.boolean().optional(),
+  multi_channel: z.boolean().optional(),
+}).describe("Routing context for mill-turn decision");
+
+const mill_turn_orchestrate = z.object({
+  ...millContext,
+  op: aggregatorOpWithRoute,
+  member: millTurnMember.optional().describe("Target member for op=invoke"),
+  method: z.string().optional().describe("Method name for op=invoke"),
+  args: z.array(z.any()).optional().describe("Positional args for method"),
+  ctx: millTurnRouteCtx.optional().describe("Context for op=route"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -663,4 +711,8 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_machine_db_filter,
   mill_machine_db_mills,
   mill_machine_db_capabilities,
+  // P1-U09-L2-AGG: L2 aggregators
+  mill_five_axis_aggregate,
+  mill_multi_axis_aggregate,
+  mill_turn_orchestrate,
 };
