@@ -113,6 +113,8 @@ let _latheScheduler: any;
 let _latheOrderLifecycle: any;
 let _lathePOAutomation: any;
 let _latheInventory: any;
+let _latheProfitability: any;
+let _latheERPOrchestrator: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -332,6 +334,14 @@ async function getEngine(name: string): Promise<any> {
       return _latheInventory ??= (
         await import("../../engines/LatheInventoryIntelligenceEngine.js")
       ).latheInventoryIntelligenceEngine;
+    case "latheProfitability":
+      return _latheProfitability ??= (
+        await import("../../engines/LatheJobProfitabilityAnalyticsEngine.js")
+      ).latheJobProfitabilityAnalyticsEngine;
+    case "latheERPOrchestrator":
+      return _latheERPOrchestrator ??= (
+        await import("../../engines/LatheERPOrchestratorEngine.js")
+      ).latheERPOrchestratorEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -770,6 +780,12 @@ const ACTIONS = [
   "lathe_inv_snapshot",
   "lathe_inv_alerts",
   "lathe_inv_get",
+  // ── Lathe Profitability Analytics (U-LTH54) ──
+  "lathe_profit_record",
+  "lathe_profit_portfolio",
+  "lathe_profit_get",
+  // ── Lathe ERP Orchestrator (U-LTH57) ──
+  "lathe_erp_full",
 ] as const;
 
 /** Registers business dispatcher.
@@ -3325,6 +3341,30 @@ Params vary by action — pass relevant fields in params object.`,
           case "lathe_inv_get": {
             const engine = await getEngine("latheInventory");
             result = engine.getItem(params.sku);
+            break;
+          }
+
+          // ── Lathe Profitability Analytics (U-LTH54) ──
+          case "lathe_profit_record": {
+            const engine = await getEngine("latheProfitability");
+            result = engine.recordJob(params as any);
+            break;
+          }
+          case "lathe_profit_portfolio": {
+            const engine = await getEngine("latheProfitability");
+            result = engine.portfolio(params as any);
+            break;
+          }
+          case "lathe_profit_get": {
+            const engine = await getEngine("latheProfitability");
+            result = engine.getJob(params.job_id);
+            break;
+          }
+
+          // ── Lathe ERP Orchestrator (U-LTH57) ──
+          case "lathe_erp_full": {
+            const engine = await getEngine("latheERPOrchestrator");
+            result = engine.erpFull(params as any);
             break;
           }
 
