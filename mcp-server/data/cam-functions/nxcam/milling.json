@@ -1,0 +1,1436 @@
+{
+  "schemaVersion": 1,
+  "system_id": "nxcam",
+  "section_key": "milling",
+  "version": "2306",
+  "extracted_from": "Siemens NX 2306 CAM Manufacturing Programming Manual + NX Help Library (Milling section)",
+  "categories": [
+    "fixed_axis_3plus2",
+    "variable_axis",
+    "adaptive",
+    "sequential",
+    "prismatic_finish",
+    "feature_based"
+  ],
+  "operations": {
+    "face_milling": {
+      "category": "fixed_axis_3plus2",
+      "display_name": "Face Milling (FACE_MILLING)",
+      "description": "Planar face milling on flat top surface; lace, follow-periphery, follow-part patterns; nx_face_mill template.",
+      "parameter_count": 22,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "tool_axis",
+        "path_settings",
+        "non_cutting_moves",
+        "speeds_feeds",
+        "machine_control"
+      ],
+      "parameters": {
+        "geometry": {
+          "blank_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "trim_boundary": {
+            "type": "geometry_ref",
+            "required": false
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_corner_radius_mm": {
+            "type": "number",
+            "default": 0
+          },
+          "tool_holder_check": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "tool_axis": {
+          "axis_mode": {
+            "type": "enum",
+            "values": [
+              "+ZM",
+              "specify_vector",
+              "normal_to_first_face"
+            ],
+            "default": "+ZM"
+          }
+        },
+        "path_settings": {
+          "cut_pattern": {
+            "type": "enum",
+            "values": [
+              "follow_periphery",
+              "follow_part",
+              "trochoidal",
+              "zig",
+              "zig_zag",
+              "lace"
+            ],
+            "default": "follow_periphery"
+          },
+          "stepover_pct": {
+            "type": "number",
+            "min": 5,
+            "max": 95,
+            "default": 65
+          },
+          "depth_per_cut_mm": {
+            "type": "number",
+            "min": 0.1,
+            "max": 20,
+            "default": 3
+          },
+          "blank_distance_mm": {
+            "type": "number",
+            "default": 3
+          },
+          "final_floor_stock_mm": {
+            "type": "number",
+            "default": 0
+          },
+          "wall_stock_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "non_cutting_moves": {
+          "engage_type": {
+            "type": "enum",
+            "values": [
+              "plunge",
+              "linear",
+              "helical",
+              "ramp_on_shape"
+            ],
+            "default": "linear"
+          },
+          "retract_type": {
+            "type": "enum",
+            "values": [
+              "linear",
+              "circular"
+            ],
+            "default": "linear"
+          },
+          "transfer_clearance_mm": {
+            "type": "number",
+            "default": 5
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          },
+          "engage_feed_pct": {
+            "type": "number",
+            "default": 50
+          },
+          "retract_feed_pct": {
+            "type": "number",
+            "default": 100
+          }
+        },
+        "machine_control": {
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "tsc",
+              "mql"
+            ],
+            "default": "flood"
+          }
+        }
+      }
+    },
+    "planar_mill": {
+      "category": "fixed_axis_3plus2",
+      "display_name": "Planar Mill (PLANAR_MILL)",
+      "description": "2D contour and pocket milling using boundary curves; supports floor/wall/island geometry.",
+      "parameter_count": 20,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "path_settings",
+        "cut_levels",
+        "non_cutting_moves",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_boundary": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "blank_boundary": {
+            "type": "geometry_ref",
+            "required": false
+          },
+          "check_boundary": {
+            "type": "geometry_ref",
+            "required": false
+          },
+          "trim_boundary": {
+            "type": "geometry_ref",
+            "required": false
+          },
+          "floor_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "path_settings": {
+          "cut_pattern": {
+            "type": "enum",
+            "values": [
+              "follow_part",
+              "follow_periphery",
+              "profile",
+              "standard_drive",
+              "trochoidal"
+            ],
+            "default": "follow_part"
+          },
+          "stepover_type": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "scallop",
+              "tool_dia_pct"
+            ],
+            "default": "tool_dia_pct"
+          },
+          "stepover_pct": {
+            "type": "number",
+            "default": 50
+          },
+          "wall_stock_mm": {
+            "type": "number",
+            "default": 0.2
+          },
+          "floor_stock_mm": {
+            "type": "number",
+            "default": 0.1
+          }
+        },
+        "cut_levels": {
+          "common_depth_mm": {
+            "type": "number",
+            "default": 2
+          },
+          "minimum_cut_length_mm": {
+            "type": "number",
+            "default": 0
+          },
+          "use_island_levels": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "non_cutting_moves": {
+          "engage_type": {
+            "type": "enum",
+            "values": [
+              "plunge",
+              "ramp_on_shape",
+              "helical"
+            ],
+            "default": "helical"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "default": 5
+          },
+          "transfer_method": {
+            "type": "enum",
+            "values": [
+              "safe_clearance",
+              "previous_plane",
+              "direct"
+            ],
+            "default": "safe_clearance"
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "cavity_mill": {
+      "category": "fixed_axis_3plus2",
+      "display_name": "Cavity Mill (CAVITY_MILL)",
+      "description": "Z-level roughing for prismatic and surface cavities; supports level-by-level peel, follow-periphery, trochoidal.",
+      "parameter_count": 20,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "path_settings",
+        "cut_levels",
+        "non_cutting_moves",
+        "speeds_feeds",
+        "containment"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "blank_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "check_geometry": {
+            "type": "geometry_ref",
+            "required": false
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_corner_radius_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "path_settings": {
+          "cut_pattern": {
+            "type": "enum",
+            "values": [
+              "follow_periphery",
+              "follow_part",
+              "trochoidal",
+              "zig_zag",
+              "profile"
+            ],
+            "default": "follow_periphery"
+          },
+          "stepover_pct": {
+            "type": "number",
+            "default": 50
+          },
+          "global_depth_per_cut_mm": {
+            "type": "number",
+            "default": 3
+          },
+          "part_stock_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "cut_levels": {
+          "level_distribution": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "fixed_count",
+              "by_geometry"
+            ],
+            "default": "constant"
+          },
+          "min_depth_per_cut_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "non_cutting_moves": {
+          "engage_type": {
+            "type": "enum",
+            "values": [
+              "plunge",
+              "helical",
+              "ramp"
+            ],
+            "default": "helical"
+          },
+          "helix_diameter_pct": {
+            "type": "number",
+            "default": 90
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "default": 3
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          },
+          "engage_feed_pct": {
+            "type": "number",
+            "default": 30
+          }
+        },
+        "containment": {
+          "trim_by_blank": {
+            "type": "boolean",
+            "default": true
+          },
+          "in_process_workpiece": {
+            "type": "enum",
+            "values": [
+              "off",
+              "use_3d",
+              "use_level"
+            ],
+            "default": "use_3d"
+          }
+        }
+      }
+    },
+    "zlevel_profile": {
+      "category": "fixed_axis_3plus2",
+      "display_name": "Z-Level Profile (ZLEVEL_PROFILE)",
+      "description": "Constant-Z waterline finishing on steep walls; depth control via cut-levels and steep angle threshold.",
+      "parameter_count": 14,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "steep_containment",
+        "cut_levels",
+        "path_settings",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "trim_boundary": {
+            "type": "geometry_ref",
+            "required": false
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "steep_containment": {
+          "steep_angle_deg": {
+            "type": "number",
+            "min": 0,
+            "max": 90,
+            "default": 65
+          },
+          "merge_with_shallow_pass": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "cut_levels": {
+          "global_depth_per_cut_mm": {
+            "type": "number",
+            "default": 0.3
+          },
+          "min_depth_per_cut_mm": {
+            "type": "number",
+            "default": 0.05
+          },
+          "merge_distance_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "path_settings": {
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "alternating"
+            ],
+            "default": "climb"
+          },
+          "spiral_path": {
+            "type": "boolean",
+            "default": false
+          },
+          "wall_stock_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "fixed_contour": {
+      "category": "fixed_axis_3plus2",
+      "display_name": "Fixed Contour (FIXED_CONTOUR)",
+      "description": "Fixed-axis 3D surface contouring with multiple drive methods (boundary, area-milling, surface area).",
+      "parameter_count": 13,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "drive_method",
+        "projection",
+        "path_settings",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "drive_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "drive_method": {
+          "method": {
+            "type": "enum",
+            "values": [
+              "boundary",
+              "area_milling",
+              "surface_area",
+              "radial",
+              "spiral",
+              "flow_cut"
+            ],
+            "default": "area_milling"
+          },
+          "stepover_mm": {
+            "type": "number",
+            "default": 0.5
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "default": 0.005
+          }
+        },
+        "projection": {
+          "projection_vector": {
+            "type": "enum",
+            "values": [
+              "tool_axis",
+              "normal_to_drive",
+              "specify_vector"
+            ],
+            "default": "tool_axis"
+          },
+          "tolerance_mm": {
+            "type": "number",
+            "default": 0.01
+          }
+        },
+        "path_settings": {
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb"
+          },
+          "wall_stock_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "variable_contour": {
+      "category": "variable_axis",
+      "display_name": "Variable Contour (VARIABLE_CONTOUR)",
+      "description": "5-axis simultaneous milling driven by surface or curve drive geometry; supports tool-axis tilting strategies.",
+      "parameter_count": 17,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "drive_method",
+        "tool_axis",
+        "projection",
+        "tilt_control",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "drive_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "check_geometry": {
+            "type": "geometry_ref",
+            "required": false
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "drive_method": {
+          "method": {
+            "type": "enum",
+            "values": [
+              "surface_area",
+              "curve_point",
+              "flow_cut",
+              "between_two_drive_curves",
+              "radial_cut",
+              "swarf_drive"
+            ],
+            "default": "surface_area"
+          },
+          "step_method": {
+            "type": "enum",
+            "values": [
+              "number_of_passes",
+              "scallop",
+              "constant"
+            ],
+            "default": "number_of_passes"
+          }
+        },
+        "tool_axis": {
+          "axis_mode": {
+            "type": "enum",
+            "values": [
+              "normal_to_part",
+              "normal_to_drive",
+              "lead_lag",
+              "swarf",
+              "interpolate",
+              "from_point",
+              "to_point",
+              "specified"
+            ],
+            "default": "normal_to_part"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "default": 0
+          },
+          "lag_angle_deg": {
+            "type": "number",
+            "default": 0
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "projection": {
+          "projection_vector": {
+            "type": "enum",
+            "values": [
+              "tool_axis",
+              "normal_to_drive",
+              "specify_vector"
+            ],
+            "default": "tool_axis"
+          }
+        },
+        "tilt_control": {
+          "max_tilt_deg": {
+            "type": "number",
+            "min": 0,
+            "max": 180,
+            "default": 90
+          },
+          "min_tool_axis_change_deg": {
+            "type": "number",
+            "default": 0.1
+          },
+          "smoothing": {
+            "type": "enum",
+            "values": [
+              "off",
+              "auto",
+              "manual"
+            ],
+            "default": "auto"
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "variable_streamline": {
+      "category": "variable_axis",
+      "display_name": "Variable Streamline (VARIABLE_STREAMLINE)",
+      "description": "Streamline-driven 5-axis machining following surface flow lines for organic/freeform geometry.",
+      "parameter_count": 14,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "streamline",
+        "tool_axis",
+        "tilt_control",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "stream_curves_u": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "stream_curves_v": {
+            "type": "geometry_ref",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "streamline": {
+          "u_passes": {
+            "type": "integer",
+            "min": 1,
+            "default": 20
+          },
+          "v_passes": {
+            "type": "integer",
+            "min": 1,
+            "default": 20
+          },
+          "interpolation": {
+            "type": "enum",
+            "values": [
+              "linear",
+              "spline",
+              "constant_chord"
+            ],
+            "default": "spline"
+          }
+        },
+        "tool_axis": {
+          "axis_mode": {
+            "type": "enum",
+            "values": [
+              "normal_to_part",
+              "lead_lag",
+              "interpolate"
+            ],
+            "default": "normal_to_part"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "default": 5
+          }
+        },
+        "tilt_control": {
+          "max_tilt_deg": {
+            "type": "number",
+            "default": 45
+          },
+          "smoothing": {
+            "type": "enum",
+            "values": [
+              "off",
+              "auto"
+            ],
+            "default": "auto"
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "swarf_drive": {
+      "category": "variable_axis",
+      "display_name": "Swarf Drive (SWARF_DRIVE)",
+      "description": "Side-milling with tool flute tangent to drive surface — used on ruled wall surfaces (impeller blades, flank cuts).",
+      "parameter_count": 15,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "drive_strategy",
+        "tool_axis",
+        "engagement",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "drive_surface": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "check_geometry": {
+            "type": "geometry_ref",
+            "required": false
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_length_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "drive_strategy": {
+          "drive_method": {
+            "type": "enum",
+            "values": [
+              "follow_drive_surface",
+              "alternate_directions"
+            ],
+            "default": "follow_drive_surface"
+          },
+          "step_method": {
+            "type": "enum",
+            "values": [
+              "number_of_passes",
+              "scallop"
+            ],
+            "default": "number_of_passes"
+          },
+          "passes": {
+            "type": "integer",
+            "min": 1,
+            "default": 1
+          }
+        },
+        "tool_axis": {
+          "axis_mode": {
+            "type": "enum",
+            "values": [
+              "tangent_to_drive_surface"
+            ],
+            "default": "tangent_to_drive_surface"
+          },
+          "tilt_offset_deg": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "engagement": {
+          "side_thickness_mm": {
+            "type": "number",
+            "default": 0
+          },
+          "lift_off_at_end_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "adaptive_milling": {
+      "category": "adaptive",
+      "display_name": "Adaptive Milling (ADAPTIVE_MILLING)",
+      "description": "High-efficiency machining with constant tool engagement; trochoidal-style with adaptive stepover, deep DOC.",
+      "parameter_count": 14,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "engagement_control",
+        "path_settings",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "blank_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "loc_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "engagement_control": {
+          "max_radial_engagement_pct": {
+            "type": "number",
+            "min": 5,
+            "max": 50,
+            "default": 12
+          },
+          "max_axial_doc_mm": {
+            "type": "number",
+            "required": true
+          },
+          "trochoid_step_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "path_settings": {
+          "cut_pattern": {
+            "type": "enum",
+            "values": [
+              "adaptive_constant_engagement"
+            ],
+            "default": "adaptive_constant_engagement"
+          },
+          "smooth_path": {
+            "type": "boolean",
+            "default": true
+          },
+          "min_cut_length_mm": {
+            "type": "number",
+            "default": 0.1
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          },
+          "feed_per_tooth_mm": {
+            "type": "number",
+            "default": 0.08
+          }
+        }
+      }
+    },
+    "sequential_mill": {
+      "category": "sequential",
+      "display_name": "Sequential Mill (SEQUENTIAL_MILL)",
+      "description": "Operator-driven step-by-step toolpath construction; manual control over each subop (drive, project, lift).",
+      "parameter_count": 9,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "subop_sequence",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "drive_curves": {
+            "type": "geometry_ref",
+            "required": true
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "subop_sequence": {
+          "subop_count": {
+            "type": "integer",
+            "min": 1,
+            "default": 4
+          },
+          "manual_engage_each": {
+            "type": "boolean",
+            "default": true
+          },
+          "manual_retract_each": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "planar_profile": {
+      "category": "prismatic_finish",
+      "display_name": "Planar Profile (PLANAR_PROFILE)",
+      "description": "2D profile finishing along boundary curves; controls tool side, climb/conventional direction.",
+      "parameter_count": 12,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "path_settings",
+        "non_cutting_moves",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_boundary": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "tool_side": {
+            "type": "enum",
+            "values": [
+              "left",
+              "right",
+              "on"
+            ],
+            "default": "left"
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          }
+        },
+        "path_settings": {
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb"
+          },
+          "wall_stock_mm": {
+            "type": "number",
+            "default": 0
+          },
+          "compensation_register": {
+            "type": "string",
+            "default": ""
+          },
+          "spring_passes": {
+            "type": "integer",
+            "min": 0,
+            "max": 3,
+            "default": 0
+          }
+        },
+        "non_cutting_moves": {
+          "engage_type": {
+            "type": "enum",
+            "values": [
+              "arc_tangent",
+              "linear_tangent",
+              "perpendicular"
+            ],
+            "default": "arc_tangent"
+          },
+          "engage_radius_mm": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "surface_contour": {
+      "category": "prismatic_finish",
+      "display_name": "Surface Contour (SURFACE_CONTOUR)",
+      "description": "3D surface finishing using surface-area drive method with tight tolerance and small scallop.",
+      "parameter_count": 13,
+      "dialog_tabs": [
+        "geometry",
+        "tool",
+        "drive_method",
+        "tolerance",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "drive_surfaces": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "trim_curves": {
+            "type": "geometry_ref",
+            "required": false
+          }
+        },
+        "tool": {
+          "tool_id": {
+            "type": "string",
+            "required": true
+          },
+          "tool_diameter_mm": {
+            "type": "number",
+            "required": true
+          },
+          "tool_corner_radius_mm": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "drive_method": {
+          "method": {
+            "type": "enum",
+            "values": [
+              "surface_area",
+              "boundary",
+              "spiral"
+            ],
+            "default": "surface_area"
+          },
+          "step_method": {
+            "type": "enum",
+            "values": [
+              "scallop",
+              "constant",
+              "number_of_passes"
+            ],
+            "default": "scallop"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "default": 0.003
+          }
+        },
+        "tolerance": {
+          "intolerance_mm": {
+            "type": "number",
+            "default": 0.005
+          },
+          "outtolerance_mm": {
+            "type": "number",
+            "default": 0.005
+          }
+        },
+        "speeds_feeds": {
+          "spindle_rpm": {
+            "type": "number",
+            "required": true
+          },
+          "cut_feed_mm_per_min": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    },
+    "auto_3d_fbm": {
+      "category": "feature_based",
+      "display_name": "Auto 3D Feature-Based Machining (AUTO_3D)",
+      "description": "Automatic feature recognition + machining; identifies pockets/holes/bosses and applies template operations.",
+      "parameter_count": 13,
+      "dialog_tabs": [
+        "geometry",
+        "feature_recognition",
+        "templates",
+        "tool_selection",
+        "speeds_feeds"
+      ],
+      "parameters": {
+        "geometry": {
+          "part_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          },
+          "blank_geometry": {
+            "type": "geometry_ref",
+            "required": true
+          }
+        },
+        "feature_recognition": {
+          "recognize_pockets": {
+            "type": "boolean",
+            "default": true
+          },
+          "recognize_holes": {
+            "type": "boolean",
+            "default": true
+          },
+          "recognize_bosses": {
+            "type": "boolean",
+            "default": false
+          },
+          "min_feature_size_mm": {
+            "type": "number",
+            "default": 0.5
+          }
+        },
+        "templates": {
+          "rough_template": {
+            "type": "string",
+            "default": "CAVITY_MILL_DEFAULT"
+          },
+          "finish_template": {
+            "type": "string",
+            "default": "ZLEVEL_PROFILE_DEFAULT"
+          },
+          "drill_template": {
+            "type": "string",
+            "default": "DRILLING_DEFAULT"
+          }
+        },
+        "tool_selection": {
+          "tool_strategy": {
+            "type": "enum",
+            "values": [
+              "smallest_fit",
+              "largest_fit",
+              "operator_assigned"
+            ],
+            "default": "smallest_fit"
+          },
+          "library_id": {
+            "type": "string",
+            "default": "default_library"
+          }
+        },
+        "speeds_feeds": {
+          "use_machine_data": {
+            "type": "boolean",
+            "default": true
+          },
+          "feed_override_pct": {
+            "type": "number",
+            "default": 100
+          }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Fixed vs Variable Axis Selection",
+      "key_concepts": [
+        "Fixed (3+2): tool axis locked to one orientation per pass — simpler post, higher rigidity",
+        "Variable (full 5): tool axis varies along path — needed for impellers, swarf, undercuts",
+        "Adaptive milling sits inside fixed-axis category but uses constant-engagement morphing"
+      ],
+      "best_practices": [
+        "Default to fixed-axis 3+2 unless geometry mandates simultaneous motion",
+        "Variable contour with normal-to-part axis is the safest 5-axis starter",
+        "Swarf drive needs ruled drive surfaces — chord deviation will gouge"
+      ]
+    },
+    {
+      "topic": "Z-Level Profile Steep-Angle Threshold",
+      "key_concepts": [
+        "steep_angle separates ZLEVEL (waterline) from shallow finish (e.g. fixed_contour)",
+        "Typical 60-70° — surfaces steeper than threshold get waterline; shallower get area milling",
+        "Merge_with_shallow_pass blends the two strategies seamlessly"
+      ],
+      "best_practices": [
+        "Set steep_angle=65° as a default starting point",
+        "Use small global_depth_per_cut (0.15-0.3mm) for hard materials and finishing"
+      ]
+    },
+    {
+      "topic": "Adaptive Milling Engagement Discipline",
+      "key_concepts": [
+        "max_radial_engagement_pct ≤ 12% keeps deep-DOC trochoidal stable",
+        "max_axial_doc can be 1-1.5×D (vs ~1×D for conventional pocket)",
+        "feed_per_tooth scales up by ~30-40% vs traditional roughing"
+      ],
+      "best_practices": [
+        "Start with 8% radial / 1.0×D axial / 0.10mm feed/tooth — tighten as confidence grows",
+        "Use long-flute LOC tool to take full advantage of deep axial DOC",
+        "Smooth path on — sharp corners cause spike loads even at low engagement"
+      ]
+    },
+    {
+      "topic": "Variable Contour Tool Axis Modes",
+      "key_concepts": [
+        "normal_to_part: tool axis tracks part normal — safest, rigid",
+        "lead_lag: tilts tool ahead/behind motion direction — improves surface finish",
+        "swarf: flank-cut along ruled surface — used on impeller/blisk blades",
+        "interpolate: smooth blend between specified axis vectors at points"
+      ],
+      "best_practices": [
+        "lead 5° + lag 0° gives a good compromise for most freeform finishing",
+        "Normal-to-drive on impeller hubs; swarf on the blade flanks",
+        "Always set max_tilt — uncontrolled tilt mid-path can crash holder"
+      ]
+    },
+    {
+      "topic": "Cavity Mill IPW (In-Process Workpiece)",
+      "key_concepts": [
+        "IPW tracks remaining stock between operations — drives rest-machining",
+        "use_3d: maintains true 3D solid model (slow, accurate)",
+        "use_level: maintains 2.5D level slices (faster, less precise)"
+      ],
+      "best_practices": [
+        "Use IPW=use_3d on roughing → finish flows so rest machining is exact",
+        "Refresh IPW at every setup change to avoid air cuts after re-fixturing"
+      ]
+    },
+    {
+      "topic": "FBM Template Selection",
+      "key_concepts": [
+        "Templates encapsulate 'how' to machine each feature class (pocket, hole, boss)",
+        "AUTO_3D applies templates after feature recognition — smallest_fit picks the smallest tool that reaches",
+        "Override per-feature when a non-standard recipe is needed"
+      ],
+      "best_practices": [
+        "Maintain a vetted template library — bad templates propagate",
+        "Always review FBM-generated ops before posting; auto-recognition can mis-classify"
+      ]
+    }
+  ]
+}

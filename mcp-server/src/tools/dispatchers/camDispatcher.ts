@@ -101,6 +101,7 @@ import { ACTION_SOLIDCAM_5_AXIS_FUNCTION_INDEX_SCHEMAS } from "../../schemas/sol
 import { ACTION_SOLIDCAM_TURNING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamTurningFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_MILLTURN_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamMillTurnFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamFunctionIndexActionSchemas.js";
+import { ACTION_NXCAM_MILLING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamMillingFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -166,6 +167,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_SOLIDCAM_TURNING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_MILLTURN_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_NXCAM_MILLING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -254,6 +256,7 @@ let _solidcam5AxisIndex: any;
 let _solidcamTurningIndex: any;
 let _solidcamMillTurnIndex: any;
 let _solidcamUnifiedIndex: any;
+let _nxcamMillingIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -571,6 +574,7 @@ async function getEngine(name: string): Promise<any> {
     case "solidcamTurningIndex": return _solidcamTurningIndex ??= (await import("../../engines/SolidCAMTurningFunctionIndexEngine.js")).SolidCAMTurningFunctionIndexEngine;
     case "solidcamMillTurnIndex": return _solidcamMillTurnIndex ??= (await import("../../engines/SolidCAMMillTurnFunctionIndexEngine.js")).SolidCAMMillTurnFunctionIndexEngine;
     case "solidcamUnifiedIndex": return _solidcamUnifiedIndex ??= (await import("../../engines/SolidCAMFunctionIndexEngine.js")).SolidCAMFunctionIndexEngine;
+    case "nxcamMillingIndex": return _nxcamMillingIndex ??= (await import("../../engines/NXCAMMillingFunctionIndexEngine.js")).NXCAMMillingFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1243,6 +1247,7 @@ export const ACTIONS = [
   "solidcam_turning_index", "solidcam_turning_summary", "solidcam_turning_list_ops", "solidcam_turning_get_op", "solidcam_turning_by_category", "solidcam_turning_find_param", "solidcam_turning_recommend", "solidcam_turning_css", "solidcam_turning_boring_bar", "solidcam_turning_thread_passes",
   "solidcam_millturn_index", "solidcam_millturn_summary", "solidcam_millturn_list_ops", "solidcam_millturn_get_op", "solidcam_millturn_by_category", "solidcam_millturn_find_param", "solidcam_millturn_recommend", "solidcam_millturn_sync_check", "solidcam_millturn_polar_feed", "solidcam_millturn_wait_barriers",
   "solidcam_index_manifest", "solidcam_index_sections", "solidcam_index_section_stats", "solidcam_index_all_ops", "solidcam_index_find_op", "solidcam_index_find_param", "solidcam_index_categories", "solidcam_index_recommend", "solidcam_index_validate",
+  "nxcam_milling_index", "nxcam_milling_summary", "nxcam_milling_list_ops", "nxcam_milling_get_op", "nxcam_milling_by_category", "nxcam_milling_find_param", "nxcam_milling_recommend", "nxcam_milling_scallop", "nxcam_milling_adaptive_check",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7023,6 +7028,53 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_index_validate": {
             const eng = await getEngine("solidcamUnifiedIndex");
             result = eng.validateConsistency();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM39: NXCAMMillingFunctionIndexEngine ──
+          case "nxcam_milling_index": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "nxcam_milling_summary": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "nxcam_milling_list_ops": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "nxcam_milling_get_op": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "nxcam_milling_by_category": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "nxcam_milling_find_param": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "nxcam_milling_recommend": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.recommendByFeature(params.feature);
+            break;
+          }
+          case "nxcam_milling_scallop": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.estimateScallopHeight(params.stepover_mm, params.tool_diameter_mm);
+            break;
+          }
+          case "nxcam_milling_adaptive_check": {
+            const eng = await getEngine("nxcamMillingIndex");
+            result = eng.adaptiveEngagementCheck(params.radial_engagement_pct, params.axial_doc_to_dia_ratio);
             break;
           }
 
