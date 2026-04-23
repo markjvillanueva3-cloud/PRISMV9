@@ -32,10 +32,11 @@ import { WEDM_MRR_SCHEMAS } from "../../schemas/wedmMRRSchemas.js";
 import { WEDM_WIRE_STRESS_SCHEMAS } from "../../schemas/wedmWireStressSchemas.js";
 import { WEDM_WIRE_TENSION_OPT_SCHEMAS } from "../../schemas/wedmWireTensionOptSchemas.js";
 import { WEDM_WEIBULL_SCHEMAS } from "../../schemas/wedmWeibullSchemas.js";
+import { WEDM_DL_CORE_SCHEMAS } from "../../schemas/wedmDLCoreSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 // Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS };
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -68,6 +69,8 @@ let _wireDeflection: any;
 let _thinWireDerate: any;
 let _printToProgram: any;
 let _autoPrintBridge: any;
+let _jobOutcome: any, _loraAdapter: any, _ewcMemory: any, _fewShot: any;
+let _raPred: any, _breakPred: any, _recastPred: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -112,6 +115,13 @@ async function getEngine(name: string): Promise<any> {
     case "thinWireDerate": return _thinWireDerate ??= (await import("../../engines/WEDMThinWireDerateEngine.js")).wedmThinWireDerateEngine;
     case "printToProgram": return _printToProgram ??= (await import("../../engines/WEDMPrintToProgramEngine.js")).wedmPrintToProgramEngine;
     case "autoPrintBridge": return _autoPrintBridge ??= (await import("../../engines/AutoPrintToProgramBridgeEngine.js")).autoPrintToProgramBridgeEngine;
+    case "jobOutcome": return _jobOutcome ??= (await import("../../engines/WEDMJobOutcomeEngine.js")).wedmJobOutcomeEngine;
+    case "loraAdapter": return _loraAdapter ??= (await import("../../engines/WEDMLoRAAdapterEngine.js")).wedmLoRAAdapterEngine;
+    case "ewcMemory": return _ewcMemory ??= (await import("../../engines/WEDMEWCMemoryEngine.js")).wedmEWCMemoryEngine;
+    case "fewShot": return _fewShot ??= (await import("../../engines/WEDMFewShotMaterialEngine.js")).wedmFewShotMaterialEngine;
+    case "raPred": return _raPred ??= (await import("../../engines/WEDMRaPredictorEngine.js")).wedmRaPredictorEngine;
+    case "breakPred": return _breakPred ??= (await import("../../engines/WEDMWireBreakPredictorEngine.js")).wedmWireBreakPredictorEngine;
+    case "recastPred": return _recastPred ??= (await import("../../engines/WEDMRecastDepthPredictorEngine.js")).wedmRecastDepthPredictorEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -276,6 +286,17 @@ const ACTIONS = [
 
   // WEDM print-to-program pipelines
   "wedm_print_to_program", "auto_print_to_program_run",
+
+  // MS-P4-DL-CORE: job-outcome ingest, LoRA adapter ops, EWC schedule presets, few-shot material
+  "wedm_learn_from_job", "wedm_job_history_stats",
+  "wedm_lora_create", "wedm_lora_set_scale", "wedm_lora_forward",
+  "wedm_ewc_schedule",
+  "wedm_fewshot_bootstrap", "wedm_fewshot_predict", "wedm_fewshot_list",
+
+  // MS-P4-DL-PRED: Ra predictor, wire-break predictor, recast depth predictor
+  "wedm_predict_ra_v2", "wedm_train_ra_adapter",
+  "wedm_predict_break", "wedm_evaluate_break",
+  "wedm_predict_recast", "wedm_train_recast_adapter",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1530,6 +1551,126 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // =================================================================
+          // MS-P4-DL-CORE: job outcomes, LoRA adapters, EWC, few-shot
+          // =================================================================
+          case "wedm_learn_from_job": {
+            const engine = await getEngine("jobOutcome");
+            result = engine.recordOutcome(params);
+            break;
+          }
+          case "wedm_job_history_stats": {
+            const engine = await getEngine("jobOutcome");
+            result = engine.getStats();
+            break;
+          }
+          case "wedm_lora_create": {
+            const engine = await getEngine("loraAdapter");
+            const adapter = engine.create(params);
+            result = { name: adapter.config.name, rank: adapter.config.rank, alpha: adapter.config.alpha, dIn: adapter.config.dIn, dOut: adapter.config.dOut };
+            break;
+          }
+          case "wedm_lora_set_scale": {
+            const engine = await getEngine("loraAdapter");
+            engine.setScale(params.name, params.scale);
+            result = { name: params.name, scale: params.scale };
+            break;
+          }
+          case "wedm_lora_forward": {
+            const engine = await getEngine("loraAdapter");
+            result = engine.forward(params.name, params.x, params.W0);
+            break;
+          }
+          case "wedm_ewc_schedule": {
+            const { EWC_SCHEDULES } = await import("../../engines/WEDMEWCMemoryEngine.js");
+            const schedule = EWC_SCHEDULES[params.preset as keyof typeof EWC_SCHEDULES];
+            result = schedule ?? { error: `Unknown EWC preset: ${params.preset}` };
+            break;
+          }
+          case "wedm_fewshot_bootstrap": {
+            const engine = await getEngine("fewShot");
+            const baseLinear = params.baseLinear ?? { W0: [[0]], b: [0] };
+            const baseForward = (x: number[]): number[] => {
+              const W: number[][] = baseLinear.W0;
+              const b: number[] = baseLinear.b;
+              const out: number[] = [];
+              for (let i = 0; i < W.length; i++) {
+                let s = b[i] ?? 0;
+                for (let j = 0; j < W[i].length; j++) s += W[i][j] * (x[j] ?? 0);
+                out.push(s);
+              }
+              return out;
+            };
+            result = engine.bootstrap(params.material, params.samples, baseForward, {
+              dIn: params.dIn, dOut: params.dOut,
+              rank: params.rank, alpha: params.alpha,
+              lr: params.lr, nEpochs: params.nEpochs, seed: params.seed,
+              consolidate: params.consolidate,
+            });
+            break;
+          }
+          case "wedm_fewshot_predict": {
+            const engine = await getEngine("fewShot");
+            const baseLinear = params.baseLinear ?? { W0: [[0]], b: [0] };
+            const baseForward = (x: number[]): number[] => {
+              const W: number[][] = baseLinear.W0;
+              const b: number[] = baseLinear.b;
+              const out: number[] = [];
+              for (let i = 0; i < W.length; i++) {
+                let s = b[i] ?? 0;
+                for (let j = 0; j < W[i].length; j++) s += W[i][j] * (x[j] ?? 0);
+                out.push(s);
+              }
+              return out;
+            };
+            result = engine.predict(params.material, params.x, baseForward);
+            break;
+          }
+          case "wedm_fewshot_list": {
+            const engine = await getEngine("fewShot");
+            result = { materials: engine.listMaterials() };
+            break;
+          }
+
+          // =================================================================
+          // MS-P4-DL-PRED: Ra / wire-break / recast predictors
+          // =================================================================
+          case "wedm_predict_ra_v2": {
+            const engine = await getEngine("raPred");
+            result = engine.predict(params);
+            break;
+          }
+          case "wedm_train_ra_adapter": {
+            const engine = await getEngine("raPred");
+            result = engine.trainAdapter(params.material, params.samples, {
+              epochs: params.epochs, lr: params.lr, seed: params.seed,
+              rank: params.rank, alpha: params.alpha,
+            });
+            break;
+          }
+          case "wedm_predict_break": {
+            const engine = await getEngine("breakPred");
+            result = engine.predict(params, params.horizonMin);
+            break;
+          }
+          case "wedm_evaluate_break": {
+            const engine = await getEngine("breakPred");
+            result = engine.evaluate(params.samples, params.horizonMin, params.binCount);
+            break;
+          }
+          case "wedm_predict_recast": {
+            const engine = await getEngine("recastPred");
+            result = engine.predict(params);
+            break;
+          }
+          case "wedm_train_recast_adapter": {
+            const engine = await getEngine("recastPred");
+            result = engine.trainAdapter(params.material, params.samples, {
+              epochs: params.epochs, lr: params.lr, seed: params.seed,
+            });
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -1545,7 +1686,15 @@ Actions: ${ACTIONS.join(", ")}.`,
         if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_edm");
       }
-      return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      // Predictor actions rely on null as a semantic signal (e.g. appliedAdapter = null
+      // means "no LoRA adapter applied") — bypass slimResponse so those fields survive.
+      const NO_SLIM_ACTIONS: ReadonlySet<string> = new Set<string>([
+        "wedm_predict_ra_v2", "wedm_train_ra_adapter",
+        "wedm_predict_break", "wedm_evaluate_break",
+        "wedm_predict_recast", "wedm_train_recast_adapter",
+      ]);
+      const payload = NO_SLIM_ACTIONS.has(action) ? result : slimResponse(result);
+      return { content: [{ type: "text" as const, text: JSON.stringify(payload) }] };
     }
   );
 }

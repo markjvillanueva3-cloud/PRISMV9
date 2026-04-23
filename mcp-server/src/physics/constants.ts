@@ -406,14 +406,15 @@ export const EDM_PHYSICS = {
    */
   klocke: {
     ra_models: {
-      steel: { A: 0.52, a: 0.38, b: 0.45, min_ra_um: 0.15 },
-      stainless: { A: 0.58, a: 0.40, b: 0.48, min_ra_um: 0.18 },
-      tool_steel: { A: 0.48, a: 0.36, b: 0.42, min_ra_um: 0.12 },
-      titanium: { A: 0.65, a: 0.42, b: 0.50, min_ra_um: 0.25 },
-      inconel: { A: 0.62, a: 0.41, b: 0.48, min_ra_um: 0.22 },
-      tungsten_carbide: { A: 0.35, a: 0.30, b: 0.38, min_ra_um: 0.08 },
-      aluminum: { A: 0.70, a: 0.45, b: 0.52, min_ra_um: 0.20 },
-      copper: { A: 0.75, a: 0.48, b: 0.55, min_ra_um: 0.22 },
+      steel:            { A: 0.52, a: 0.38, b: 0.45, min_ra_um: 0.15, k_ra: 0.52, alpha: 0.38, beta: 0.45, source: "Klocke" },
+      stainless:        { A: 0.58, a: 0.40, b: 0.48, min_ra_um: 0.18, k_ra: 0.58, alpha: 0.40, beta: 0.48, source: "Klocke" },
+      tool_steel:       { A: 0.48, a: 0.36, b: 0.42, min_ra_um: 0.12, k_ra: 0.48, alpha: 0.36, beta: 0.42, source: "Klocke" },
+      titanium:         { A: 0.65, a: 0.42, b: 0.50, min_ra_um: 0.25, k_ra: 0.65, alpha: 0.42, beta: 0.50, source: "Klocke" },
+      inconel:          { A: 0.62, a: 0.41, b: 0.48, min_ra_um: 0.22, k_ra: 0.62, alpha: 0.41, beta: 0.48, source: "Klocke" },
+      tungsten_carbide: { A: 0.35, a: 0.30, b: 0.38, min_ra_um: 0.08, k_ra: 0.35, alpha: 0.30, beta: 0.38, source: "Klocke" },
+      carbide:          { A: 0.35, a: 0.30, b: 0.38, min_ra_um: 0.08, k_ra: 0.35, alpha: 0.30, beta: 0.38, source: "alias for tungsten_carbide" },
+      aluminum:         { A: 0.70, a: 0.45, b: 0.52, min_ra_um: 0.20, k_ra: 0.70, alpha: 0.45, beta: 0.52, source: "Klocke" },
+      copper:           { A: 0.75, a: 0.48, b: 0.55, min_ra_um: 0.22, k_ra: 0.75, alpha: 0.48, beta: 0.55, source: "Klocke" },
     } as const,
     source: "Klocke 'Fertigungsverfahren Band 3' Table 5.7",
   },

@@ -365,6 +365,19 @@ class WEDMTribalTipLearnerEngine {
   }
 
   /**
+   * Alias for getLearnedTips — returns approved tips.
+   */
+  getApprovedTips(limit = 100): GeneratedTip[] {
+    return this.getLearnedTips(limit);
+  }
+
+  /**
+   * Reset engine state (test helper alias).
+   */
+  reset(): void {
+    this.resetForTests();
+  }
+  /**
    * Get learning statistics.
    */
   getStats(): typeof this.stats & { pendingReviewCount: number; learnedCorpusSize: number } {
