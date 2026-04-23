@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "system_id": "solidcam",
+  "section_key": "imachining",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 129,
+    "categories": ["adaptive_clearing", "wizard", "database"]
+  },
+  "operations": {
+    "imachining_2d_full": {
+      "display_name": "iMachining 2D (Full Catalog)",
+      "category": "adaptive_clearing",
+      "description": "SolidCAM patented 2.5D adaptive clearing with morphing spiral, constant chip load, and Technology Wizard auto-tuning. Reduces cycle time 40-70% vs traditional pocket clearing.",
+      "dialog_tabs": ["Geometry", "Tool", "Levels", "Technology", "iMachining", "Wizard"],
+      "parameter_count": 37,
+      "parameters": {
+        "geometry": {
+          "pocket_chains": { "type": "selection", "required": true, "description": "Pocket boundary chains (closed)", "tab": "Geometry" },
+          "island_chains": { "type": "selection", "description": "Islands to avoid", "tab": "Geometry" },
+          "open_pockets": { "type": "boolean", "default": false, "description": "Treat as open pocket (entry from outside)", "tab": "Geometry" },
+          "rest_machining_from": { "type": "selection", "description": "Previous operation for rest material", "tab": "Geometry" },
+          "machining_region": { "type": "enum", "values": ["inside", "outside", "on"], "default": "inside", "description": "Tool offset side", "tab": "Geometry" }
+        },
+        "levels": {
+          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top of pocket", "tab": "Levels" },
+          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom of pocket", "tab": "Levels" },
+          "stock_to_leave_walls": { "type": "number", "unit": "mm", "default": 0.1, "description": "Wall finish stock", "tab": "Levels" },
+          "stock_to_leave_floor": { "type": "number", "unit": "mm", "default": 0.05, "description": "Floor finish stock", "tab": "Levels" },
+          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z for rapids", "tab": "Levels" }
+        },
+        "technology": {
+          "spindle_speed": { "type": "number", "unit": "rpm", "description": "Base spindle (auto-tuned)", "tab": "Technology" },
+          "feed_rate": { "type": "number", "unit": "mm/min", "description": "Base feed (auto-tuned)", "tab": "Technology" },
+          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Plunge/ramp feed", "tab": "Technology" },
+          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "through_spindle", "description": "Coolant delivery", "tab": "Technology" }
+        },
+        "imachining": {
+          "imachining_level": { "type": "integer", "range": [1, 8], "default": 4, "description": "Aggressiveness 1-8 (higher = faster, more aggressive)", "tab": "iMachining" },
+          "morphing_spiral": { "type": "boolean", "default": true, "description": "Morphing spiral toolpath (vs offset)", "tab": "iMachining" },
+          "constant_chip_thickness": { "type": "boolean", "default": true, "description": "Maintain constant chip thickness", "tab": "iMachining" },
+          "max_radial_engagement_pct": { "type": "number", "unit": "%", "range": [5, 100], "default": 30, "description": "Max radial tool engagement", "tab": "iMachining" },
+          "thin_wall_protection": { "type": "boolean", "default": false, "description": "Reduce forces near thin walls", "tab": "iMachining" },
+          "thin_wall_thickness_threshold": { "type": "number", "unit": "mm", "default": 1.0, "description": "Wall thickness trigger", "tab": "iMachining" },
+          "step_down_mode": { "type": "enum", "values": ["constant", "variable", "auto"], "default": "auto", "description": "Z step strategy", "tab": "iMachining" },
+          "step_down_mm": { "type": "number", "unit": "mm", "description": "Z step (if constant)", "tab": "iMachining" },
+          "entry_strategy": { "type": "enum", "values": ["helical", "ramp", "pre_drill", "external"], "default": "helical", "description": "Material entry method", "tab": "iMachining" },
+          "helix_radius": { "type": "number", "unit": "mm", "description": "Helix entry radius", "tab": "iMachining" },
+          "ramp_angle_deg": { "type": "number", "unit": "deg", "default": 3, "range": [0.5, 15], "description": "Ramp entry angle", "tab": "iMachining" },
+          "trochoid_step_factor": { "type": "number", "default": 0.4, "range": [0.1, 1.0], "description": "Trochoidal step factor", "tab": "iMachining" }
+        },
+        "wizard": {
+          "material_group": { "type": "enum", "values": ["P", "M", "K", "N", "S", "H"], "required": true, "description": "ISO material group", "tab": "Wizard" },
+          "material_hardness_hb": { "type": "number", "unit": "HB", "description": "Brinell hardness", "tab": "Wizard" },
+          "machine_type": { "type": "enum", "values": ["vmc_3axis", "vmc_5axis", "hmc", "swiss"], "default": "vmc_3axis", "description": "Machine class", "tab": "Wizard" },
+          "machine_rigidity": { "type": "enum", "values": ["low", "medium", "high"], "default": "medium", "description": "Machine stiffness", "tab": "Wizard" },
+          "spindle_power_kw": { "type": "number", "unit": "kW", "description": "Spindle nameplate power", "tab": "Wizard" },
+          "spindle_max_rpm": { "type": "number", "unit": "rpm", "description": "Spindle max RPM", "tab": "Wizard" },
+          "tool_diameter_mm": { "type": "number", "unit": "mm", "required": true, "description": "Tool diameter", "tab": "Wizard" },
+          "tool_stickout_mm": { "type": "number", "unit": "mm", "required": true, "description": "Tool stickout from holder", "tab": "Wizard" },
+          "tool_flute_count": { "type": "integer", "default": 4, "description": "Number of flutes", "tab": "Wizard" },
+          "tool_substrate": { "type": "enum", "values": ["hss", "carbide", "ceramic", "cbn"], "default": "carbide", "description": "Tool substrate", "tab": "Wizard" },
+          "tool_coating": { "type": "enum", "values": ["uncoated", "tin", "ticn", "tialn", "altin", "diamond"], "default": "tialn", "description": "Tool coating", "tab": "Wizard" }
+        }
+      }
+    },
+    "imachining_3d": {
+      "display_name": "iMachining 3D",
+      "category": "adaptive_clearing",
+      "description": "SolidCAM 3D adaptive roughing for free-form surfaces. Z-level adaptive with morphing spirals, constant load, and full undercut detection.",
+      "dialog_tabs": ["Geometry", "Tool", "Levels", "Technology", "iMachining 3D", "Strategy"],
+      "parameter_count": 29,
+      "parameters": {
+        "geometry": {
+          "machining_surfaces": { "type": "selection", "required": true, "description": "Surfaces/solid to machine", "tab": "Geometry" },
+          "stock_definition": { "type": "selection", "required": true, "description": "Initial stock model", "tab": "Geometry" },
+          "boundary_chains": { "type": "selection", "description": "Optional containment boundary", "tab": "Geometry" },
+          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" },
+          "rest_from_op": { "type": "selection", "description": "Previous op for rest stock", "tab": "Geometry" }
+        },
+        "levels": {
+          "z_top": { "type": "number", "unit": "mm", "required": true, "description": "Highest Z to machine", "tab": "Levels" },
+          "z_bottom": { "type": "number", "unit": "mm", "required": true, "description": "Lowest Z to machine", "tab": "Levels" },
+          "z_step_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Z level spacing", "tab": "Levels" },
+          "surface_offset": { "type": "number", "unit": "mm", "default": 0.2, "description": "Stock to leave on surfaces", "tab": "Levels" },
+          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Rapid clearance Z", "tab": "Levels" }
+        },
+        "technology": {
+          "spindle_speed": { "type": "number", "unit": "rpm", "description": "Base spindle (auto-tuned)", "tab": "Technology" },
+          "feed_rate": { "type": "number", "unit": "mm/min", "description": "Base feed (auto-tuned)", "tab": "Technology" },
+          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Plunge feed", "tab": "Technology" },
+          "lift_feed": { "type": "number", "unit": "mm/min", "description": "Lift retraction feed", "tab": "Technology" }
+        },
+        "imachining_3d": {
+          "imachining_level_3d": { "type": "integer", "range": [1, 8], "default": 4, "description": "3D aggressiveness", "tab": "iMachining 3D" },
+          "constant_load_3d": { "type": "boolean", "default": true, "description": "Maintain constant cutting load", "tab": "iMachining 3D" },
+          "max_engagement_3d_pct": { "type": "number", "unit": "%", "range": [5, 100], "default": 35, "description": "Max radial engagement", "tab": "iMachining 3D" },
+          "morphing_spiral_3d": { "type": "boolean", "default": true, "description": "Use morphing spiral", "tab": "iMachining 3D" },
+          "rest_machining_3d": { "type": "boolean", "default": true, "description": "Detect remaining stock", "tab": "iMachining 3D" },
+          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Target scallop height", "tab": "iMachining 3D" },
+          "thin_floor_protection": { "type": "boolean", "default": false, "description": "Detect & protect thin floors", "tab": "iMachining 3D" }
+        },
+        "strategy": {
+          "z_strategy": { "type": "enum", "values": ["constant_z", "adaptive_z", "morphing_z"], "default": "adaptive_z", "description": "Z stepping strategy", "tab": "Strategy" },
+          "cut_pattern": { "type": "enum", "values": ["spiral", "morphing", "offset", "zigzag_3d"], "default": "morphing", "description": "Toolpath pattern", "tab": "Strategy" },
+          "entry_strategy_3d": { "type": "enum", "values": ["helical", "ramp", "pre_drill"], "default": "helical", "description": "Material entry", "tab": "Strategy" },
+          "approach_clearance": { "type": "number", "unit": "mm", "default": 2, "description": "Distance to approach in feed", "tab": "Strategy" },
+          "retract_clearance": { "type": "number", "unit": "mm", "default": 2, "description": "Distance to retract before rapid", "tab": "Strategy" },
+          "smooth_corners": { "type": "boolean", "default": true, "description": "Smooth toolpath corners", "tab": "Strategy" },
+          "smoothing_radius": { "type": "number", "unit": "mm", "default": 0.5, "description": "Corner smoothing radius", "tab": "Strategy" },
+          "check_collisions_3d": { "type": "boolean", "default": true, "description": "Tool/holder collision check", "tab": "Strategy" }
+        }
+      }
+    },
+    "technology_wizard": {
+      "display_name": "Technology Wizard",
+      "category": "wizard",
+      "description": "SolidCAM patented expert system that auto-derives optimal cutting parameters from material, tool, machine, and workpiece geometry. Outputs spindle, feed, axial/radial engagement, and chip load.",
+      "dialog_tabs": ["Material", "Tool", "Machine", "Workpiece", "Output"],
+      "parameter_count": 31,
+      "parameters": {
+        "material": {
+          "iso_group": { "type": "enum", "values": ["P", "M", "K", "N", "S", "H"], "required": true, "description": "ISO material group", "tab": "Material" },
+          "specific_alloy": { "type": "string", "description": "Specific alloy (e.g., 4140, Ti6Al4V)", "tab": "Material" },
+          "hardness_hb": { "type": "number", "unit": "HB", "description": "Brinell hardness", "tab": "Material" },
+          "hardness_hrc": { "type": "number", "unit": "HRC", "description": "Rockwell C hardness", "tab": "Material" },
+          "tensile_strength_mpa": { "type": "number", "unit": "MPa", "description": "Ultimate tensile strength", "tab": "Material" },
+          "machinability_pct": { "type": "number", "unit": "%", "default": 100, "description": "Machinability rating (vs B1112)", "tab": "Material" }
+        },
+        "tool": {
+          "tool_type": { "type": "enum", "values": ["end_mill", "ball_mill", "bull_nose", "chamfer", "drill", "tap"], "required": true, "description": "Cutter type", "tab": "Tool" },
+          "diameter_mm": { "type": "number", "unit": "mm", "required": true, "description": "Tool diameter", "tab": "Tool" },
+          "flute_count": { "type": "integer", "default": 4, "description": "Number of flutes", "tab": "Tool" },
+          "stickout_mm": { "type": "number", "unit": "mm", "required": true, "description": "Tool stickout", "tab": "Tool" },
+          "substrate": { "type": "enum", "values": ["hss", "carbide", "ceramic", "cbn", "pcd"], "default": "carbide", "description": "Tool substrate", "tab": "Tool" },
+          "coating": { "type": "enum", "values": ["uncoated", "tin", "ticn", "tialn", "altin", "diamond", "zrn"], "default": "tialn", "description": "Tool coating", "tab": "Tool" },
+          "helix_angle_deg": { "type": "number", "unit": "deg", "default": 30, "description": "Tool helix angle", "tab": "Tool" }
+        },
+        "machine": {
+          "machine_class": { "type": "enum", "values": ["vmc", "hmc", "swiss", "millturn", "5axis"], "required": true, "description": "Machine class", "tab": "Machine" },
+          "rigidity_rating": { "type": "enum", "values": ["low", "medium", "high", "very_high"], "default": "medium", "description": "Stiffness category", "tab": "Machine" },
+          "spindle_power_kw": { "type": "number", "unit": "kW", "required": true, "description": "Spindle nameplate power", "tab": "Machine" },
+          "spindle_max_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle max RPM", "tab": "Machine" },
+          "spindle_max_torque_nm": { "type": "number", "unit": "Nm", "description": "Max continuous torque", "tab": "Machine" },
+          "max_feed_mm_min": { "type": "number", "unit": "mm/min", "default": 10000, "description": "Max axis feed rate", "tab": "Machine" },
+          "controller_lookahead_blocks": { "type": "integer", "default": 100, "description": "Controller lookahead", "tab": "Machine" }
+        },
+        "workpiece": {
+          "feature_type": { "type": "enum", "values": ["pocket_open", "pocket_closed", "slot", "boss", "contour", "thin_wall"], "required": true, "description": "Feature classification", "tab": "Workpiece" },
+          "min_radial_engagement": { "type": "number", "unit": "mm", "description": "Minimum radial engagement", "tab": "Workpiece" },
+          "max_axial_depth": { "type": "number", "unit": "mm", "description": "Maximum axial depth available", "tab": "Workpiece" },
+          "thin_wall_thickness": { "type": "number", "unit": "mm", "description": "Wall thickness if thin wall", "tab": "Workpiece" },
+          "fixture_rigidity": { "type": "enum", "values": ["low", "medium", "high"], "default": "high", "description": "Fixture stiffness", "tab": "Workpiece" }
+        },
+        "output": {
+          "spindle_rpm_recommended": { "type": "number", "unit": "rpm", "description": "Computed spindle speed", "tab": "Output" },
+          "feed_rate_recommended": { "type": "number", "unit": "mm/min", "description": "Computed feed rate", "tab": "Output" },
+          "axial_doc_mm": { "type": "number", "unit": "mm", "description": "Axial depth of cut", "tab": "Output" },
+          "radial_doc_mm": { "type": "number", "unit": "mm", "description": "Radial depth of cut", "tab": "Output" },
+          "chip_load_per_tooth_mm": { "type": "number", "unit": "mm", "description": "Chip load fpt", "tab": "Output" },
+          "estimated_mrr_cc_min": { "type": "number", "unit": "cc/min", "description": "Material removal rate", "tab": "Output" }
+        }
+      }
+    },
+    "tool_database": {
+      "display_name": "Tool Database (Milling)",
+      "category": "database",
+      "description": "SolidCAM tool library — endmills, drills, taps, ball mills, bull nose, chamfer cutters with full geometry, materials, and recommended cutting parameters.",
+      "dialog_tabs": ["Identification", "Geometry", "Material", "Cutting Data", "Holder"],
+      "parameter_count": 32,
+      "parameters": {
+        "identification": {
+          "tool_id": { "type": "string", "required": true, "description": "Unique tool ID", "tab": "Identification" },
+          "tool_name": { "type": "string", "required": true, "description": "Tool description", "tab": "Identification" },
+          "manufacturer": { "type": "string", "description": "Tool manufacturer", "tab": "Identification" },
+          "part_number": { "type": "string", "description": "Manufacturer part number", "tab": "Identification" },
+          "tool_type": { "type": "enum", "values": ["end_mill", "ball_mill", "bull_nose", "chamfer", "drill", "tap", "reamer", "boring_bar", "thread_mill"], "required": true, "description": "Tool type", "tab": "Identification" }
+        },
+        "geometry": {
+          "diameter_mm": { "type": "number", "unit": "mm", "required": true, "description": "Cutting diameter", "tab": "Geometry" },
+          "length_mm": { "type": "number", "unit": "mm", "required": true, "description": "Overall tool length", "tab": "Geometry" },
+          "flute_length_mm": { "type": "number", "unit": "mm", "required": true, "description": "Flute (cutting) length", "tab": "Geometry" },
+          "shank_diameter_mm": { "type": "number", "unit": "mm", "required": true, "description": "Shank diameter", "tab": "Geometry" },
+          "flute_count": { "type": "integer", "default": 4, "description": "Number of flutes", "tab": "Geometry" },
+          "corner_radius_mm": { "type": "number", "unit": "mm", "default": 0, "description": "Corner radius (for bull nose)", "tab": "Geometry" },
+          "helix_angle_deg": { "type": "number", "unit": "deg", "default": 30, "description": "Helix angle", "tab": "Geometry" },
+          "neck_diameter_mm": { "type": "number", "unit": "mm", "description": "Neck diameter (if necked)", "tab": "Geometry" },
+          "neck_length_mm": { "type": "number", "unit": "mm", "description": "Neck length", "tab": "Geometry" },
+          "tip_angle_deg": { "type": "number", "unit": "deg", "description": "Drill point angle", "tab": "Geometry" }
+        },
+        "material": {
+          "substrate": { "type": "enum", "values": ["hss", "hss_co", "carbide", "ceramic", "cbn", "pcd", "diamond"], "required": true, "description": "Tool substrate", "tab": "Material" },
+          "coating": { "type": "enum", "values": ["uncoated", "tin", "ticn", "tialn", "altin", "diamond", "zrn", "crn"], "default": "uncoated", "description": "Tool coating", "tab": "Material" },
+          "coating_thickness_um": { "type": "number", "unit": "um", "default": 3, "description": "Coating thickness", "tab": "Material" }
+        },
+        "cutting_data": {
+          "min_rpm": { "type": "number", "unit": "rpm", "description": "Min recommended RPM", "tab": "Cutting Data" },
+          "max_rpm": { "type": "number", "unit": "rpm", "description": "Max safe RPM", "tab": "Cutting Data" },
+          "min_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Min feed rate", "tab": "Cutting Data" },
+          "max_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Max feed rate", "tab": "Cutting Data" },
+          "max_axial_doc_mm": { "type": "number", "unit": "mm", "description": "Max axial depth of cut", "tab": "Cutting Data" },
+          "max_radial_doc_mm": { "type": "number", "unit": "mm", "description": "Max radial depth of cut", "tab": "Cutting Data" },
+          "recommended_chip_load_mm": { "type": "number", "unit": "mm", "description": "Recommended fpt", "tab": "Cutting Data" }
+        },
+        "holder": {
+          "holder_type": { "type": "enum", "values": ["er_collet", "shrink_fit", "hydraulic", "milling_chuck", "side_lock"], "default": "er_collet", "description": "Holder type", "tab": "Holder" },
+          "holder_id": { "type": "string", "description": "Holder catalog ID", "tab": "Holder" },
+          "holder_taper": { "type": "enum", "values": ["bt30", "bt40", "bt50", "cat40", "cat50", "hsk63a", "hsk100a"], "default": "bt40", "description": "Spindle interface", "tab": "Holder" },
+          "stickout_mm": { "type": "number", "unit": "mm", "required": true, "description": "Tool stickout from holder", "tab": "Holder" },
+          "balanced_grade": { "type": "enum", "values": ["g2.5", "g6.3", "g16", "g40"], "default": "g6.3", "description": "ISO 1940 balance grade", "tab": "Holder" },
+          "max_runout_um": { "type": "number", "unit": "um", "default": 10, "description": "Max TIR runout", "tab": "Holder" },
+          "tool_assembly_id": { "type": "string", "description": "Pre-set assembly ID (if measured)", "tab": "Holder" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "iMachining Level Selection",
+      "key_concepts": ["aggressiveness_levels_1_to_8", "level_4_default", "rigidity_dependence", "material_dependence"],
+      "best_practices": [
+        "Start at level 4 for unknown setups",
+        "Reduce to 2-3 for low-rigidity machines or thin walls",
+        "Push to 6-7 only when machine + tool + fixture are all rigid",
+        "Level 8 is for benchmark conditions only — verify chip load math first"
+      ]
+    },
+    {
+      "topic": "Technology Wizard Inputs",
+      "key_concepts": ["material_iso_group", "tool_substrate_coating", "machine_rigidity", "feature_type"],
+      "best_practices": [
+        "Always supply hardness if known — defaults assume mid-range",
+        "Match machine rigidity honestly — overestimating causes chatter",
+        "Use feature_type=thin_wall for parts with walls < 5x tool diameter",
+        "Re-run wizard whenever tool substrate or coating changes"
+      ]
+    },
+    {
+      "topic": "iMachining 3D vs 2D",
+      "key_concepts": ["constant_z_vs_morphing_z", "scallop_height_3d", "z_step_strategy"],
+      "best_practices": [
+        "Use 2D for prismatic features with vertical walls",
+        "Use 3D for any part with non-vertical walls or ramped floors",
+        "Tighten scallop_height_mm only on visible surfaces — wastes time elsewhere",
+        "Adaptive Z handles undercuts; constant Z is faster on flat-topology parts"
+      ]
+    },
+    {
+      "topic": "Tool Database Discipline",
+      "key_concepts": ["tool_id_uniqueness", "stickout_per_assembly", "balanced_grade", "max_rpm_safety"],
+      "best_practices": [
+        "Each physical tool/holder assembly gets a unique tool_assembly_id after preset",
+        "Always record stickout — it controls deflection model",
+        "Carbide tools below 6mm need G2.5 balance for >15k RPM",
+        "max_rpm = min(spindle_max, tool_max, balance_grade_max)"
+      ]
+    },
+    {
+      "topic": "Chip Load and Engagement",
+      "key_concepts": ["chip_thinning_correction", "max_radial_engagement", "constant_chip_thickness"],
+      "best_practices": [
+        "iMachining auto-corrects for chip thinning at low engagement",
+        "Below 30% radial, chip load can rise above table values without breakage",
+        "Constant chip thickness = constant tool wear = predictable life",
+        "Always check that calculated MRR fits within spindle power budget"
+      ]
+    }
+  ]
+}
