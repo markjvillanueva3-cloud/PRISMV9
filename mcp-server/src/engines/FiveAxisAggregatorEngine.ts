@@ -161,11 +161,11 @@ class FiveAxisAggregatorEngine {
   private invocationCount = 0;
 
   /**
-   * Main entry — routes 5-axis request to appropriate sub-engine
+   * Main entry — routes 5-axis request to appropriate sub-engine.
+   * Honest missing-engine response when the sub-engine isn't built.
    */
   async orchestrate(request: FiveAxisRequest): Promise<FiveAxisResponse> {
     const startTime = Date.now();
-    const warnings: string[] = [];
     const kinematics = request.kinematics ?? "generic";
 
     log.info(`[FiveAxis] Routing ${request.request_type} (kinematics=${kinematics})`);
@@ -189,34 +189,34 @@ class FiveAxisAggregatorEngine {
       };
     }
 
+    let mod: any;
     try {
-      const mod = await import(route.module_path);
-      const engine = mod[route.export_name];
-
-      if (!engine || typeof engine[route.method] !== "function") {
-        warnings.push(`${route.engine_name}.${route.method} not available`);
-        return this.buildUnavailable(request.request_type, route, kinematics, startTime, warnings);
-      }
-
-      const result = await engine[route.method](request);
-      return {
-        success: true,
-        request_type: request.request_type,
-        engine: route.engine_name,
-        result,
-        provenance: {
-          engines_invoked: [route.engine_name],
-          processing_time_ms: Date.now() - startTime,
-          engine_available: true,
-          kinematics,
-          ts: new Date().toISOString(),
-        },
-        warnings,
-      };
+      mod = await import(route.module_path);
     } catch (err: any) {
-      warnings.push(`Module ${route.module_path} unavailable: ${err.message}`);
-      return this.buildUnavailable(request.request_type, route, kinematics, startTime, warnings);
+      return this.buildMissing(request.request_type, route, kinematics, startTime,
+        `Module ${route.module_path} not found: ${err.message}`);
     }
+    const engine = mod[route.export_name];
+    if (!engine || typeof engine[route.method] !== "function") {
+      return this.buildMissing(request.request_type, route, kinematics, startTime,
+        `${route.engine_name}.${route.method} is not a callable function`);
+    }
+
+    const result = await engine[route.method](request);
+    return {
+      success: true,
+      request_type: request.request_type,
+      engine: route.engine_name,
+      result,
+      provenance: {
+        engines_invoked: [route.engine_name],
+        processing_time_ms: Date.now() - startTime,
+        engine_available: true,
+        kinematics,
+        ts: new Date().toISOString(),
+      },
+      warnings: [],
+    };
   }
 
   /**
@@ -267,18 +267,19 @@ class FiveAxisAggregatorEngine {
     }
   }
 
-  private buildUnavailable(
+  /** Honest missing-engine response — never returns fake success data. */
+  private buildMissing(
     type: FiveAxisRequestType,
     route: FiveAxisRoute,
     kinematics: FiveAxisKinematics,
     startTime: number,
-    warnings: string[]
+    reason: string,
   ): FiveAxisResponse {
     return {
       success: false,
       request_type: type,
       engine: route.engine_name,
-      result: { status: "engine_not_built", routed_to: route.engine_name },
+      result: null,
       provenance: {
         engines_invoked: [route.engine_name],
         processing_time_ms: Date.now() - startTime,
@@ -286,7 +287,7 @@ class FiveAxisAggregatorEngine {
         kinematics,
         ts: new Date().toISOString(),
       },
-      warnings,
+      warnings: [reason],
     };
   }
 }

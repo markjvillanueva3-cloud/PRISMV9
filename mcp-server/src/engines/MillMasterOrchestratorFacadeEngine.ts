@@ -25,6 +25,31 @@
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
+// NOT-WIRED ERROR — banned from returning synthetic "success" data
+// ============================================================================
+
+export class NotWiredError extends Error {
+  readonly code = "NOT_WIRED";
+  readonly route: string;
+  readonly targetEngine: string;
+  readonly roadmapRef: string;
+  readonly partial: Record<string, unknown> | undefined;
+  constructor(
+    route: string,
+    targetEngine: string,
+    roadmapRef: string,
+    partial?: Record<string, unknown>,
+  ) {
+    super(`Route "${route}" requires ${targetEngine} — not wired. ${roadmapRef}`);
+    this.name = "NotWiredError";
+    this.route = route;
+    this.targetEngine = targetEngine;
+    this.roadmapRef = roadmapRef;
+    this.partial = partial;
+  }
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -403,8 +428,10 @@ class MillMasterOrchestratorFacadeEngine {
   // ============================================================================
 
   private async handlePrintToProgram(req: MillOrchestrationRequest): Promise<unknown> {
-    // Full P2P pipeline: feature recognition → strategy selection → toolpath → G-code
-    // P1-U10 / P1-U11-AUTO-TRIBAL: default include_tribal to true
+    // NOT WIRED — MillPrintToProgramEngine does not yet exist on disk.
+    // P1-U11 (include_tribal default) surfaces tribal guidance up-front while
+    // the P2P pipeline is being built. Callers who want actual program output
+    // must catch this error and degrade, not treat synthetic data as a program.
     const include_tribal = (req as any).include_tribal ?? true;
     const tribal_tips: string[] = [];
     if (include_tribal) {
@@ -414,264 +441,227 @@ class MillMasterOrchestratorFacadeEngine {
         `ISO ${iso}: monitor chip color for thermal alarm`,
       );
     }
-    return {
-      program_number: 1001,
-      features_recognized: req.features?.length ?? 0,
-      strategies_selected: ["adaptive_clearing", "finishing"],
-      gcode_lines: 250,
-      cycle_time_min: 12.5,
-      include_tribal,
-      tribal_tips,
-    };
+    throw new NotWiredError(
+      "print_to_program",
+      "MillPrintToProgramEngine",
+      "MILL-MASTER roadmap unit P1-U13+ (engine has not been created yet)",
+      { include_tribal, tribal_tips },
+    );
   }
 
   private async handleScientific(req: MillOrchestrationRequest): Promise<unknown> {
-    // Physics-backed calculations
+    // Real physics using CANONICAL_KIENZLE — no synthetic output.
+    const { CANONICAL_KIENZLE } = await import("../physics/constants.js");
     const tool = req.tool ?? { diameter_mm: 10, flutes: 4 };
-    const params = req.params ?? { rpm: 8000, feed_mmpm: 1200 };
+    const params = req.params ?? {};
+    const iso = (req.iso_group ?? "P") as keyof typeof CANONICAL_KIENZLE;
+    const { kc1_1, mc } = CANONICAL_KIENZLE[iso];
 
-    // Kienzle force (simplified)
-    const kc1_1 = req.iso_group === "N" ? 700 : req.iso_group === "P" ? 1800 : 1500;
-    const fz = (params.feed_mmpm ?? 1200) / ((params.rpm ?? 8000) * tool.flutes);
+    const rpm = params.rpm ?? 8000;
+    const feed_mmpm = params.feed_mmpm ?? 1200;
+    const fz = feed_mmpm / (rpm * tool.flutes);
     const ap = params.doc_mm ?? 2;
     const ae = params.woc_mm ?? tool.diameter_mm * 0.1;
-    const Fc_N = kc1_1 * ap * fz ** 0.75 * ae / tool.diameter_mm;
+
+    // Kienzle: Fc = kc1_1 · b · h^(1-mc), with b = ap, h = fz
+    // Adjusted for radial engagement via ae/D
+    const h = Math.max(fz, 1e-6);
+    const Fc_N = kc1_1 * ap * Math.pow(h, 1 - mc) * (ae / tool.diameter_mm);
+    const torque_Nm = (Fc_N * tool.diameter_mm / 2) / 1000;
+    const power_kW = (torque_Nm * 2 * Math.PI * rpm) / 60_000;
 
     return {
       Fc_N: Math.round(Fc_N),
       Ft_N: Math.round(Fc_N * 0.4),
       Fr_N: Math.round(Fc_N * 0.3),
-      power_kW: (Fc_N * (params.rpm ?? 8000) * Math.PI * tool.diameter_mm / 1000) / 60000,
-      formulas_used: ["kienzle_force", "power_torque"],
+      torque_Nm: Number(torque_Nm.toFixed(3)),
+      power_kW: Number(power_kW.toFixed(3)),
+      iso_group: iso,
+      kc1_1,
+      mc,
+      formulas_used: ["kienzle_force", "torque_from_force", "power_from_torque"],
+      provenance: "CANONICAL_KIENZLE from src/physics/constants.ts",
     };
   }
 
   private async handleAGI(req: MillOrchestrationRequest): Promise<unknown> {
-    // AGI reasoning chain
-    return {
-      intent: req.intent ?? "mill pocket in aluminum",
-      reasoning_mode: req.reasoning_mode ?? "chain_of_thought",
-      reasoning_steps: [
-        { step: 1, thought: "Material is aluminum (ISO N) — high speed possible", confidence: 0.95 },
-        { step: 2, thought: "Pocket suggests adaptive clearing strategy", confidence: 0.9 },
-        { step: 3, thought: "Recommend 3-flute carbide end mill, TiAlN coated", confidence: 0.85 },
-      ],
-      recommendation: {
-        strategy: "adaptive_clearing",
-        tool: { type: "end_mill", diameter_mm: 12, flutes: 3, coating: "TiAlN" },
-        params: { rpm: 12000, feed_mmpm: 3000, ae_percent: 10, ap_mm: 15 },
-      },
-    };
+    const { millingAGIMasterEngine } = await import("./MillingAGIMasterEngine.js");
+    return await millingAGIMasterEngine.reason({
+      intent: req.intent ?? "",
+      reasoning_mode: (req.reasoning_mode as any) ?? "chain_of_thought",
+      iso_group: req.iso_group as any,
+      material: req.material,
+      features: req.features,
+    });
   }
 
-  private async handleValidate(req: MillOrchestrationRequest): Promise<unknown> {
-    // Program/toolpath validation
-    return {
-      valid: true,
-      collision_free: true,
-      within_limits: true,
-      safety_score: 0.95,
-      warnings: [],
-      checks_performed: ["collision", "axis_limits", "spindle_power", "tool_length"],
-    };
+  private async handleValidate(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "validate",
+      "MillProgramAnalyzerEngine / MillKinematicsCollisionEngine",
+      "Validation sub-engines not yet built; safety_score must not be fabricated",
+    );
   }
 
   private async handleQuick(req: MillOrchestrationRequest): Promise<unknown> {
-    // Fast calculations — SFM to RPM: RPM = (SFM × 3.82) / D_inch = (Vc_m/min × 1000) / (π × D_mm)
+    // Real cutting-speed math — no synthetic output.
+    // RPM = (Vc_m/min · 1000) / (π · D_mm)
     const tool = req.tool ?? { diameter_mm: 10, flutes: 4 };
-    const sfm = req.iso_group === "N" ? 800 : req.iso_group === "P" ? 400 : 300;
-    const vc_mpm = sfm * 0.3048; // SFM → m/min
+    const iso = req.iso_group ?? "P";
+    // Baseline recommended Vc per ISO group (m/min). Sources:
+    // Sandvik Technical Guide C-2920:3 + Kennametal catalog defaults.
+    const vc_baseline_mpm: Record<string, number> = {
+      N: 300, // Aluminum
+      P: 150, // Carbon/alloy steel
+      M: 120, // Stainless
+      K: 100, // Cast iron
+      S: 40,  // Superalloy
+      H: 60,  // Hardened
+    };
+    const vc_mpm = vc_baseline_mpm[iso] ?? 150;
     const rpm = Math.round((vc_mpm * 1000) / (Math.PI * tool.diameter_mm));
-    const fz = req.iso_group === "N" ? 0.1 : 0.05;
-    const feed = Math.round(rpm * tool.flutes * fz);
+    const fz_by_iso: Record<string, number> = {
+      N: 0.10, P: 0.05, M: 0.04, K: 0.06, S: 0.03, H: 0.02,
+    };
+    const fz = fz_by_iso[iso] ?? 0.05;
+    const feed_mmpm = Math.round(rpm * tool.flutes * fz);
 
     return {
       rpm,
-      feed_mmpm: feed,
-      sfm,
+      feed_mmpm,
+      vc_mpm,
       fz_mm: fz,
-      cycle_time_min: 10,
-      cost_estimate: 45.0,
+      iso_group: iso,
+      tool_diameter_mm: tool.diameter_mm,
+      formulas_used: ["cutting_speed_to_rpm", "feed_from_chipload"],
+      provenance: "Sandvik C-2920:3 + Kennametal baseline Vc tables",
     };
   }
 
   private async handleWisdom(req: MillOrchestrationRequest): Promise<unknown> {
-    // Tribal knowledge query
-    const query = req.query ?? "roughing";
-    const tips = [
-      { id: "TIP001", rule: "Use adaptive clearing for pockets deeper than 2xD", confidence: 0.95 },
-      { id: "TIP002", rule: "Reduce stepover to 5-8% for hardened steel", confidence: 0.9 },
-      { id: "TIP003", rule: "HSM maintains constant chip load through corners", confidence: 0.92 },
-    ];
-
-    return {
-      query,
-      tips: tips.filter(t => t.rule.toLowerCase().includes(query.toLowerCase()) || query === "roughing"),
-      sources: ["JM Die tribal", "Sandvik handbook", "Mastercam best practices"],
-    };
+    throw new NotWiredError(
+      "wisdom",
+      "TribalKnowledgeAdvisorEngine",
+      "Tribal-knowledge advisor not yet wired into facade; use prism_knowledge:tribal_search",
+      { requested_query: req.query ?? "" },
+    );
   }
 
-  private async handleAdaptive(req: MillOrchestrationRequest): Promise<unknown> {
-    // Adaptive toolpath generation
-    return {
-      strategy: "prism_forces",
-      engagement_percent: 10,
-      ramp_angle_deg: 2,
-      full_depth: true,
-      chip_load_constant: true,
-      estimated_savings_percent: 35,
-    };
+  private async handleAdaptive(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "adaptive",
+      "AdaptiveToolpathRouterEngine",
+      "Adaptive router not yet built; no synthetic toolpath may be returned",
+    );
   }
 
-  // ─────── P1-U10-FACADE-EXTEND HANDLERS ───────
+  // ─────── L2 AGGREGATOR DELEGATES (real imports, no fake fallback) ───────
 
   private async handleAILearning(req: MillOrchestrationRequest): Promise<unknown> {
-    try {
-      const { millingAILearningOrchestratorEngine } = await import(
-        "./MillingAILearningOrchestratorEngine.js"
-      );
-      const sub_type = (req as any).sub_type ?? "ai_reasoning";
-      return await millingAILearningOrchestratorEngine.orchestrate({
-        request_type: sub_type,
-        intent: req.intent,
-        context: { material: req.material, iso_group: req.iso_group },
-        query: req.query,
-      });
-    } catch (err: any) {
-      return { status: "unavailable", error: err.message };
-    }
+    const { millingAILearningOrchestratorEngine } = await import(
+      "./MillingAILearningOrchestratorEngine.js"
+    );
+    const sub_type = (req as any).sub_type ?? "ai_reasoning";
+    return await millingAILearningOrchestratorEngine.orchestrate({
+      request_type: sub_type,
+      intent: req.intent,
+      context: { material: req.material, iso_group: req.iso_group },
+      query: req.query,
+    });
   }
 
   private async handleMillTurn(req: MillOrchestrationRequest): Promise<unknown> {
-    try {
-      const { millTurnOrchestrationEngine } = await import("./MillTurnOrchestrationEngine.js");
-      const sub_type = (req as any).sub_type ?? "cam_generate";
-      return await millTurnOrchestrationEngine.orchestrate({
-        request_type: sub_type,
-        machine_class: (req as any).machine_class ?? "generic",
-      });
-    } catch (err: any) {
-      return { status: "unavailable", error: err.message };
-    }
+    const { millTurnOrchestrationEngine } = await import("./MillTurnOrchestrationEngine.js");
+    const sub_type = (req as any).sub_type ?? "cam_generate";
+    return await millTurnOrchestrationEngine.orchestrate({
+      request_type: sub_type,
+      machine_class: (req as any).machine_class ?? "generic",
+    });
   }
 
   private async handleFiveAxis(req: MillOrchestrationRequest): Promise<unknown> {
-    try {
-      const { fiveAxisAggregatorEngine } = await import("./FiveAxisAggregatorEngine.js");
-      const sub_type = (req as any).sub_type ?? "orchestrate";
-      return await fiveAxisAggregatorEngine.orchestrate({
-        request_type: sub_type,
-        kinematics: (req as any).kinematics ?? "generic",
-      });
-    } catch (err: any) {
-      return { status: "unavailable", error: err.message };
-    }
+    const { fiveAxisAggregatorEngine } = await import("./FiveAxisAggregatorEngine.js");
+    const sub_type = (req as any).sub_type ?? "orchestrate";
+    return await fiveAxisAggregatorEngine.orchestrate({
+      request_type: sub_type,
+      kinematics: (req as any).kinematics ?? "generic",
+    });
   }
 
   private async handleMultiAxis(req: MillOrchestrationRequest): Promise<unknown> {
-    try {
-      const { multiAxisAggregatorEngine } = await import("./MultiAxisAggregatorEngine.js");
-      const sub_type = (req as any).sub_type ?? "kinematic_fk";
-      return await multiAxisAggregatorEngine.orchestrate({
-        request_type: sub_type,
-        axis_count: (req as any).axis_count ?? 5,
-      });
-    } catch (err: any) {
-      return { status: "unavailable", error: err.message };
-    }
+    const { multiAxisAggregatorEngine } = await import("./MultiAxisAggregatorEngine.js");
+    const sub_type = (req as any).sub_type ?? "kinematic_fk";
+    return await multiAxisAggregatorEngine.orchestrate({
+      request_type: sub_type,
+      axis_count: (req as any).axis_count ?? 5,
+    });
   }
 
   private async handleTribalWriteback(req: MillOrchestrationRequest): Promise<unknown> {
-    const tip_body = (req as any).tip ?? req.query ?? "";
-    const category = (req as any).category ?? "machining_physics";
-    return {
-      status: "queued_for_review",
-      tip_id: `TIP_${Date.now()}`,
-      category,
-      body: tip_body,
-      confidence: 0.75,
-      source: (req as any).source ?? "user_session",
-      review_required: true,
-    };
+    throw new NotWiredError(
+      "tribal_writeback",
+      "TribalKnowledgeAdvisorEngine.writeback",
+      "Writeback path to tribal registry not yet built; use prism_knowledge:tribal_add",
+      { proposed_tip: (req as any).tip ?? req.query ?? "" },
+    );
   }
 
-  private async handlePatternSync(req: MillOrchestrationRequest): Promise<unknown> {
-    const dataset = (req as any).dataset ?? "jm_die";
-    return {
-      dataset,
-      patterns_synced: 42,
-      new_patterns: 3,
-      conflicts: 0,
-      last_sync_ts: new Date().toISOString(),
-    };
+  private async handlePatternSync(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "pattern_sync",
+      "MillPatternMinerEngine.sync",
+      "Pattern sync source-of-truth reader not yet built",
+    );
   }
 
   private async handleBlueprintBridge(req: MillOrchestrationRequest): Promise<unknown> {
-    const blueprint_path = (req as any).blueprint_path ?? "";
-    return {
-      blueprint_path,
-      features_extracted: req.features?.length ?? 0,
-      dimensions_ocr_count: 12,
-      tolerances_found: 5,
-      gd_t_symbols: 2,
-      ready_for_program: true,
-    };
+    throw new NotWiredError(
+      "blueprint_bridge",
+      "BlueprintToProgramBridge (print-to-program entrypoint)",
+      "Blueprint bridge not yet built",
+      { features_requested: req.features?.length ?? 0 },
+    );
   }
 
   private async handleModelLoad(req: MillOrchestrationRequest): Promise<unknown> {
-    const model_id = (req as any).model_id ?? "mill_deeplearn_v1";
-    return {
-      model_id,
-      status: "loaded",
-      version: "1.0.0",
-      parameter_count: 1_250_000,
-      load_time_ms: 85,
-    };
+    throw new NotWiredError(
+      "model_load",
+      "MillDeepLearningEngine.loadModel",
+      "Model-load path not yet built; no training artifacts to mount",
+      { requested_model: (req as any).model_id ?? "" },
+    );
   }
 
-  private async handleHiveSync(req: MillOrchestrationRequest): Promise<unknown> {
-    const session_id = (req as any).session_id ?? "local";
-    return {
-      session_id,
-      peers_reached: 3,
-      artifacts_synced: 15,
-      memory_graph_updated: true,
-      ts: new Date().toISOString(),
-    };
+  private async handleHiveSync(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "hive_sync",
+      "HiveSyncCoordinator",
+      "Cross-session memory-graph sync not yet built",
+    );
   }
 
-  private async handleCustomerLearn(req: MillOrchestrationRequest): Promise<unknown> {
-    const customer = (req as any).customer ?? "JM_DIE";
-    const outcome = (req as any).outcome ?? "success";
-    return {
-      customer,
-      outcome,
-      patterns_updated: 2,
-      confidence_delta: 0.05,
-      recommendations_revised: 1,
-    };
+  private async handleCustomerLearn(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "customer_learn",
+      "MillingMetaLearningEngine.learnFromOutcome",
+      "Customer-outcome learner not yet built",
+    );
   }
 
-  private async handleOutcomeReplan(req: MillOrchestrationRequest): Promise<unknown> {
-    const original = (req as any).original_plan ?? {};
-    const deviation = (req as any).deviation ?? "none";
-    return {
-      original_plan: original,
-      deviation,
-      new_plan: { strategy: "adaptive_clearing", modifications: ["reduce_doc", "increase_stepover"] },
-      replan_confidence: 0.85,
-    };
+  private async handleOutcomeReplan(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "outcome_replan",
+      "MillMasterOrchestrator.replan",
+      "Replan path not yet built; no real planner to consult",
+    );
   }
 
-  private async handleJMDieRefresh(req: MillOrchestrationRequest): Promise<unknown> {
-    return {
-      customers: 100,
-      programs: 24545,
-      machines: 21,
-      tribal_tips: 3943,
-      last_refresh_ts: new Date().toISOString(),
-      status: "refreshed",
-    };
+  private async handleJMDieRefresh(_req: MillOrchestrationRequest): Promise<unknown> {
+    throw new NotWiredError(
+      "jmdie_refresh",
+      "PRISMSelfAwarenessEngine.refreshJMDieIndex",
+      "JM Die index refresh path not yet wired to self-awareness engine",
+    );
   }
 
   private buildProvenance(

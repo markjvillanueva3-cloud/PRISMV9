@@ -97,11 +97,11 @@ class MultiAxisAggregatorEngine {
   private invocationCount = 0;
 
   /**
-   * Main entry — routes multi-axis request
+   * Main entry — routes multi-axis request.
+   * Honest missing-engine response; never fabricates success data.
    */
   async orchestrate(request: MultiAxisRequest): Promise<MultiAxisResponse> {
     const startTime = Date.now();
-    const warnings: string[] = [];
     const axis_count = request.axis_count ?? 5;
 
     log.info(`[MultiAxis] Routing ${request.request_type} (axes=${axis_count})`);
@@ -125,34 +125,34 @@ class MultiAxisAggregatorEngine {
       };
     }
 
+    let mod: any;
     try {
-      const mod = await import(route.module_path);
-      const engine = mod[route.export_name];
-
-      if (!engine || typeof engine[route.method] !== "function") {
-        warnings.push(`${route.engine_name}.${route.method} not available`);
-        return this.buildUnavailable(request.request_type, route, axis_count, startTime, warnings);
-      }
-
-      const result = await engine[route.method](request);
-      return {
-        success: true,
-        request_type: request.request_type,
-        engine: route.engine_name,
-        result,
-        provenance: {
-          engines_invoked: [route.engine_name],
-          processing_time_ms: Date.now() - startTime,
-          engine_available: true,
-          axis_count,
-          ts: new Date().toISOString(),
-        },
-        warnings,
-      };
+      mod = await import(route.module_path);
     } catch (err: any) {
-      warnings.push(`Module ${route.module_path} unavailable: ${err.message}`);
-      return this.buildUnavailable(request.request_type, route, axis_count, startTime, warnings);
+      return this.buildMissing(request.request_type, route, axis_count, startTime,
+        `Module ${route.module_path} not found: ${err.message}`);
     }
+    const engine = mod[route.export_name];
+    if (!engine || typeof engine[route.method] !== "function") {
+      return this.buildMissing(request.request_type, route, axis_count, startTime,
+        `${route.engine_name}.${route.method} is not a callable function`);
+    }
+
+    const result = await engine[route.method](request);
+    return {
+      success: true,
+      request_type: request.request_type,
+      engine: route.engine_name,
+      result,
+      provenance: {
+        engines_invoked: [route.engine_name],
+        processing_time_ms: Date.now() - startTime,
+        engine_available: true,
+        axis_count,
+        ts: new Date().toISOString(),
+      },
+      warnings: [],
+    };
   }
 
   /**
@@ -203,18 +203,19 @@ class MultiAxisAggregatorEngine {
     }
   }
 
-  private buildUnavailable(
+  /** Honest missing-engine response — never returns fake success data. */
+  private buildMissing(
     type: MultiAxisRequestType,
     route: MultiAxisRoute,
     axis_count: number,
     startTime: number,
-    warnings: string[]
+    reason: string,
   ): MultiAxisResponse {
     return {
       success: false,
       request_type: type,
       engine: route.engine_name,
-      result: { status: "engine_not_built", routed_to: route.engine_name },
+      result: null,
       provenance: {
         engines_invoked: [route.engine_name],
         processing_time_ms: Date.now() - startTime,
@@ -222,7 +223,7 @@ class MultiAxisAggregatorEngine {
         axis_count,
         ts: new Date().toISOString(),
       },
-      warnings,
+      warnings: [reason],
     };
   }
 }

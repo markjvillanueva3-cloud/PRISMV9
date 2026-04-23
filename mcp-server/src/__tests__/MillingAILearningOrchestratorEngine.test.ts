@@ -69,7 +69,8 @@ describe("MillingAILearningOrchestratorEngine", () => {
       expect(response.success).toBe(false);
       expect(response.engine).toBe("MillingStrategyLibraryEngine");
       expect(response.provenance.engine_available).toBe(false);
-      expect((response.result as any).status).toBe("engine_not_built");
+      expect(response.result).toBeNull();
+      expect(response.provenance.engine_available).toBe(false);
     });
 
     it("rl_train returns warnings array for unbuilt engine", async () => {
@@ -78,7 +79,7 @@ describe("MillingAILearningOrchestratorEngine", () => {
         episode_count: 100,
       });
       expect(response.warnings.length).toBeGreaterThan(0);
-      expect(response.warnings[0]).toMatch(/unavailable|not available/i);
+      expect(response.warnings[0]).toMatch(/not found|not available|unavailable/i);
     });
 
     it("pattern_mine routes and marks unavailable gracefully", async () => {
@@ -198,7 +199,8 @@ describe("MillTurnOrchestrationEngine", () => {
         request_type: "cam_generate",
       });
       expect(response.provenance.engine_available).toBe(false);
-      expect((response.result as any).status).toBe("engine_not_built");
+      expect(response.result).toBeNull();
+      expect(response.provenance.engine_available).toBe(false);
     });
 
     it("swiss_pipeline returns structured response even when unavailable", async () => {
@@ -288,7 +290,8 @@ describe("FiveAxisAggregatorEngine", () => {
         request_type: "ai_ultra",
         lead_angle_deg: 5,
       });
-      expect((response.result as any).status).toBe("engine_not_built");
+      expect(response.result).toBeNull();
+      expect(response.provenance.engine_available).toBe(false);
     });
 
     it("rtcp_check returns structured response even when unbuilt", async () => {
@@ -372,7 +375,8 @@ describe("MultiAxisAggregatorEngine", () => {
         request_type: "kinematic_fk",
         joint_values: [0, 0, 0, 0, 0],
       });
-      expect((response.result as any).status).toBe("engine_not_built");
+      expect(response.result).toBeNull();
+      expect(response.provenance.engine_available).toBe(false);
     });
 
     it("print_to_prog unavailable returns structured response", async () => {
