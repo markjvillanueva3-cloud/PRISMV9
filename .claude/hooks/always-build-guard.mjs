@@ -307,7 +307,7 @@ if (contextParts.length > 0) {
   console.log(JSON.stringify({
     continue: true,
       hookSpecificOutput: {
-        hookEventName: "PreToolUse",
+        hookEventName: "Stop",
         additionalContext: contextParts.join("\n\n"),
       }
     }));

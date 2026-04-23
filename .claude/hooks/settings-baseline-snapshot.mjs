@@ -34,7 +34,7 @@ function main() {
     console.log(JSON.stringify({
       continue: true,
       hookSpecificOutput: {
-        hookEventName: "PreToolUse",
+        hookEventName: "SessionStart",
         additionalContext: `Settings baseline saved: ${baselinePath}`,
       }
     }));
@@ -43,7 +43,7 @@ function main() {
     console.log(JSON.stringify({
       continue: true,
       hookSpecificOutput: {
-        hookEventName: "PreToolUse",
+        hookEventName: "SessionStart",
         additionalContext: `Settings baseline skipped: ${err.message}`,
       }
     }));

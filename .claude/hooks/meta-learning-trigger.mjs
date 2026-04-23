@@ -146,7 +146,7 @@ for (const action of actions) {
 console.log(JSON.stringify({
   continue: true,
       hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
+        hookEventName: "PostToolUse",
         additionalContext: parts.join('\n'),
       }
     }));

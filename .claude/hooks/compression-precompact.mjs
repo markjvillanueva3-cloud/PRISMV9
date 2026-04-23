@@ -143,7 +143,7 @@ async function main() {
     process.stdout.write(JSON.stringify({
       continue: true,
       hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
+        hookEventName: "PreCompact",
         additionalContext: ctx,
       },
     }));

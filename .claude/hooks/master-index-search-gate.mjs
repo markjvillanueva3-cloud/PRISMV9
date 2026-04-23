@@ -103,7 +103,7 @@ Use existing asset if functionality overlaps >50%.
   console.log(JSON.stringify({
     decision: 'approve',
       hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit",
+        hookEventName: "PreToolUse",
         additionalContext: warning,
       }
     }));
