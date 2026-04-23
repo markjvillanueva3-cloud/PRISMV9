@@ -216,28 +216,44 @@ function checkEngineWired(engineRelPath) {
   };
 }
 
+function collectTestFiles(dir) {
+  // Recursively collect all .test.ts files under dir
+  const results = [];
+  if (!fs.existsSync(dir)) return results;
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...collectTestFiles(fullPath));
+    } else if (entry.name.endsWith(".test.ts")) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
+
 function checkEngineTested(engineRelPath) {
   const base = path.basename(engineRelPath).replace(/\.ts$/, "");
   const testsDir = path.join(REPO_ROOT, TESTS_DIR);
   if (!fs.existsSync(testsDir)) {
     return { tested: false, reason: "no tests dir", cases: 0 };
   }
-  // Allow exact match or kebab/snake variant of the engine name
-  const files = fs.readdirSync(testsDir);
-  const candidates = files.filter((f) => {
-    const low = f.toLowerCase();
+  // Recursively search __tests__ and subdirectories (e.g. __tests__/engines/)
+  const allTestFiles = collectTestFiles(testsDir);
+  const candidates = allTestFiles.filter((fullPath) => {
+    const f = path.basename(fullPath).toLowerCase();
     return (
-      low === `${base.toLowerCase()}.test.ts` ||
-      low.startsWith(`${base.toLowerCase()}.`) ||
-      low.includes(base.toLowerCase())
+      f === `${base.toLowerCase()}.test.ts` ||
+      f.startsWith(`${base.toLowerCase()}.`) ||
+      f.includes(base.toLowerCase())
     );
   });
   if (candidates.length === 0) {
     return { tested: false, reason: `no matching test file for ${base}`, cases: 0 };
   }
   let totalCases = 0;
-  for (const f of candidates) {
-    const body = fs.readFileSync(path.join(testsDir, f), "utf8");
+  for (const fullPath of candidates) {
+    const body = fs.readFileSync(fullPath, "utf8");
     // Count `it(` occurrences as a proxy for test case count.
     const matches = body.match(/\bit\s*\(/g) || [];
     totalCases += matches.length;
@@ -245,11 +261,11 @@ function checkEngineTested(engineRelPath) {
   if (totalCases < 10) {
     return {
       tested: false,
-      reason: `only ${totalCases} test case(s) in ${candidates[0]} — need ≥ 10`,
+      reason: `only ${totalCases} test case(s) in ${path.basename(candidates[0])} — need ≥ 10`,
       cases: totalCases,
     };
   }
-  return { tested: true, reason: `${totalCases} cases in ${candidates[0]}`, cases: totalCases };
+  return { tested: true, reason: `${totalCases} cases in ${path.basename(candidates[0])}`, cases: totalCases };
 }
 
 function checkDispatcherActionHandlers(dispatcherRelPath) {
