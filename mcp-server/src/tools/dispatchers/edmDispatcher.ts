@@ -62,6 +62,10 @@ let _mrrPhysics: any;
 let _wireStress: any;
 let _wireTensionOpt: any;
 let _weibull: any;
+let _wireHeating: any;
+let _kerfWidth: any;
+let _wireDeflection: any;
+let _thinWireDerate: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -100,6 +104,10 @@ async function getEngine(name: string): Promise<any> {
     case "wireStress": return _wireStress ??= (await import("../../engines/WEDMWireStressAnalysisEngine.js")).wedmWireStressAnalysisEngine;
     case "wireTensionOpt": return _wireTensionOpt ??= (await import("../../engines/WEDMWireTensionOptimizerEngine.js")).wedmWireTensionOptimizerEngine;
     case "weibull": return _weibull ??= (await import("../../engines/WEDMWeibullWireLifeEngine.js")).wedmWeibullWireLifeEngine;
+    case "wireHeating": return _wireHeating ??= (await import("../../engines/WEDMWireHeatingEngine.js")).wedmWireHeatingEngine;
+    case "kerfWidth": return _kerfWidth ??= (await import("../../engines/WEDMKerfWidthEngine.js")).wedmKerfWidthEngine;
+    case "wireDeflection": return _wireDeflection ??= (await import("../../engines/WEDMWireDeflectionEngine.js")).wedmWireDeflectionEngine;
+    case "thinWireDerate": return _thinWireDerate ??= (await import("../../engines/WEDMThinWireDerateEngine.js")).wedmThinWireDerateEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -253,6 +261,14 @@ const ACTIONS = [
   // WEDM-BIZ-MS0: Weibull Wire Life (β, η, MTTF, CI, percentile, survival curve)
   "wedm_weibull_fit", "wedm_weibull_failure_probability", "wedm_weibull_percentile",
   "wedm_weibull_compare_groups", "wedm_weibull_survival_curve",
+
+  // WEDM wire thermal + kerf + deflection + derate (re-wired from pre-existing engines)
+  "wedm_wire_heating_joule", "wedm_wire_heating_ra_cascade", "wedm_wire_heating_safe_params",
+  "wedm_wire_heating_power_density", "wedm_wire_heating_thin_safety",
+  "wedm_wire_heating_servo_voltage", "wedm_wire_heating_debris_sc", "wedm_wire_heating_coated_limit",
+  "wedm_kerf_overcut", "wedm_kerf_width", "wedm_kerf_roughness",
+  "wedm_wire_deflection_calc", "wedm_wire_flush_deflection",
+  "wedm_thin_wire_derate_summary", "wedm_thin_wire_derate_current", "wedm_thin_wire_derate_ton",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1407,6 +1423,91 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_weibull_survival_curve": {
             const engine = await getEngine("weibull");
             result = engine.survivalCurve(params.beta, params.eta_min, params.points);
+            break;
+          }
+
+          case "wedm_wire_heating_joule": {
+            const engine = await getEngine("wireHeating");
+            result = engine.calculateJouleHeating(params);
+            break;
+          }
+          case "wedm_wire_heating_ra_cascade": {
+            const engine = await getEngine("wireHeating");
+            result = engine.calculateRaCascade(params);
+            break;
+          }
+          case "wedm_wire_heating_safe_params": {
+            const engine = await getEngine("wireHeating");
+            result = engine.recommendSafeParameters(params);
+            break;
+          }
+          case "wedm_wire_heating_power_density": {
+            const engine = await getEngine("wireHeating");
+            result = engine.calculateWirePowerDensity(params);
+            break;
+          }
+          case "wedm_wire_heating_thin_safety": {
+            const engine = await getEngine("wireHeating");
+            result = engine.checkThinWireSafety(params);
+            break;
+          }
+          case "wedm_wire_heating_servo_voltage": {
+            const engine = await getEngine("wireHeating");
+            result = engine.calculateServoVoltage(params);
+            break;
+          }
+          case "wedm_wire_heating_debris_sc": {
+            const engine = await getEngine("wireHeating");
+            result = engine.calculateDebrisShortCircuit(params);
+            break;
+          }
+          case "wedm_wire_heating_coated_limit": {
+            const engine = await getEngine("wireHeating");
+            result = engine.checkCoatedWireLimit(params);
+            break;
+          }
+          case "wedm_kerf_overcut": {
+            const engine = await getEngine("kerfWidth");
+            result = engine.calculateOvercut(
+              params.peak_current_A, params.ton_us, params.material, params.operation_type
+            );
+            break;
+          }
+          case "wedm_kerf_width": {
+            const engine = await getEngine("kerfWidth");
+            result = engine.calculateKerfWidth(params.wire_diameter_mm, params.overcut_mm);
+            break;
+          }
+          case "wedm_kerf_roughness": {
+            const engine = await getEngine("kerfWidth");
+            result = engine.estimateSurfaceRoughness(params.peak_current_A, params.ton_us, params.operation_type);
+            break;
+          }
+          case "wedm_wire_deflection_calc": {
+            const engine = await getEngine("wireDeflection");
+            result = engine.calculateDeflection(params);
+            break;
+          }
+          case "wedm_wire_flush_deflection": {
+            const engine = await getEngine("wireDeflection");
+            result = engine.calculateFlushDeflection(
+              params.flush_pressure_bar, params.wire_diameter_mm, params.wire_span_mm, params.wire_tension_N
+            );
+            break;
+          }
+          case "wedm_thin_wire_derate_summary": {
+            const engine = await getEngine("thinWireDerate");
+            result = engine.getDeratingSummary(params.wire_diameter_mm, params.wire_material);
+            break;
+          }
+          case "wedm_thin_wire_derate_current": {
+            const engine = await getEngine("thinWireDerate");
+            result = engine.calculateCurrentDerateFactor(params.wire_diameter_mm, params.wire_material);
+            break;
+          }
+          case "wedm_thin_wire_derate_ton": {
+            const engine = await getEngine("thinWireDerate");
+            result = engine.calculateTonDerateFactor(params.wire_diameter_mm);
             break;
           }
 
