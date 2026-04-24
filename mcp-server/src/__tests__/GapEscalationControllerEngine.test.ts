@@ -73,18 +73,23 @@ describe("GapEscalationControllerEngine", () => {
   // shouldProceed helper
   // ══════════════════════════════════════════════════════════════════════════
   describe("shouldProceed()", () => {
-    it("returns proceed=true for known capabilities", () => {
-      const result = engine.shouldProceed("calculate cutting force");
+    it("returns proceed=true for known capabilities", async () => {
+      const result = await engine.shouldProceed("calculate cutting force");
 
-      expect(result.proceed).toBeDefined();
-      expect(result.level).toBeDefined();
+      expect(typeof result.proceed).toBe("boolean");
+      expect(["PROCEED", "WARNING", "HALT"]).toContain(result.level);
+      expect(typeof result.reason).toBe("string");
+      expect(result.reason.length).toBeGreaterThan(0);
     });
 
-    it("returns proceed=false for unknown queries with low confidence", () => {
-      const result = engine.shouldProceed("xyzzy impossible task 12345");
+    it("returns proceed=false for unknown queries with low confidence", async () => {
+      const result = await engine.shouldProceed("xyzzy impossible task 12345");
 
+      expect(["PROCEED", "WARNING", "HALT"]).toContain(result.level);
       if (result.level === "HALT" || result.level === "WARNING") {
         expect(result.proceed).toBe(false);
+      } else {
+        expect(result.proceed).toBe(true);
       }
     });
   });
@@ -304,10 +309,12 @@ describe("GapEscalationControllerEngine", () => {
       expect(decision.can_proceed).toBe(true);
     });
 
-    it("handles empty query", () => {
-      const result = engine.shouldProceed("");
+    it("handles empty query", async () => {
+      const result = await engine.shouldProceed("");
 
-      expect(result.level).toBeDefined();
+      expect(["PROCEED", "WARNING", "HALT"]).toContain(result.level);
+      expect(typeof result.reason).toBe("string");
+      expect(typeof result.proceed).toBe("boolean");
     });
 
     it("includes timestamp in decisions", () => {
