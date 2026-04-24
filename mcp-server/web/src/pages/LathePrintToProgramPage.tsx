@@ -22,7 +22,6 @@ import {
   Select,
   StatusPill,
 } from '../components/workspace/WorkspacePrimitives';
-import { WorkspaceRecoveryScaffold } from '../components/workspace/WorkspaceRecoveryScaffold';
 
 type PipelineStage =
   | 'idle'
@@ -73,7 +72,7 @@ export function LathePrintToProgramPage() {
 
   // Pipeline state
   const [stage, setStage] = useState<PipelineStage>('idle');
-  const [progress, setProgress] = useState(0);
+  const [, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PipelineResult | null>(null);
 
@@ -206,10 +205,10 @@ export function LathePrintToProgramPage() {
   }, [stage]);
 
   return (
-    <WorkspaceRecoveryScaffold title="Lathe Print-to-Program">
+    <div className="p-4">
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         {/* Left panel: Upload + Config */}
-        <PanelCard title="Blueprint Input" style={{ flex: '1 1 300px', minWidth: 300 }}>
+        <PanelCard title="Blueprint Input">
           {/* Drop zone */}
           <div
             onDrop={handleDrop}
@@ -296,7 +295,7 @@ export function LathePrintToProgramPage() {
             <ActionButton
               onClick={runPipeline}
               disabled={!fileData || stage === 'uploading'}
-              style={{ width: '100%' }}
+              className="w-full"
             >
               {stage === 'idle' || stage === 'error' || stage === 'complete'
                 ? 'Generate Program'
@@ -312,18 +311,17 @@ export function LathePrintToProgramPage() {
         </PanelCard>
 
         {/* Right panel: Results */}
-        <PanelCard title="Results" style={{ flex: '2 1 400px', minWidth: 400 }}>
+        <PanelCard title="Results">
           {/* Status */}
           <div style={{ marginBottom: '1rem' }}>
             <StatusPill
-              status={
-                stage === 'complete' ? 'success' :
-                stage === 'error' ? 'error' :
-                stage === 'idle' ? 'neutral' : 'pending'
+              label={stageLabel}
+              tone={
+                stage === 'complete' ? 'emerald' :
+                stage === 'error' ? 'rose' :
+                stage === 'idle' ? 'slate' : 'amber'
               }
-            >
-              {stageLabel}
-            </StatusPill>
+            />
           </div>
 
           {result && (
@@ -408,7 +406,7 @@ export function LathePrintToProgramPage() {
           )}
         </PanelCard>
       </div>
-    </WorkspaceRecoveryScaffold>
+    </div>
   );
 }
 
