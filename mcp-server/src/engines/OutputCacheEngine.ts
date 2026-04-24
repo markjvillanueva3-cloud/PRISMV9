@@ -7,9 +7,10 @@
  * Token savings: ~15 tokens (reference) vs ~500 tokens (regenerate) = 97% savings
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname } from "node:path";
+import { atomicWriteJson, safeReadJson, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export interface CachedBlock {
   id: string;
@@ -56,23 +57,19 @@ export class OutputCacheEngine {
   }
 
   private loadState(): CacheState {
-    try {
-      if (existsSync(STATE_FILE)) {
-        return JSON.parse(readFileSync(STATE_FILE, "utf-8"));
-      }
-    } catch {
-      // ignore
-    }
-    return {
+    const fallback: CacheState = {
       blocks: {},
       stats: { totalSaved: 0, totalHits: 0, totalMisses: 0 },
     };
+    const loaded = safeReadJson<CacheState>(STATE_FILE, fallback);
+    if (loaded !== fallback) snapshotLastGood(STATE_FILE, loaded);
+    return loaded;
   }
 
   private saveState(): void {
     const dir = dirname(STATE_FILE);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(STATE_FILE, JSON.stringify(this.state, null, 2));
+    atomicWriteJson(STATE_FILE, this.state);
   }
 
   private hash(content: string): string {

@@ -7,8 +7,8 @@
  * Key insight: Not all context is equal. Task state > decisions > exploration.
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { existsSync, mkdirSync } from "node:fs";
+import { atomicWriteJson, safeReadJson, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export type ContextType =
   | "task_state"      // Current task, what's in progress
@@ -73,25 +73,19 @@ export class CompactionSurvivalEngine {
 
   private loadState(): State {
     const sessionId = process.env.CLAUDE_SESSION_ID || "default";
-    try {
-      const stateFile = getStateFile(sessionId);
-      if (existsSync(stateFile)) {
-        return JSON.parse(readFileSync(stateFile, "utf-8"));
-      }
-    } catch {
-      // ignore
-    }
-    return {
-      items: [],
-      sessionId,
-      compactionCount: 0,
-    };
+    const fallback: State = { items: [], sessionId, compactionCount: 0 };
+    const stateFile = getStateFile(sessionId);
+    const loaded = safeReadJson<State>(stateFile, fallback);
+    // Snapshot a known-good copy right after successful load, so future
+    // crashes mid-save can fall back to the last readable state.
+    if (loaded !== fallback) snapshotLastGood(stateFile, loaded);
+    return loaded;
   }
 
   private saveState(): void {
     if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
     const stateFile = getStateFile(this.state.sessionId);
-    writeFileSync(stateFile, JSON.stringify(this.state, null, 2));
+    atomicWriteJson(stateFile, this.state);
   }
 
   private estimateTokens(content: string): number {

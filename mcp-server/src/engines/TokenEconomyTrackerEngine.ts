@@ -12,8 +12,9 @@
  * - Budget forecasting
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import { atomicWriteJson, safeReadJson, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export interface TokenSpend {
   timestamp: string;
@@ -117,14 +118,7 @@ export class TokenEconomyTrackerEngine {
   }
 
   private loadState(): State {
-    try {
-      if (existsSync(STATE_FILE)) {
-        return JSON.parse(readFileSync(STATE_FILE, "utf-8"));
-      }
-    } catch {
-      // ignore
-    }
-    return {
+    const fallback: State = {
       spends: [],
       sessions: {},
       config: {
@@ -140,16 +134,19 @@ export class TokenEconomyTrackerEngine {
         },
       },
     };
+    const loaded = safeReadJson<State>(STATE_FILE, fallback);
+    if (loaded !== fallback) snapshotLastGood(STATE_FILE, loaded);
+    return loaded;
   }
 
   private saveState(): void {
     const dir = dirname(STATE_FILE);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    const trimmed = {
+    const trimmed: State = {
       ...this.state,
       spends: this.state.spends.slice(-10000),
     };
-    writeFileSync(STATE_FILE, JSON.stringify(trimmed, null, 2));
+    atomicWriteJson(STATE_FILE, trimmed);
   }
 
   recordSpend(spend: Omit<TokenSpend, "timestamp">): TokenSpend {
