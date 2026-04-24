@@ -245,11 +245,11 @@ export class AdaptiveSystemIntegrationEngine {
 
     // Failure risk prediction using analyzeFailureRisk with reasonable defaults
     const failureRisk = failureModeAnticipationEngine.analyzeFailureRisk({
-      toolWearPercent: adaptive.wear.currentVB_mm / 0.3 * 100,
+      toolWearPercent: (adaptive.wear.currentVB_mm ?? 0) / 0.3 * 100,
       toolOverhangRatio: 4,
       toolGradeMatch: 0.85,
       cuttingForce: 500,
-      spindleLoad: adaptive.spindle.currentLoad,
+      spindleLoad: adaptive.spindle.currentLoad ?? adaptive.spindle.loadPercentage ?? 0,
       vibrationLevel: 0.5,
       temperature: 200,
       clampingForce: 5000,
@@ -291,12 +291,15 @@ export class AdaptiveSystemIntegrationEngine {
       riskCategory: failureRisk.overallRisk > 0.6 ? "high" :
                     failureRisk.overallRisk > 0.3 ? "elevated" : "acceptable",
       potentialIssues: failureRisk.predictions.filter(p => p.probability > 0.2).map(p => ({
-        issueType: p.failureMode,
-        severity: p.probability > 0.6 ? "high" : p.probability > 0.3 ? "medium" : "low",
+        // FailurePrediction has `mode: FailureMode` as canonical; failureMode/
+        // physicsRationale/mitigation are optional integration aliases that
+        // may be missing when predictions come from the canonical pipeline.
+        issueType: p.failureMode?.id ?? p.mode?.id ?? "unknown",
+        severity: (p.probability > 0.6 ? "high" : p.probability > 0.3 ? "medium" : "low") as "low" | "medium" | "high" | "critical",
         probability: p.probability,
-        affectedParameter: p.failureMode,
-        rootCause: p.physicsRationale,
-        mitigation: p.mitigation,
+        affectedParameter: p.failureMode?.id ?? p.mode?.id ?? "unknown",
+        rootCause: p.physicsRationale ?? p.mode?.rootCauses?.[0] ?? "",
+        mitigation: p.mitigation ?? p.recommendedAction ?? "",
         source: "failure_mode_anticipation" as const,
       })),
       proceedRecommendation: failureRisk.overallRisk > 0.6 ? "modify_parameters" :
@@ -304,7 +307,8 @@ export class AdaptiveSystemIntegrationEngine {
       parameterAdjustments: [],
       monitoringPriorities: failureRisk.predictions
         .filter(p => p.probability > 0.3)
-        .map(p => p.failureMode),
+        .map(p => p.failureMode?.id ?? p.mode?.id ?? "")
+        .filter((s): s is string => s !== ""),
     };
 
     // Self-awareness integration
