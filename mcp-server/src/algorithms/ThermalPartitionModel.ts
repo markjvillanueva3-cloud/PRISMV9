@@ -131,8 +131,8 @@ class ThermalPartitionModelImpl implements Algorithm<ThermalPartitionInput, Ther
     // Contact length: estimate from feed if not provided
     const contactLength = input.contact_length_mm ?? (input.feed_mm ? input.feed_mm * 2 : 1.0);
 
-    // Thermal diffusivity
-    const isoGroup: ISOGroup = input.iso_group ?? "P";
+    // Thermal diffusivity — input.iso_group is ISOGroup | string, narrow via cast.
+    const isoGroup: ISOGroup = ((input.iso_group ?? "P") as ISOGroup);
     const chipDiffusivity = input.chip_diffusivity_mm2s ?? THERMAL_DIFFUSIVITY[isoGroup];
     const toolDiffusivity = input.tool_diffusivity_mm2s ?? TOOL_DIFFUSIVITY.carbide;
 

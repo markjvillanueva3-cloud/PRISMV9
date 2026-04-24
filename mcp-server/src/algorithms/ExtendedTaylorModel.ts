@@ -279,8 +279,9 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
           isoGroup = mat.iso_group;
           materialSource = input.material;
         } else {
-          // Fallback to ISO group
-          isoGroup = input.iso_group ?? "P";
+          // Fallback to ISO group — input.iso_group is typed ISOGroup | string;
+          // narrow to ISOGroup via cast (falls back to "P" when null).
+          isoGroup = ((input.iso_group ?? "P") as ISOGroup);
           const taylor = CANONICAL_TAYLOR[isoGroup];
           C = taylor.C;
           n = taylor.n;
@@ -293,7 +294,7 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
         materialSource = input.material.name;
       }
     } else if (input.iso_group) {
-      isoGroup = input.iso_group;
+      isoGroup = input.iso_group as ISOGroup;
       const taylor = CANONICAL_TAYLOR[isoGroup];
       C = taylor.C;
       n = taylor.n;

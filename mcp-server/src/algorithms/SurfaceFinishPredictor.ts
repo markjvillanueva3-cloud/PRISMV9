@@ -205,7 +205,8 @@ class SurfaceFinishPredictorImpl implements Algorithm<SurfaceFinishInput, Surfac
     const re_um = input.edge_radius_um ?? 10; // Default 10µm sharp edge
     const re_mm = re_um / 1000;
     const Vc = input.cutting_speed_mpm ?? 120; // Default moderate speed
-    const isoGroup: ISOGroup = input.iso_group ?? "P";
+    // input.iso_group is typed ISOGroup | string; narrow via cast + default to "P".
+    const isoGroup: ISOGroup = ((input.iso_group ?? "P") as ISOGroup);
 
     // ── Brammertz Kinematic Roughness ──
     // Rt = f²/(8R) + re/2 (peak-to-valley)
