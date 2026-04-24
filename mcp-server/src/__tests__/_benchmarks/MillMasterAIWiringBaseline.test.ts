@@ -13,7 +13,6 @@
 import { describe, test, expect } from "vitest";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   INVOCATIONS,
   EXPECTED_UNITS,
@@ -24,9 +23,12 @@ import {
   type CapturedEntry,
 } from "./MillMasterAIWiringBaselineFixtures.js";
 
+// Vitest runs with cwd = package root (mcp-server/). Using process.cwd()
+// keeps the file tsconfig-agnostic (no reliance on import.meta, which
+// currently trips the pre-commit tsc gate on this sub-tree).
 const OUT_FILE = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../data/benchmarks/mill-master-ai-wiring-baseline.json",
+  process.cwd(),
+  "data/benchmarks/mill-master-ai-wiring-baseline.json",
 );
 
 describe("MILL-MASTER-AI-WIRING / U0-BASELINE", () => {
