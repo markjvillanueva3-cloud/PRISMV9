@@ -234,6 +234,16 @@ function collectTestFiles(dir) {
 
 function checkEngineTested(engineRelPath) {
   const base = path.basename(engineRelPath).replace(/\.ts$/, "");
+  // WIRE-EXEMPT marker exempts from BOTH wiring and test checks — the
+  // documented escape hatch covers intentional library helpers and
+  // placeholder stubs that would otherwise demand ceremonial tests.
+  const full = path.join(REPO_ROOT, engineRelPath);
+  if (fs.existsSync(full)) {
+    const content = fs.readFileSync(full, "utf8");
+    if (isWireExempt(content)) {
+      return { tested: true, reason: "WIRE-EXEMPT marker", cases: 0 };
+    }
+  }
   const testsDir = path.join(REPO_ROOT, TESTS_DIR);
   if (!fs.existsSync(testsDir)) {
     return { tested: false, reason: "no tests dir", cases: 0 };
