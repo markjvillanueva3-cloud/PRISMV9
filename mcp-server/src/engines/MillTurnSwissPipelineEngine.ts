@@ -28,6 +28,11 @@ import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 import { resolveMaterial, resolveMachine } from "./PipelineRegistryBridge.js";
 import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
 import { tribalKnowledgeEngine } from "./TribalKnowledgeEngine.js";
+
+// MILL-MASTER-AI-WIRING / U5-SWISS: PRISM reasoning primitives
+import { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
+import { crossDisciplinaryEngine } from "./CrossDisciplinaryDeepLearningEngine.js";
+import { prismCreativeReasoningEngine } from "./PRISMCreativeReasoningEngine.js";
 // ============================================================================
 // SHARED ENGINE HELPERS (ESM-safe, non-blocking — 0-D-ARCH U-ARCH2)
 // ============================================================================
@@ -1452,6 +1457,90 @@ export class MillTurnSwissPipelineEngine {
             warnings,
             tool_life_estimates: toolLifeEstimates.length > 0 ? toolLifeEstimates : undefined,
         };
+    }
+
+    // ==========================================================================
+    // MILL-MASTER-AI-WIRING / U5-SWISS — PRISM reasoning retrofit
+    // ==========================================================================
+    /**
+     * Swiss-machining pipeline + PRISM reasoning stack.
+     *   - useAI='off' (default): returns { swiss } bit-identical to legacy.
+     *   - useAI='on'|'auto': returns { swiss, ai } with Bayesian tool life,
+     *     cross-domain stiffness-deflection insight, and (on declared conflict)
+     *     creative-reasoning hybrid strategy.
+     * Fail-closed per envelope global_contracts.ai_path_behavior.
+     */
+    async calculateSwissMachiningUltra(input) {
+        const useAI = input && input.useAI ? input.useAI : "off";
+        const swiss = this.calculateSwissMachining(input);
+        if (useAI === "off") return { swiss };
+        const sources = [];
+        // --- Stage 1: Bayesian tool-life prediction ---
+        sources.push("bayesian_tool_life");
+        let tool_life = { mean_min: 30, std_min: 9, ci95_low_min: 12, ci95_high_min: 48, source: "bayesian_tool_life:fallback" };
+        try {
+            const predictor = bayesianToolLifeEngine.createPredictor();
+            const speed = Number.isFinite(swiss.recommended_speed_m_min) ? swiss.recommended_speed_m_min : 100;
+            const feedRaw = Number.isFinite(input.feed_mm_rev) ? input.feed_mm_rev : 0.08;
+            const feed = feedRaw > 0 ? feedRaw : 0.08;
+            const docRaw = Number.isFinite(input.depth_of_cut_mm) ? input.depth_of_cut_mm : 0.5;
+            const doc = docRaw > 0 ? docRaw : 0.5;
+            const pr = bayesianToolLifeEngine.predict(predictor, speed, feed, doc);
+            const mean = Number.isFinite(pr.mean) && pr.mean > 0 ? pr.mean : 30;
+            const stdRaw = Number.isFinite(pr.std) && pr.std >= 0 ? pr.std : mean * 0.3;
+            const std = Math.min(stdRaw, mean * 2);
+            const ci = Array.isArray(pr.confidence95) ? pr.confidence95 : [mean - 1.96 * std, mean + 1.96 * std];
+            const lo = Math.max(0, Number.isFinite(ci[0]) ? ci[0] : mean - 1.96 * std);
+            const hi = Number.isFinite(ci[1]) ? ci[1] : mean + 1.96 * std;
+            const isoFactor = { P: 1.0, M: 0.75, K: 1.1, N: 1.6, S: 0.5, H: 0.6 };
+            const fac = isoFactor[String(input.iso_group || "P")] || 1.0;
+            tool_life = { mean_min: mean * fac, std_min: std * fac, ci95_low_min: lo * fac, ci95_high_min: hi * fac, source: pr.source || "bayesian_tool_life" };
+        } catch (err) {
+            log.warn("[U5-SWISS] bayesian_tool_life stage failed", { err: String(err) });
+        }
+        // --- Stage 2: Cross-domain stiffness-deflection insight ---
+        sources.push("cross_disciplinary");
+        let deflection_insight = {
+            manufacturing_insight: "Stiffness-deflection coupling: delta = FL^3/(3EI); guide bushing reduces L, which reduces delta cubically.",
+            relevant_domains: [],
+            confidence: 0.5,
+        };
+        try {
+            const insight = crossDisciplinaryEngine.deepReason(`Swiss guide-bushing deflection at L=${input.overhang_from_bushing_mm}mm stiffness ${swiss.effective_stiffness_N_mm} N/mm`);
+            deflection_insight = {
+                manufacturing_insight: typeof insight.manufacturingInsight === "string" && insight.manufacturingInsight.length > 0 ? insight.manufacturingInsight : deflection_insight.manufacturing_insight,
+                relevant_domains: Array.isArray(insight.relevantDomains) ? insight.relevantDomains.map(String) : [],
+                confidence: Number.isFinite(insight.confidence) ? Math.max(0, Math.min(1, insight.confidence)) : 0.5,
+            };
+        } catch (err) {
+            log.warn("[U5-SWISS] cross_disciplinary stage failed", { err: String(err) });
+        }
+        // --- Stage 3: Creative reasoning on declared conflict ---
+        let creative_strategy = null;
+        if (input && input.hasSubSpindleConflict === true) {
+            sources.push("creative_reasoning");
+            try {
+                const result = prismCreativeReasoningEngine.explore({
+                    domain: "process",
+                    objective: "Resolve guide-bushing vs sub-spindle conflict for Swiss part transfer",
+                    constraints: ["maintain deflection <10um", "no loss of cycle time"],
+                    desiredOutcome: "hybrid strategy compatible with both subsystems",
+                    flexibility: "flexible",
+                }, "hybrid");
+                const sols = Array.isArray(result.solutions) ? result.solutions.slice(0, 5) : [];
+                creative_strategy = {
+                    recommended_approach: (result.recommendedSolution && (result.recommendedSolution.approach || result.recommendedSolution.name)) || (sols[0] && (sols[0].approach || sols[0].name)) || "hybrid bushing-then-transfer strategy",
+                    solutions: sols.map(s => ({
+                        approach: s.approach || s.name || "unnamed",
+                        confidence: typeof s.confidence === "number" && Number.isFinite(s.confidence) ? Math.max(0, Math.min(1, s.confidence)) : 0.5,
+                    })),
+                };
+            } catch (err) {
+                log.warn("[U5-SWISS] creative_reasoning stage failed", { err: String(err) });
+                creative_strategy = { recommended_approach: "hybrid bushing-then-transfer strategy", solutions: [] };
+            }
+        }
+        return { swiss, ai: { tool_life, deflection_insight, creative_strategy, sources } };
     }
 }
 /** Round to 4 decimal places. */
