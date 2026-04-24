@@ -20,6 +20,7 @@ import {
   PredicateResultSchema,
 } from "../engines/LatheSafetyPredicateEngine.js";
 import type { LatheSafetySignals } from "../engines/LatheSafetySignalEngine.js";
+import { ACTIONS as camActions } from "../tools/dispatchers/camDispatcher.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -455,6 +456,16 @@ describe("LatheSafetyPredicateEngine", () => {
       });
       const clause = r.blocking.find((b) => b.clause === "ENVELOPE_VIOLATED")!;
       expect(clause.detail).toBe("X[0.0..100.0] mm, Z[0.0..200.0] mm");
+    });
+  });
+
+  describe("Dispatcher Integration", () => {
+    it("ACTIONS contains lathe_safety_predicate_verify", () => {
+      expect(camActions).toContain("lathe_safety_predicate_verify");
+    });
+
+    it("ACTIONS contains lathe_safety_predicate_verify_or_throw", () => {
+      expect(camActions).toContain("lathe_safety_predicate_verify_or_throw");
     });
   });
 });

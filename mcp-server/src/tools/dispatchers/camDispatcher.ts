@@ -1015,6 +1015,7 @@ export const ACTIONS = [
   "lathe_p2p_setup_select", "lathe_p2p_setup_from_features", "lathe_p2p_setup_validate", "lathe_p2p_setup_infer_geometry",
   "lathe_p2p_toolpath_generate", "lathe_p2p_toolpath_validate", "lathe_p2p_toolpath_gcode", "lathe_p2p_toolpath_cycle_time",
   "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
+  "lathe_safety_predicate_verify", "lathe_safety_predicate_verify_or_throw",
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
@@ -3771,6 +3772,36 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintProgramEmitterEngine.js"
             );
             result = lathePrintProgramEmitterEngine.dryRun(params.program, params.options);
+            break;
+          }
+
+          case "lathe_safety_predicate_verify": {
+            const { latheSafetyPredicateEngine } = await import(
+              "../../engines/LatheSafetyPredicateEngine.js"
+            );
+            result = latheSafetyPredicateEngine.verify(params.signals, params.envelope);
+            break;
+          }
+
+          case "lathe_safety_predicate_verify_or_throw": {
+            const { latheSafetyPredicateEngine, SafetyPredicateViolation } = await import(
+              "../../engines/LatheSafetyPredicateEngine.js"
+            );
+            try {
+              result = latheSafetyPredicateEngine.verifyOrThrow(params.signals, params.envelope);
+            } catch (e) {
+              if (e instanceof SafetyPredicateViolation) {
+                result = {
+                  thrown: true,
+                  code: e.code,
+                  program_id: e.program_id,
+                  blocking: e.blocking,
+                  message: e.message,
+                };
+              } else {
+                throw e;
+              }
+            }
             break;
           }
 
