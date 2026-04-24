@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2026-04-24T18:02:33Z",
+  "description": "Tracks completed extractions to prevent duplicate work across sessions",
+  "extractions": [
+    {
+      "id": "mastercam-docs",
+      "name": "Mastercam Documentation",
+      "source": "H:/prism/resources/MasterCam/",
+      "type": "pdf",
+      "description": "45 tribal tips extracted from Mastercam X8 tutorials and documentation",
+      "tipsGenerated": 45,
+      "timestamp": "2026-04-10T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "hypermill-manual",
+      "name": "hyperMILL Manual v2022 (SUPERSEDED)",
+      "source": "H:/prism/resources/PDF/hyperMILL/hyperMILL_Manual-en.pdf",
+      "type": "pdf",
+      "description": "25 tribal tips extracted from hyperMILL 1,525-page manual \u2014 SUPERSEDED by hypermill-tribal-comprehensive",
+      "tipsGenerated": 25,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "status": "superseded",
+      "supersededBy": "hypermill-tribal-comprehensive"
+    },
+    {
+      "id": "hypermill-tribal-comprehensive",
+      "name": "hyperMILL Tribal Tips Comprehensive",
+      "source": "data/extracted-knowledge/hypermill/hypermill-tribal-tips-1776036032655.json",
+      "type": "tribal-tips",
+      "description": "434 tribal tips from comprehensive hyperMILL extraction (manual + workflows + templates)",
+      "tipsGenerated": 434,
+      "timestamp": "2026-04-15T20:00:00Z",
+      "status": "completed",
+      "note": "MS0.5 fix \u2014 registered existing 434-tip file that was unregistered"
+    },
+    {
+      "id": "okuma-osp-programs",
+      "name": "Okuma OSP Program Examples",
+      "source": "H:/prism/resources/OKUMA MULTUS PDFS/",
+      "type": "pdf",
+      "description": "63 tribal tips extracted from Okuma MULTUS fixed cycles and program examples",
+      "tipsGenerated": 63,
+      "timestamp": "2026-04-13T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "siemens-sinumerik",
+      "name": "Siemens SINUMERIK Documentation",
+      "source": "siemens-sinumerik",
+      "type": "pdf",
+      "description": "18 tribal tips extracted from Siemens SINUMERIK programming guides",
+      "tipsGenerated": 18,
+      "timestamp": "2026-04-08T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "fanuc-programming",
+      "name": "Fanuc Programming Guides",
+      "source": "fanuc-programming",
+      "type": "pdf",
+      "description": "35 tribal tips extracted from Fanuc CNC programming documentation",
+      "tipsGenerated": 35,
+      "timestamp": "2026-04-07T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "haas-programming",
+      "name": "Haas Programming Resources",
+      "source": "haas-programming",
+      "type": "pdf",
+      "description": "28 tribal tips extracted from Haas CNC programming manuals",
+      "tipsGenerated": 28,
+      "timestamp": "2026-04-06T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "titans-of-cnc",
+      "name": "Titans of CNC Videos",
+      "source": "titans-of-cnc-youtube",
+      "type": "video",
+      "description": "42 procedures extracted from Titans of CNC machining tutorials",
+      "tipsGenerated": 42,
+      "timestamp": "2026-04-05T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "jm-die-programs",
+      "name": "JM Die Company Programs",
+      "source": "H:/PRISM/JM DIE/",
+      "type": "program-analysis",
+      "description": "24,545 CNC programs indexed from JM Die Company archive",
+      "programsIndexed": 24545,
+      "timestamp": "2026-04-14T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "hurco-winmax",
+      "name": "Hurco WinMax Documentation",
+      "source": "H:/prism/resources/WinMax Mill CUTTER COMPENSATION.pdf",
+      "type": "pdf",
+      "description": "12 tribal tips extracted from Hurco WinMax cutter compensation guide",
+      "tipsGenerated": 12,
+      "timestamp": "2026-04-11T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "hypermill-automation-center",
+      "name": "hyperMILL AUTOMATION Center",
+      "source": "H:/prism/resources/PDF/AUTOMATION Center/AUTOMATION_Center_Manual-en.pdf",
+      "type": "pdf",
+      "description": "4 tribal tips extracted from AUTOMATION Center 302-page manual",
+      "tipsGenerated": 4,
+      "timestamp": "2026-04-15T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "hypermill-vmc",
+      "name": "hyperMILL VIRTUAL Machining Center",
+      "source": "H:/prism/resources/PDF/VIRTUAL Machining Center/VIRTUAL_Machining_Center_Manual-en.pdf",
+      "type": "pdf",
+      "description": "5 tribal tips extracted from VMC simulation manual",
+      "tipsGenerated": 5,
+      "timestamp": "2026-04-15T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "hurco-5axis-post",
+      "name": "Hurco 5-Axis Post Notes",
+      "source": "H:/prism/resources/POSTS AND MACHINES/5-Axis-Post-Package_Cope_2015/",
+      "type": "pdf",
+      "description": "8 tribal tips extracted from Hurco 5-axis post processor notes",
+      "tipsGenerated": 8,
+      "timestamp": "2026-04-15T00:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "jm-die-cad-corpus",
+      "name": "JM Die CAD Training Corpus (CADCorpusIngesterEngine)",
+      "source": "H:/PRISM/JM DIE/**/*.{step,stp,iges,igs,sldprt,ipt,x_t,x_b}",
+      "type": "cad-training-corpus",
+      "description": "CADCAM-DAGI-MS0/U-DAGI03: dedup'd + provenance-tagged training corpus ingester (tokenize + graph + FNV-1a hash). Engine is pure-logic with injectable ProgramParser; real STEP/IGES binary parsing wired separately at runtime.",
+      "tipsGenerated": 0,
+      "timestamp": "2026-04-18T23:00:00Z",
+      "status": "engine_ready_awaiting_binary_parser",
+      "note": "Engine builds and 36 unit tests pass with synthetic parser. Binary STEP/IGES parsing will be wired in U-DAGI04 (CADSequenceTrainerEngine) preflight."
+    },
+    {
+      "id": "doc-hypermill-en-vol3",
+      "name": "hyperMILL Manual EN Vol 3 (extended)",
+      "source": "H:/prism/resources/RESOURCE PDFS/hyperMILL_Manual-en-3.pdf",
+      "type": "pdf",
+      "description": "193 tribal tips extracted via Ollama qwen2.5-coder:7b \u2014 covers 2D Machining cycles (Pocket, Contour, T-Slot, Chamfer, Inclined Pocketing, Rectangular Pocket, Rest Machining, Face Milling, Plunge Milling, Playback)",
+      "tipsGenerated": 193,
+      "pageCount": 31,
+      "chunks": 14,
+      "extractor": "ollama:qwen2.5-coder:7b",
+      "knowledgePath": "H:/prism/cad-engine/knowledge_store/doc-hypermill-en-vol3.json",
+      "timestamp": "2026-04-24T18:02:33Z",
+      "unit": "U-CAM59",
+      "milestone": "CAM-EXHAUST-MS0",
+      "status": "completed"
+    }
+  ],
+  "doNotExtract": [
+    "mastercam-docs - 45 tips already extracted",
+    "hypermill-tribal-comprehensive - 434 tips already extracted",
+    "okuma-osp-programs - 63 tips already extracted",
+    "siemens-sinumerik - 18 tips already extracted",
+    "fanuc-programming - 35 tips already extracted",
+    "haas-programming - 28 tips already extracted",
+    "titans-of-cnc - 42 tips already extracted",
+    "jm-die-programs - 24545 programs already indexed",
+    "hurco-winmax - 12 tips already extracted",
+    "hypermill-automation-center - 4 tips already extracted",
+    "hypermill-vmc - 5 tips already extracted",
+    "hurco-5axis-post - 8 tips already extracted"
+  ],
+  "stats": {
+    "totalExtractions": 13,
+    "totalTipsGenerated": 694,
+    "totalProgramsIndexed": 24545,
+    "lastExtraction": "2026-04-15T20:00:00Z",
+    "note": "MS0.5 fix: hyperMILL tips corrected from 25 to 434 (+409)"
+  }
+}
