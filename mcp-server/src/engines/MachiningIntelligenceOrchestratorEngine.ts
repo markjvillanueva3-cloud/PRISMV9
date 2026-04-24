@@ -2963,10 +2963,10 @@ class MachiningIntelligenceOrchestratorEngine {
    * @param context - Optional context for logging
    * @returns EscalationDecision with level, can_proceed, and suggestions
    */
-  analyzeCapabilityGap(
+  async analyzeCapabilityGap(
     query: string,
     context?: Record<string, unknown>
-  ): EscalationDecision {
+  ): Promise<EscalationDecision> {
     return gapEscalationControllerEngine.analyzeAndEscalate(query, context);
   }
 
@@ -2977,7 +2977,7 @@ class MachiningIntelligenceOrchestratorEngine {
    * @param query - Task description
    * @returns { proceed: boolean, level: EscalationLevel, reason: string }
    */
-  shouldAIProceed(query: string): { proceed: boolean; level: EscalationLevel; reason: string } {
+  async shouldAIProceed(query: string): Promise<{ proceed: boolean; level: EscalationLevel; reason: string }> {
     return gapEscalationControllerEngine.shouldProceed(query);
   }
 

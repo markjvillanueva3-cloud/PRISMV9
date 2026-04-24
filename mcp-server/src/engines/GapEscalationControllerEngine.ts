@@ -119,11 +119,11 @@ export class GapEscalationControllerEngine {
    * @param context - Optional context for logging
    * @returns EscalationDecision with level, can_proceed, and suggestions
    */
-  analyzeAndEscalate(
+  async analyzeAndEscalate(
     query: string,
     context?: Record<string, unknown>
-  ): EscalationDecision {
-    const gapAnalysis = prismSelfAwarenessEngine.analyzeGaps(query);
+  ): Promise<EscalationDecision> {
+    const gapAnalysis = await prismSelfAwarenessEngine.analyzeGaps(query);
     const decision = this.makeDecision(gapAnalysis);
 
     // Log gap if not proceeding normally
@@ -147,8 +147,8 @@ export class GapEscalationControllerEngine {
    * @param query - Task description
    * @returns { proceed: boolean, level: EscalationLevel }
    */
-  shouldProceed(query: string): { proceed: boolean; level: EscalationLevel; reason: string } {
-    const decision = this.analyzeAndEscalate(query);
+  async shouldProceed(query: string): Promise<{ proceed: boolean; level: EscalationLevel; reason: string }> {
+    const decision = await this.analyzeAndEscalate(query);
     return {
       proceed: decision.can_proceed,
       level: decision.level,
