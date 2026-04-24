@@ -1,4 +1,4 @@
-// WIRE-EXEMPT: plan-state invalidation detector consumed by planner and orchestrator loops
+// Wired: prism_dev.replan_evaluate (devDispatcher.ts)
 /**
  * ReplanTriggerEngine — U-FORE-18 (Multi-Agent Coordination Spine)
  *

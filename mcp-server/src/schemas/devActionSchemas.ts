@@ -151,4 +151,22 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       predecessors: z.array(z.string()).optional().describe("IDs of tasks that must finish first"),
     })).min(1).describe("Tasks to schedule across agents"),
   }),
+
+  // PSAU-FORESIGHT plan invalidation (ReplanTriggerEngine)
+  replan_evaluate: z.object({
+    plan: z.object({
+      planId: z.string().min(1).describe("Identifier of the plan being checked"),
+      createdAt: z.number().describe("Epoch ms when the plan was created"),
+      preconditions: z.record(z.string(), z.any()).describe("Facts that must hold for the plan to be valid"),
+      deadlines: z.record(z.string(), z.number()).optional().describe("Per-task deadline epoch ms"),
+      resources: z.array(z.string()).optional().describe("Named resources the plan depends on"),
+      assumptions: z.record(z.string(), z.any()).optional().describe("Soft assumptions that trigger patch-replan if violated"),
+    }),
+    currentState: z.record(z.string(), z.any()).describe("Observed facts for precondition + assumption comparison"),
+    currentTime: z.number().optional(),
+    lostResources: z.array(z.string()).optional(),
+    externalEvents: z.array(z.string()).optional(),
+    timeBudgetRemainingMs: z.number().optional(),
+    minTimeBudgetMs: z.number().optional(),
+  }),
 };
