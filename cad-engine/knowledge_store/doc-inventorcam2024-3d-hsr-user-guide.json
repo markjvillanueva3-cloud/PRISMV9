@@ -1,0 +1,1640 @@
+{
+  "tips": [
+    {
+      "title": "Use high-speed roughing (HSR) for molds, tools, dies, and complex 3D parts",
+      "body": "HSR module offers unique machining and linking strategies to generate efficient, smooth, and gouge-free tool paths.",
+      "category": "strategy",
+      "tags": [
+        "HSR",
+        "molds",
+        "tools",
+        "dies"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 2
+    },
+    {
+      "title": "Smooth paths of both cutting moves and retracts",
+      "body": "Maintain continuous machine tool motion to eliminate dwelling, increase feed rates, and reduce machining time.",
+      "category": "strategy",
+      "tags": [
+        "path smoothing"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 2
+    },
+    {
+      "title": "Minimize retracts to high Z-levels",
+      "body": "Retracts should be angled where possible and smoothed by arcs, minimizing air cutting.",
+      "category": "strategy",
+      "tags": [
+        "retract optimization"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 2
+    },
+    {
+      "title": "Add HSR Operation to CAM-Part",
+      "body": "Right-click the Operations header in InventorCAM Manager and choose 3D HSR command from the Add Milling Operation submenu.",
+      "category": "operation_types",
+      "tags": [
+        "HSR",
+        "milling operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.10",
+      "_chunk": 2
+    },
+    {
+      "title": "Choose machining strategy",
+      "body": "Select from HM Roughing, Contour roughing, Hatch roughing, Hybrid Rib roughing, Rest roughing.",
+      "category": "strategy",
+      "tags": [
+        "machining strategies"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.15",
+      "_chunk": 3
+    },
+    {
+      "title": "Define toolpath parameters for Contour roughing",
+      "body": "Step down parameter is calculated based on tool corner radius: 1 for end mill, tool corner radius / 5 for ball-nosed, tool corner radius / 3 for bull-nosed.",
+      "category": "parameters",
+      "tags": [
+        "Contour roughing",
+        "step down"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.12",
+      "_chunk": 3
+    },
+    {
+      "title": "Set facet tolerance for 3D model geometry",
+      "body": "Facet tolerance controls the accuracy of triangular mesh generation; smaller values are more accurate but slower.",
+      "category": "parameters",
+      "tags": [
+        "facet tolerance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "geometry"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 3
+    },
+    {
+      "title": "Enable Micro Milling for small parts",
+      "body": "Check the Micro Milling box to tighten facet tolerance value by half.",
+      "category": "parameters",
+      "tags": [
+        "Micro Milling",
+        "facet tolerance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "geometry"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 3
+    },
+    {
+      "title": "Apply fillets to internal model corners",
+      "body": "Check the Apply fillets box to add fillets for smoother tool movement and faster feed rates.",
+      "category": "parameters",
+      "tags": [
+        "fillets"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "geometry"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 3
+    },
+    {
+      "title": "Specify boundary type for fillet generation",
+      "body": "Choose from Auto-created silhouette, Auto-created outer silhouette, User-defined boundary, or Auto-created box of target geometry.",
+      "category": "toolpath",
+      "tags": [
+        "fillet",
+        "boundary"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 4
+    },
+    {
+      "title": "Set tool diameter for fillets",
+      "body": "Specify the cutting diameter of the virtual tool in the Filleting Tool Data section.",
+      "category": "toolpath",
+      "tags": [
+        "fillet",
+        "tool"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 4
+    },
+    {
+      "title": "Define bitangency angle for fillets",
+      "body": "Set the minimum angle required between the two normals at contact points to decide if a fillet should be generated.",
+      "category": "toolpath",
+      "tags": [
+        "fillet",
+        "angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.22",
+      "_chunk": 4
+    },
+    {
+      "title": "Calculate minimum tool length to avoid holder gouging",
+      "body": "Enable the Calculate Minimum Tool Length option and click Save&Calculate to get recommended value.",
+      "category": "tool_selection",
+      "tags": [
+        "tool",
+        "length"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.25",
+      "_chunk": 4
+    },
+    {
+      "title": "Define tool clearance during machining",
+      "body": "Set the Holder Clearance parameter to define how close the holder can approach the material.",
+      "category": "tool_selection",
+      "tags": [
+        "tool",
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.25",
+      "_chunk": 4
+    },
+    {
+      "title": "Edit tool parameters or define new tools",
+      "body": "Use the Select button to edit existing tool parameters or define a new tool for the operation.",
+      "category": "tool_selection",
+      "tags": [
+        "tool",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.25",
+      "_chunk": 4
+    },
+    {
+      "title": "Define feed rate and spin parameters",
+      "body": "Edit the Feed Rate and Spin parameters in the Data tab to define cutting speed and spinning speed.",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed",
+        "spin"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 4
+    },
+    {
+      "title": "Set spin direction for tool",
+      "body": "Choose between clockwise (CW) or counterclockwise (CCW) direction in the Spin Direction section.",
+      "category": "speeds_feeds",
+      "tags": [
+        "spin",
+        "direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 4
+    },
+    {
+      "title": "Define boundary type for constraint boundaries",
+      "body": "Choose from Created automatically or Created manually to define constraint boundaries.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "constraint"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 4
+    },
+    {
+      "title": "Set boundary name for constraint boundaries",
+      "body": "Define a new boundary geometry or choose an already defined one from the list.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "name"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 4
+    },
+    {
+      "title": "Control tool position relative to boundaries",
+      "body": "Choose Internal, External, Centered, or Tangent options for how the tool is positioned relative to the boundaries.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "relation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 4
+    },
+    {
+      "title": "Set offset value for tool center",
+      "body": "Specify the offset of the tool center to enlarge or reduce the boundary to be machined.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "offset"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Generate auto-created box of target geometry",
+      "body": "InventorCAM automatically generates a rectangular box surrounding the target model.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "auto"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Generate auto-created box of stock geometry",
+      "body": "InventorCAM automatically generates a rectangular box surrounding the stock model.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "auto"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Generate auto-created silhouette boundary",
+      "body": "InventorCAM automatically generates a silhouette boundary of the target model.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "auto"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Generate auto-created outer silhouette boundary",
+      "body": "InventorCAM automatically generates an outer silhouette boundary of the target model.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "auto"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Define boundary parameters",
+      "body": "Use the Boundary Box dialog box to define necessary parameters and choose model elements for bounding box calculation.",
+      "category": "boundary",
+      "tags": [
+        "boundary",
+        "bounding box"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 5
+    },
+    {
+      "title": "Create silhouette boundary",
+      "body": "A Silhouette boundary projects face edges onto the XY-plane for a specific tool axis view.",
+      "category": "boundary",
+      "tags": [
+        "silhouette",
+        "projection"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 5
+    },
+    {
+      "title": "Define user-defined boundary",
+      "body": "InventorCAM allows defining a user-defined boundary based on Working area geometry, which is a closed loop of model edges and sketch entities.",
+      "category": "boundary",
+      "tags": [
+        "user-defined",
+        "working area"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 5
+    },
+    {
+      "title": "Perform combined boundary operations",
+      "body": "Combined boundaries can be created using boolean operations between working area geometries and existing boundaries.",
+      "category": "boundary",
+      "tags": [
+        "boolean",
+        "operations"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 5
+    },
+    {
+      "title": "Select faces for boundary creation",
+      "body": "Use the Select Faces dialog box to choose one or several faces of the Autodesk Inventor model.",
+      "category": "boundary",
+      "tags": [
+        "select",
+        "faces"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 5
+    },
+    {
+      "title": "Define selected faces boundary",
+      "body": "This option enables defining a boundary by selecting drive and check faces similar to the Working area definition for 3D Milling operations.",
+      "category": "boundary",
+      "tags": [
+        "selected",
+        "faces"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 5
+    },
+    {
+      "title": "Automatically determine shallow areas",
+      "body": "InventorCAM can automatically determine shallow areas in the model and define boundaries around them.",
+      "category": "boundary",
+      "tags": [
+        "shallow",
+        "areas"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.36",
+      "_chunk": 5
+    },
+    {
+      "title": "Create theoretical rest areas",
+      "body": "Theoretical rest areas can be created from rest material left by an imaginary reference tool, useful for semi-finish and finish machining operations.",
+      "category": "boundary",
+      "tags": [
+        "theoretical",
+        "rest"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.36",
+      "_chunk": 5
+    },
+    {
+      "title": "Tool contact area detection",
+      "body": "This feature enables creating 3D boundaries around areas where the tool is in contact with selected surfaces, but it does not work on vertical or near-vertical surfaces.",
+      "category": "boundary",
+      "tags": [
+        "tool",
+        "contact"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 5
+    },
+    {
+      "title": "Define rest areas for 3D boundaries",
+      "body": "Use the Rest Areas dialog box to select model faces and define parameters for calculating rest material boundaries.",
+      "category": "workholding",
+      "tags": [
+        "rest_areas",
+        "boundary"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.41",
+      "_chunk": 6
+    },
+    {
+      "title": "Set wall offset for tool path generation",
+      "body": "Adjust the Wall offset to modify the tool diameter, leaving an allowance for further finishing operations.",
+      "category": "speeds_feeds",
+      "tags": [
+        "wall_offset",
+        "tool_diameter"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Use floor offset for tool path adjustment",
+      "body": "Apply a floor offset to lift or drop the tool along the tool axis, affecting horizontal surfaces more than vertical ones.",
+      "category": "speeds_feeds",
+      "tags": [
+        "floor_offset",
+        "tool_axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Define step down for pass spacing",
+      "body": "Set the Step down parameter to define the spacing of passes along the tool axis, either constant or with extra passes on flats.",
+      "category": "speeds_feeds",
+      "tags": [
+        "step_down",
+        "pass_spacing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Adjust step over for pass separation",
+      "body": "Set the Step over parameter to define the distance between two adjacent passes, available in specific technologies.",
+      "category": "speeds_feeds",
+      "tags": [
+        "step_over",
+        "pass_separation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contour_roughing",
+        "hatch_roughing",
+        "hm_roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Set offsets for contour roughing",
+      "body": "Define minimum and maximum offset values to control the spacing between passes, ensuring no unwanted upstands.",
+      "category": "speeds_feeds",
+      "tags": [
+        "offsets",
+        "contour_roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contour_roughing",
+        "rest_roughing",
+        "hatch_roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Detect flat areas for tool path optimization",
+      "body": "Enable Detect Flat Areas to adjust stepdowns on flat areas, ensuring the requested axial stock is left.",
+      "category": "speeds_feeds",
+      "tags": [
+        "detect_flat_areas",
+        "tool_path_optimization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contour_roughing",
+        "hatch_roughing",
+        "rest_roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Set Z limits for tool path control",
+      "body": "Define Z-Top and Z-Bottom limits to restrict the tool's movement range, preventing it from falling off the model surface.",
+      "category": "speeds_feeds",
+      "tags": [
+        "z_limits",
+        "tool_path_control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Adjust delta for machining above or below limits",
+      "body": "Use the Delta parameter to set a value for machining above or below the Z-Top and Z-Bottom limits.",
+      "category": "speeds_feeds",
+      "tags": [
+        "delta",
+        "limit_adjustment"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Optimize tool path by reducing points",
+      "body": "Enable the Fit arcs option to activate arc fitting according to the specified tolerance value for point reduction.",
+      "category": "speeds_feeds",
+      "tags": [
+        "point_reduction",
+        "arc_fitting"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Refine corner positions for smoother tool path",
+      "body": "Enable the Refine corners option to provide a smoother tool path by refining corner positions.",
+      "category": "speeds_feeds",
+      "tags": [
+        "refine_corners",
+        "smooth_tool_path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contour_roughing",
+        "rest_roughing",
+        "hatch_roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Detect core areas for optimized machining",
+      "body": "Enable Detect core areas to start from the outside of the model rather than taking a full width cut in the center.",
+      "category": "speeds_feeds",
+      "tags": [
+        "detect_core_areas",
+        "optimized_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "rest_roughing",
+        "contour_roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Enable smoothing for fillets in sharp corners",
+      "body": "Select the Smoothing check box to create fillets in the sharp corners of the outer contour.",
+      "category": "speeds_feeds",
+      "tags": [
+        "smoothing",
+        "fillets"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 6
+    },
+    {
+      "title": "Set maximum radius for curve approximation",
+      "body": "Define the Max. radius parameter to set the maximum arc radius allowed for curve approximation.",
+      "category": "speeds_feeds",
+      "tags": [
+        "max_radius",
+        "curve_approximation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.44",
+      "_chunk": 6
+    },
+    {
+      "title": "Adjust profile tolerance for smoothed profiles",
+      "body": "Set the Profile tolerance to control the maximum distance that the smoothed outer profile will diverge from the actual profile.",
+      "category": "speeds_feeds",
+      "tags": [
+        "profile_tolerance",
+        "smoothed_profiles"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 6
+    },
+    {
+      "title": "Set offset tolerance for smoothed profiles",
+      "body": "Define the Offset tolerance to control the maximum distance that the smoothed profile offset will diverge from the inner (offset) profiles.",
+      "category": "speeds_feeds",
+      "tags": [
+        "offset_tolerance",
+        "smoothed_profiles"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 6
+    },
+    {
+      "title": "Adaptive Step Down Parameters",
+      "body": "Controls the maximum Z-distance between passes for the entire surface, adjusting those values for best fitting the surfaces.",
+      "category": "speeds_feeds",
+      "tags": [
+        "adaptive step down",
+        "step down"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 7
+    },
+    {
+      "title": "Scallop Parameter",
+      "body": "Defines the cusp that remains after machining, must be positive and smaller than Min. step down parameter.",
+      "category": "speeds_feeds",
+      "tags": [
+        "scallop",
+        "cusp"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 7
+    },
+    {
+      "title": "User-defined Cut Levels",
+      "body": "Allows manual editing and insertion of cut levels in the User-defined cut levels table.",
+      "category": "speeds_feeds",
+      "tags": [
+        "cut levels",
+        "user-defined"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "hatch roughing"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 7
+    },
+    {
+      "title": "Use Drive Curve",
+      "body": "Enables using a drive curve to determine heights at which passes are calculated, maintaining consistency while machining curves.",
+      "category": "speeds_feeds",
+      "tags": [
+        "drive curve",
+        "consistency"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 7
+    },
+    {
+      "title": "Optimize Z Level",
+      "body": "Adjusts slightly the Z-distance between passes to avoid surfaces which are approximately horizontal.",
+      "category": "speeds_feeds",
+      "tags": [
+        "optimize z level",
+        "horizontal surfaces"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "hm roughing"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 7
+    },
+    {
+      "title": "Last Levels to Even",
+      "body": "Defines a number of last cuts that will be averaged in regards to the step down.",
+      "category": "speeds_feeds",
+      "tags": [
+        "last levels",
+        "averaging"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "hm roughing"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 7
+    },
+    {
+      "title": "Edit Passes Parameters",
+      "body": "Limits machining by using the Updated Stock model or defining an offset from the operation geometry.",
+      "category": "speeds_feeds",
+      "tags": [
+        "edit passes",
+        "updated stock"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7
+    },
+    {
+      "title": "Overthickness Parameter",
+      "body": "Defines an extra thickness that can be temporarily applied to the tool, affecting pass selection.",
+      "category": "speeds_feeds",
+      "tags": [
+        "overthickness",
+        "pass selection"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7
+    },
+    {
+      "title": "Join Gaps of Passes",
+      "body": "Merges passes that are in the same line and separated by a value less than the specified threshold.",
+      "category": "speeds_feeds",
+      "tags": [
+        "join gaps",
+        "pass merging"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7
+    },
+    {
+      "title": "Pass Extension",
+      "body": "Extends the trimmed passes in each direction by a specified value, allowing faster cutting at Machining Feed rate.",
+      "category": "speeds_feeds",
+      "tags": [
+        "pass extension",
+        "feed rate"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7
+    },
+    {
+      "title": "Stock Definition Style",
+      "body": "Specifies the method of machining area definition, including Target geometry, Auto updated stock, Stock by *.FCT file, and Stock by *.STL file.",
+      "category": "workholding",
+      "tags": [
+        "stock definition",
+        "target geometry"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7
+    },
+    {
+      "title": "Gouge Check While Linking",
+      "body": "Enables automatic detection and avoidance of collisions between the tool and solid model geometry during tool path linking.",
+      "category": "safety",
+      "tags": [
+        "gouge check",
+        "collision avoidance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.53",
+      "_chunk": 7
+    },
+    {
+      "title": "Stock Definition in Rest Roughing",
+      "body": "Controls the number of recalculations for rest roughing operations, allowing time savings.",
+      "category": "strategy",
+      "tags": [
+        "rest roughing",
+        "recalculations"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.54",
+      "_chunk": 7
+    },
+    {
+      "title": "Roughing/Finishing Parameters",
+      "body": "Controls roughing and finishing passes, including stepover, restrict offset, boundary pass, and offsets.",
+      "category": "speeds_feeds",
+      "tags": [
+        "roughing",
+        "finishing"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.55",
+      "_chunk": 7
+    },
+    {
+      "title": "Order of Linking Finishing Passes",
+      "body": "Controls the order in which finishing passes are linked, options include During, upwards; During, downwards; After, upwards; and After, downwards.",
+      "category": "strategy",
+      "tags": [
+        "finishing order",
+        "linking"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.56",
+      "_chunk": 7
+    },
+    {
+      "title": "Define tool path linking parameters",
+      "body": "Access the Link page to set general, ramping, strategy, retract, and leads parameters.",
+      "category": "toolpath",
+      "tags": [
+        "linking",
+        "ramping",
+        "strategy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.59",
+      "_chunk": 8
+    },
+    {
+      "title": "Set general parameters for tool path linking",
+      "body": "Choose between Climb and Conventional milling, or Bi-directional for zigzag machining.",
+      "category": "toolpath",
+      "tags": [
+        "general",
+        "climb",
+        "conventional",
+        "bi-directional"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.60",
+      "_chunk": 8
+    },
+    {
+      "title": "Minimize reverse linking to maintain cutting direction",
+      "body": "Enable Minimize reverse linking if Detect Core areas is enabled for Contour Roughing.",
+      "category": "toolpath",
+      "tags": [
+        "minimize",
+        "reverse",
+        "linking"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 8
+    },
+    {
+      "title": "Reduce full width cuts for better machining",
+      "body": "Enable Minimize full wide cuts if Detect Core areas is enabled for Contour Roughing.",
+      "category": "toolpath",
+      "tags": [
+        "minimize",
+        "full",
+        "wide",
+        "cuts"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 8
+    },
+    {
+      "title": "Link passes within the same area for Contour Roughing",
+      "body": "Enable Link by area if Detect Core areas is enabled for Contour Roughing.",
+      "category": "toolpath",
+      "tags": [
+        "link",
+        "area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 8
+    },
+    {
+      "title": "Use dynamic stock for better tool path accuracy",
+      "body": "Enable Use dynamic stock to protect uncut stock within the constraint boundary.",
+      "category": "toolpath",
+      "tags": [
+        "dynamic",
+        "stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 8
+    },
+    {
+      "title": "Define minimum profile diameter to avoid machining small profiles with ramps",
+      "body": "Set Min. profile diameter to ensure small profiles are not ramped down.",
+      "category": "toolpath",
+      "tags": [
+        "min",
+        "profile"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 8
+    },
+    {
+      "title": "Choose direction for hatch passes in Hatch roughing",
+      "body": "Select One way or Bi-directional direction for the raster passes.",
+      "category": "toolpath",
+      "tags": [
+        "hatch",
+        "raster"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 8
+    },
+    {
+      "title": "Set direction for profile passes in Hatch roughing",
+      "body": "Select Climb or Conventional direction of the Profile passes.",
+      "category": "toolpath",
+      "tags": [
+        "profile",
+        "direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 8
+    },
+    {
+      "title": "Define start hint for tool path",
+      "body": "Enter XY-coordinates of the starting position of the tool.",
+      "category": "toolpath",
+      "tags": [
+        "start",
+        "hint"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 8
+    },
+    {
+      "title": "Control ramping aspects of the tool path",
+      "body": "Access the Ramping page to set initial order, reversed order, max. ramp angle, and other parameters.",
+      "category": "toolpath",
+      "tags": [
+        "ramping",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 8
+    },
+    {
+      "title": "Set maximum ramp angle for tool movement",
+      "body": "Limit the max. ramp angle based on model geometry and tool type.",
+      "category": "toolpath",
+      "tags": [
+        "max",
+        "ramp",
+        "angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 8
+    },
+    {
+      "title": "Define ramp height offset for smooth tool entry",
+      "body": "Set the height used in the ramping motion to ensure the tool slows down before touching material.",
+      "category": "toolpath",
+      "tags": [
+        "ramp",
+        "height"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 8
+    },
+    {
+      "title": "Choose ramping method for downward movements",
+      "body": "Select Profile, Helix, or Plunge ramping based on profile size and tool motion.",
+      "category": "toolpath",
+      "tags": [
+        "ramping",
+        "methods"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 8
+    },
+    {
+      "title": "Define approach points for pre-drilled holes",
+      "body": "Set the centers of pre-drilled holes as approach points for cutters that cannot plunge straight into material.",
+      "category": "toolpath",
+      "tags": [
+        "pre",
+        "drilled",
+        "holes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.64",
+      "_chunk": 8
+    },
+    {
+      "title": "Limit depth of cutting in a specific area",
+      "body": "Enable Limit depth to control the maximum depth at which cutting will be performed.",
+      "category": "toolpath",
+      "tags": [
+        "limit",
+        "depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.64",
+      "_chunk": 8
+    },
+    {
+      "title": "Control tool movement between passes",
+      "body": "Use 'Stay on surface within' to control whether the tool moves directly on the model face or retraces at the clearance plane.",
+      "category": "speeds_feeds",
+      "tags": [
+        "toolpath",
+        "surface_control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.65",
+      "_chunk": 9
+    },
+    {
+      "title": "Adjust linking radius for smooth toolpaths",
+      "body": "Set 'Linking radius' to control the radius of S-shaped curves between passes, with a default value of 20% of stepover in HM Roughing.",
+      "category": "speeds_feeds",
+      "tags": [
+        "toolpath",
+        "linking"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.65",
+      "_chunk": 9
+    },
+    {
+      "title": "Maintain horizontal clearance during movement",
+      "body": "Use 'Horizontal link clearance' to define the distance outside of material for plunging when using Detect core areas.",
+      "category": "speeds_feeds",
+      "tags": [
+        "toolpath",
+        "clearance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.65",
+      "_chunk": 9
+    },
+    {
+      "title": "Control retract movements between passes",
+      "body": "Choose 'Shortest route' for direct movement with a curved trajectory, or 'Minimal vertical retract' for vertical movement to the minimum Z-level.",
+      "category": "speeds_feeds",
+      "tags": [
+        "retract",
+        "toolpath"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.66",
+      "_chunk": 9
+    },
+    {
+      "title": "Set minimum rapid length for retract moves",
+      "body": "Use 'Minimum rapid length' to specify a limit for 2D distance between the ends of lead moves, using a 3D connecting move if less than this value.",
+      "category": "speeds_feeds",
+      "tags": [
+        "retract",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.66",
+      "_chunk": 9
+    },
+    {
+      "title": "Define retract arc radius",
+      "body": "Set 'Radius' for rounding sharp corners of retract motions in the Shortest route option, using a vertical curve with a defined radius.",
+      "category": "speeds_feeds",
+      "tags": [
+        "retract",
+        "toolpath"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.67",
+      "_chunk": 9
+    },
+    {
+      "title": "Control lead in and lead out arcs",
+      "body": "Use 'Fitting' options to define how lead in and lead out arcs fit to the machining pass, such as 'Machine the whole pass', 'Minimize trimming', or 'Fully trim pass'.",
+      "category": "speeds_feeds",
+      "tags": [
+        "lead_in_out",
+        "toolpath"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.68",
+      "_chunk": 9
+    },
+    {
+      "title": "Limit trimming distance",
+      "body": "Set 'Max. trimming distance' to limit the length of pass trimmed off when adding an arc, preventing large unmachined areas.",
+      "category": "speeds_feeds",
+      "tags": [
+        "trimming",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.69",
+      "_chunk": 9
+    },
+    {
+      "title": "Define vertical lead in/out arcs",
+      "body": "Use 'Vertical leads' parameters to define the radius of arcs used to enter and leave machining passes in a vertical plane.",
+      "category": "speeds_feeds",
+      "tags": [
+        "lead_in_out",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.70",
+      "_chunk": 9
+    },
+    {
+      "title": "Perform horizontal lead in/out movements",
+      "body": "Use 'Horizontal leads' to provide smooth entering/exiting from the material using helical moves, with an option to omit if requested radius is too large.",
+      "category": "speeds_feeds",
+      "tags": [
+        "lead_in_out",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.70",
+      "_chunk": 9
+    },
+    {
+      "title": "Control ramp angles and heights",
+      "body": "Set 'Max. ramp angle' to limit the maximum angle for ramping during arc lead in, and use 'Ramp height offset' for extra height in ramping motion.",
+      "category": "speeds_feeds",
+      "tags": [
+        "ramping",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.70",
+      "_chunk": 9
+    },
+    {
+      "title": "Define ramp extensions",
+      "body": "Use 'Ramp in extension' and 'Ramp out extension' to ensure smooth entry and exit from material by controlling extra height in ramping motion.",
+      "category": "speeds_feeds",
+      "tags": [
+        "ramping",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.70",
+      "_chunk": 9
+    },
+    {
+      "title": "Enable 4th Axis",
+      "body": "Select the '4th Axis' checkbox to define Coordinate type and Plane.",
+      "category": "toolpath",
+      "tags": [
+        "4thAxis",
+        "CoordinateType",
+        "Plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.73",
+      "_chunk": 10
+    },
+    {
+      "title": "Configure Arc Approximation",
+      "body": "Check 'Approximate arcs by lines' to convert all tool path arcs into lines with precision controlled by Max Chord Length and Max Arc Angle.",
+      "category": "toolpath",
+      "tags": [
+        "ArcApproximation",
+        "MaxChordLength",
+        "MaxArcAngle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.73",
+      "_chunk": 10
+    },
+    {
+      "title": "Use Point Interpolation",
+      "body": "Enable point interpolation for linear tool movements with a specified tolerance value or by splitting long linear motions.",
+      "category": "toolpath",
+      "tags": [
+        "PointInterpolation",
+        "Tolerance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 10
+    },
+    {
+      "title": "Convert Rapid Feed Rate Moves",
+      "body": "When point interpolation is active, convert all rapid motions into feed motions with a given value.",
+      "category": "toolpath",
+      "tags": [
+        "RapidFeedRate",
+        "Interpolation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 10
+    },
+    {
+      "title": "Edit Tool Path Using Boundaries and Z-levels",
+      "body": "Select 'Boundaries & Z-levels' to edit the tool path using a chosen boundary and specified Z-levels.",
+      "category": "toolpath",
+      "tags": [
+        "EditToolPath",
+        "Boundaries",
+        "Z-levels"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.79",
+      "_chunk": 10
+    },
+    {
+      "title": "Define Boundary Type",
+      "body": "Choose between automatic or manual creation of the boundary on the 'Boundary Type' page.",
+      "category": "toolpath",
+      "tags": [
+        "BoundaryType",
+        "Automatic",
+        "Manual"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 10
+    },
+    {
+      "title": "Set Boundary Offset",
+      "body": "Apply an additional offset value to the defined boundary on the 'Boundary Offset' page.",
+      "category": "toolpath",
+      "tags": [
+        "BoundaryOffset",
+        "Positive",
+        "Negative"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 10
+    },
+    {
+      "title": "Specify Z-levels for Editing",
+      "body": "Set the maximum and minimum z-limits for editing the tool path on the 'Z-levels' page.",
+      "category": "toolpath",
+      "tags": [
+        "Z-levels",
+        "Maximum",
+        "Minimum"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 10
+    },
+    {
+      "title": "Keep Tool Path Outside Boundary",
+      "body": "Select 'Keep tool path outside the Boundary' to trim everything inside the trimming boundary while keeping the tool path outside.",
+      "category": "toolpath",
+      "tags": [
+        "Boundary",
+        "ToolPath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 10
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Step down parameter for Contour roughing",
+      "expression": "Step down = tool corner radius / 5 if ball-nosed, tool corner radius / 3 if bull-nosed, 1 if end mill",
+      "variables": {
+        "Step down": "step down value",
+        "tool corner radius": "corner radius of the cutting tool"
+      },
+      "page_ref": "p.12"
+    },
+    {
+      "name": "Feed Rate Formula",
+      "expression": "FZ = F/(Number of Flutes * S)",
+      "variables": {
+        "FZ": "feed rate per tooth [mm/tooth]"
+      },
+      "page_ref": "p.26"
+    },
+    {
+      "name": "Spin Speed Formula",
+      "expression": "V = (S * PI * Tool Diameter) / 1000",
+      "variables": {
+        "V": "material cutting speed [m/min or ft/min]"
+      },
+      "page_ref": "p.27"
+    }
+  ],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_3D_HSR_User_Guide.pdf",
+    "title": "InventorCAM2024_3D_HSR_User_Guide",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 83,
+    "chunk_count": 10,
+    "tips_total": 102,
+    "tips_unique": 102,
+    "formulas_total": 3,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}

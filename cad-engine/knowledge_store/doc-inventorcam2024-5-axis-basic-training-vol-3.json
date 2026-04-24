@@ -1,0 +1,302 @@
+{
+  "tips": [
+    {
+      "title": "Define CAM-Part name and location",
+      "body": "Create a new CAM-Part in InventorCAM, specifying a name and location.",
+      "category": "machine_setup",
+      "tags": [
+        "CAM-Part creation",
+        "InventorCAM"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Select CNC-controller and define Coordinate System",
+      "body": "Choose the appropriate CNC-controller, set up a Coordinate System, and define stock/target boundaries.",
+      "category": "machine_setup",
+      "tags": [
+        "CNC-controller",
+        "Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Set up Machine Setup for part positioning",
+      "body": "Define the position of the part with respect to the machine table and add fixtures.",
+      "category": "machine_setup",
+      "tags": [
+        "Machine Setup",
+        "Part Mounting"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 1
+    },
+    {
+      "title": "Create Perpendicular to Curve strategy tool path",
+      "body": "Select the drive surface and lead curve, then create a tool path perpendicular to the lead curve.",
+      "category": "5axis",
+      "tags": [
+        "Perpendicular to Curve",
+        "Tool Path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.12",
+      "_chunk": 1
+    },
+    {
+      "title": "Define Limit Cuts Between Two Points",
+      "body": "Set the limit cuts between two points and define margins for the tool path.",
+      "category": "5axis",
+      "tags": [
+        "Limit Cuts",
+        "Tool Path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.13",
+      "_chunk": 1
+    },
+    {
+      "title": "Select Tool and Holder for Milling Operation",
+      "body": "Choose the appropriate tool (LOLLIPOP MILL) and holder (BT 40 ER 32X60) for the milling operation.",
+      "category": "tool_selection",
+      "tags": [
+        "Tool Selection",
+        "Holder"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.14",
+      "_chunk": 1
+    },
+    {
+      "title": "Configure Tool Path Parameters",
+      "body": "Set tool path parameters such as sorting and tilt direction for the milling operation.",
+      "category": "5axis",
+      "tags": [
+        "Tool Path Parameters",
+        "Tilted through curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.14",
+      "_chunk": 1
+    },
+    {
+      "title": "Define Tilt Curve for Tool Axis Control",
+      "body": "Select the tilt curve and ensure it is set from top to bottom for the tool axis direction.",
+      "category": "5axis",
+      "tags": [
+        "Tilt Curve",
+        "Tool Axis Direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.15",
+      "_chunk": 1
+    },
+    {
+      "title": "Use 'From start to end' tilt type for port machining",
+      "body": "This ensures the tool axis follows the tilt curve from start to end, reducing gouging risk.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "port_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Enable Gouge check and select 'Retract tool and Along to cut center'",
+      "body": "This strategy helps prevent gouging by retracting the tool along the cut center.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "gouge_prevention"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Use 'Back to clearance through tube center' for tool retraction",
+      "body": "This option ensures the tool retracts safely without causing gouges.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "retraction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Interpolation for distance to 5",
+      "body": "This value helps in achieving smooth tool paths during machining.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "interpolation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Use 'Morph between two boundary curves' for tool path creation",
+      "body": "This option creates a smooth transition between two boundary curves, reducing tool stress.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "morphing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Limit cuts by one or two points for precise control",
+      "body": "This allows for more accurate and controlled machining of specific areas.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "cutting_control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Cut tolerance to 0.01 for high precision",
+      "body": "This ensures the tool path adheres closely to the geometry, improving finish quality.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "precision"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Use 'Spiral' cutting method for smooth tool paths",
+      "body": "This method helps in achieving smoother and more efficient machining.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "cutting_method"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Clearance area type as Plane and Plane height as 10 mm",
+      "body": "This ensures the tool has enough clearance for safe operation.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2
+    },
+    {
+      "title": "Use 'Octa_Port' surface for gouge checking",
+      "body": "This helps in identifying and removing any potential gouges during machining.",
+      "category": "toolpath",
+      "tags": [
+        "5axis",
+        "gouge_checking"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-3.pdf",
+    "title": "InventorCAM2024_5-Axis_Basic_Training_Vol-3",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 31,
+    "chunk_count": 3,
+    "tips_total": 19,
+    "tips_unique": 18,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}
