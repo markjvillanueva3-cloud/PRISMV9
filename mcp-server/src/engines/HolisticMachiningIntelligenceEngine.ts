@@ -195,8 +195,29 @@ export interface VibrationState {
 // DURING-MACHINING CHIP FORMATION
 // ============================================================================
 
+/**
+ * Extended chip morphology vocabulary used across physics/adaptive bridges.
+ * "serrated" is distinct from "segmented" in legacy code (periodic shear
+ * banding vs. visibly discrete chips) and is kept here so adaptive sensor
+ * paths can discriminate. "bue" is the terse form of "built-up-edge".
+ */
+export type ChipMorphology =
+  | "continuous"
+  | "lamellar"
+  | "segmented"
+  | "serrated"
+  | "discontinuous"
+  | "built-up-edge"
+  | "bue";
+
 export interface ChipState {
-  morphology: "continuous" | "lamellar" | "segmented" | "discontinuous" | "built-up-edge";
+  /**
+   * Chip morphology. Either `morphology` OR the legacy alias `chipType`
+   * must be provided — callers that predate Phase 0.26 populate `chipType`
+   * only. New code should prefer `morphology`.
+   */
+  morphology?: ChipMorphology;
+  chipType?: ChipMorphology;
   chipThickness: number; // mm
   chipRatio: number; // compression ratio
   chipCurlRadius: number; // mm
