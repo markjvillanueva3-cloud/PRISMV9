@@ -1952,6 +1952,22 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "foresight_report": {
+            const { foresightOrchestratorEngine } = await import(
+              "../../engines/ForesightOrchestratorEngine.js"
+            );
+            const report = await foresightOrchestratorEngine.reportFor({
+              description: String(params.description ?? ""),
+              unitClass: params.unitClass as string | undefined,
+              proposedFiles: params.proposedFiles as string[] | undefined,
+              contextTokensUsed: params.contextTokensUsed as number | undefined,
+              contextTokensLimit: params.contextTokensLimit as number | undefined,
+              modelName: params.modelName as string | undefined,
+            });
+            result = { success: true, report };
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }
