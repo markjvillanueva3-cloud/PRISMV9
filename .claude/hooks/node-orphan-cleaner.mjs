@@ -106,7 +106,8 @@ function main() {
 
   if (messages.length > 0) {
     process.stdout.write(JSON.stringify({
-      additionalContext: `Node closeout stop hook: ${messages.join(" | ")}`,
+      continue: true,
+      systemMessage: `Node closeout stop hook: ${messages.join(" | ")}`,
     }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));

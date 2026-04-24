@@ -144,12 +144,13 @@ async function main() {
     // If Supabase is configured, we would pull state here
     // For now, just report status
 
+    const ctxJson = typeof context === 'string' ? context : JSON.stringify(context);
+    const reason = isSupabaseConfigured()
+      ? `Supabase sync active: ${Object.keys(syncState.syncedFiles || {}).length} files tracked | ${ctxJson.slice(0, 200)}`
+      : 'Supabase not configured (optional)';
     console.log(JSON.stringify({
       decision: 'approve',
-      reason: isSupabaseConfigured()
-        ? `Supabase sync active: ${Object.keys(syncState.syncedFiles || {}).length} files tracked`
-        : 'Supabase not configured (optional)',
-      context
+      reason,
     }));
   } else if (event === 'Stop') {
     // On stop, record which files changed

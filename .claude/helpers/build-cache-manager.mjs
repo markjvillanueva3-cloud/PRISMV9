@@ -343,7 +343,11 @@ async function main() {
     if (isCritical) {
       await invalidateCaches(`${path.basename(filePath)} edited`);
       process.stdout.write(JSON.stringify({
-        additionalContext: `BUILD CACHE INVALIDATED: ${path.basename(filePath)} changed. Next build will be full rebuild.`,
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: "PostToolUse",
+          additionalContext: `BUILD CACHE INVALIDATED: ${path.basename(filePath)} changed. Next build will be full rebuild.`,
+        },
       }));
       process.exit(0);
       return;
@@ -355,7 +359,11 @@ async function main() {
   if (!validity.valid) {
     await invalidateCaches(validity.reason);
     process.stdout.write(JSON.stringify({
-      additionalContext: `BUILD CACHE INVALID: ${validity.reason}`,
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "PostToolUse",
+        additionalContext: `BUILD CACHE INVALID: ${validity.reason}`,
+      },
     }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));

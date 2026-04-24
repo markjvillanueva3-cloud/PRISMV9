@@ -151,7 +151,7 @@ function main() {
   const findings = [];
 
   if (!hasRecentCuttingArtifact() && !strictMode) {
-    console.log(JSON.stringify({ result: "pass", message: "no recent cutting-calculation artifacts" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass: no recent cutting-calculation artifacts" }));
     return;
   }
 
@@ -188,8 +188,7 @@ function main() {
     return;
   }
 
-  console.log(JSON.stringify({
-    result: "pass",
+  console.log(JSON.stringify({ continue: true, systemMessage: "pass",
     message: "cutting calculation protocol coverage present",
     protocol: PROTOCOL_PATH,
     sourceCorpus: SOURCE_CORPUS_PATH,
@@ -200,5 +199,5 @@ function main() {
 try {
   main();
 } catch (error) {
-  console.log(JSON.stringify({ result: "warn", message: `cutting calculation protocol hook error: ${error.message}` }));
+  console.log(JSON.stringify({ continue: true, systemMessage: `warn: cutting calculation protocol hook error: ${error.message}` }));
 }

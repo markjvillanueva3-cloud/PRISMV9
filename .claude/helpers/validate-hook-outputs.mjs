@@ -62,11 +62,18 @@ function extractHookName(fullPath) {
   return m ? m[1] : fullPath;
 }
 
-function validateStdout(raw) {
+function validateStdout(raw, eventName) {
   if (!raw || !raw.trim()) return { ok: true, empty: true };
   let obj;
   try { obj = JSON.parse(raw); }
-  catch { return { ok: false, reason: `not-json: ${raw.slice(0, 80)}` }; }
+  catch {
+    // Claude Code tolerates plain-text stdout for SessionStart / Stop / Notification
+    // events — it's displayed as a success banner in the UI. Only PreToolUse /
+    // PostToolUse / UserPromptSubmit / PreCompact events strictly validate JSON.
+    const lenientEvents = new Set(["SessionStart", "Stop", "Notification", "SessionEnd"]);
+    if (lenientEvents.has(eventName)) return { ok: true, plainText: true };
+    return { ok: false, reason: `not-json: ${raw.slice(0, 80)}` };
+  }
   if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
     return { ok: false, reason: `not-object: ${typeof obj}` };
   }
@@ -93,16 +100,19 @@ function validateStdout(raw) {
 }
 
 function sampleForEvent(eventName, matcher) {
+  let base;
   if (eventName === "PreToolUse" || eventName === "PostToolUse") {
-    // Pick a tool from the matcher regex
     const tools = Object.keys(TOOL_SAMPLES);
+    base = TOOL_SAMPLES.Bash;
     for (const t of tools) {
       const re = new RegExp(matcher || ".*");
-      if (re.test(t)) return TOOL_SAMPLES[t];
+      if (re.test(t)) { base = TOOL_SAMPLES[t]; break; }
     }
-    return TOOL_SAMPLES.Bash;
+  } else {
+    base = EVENT_SAMPLES[eventName] || {};
   }
-  return EVENT_SAMPLES[eventName] || {};
+  // Attach event name so runOne can pass it to validateStdout for lenient-event handling
+  return { ...base, __eventName: eventName };
 }
 
 function runOne(hookPath, sample) {
@@ -116,7 +126,7 @@ function runOne(hookPath, sample) {
   });
   if (r.error) return { ok: false, reason: `spawn-error: ${r.error.code || r.error.message}` };
   if (r.status === null) return { ok: false, reason: "timeout" };
-  const v = validateStdout(r.stdout || "");
+  const v = validateStdout(r.stdout || "", sample.__eventName);
   return { ...v, exitCode: r.status, stdoutLen: (r.stdout || "").length };
 }
 

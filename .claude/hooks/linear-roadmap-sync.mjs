@@ -123,12 +123,13 @@ async function main() {
     const linearState = loadLinearState();
     const context = generateLinearContext(roadmap, linearState);
 
+    const ctxJson = typeof context === 'string' ? context : JSON.stringify(context);
+    const reason = isLinearConfigured()
+      ? `Linear sync active: ${Object.keys(linearState.issueMap || {}).length} issues mapped | ${ctxJson.slice(0, 200)}`
+      : 'Linear not configured (optional)';
     console.log(JSON.stringify({
       decision: 'approve',
-      reason: isLinearConfigured()
-        ? `Linear sync active: ${Object.keys(linearState.issueMap || {}).length} issues mapped`
-        : 'Linear not configured (optional)',
-      context
+      reason,
     }));
   } else if (event === 'Stop') {
     // On stop, save state for next session

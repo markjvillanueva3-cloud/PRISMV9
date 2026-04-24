@@ -258,6 +258,7 @@ async function main() {
     const summary = `[Tier1] ${pack.sources.length} sources loaded (${pack.totalTokens} tokens): ${pack.sources.map((s) => s.id).join(", ")}`;
 
     console.log(JSON.stringify({
+      continue: true,
       systemMessage: summary,
     }));
   }
