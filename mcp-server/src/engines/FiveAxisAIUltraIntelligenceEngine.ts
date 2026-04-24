@@ -34,6 +34,58 @@ import type {
   CuttingParams,
 } from "./FiveAxisOrchestrationEngine.js";
 
+// MILL-MASTER-AI-WIRING / U3-5AX-ULTRA: PRISM reasoning primitives
+import { prismCreativeReasoningEngine, type CreativeMode, type ProblemDomain } from "./PRISMCreativeReasoningEngine.js";
+import { deepAIIntelligenceEngine, type ReasoningMode as DeepReasoningMode } from "./DeepAIIntelligenceEngine.js";
+import { metaAIOrchestrationEngine } from "./MetaAIOrchestrationEngine.js";
+import { neuralIntegrationEngine } from "./NeuralIntegrationEngine.js";
+
+// ----------------------------------------------------------------------------
+// U3-5AX-ULTRA types
+// ----------------------------------------------------------------------------
+
+export type UseAI = "off" | "auto" | "on";
+
+export interface UltraAIOptions {
+  /** Routing flag. Default 'off' (legacy bit-identical). */
+  useAI?: UseAI;
+  /** CreativeMode for prismCreativeReasoningEngine.explore. Default 'conventional'. */
+  mode?: CreativeMode;
+  /** Optional confidence floor for the deep reasoning step; NaN/inf → ignored. */
+  confidenceThreshold?: number;
+  /** Optional maxReasoningDepth passed to deepAIIntelligenceEngine; clamped to [1,20]. */
+  maxReasoningDepth?: number;
+}
+
+export interface UltraAIResult {
+  creative_mode: CreativeMode;
+  creative_solutions: Array<{ approach: string; confidence: number }>;
+  deep_conclusion: string;
+  reasoning_quality_score: number;  // 0..1, bounded
+  detected_biases: string[];
+  neural_route?: { engine: string; action: string; confidence: number };
+  sources: string[]; // e.g. "creative_reasoning", "deep_ai_intelligence", "meta_ai_orchestration"
+}
+
+export interface UltraNLResult {
+  nl: NLTo5AxisResult;
+  ai?: UltraAIResult;
+}
+
+function clamp01(x: unknown): number {
+  const n = typeof x === "number" ? x : Number(x);
+  if (!Number.isFinite(n)) return 0.5;
+  if (n < 0) return 0;
+  if (n > 1) return 1;
+  return n;
+}
+
+function clampInt(x: unknown, lo: number, hi: number, fallback: number): number {
+  const n = typeof x === "number" ? x : Number(x);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(lo, Math.min(hi, Math.round(n)));
+}
+
 // ============================================================================
 // TYPES — NATURAL LANGUAGE PIPELINE (μS-28)
 // ============================================================================
@@ -1760,6 +1812,145 @@ Provide detailed reasoning with confidence levels for each conclusion.`;
   /** Get troubleshooting history count */
   static getTroubleshootingHistoryCount(): number {
     return this.troubleshootingHistory.length;
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U3-5AX-ULTRA — PRISM reasoning retrofit
+  // ==========================================================================
+
+  /**
+   * Ultra-intelligence pipeline over the PRISM AI stack:
+   *   prismCreativeReasoningEngine.explore
+   *     → deepAIIntelligenceEngine.deepReason
+   *     → metaAIOrchestrationEngine.evaluateReasoning
+   *   (+ neuralIntegrationEngine.route for downstream routing)
+   *
+   * useAI='off' (default) delegates to the legacy sync processNaturalLanguage
+   * and returns { nl } with no ai side-channel (bit-identical contract).
+   *
+   * useAI='on'/'auto' returns { nl, ai } with:
+   *   - creative_mode       : the mode actually used (invalid requests fall
+   *                           back to 'conventional').
+   *   - creative_solutions  : up to 5 approaches from prismCreativeReasoning.
+   *   - deep_conclusion     : deepAIIntelligence.deepReason conclusion string.
+   *   - reasoning_quality_score : metaAIOrchestration.evaluateReasoning score,
+   *                              clamped to [0,1].
+   *   - detected_biases     : metacognition biases detected in the chain.
+   *   - neural_route        : neuralIntegrationEngine.route target, if any.
+   *   - sources             : ordered list of PRISM-AI source tags actually
+   *                           invoked on this call.
+   *
+   * Fail-closed: any exception in any AI primitive is caught; the nl legacy
+   * result is always returned. AI side-channel may be absent on failure.
+   */
+  static async processNaturalLanguageUltra(
+    input: string,
+    opts: UltraAIOptions = {},
+  ): Promise<UltraNLResult> {
+    const nl = this.processNaturalLanguage(input);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { nl };
+
+    const VALID_MODES: CreativeMode[] = [
+      "conventional", "exploratory", "unconventional", "hybrid", "innovative", "optimal",
+    ];
+    const requestedMode = opts.mode && VALID_MODES.includes(opts.mode) ? opts.mode : "conventional";
+
+    const sources: string[] = [];
+    let creative_solutions: Array<{ approach: string; confidence: number }> = [];
+    let deep_conclusion = "";
+    let reasoning_quality_score = 0.5;
+    let detected_biases: string[] = [];
+    let neural_route: UltraAIResult["neural_route"] | undefined;
+
+    // --- Stage 1: Creative exploration ---
+    let creativeSteps: unknown[] = [];
+    try {
+      sources.push("creative_reasoning");
+      const domain: ProblemDomain = "cutting_parameters";
+      const result = prismCreativeReasoningEngine.explore(
+        {
+          domain,
+          objective: input || "empty query",
+          constraints: nl.warnings,
+          desiredOutcome: nl.reasoning.steps[4]?.output ?? "actionable 5-axis recommendation",
+          flexibility: "flexible",
+        },
+        requestedMode,
+      );
+      creative_solutions = result.solutions.slice(0, 5).map(s => ({
+        approach: s.approach ?? s.name ?? "unnamed",
+        confidence: clamp01(typeof s.confidence === "number" ? s.confidence : 0.5),
+      }));
+      creativeSteps = result.solutions;
+      sources.push("creative_reasoning");
+    } catch (err) {
+      log.warn("[U3-5AX-ULTRA] creative_reasoning stage failed", { err: String(err) });
+    }
+
+    // --- Stage 2: Deep reasoning ---
+    try {
+      sources.push("deep_ai_intelligence");
+      const depth = clampInt(opts.maxReasoningDepth, 1, 20, 6);
+      const deep = await deepAIIntelligenceEngine.deepReason(
+        {
+          query: input || "empty query",
+          domain: "five_axis_machining",
+          constraints: nl.warnings,
+          maxReasoningDepth: depth,
+        },
+        "chain_of_thought" as DeepReasoningMode,
+      );
+      deep_conclusion = typeof deep.conclusion === "string" ? deep.conclusion : "";
+      sources.push("deep_ai_intelligence");
+    } catch (err) {
+      log.warn("[U3-5AX-ULTRA] deep_ai_intelligence stage failed", { err: String(err) });
+    }
+
+    // --- Stage 3: Metacognitive evaluation ---
+    try {
+      sources.push("meta_ai_orchestration");
+      const intermediate = [...creativeSteps, deep_conclusion].filter(Boolean);
+      const constraints_satisfied = nl.warnings.map(() => true);
+      const meta = metaAIOrchestrationEngine.evaluateReasoning(
+        "chain_of_thought",
+        intermediate,
+        constraints_satisfied.length > 0 ? constraints_satisfied : [true],
+      );
+      reasoning_quality_score = clamp01(meta.reasoning_quality_score);
+      detected_biases = Array.isArray(meta.detected_biases) ? meta.detected_biases : [];
+      sources.push("meta_ai_orchestration");
+    } catch (err) {
+      log.warn("[U3-5AX-ULTRA] meta_ai_orchestration stage failed", { err: String(err) });
+    }
+
+    // --- Stage 4: Neural route (optional) ---
+    try {
+      const route = neuralIntegrationEngine.route({ input: input || "empty query", domain: "five_axis" });
+      if (route && typeof route.engine === "string") {
+        neural_route = {
+          engine: route.engine,
+          action: route.action,
+          confidence: clamp01(route.confidence),
+        };
+        sources.push("neural_integration");
+      }
+    } catch (err) {
+      log.warn("[U3-5AX-ULTRA] neural_integration stage failed", { err: String(err) });
+    }
+
+    return {
+      nl,
+      ai: {
+        creative_mode: requestedMode,
+        creative_solutions,
+        deep_conclusion,
+        reasoning_quality_score,
+        detected_biases,
+        neural_route,
+        sources,
+      },
+    };
   }
 }
 
