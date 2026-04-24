@@ -254,6 +254,21 @@ export function resetBudgetOverruns(): void {
   budgetOverruns.clear();
 }
 
+/**
+ * Manually flag a budget overrun for `capabilityId`. Callers that run AI work
+ * outside of `budgetedAIPath` (e.g. orchestration methods that await a promise
+ * explicitly) use this to opt into the same 'auto' cool-down semantics.
+ */
+export function markBudgetOverrun(capabilityId: string): void {
+  budgetOverruns.set(capabilityId, Date.now());
+}
+
+/** True if `capabilityId` is within the 60 s auto-downgrade cool-down window. */
+export function isBudgetInCooldown(capabilityId: string, windowMs = 60_000): boolean {
+  const last = budgetOverruns.get(capabilityId);
+  return last !== undefined && Date.now() - last < windowMs;
+}
+
 // ----------------------------------------------------------------------------
 // internals
 // ----------------------------------------------------------------------------

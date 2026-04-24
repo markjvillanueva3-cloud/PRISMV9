@@ -34,7 +34,21 @@ const AI_WALL_CLOCK_CEILING_MS = 500;
  */
 function stripParsedAt<T extends { intent: { parsed_at?: string } }>(r: T): T {
   const clone = JSON.parse(JSON.stringify(r)) as T;
-  if (clone.intent) clone.intent.parsed_at = "FROZEN";
+  // Walk the object tree and freeze any `.id`, `.parsed_at`, `.created_at`,
+  // or `.part_id` field — all of which are Date.now()-based in this engine.
+  const walk = (v: unknown): void => {
+    if (!v || typeof v !== "object") return;
+    if (Array.isArray(v)) { for (const x of v) walk(x); return; }
+    const o = v as Record<string, unknown>;
+    for (const k of Object.keys(o)) {
+      if (k === "id" || k === "parsed_at" || k === "created_at" || k === "part_id") {
+        o[k] = "FROZEN";
+      } else {
+        walk(o[k]);
+      }
+    }
+  };
+  walk(clone);
   return clone;
 }
 

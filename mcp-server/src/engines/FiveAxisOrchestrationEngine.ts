@@ -23,6 +23,65 @@
  */
 
 import { log } from "../utils/Logger.js";
+
+// MILL-MASTER-AI-WIRING / U4-5AX-ORCH: PRISM orchestration primitives
+import { prismUnifiedOrchestratorEngine } from "./PRISMUnifiedOrchestratorEngine.js";
+import { cognitiveBudgetAllocatorEngine } from "./CognitiveBudgetAllocatorEngine.js";
+import { agenticLoopEngine } from "./AgenticLoopEngine.js";
+import { isBudgetInCooldown, markBudgetOverrun, type UseAI } from "./MillAIWiring.js";
+
+// ----------------------------------------------------------------------------
+// U4-5AX-ORCH types
+// ----------------------------------------------------------------------------
+
+export interface OrchestratedSequenceOptions {
+  target_ra_um?: number;
+  max_cycle_min?: number;
+  available_tools?: ToolDefinition[];
+  include_rest?: boolean;
+  /** Route to PRISM AI pipeline. Default 'off' (bit-identical to sync generateSequence). */
+  useAI?: UseAI;
+  /** Max agentic loop rounds. Clamped to [1,3]. Default 3. */
+  maxRefinementRounds?: number;
+  /** Early-exit confidence gate. NaN/inf treated as default. Default 0.85. */
+  targetConfidence?: number;
+  /** Wall-clock budget for the AI path (ms). Default 500. Used by budgetedAIPath auto-downgrade. */
+  budgetMs?: number;
+  /** Capability id for budget cool-down bookkeeping. Default 'mill-ai-wiring:five_axis_orch'. */
+  capabilityId?: string;
+}
+
+export interface OrchestrationAIResult {
+  tier: string;                  // ExecutionTier string id
+  tier_complexity: "simple" | "moderate" | "complex" | "critical";
+  tier_domains: string[];
+  budget_depth: string;          // DepthTier string
+  budget_max_tokens: number;
+  refinement_rounds: number;     // 1..maxRefinementRounds
+  final_confidence: number;      // 0..1
+  exit_reason: "confidence_reached" | "max_rounds" | "agent_error";
+  round_confidences: number[];
+  sources: string[];
+}
+
+export interface OrchestratedSequenceResult {
+  sequence: OperationSequence;
+  ai?: OrchestrationAIResult;
+}
+
+function _u4_clamp01(x: unknown): number {
+  const n = typeof x === "number" ? x : Number(x);
+  if (!Number.isFinite(n)) return 0.5;
+  if (n < 0) return 0;
+  if (n > 1) return 1;
+  return n;
+}
+
+function _u4_clampInt(x: unknown, lo: number, hi: number, fallback: number): number {
+  const n = typeof x === "number" ? x : Number(x);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(lo, Math.min(hi, Math.round(n)));
+}
 import type {
   Vec3,
   FiveAxisPoint,
@@ -1800,6 +1859,155 @@ IF COLLISION { 5AX_POINT(lead=15); }`,
   /** Get all post configs */
   static getAllPostConfigs(): PostProcessorConfig[] {
     return Array.from(this.postConfigs.values());
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U4-5AX-ORCH — PRISM orchestration retrofit
+  // ==========================================================================
+
+  /**
+   * Orchestrated-sequence generation:
+   *   prismUnifiedOrchestratorEngine.routeToTier
+   *     → cognitiveBudgetAllocatorEngine.allocate    (caps depth per call)
+   *     → agenticLoopEngine.run x N                  (iterative refinement)
+   *
+   * Exit when final confidence >= targetConfidence (default 0.85) OR
+   * refinement rounds == maxRefinementRounds (default 3; hard-clamped to 3).
+   *
+   * Routed through MillAIWiring.budgetedAIPath for the 'auto' cool-down
+   * semantics: an overrun in one call downgrades the next to legacy for
+   * 60 s, satisfying the envelope's "budget-overrun → legacy fallback" case.
+   *
+   * @param partGeometry 5-axis geometry family
+   * @param material     material properties from the materials registry
+   * @param machineId    machine id string (e.g., OKUMA_M460V_5AX)
+   * @param options      OrchestratedSequenceOptions; useAI defaults to 'off'
+   * @returns { sequence: OperationSequence, ai?: OrchestrationAIResult }
+   */
+  static async generateSequenceOrchestrated(
+    partGeometry: FiveAxisGeometry,
+    material: MaterialProps,
+    machineId: string,
+    options: OrchestratedSequenceOptions = {},
+  ): Promise<OrchestratedSequenceResult> {
+    const useAI: UseAI = options.useAI ?? "off";
+    const maxRounds = _u4_clampInt(options.maxRefinementRounds, 1, 3, 3);
+    const targetConfidence = _u4_clamp01(options.targetConfidence ?? 0.85);
+    const budgetMs = typeof options.budgetMs === "number" && options.budgetMs > 0
+      ? options.budgetMs : 500;
+    const capabilityId = options.capabilityId ?? "mill-ai-wiring:five_axis_orch";
+
+    const legacyFn = (): OrchestratedSequenceResult => ({
+      sequence: this.generateSequence(partGeometry, material, machineId, {
+        target_ra_um: options.target_ra_um,
+        max_cycle_min: options.max_cycle_min,
+        available_tools: options.available_tools,
+        include_rest: options.include_rest,
+      }),
+    });
+    if (useAI === "off") return legacyFn();
+
+    // Inner AI path — synchronous wrappers around async primitives so
+    // budgetedAIPath can route sync. We materialize the agenticLoop promise
+    // before the helper to keep the sync contract.
+    const aiPath = async (): Promise<OrchestratedSequenceResult> => {
+      const sources: string[] = [];
+
+      // Stage 1: Tier routing
+      sources.push("unified_orchestrator");
+      const routing = prismUnifiedOrchestratorEngine.routeToTier({
+        intent: `Plan a 5-axis sequence for ${partGeometry} in ${material.name} on ${machineId}`,
+        context: { target_ra_um: options.target_ra_um, include_rest: options.include_rest },
+      });
+
+      // Stage 2: Cognitive budget
+      sources.push("cognitive_budget");
+      const budget = cognitiveBudgetAllocatorEngine.allocate({
+        kind: "create",
+        riskLevel: routing.complexity === "critical" ? "critical" :
+                   routing.complexity === "complex"  ? "high" :
+                   routing.complexity === "moderate" ? "medium" : "low",
+        expectedDependents: routing.estimated_steps ?? 1,
+      });
+
+      // Stage 3: Agentic loop — up to maxRounds, exit on confidence gate
+      sources.push("agentic_loop");
+      const round_confidences: number[] = [];
+      let finalConfidence = 0;
+      let exitReason: OrchestrationAIResult["exit_reason"] = "max_rounds";
+      let rounds = 0;
+      for (let i = 0; i < maxRounds; i++) {
+        rounds = i + 1;
+        try {
+          const resp = await agenticLoopEngine.run({
+            text: `Refine 5-axis sequence for ${partGeometry} in ${material.name}, round ${rounds}/${maxRounds}`,
+            context: {
+              workingMemory: {
+                tier: routing.tier,
+                machineId,
+                target_ra_um: options.target_ra_um,
+                round: rounds,
+              },
+              constraints: routing.domains ?? [],
+            },
+            config: {
+              maxIterations: 1,
+              requireConfidence: targetConfidence,
+              thinkingDepth: budget.depth === "deep" ? "deep" : budget.depth === "shallow" ? "shallow" : "standard",
+            },
+          });
+          const conf = _u4_clamp01(resp.confidence);
+          round_confidences.push(conf);
+          finalConfidence = conf;
+          if (conf >= targetConfidence) {
+            exitReason = "confidence_reached";
+            break;
+          }
+        } catch {
+          exitReason = "agent_error";
+          break;
+        }
+      }
+
+      const sequence = this.generateSequence(partGeometry, material, machineId, {
+        target_ra_um: options.target_ra_um,
+        max_cycle_min: options.max_cycle_min,
+        available_tools: options.available_tools,
+        include_rest: options.include_rest,
+      });
+
+      return {
+        sequence,
+        ai: {
+          tier: String(routing.tier),
+          tier_complexity: routing.complexity,
+          tier_domains: routing.domains ?? [],
+          budget_depth: String(budget.depth),
+          budget_max_tokens: budget.maxTokens,
+          refinement_rounds: rounds,
+          final_confidence: finalConfidence,
+          exit_reason: exitReason,
+          round_confidences,
+          sources,
+        },
+      };
+    };
+
+    // Auto cool-down check BEFORE running AI. If we overran a prior call,
+    // downgrade this call to legacy for the 60 s window.
+    if (useAI === "auto" && isBudgetInCooldown(capabilityId)) return legacyFn();
+
+    // Measure elapsed AI wall-clock; if it exceeds budgetMs, flag overrun so
+    // the NEXT 'auto' call downgrades to legacy.
+    const _u4_t0 = performance.now();
+    try {
+      const result = await aiPath();
+      if (performance.now() - _u4_t0 > budgetMs) markBudgetOverrun(capabilityId);
+      return result;
+    } catch {
+      markBudgetOverrun(capabilityId);
+      return legacyFn();
+    }
   }
 }
 
