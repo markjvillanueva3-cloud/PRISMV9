@@ -2023,6 +2023,23 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "replan_evaluate": {
+            const { replanTriggerEngine } = await import(
+              "../../engines/ReplanTriggerEngine.js"
+            );
+            const verdict = replanTriggerEngine.evaluate({
+              plan: params.plan as Parameters<typeof replanTriggerEngine.evaluate>[0]["plan"],
+              currentState: params.currentState as Record<string, unknown>,
+              currentTime: params.currentTime as number | undefined,
+              lostResources: params.lostResources as string[] | undefined,
+              externalEvents: params.externalEvents as string[] | undefined,
+              timeBudgetRemainingMs: params.timeBudgetRemainingMs as number | undefined,
+              minTimeBudgetMs: params.minTimeBudgetMs as number | undefined,
+            });
+            result = { success: true, verdict };
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }
