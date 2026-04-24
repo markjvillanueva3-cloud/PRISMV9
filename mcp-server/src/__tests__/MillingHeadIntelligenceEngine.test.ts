@@ -444,3 +444,100 @@ describe("MillingHeadIntelligenceEngine.executeAction", () => {
     expect(result.error).toContain("Unknown action");
   });
 });
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U11-HEADINT-RETROFIT — AI-path coverage
+// ============================================================================
+describe("MillingHeadIntelligenceEngine.recommendMillingHeadUltra — useAI routing", () => {
+  const baseOps = [{ type: "contour", angles: [0, 30, 60], powerRequired_kW: 18, interpolation: true }];
+  const baseCons = { budget: "high" as const, accuracy_mm: 0.02, production: false };
+
+  it("useAI='off' (default) returns { legacy } deep-equal to sync, no ai field", () => {
+    const legacy = millingHeadIntelligenceEngine.recommendMillingHead(baseOps, baseCons);
+    const ultra = millingHeadIntelligenceEngine.recommendMillingHeadUltra(baseOps, baseCons);
+    expect(ultra.legacy).toEqual(legacy);
+    expect(ultra.ai).toBe(undefined);
+  });
+
+  it("explicit useAI='off' is bit-identical to omitted", () => {
+    const a = millingHeadIntelligenceEngine.recommendMillingHeadUltra(baseOps, baseCons);
+    const b = millingHeadIntelligenceEngine.recommendMillingHeadUltra(baseOps, baseCons, { useAI: "off" });
+    expect(a.legacy).toEqual(b.legacy);
+    expect(a.ai).toBe(undefined);
+    expect(b.ai).toBe(undefined);
+  });
+
+  it("useAI='on' ranks all 11 head types by posterior (monotone non-increasing)", () => {
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(baseOps, baseCons, { useAI: "on" });
+    expect(typeof r.ai).toBe("object");
+    expect(r.ai!.ranked_heads.length).toBe(11);
+    for (let i = 1; i < r.ai!.ranked_heads.length; i++) {
+      expect(r.ai!.ranked_heads[i].posterior).toBeLessThanOrEqual(r.ai!.ranked_heads[i - 1].posterior);
+    }
+    for (const rh of r.ai!.ranked_heads) {
+      expect(rh.posterior).toBeGreaterThanOrEqual(0);
+      expect(rh.posterior).toBeLessThanOrEqual(1);
+    }
+    expect(r.ai!.sources).toContain("hypothesis_ranker");
+    expect(r.ai!.sources).toContain("ai_decision_explanation");
+  });
+
+  it.each([
+    { budget: "low" as const, label: "cost-sensitive" },
+    { budget: "medium" as const, label: "balanced" },
+    { budget: "high" as const, label: "performance" },
+  ])("useAI='on' for budget $budget ($label) produces a ranked list + attribution", ({ budget }) => {
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(
+      baseOps,
+      { ...baseCons, budget },
+      { useAI: "on" },
+    );
+    expect(r.ai!.ranked_heads.length).toBe(11);
+    expect(typeof r.ai!.attribution).toBe("string");
+    expect(r.ai!.attribution.length).toBeGreaterThan(0);
+    expect(r.ai!.attribution_confidence).toBeGreaterThanOrEqual(0);
+    expect(r.ai!.attribution_confidence).toBeLessThanOrEqual(1);
+  });
+
+  it("useAI='on' with non-interpolation op still returns a valid best_head", () => {
+    const ops = [{ type: "face", angles: [0], powerRequired_kW: 10, interpolation: false }];
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(ops, baseCons, { useAI: "on" });
+    expect(r.ai!.best_head).not.toBe(null);
+    expect(typeof r.ai!.best_head).toBe("string");
+  });
+
+  it("failure #1: empty operations array does not throw", () => {
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra([], baseCons, { useAI: "on" });
+    expect(r.ai!.ranked_heads.length).toBe(11);
+  });
+
+  it("failure #2: NaN powerRequired_kW does not throw", () => {
+    const ops = [{ type: "contour", angles: [0], powerRequired_kW: Number.NaN, interpolation: true }];
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(ops, baseCons, { useAI: "on" });
+    expect(r.ai!.ranked_heads.length).toBe(11);
+  });
+
+  it("failure #3: empty angles array does not throw", () => {
+    const ops = [{ type: "contour", angles: [] as number[], powerRequired_kW: 10, interpolation: true }];
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(ops, baseCons, { useAI: "on" });
+    expect(r.ai!.best_head).not.toBe(null);
+  });
+
+  it("adversarial #1: 500 operations does not hang (<2 s)", () => {
+    const ops = Array.from({ length: 500 }, () => ({ type: "contour", angles: [0], powerRequired_kW: 10, interpolation: true }));
+    const t0 = performance.now();
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(ops, baseCons, { useAI: "on" });
+    expect(performance.now() - t0).toBeLessThan(2000);
+    expect(r.ai!.ranked_heads.length).toBe(11);
+  });
+
+  it("adversarial #2: Infinity powerRequired does not produce Infinity posteriors", () => {
+    const ops = [{ type: "contour", angles: [0, 45], powerRequired_kW: Infinity, interpolation: true }];
+    const r = millingHeadIntelligenceEngine.recommendMillingHeadUltra(ops, baseCons, { useAI: "on" });
+    for (const rh of r.ai!.ranked_heads) {
+      expect(Number.isFinite(rh.posterior)).toBe(true);
+      expect(rh.posterior).toBeGreaterThanOrEqual(0);
+      expect(rh.posterior).toBeLessThanOrEqual(1);
+    }
+  });
+});

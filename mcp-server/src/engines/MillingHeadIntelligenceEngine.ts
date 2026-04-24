@@ -17,6 +17,10 @@ interface EngineResult<T> {
 // Types
 // ============================================================================
 
+// MILL-MASTER-AI-WIRING / U11-HEADINT-RETROFIT
+import { rankCandidatesBayesian, type UseAI } from "./MillAIWiring.js";
+import { aiDecisionExplanationEngine } from "./AIDecisionExplanationEngine.js";
+
 export type MillingHeadType =
   | "b_axis_continuous"
   | "b_axis_indexed"
@@ -1040,6 +1044,116 @@ export class MillingHeadIntelligenceEngine {
       default:
         return { success: false, error: `Unknown action: ${action}` };
     }
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U11-HEADINT-RETROFIT
+  // ==========================================================================
+
+  /**
+   * Hypothesis-ranker-backed head recommendation. useAI='off' (default)
+   * returns { legacy } bit-identical to sync recommendMillingHead.
+   * useAI='on' additionally runs MillAIWiring.rankCandidatesBayesian over
+   * all MillingHeadType candidates + generates an AIDecisionExplanation
+   * attribution.
+   */
+  recommendMillingHeadUltra(
+    operations: Parameters<MillingHeadIntelligenceEngine["recommendMillingHead"]>[0],
+    constraints: Parameters<MillingHeadIntelligenceEngine["recommendMillingHead"]>[1],
+    opts: { useAI?: UseAI } = {},
+  ): {
+    legacy: ReturnType<MillingHeadIntelligenceEngine["recommendMillingHead"]>;
+    ai?: {
+      ranked_heads: Array<{ head: MillingHeadType; posterior: number; rank: number }>;
+      best_head: MillingHeadType | null;
+      attribution: string;
+      attribution_confidence: number;
+      sources: string[];
+    };
+  } {
+    const legacy = this.recommendMillingHead(operations, constraints);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+
+    const sources: string[] = [];
+    const ALL_HEADS: MillingHeadType[] = [
+      "b_axis_continuous", "b_axis_indexed", "orthogonal_fixed",
+      "orthogonal_swivel", "universal_ac", "universal_bc", "nutating",
+      "angular_fixed", "angular_adjustable", "gear_driven_90",
+      "gear_driven_adjustable",
+    ];
+
+    const maxPower = operations.length > 0
+      ? Math.max(...operations.map(o => Number.isFinite(o.powerRequired_kW) ? o.powerRequired_kW : 0))
+      : 0;
+    const needsInterp = operations.some(o => o.interpolation === true);
+    const legacyHead = legacy?.data?.recommendedHead;
+
+    sources.push("hypothesis_ranker");
+    const { best, ranked } = rankCandidatesBayesian({
+      problem: `milling_head_for_${operations.length}_ops`,
+      candidates: ALL_HEADS,
+      statement: h => `${h} is the best head for ${operations.length} operations`,
+      prior: h => (h === legacyHead ? 0.75 : 0.5),
+      tribalAlignment: h => {
+        // continuous/universal → good for interpolation; gear_driven/fixed → not.
+        const contIsh = h === "b_axis_continuous" || h === "universal_ac" || h === "universal_bc" || h === "nutating";
+        return needsInterp ? (contIsh ? 0.85 : 0.25) : 0.5;
+      },
+      evidence: h => [
+        {
+          description: `matches_legacy=${h === legacyHead}`,
+          strength: h === legacyHead ? 0.85 : 0.2,
+          reliability: 0.9,
+          supports: h === legacyHead,
+          source: "legacy_recommend_milling_head",
+        },
+        {
+          description: `interp_fit(maxPower=${maxPower}kW)`,
+          strength: needsInterp
+            ? ((h === "b_axis_continuous" && maxPower > 15) ? 0.9 : (h === "universal_ac" ? 0.8 : 0.3))
+            : 0.5,
+          reliability: 0.85,
+          supports: needsInterp
+            ? (h === "b_axis_continuous" || h === "universal_ac" || h === "universal_bc")
+            : true,
+          source: "operation_interpolation_fit",
+        },
+      ],
+    });
+
+    sources.push("ai_decision_explanation");
+    let attribution = "Synthesized milling-head decision";
+    let attribution_confidence = 0.75;
+    try {
+      const attr = aiDecisionExplanationEngine.createPhysicsAttribution(
+        "milling_head_selection",
+        `Head=${best ?? legacyHead ?? "unknown"} based on ${operations.length} operations`,
+      );
+      attribution = typeof attr?.description === "string" && attr.description.length > 0
+        ? attr.description
+        : attribution;
+      attribution_confidence = Number.isFinite(attr?.confidence)
+        ? Math.max(0, Math.min(1, attr.confidence))
+        : 0.75;
+    } catch {
+      // fail-closed: keep defaults
+    }
+
+    return {
+      legacy,
+      ai: {
+        ranked_heads: ranked.map(r => ({
+          head: r.candidate,
+          posterior: Math.max(0, Math.min(1, r.score)),
+          rank: r.rank,
+        })),
+        best_head: best,
+        attribution,
+        attribution_confidence,
+        sources,
+      },
+    };
   }
 }
 
