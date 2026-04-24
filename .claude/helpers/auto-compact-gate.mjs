@@ -156,14 +156,21 @@ async function main() {
   // Soft trigger: inject compact directive while still allowing stop
   if (isSoft) {
     const verb = autopilot ? "BLOCK" : "allow";
-    emit({
-      decision: autopilot ? "block" : "allow",
-      reason: [
-        `CONTEXT SOFT TRIGGER: ~${totalK}k tokens (source: ${source}, soft: ${SOFT_TOKENS / 1000}k, hard: ${HARD_TOKENS / 1000}k).`,
-        `${verb === "BLOCK" ? "Autopilot active — refreshing now." : "Approaching 1M ceiling."}`,
-        "Write HANDOFF.md ## RESUME, then /compact before continuing heavy work.",
-      ].join(" "),
-    });
+    const reason = [
+      `CONTEXT SOFT TRIGGER: ~${totalK}k tokens (source: ${source}, soft: ${SOFT_TOKENS / 1000}k, hard: ${HARD_TOKENS / 1000}k).`,
+      `${verb === "BLOCK" ? "Autopilot active — refreshing now." : "Approaching 1M ceiling."}`,
+      "Write HANDOFF.md ## RESUME, then /compact before continuing heavy work.",
+    ].join(" ");
+    if (autopilot) {
+      // Hard gate only when user has opted into autopilot
+      emit({ decision: "block", reason });
+    } else {
+      // Stop contract has no "allow" — advise via Stop's additionalContext and continue
+      emit({
+        continue: true,
+        hookSpecificOutput: { hookEventName: "Stop", additionalContext: reason },
+      });
+    }
     return;
   }
 

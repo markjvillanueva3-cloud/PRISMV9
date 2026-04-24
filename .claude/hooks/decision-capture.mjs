@@ -86,7 +86,12 @@ async function main() {
 
   saveDecisionLog(log);
 
-  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Decision Logged\n${trigger.desc } }: ${filePath.split('/').pop()}\nUse /decision-log add to record WHY this choice was made`
+  console.log(JSON.stringify({
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: "PostToolUse",
+      additionalContext: `## Decision Logged\n${trigger.desc}: ${filePath.split('/').pop()}\nUse /decision-log add to record WHY this choice was made`,
+    },
   }));
 }
 
