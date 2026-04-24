@@ -110,4 +110,122 @@ describe("CoordinationLedgerEngine", () => {
     }
     expect(ids.size).toBe(50);
   });
+
+  describe("hydrateFromJSONL", () => {
+    it("hydrates valid JSONL into the ledger", () => {
+      const ledger = new CoordinationLedgerEngine();
+      const lines = [
+        JSON.stringify({ id: "a", agent: "Claude", kind: "claim", target: "foo.ts", at: 1000 }),
+        JSON.stringify({ id: "b", agent: "Codex", kind: "claim", target: "foo.ts", at: 1500 }),
+      ];
+      const result = ledger.hydrateFromJSONL(lines);
+      expect(result.hydrated).toBe(2);
+      expect(result.skipped).toBe(0);
+      expect(result.errors).toEqual([]);
+      expect(ledger.count()).toBe(2);
+      expect(ledger.byTarget("foo.ts").length).toBe(2);
+    });
+
+    it("preserves supplied ids; synthesizes when missing", () => {
+      const ledger = new CoordinationLedgerEngine();
+      ledger.hydrateFromJSONL([
+        JSON.stringify({ id: "keep-me", agent: "A", kind: "claim", target: "x", at: 100 }),
+        JSON.stringify({ agent: "B", kind: "claim", target: "y", at: 200 }),
+      ]);
+      const ids = ledger.byAgent("A").map((e) => e.id).concat(ledger.byAgent("B").map((e) => e.id));
+      expect(ids).toContain("keep-me");
+      const synthesized = ledger.byAgent("B")[0].id;
+      expect(synthesized).toMatch(/^evt-200-\d+$/);
+    });
+
+    it("skips blank lines without erroring", () => {
+      const ledger = new CoordinationLedgerEngine();
+      const result = ledger.hydrateFromJSONL(["", "  ", "\t"]);
+      expect(result.hydrated).toBe(0);
+      expect(result.skipped).toBe(3);
+      expect(result.errors).toEqual([]);
+    });
+
+    it("FAIL: records malformed lines as errors without throwing", () => {
+      const ledger = new CoordinationLedgerEngine();
+      const result = ledger.hydrateFromJSONL([
+        "not-json",
+        JSON.stringify({ kind: "claim", target: "x", at: 1 }),          // missing agent
+        JSON.stringify({ agent: "A", kind: "claim", at: 1 }),            // missing target
+        JSON.stringify({ agent: "A", target: "x", at: 1 }),              // missing kind
+        JSON.stringify({ agent: "A", kind: "claim", target: "ok", at: 5 }), // valid
+      ]);
+      expect(result.hydrated).toBe(1);
+      expect(result.errors.length).toBe(4);
+      expect(result.errors.map((e) => e.reason)).toContain("missing agent");
+      expect(result.errors.map((e) => e.reason)).toContain("missing target");
+      expect(result.errors.map((e) => e.reason)).toContain("missing kind");
+    });
+
+    it("ADV: trims to maxEvents on oversize hydration", () => {
+      const ledger = new CoordinationLedgerEngine(10);
+      const lines = Array.from({ length: 25 }, (_, i) =>
+        JSON.stringify({ agent: "A", kind: "note", target: `t${i}`, at: 1000 + i })
+      );
+      ledger.hydrateFromJSONL(lines);
+      expect(ledger.count()).toBe(10);
+      // Most recent 10 retained (timestamps 1015..1024)
+      const targets = ledger.byAgent("A").map((e) => e.target).sort();
+      expect(targets).toContain("t24");
+      expect(targets).not.toContain("t0");
+    });
+
+    it("ADV: sorts events chronologically even when lines arrive out of order", () => {
+      const ledger = new CoordinationLedgerEngine();
+      ledger.hydrateFromJSONL([
+        JSON.stringify({ agent: "A", kind: "claim", target: "x", at: 3000 }),
+        JSON.stringify({ agent: "A", kind: "claim", target: "x", at: 1000 }),
+        JSON.stringify({ agent: "A", kind: "claim", target: "x", at: 2000 }),
+      ]);
+      const ats = ledger.byAgent("A").map((e) => e.at);
+      expect(ats).toEqual([1000, 2000, 3000]);
+    });
+
+    it("ADV: hydrated state drives detectConflicts", () => {
+      const ledger = new CoordinationLedgerEngine();
+      ledger.hydrateFromJSONL([
+        JSON.stringify({ agent: "Claude", kind: "claim", target: "hot.ts", at: 1000 }),
+        JSON.stringify({ agent: "Codex",  kind: "claim", target: "hot.ts", at: 1500 }),
+      ]);
+      const conflicts = ledger.detectConflicts(30_000);
+      expect(conflicts.length).toBe(1);
+      expect(conflicts[0].target).toBe("hot.ts");
+    });
+  });
+
+  describe("toJSONL", () => {
+    it("round-trips through hydrateFromJSONL", () => {
+      const ledger = new CoordinationLedgerEngine();
+      ledger.record({ agent: "A", kind: "claim", target: "x", at: 1000 });
+      ledger.record({ agent: "B", kind: "claim", target: "x", at: 2000 });
+      const jsonl = ledger.toJSONL();
+      const lines = jsonl.split("\n");
+      expect(lines.length).toBe(2);
+
+      const round = new CoordinationLedgerEngine();
+      const result = round.hydrateFromJSONL(lines);
+      expect(result.hydrated).toBe(2);
+      expect(round.count()).toBe(2);
+      expect(round.byTarget("x").length).toBe(2);
+    });
+
+    it("emits chronologically sorted events", () => {
+      const ledger = new CoordinationLedgerEngine();
+      ledger.record({ agent: "A", kind: "claim", target: "x", at: 3000 });
+      ledger.record({ agent: "A", kind: "claim", target: "x", at: 1000 });
+      ledger.record({ agent: "A", kind: "claim", target: "x", at: 2000 });
+      const lines = ledger.toJSONL().split("\n").map((l) => JSON.parse(l));
+      expect(lines.map((l) => l.at)).toEqual([1000, 2000, 3000]);
+    });
+
+    it("returns empty string for empty ledger", () => {
+      const ledger = new CoordinationLedgerEngine();
+      expect(ledger.toJSONL()).toBe("");
+    });
+  });
 });

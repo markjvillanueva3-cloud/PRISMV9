@@ -91,7 +91,11 @@ const ACTIONS = [
   "action_search",
   "action_find",
   "tool_route",
-  "tool_route_best"
+  "tool_route_best",
+  "coordination_record",
+  "coordination_detect_conflicts",
+  "coordination_recent",
+  "coordination_count"
 ] as const;
 
 function ok(data: any) {
@@ -1178,6 +1182,74 @@ export function registerSessionDispatcher(server: any): void {
             const intent = params.intent || params.query || params.q || "";
             const best = tr.bestRoute(intent);
             return ok(best || { error: "No route found for intent" });
+          }
+
+          // ================================================================
+          // Coordination Ledger — CoordinationLedgerEngine bridge
+          // ================================================================
+          case "coordination_record": {
+            const { coordinationLedgerEngine } = await import("../../engines/CoordinationLedgerEngine.js");
+            const ledgerPath = (params.ledger_path as string) || path.join(STATE_DIR, "..", "..", "state", "shared", "COORDINATION_LEDGER.jsonl");
+            const at = params.at != null ? Number(params.at) : Date.now();
+            if (!Number.isFinite(at)) return ok({ error: "at must be a finite epoch-ms value" });
+            if (!params.agent || !params.kind || !params.target) {
+              return ok({ error: "agent, kind, and target are required" });
+            }
+            const event = coordinationLedgerEngine.record({
+              agent: String(params.agent),
+              kind: params.kind as any,
+              target: String(params.target),
+              payload: params.payload,
+              at,
+            });
+            try {
+              const dir = path.dirname(ledgerPath);
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+              fs.appendFileSync(ledgerPath, JSON.stringify(event) + "\n", "utf8");
+            } catch (err: any) {
+              return ok({ success: false, error: `append failed: ${err.message}`, event });
+            }
+            return ok({ success: true, event, ledger_path: ledgerPath, count: coordinationLedgerEngine.count() });
+          }
+
+          case "coordination_detect_conflicts": {
+            const { CoordinationLedgerEngine } = await import("../../engines/CoordinationLedgerEngine.js");
+            const ledgerPath = (params.ledger_path as string) || path.join(STATE_DIR, "..", "..", "state", "shared", "COORDINATION_LEDGER.jsonl");
+            const windowMs = params.window_ms != null ? Number(params.window_ms) : 30_000;
+            const ledger = new CoordinationLedgerEngine();
+            let hydrateResult = { hydrated: 0, skipped: 0, errors: [] as any[] };
+            if (fs.existsSync(ledgerPath)) {
+              const lines = fs.readFileSync(ledgerPath, "utf8").split(/\r?\n/);
+              hydrateResult = ledger.hydrateFromJSONL(lines);
+            }
+            const conflicts = ledger.detectConflicts(windowMs);
+            return ok({ success: true, conflicts, count: ledger.count(), hydrate: hydrateResult, ledger_path: ledgerPath, window_ms: windowMs });
+          }
+
+          case "coordination_recent": {
+            const { CoordinationLedgerEngine } = await import("../../engines/CoordinationLedgerEngine.js");
+            const ledgerPath = (params.ledger_path as string) || path.join(STATE_DIR, "..", "..", "state", "shared", "COORDINATION_LEDGER.jsonl");
+            const since = params.since != null ? Number(params.since) : Date.now() - 60 * 60 * 1000;
+            const ledger = new CoordinationLedgerEngine();
+            if (fs.existsSync(ledgerPath)) {
+              const lines = fs.readFileSync(ledgerPath, "utf8").split(/\r?\n/);
+              ledger.hydrateFromJSONL(lines);
+            }
+            let events = ledger.since(since);
+            if (params.agent) events = events.filter((e) => e.agent === String(params.agent));
+            if (params.target) events = events.filter((e) => e.target === String(params.target));
+            return ok({ success: true, events, count: events.length, since, ledger_path: ledgerPath });
+          }
+
+          case "coordination_count": {
+            const { CoordinationLedgerEngine } = await import("../../engines/CoordinationLedgerEngine.js");
+            const ledgerPath = (params.ledger_path as string) || path.join(STATE_DIR, "..", "..", "state", "shared", "COORDINATION_LEDGER.jsonl");
+            const ledger = new CoordinationLedgerEngine();
+            if (fs.existsSync(ledgerPath)) {
+              const lines = fs.readFileSync(ledgerPath, "utf8").split(/\r?\n/);
+              ledger.hydrateFromJSONL(lines);
+            }
+            return ok({ success: true, count: ledger.count(), ledger_path: ledgerPath });
           }
 
           default:

@@ -138,6 +138,90 @@ export class CoordinationLedgerEngine {
     this.events = [];
     this.idCounter = 0;
   }
+
+  /**
+   * Hydrate the in-memory ledger from already-read JSONL lines.
+   * Each line must be a JSON object with at least {agent, kind, target, at}.
+   * Malformed lines are skipped and returned in `errors`. Events beyond
+   * maxEvents keep only the most recent (FIFO eviction matches runtime
+   * behavior). `id` is preserved if present, otherwise synthesized.
+   *
+   * @param lines Raw JSONL lines (already split).
+   * @returns Counts of hydrated / skipped / errored lines.
+   */
+  hydrateFromJSONL(lines: string[]): {
+    hydrated: number;
+    skipped: number;
+    errors: Array<{ line: number; reason: string }>;
+  } {
+    const errors: Array<{ line: number; reason: string }> = [];
+    let hydrated = 0;
+    let skipped = 0;
+    const parsed: CoordinationEvent[] = [];
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i].trim();
+      if (!raw) {
+        skipped++;
+        continue;
+      }
+      try {
+        const obj = JSON.parse(raw) as Partial<CoordinationEvent>;
+        if (!obj || typeof obj !== "object") {
+          errors.push({ line: i, reason: "not an object" });
+          continue;
+        }
+        if (typeof obj.agent !== "string" || obj.agent.length === 0) {
+          errors.push({ line: i, reason: "missing agent" });
+          continue;
+        }
+        if (typeof obj.target !== "string" || obj.target.length === 0) {
+          errors.push({ line: i, reason: "missing target" });
+          continue;
+        }
+        if (typeof obj.kind !== "string") {
+          errors.push({ line: i, reason: "missing kind" });
+          continue;
+        }
+        const at = typeof obj.at === "number" && Number.isFinite(obj.at) ? obj.at : Date.now();
+        this.idCounter += 1;
+        const id = typeof obj.id === "string" && obj.id.length > 0
+          ? obj.id
+          : `evt-${at}-${this.idCounter}`;
+        parsed.push({
+          id,
+          agent: obj.agent,
+          kind: obj.kind as CoordinationEventKind,
+          target: obj.target,
+          at,
+          payload: obj.payload,
+        });
+        hydrated++;
+      } catch (err) {
+        errors.push({ line: i, reason: (err as Error).message });
+      }
+    }
+    // Preserve FIFO ordering across existing + parsed events, then trim
+    this.events = [...this.events, ...parsed].sort((a, b) => a.at - b.at);
+    if (this.events.length > this.maxEvents) {
+      this.events = this.events.slice(this.events.length - this.maxEvents);
+    }
+    return { hydrated, skipped, errors };
+  }
+
+  /**
+   * Serialize the current ledger as JSONL — one event per line, sorted
+   * by timestamp ascending. Consumers can write this to a file to
+   * persist the in-memory state.
+   *
+   * @returns JSONL string (no trailing newline on the last record).
+   */
+  toJSONL(): string {
+    return this.events
+      .slice()
+      .sort((a, b) => a.at - b.at)
+      .map((e) => JSON.stringify(e))
+      .join("\n");
+  }
 }
 
 export const coordinationLedgerEngine = new CoordinationLedgerEngine();
