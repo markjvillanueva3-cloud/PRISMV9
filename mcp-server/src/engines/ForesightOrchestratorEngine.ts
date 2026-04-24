@@ -1,4 +1,4 @@
-// WIRE-EXEMPT: consumed by /foresight skill; dispatcher action pending; case handler blocked by CRLF mismatch in devDispatcher
+// Wired: prism_dev.foresight_report (devDispatcher.ts) + /foresight skill
 /**
  * ForesightOrchestratorEngine — U-FORE-12 (PSAU-FORESIGHT dispatcher)
  * =====================================================================

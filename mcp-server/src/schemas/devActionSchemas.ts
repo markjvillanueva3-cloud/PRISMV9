@@ -111,4 +111,14 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     consumed_tokens: z.number().optional().describe("Override consumed tokens (else read from context_pressure.json)"),
     model: z.string().optional().describe("Override model identifier"),
   }).optional(),
+
+  // PSAU-FORESIGHT orchestrator
+  foresight_report: z.object({
+    description: z.string().describe("What is being proposed or changed"),
+    unitClass: z.string().optional().describe("Unit class for risk forecast (generic|physics|wiring|...) — default: generic"),
+    proposedFiles: z.array(z.string()).optional().describe("Files the change will touch"),
+    contextTokensUsed: z.number().optional().describe("Current context tokens consumed"),
+    contextTokensLimit: z.number().optional().describe("Context window size"),
+    modelName: z.string().optional().describe("Active model id (e.g. opus_4_7_1m)"),
+  }),
 };
