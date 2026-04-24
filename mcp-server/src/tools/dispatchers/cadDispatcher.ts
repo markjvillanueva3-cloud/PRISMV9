@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -51,8 +51,38 @@ async function getEngine(name: string): Promise<any> {
     case "cadRegistry": return _cadRegistry ??= (await import("../../engines/UniversalCADIndexEngine.js")).universalCADIndexEngine;
     case "inventorGen": return _inventorGen ??= (await import("../../engines/InventorCADCodeGeneratorEngine.js")).inventorCADCodeGeneratorEngine;
     case "naca": return _naca ??= (await import("../../engines/NACAAirfoilEngine.js")).nacaAirfoilEngine;
+    case "loftedWing": return _loftedWing ??= (await import("../../engines/LoftedWingEngine.js")).loftedWingEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
+}
+
+/**
+ * Resolve an airfoil profile from a flexible dispatcher param. Supports:
+ *   - full AirfoilProfile object (passes through)
+ *   - { naca4: "2412", options?: {...} } shortcut
+ *   - { naca5: "23012", options?: {...} } shortcut
+ *   - { uiucDat: "<.dat content>", chord?: number } shortcut
+ */
+async function resolveAirfoilProfile(param: any): Promise<any> {
+  if (!param || typeof param !== "object") {
+    throw new Error("airfoil profile param must be an object");
+  }
+  if (Array.isArray(param.upper) && Array.isArray(param.lower) && Array.isArray(param.selig)) {
+    return param;
+  }
+  const naca = await getEngine("naca");
+  if (typeof param.naca4 === "string") {
+    return naca.generate4Digit(param.naca4, param.options ?? {});
+  }
+  if (typeof param.naca5 === "string") {
+    return naca.generate5Digit(param.naca5, param.options ?? {});
+  }
+  if (typeof param.uiucDat === "string") {
+    return naca.parseUIUCDat(param.uiucDat, param.chord ?? 1);
+  }
+  throw new Error(
+    "airfoil profile param must be an AirfoilProfile object or a { naca4, naca5, uiucDat } shortcut"
+  );
 }
 
 const ACTIONS = [
@@ -130,6 +160,8 @@ const ACTIONS = [
   "cad_registry_scan", "cad_registry_search", "cad_registry_get", "cad_registry_stats",
   // NACA Airfoil Engine (U-CADC13)
   "naca_generate_4digit", "naca_generate_5digit", "naca_parse_uiuc_dat",
+  // Lofted Wing Engine (U-CADC14)
+  "wing_loft_single_profile", "wing_loft_between_profiles", "wing_compute_properties",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1192,6 +1224,28 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("naca");
             const profile = engine.parseUIUCDat(params.content, params.chord ?? 1);
             result = { success: true, profile };
+            break;
+          }
+          // Lofted Wing Engine (U-CADC14) — stacks airfoil sections with twist/taper/sweep/dihedral
+          case "wing_loft_single_profile": {
+            const wingEngine = await getEngine("loftedWing");
+            const profile = await resolveAirfoilProfile(params.profile);
+            const wing = wingEngine.loftSingleProfile(profile, params.options ?? {});
+            result = { success: true, wing };
+            break;
+          }
+          case "wing_loft_between_profiles": {
+            const wingEngine = await getEngine("loftedWing");
+            const root = await resolveAirfoilProfile(params.rootProfile);
+            const tip = await resolveAirfoilProfile(params.tipProfile);
+            const wing = wingEngine.loftBetweenProfiles(root, tip, params.options ?? {});
+            result = { success: true, wing };
+            break;
+          }
+          case "wing_compute_properties": {
+            const wingEngine = await getEngine("loftedWing");
+            const properties = wingEngine.computeWingProperties(params.sections ?? []);
+            result = { success: true, properties };
             break;
           }
           default:

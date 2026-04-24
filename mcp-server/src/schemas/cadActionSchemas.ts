@@ -169,6 +169,57 @@ const nacaParseUIUCDatSchema = z.object({
   chord: z.number().optional().describe("Chord scaling applied to parsed coordinates. Default 1."),
 });
 
+// ── Lofted Wing Engine Actions (U-CADC14) ─────────────────────────────────────
+const airfoilProfileRefSchema = z.object({
+  naca4: z.string().optional().describe("Shortcut: 4-digit NACA designator (generates profile on the fly)."),
+  naca5: z.string().optional().describe("Shortcut: 5-digit NACA designator (generates profile on the fly)."),
+  uiucDat: z.string().optional().describe("Shortcut: raw UIUC Selig .dat content (parses on the fly)."),
+  options: z.record(z.string(), z.any()).optional().describe("Options forwarded to NACAAirfoilEngine when using naca4/naca5 shortcut."),
+  chord: z.number().optional().describe("Chord scaling for uiucDat shortcut."),
+  // Passthrough for a full AirfoilProfile
+  name: z.string().optional(),
+  maxCamber: z.number().optional(),
+  maxCamberPosition: z.number().optional(),
+  maxThickness: z.number().optional(),
+  upper: z.array(z.object({ x: z.number(), y: z.number() })).optional(),
+  lower: z.array(z.object({ x: z.number(), y: z.number() })).optional(),
+  selig: z.array(z.object({ x: z.number(), y: z.number() })).optional(),
+});
+
+const loftOptionsSchema = z.object({
+  halfSpan: z.number().describe("Half-span (tip-to-root distance) in meters. Must be > 0."),
+  rootChord: z.number().describe("Root chord in meters. Must be > 0."),
+  tipChord: z.number().describe("Tip chord in meters. Must be > 0."),
+  quarterChordSweepDeg: z.number().optional().describe("Quarter-chord sweep angle in degrees."),
+  dihedralDeg: z.number().optional().describe("Dihedral angle in degrees (positive raises tip above root)."),
+  tipTwistDeg: z.number().optional().describe("Twist at tip in degrees (washout is negative)."),
+  rootTwistDeg: z.number().optional().describe("Twist at root in degrees (default 0)."),
+  numStations: z.number().optional().describe("Number of spanwise stations including root and tip. Default 11."),
+  cosineSpanwise: z.boolean().optional().describe("Use cosine clustering spanwise. Default true."),
+});
+
+const wingLoftSingleProfileSchema = z.object({
+  profile: airfoilProfileRefSchema.describe("Single airfoil used at every spanwise station."),
+  options: loftOptionsSchema.describe("Wing geometry options."),
+});
+
+const wingLoftBetweenProfilesSchema = z.object({
+  rootProfile: airfoilProfileRefSchema.describe("Airfoil at the root station (y=0)."),
+  tipProfile: airfoilProfileRefSchema.describe("Airfoil at the tip station (y=halfSpan)."),
+  options: loftOptionsSchema.describe("Wing geometry options."),
+});
+
+const wingComputePropertiesSchema = z.object({
+  sections: z.array(z.object({
+    station: z.number(),
+    chord: z.number(),
+    twistRad: z.number().optional(),
+    sweepOffset: z.number().optional(),
+    dihedralOffset: z.number().optional(),
+    profile: z.any().optional(),
+  })).describe("Ordered spanwise sections (root→tip). Must have ≥2 entries."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -209,4 +260,8 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   naca_generate_4digit: nacaGenerate4DigitSchema,
   naca_generate_5digit: nacaGenerate5DigitSchema,
   naca_parse_uiuc_dat: nacaParseUIUCDatSchema,
+  // Lofted Wing Engine (U-CADC14)
+  wing_loft_single_profile: wingLoftSingleProfileSchema,
+  wing_loft_between_profiles: wingLoftBetweenProfilesSchema,
+  wing_compute_properties: wingComputePropertiesSchema,
 };
