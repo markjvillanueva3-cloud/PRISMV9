@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { inferAgentIdentity, sanitizeIdentityKey } from "./agent-identity.mjs";
+import { writeAtomic } from "./atomic-write.mjs";
 
 const FILES = {
   chatJsonl: "H:\\prism\\state\\shared\\AGENT_CHAT.jsonl",
@@ -84,10 +85,9 @@ async function readCursor(agentInstance) {
 async function writeCursor(agentInstance, cursorState) {
   const cursorPath = path.join(FILES.cursorRoot, `${sanitizeIdentityKey(agentInstance)}.json`);
   await ensureParent(cursorPath);
-  await fs.writeFile(
+  await writeAtomic(
     cursorPath,
     `${JSON.stringify({ agent_instance: agentInstance, ...cursorState }, null, 2)}\n`,
-    "utf8",
   );
 }
 
@@ -452,16 +452,15 @@ async function writeArtifacts(chatEntries, workboard) {
   ]);
 
   await Promise.all([
-    fs.writeFile(
+    writeAtomic(
       FILES.chatJsonl,
       `${chatEntries.map((entry) => JSON.stringify(entry)).join("\n")}\n`,
-      "utf8",
     ),
-    fs.writeFile(FILES.chatMarkdown, renderChatMarkdown(chatEntries), "utf8"),
-    fs.writeFile(FILES.workboardJson, `${JSON.stringify(workboard, null, 2)}\n`, "utf8"),
-    fs.writeFile(FILES.workboardMarkdown, renderWorkboardMarkdown(workboard), "utf8"),
-    fs.writeFile(FILES.statusJson, `${JSON.stringify(status, null, 2)}\n`, "utf8"),
-    fs.writeFile(FILES.statusMarkdown, renderStatusMarkdown(status), "utf8"),
+    writeAtomic(FILES.chatMarkdown, renderChatMarkdown(chatEntries)),
+    writeAtomic(FILES.workboardJson, `${JSON.stringify(workboard, null, 2)}\n`),
+    writeAtomic(FILES.workboardMarkdown, renderWorkboardMarkdown(workboard)),
+    writeAtomic(FILES.statusJson, `${JSON.stringify(status, null, 2)}\n`),
+    writeAtomic(FILES.statusMarkdown, renderStatusMarkdown(status)),
   ]);
 }
 
