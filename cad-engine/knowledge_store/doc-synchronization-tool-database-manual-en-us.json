@@ -1,0 +1,146 @@
+{
+  "tips": [
+    {
+      "title": "Set up exchange folders and user rights",
+      "body": "Create a Windows folder for tool data exchange and set full access rights for the synchronization service.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "exchange_folder"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Configure user rights in local security policy",
+      "body": "For Account option, configure the relevant user rights for the service account in Local Security Policy.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "user_rights"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Start the Synchronization Service",
+      "body": "Run omTdbServiceUi.exe as administrator and configure input format, database, and data exchange folder.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "service_start"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Preserve folder structure during import",
+      "body": "Check the 'P' (Preserve) column to keep the original folder structure during data import.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "folder_structure"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Set 'Slave' database for write protection",
+      "body": "Check the 'S' (Slave) column to make the database read-only, allowing only the synchronization service to modify it.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "write_protection"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Select account with necessary access rights",
+      "body": "Choose an account that has the required permissions to access the exchange directory and database.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "account_selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Synchronize multiple instances",
+      "body": "Add multiple exchange folders and hyperMILL databases to synchronize them into a single tool database.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "multiple_instances"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Check synchronization logs",
+      "body": "Click the 'Log...' button to view and analyze log files for any issues during synchronization.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "log_files"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Start and stop synchronization service",
+      "body": "Click 'Start' to activate all instances, and 'Stop' to deactivate them.",
+      "category": "machine_setup",
+      "tags": [
+        "synchronization",
+        "service_control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/OPEN MIND/doc/33.0/PDF/Synchronization Tool Database/Synchronization_Tool_Database_Manual-en-US.pdf",
+    "title": "Synchronization_Tool_Database_Manual-en-US",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 9,
+    "chunk_count": 1,
+    "tips_total": 9,
+    "tips_unique": 9,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}
