@@ -1,0 +1,280 @@
+{
+  "tips": [
+    {
+      "title": "Define machine and material",
+      "body": "Create a new machine named 'DMU50' with parameters as shown in the image.",
+      "category": "machine_setup",
+      "tags": [
+        "machine",
+        "material"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Define fixture",
+      "body": "Create a new fixture and select it in the Model dialog box.",
+      "category": "workholding",
+      "tags": [
+        "fixture"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.19",
+      "_chunk": 2
+    },
+    {
+      "title": "Set machine setup parameters",
+      "body": "Ensure the visibility of 'Solid1' is switched on and set the Machining level to 3 in the Technology Wizard.",
+      "category": "machine_setup",
+      "tags": [
+        "setup",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2
+    },
+    {
+      "title": "Select tool and holder",
+      "body": "Add an END MILL tool and select the HSK A 63 ER 32x80 holder with collision protection.",
+      "category": "tool_selection",
+      "tags": [
+        "tool",
+        "holder"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 2
+    },
+    {
+      "title": "Configure roughing operation parameters",
+      "body": "Set the Machining level to 3, enter depth of cut, stepover, and feed as shown in the image.",
+      "category": "speeds_feeds",
+      "tags": [
+        "roughing",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Set tool path parameters",
+      "body": "Select the 'Shortest distance' strategy, set pass parameters, and configure links as shown in the image.",
+      "category": "toolpath",
+      "tags": [
+        "tool_path",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 2
+    },
+    {
+      "title": "Simulate operation",
+      "body": "Run SolidVerify simulation and verify the tool path as shown in the image.",
+      "category": "simulation",
+      "tags": [
+        "simulation",
+        "tool_path"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Add HSR operation",
+      "body": "Create a new HSR operation, select HM Roughing technology, and set parameters as shown in the image.",
+      "category": "toolpath",
+      "tags": [
+        "HSR",
+        "operation"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.25",
+      "_chunk": 2
+    },
+    {
+      "title": "Configure SWARF machining parameters",
+      "body": "Select the 'Shortest distance' strategy, set corner faces, and configure tool path parameters as shown in the image.",
+      "category": "toolpath",
+      "tags": [
+        "SWARF",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 2
+    },
+    {
+      "title": "Select Linear machining technology for roughing operations",
+      "body": "Click 'Linear machining' in the Technology list.",
+      "category": "toolpath",
+      "tags": [
+        "3D HSM",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 3
+    },
+    {
+      "title": "Set tool to BALL NOSE MILL for roughing operations",
+      "body": "Select 'BALL NOSE MILL' from the tool selection menu.",
+      "category": "tool_selection",
+      "tags": [
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 3
+    },
+    {
+      "title": "Use User-defined boundary for constraint boundaries",
+      "body": "Select 'User-defined boundary' and set the boundary curve as shown in the image.",
+      "category": "constraint_boundaries",
+      "tags": [
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 3
+    },
+    {
+      "title": "Set lead in and lead out radius for retracts",
+      "body": "Enter '10' as the Lead in radius and lead out radius.",
+      "category": "retract_methods",
+      "tags": [
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 3
+    },
+    {
+      "title": "Select Radial roughing in Multiaxis machining technology",
+      "body": "Click 'Radial roughing' in the Technology list for Multiaxis Machining.",
+      "category": "toolpath",
+      "tags": [
+        "Multiaxis Machining",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.33",
+      "_chunk": 3
+    },
+    {
+      "title": "Set stock to leave on value for Multiaxis machining",
+      "body": "Enter '0.5 mm' as the Stock to leave on value.",
+      "category": "toolpath_parameters",
+      "tags": [
+        "Multiaxis Machining",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Select Adaptive strategy for the next operation",
+      "body": "Click 'Adaptive' in the Strategy list under Geometry page.",
+      "category": "toolpath",
+      "tags": [
+        "Multiaxis Machining",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 3
+    },
+    {
+      "title": "Set step down values for the next operation",
+      "body": "Enter the Step down values as shown in the image.",
+      "category": "toolpath_parameters",
+      "tags": [
+        "Multiaxis Machining",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 3
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Multiaxis_Roughing_Pt1.pdf",
+    "title": "InventorCAM2024_Multiaxis_Roughing_Pt1",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 39,
+    "chunk_count": 3,
+    "tips_total": 17,
+    "tips_unique": 17,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}
