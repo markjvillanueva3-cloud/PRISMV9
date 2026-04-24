@@ -1,0 +1,317 @@
+{
+  "version": "1",
+  "captured_at": "2026-04-24T15:26:36.618Z",
+  "node_version": "v22.12.0",
+  "platform": "win32",
+  "sample_count": 100,
+  "warmup_count": 10,
+  "entry_count": 13,
+  "entries": {
+    "MillingMachineIntelligenceEngine::recommendToolpath(op, controller, hasCam)": {
+      "engine_id": "MillingMachineIntelligenceEngine",
+      "method": "recommendToolpath(op, controller, hasCam)",
+      "unit": "U1-SPIKE-MMI",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.002899999999499414,
+      "p95_ms": 0.004199999999400461,
+      "p99_ms": 0.008600000001024455,
+      "mean_ms": 0.003068999999886728,
+      "stddev_ms": 0.0008449128818250677,
+      "output_schema_hash": "1319e9ad6dce5d9a",
+      "output_sample": [
+        {
+          "type": "conversational",
+          "name": "Hurco UltiPocket",
+          "description": "Conversational pocket with automatic toolpath",
+          "controllers_supported": [
+            "hurco_winmax"
+          ],
+          "parameters": [
+            {
+              "name": "boundary_type",
+              "description": "Pocket shape",
+              "type": "enum",
+              "enum_values": [
+                "rectangle",
+                "circle",
+                "irregular"
+              ]
+            },
+            {
+              "name": "stepover",
+              "description": "XY stepover",
+              "type": "numeric",
+              "unit": "mm"
+            },
+            {
+              "name": "stepdown",
+              "description": "Z stepdown",
+              "type": "numeric",
+              "unit": "mm"
+            }
+          ],
+          "physics_basis": "CAM-like adaptive pocket with conversational ease",
+          "use_cases": [
+            "One-off parts",
+            "Shop-floor programming",
+            "When CAM unavailable"
+          ],
+          "limitations": [
+            "Hurco only",
+            "Limited optimization"
+          ]
+        }
+      ]
+    },
+    "MillDeepLearningEngine::recommendSequence(features)": {
+      "engine_id": "MillDeepLearningEngine",
+      "method": "recommendSequence(features)",
+      "unit": "U7-DEEPLEARN-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.0031999999991967343,
+      "p95_ms": 0.0036000000000058208,
+      "p99_ms": 0.006500000001324224,
+      "mean_ms": 0.0031130000001212466,
+      "stddev_ms": 0.0005014433712797272,
+      "output_schema_hash": "8406de03528f7712",
+      "output_sample": {
+        "sequence": "Array(4)",
+        "confidence": 0,
+        "rationale": "Using standard machining sequence"
+      }
+    },
+    "MillComprehensiveNeuralEngine::encodeFeatures(scenario)": {
+      "engine_id": "MillComprehensiveNeuralEngine",
+      "method": "encodeFeatures(scenario)",
+      "unit": "U8-COMPNEURAL-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.005400000000008731,
+      "p95_ms": 0.016699999998309067,
+      "p99_ms": 0.0761000000002241,
+      "mean_ms": 0.0070909999999094,
+      "stddev_ms": 0.007982848976300923,
+      "output_schema_hash": "11965f96ada016ce",
+      "output_sample": {
+        "0": 1,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      }
+    },
+    "MillingProgramPatternEngine::parseProgram(ncText)": {
+      "engine_id": "MillingProgramPatternEngine",
+      "method": "parseProgram(ncText)",
+      "unit": "U9-PROGPAT-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.022299999998722342,
+      "p95_ms": 0.026100000000951695,
+      "p99_ms": 0.030600000000049477,
+      "mean_ms": 0.020810999999994237,
+      "stddev_ms": 0.004607369919491509,
+      "output_schema_hash": "2609329a13b6bf83",
+      "output_sample": {
+        "program_number": "01234",
+        "program_name": "BASELINE DRILL",
+        "unit": "metric"
+      }
+    },
+    "MillingAIIntegrationEngine::parseNaturalLanguageQuery(text)": {
+      "engine_id": "MillingAIIntegrationEngine",
+      "method": "parseNaturalLanguageQuery(text)",
+      "unit": "U10-AIINT-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.029500000000552973,
+      "p95_ms": 0.05159999999887077,
+      "p99_ms": 0.0632000000005064,
+      "mean_ms": 0.02854399999996531,
+      "stddev_ms": 0.010660948467208027,
+      "output_schema_hash": "4e049e8e2793cfbc",
+      "output_sample": {
+        "original_query": "rough a pocket in 4140 steel on the Okuma",
+        "intent": "search",
+        "entities": "{...}",
+        "keywords": "Array(5)",
+        "confidence": 50,
+        "clarifications_needed": "Array(2)"
+      }
+    },
+    "MillingHeadIntelligenceEngine::recommendMillingHead(ops, constraints)": {
+      "engine_id": "MillingHeadIntelligenceEngine",
+      "method": "recommendMillingHead(ops, constraints)",
+      "unit": "U11-HEADINT-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.0015999999995983671,
+      "p95_ms": 0.003899999999703141,
+      "p99_ms": 0.011300000000119326,
+      "mean_ms": 0.0023829999999361463,
+      "stddev_ms": 0.00155401435187056,
+      "output_schema_hash": "418c76881368b5cf",
+      "output_sample": {
+        "success": true,
+        "data": "{...}"
+      }
+    },
+    "FiveAxisToolpathSynthesisEngine::synthesize(input)": {
+      "engine_id": "FiveAxisToolpathSynthesisEngine",
+      "method": "synthesize(input)",
+      "unit": "U12-SYNTH-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.16259999999965657,
+      "p95_ms": 0.2775999999994383,
+      "p99_ms": 0.4364000000005035,
+      "mean_ms": 0.1740929999999753,
+      "stddev_ms": 0.05670729783092798,
+      "output_schema_hash": "2d1c4c06d3e72cab",
+      "output_sample": {
+        "recommended_strategy": "{...}",
+        "all_candidates": "Array(22)",
+        "singularity_analysis": "{...}",
+        "rtcp_compensation": "{...}",
+        "recommendations": "Array(3)"
+      }
+    },
+    "FiveAxisDecisionEngine::decide(input)": {
+      "engine_id": "FiveAxisDecisionEngine",
+      "method": "decide(input)",
+      "unit": "U13-DECISION-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.06849999999940337,
+      "p95_ms": 0.21019999999953143,
+      "p99_ms": 0.3068999999995867,
+      "mean_ms": 0.09265399999991132,
+      "stddev_ms": 0.05405688066720017,
+      "output_schema_hash": "49dab43c774a1ce0",
+      "output_sample": {
+        "recommended_strategy": "3_plus_2_positioning",
+        "confidence": 0.6,
+        "rtcp_required": false,
+        "singularity_safe": false,
+        "recommended_tilt": "{...}",
+        "expected_cycle_time_min": 24,
+        "expected_cost_per_part": null,
+        "expected_surface_quality": "good"
+      }
+    },
+    "FiveAxisAIUltraIntelligenceEngine::parseNaturalLanguage(text)": {
+      "engine_id": "FiveAxisAIUltraIntelligenceEngine",
+      "method": "parseNaturalLanguage(text)",
+      "unit": "U3-5AX-ULTRA",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.009000000000014552,
+      "p95_ms": 0.010500000000320142,
+      "p99_ms": 0.02019999999902211,
+      "mean_ms": 0.009212999999999739,
+      "stddev_ms": 0.0011970211342274696,
+      "output_schema_hash": "9c3d15102ed09ceb",
+      "output_sample": {
+        "raw_input": "finish an aluminum impeller blade with Ra 0.8",
+        "parsed_at": "2026-04-24T15:26:34.669Z",
+        "geometry_type": "impeller_blade",
+        "material": "{...}",
+        "priority": "quality"
+      }
+    },
+    "FiveAxisOrchestrationEngine::getDSLSyntaxExamples()": {
+      "engine_id": "FiveAxisOrchestrationEngine",
+      "method": "getDSLSyntaxExamples()",
+      "unit": "U4-5AX-ORCH",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.0007000000005064066,
+      "p95_ms": 0.000800000001618173,
+      "p99_ms": 0.0014000000010128133,
+      "mean_ms": 0.0007340000000294822,
+      "stddev_ms": 0.00009235417126385611,
+      "output_schema_hash": "164236dd58ccef73",
+      "output_sample": [
+        "5AX_SWARF(tilt=15, lead=10, stepover=0.1);"
+      ]
+    },
+    "MillTurnSwissPipelineEngine::calculateLiveTool(input)": {
+      "engine_id": "MillTurnSwissPipelineEngine",
+      "method": "calculateLiveTool(input)",
+      "unit": "U5-SWISS",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 17.090299999999843,
+      "p95_ms": 25.432800000000498,
+      "p99_ms": 32.12590000000091,
+      "mean_ms": 17.61115300000007,
+      "stddev_ms": 3.3881619420486433,
+      "output_schema_hash": "97523189ca83d2f6",
+      "output_sample": {
+        "effective_diameter_mm": 10,
+        "effective_cutting_speed_m_min": 157.0796,
+        "recommended_rpm": 5000,
+        "feed_mm_rev": 0.1,
+        "feed_mm_min": 500,
+        "tangential_force_N": null,
+        "power_kW": null,
+        "power_utilization_pct": null
+      }
+    },
+    "MillingDeepAIHardeningEngine::troubleshootMillingIssue(symptoms)": {
+      "engine_id": "MillingDeepAIHardeningEngine",
+      "method": "troubleshootMillingIssue(symptoms)",
+      "unit": "U6-HARDENING",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.022500000000945874,
+      "p95_ms": 0.05410000000119908,
+      "p99_ms": 0.6486999999997352,
+      "mean_ms": 0.03296600000006947,
+      "stddev_ms": 0.06405958592973585,
+      "output_schema_hash": "2cd8620c3369022d",
+      "output_sample": {
+        "root_causes": "Array(3)",
+        "primary_diagnosis": "Regenerative chatter — spindle speed in resonance zone",
+        "corrective_actions": "Array(3)",
+        "reasoning": "Array(3)",
+        "sources": "Array(2)",
+        "confidence": 0.25
+      }
+    },
+    "MillNeuralNetworkEngine::encodeFeatures(P, flat_endmill, face, ...)": {
+      "engine_id": "MillNeuralNetworkEngine",
+      "method": "encodeFeatures(P, flat_endmill, face, ...)",
+      "unit": "U14-NEURAL-RETROFIT",
+      "warmup_count": 10,
+      "status": "ok",
+      "sample_count": 100,
+      "p50_ms": 0.0020000000004074536,
+      "p95_ms": 0.0031999999991967343,
+      "p99_ms": 0.03080000000045402,
+      "mean_ms": 0.0026789999999891735,
+      "stddev_ms": 0.003778361972117497,
+      "output_schema_hash": "dc7d0aeb7cb5d56c",
+      "output_sample": [
+        1
+      ]
+    }
+  }
+}

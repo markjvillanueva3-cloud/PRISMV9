@@ -1,0 +1,532 @@
+{
+  "id": "MILL-MASTER-AI-WIRING",
+  "title": "Mill-Master AI Wiring v2 — De-silo the mill stack onto the PRISM AI reasoning layer",
+  "track": "MILL-MASTER",
+  "status": "planned",
+  "schema_version": 2,
+  "total_units": 19,
+  "completed_units": 2,
+  "estimated_sessions": 4,
+  "dependencies": {
+    "upstream_commits": ["120c3d4c1..085ca5ed0 (MILL-MASTER P4-U13..P4-U26 coverage pass)"],
+    "external_engines_required": 31,
+    "external_mxu_required": 2
+  },
+  "rationale": "When the mill-master roadmap was drafted, the PRISM reasoning/Bayesian/self-awareness/MXU engines did not exist yet. They do now (31 reusable AI engines with verified APIs + 2 relevant MXU engines). Only 1 of ~70 mill/5-axis engines (MillingUltimateAIEngine) currently reaches into that stack; every other engine rebuilds a bespoke tiny-AI. This milestone wires the mill stack onto the shared PRISM AI infrastructure, eliminates duplication, and makes each mill capability discoverable + trackable by the MXU layer.",
+  "approach": "Spike-extract-rollout with explicit exit gates: (0.5) audit the 31 target AI engine APIs; (0) capture legacy-path benchmark baselines; (1) deep-wire MillingMachineIntelligenceEngine as the template with a hard gate before scaling; (2) extract the wiring pattern into a shared helper; (3-14) apply to 12 more engines; (15) MXU effectiveness telemetry; (16) dispatcher E2E + new mill_prism_reason action; (17) docs sweep.",
+  "global_contracts": {
+    "additive_api_only": "Every wired engine adds useAI?: \"off\" | \"auto\" | \"on\" as an OPTIONAL request-side parameter. Response schema unchanged when useAI=off. No positional-arg mutations, no required-field additions.",
+    "legacy_path_preservation": "useAI=off (default) must produce bit-identical output vs pre-wiring behavior. Verified by snapshot test per wired method.",
+    "ai_path_behavior": "useAI=on produces PRISM-AI-backed output tested against reference values (not diff-identical to legacy). AI path failures fall back to legacy with warning emitted via log.warn.",
+    "auto_downgrade": "useAI=auto routes to the AI path unless CognitiveBudgetAllocatorEngine predicts a latency-budget breach, in which case legacy is used and a trace event is recorded.",
+    "latency_budgets_ms": {
+      "useAI_off_p95": 50,
+      "useAI_auto_p95": 100,
+      "useAI_on_p95": 500,
+      "useAI_on_hard_ceiling": 2000
+    },
+    "rollback": "Each unit ships exactly one commit. Every commit is independently revertible via `git revert` without cascading test failures (guaranteed by additive-only API rule).",
+    "claim_protocol": "At the start of every unit: post a claim via `.claude/helpers/agent-coordination.mjs post --agent Claude --current <unit-id>`. Abort the unit if the target file has an active claim by another agent.",
+    "no_new_physics_constants": "All physics constants must continue to come from src/physics/constants.ts. This milestone performs integration work only.",
+    "test_legitimacy_rules": "No toBeDefined, toBeUndefined, toBeTruthy, toBeInstanceOf as primary assertions. No double casts (X as unknown as Y). No mocks of PRISM AI engines under test. Reference-value assertions or algebraic invariants only.",
+    "trace_schema": {
+      "description": "Every useAI=on invocation emits exactly one trace event via log.info with this JSON shape.",
+      "fields": {
+        "event": "mill_ai_wiring.invoke",
+        "engine": "string — source engine id (e.g., MillingMachineIntelligenceEngine)",
+        "method": "string — method name",
+        "ai_path": "'off' | 'auto' | 'on'",
+        "budget_ms": "number — allocated budget from cognitiveBudgetAllocatorEngine",
+        "elapsed_ms": "number — actual wall-clock",
+        "budget_exceeded": "boolean",
+        "auto_downgraded": "boolean — true iff useAI=auto chose legacy due to budget",
+        "reasoning_branch_count": "number | null — treeOfThought branch count when applicable",
+        "reasoning_depth": "number | null — treeOfThought depth when applicable",
+        "hypothesis_count": "number | null — hypothesisRanker set size when applicable",
+        "evidence_count": "number | null",
+        "fallback_to_legacy": "boolean — true iff ai path threw and legacy was used",
+        "error_class": "string | null — error.constructor.name when fallback_to_legacy is true"
+      }
+    },
+    "baseline_schema": {
+      "description": "U0-BASELINE writes data/benchmarks/mill-master-ai-wiring-baseline.json with this exact structure. Every subsequent unit asserts against it.",
+      "shape": {
+        "version": "1",
+        "captured_at": "ISO 8601 timestamp",
+        "node_version": "process.version",
+        "entries": "Record<string, BaselineEntry>",
+        "baseline_entry_fields": {
+          "engine_id": "string — PascalCase engine class name",
+          "method": "string — method name including arg count in parens",
+          "sample_count": "number — >= 100 for statistical stability",
+          "warmup_count": "number — >= 10 discarded samples",
+          "p50_ms": "number — median",
+          "p95_ms": "number — 95th percentile",
+          "p99_ms": "number",
+          "mean_ms": "number",
+          "stddev_ms": "number",
+          "output_schema_hash": "string — sha256 of Object.keys(output).sort().join(',') for schema-only comparison",
+          "output_sample": "unknown — one example output (for docs only, not for assertions)"
+        }
+      },
+      "usage": "Snapshot tests in U1 through U14 compare useAI=off output_schema_hash to the baseline entry. p95 regressions > global_contracts.latency_budgets_ms.useAI_off_p95_regression_tolerance_ms fail the unit."
+    },
+    "api_compat": {
+      "semver_contract": "Additive-only API changes across this entire milestone constitute a MINOR version bump (no major). useAI parameter is OPTIONAL on every method; defaulting to 'off' preserves existing callers bit-identical.",
+      "deprecated_surfaces": "None. This milestone DEPRECATES no public API. Bespoke AI internals (deepReason, scoreStrategies, etc.) remain callable directly — the useAI flag selects their replacement.",
+      "migration_guide_required": true,
+      "downstream_callers_notified": ["All dispatchers using the 13 target engines", "web/src pages that import the engines directly", "external consumers via the MCP dispatcher (forward-compatible)"]
+    }
+  },
+  "verified_apis": {
+    "tree_of_thought": { "engine": "treeOfThoughtEngine", "method": "explore(rootQuery, depth, branches)" },
+    "hypothesis_ranker": { "engine": "hypothesisRankerEngine", "methods": ["createHypothesisSet", "addHypothesis", "addEvidence", "rankHypotheses"] },
+    "hypothesis_prioritizer": { "engine": "hypothesisPrioritizerEngine", "method": "prioritize(input)" },
+    "counterfactual": { "engine": "counterfactualReasoningEngine", "methods": ["createCausalGraph", "generateCounterfactual", "analyzeRootCause"] },
+    "deep_ai": { "engine": "deepAIIntelligenceEngine", "methods": ["deepReason (async)", "deepLearn (async)", "deepLogic (async)", "extendedThinking (async)"] },
+    "creative_reasoning": { "engine": "prismCreativeReasoningEngine", "method": "explore(problem, mode)" },
+    "meta_ai_orch": { "engine": "metaAIOrchestrationEngine", "methods": ["evaluateReasoning", "transfer", "queueLearning", "processQueue", "getSystemStatus"], "note": "No `orchestrate()` — use evaluateReasoning as primary entry" },
+    "unified_orch": { "engine": "prismUnifiedOrchestratorEngine", "methods": ["routeToTier", "detectDomains", "assessComplexity", "executeSingleDispatcher (async)", "executeMultiDomain (async)"] },
+    "autonomous_orch": { "engine": "autonomousAIOrchestrationEngine", "method": "executeAutonomously(request) (async)" },
+    "system_synchronizer": { "engine": "aiSystemSynchronizerEngine", "methods": ["getStatus", "checkBeforeCreating", "recommend", "getSynergizedCapabilities"] },
+    "neural_integration": { "engine": "neuralIntegrationEngine", "methods": ["route", "recommendCommands", "synthesize", "recordResult"] },
+    "self_awareness": { "engine": "prismSelfAwarenessEngine", "method": "getManifest(forceRefresh?)" },
+    "bayesian_inference": { "engine": "bayesianInferenceEngine", "method": "calculate(input)" },
+    "bayesian_opt": { "engine": "bayesianOptimizationEngine", "methods": ["minimize", "predict", "suggestNext"] },
+    "bayesian_tool_life": { "engine": "bayesianToolLifeEngine", "methods": ["createPredictor", "addObservation", "predict", "getReplacementTime"] },
+    "bayesian_adaptive": { "engine": "bayesianAdaptiveEngine", "methods": ["defaultPrior", "predictForce", "calibrate"] },
+    "meta_learning": { "engine": "metaLearningOptimizerEngine", "methods": ["record", "recommend", "statsFor"] },
+    "cognitive_budget": { "engine": "cognitiveBudgetAllocatorEngine", "method": "allocate(desc)" },
+    "ai_decision_explanation": { "engine": "aiDecisionExplanationEngine", "methods": ["explainDecision(input)", "explainParameter(...)", "createTribalAttribution(tipId, tipSource, tipBody)", "createOEMAttribution(manufacturer, recommendation, catalogRef?)", "createPhysicsAttribution(formulaName, formulaDesc)", "getApprovalGateExplanation(explanation)"] },
+    "reasoning_explainer": { "engine": "reasoningExplainerEngine", "methods": ["explain", "explainWhy", "explainFormula"] },
+    "deep_logic_trace": { "engine": "deepLogicTraceEngine", "methods": ["beginProof", "finalizeProof", "getTrace", "explainTrace"] },
+    "cross_deep_learning": { "engine": "crossDisciplinaryDeepLearningEngine", "methods": ["deepReason", "getFormula", "executeFormula"] },
+    "cross_formula_integration": { "engine": "crossDisciplinaryFormulaIntegrationEngine", "note": "Pure-function module — no class; exports physics constants only" },
+    "persistent_memory": { "engine": "persistentMemoryEngine", "methods": ["load", "save", "store", "get(id)", "delete(id)", "search(query)", "applyDecay", "recordLearning(record, sessionId?)", "setPreference(pref)", "getPreference(key)", "recordCalibration(cal)", "getStats"] },
+    "neural_knowledge_synth": { "engine": "prismNeuralKnowledgeSynthesisEngine", "methods": ["synthesize", "learnFrom", "getCodeRecommendations"] },
+    "extraction_reasoner": { "engine": "aiExtractionReasoner", "methods": ["classifyContent (async)", "routeContent (async)", "reason (async)", "recordFeedback"] },
+    "self_improvement": { "engine": "selfImprovementPatternEngine", "methods": ["compute", "read", "summary"] },
+    "capability_census": { "engine": "capabilityCensusEngine", "methods": ["scanEngines", "scanDispatchers", "runLiveCensus"], "note": "Filesystem-scan based — engines are auto-discovered by existing on disk. No imperative register() needed." },
+    "capability_effectiveness": { "engine": "capabilityEffectivenessEngine", "methods": ["recordUsage", "scoreCapability", "generateReport"], "note": "Imperative recordUsage(event) is the telemetry hook." },
+    "ai_auto_utilization": { "engine": "aiAutoUtilizationEngine", "methods": ["analyze", "listCapabilities", "shouldSuggest"] },
+    "ai_capability_maximizer": { "engine": "aiCapabilityMaximizerEngine", "methods": ["computeMetrics", "getEnhancementRecommendations"] }
+  },
+  "existing_action_collisions": {
+    "mill_agi_reason": {
+      "exists_since": "earlier MILL-MASTER phase",
+      "handler": "facade.orchestrate({ ...params, type: 'agi' })",
+      "disposition": "PRESERVE. Adds new action mill_prism_reason alongside. Semantics: mill_agi_reason = route to MillMasterOrchestratorFacadeEngine AGI type; mill_prism_reason = direct invocation of a specific PRISM reasoning primitive without the facade."
+    },
+    "mill_agi_counterfactual": { "disposition": "PRESERVE. U6 (hardening) may call into this existing handler rather than adding a second counterfactual action." },
+    "mill_agi_explain": { "disposition": "PRESERVE. U11 (HeadIntelligence explainability) will evaluate whether to extend this handler or use the new mill_prism_reason." },
+    "mill_meta_adapt": { "disposition": "PRESERVE. No overlap with new work." }
+  },
+  "units": [
+    {
+      "id": "U0.5-API-AUDIT-PIN",
+      "title": "Pin the last 2 unverified APIs (AIDecisionExplanationEngine, PersistentMemoryEngine) and write them into the MillAIWiring helper plan",
+      "depends_on": [],
+      "blocks": ["U0-BASELINE", "U1-SPIKE-MMI"],
+      "status": "complete",
+      "files_to_modify": [
+        "data/milestones/MILL-MASTER-AI-WIRING-API-MAP.md (NEW — auto-verified, not the envelope itself)"
+      ],
+      "deliverables": [
+        "Full public-method list for AIDecisionExplanationEngine and PersistentMemoryEngine",
+        "One-line usage example per method documented in the API map file",
+        "Spike-gate contract: if any method signature cannot be matched to a planned integration point, U1 halts and the envelope is re-planned"
+      ],
+      "exit_conditions": [
+        "verified_apis section of this envelope updated from 'API signatures to be pinned' to concrete signatures",
+        "Zero 'note: to be pinned' entries remain in verified_apis"
+      ],
+      "estimated_minutes": 20,
+      "claim_path": "mcp-server/data/milestones/MILL-MASTER-AI-WIRING-API-MAP.md"
+    },
+    {
+      "id": "U0-BASELINE",
+      "title": "Capture legacy-path benchmark baselines for the 13 target engines",
+      "depends_on": ["U0.5-API-AUDIT-PIN"],
+      "blocks": ["U1-SPIKE-MMI"],
+      "status": "complete",
+      "files_to_modify": [
+        "src/__tests__/_benchmarks/MillMasterAIWiringBaseline.bench.ts (NEW)",
+        "data/benchmarks/mill-master-ai-wiring-baseline.json (NEW output file written by the bench)"
+      ],
+      "deliverables": [
+        "Vitest benchmark suite covering one representative public method per target engine (13 benches)",
+        "p50 and p95 latency captured in milliseconds",
+        "Output shape snapshot (JSON schema only, not values) captured",
+        "Baseline JSON file committed so regressions can be detected in U1 through U14"
+      ],
+      "exit_conditions": [
+        "npx vitest bench src/__tests__/_benchmarks/MillMasterAIWiringBaseline.bench.ts completes",
+        "data/benchmarks/mill-master-ai-wiring-baseline.json has 13 entries with p50/p95/schema fields"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U1-SPIKE-MMI",
+      "title": "Spike: wire MillingMachineIntelligenceEngine to TreeOfThought + HypothesisRanker + PRISMSelfAwareness + AIDecisionExplanation, with hard spike gate",
+      "depends_on": ["U0.5-API-AUDIT-PIN", "U0-BASELINE"],
+      "blocks": ["U2-EXTRACT-HELPER"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillingMachineIntelligenceEngine.ts",
+        "src/__tests__/MillingMachineIntelligenceEngine.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "useAI?: 'off'|'auto'|'on' parameter on the 3 methods that have bespoke chain-of-thought or similarity scoring",
+        "useAI=on delegates chain-of-thought to treeOfThoughtEngine.explore(rootQuery, depth=3, branches=4)",
+        "useAI=on scores machine candidates via hypothesisRankerEngine (createSet -> addHypothesis for each machine -> addEvidence from context -> rankHypotheses)",
+        "Explanation strings built from aiDecisionExplanationEngine (API pinned in U0.5)",
+        "Capability inventory reads via prismSelfAwarenessEngine.getManifest()",
+        "useAI=off path passes a snapshot test against a captured pre-wiring fixture",
+        "useAI=on path asserts structured reasoning chain with branch_count >= 2 and at least 1 cited evidence item",
+        "Per-method p95 latency assertion: useAI=off <= 50ms, useAI=on <= 500ms"
+      ],
+      "exit_conditions": [
+        "npx vitest run src/__tests__/MillingMachineIntelligenceEngine.test.ts is green",
+        "ALL useAI=off assertions are snapshot-identical to the U0 baseline",
+        "useAI=on tests produce a reasoning chain object (not a string)",
+        "No regression in any previously-passing mill test"
+      ],
+      "spike_gate": "If by end of session the useAI=on path cannot invoke treeOfThoughtEngine or hypothesisRankerEngine with a non-synthetic payload, halt U2 and re-plan. The gate is HARD — no partial progression into U2.",
+      "estimated_minutes": 90
+    },
+    {
+      "id": "U2-EXTRACT-HELPER",
+      "title": "Extract U1 wiring pattern into src/engines/MillAIWiring.ts (single-file helper; no _shared subdirectory — follows flat repo convention)",
+      "depends_on": ["U1-SPIKE-MMI"],
+      "blocks": ["U3-5AX-ULTRA", "U4-5AX-ORCH", "U5-SWISS", "U6-HARDENING", "U7-DEEPLEARN-RETROFIT", "U8-COMPNEURAL-RETROFIT", "U9-PROGPAT-RETROFIT", "U10-AIINT-RETROFIT", "U11-HEADINT-RETROFIT", "U12-SYNTH-RETROFIT", "U13-DECISION-RETROFIT", "U14-NEURAL-RETROFIT"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillAIWiring.ts (NEW)",
+        "src/engines/MillingMachineIntelligenceEngine.ts (refactor to use the helper — no behavior change)",
+        "src/__tests__/MillAIWiring.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "withPRISMReasoning({question, context, budget}): delegates to treeOfThoughtEngine.explore + wraps with aiDecisionExplanationEngine",
+        "rankCandidatesBayesian({candidates, priors, evidence}): wraps hypothesisRankerEngine lifecycle (create/add/add/rank)",
+        "recordCapabilityUsage({capabilityId, engine, method, durationMs, success}): thin adapter over capabilityEffectivenessEngine.recordUsage",
+        "budgetedAIPath({useAI, budgetMs, legacyFn, aiFn, context}): central auto-downgrade logic with cognitiveBudgetAllocatorEngine",
+        "Every helper function < 60 lines, full file < 250 lines",
+        "Unit tests exercise each helper with real PRISM engine delegation (no mocks)",
+        "MillingMachineIntelligenceEngine refactored to use the helpers — U1 test suite re-run must stay green"
+      ],
+      "exit_conditions": [
+        "MillAIWiring.test.ts green (>= 15 assertions)",
+        "MillingMachineIntelligenceEngine.test.ts from U1 still green after refactor",
+        "tsc --noEmit produces zero NEW errors in MillAIWiring.ts or MillingMachineIntelligenceEngine.ts"
+      ],
+      "estimated_minutes": 60
+    },
+    {
+      "id": "U3-5AX-ULTRA",
+      "title": "Retrofit FiveAxisAIUltraIntelligenceEngine onto MetaAIOrchestration + DeepAIIntelligence + NeuralIntegration + PRISMCreativeReasoning via the U2 helper",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/FiveAxisAIUltraIntelligenceEngine.ts",
+        "src/__tests__/FiveAxisAIUltraIntelligenceEngine.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "Replace bespoke 'ultra intelligence' chain with a pipeline: prismCreativeReasoningEngine.explore -> deepAIIntelligenceEngine.deepReason -> metaAIOrchestrationEngine.evaluateReasoning",
+        "NeuralIntegrationEngine.route() used for downstream engine routing",
+        "3 reasoning modes exercised in tests: conventional / exploratory / innovative",
+        "Tests: happy path + 3 failure modes (empty query, oversize context, invalid mode) + 2 adversarial (NaN confidence threshold, infinite depth request)"
+      ],
+      "exit_conditions": [
+        "npx vitest run src/__tests__/FiveAxisAIUltraIntelligenceEngine.test.ts is green (>= 20 assertions)",
+        "p95 latency assertions honored per global_contracts.latency_budgets_ms"
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "id": "U4-5AX-ORCH",
+      "title": "Wire FiveAxisOrchestrationEngine onto PRISMUnifiedOrchestrator + AgenticLoop + CognitiveBudgetAllocator via the U2 helper",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/FiveAxisOrchestrationEngine.ts",
+        "src/__tests__/FiveAxisOrchestrationEngine.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "Static catalog routing replaced by prismUnifiedOrchestratorEngine.routeToTier()",
+        "cognitiveBudgetAllocatorEngine.allocate() caps reasoning depth per call",
+        "agenticLoopEngine supervises up to 3 iterative refinement rounds",
+        "Exit when confidence >= 0.85 OR rounds == 3"
+      ],
+      "exit_conditions": ["Test suite green with budget-overrun test case producing legacy fallback"],
+      "estimated_minutes": 75
+    },
+    {
+      "id": "U5-SWISS",
+      "title": "Wire MillTurnSwissPipelineEngine to BayesianToolLife + PRISMCreativeReasoning + CrossDisciplinaryDeepLearning",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillTurnSwissPipelineEngine.ts",
+        "src/__tests__/MillTurnSwissPipelineEngine.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "Deterministic Taylor tool-life calc replaced (useAI=on) by bayesianToolLifeEngine.predict with uncertainty bounds",
+        "Swiss deflection calc augmented with crossDisciplinaryDeepLearningEngine for cross-domain stiffness-deflection coupling",
+        "Hybrid-strategy synthesis via prismCreativeReasoningEngine.explore when guide-bushing and sub-spindle conflict"
+      ],
+      "exit_conditions": ["Tests cover >=3 materials and the bayesian prediction variance is bounded and finite"],
+      "estimated_minutes": 75
+    },
+    {
+      "id": "U6-HARDENING",
+      "title": "Wire MillingDeepAIHardeningEngine to CounterfactualReasoning + HypothesisPrioritizer + AdvancedStatisticalLearning + SelfImprovementPattern",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillingDeepAIHardeningEngine.ts",
+        "src/__tests__/MillingDeepAIHardeningEngine.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "Counterfactual what-if scenarios (counterfactualReasoningEngine.generateCounterfactual) for each adversarial input",
+        "Failure modes prioritized by hypothesisPrioritizerEngine.prioritize (Bayesian likelihood)",
+        "Distribution-shift detection via advancedStatisticalLearningEngine",
+        "Close-loop: when a hardening rule fires >= 3 times, record pattern via selfImprovementPatternEngine"
+      ],
+      "exit_conditions": ["Counterfactual test case produces a distinct scenario vs the nominal input"],
+      "estimated_minutes": 75
+    },
+    {
+      "id": "U7-DEEPLEARN-RETROFIT",
+      "title": "Retrofit MillDeepLearningEngine.deepReason to use MillAIWiring.withPRISMReasoning (TreeOfThought + HypothesisRanker)",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillDeepLearningEngine.ts",
+        "src/__tests__/MillDeepLearningEngine.test.ts (EXTEND — add AI-path tests alongside existing 19)"
+      ],
+      "exit_conditions": ["Existing 19 tests remain green; >= 6 new AI-path assertions pass"],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U8-COMPNEURAL-RETROFIT",
+      "title": "Retrofit MillComprehensiveNeuralEngine.deepReason to use MillAIWiring.withPRISMReasoning",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillComprehensiveNeuralEngine.ts",
+        "src/__tests__/MillComprehensiveNeuralEngine.test.ts (EXTEND)"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U9-PROGPAT-RETROFIT",
+      "title": "Wire MillingProgramPatternEngine pattern extraction to CrossDisciplinaryFormulaIntegration + PersistentMemory",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillingProgramPatternEngine.ts",
+        "src/__tests__/MillingProgramPatternEngine.test.ts (EXTEND)"
+      ],
+      "deliverables": [
+        "Learned patterns persist across sessions via persistentMemoryEngine.save/load",
+        "Parameter recommendations sourced from crossDisciplinaryFormulaIntegrationEngine constants when available"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U10-AIINT-RETROFIT",
+      "title": "Swap MillingAIIntegrationEngine.parseNaturalLanguageQuery for aiExtractionReasoner.reason; replace cosine similarity with prismNeuralKnowledgeSynthesisEngine.synthesize",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillingAIIntegrationEngine.ts",
+        "src/__tests__/MillingAIIntegrationEngine.test.ts (EXTEND)"
+      ],
+      "estimated_minutes": 60
+    },
+    {
+      "id": "U11-HEADINT-RETROFIT",
+      "title": "Wire MillingHeadIntelligenceEngine.recommendMillingHead to hypothesisRankerEngine + aiDecisionExplanationEngine",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillingHeadIntelligenceEngine.ts",
+        "src/__tests__/MillingHeadIntelligenceEngine.test.ts (EXTEND)"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U12-SYNTH-RETROFIT",
+      "title": "Replace FiveAxisToolpathSynthesisEngine.scoreStrategies hand-tuned weights with bayesianOptimizationEngine (GP-BO over historical outcomes)",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/FiveAxisToolpathSynthesisEngine.ts",
+        "src/__tests__/FiveAxisToolpathSynthesisEngine.test.ts (EXTEND)"
+      ],
+      "deliverables": [
+        "useAI=on path uses bayesianOptimizationEngine.minimize over a strategy loss function",
+        "Handpicked 0.30/0.25/0.15/0.15/0.15/0.05 weights retained for useAI=off"
+      ],
+      "estimated_minutes": 60
+    },
+    {
+      "id": "U13-DECISION-RETROFIT",
+      "title": "Wire FiveAxisDecisionEngine to deepAIIntelligenceEngine + treeOfThoughtEngine for multi-path deliberation",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/FiveAxisDecisionEngine.ts",
+        "src/__tests__/FiveAxisDecisionEngine.test.ts (EXTEND — add AI-path tests to the existing 56)"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U14-NEURAL-RETROFIT",
+      "title": "Register MillNeuralNetworkEngine as a feature provider with neuralIntegrationEngine",
+      "depends_on": ["U2-EXTRACT-HELPER"],
+      "blocks": ["U15-MXU-TELEMETRY"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillNeuralNetworkEngine.ts",
+        "src/__tests__/MillNeuralNetworkEngine.test.ts (EXTEND)"
+      ],
+      "deliverables": [
+        "MillNeuralNetworkEngine exposes an encode/predict pair consumable by neuralIntegrationEngine.route",
+        "Test: route() can reach the mill neural net via a mill-domain query"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U15-MXU-TELEMETRY",
+      "title": "Wire CapabilityEffectivenessEngine.recordUsage into the MillAIWiring helper so every AI-path invocation is tracked; verify CapabilityCensusEngine auto-discovers the wired engines",
+      "depends_on": ["U3-5AX-ULTRA", "U4-5AX-ORCH", "U5-SWISS", "U6-HARDENING", "U7-DEEPLEARN-RETROFIT", "U8-COMPNEURAL-RETROFIT", "U9-PROGPAT-RETROFIT", "U10-AIINT-RETROFIT", "U11-HEADINT-RETROFIT", "U12-SYNTH-RETROFIT", "U13-DECISION-RETROFIT", "U14-NEURAL-RETROFIT"],
+      "blocks": ["U16-DISPATCHER-E2E"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/engines/MillAIWiring.ts (extend — add default effectiveness recording to budgetedAIPath)",
+        "src/__tests__/MillMasterAIWiringMXU.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "Every AI-path invocation through the helper calls capabilityEffectivenessEngine.recordUsage",
+        "capabilityCensusEngine.runLiveCensus (filesystem scan) picks up all 13 wired engines in a fresh run",
+        "E2E test: run live census -> filter mill engines -> invoke via dispatcher -> verify recordUsage side-effect"
+      ],
+      "estimated_minutes": 45
+    },
+    {
+      "id": "U16-DISPATCHER-E2E",
+      "title": "Add mill_prism_reason dispatcher action and end-to-end integration test (distinct from existing mill_agi_reason)",
+      "depends_on": ["U15-MXU-TELEMETRY"],
+      "blocks": ["U17-DOCS"],
+      "status": "not_started",
+      "files_to_modify": [
+        "src/tools/dispatchers/millDispatcher.ts (add mill_prism_reason case + lazy loader for MillAIWiring)",
+        "src/schemas/millActionSchemas.ts (add mill_prism_reason schema + register in MILL_ACTION_SCHEMAS)",
+        "src/__tests__/MillMasterAIWiringE2E.test.ts (NEW)"
+      ],
+      "deliverables": [
+        "mill_prism_reason action routes to MillAIWiring.withPRISMReasoning",
+        "Zod schema: { op: enum(['reason','rank','explain','budget']), question?, context?, candidates?, budget_ms? }",
+        "Round-trip safeParse test on the schema",
+        "E2E test: invoke through dispatcher -> PRISM AI path -> assert structured reasoning chain",
+        "Action count in the dispatcher increased by exactly 1 (anti-regression)"
+      ],
+      "exit_conditions": ["Dispatcher anti-regression check passes (ACTIONS.length +1)"],
+      "estimated_minutes": 60
+    },
+    {
+      "id": "U17-DOCS",
+      "title": "Documentation sweep — ENGINE_DIGEST, MASTER_INDEX, CLAUDE.md, and a CHANGELOG entry",
+      "depends_on": ["U16-DISPATCHER-E2E"],
+      "blocks": [],
+      "status": "not_started",
+      "files_to_modify": [
+        "data/docs/ENGINE_DIGEST.md (append MillAIWiring entry)",
+        "MASTER_INDEX_COMPACT.md (reflect new mill_prism_reason action + MillAIWiring helper)",
+        "CLAUDE.md (note that mill engines now prefer PRISM AI stack via useAI flag)",
+        "data/docs/CHANGELOG-MILL-MASTER-AI-WIRING.md (NEW)",
+        "data/docs/runbooks/MILL-AI-WIRING-RUNBOOK.md (NEW — operational runbook)",
+        "data/docs/migration/MILL-AI-WIRING-MIGRATION.md (NEW — downstream caller guide)"
+      ],
+      "deliverables": [
+        "ENGINE_DIGEST entry for MillAIWiring.ts with one-line per exported helper",
+        "MASTER_INDEX entry for mill_prism_reason action",
+        "CLAUDE.md paragraph explaining the useAI=off/auto/on contract and when to prefer each",
+        "CHANGELOG lists: new action, helper file, 13 wired engines, 18 units, baseline benchmark file",
+        "Runbook covers: how to observe trace events, how to tune latency budgets, how to interpret capabilityEffectivenessEngine.generateReport, how to roll back a single unit, how to investigate a silent-failure trace event",
+        "Migration guide covers: downstream caller impact (none — additive API), how to opt into useAI=on, example refactor showing old-vs-new call sites, deprecation policy (none — bespoke APIs remain callable)"
+      ],
+      "exit_conditions": [
+        "Grep for 'MillAIWiring' in doc files returns >= 5 hits",
+        "Runbook has >= 5 numbered operational scenarios",
+        "Migration guide has >= 3 before/after code examples",
+        "All 18 units referenced by id in the CHANGELOG"
+      ],
+      "estimated_minutes": 45
+    }
+  ],
+  "exit_gate": {
+    "tests_passing_delta": ">= 180 new assertions across 9 new test files + 7 extended test files",
+    "engines_wired": 13,
+    "bespoke_AI_surfaces_eliminated": [
+      "MillingMachineIntelligenceEngine chain-of-thought scorer",
+      "MillingMachineIntelligenceEngine machine similarity (hand-weighted)",
+      "MillDeepLearningEngine.deepReason",
+      "MillComprehensiveNeuralEngine.deepReason",
+      "MillingProgramPatternEngine pattern extraction (session-only, no cross-session memory)",
+      "MillingAIIntegrationEngine.parseNaturalLanguageQuery",
+      "MillingHeadIntelligenceEngine.recommendMillingHead",
+      "FiveAxisToolpathSynthesisEngine.scoreStrategies (hand-tuned weights)",
+      "FiveAxisDecisionEngine bespoke decision logic",
+      "FiveAxisAIUltraIntelligenceEngine bespoke 'ultra intelligence' chain",
+      "FiveAxisOrchestrationEngine static catalog routing",
+      "MillTurnSwissPipelineEngine deterministic-only tool life",
+      "MillingDeepAIHardeningEngine rule-list approach"
+    ],
+    "mxu_telemetry_hooked": true,
+    "dispatcher_actions_added": 1,
+    "dispatcher_actions_renamed_or_removed": 0,
+    "performance": {
+      "useAI_off_p95_regression_tolerance_ms": 5,
+      "useAI_on_p95_ceiling_ms": 500,
+      "useAI_on_hard_ceiling_ms": 2000
+    },
+    "regression_tolerance": "zero — legacy path preserved behind useAI=off, snapshot-tested against U0 baselines",
+    "documentation_updated": true
+  },
+  "out_of_scope": [
+    "The ~55 remaining mill engines without bespoke AI surfaces (they have no reasoning or similarity code to replace)",
+    "Web UI changes (MXU dashboard already ingests census + effectiveness output automatically)",
+    "Physics constants changes (reuse src/physics/constants.ts as-is)",
+    "Retrofitting non-mill engines (lathe, EDM, waterjet) — those have their own AI-wiring milestones if/when scheduled",
+    "LLM-call integrations (this milestone wires only to classical PRISM reasoning engines, which are pure TypeScript)"
+  ],
+  "risk_register": [
+    { "risk": "PRISM AI engine APIs change during rollout", "severity": "medium", "mitigation": "All external calls go through MillAIWiring.ts — a single-file signature boundary." },
+    { "risk": "useAI=on path exceeds latency budget in production", "severity": "medium", "mitigation": "useAI=auto default downgrades via cognitiveBudgetAllocatorEngine; explicit p95 assertions in every test." },
+    { "risk": "Concurrent agent edits to target files", "severity": "low", "mitigation": "Claim protocol in global_contracts; every unit starts with a coordination claim." },
+    { "risk": "Test-legitimacy gate rejects new tests", "severity": "low", "mitigation": "Test rules pre-listed in global_contracts.test_legitimacy_rules; write tests to the rules from line 1." },
+    { "risk": "tsc --noEmit produces cascading errors from pre-existing unrelated issues", "severity": "low", "mitigation": "Only new/modified file diagnostics count for exit gate. Pre-existing tsc errors on unrelated files (turningDispatcher, atomicLockedWrite, etc.) are out of scope per the MILL-MASTER P4 pattern." },
+    { "risk": "CapabilityCensusEngine filesystem scan doesn't pick up a wired engine", "severity": "low", "mitigation": "U15 E2E test explicitly runs runLiveCensus and asserts the wired engines appear." },
+    { "risk": "PRISM AI engine silent failure (returns syntactically valid but semantically wrong output)", "severity": "medium", "mitigation": "Every AI-path test includes a sanity invariant (e.g., branch_count > 0, hypothesis_count == candidates.length, confidence in [0,1]). A violation triggers fallback_to_legacy and emits trace event with error_class. selfImprovementPatternEngine records repeated violations so we catch AI regressions across sessions." },
+    { "risk": "Snapshot test against U0 baseline drifts silently due to env differences", "severity": "low", "mitigation": "U0 baseline captures schema only (not values) for non-deterministic fields. Deterministic fields use exact-equality snapshots. Snapshot file committed to repo under data/benchmarks/." },
+    { "risk": "New mill_prism_reason action collides with a future reserved action name", "severity": "low", "mitigation": "Action registered in MILL_ACTION_SCHEMAS registry; dispatcher action-count anti-regression check enforces uniqueness on commit." }
+  ],
+  "post_milestone_followups": {
+    "suggested_next_milestone": "MILL-MASTER-AI-WIRING-V3: extend pattern to the remaining ~55 mill engines AFTER U0-style audit confirms which have bespoke AI surfaces.",
+    "telemetry_review_cadence": "Weekly for first month — review capabilityEffectivenessEngine.generateReport() output; tune latency budgets if useAI=auto downgrade rate exceeds 15%.",
+    "regression_watch": "selfImprovementPatternEngine output checked each session for patterns tagged mill_ai_wiring. Three consecutive reports surface as an issue."
+  }
+}
