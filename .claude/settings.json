@@ -271,6 +271,16 @@
             "continueOnError": true
           }
         ]
+      },
+      {
+        "matcher": "mcp__prism__prism_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-recommendation-capture.mjs",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "Stop": [
