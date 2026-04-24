@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF25 stub — real engine never existed; millDispatcher pulls it lazily via dynamic import
 /**
  * ToolSelectionRecommenderEngine — stub (U-EFF25).
  *

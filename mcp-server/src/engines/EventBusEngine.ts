@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF25 stub — real engine never existed on any branch; consumed via dynamic import with try/catch fallback in infraDispatcher
 /**
  * EventBusEngine — in-memory event bus stub (U-EFF25).
  *

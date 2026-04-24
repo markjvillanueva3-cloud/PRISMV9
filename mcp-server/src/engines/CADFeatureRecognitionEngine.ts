@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF25 stub — real engine never existed; routes/milling.ts imports it with try/catch fallback, no dispatcher action needed
 /**
  * CADFeatureRecognitionEngine — stub (U-EFF25).
  *
