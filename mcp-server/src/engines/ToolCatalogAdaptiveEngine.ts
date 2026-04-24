@@ -128,7 +128,7 @@ export class ToolCatalogAdaptiveEngine {
       catalogsConsulted.add(tool.source_catalog);
 
       // Get base recommendation from catalog
-      const baseRec = toolCatalogEngine.recommendTool({
+      const baseRec = toolCatalogEngine.recommend({
         diameter_mm: tool.cutting_diameter_mm,
         operation: params.operation ?? "general",
         material: params.material,

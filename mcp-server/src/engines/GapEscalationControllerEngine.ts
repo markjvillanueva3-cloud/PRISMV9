@@ -123,7 +123,7 @@ export class GapEscalationControllerEngine {
     query: string,
     context?: Record<string, unknown>
   ): EscalationDecision {
-    const gapAnalysis = prismSelfAwarenessEngine.analyzeGap(query);
+    const gapAnalysis = prismSelfAwarenessEngine.analyzeGaps(query);
     const decision = this.makeDecision(gapAnalysis);
 
     // Log gap if not proceeding normally
