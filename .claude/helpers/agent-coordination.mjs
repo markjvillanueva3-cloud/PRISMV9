@@ -12,7 +12,33 @@ const FILES = {
   statusJson: "H:\\prism\\state\\shared\\AGENT_COORDINATION_STATUS.json",
   statusMarkdown: "H:\\prism\\state\\shared\\AGENT_COORDINATION_STATUS.md",
   cursorRoot: "H:\\prism\\state\\shared\\agent-coordination\\cursors",
+  coordinationLedger: "H:\\prism\\state\\shared\\COORDINATION_LEDGER.jsonl",
 };
+
+let _coordEventCounter = 0;
+
+// Emit a single coordination event to the shared ledger JSONL. Feeds
+// CoordinationLedgerEngine via the prism_session dispatcher's
+// coordination_* actions. Best-effort — never throws up to the caller.
+async function emitCoordinationEvent(agent, kind, target, payload) {
+  if (!agent || !kind || !target) return;
+  _coordEventCounter += 1;
+  const at = Date.now();
+  const event = {
+    id: `evt-${at}-${process.pid}-${_coordEventCounter}`,
+    agent,
+    kind,
+    target,
+    at,
+    ...(payload ? { payload } : {}),
+  };
+  try {
+    await ensureParent(FILES.coordinationLedger);
+    await fs.appendFile(FILES.coordinationLedger, `${JSON.stringify(event)}\n`, "utf8");
+  } catch {
+    // Coordination events are advisory — emit failures never block the caller
+  }
+}
 
 function parseArgs(argv) {
   const parsed = { _: [] };
@@ -524,6 +550,22 @@ async function postCommand(parsedArgs) {
   const nextEntries = [...chatEntries, entry].slice(-200);
   const nextBoard = updateWorkboard(workboard, entry);
   await writeArtifacts(nextEntries, nextBoard);
+
+  // Emit coordination ledger events so CoordinationLedgerEngine can detect
+  // cross-agent claim conflicts. `note` always fires; structured current/next
+  // produce `claim` events against the named work target.
+  const agent = identity.instance;
+  await emitCoordinationEvent(agent, "note", "chat", {
+    message: entry.message_plain ?? entry.message ?? rawMessage,
+    status: structured.status ?? null,
+    lane: structured.lane ?? null,
+  });
+  if (structured.current) {
+    await emitCoordinationEvent(agent, "claim", structured.current, { lane: structured.lane ?? null });
+  }
+  for (const done of structured.completed) {
+    if (done) await emitCoordinationEvent(agent, "release", done, {});
+  }
 
   process.stdout.write(
     JSON.stringify({

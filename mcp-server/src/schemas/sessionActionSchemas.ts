@@ -332,6 +332,46 @@ const tool_route_best = z.object({
   query: optStr,
   q: optStr,
 }).passthrough();
+// ============================================================================
+// COORDINATION LEDGER (4 actions) — CoordinationLedgerEngine bridge
+// ============================================================================
+
+/** coordination_record — Append a coordination event to the shared ledger JSONL */
+const coordination_record = z.object({
+  agent: z.string().min(1).describe("Agent/instance id recording the event"),
+  kind: z.enum([
+    "claim",
+    "release",
+    "edit_start",
+    "edit_end",
+    "handoff",
+    "note",
+    "conflict_detected",
+  ]).describe("Event kind"),
+  target: z.string().min(1).describe("Target resource (file path, milestone id, etc.)"),
+  payload: z.record(z.string(), z.any()).optional().describe("Optional structured payload"),
+  at: z.union([z.string(), z.number()]).optional().describe("Epoch ms; defaults to now"),
+  ledger_path: optStr.describe("Override ledger JSONL path (default: state/shared/COORDINATION_LEDGER.jsonl)"),
+}).passthrough();
+
+/** coordination_detect_conflicts — Hydrate ledger from JSONL and return overlapping claims */
+const coordination_detect_conflicts = z.object({
+  window_ms: z.union([z.string(), z.number()]).optional().describe("Conflict window in ms (default 30000)"),
+  ledger_path: optStr.describe("Override ledger JSONL path"),
+}).passthrough();
+
+/** coordination_recent — Events at or after a timestamp */
+const coordination_recent = z.object({
+  since: z.union([z.string(), z.number()]).optional().describe("Epoch ms threshold (default: now - 1h)"),
+  agent: optStr.describe("Filter by agent id"),
+  target: optStr.describe("Filter by target"),
+  ledger_path: optStr.describe("Override ledger JSONL path"),
+}).passthrough();
+
+/** coordination_count — Total events in the ledger */
+const coordination_count = z.object({
+  ledger_path: optStr.describe("Override ledger JSONL path"),
+}).passthrough();
 
 // ============================================================================
 // EXPORT MAP
