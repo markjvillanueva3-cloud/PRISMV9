@@ -17,7 +17,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(ORPHAN_REPORT)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -25,7 +25,7 @@ async function main() {
     const age = Date.now() - (data.timestamp || 0);
 
     if (age > 14400000) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -33,16 +33,15 @@ async function main() {
       .filter(o => o.type === "skill");
 
     if (orphanSkills.length > 0) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${orphanSkills.length} skills without hook anchors: ${orphanSkills.slice(0, 3).map(o => o.name).join(", ")}`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${orphanSkills.length} skills without hook anchors: ${orphanSkills.slice(0, 3).map(o => o.name).join(", ")}`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));

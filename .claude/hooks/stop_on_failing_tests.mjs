@@ -15,7 +15,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(TEST_REPORT)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -26,16 +26,15 @@ async function main() {
 
     // Only warn if test run was within last 2 hours
     if (age < 7200000 && failing > 0) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${failing} tests failing. Run \`npx vitest run\` before exit.`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${failing} tests failing. Run \`npx vitest run\` before exit.`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));

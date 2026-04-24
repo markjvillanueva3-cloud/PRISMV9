@@ -15,7 +15,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(COVERAGE_INDEX)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -28,16 +28,15 @@ async function main() {
       });
 
     if (uncovered.length > 0) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${uncovered.length} recent engines without tests: ${uncovered.slice(0, 3).map(e => e.name || e).join(", ")}`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${uncovered.length} recent engines without tests: ${uncovered.slice(0, 3).map(e => e.name || e).join(", ")}`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));

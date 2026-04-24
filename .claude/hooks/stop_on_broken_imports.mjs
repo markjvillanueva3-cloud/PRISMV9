@@ -43,7 +43,7 @@ async function main() {
     }
 
     if (recentFiles.length === 0) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -93,17 +93,16 @@ async function main() {
         .map(b => `${path.basename(b.file)}→${b.import}`)
         .join(", ");
 
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${broken.length} broken import(s): ${summary}${broken.length > 5 ? "..." : ""}`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${broken.length} broken import(s): ${summary}${broken.length > 5 ? "..." : ""}`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch (err) {
     // Don't block on errors
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));
