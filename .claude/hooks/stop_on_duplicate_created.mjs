@@ -14,7 +14,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(DEDUP_LOG)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -23,16 +23,15 @@ async function main() {
       .filter(v => Date.now() - (v.timestamp || 0) < 86400000);
 
     if (sessionViolations.length > 0) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${sessionViolations.length} duplicate assets created: ${sessionViolations.slice(0, 3).map(v => v.name).join(", ")}`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${sessionViolations.length} duplicate assets created: ${sessionViolations.slice(0, 3).map(v => v.name).join(", ")}`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));

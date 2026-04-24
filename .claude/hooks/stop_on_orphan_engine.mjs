@@ -15,7 +15,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(ORPHAN_REPORT)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -24,7 +24,7 @@ async function main() {
 
     // Only warn if report is fresh (<4h)
     if (age > 14400000) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -32,16 +32,15 @@ async function main() {
       .filter(o => o.type === "engine" && o.severity === "high");
 
     if (orphanEngines.length > 0) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${orphanEngines.length} orphan engines need wiring: ${orphanEngines.slice(0, 3).map(o => o.name).join(", ")}`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${orphanEngines.length} orphan engines need wiring: ${orphanEngines.slice(0, 3).map(o => o.name).join(", ")}`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));
