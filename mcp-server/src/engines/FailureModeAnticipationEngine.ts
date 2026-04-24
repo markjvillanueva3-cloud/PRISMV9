@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF30 only added optional field aliases (failureMode/physicsRationale/mitigation) to the FailurePrediction interface; engine is consumed by AdaptiveSystemIntegrationEngine, not directly dispatched.
 /**
  * FailureModeAnticipationEngine — Predictive Failure Analysis
  *
@@ -70,6 +71,12 @@ export interface FailurePrediction {
   recommendedAction: string;
   urgency: "none" | "low" | "medium" | "high" | "immediate";
   costIfOccurs: number; // $ estimated
+  /** Alias for `mode` used by integration layers (AdaptiveSystemIntegrationEngine). */
+  failureMode?: FailureMode;
+  /** Short physics-based explanation of why this mode was predicted. Optional — populated when available. */
+  physicsRationale?: string;
+  /** Alias for `recommendedAction` used by integration layers. */
+  mitigation?: string;
 }
 
 export interface FailureRiskProfile {

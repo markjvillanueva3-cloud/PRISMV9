@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF33 only normalised Dirent.name (Buffer|string → string) in the scanner loop; engine is a resource indexer consumed by hyperMILL extraction pipelines, not directly dispatched.
 /**
  * HyperMillResourceIndexEngine — hyperMILL 73K File Resource Index
  *

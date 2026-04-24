@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF32 only converted two facade methods (analyzeCapabilityGap/shouldAIProceed) to async to match the now-async GapEscalationControllerEngine; engine is a super-orchestrator consumed by higher layers, not directly dispatched.
 /**
  * MachiningIntelligenceOrchestratorEngine.ts
  *
