@@ -192,12 +192,14 @@ export class HyperMillResourceIndexEngine {
     }
 
     for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name);
+      // Normalise Dirent.name once so downstream string ops type-check.
+      const name = String(entry.name);
+      const fullPath = path.join(dirPath, name);
 
       if (entry.isDirectory()) {
         await this.scanTree(fullPath, rootPath, categoryName, byExtension, byCategory, directories, versions, depth + 1);
       } else if (entry.isFile()) {
-        const ext = path.extname(entry.name).toLowerCase();
+        const ext = path.extname(name).toLowerCase();
         extCounts[ext] = (extCounts[ext] ?? 0) + 1;
         byExtension[ext] = (byExtension[ext] ?? 0) + 1;
         byCategory[categoryName] = (byCategory[categoryName] ?? 0) + 1;
