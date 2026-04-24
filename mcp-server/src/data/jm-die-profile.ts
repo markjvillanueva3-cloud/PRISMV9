@@ -188,10 +188,25 @@ export interface MachineControllerPair {
  * Where shared controller assets (post-processor files, macro libraries,
  * cycle catalogs) live on disk. Populated as the ingest pipeline maps them.
  */
+/**
+ * Canonical JM Die identity record. The shop ID matches
+ * `ShopConfigurationEngine.DEFAULT_PROFILE_ID` so seed/summary code
+ * can reference both interchangeably.
+ */
+export const JM_DIE_COMPANY = {
+  id: "jm-die",
+  name: "JM Die Company",
+  industry: "Cold-heading dies & tooling (fastener industry)",
+  location: "Machesney Park, IL",
+} as const;
+
 export const JM_DIE_SOURCE_ROOTS = {
   controllers_root: "H:\\PRISM\\JM DIE\\CONTROLLERS",
   posts_root: "H:\\PRISM\\JM DIE\\POSTS",
   macros_root: "H:\\PRISM\\JM DIE\\MACROS",
+  tool_holders_root: "H:\\PRISM\\JM DIE\\TOOL HOLDERS",
+  tooling_root: "H:\\PRISM\\JM DIE\\TOOLING",
+  materials_root: "H:\\PRISM\\JM DIE\\MATERIALS",
 } as const;
 
 /**

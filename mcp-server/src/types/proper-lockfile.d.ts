@@ -2,7 +2,15 @@ declare module 'proper-lockfile' {
   interface LockOptions {
     stale?: number;
     update?: number;
-    retries?: number | { retries?: number; minTimeout?: number; maxTimeout?: number };
+    retries?: number | {
+      retries?: number;
+      factor?: number;
+      minTimeout?: number;
+      maxTimeout?: number;
+      randomize?: boolean;
+      forever?: boolean;
+      maxRetryTime?: number;
+    };
     realpath?: boolean;
     fs?: any;
     onCompromised?: (err: Error) => void;

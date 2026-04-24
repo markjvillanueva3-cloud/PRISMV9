@@ -40,6 +40,9 @@ export const SERVER_NAME = "prism-mcp-server";
 export const SERVER_VERSION = "2.10.0";
 export const SERVER_DESCRIPTION = "PRISM Manufacturing Intelligence - source-run MCP development surfaces";
 
+/** Maximum characters for a single MCP tool text response — long replies are truncated to keep transport payloads bounded. */
+export const CHARACTER_LIMIT = 25_000;
+
 export const PATHS = {
   PRISM_ROOT,
   MCP_SERVER,
