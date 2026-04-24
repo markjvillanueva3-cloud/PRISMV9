@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "lastUpdated": "2026-04-24T18:02:33Z",
+  "lastUpdated": "2026-04-24T18:11:20Z",
   "description": "Tracks completed extractions to prevent duplicate work across sessions",
   "extractions": [
     {
@@ -159,6 +159,54 @@
       "knowledgePath": "H:/prism/cad-engine/knowledge_store/doc-hypermill-en-vol3.json",
       "timestamp": "2026-04-24T18:02:33Z",
       "unit": "U-CAM59",
+      "milestone": "CAM-EXHAUST-MS0",
+      "status": "completed"
+    },
+    {
+      "id": "doc-hypermill-virtual-mc",
+      "name": "hyperMILL VIRTUAL Machining Center Manual v33.0",
+      "source": "H:/prism/resources/OPEN MIND/doc/33.0/PDF/VIRTUAL Machining Center/VIRTUAL_Machining_Center_Manual-en-US.pdf",
+      "type": "pdf",
+      "description": "74 unique tribal tips covering virtual machining setup, simulation, post-processor verification, and machine kinematics validation",
+      "tipsGenerated": 74,
+      "pageCount": 51,
+      "chunks": 7,
+      "extractor": "ollama:qwen2.5-coder:7b",
+      "knowledgePath": "H:/prism/cad-engine/knowledge_store/doc-hypermill-virtual-mc.json",
+      "timestamp": "2026-04-24T18:06:05Z",
+      "unit": "U-CAM61",
+      "milestone": "CAM-EXHAUST-MS0",
+      "status": "completed"
+    },
+    {
+      "id": "doc-hypermill-sql-tool-db",
+      "name": "hyperMILL SQL Tool Database Manual v33.0",
+      "source": "H:/prism/resources/OPEN MIND/doc/33.0/PDF/SQL Tool Database/SQL_Tool_Database_Manual-en-US.pdf",
+      "type": "pdf",
+      "description": "0 tips \u2014 content is pure DBA setup walkthrough (SQL Server install, login admin, click Execute). No extractable manufacturing knowledge per omit-UI-clicks rule. Marked completed to prevent re-extraction.",
+      "tipsGenerated": 0,
+      "pageCount": 15,
+      "chunks": 1,
+      "extractor": "ollama:qwen2.5-coder:7b",
+      "knowledgePath": "H:/prism/cad-engine/knowledge_store/doc-hypermill-sql-tool-db.json",
+      "timestamp": "2026-04-24T18:06:05Z",
+      "unit": "U-CAM60",
+      "milestone": "CAM-EXHAUST-MS0",
+      "status": "completed_no_content"
+    },
+    {
+      "id": "doc-hypermill-en-vol2",
+      "name": "hyperMILL Manual EN Vol 2 (extended)",
+      "source": "H:/prism/resources/RESOURCE PDFS/hyperMILL_Manual-en-2.pdf",
+      "type": "pdf",
+      "description": "194 unique tribal tips extracted via Ollama qwen2.5-coder:7b",
+      "tipsGenerated": 194,
+      "pageCount": 33,
+      "chunks": 13,
+      "extractor": "ollama:qwen2.5-coder:7b",
+      "knowledgePath": "H:/prism/cad-engine/knowledge_store/doc-hypermill-en-vol2.json",
+      "timestamp": "2026-04-24T18:11:20Z",
+      "unit": "U-CAM69",
       "milestone": "CAM-EXHAUST-MS0",
       "status": "completed"
     }
