@@ -120,10 +120,10 @@ class ThermalPartitionModelImpl implements Algorithm<ThermalPartitionInput, Ther
   calculate(input: ThermalPartitionInput): ThermalPartitionOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Thermal partition validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Thermal partition validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     // Convert cutting speed to m/s
     const Vc_m_s = input.Vc_m_min / 60;
@@ -165,7 +165,7 @@ class ThermalPartitionModelImpl implements Algorithm<ThermalPartitionInput, Ther
     if (pecletNumber < 1) physicsScore -= 0.1; // Low Peclet — conduction important
     if (partitionRatio > 0.9) warnings.push("Most heat goes to chip — good for tool life");
 
-    const rangeScore = validation.warnings.length > 0 ? 0.9 : 1.0;
+    const rangeScore = (validation.warnings ?? []).length > 0 ? 0.9 : 1.0;
     const materialScore = input.chip_diffusivity_mm2s ? 1.0 : 0.85;
     const processScore = 0.95;
 

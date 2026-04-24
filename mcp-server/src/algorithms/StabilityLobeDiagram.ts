@@ -115,10 +115,10 @@ class StabilityLobeDiagramImpl implements Algorithm<StabilityLobeInput, Stabilit
   calculate(input: StabilityLobeInput): StabilityLobeOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Stability validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Stability validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     const N = input.spindle_speed_rpm;
     const z = input.flutes;
@@ -170,7 +170,7 @@ class StabilityLobeDiagramImpl implements Algorithm<StabilityLobeInput, Stabilit
     if (zeta < 0.02) physicsScore -= 0.2; // Very low damping — risky
     if (criticalDepth < 0.5) physicsScore -= 0.1; // Very shallow limit
 
-    const rangeScore = validation.warnings.length > 0 ? 0.9 : 1.0;
+    const rangeScore = (validation.warnings ?? []).length > 0 ? 0.9 : 1.0;
     const materialScore = input.Ks_N_mm2 ? 1.0 : 0.85; // Default Ks
     const processScore = 0.95;
 

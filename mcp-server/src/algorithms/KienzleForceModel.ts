@@ -189,10 +189,10 @@ class KienzleForceModelImpl implements Algorithm<KienzleInput, KienzleOutput> {
   calculate(input: KienzleInput): KienzleOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Kienzle validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Kienzle validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     // Apply corrections from validation
     const h = (validation.corrected?.chip_thickness_mm as number) ?? input.chip_thickness_mm;
@@ -286,7 +286,7 @@ class KienzleForceModelImpl implements Algorithm<KienzleInput, KienzleOutput> {
 
     // Range validity
     let rangeScore = 1.0;
-    if (validation.warnings.length > 0) rangeScore -= 0.1 * validation.warnings.length;
+    if ((validation.warnings ?? []).length > 0) rangeScore -= 0.1 * (validation.warnings ?? []).length;
     rangeScore = Math.max(0, rangeScore);
 
     // Material validity

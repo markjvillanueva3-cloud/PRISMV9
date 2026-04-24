@@ -110,10 +110,10 @@ class ChipThinningCompensationImpl implements Algorithm<ChipThinningInput, ChipT
   calculate(input: ChipThinningInput): ChipThinningOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Chip thinning validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Chip thinning validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     const fz = input.fz_mm;
     const ae = input.ae_mm;
@@ -153,7 +153,7 @@ class ChipThinningCompensationImpl implements Algorithm<ChipThinningInput, ChipT
     let physicsScore = 1.0;
     if (thinningFactor < 0.3) physicsScore -= 0.1; // Very thin chips — rubbing zone
 
-    const rangeScore = validation.warnings.length > 0 ? 0.9 : 1.0;
+    const rangeScore = (validation.warnings ?? []).length > 0 ? 0.9 : 1.0;
     const materialScore = 1.0;
     const processScore = 0.98;
 

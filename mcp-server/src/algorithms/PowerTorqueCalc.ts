@@ -117,10 +117,10 @@ class PowerTorqueCalcImpl implements Algorithm<PowerTorqueInput, PowerTorqueOutp
   calculate(input: PowerTorqueInput): PowerTorqueOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Power/torque validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Power/torque validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     const Fc = input.Fc_N;
     const Vc = input.Vc_m_min;
@@ -189,7 +189,7 @@ class PowerTorqueCalcImpl implements Algorithm<PowerTorqueInput, PowerTorqueOutp
     if (torqueUtil && torqueUtil > 100) physicsScore = 0.3;
     else if (torqueUtil && torqueUtil > 80) physicsScore -= 0.1;
 
-    const rangeScore = validation.warnings.length > 0 ? 0.9 : 1.0;
+    const rangeScore = (validation.warnings ?? []).length > 0 ? 0.9 : 1.0;
     const materialScore = 1.0;
     const processScore = 0.98;
 

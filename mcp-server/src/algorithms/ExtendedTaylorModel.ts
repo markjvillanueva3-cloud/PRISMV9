@@ -255,10 +255,10 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
   calculate(input: TaylorInput): TaylorOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Taylor validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Taylor validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     const Vc = input.Vc_m_min;
     const f = input.f_mm;
@@ -372,7 +372,7 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
 
     // Range validity
     let rangeScore = 1.0;
-    if (validation.warnings.length > 0) rangeScore -= 0.08 * validation.warnings.length;
+    if ((validation.warnings ?? []).length > 0) rangeScore -= 0.08 * (validation.warnings ?? []).length;
     rangeScore = Math.max(0, rangeScore);
 
     // Material validity

@@ -195,10 +195,10 @@ class SurfaceFinishPredictorImpl implements Algorithm<SurfaceFinishInput, Surfac
   calculate(input: SurfaceFinishInput): SurfaceFinishOutput {
     const validation = this.validate(input);
     if (!validation.valid) {
-      throw new Error(`Surface finish validation failed: ${validation.errors.join(", ")}`);
+      throw new Error(`Surface finish validation failed: ${(validation.errors ?? []).join(", ")}`);
     }
 
-    const warnings = [...validation.warnings];
+    const warnings = [...(validation.warnings ?? [])];
 
     const f = input.feed_mm;
     const R = input.tool_radius_mm;
@@ -300,7 +300,7 @@ class SurfaceFinishPredictorImpl implements Algorithm<SurfaceFinishInput, Surfac
     if (Ra_composite > 10) physicsScore -= 0.1; // Very rough
 
     let rangeScore = 1.0;
-    if (validation.warnings.length > 0) rangeScore -= 0.1 * validation.warnings.length;
+    if ((validation.warnings ?? []).length > 0) rangeScore -= 0.1 * (validation.warnings ?? []).length;
     rangeScore = Math.max(0, rangeScore);
 
     let materialScore = 1.0;
