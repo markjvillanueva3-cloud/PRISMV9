@@ -224,9 +224,7 @@ class LatheLoRAPhysicsAugmentedInferenceEngine {
     }
 
     // Assume steel if no material
-    const materialGroup = "P";
-    const kc11 = KIENZLE_KC11[materialGroup];
-    const mc = KIENZLE_MC[materialGroup];
+    const { kc1_1: kc11, mc } = CANONICAL_KIENZLE.P;
 
     // Convert to metric: ap = doc_in * 25.4, fz = feed_ipr * 25.4
     const ap = params.doc_in * 25.4;
