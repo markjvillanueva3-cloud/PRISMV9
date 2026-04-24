@@ -1968,6 +1968,50 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "error_budget_set_target": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            errorBudgetEngine.setTarget({
+              service: String(params.service),
+              availabilityTarget: Number(params.availabilityTarget),
+              windowHours: Number(params.windowHours),
+            });
+            result = { success: true, service: params.service, target: { availabilityTarget: Number(params.availabilityTarget), windowHours: Number(params.windowHours) } };
+            break;
+          }
+
+          case "error_budget_record": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            errorBudgetEngine.record({
+              service: String(params.service),
+              success: Boolean(params.success),
+              weight: params.weight != null ? Number(params.weight) : undefined,
+              at: params.at != null ? Number(params.at) : undefined,
+            });
+            result = { success: true };
+            break;
+          }
+
+          case "error_budget_status": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            const status = errorBudgetEngine.status(String(params.service));
+            result = { success: true, status };
+            break;
+          }
+
+          case "error_budget_list": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            result = { success: true, services: errorBudgetEngine.listServices() };
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }
