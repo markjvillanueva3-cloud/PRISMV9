@@ -8,6 +8,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { writeAtomicSync } from "./atomic-write.mjs";
 
 const PATHS = {
   coordStatus: "H:/prism/state/shared/AGENT_COORDINATION_STATUS.md",
@@ -101,7 +102,7 @@ function gcCoordinationStatus() {
     }
 
     if (removedCount > 0) {
-      fs.writeFileSync(PATHS.coordStatus, filteredLines.join("\n"));
+      writeAtomicSync(PATHS.coordStatus, filteredLines.join("\n"));
       return { file: "AGENT_COORDINATION_STATUS.md", removed: removedCount };
     }
 
@@ -126,7 +127,7 @@ function gcActiveRegistry() {
 
     if (removed > 0) {
       data.updated = now();
-      fs.writeFileSync(PATHS.activeRegistry, JSON.stringify(data, null, 2) + "\n");
+      writeAtomicSync(PATHS.activeRegistry, JSON.stringify(data, null, 2) + "\n");
     }
 
     return { file: "ACTIVE_WORK_REGISTRY.json", removed };

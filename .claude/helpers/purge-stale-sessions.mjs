@@ -11,6 +11,7 @@
 
 import * as fs from "fs";
 import { execSync } from "child_process";
+import { writeAtomicSync } from "./atomic-write.mjs";
 
 const WORKBOARD_JSON = "H:/prism/state/shared/AGENT_WORKBOARD.json";
 const WORKBOARD_MD = "H:/prism/state/shared/AGENT_WORKBOARD.md";
@@ -38,7 +39,7 @@ function loadWorkboard() {
 
 function saveWorkboard(workboard) {
   try {
-    fs.writeFileSync(WORKBOARD_JSON, JSON.stringify(workboard, null, 2));
+    writeAtomicSync(WORKBOARD_JSON, JSON.stringify(workboard, null, 2));
   } catch {
     // Ignore
   }
@@ -75,7 +76,7 @@ function regenerateMarkdown(workboard) {
   }
 
   try {
-    fs.writeFileSync(WORKBOARD_MD, lines.join("\n"));
+    writeAtomicSync(WORKBOARD_MD, lines.join("\n"));
   } catch {
     // Ignore
   }

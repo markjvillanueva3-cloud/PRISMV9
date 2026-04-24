@@ -9,6 +9,7 @@
 
 import fs from "node:fs";
 import { inferAgentIdentity } from "./agent-identity.mjs";
+import { writeAtomicSync } from "./atomic-write.mjs";
 
 const CLAIMS_FILE = "H:/prism/state/shared/SESSION_TRACK_CLAIMS.json";
 
@@ -42,7 +43,7 @@ function main() {
   }
 
   data.updated = now;
-  fs.writeFileSync(CLAIMS_FILE, JSON.stringify(data, null, 2) + "\n");
+  writeAtomicSync(CLAIMS_FILE, JSON.stringify(data, null, 2) + "\n");
 }
 
 main();
