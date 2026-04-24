@@ -179,7 +179,12 @@ async function main() {
   // Cap at 2 sections to avoid bloat
   const injected = matched.slice(0, 2).join('\n\n');
 
-  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: `## Reference (auto-injected)\n${injected } }`
+  console.log(JSON.stringify({
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: "UserPromptSubmit",
+      additionalContext: `## Reference (auto-injected)\n${injected}`,
+    },
   }));
 }
 
