@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF32 touched only async signatures; engine is consumed via MachiningIntelligenceOrchestratorEngine facade, not directly dispatched
 /**
  * GapEscalationControllerEngine — MIO-MS0/U-MIO44
  *

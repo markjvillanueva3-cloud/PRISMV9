@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF30 only added two `await` keywords on existing async self-awareness calls; engine is an integration layer instantiated by AutonomousAIOrchestrationEngine, not directly dispatched.
 /**
  * AutonomousSessionIntegrationEngine — Real Integration Layer for Autonomous AI
  *
@@ -623,7 +624,7 @@ export class AutonomousSessionIntegrationEngine {
             confidence = tips.length > 0 ? 0.9 : 0.4;
           } else {
             // Fallback to self-awareness engine
-            const tips = prismSelfAwarenessEngine.searchTribalKnowledge(query);
+            const tips = await prismSelfAwarenessEngine.searchTribalKnowledge(query);
             results = tips;
             confidence = tips.length > 0 ? 0.85 : 0.4;
           }
@@ -636,7 +637,7 @@ export class AutonomousSessionIntegrationEngine {
             confidence = rules.length > 0 ? 0.88 : 0.3;
           } else {
             // Fallback to self-awareness engine
-            const rules = prismSelfAwarenessEngine.searchPlaybookRules(query);
+            const rules = await prismSelfAwarenessEngine.searchPlaybookRules(query);
             results = rules;
             confidence = rules.length > 0 ? 0.85 : 0.3;
           }

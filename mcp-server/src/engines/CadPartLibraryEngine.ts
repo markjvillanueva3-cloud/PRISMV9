@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF33 only normalised Dirent.name (Buffer|string → string) in the scanner loop; engine is a library index consumed by downstream part-matching flows, not directly dispatched.
 /**
  * CadPartLibraryEngine — Feature-Tagged CAD Part Library Index
  *

@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF28 renamed a single call site (registerMany→register); engine is self-registering via hookExecutor.register() on module load, not dispatched. Tests follow the in-flight hook-wiring conventions.
 /**
  * HyperCADSStockModelEngine — Automated Stock Model Creation via AC Python (E1162)
  *
