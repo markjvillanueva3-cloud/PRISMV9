@@ -101,7 +101,7 @@ if (suggestions.length > 0) {
     `📊 Tool pattern insight:`,
     ...suggestions.map(s => `  • ${s}`),
   ].join('\n');
-  console.log(JSON.stringify({ message }));
+  console.log(JSON.stringify({ continue: true, systemMessage: message }));
 } else {
   console.log(JSON.stringify({ continue: true }));
 }

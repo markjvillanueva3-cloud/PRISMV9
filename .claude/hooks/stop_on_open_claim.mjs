@@ -170,18 +170,19 @@ async function main() {
         .map((c) => `${c.source}:${c.label} by ${c.holder}`)
         .join(", ");
       console.log(JSON.stringify({
-        result: "warn",
-        message: `${openClaims.length} open claim(s) still active: ${examples}. Coordinate before starting overlapping work.${workClaims.released ? ` Released ${workClaims.released} current-session work claim(s).` : ""}`
+        continue: true,
+        systemMessage: `warn — ${openClaims.length} open claim(s) still active: ${examples}. Coordinate before starting overlapping work.${workClaims.released ? ` Released ${workClaims.released} current-session work claim(s).` : ""}`,
       }));
     } else {
+      const released = workClaims.released ? ` Released ${workClaims.released} current-session work claim(s)` : "";
       console.log(JSON.stringify({
-        result: "pass",
-        message: workClaims.released ? `Released ${workClaims.released} current-session work claim(s)` : undefined
+        continue: true,
+        systemMessage: `pass${released}`,
       }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));

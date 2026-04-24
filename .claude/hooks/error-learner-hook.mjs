@@ -87,9 +87,7 @@ async function main() {
   // Check if we've seen and fixed this before
   const similar = findSimilarError(memory, errorSig);
   if (similar) {
-    console.log(JSON.stringify({
-      continue: true,
-      additionalContext: `## Error Pattern Recognized\nSimilar error fixed before: ${similar.fix || 'no fix recorded'}\nPrevention: ${similar.prevention || 'none recorded'}`
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Error Pattern Recognized\nSimilar error fixed before: ${similar.fix || 'no fix recorded' } }\nPrevention: ${similar.prevention || 'none recorded'}`
     }));
     return;
   }
@@ -111,9 +109,7 @@ async function main() {
   memory.stats.total++;
   saveErrorMemory(memory);
 
-  console.log(JSON.stringify({
-    continue: true,
-    additionalContext: `## Error Captured\nType: ${errorSig.type} | Use /error-learner fix to record the solution`
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Error Captured\nType: ${errorSig.type } } | Use /error-learner fix to record the solution`
   }));
 }
 

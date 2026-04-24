@@ -125,7 +125,7 @@ async function main() {
 
     console.log(JSON.stringify({
       decision: 'approve',
-      message: isLinearConfigured()
+      reason: isLinearConfigured()
         ? `Linear sync active: ${Object.keys(linearState.issueMap || {}).length} issues mapped`
         : 'Linear not configured (optional)',
       context
@@ -137,7 +137,7 @@ async function main() {
 
     console.log(JSON.stringify({
       decision: 'approve',
-      message: 'Linear state saved'
+      reason: 'Linear state saved'
     }));
   } else {
     console.log(JSON.stringify({ decision: 'approve' }));
@@ -147,6 +147,6 @@ async function main() {
 main().catch(err => {
   console.log(JSON.stringify({
     decision: 'approve',
-    message: `Linear sync error: ${err.message}`
+    reason: `Linear sync error: ${err.message}`
   }));
 });

@@ -138,7 +138,7 @@ async function main() {
   // This is handled by the PostToolUse Bash hook that clears the cache
 
   if (suggestion) {
-    process.stdout.write(JSON.stringify({ additionalContext: suggestion }));
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: suggestion } }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
   }

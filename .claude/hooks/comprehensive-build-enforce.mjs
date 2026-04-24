@@ -39,6 +39,14 @@ import { dirname, join } from "node:path";
 import os from "node:os";
 import { exit } from "node:process";
 
+// Emit the minimum valid hook JSON before exit. Claude Code validates every
+// hook's stdout; bare exit(0) with no output fails the schema with
+// "(root): Invalid input". Every early-return path must call this.
+function silentOk() {
+  process.stdout.write(JSON.stringify({ continue: true }));
+  exit(0);
+}
+
 // ── Rate-limit: inject at most once every RATE_WINDOW_MS per bucket ──
 // The directive is ~500 tokens. Firing every prompt during an iterative
 // build session burns 10–20k tokens over a turn-rich loop with no new
@@ -60,16 +68,16 @@ let payload;
 try {
   payload = JSON.parse(readFileSync(0, "utf-8"));
 } catch {
-  exit(0); // malformed input → silent no-op
+  silentOk(); // malformed input → emit valid continue:true
 }
 
 const prompt = String(payload?.prompt ?? "");
-if (!prompt.trim()) exit(0);
+if (!prompt.trim()) silentOk();
 
 // ── Explicit opt-out ──────────────────────────────────────────────────
 // A user who wants a minimal one-shot fix can signal so. We respect it.
 const OPTOUT_RE = /\[\s*(?:SCOPED|MINIMAL|QUICKFIX|NARROW)\s*\]/i;
-if (OPTOUT_RE.test(prompt)) exit(0);
+if (OPTOUT_RE.test(prompt)) silentOk();
 
 // ── Trigger detection ─────────────────────────────────────────────────
 // Split into two intent buckets so we can tailor the injection:
@@ -127,14 +135,14 @@ const BUILD_RE = new RegExp(
 const planHit = PLAN_RE.test(prompt);
 const buildHit = BUILD_RE.test(prompt);
 
-if (!planHit && !buildHit) exit(0);
+if (!planHit && !buildHit) silentOk();
 
 // Rate-limit: skip if we've already injected this bucket recently.
 const now = Date.now();
 const rateState = loadRate();
 const bucket = planHit && buildHit ? "plan+build" : planHit ? "plan" : "build";
 const lastAt = rateState[bucket] ?? 0;
-if (now - lastAt < RATE_WINDOW_MS) exit(0);
+if (now - lastAt < RATE_WINDOW_MS) silentOk();
 rateState[bucket] = now;
 for (const k of Object.keys(rateState)) {
   if (now - rateState[k] > RATE_WINDOW_MS * 10) delete rateState[k];
@@ -225,6 +233,7 @@ const additionalContext = lines.join("\n");
 // ── Emit ───────────────────────────────────────────────────────────────
 process.stdout.write(
   JSON.stringify({
+    continue: true,
     hookSpecificOutput: {
       hookEventName: "UserPromptSubmit",
       additionalContext,

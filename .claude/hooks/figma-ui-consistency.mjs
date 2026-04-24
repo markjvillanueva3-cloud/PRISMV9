@@ -140,7 +140,7 @@ async function main() {
   // Never block - just provide context
   console.log(JSON.stringify({
     decision: 'approve',
-    message: isFigmaConfigured()
+    reason: isFigmaConfigured()
       ? `Figma context loaded for ${componentName}`
       : `Editing UI component: ${componentName} (Figma not configured)`,
     context
@@ -150,6 +150,6 @@ async function main() {
 main().catch(err => {
   console.log(JSON.stringify({
     decision: 'approve',
-    message: `Figma hook error: ${err.message}`
+    reason: `Figma hook error: ${err.message}`
   }));
 });

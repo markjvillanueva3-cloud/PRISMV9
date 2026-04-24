@@ -236,18 +236,14 @@ async function main() {
         .map(f => `• ${f.error}\n  → Fix: ${f.fix} (worked ${f.confidence}× before)`)
         .join('\n');
 
-      console.log(JSON.stringify({
-        continue: true,
-        additionalContext: `## Error Memory — Known Fixes Available\n${fixSuggestions}`,
+      console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Error Memory — Known Fixes Available\n${fixSuggestions } }`,
       }));
       return;
     }
 
     const typeCount = data.patterns[errors[0].type]?.count || 1;
     if (typeCount >= 3) {
-      console.log(JSON.stringify({
-        continue: true,
-        additionalContext: `## Error Memory\n⚠️ ${errors[0].type} errors: ${typeCount} in this session. Consider a different approach.`,
+      console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Error Memory\n⚠️ ${errors[0].type } } errors: ${typeCount} in this session. Consider a different approach.`,
       }));
       return;
     }

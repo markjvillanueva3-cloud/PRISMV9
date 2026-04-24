@@ -339,25 +339,16 @@ function main() {
     cwd: PRISM_ROOT,
   });
 
+  // Always emit Claude-Code-valid JSON. Diagnostic info goes in systemMessage
+  // (schema-legal) rather than free top-level keys (which fail validation).
+  const meta = `handoff: resume_source=${resumeSource} preview="${resume.slice(0, 100).replace(/"/g, '\\"')}"`;
   if (result.status === 0) {
-    try {
-      const output = JSON.parse(result.stdout);
-      output.resume_source = resumeSource;
-      output.resume_preview = resume.slice(0, 100);
-      console.log(JSON.stringify(output));
-    } catch {
-      console.log(JSON.stringify({
-        ok: true,
-        resume_source: resumeSource,
-        resume_preview: resume.slice(0, 100),
-      }));
-    }
+    console.log(JSON.stringify({ continue: true, systemMessage: meta }));
   } else {
+    const err = (result.stderr || "").slice(0, 200);
     console.log(JSON.stringify({
-      ok: false,
-      error: "per-agent-handoff.mjs write failed",
-      stderr: (result.stderr || "").slice(0, 200),
-      resume_source: resumeSource,
+      continue: true,
+      systemMessage: `handoff FAILED: per-agent-handoff.mjs write failed — ${err} | ${meta}`,
     }));
   }
 }

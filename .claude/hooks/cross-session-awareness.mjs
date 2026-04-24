@@ -180,8 +180,14 @@ async function main() {
 
   if (parts.length > 0) {
     console.log(JSON.stringify({
-      additionalContext: `[CrossSession] ${parts.join(" | ")}`,
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        additionalContext: `[CrossSession] ${parts.join(" | ")}`,
+      },
     }));
+  } else {
+    console.log(JSON.stringify({ continue: true }));
   }
 }
 

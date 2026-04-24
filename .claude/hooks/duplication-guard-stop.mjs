@@ -93,13 +93,13 @@ async function main() {
   const totalNew = newEngines.length + newHooks.length + newSkills.length;
 
   if (totalNew === 0) {
-    console.log(JSON.stringify({ continue: true, message: 'No new assets created this session' }));
+    console.log(JSON.stringify({ continue: true, systemMessage: 'No new assets created this session' }));
     return;
   }
 
   // Registry I/O can be slow on the multi-MB JSON; bail near the deadline.
   if (timeLeft() < 800) {
-    console.log(JSON.stringify({ continue: true, message: `deferred registry update (${totalNew} new assets)` }));
+    console.log(JSON.stringify({ continue: true, systemMessage: `deferred registry update (${totalNew} new assets)` }));
     return;
   }
 
@@ -173,13 +173,13 @@ async function main() {
 
   console.log(JSON.stringify({
     decision: 'approve',
-    message: `Cross-session registry updated: ${summary} added`
+    reason: `Cross-session registry updated: ${summary} added`
   }));
 }
 
 main().catch(err => {
   console.log(JSON.stringify({
     decision: 'approve',
-    message: `Registry update failed: ${err.message}`
+    reason: `Registry update failed: ${err.message}`
   }));
 });

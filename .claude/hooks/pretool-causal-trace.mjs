@@ -78,8 +78,7 @@ async function main() {
   if (dependents.length < MIN_DEPENDENTS_FOR_WARN) process.exit(0);
 
   const preview = dependents.slice(0, 5).join(", ") + (dependents.length > 5 ? `, +${dependents.length - 5} more` : "");
-  console.log(JSON.stringify({
-    hookSpecificOutput: {
+  console.log(JSON.stringify({  continue: true,  hookSpecificOutput: {
       hookEventName: "PreToolUse",
       additionalContext: `[Phase 0.18 / Causal Trace] Editing ${node} may ripple to ${dependents.length} node(s) within ${MAX_HOPS} hops: ${preview}. Consider reviewing tests for dependents before committing.`,
     },

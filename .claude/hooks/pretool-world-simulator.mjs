@@ -150,6 +150,7 @@ async function main() {
 
   // Output decision
   const output = {
+    continue: true,
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
       additionalContext: "",

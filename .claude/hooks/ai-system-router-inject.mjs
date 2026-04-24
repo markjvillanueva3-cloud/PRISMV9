@@ -65,7 +65,7 @@ if (taskType && AI_ROUTING[taskType]) {
   // Inject as message but don't block
   console.log(JSON.stringify({
     decision: "approve",
-    message: guidance
+    reason: guidance
   }));
 } else {
   console.log(JSON.stringify({ decision: "approve" }));

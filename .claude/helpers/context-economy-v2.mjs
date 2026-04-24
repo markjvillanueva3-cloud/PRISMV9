@@ -229,7 +229,7 @@ async function main() {
       additionalContext: `READ CACHE: ${filePath} unchanged since last read. Consider skipping if you have the content. ${guidance || ""}`.trim(),
     }));
   } else if (guidance) {
-    process.stdout.write(JSON.stringify({ additionalContext: guidance }));
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: guidance } }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
   }

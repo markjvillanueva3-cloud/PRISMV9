@@ -97,8 +97,7 @@ async function main() {
   if (major.length === 0) process.exit(0);
 
   const summary = major.map((s) => `${s.kind}=${s.severity}`).join(", ");
-  console.log(JSON.stringify({
-    hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `[Phase 0.18 / Emergence] ${major.length} anomaly signal(s) on last ${preds.length} ops: ${summary}. See EMERGENCE_LEDGER.jsonl.` },
+  console.log(JSON.stringify({  continue: true,  hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `[Phase 0.18 / Emergence] ${major.length} anomaly signal(s) on last ${preds.length} ops: ${summary}. See EMERGENCE_LEDGER.jsonl.` },
   }));
 }
 

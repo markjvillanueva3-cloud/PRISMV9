@@ -68,8 +68,7 @@ const existing = cache.entries[cacheKey];
 if (existing && (now - existing.timestamp < CACHE_TTL_MS)) {
   // This is a repeat search within TTL
   const timeSince = Math.round((now - existing.timestamp) / 1000);
-  console.log(JSON.stringify({
-    message: `⚡ Repeated grep detected (same search ${timeSince}s ago). Result count: ${existing.resultCount}. Consider reusing previous results.`
+  console.log(JSON.stringify({ continue: true, systemMessage: `⚡ Repeated grep detected (same search ${timeSince}s ago). Result count: ${existing.resultCount}. Consider reusing previous results.`
   }));
 
   // Update hit count

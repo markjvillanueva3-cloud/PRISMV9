@@ -94,13 +94,9 @@ try {
     mkdirSync(HANDOFFS_DIR, { recursive: true });
   }
   writeFileSync(handoffPath, lines.join('\n'));
-  console.log(JSON.stringify({
-    continue: true,
-    additionalContext: `✓ Handoff saved: ${sessionId}`
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "Stop", additionalContext: `✓ Handoff saved: ${sessionId } }`
   }));
 } catch (err) {
-  console.log(JSON.stringify({
-    continue: true,
-    additionalContext: `⚠️ Handoff write failed: ${err.message}`
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "Stop", additionalContext: `⚠️ Handoff write failed: ${err.message } }`
   }));
 }

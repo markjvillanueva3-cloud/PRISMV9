@@ -112,8 +112,7 @@ function releaseLock() {
 async function main() {
   // Check if already running
   if (await isOllamaRunning()) {
-    console.log(JSON.stringify({
-      result: "Ollama already running",
+    console.log(JSON.stringify({ continue: true, systemMessage: "Ollama already running",
       status: "ready"
     }));
     return;
@@ -124,8 +123,7 @@ async function main() {
     // Another session is handling it, wait and check
     await new Promise(r => setTimeout(r, STARTUP_WAIT_MS + 500));
     const running = await isOllamaRunning();
-    console.log(JSON.stringify({
-      result: running ? "Ollama started by another session" : "Ollama not available",
+    console.log(JSON.stringify({ continue: true, systemMessage: running ? "Ollama started by another session" : "Ollama not available",
       status: running ? "ready" : "unavailable"
     }));
     return;
@@ -136,13 +134,11 @@ async function main() {
     const started = await startOllama();
 
     if (started) {
-      console.log(JSON.stringify({
-        result: "Ollama started successfully",
+      console.log(JSON.stringify({ continue: true, systemMessage: "Ollama started successfully",
         status: "started"
       }));
     } else {
-      console.log(JSON.stringify({
-        result: "Ollama not available (not installed or failed to start)",
+      console.log(JSON.stringify({ continue: true, systemMessage: "Ollama not available (not installed or failed to start)",
         status: "unavailable"
       }));
     }
@@ -152,5 +148,5 @@ async function main() {
 }
 
 main().catch(() => {
-  console.log(JSON.stringify({ result: "error", status: "error" }));
+  console.log(JSON.stringify({ continue: true, systemMessage: "error", status: "error" }));
 });

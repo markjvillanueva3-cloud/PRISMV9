@@ -251,10 +251,7 @@ async function main() {
   lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
   console.log(
-    JSON.stringify({
-      continue: true,
-      additionalContext: lines.join("\n"),
-    })
+    JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: lines.join("\n"), } })
   );
 }
 

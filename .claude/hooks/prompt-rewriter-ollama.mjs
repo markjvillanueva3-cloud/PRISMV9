@@ -274,8 +274,7 @@ function formatForInjection(rewrite, model, latencyMs) {
     writeLog({ ts: new Date().toISOString(), session, raw, rewrite, model, latency_ms: latencyMs });
 
     process.stdout.write(
-      JSON.stringify({
-        hookSpecificOutput: {
+      JSON.stringify({  continue: true,  hookSpecificOutput: {
           hookEventName: "UserPromptSubmit",
           additionalContext,
         },

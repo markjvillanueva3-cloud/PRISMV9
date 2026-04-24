@@ -146,7 +146,7 @@ async function main() {
 
     console.log(JSON.stringify({
       decision: 'approve',
-      message: isSupabaseConfigured()
+      reason: isSupabaseConfigured()
         ? `Supabase sync active: ${Object.keys(syncState.syncedFiles || {}).length} files tracked`
         : 'Supabase not configured (optional)',
       context
@@ -161,7 +161,7 @@ async function main() {
 
     console.log(JSON.stringify({
       decision: 'approve',
-      message: `Supabase state recorded: ${Object.keys(files).length} files`
+      reason: `Supabase state recorded: ${Object.keys(files).length} files`
     }));
   } else {
     console.log(JSON.stringify({ decision: 'approve' }));
@@ -171,6 +171,6 @@ async function main() {
 main().catch(err => {
   console.log(JSON.stringify({
     decision: 'approve',
-    message: `Supabase sync error: ${err.message}`
+    reason: `Supabase sync error: ${err.message}`
   }));
 });

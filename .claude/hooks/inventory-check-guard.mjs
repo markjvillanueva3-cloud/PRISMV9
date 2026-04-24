@@ -59,9 +59,7 @@ async function main() {
   const inventory = readInventory();
   const compact = formatCompactInventory(inventory);
 
-  console.log(JSON.stringify({
-    continue: true,
-    additionalContext: `**[Inventory]** ${compact}\nCheck MASTER_INDEX_COMPACT.md + DuplicationGuardEngine before creating.`
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `**[Inventory]** ${compact } }\nCheck MASTER_INDEX_COMPACT.md + DuplicationGuardEngine before creating.`
   }));
 }
 

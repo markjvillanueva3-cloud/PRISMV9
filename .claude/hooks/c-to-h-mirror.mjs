@@ -123,8 +123,7 @@ try {
   if (!needsCopy) exit(0);
   copyFileSync(src, dst);
   process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
+    JSON.stringify({  continue: true,  hookSpecificOutput: {
         hookEventName: "PostToolUse",
         additionalContext: `[c-to-h-mirror] ${relPath} mirrored C: → H: (H: is canonical master)`,
       },
