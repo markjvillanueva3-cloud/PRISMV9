@@ -528,10 +528,12 @@ class AdaptiveMachiningIntegrationEngine {
     const overallRisk = failureRisks.overallRisk +
       (environmentalRisks.filter(r => r.severity === "critical").length * 0.1);
 
-    let proceedRecommendation: "proceed" | "caution" | "delay" | "abort" = "proceed";
+    // Map internal "caution"/"delay" semantics onto the public schema values
+    // ("proceed_with_caution"/"modify_parameters") accepted by ProcessRiskAssessment.
+    let proceedRecommendation: "proceed" | "proceed_with_caution" | "modify_parameters" | "abort" = "proceed";
     if (overallRisk > 0.7) proceedRecommendation = "abort";
-    else if (overallRisk > 0.5) proceedRecommendation = "delay";
-    else if (overallRisk > 0.3) proceedRecommendation = "caution";
+    else if (overallRisk > 0.5) proceedRecommendation = "modify_parameters";
+    else if (overallRisk > 0.3) proceedRecommendation = "proceed_with_caution";
 
     return {
       riskAssessment: {
