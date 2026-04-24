@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "system_id": "bobcad-cam",
+  "section_key": "mill_lathe_wedm",
+  "version": "v36",
+  "extracted_from": "BobCAD-CAM v36 Mill Standard/Pro/Premium + Lathe Standard/Pro + WEDM Standard/Pro reference",
+  "categories": ["mill_2_axis", "mill_3_axis", "mill_dynamic", "mill_4_5_axis", "lathe_2_axis", "lathe_mill_turn", "wire_edm_2axis", "wire_edm_4axis"],
+  "operations": {
+    "mill_pocket_2axis": {
+      "category": "mill_2_axis",
+      "display_name": "2-Axis Pocket Milling",
+      "description": "BobCAD Mill Standard pocket. Open/closed pocket with island avoidance, contour or zigzag pattern.",
+      "parameter_count": 12,
+      "dialog_tabs": ["geometry", "tool", "pattern", "lead"],
+      "parameters": {
+        "geometry": {
+          "boundary_chain_id": { "type": "string", "required": true },
+          "depth_mm": { "type": "number", "min": 0.1, "max": 250, "required": true },
+          "island_chain_ids": { "type": "string[]", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 100, "required": true },
+          "flute_count": { "type": "number", "min": 1, "max": 8, "default": 4 }
+        },
+        "pattern": {
+          "pattern_type": { "type": "enum", "values": ["contour_offset", "zigzag", "spiral_in", "spiral_out"], "default": "contour_offset" },
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 95, "default": 50 },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 25, "default": 1.5 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0.25 }
+        },
+        "lead": {
+          "entry_type": { "type": "enum", "values": ["helix", "ramp", "plunge", "predrill"], "default": "helix" },
+          "helix_angle_deg": { "type": "number", "min": 1, "max": 30, "default": 5 }
+        }
+      }
+    },
+    "mill_dynamic_pocket": {
+      "category": "mill_dynamic",
+      "display_name": "Mill Pro Dynamic Roughing",
+      "description": "BobCAD Mill Pro Dynamic Motion adaptive roughing. Maintains constant tool engagement, deep DOC.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "engagement", "macros"],
+      "parameters": {
+        "geometry": {
+          "stock_chain_id": { "type": "string", "required": true },
+          "boundary_chain_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 50, "required": true }
+        },
+        "engagement": {
+          "max_radial_engagement_pct": { "type": "number", "min": 1, "max": 25, "default": 12 },
+          "axial_doc_to_dia": { "type": "number", "min": 0.5, "max": 3, "default": 2 },
+          "trochoidal_loop": { "type": "boolean", "default": true }
+        },
+        "macros": {
+          "entry_type": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix" },
+          "lead_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 30 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "mill_3axis_finish": {
+      "category": "mill_3_axis",
+      "display_name": "3-Axis Surface Finish (Z-Level / Planar / Pencil)",
+      "description": "BobCAD Mill Pro 3-axis surface finishing. Z-level waterline, planar projection, or pencil.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "drive_surfaces_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 50, "required": true },
+          "tool_corner_radius_mm": { "type": "number", "min": 0, "max": 25, "required": true }
+        },
+        "strategy": {
+          "finish_type": { "type": "enum", "values": ["z_level_waterline", "planar_projection", "pencil_corner", "rest_finish"], "default": "z_level_waterline" },
+          "stepover_or_stepdown_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.2 },
+          "min_machining_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 },
+          "lead_type": { "type": "enum", "values": ["arc", "vertical_arc", "tangent"], "default": "arc" },
+          "lead_radius_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1.5 }
+        }
+      }
+    },
+    "mill_4_5axis_simul": {
+      "category": "mill_4_5_axis",
+      "display_name": "4/5-Axis Simultaneous (Swarf / Multi-Surface)",
+      "description": "BobCAD Mill Premium 5-axis simultaneous. Swarf on ruled surface or multi-surface contour with tool-axis control.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "axis"],
+      "parameters": {
+        "geometry": {
+          "drive_surface_id": { "type": "string", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 1, "max": 50, "required": true },
+          "tool_loc_to_dia": { "type": "number", "min": 2, "max": 6, "default": 3 }
+        },
+        "axis": {
+          "axis_mode": { "type": "enum", "values": ["normal_to_drive", "lead_lag", "swarf_align", "fixed_axis"], "default": "swarf_align" },
+          "lead_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "tilt_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "rtcp_mode": { "type": "enum", "values": ["g43_4", "g43_5", "none"], "default": "g43_4" },
+          "safe_distance_mm": { "type": "number", "min": 1, "max": 100, "default": 10 }
+        }
+      }
+    },
+    "lathe_rough_2axis": {
+      "category": "lathe_2_axis",
+      "display_name": "Lathe Roughing (OD / ID / Face)",
+      "description": "BobCAD Lathe Standard 2-axis roughing with contour following, CSS, and stock-to-leave allowances.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "tool", "strategy"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true },
+          "side": { "type": "enum", "values": ["od", "id", "face"], "required": true },
+          "z_start_mm": { "type": "number", "min": -1000, "max": 1000, "required": true },
+          "z_end_mm": { "type": "number", "min": -1000, "max": 1000, "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "insert_nose_radius_mm": { "type": "number", "min": 0.1, "max": 3.2, "default": 0.4 }
+        },
+        "strategy": {
+          "depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 10, "default": 2 },
+          "stock_to_leave_radial_mm": { "type": "number", "min": 0, "max": 5, "default": 0.3 },
+          "stock_to_leave_axial_mm": { "type": "number", "min": 0, "max": 5, "default": 0.1 },
+          "css_g96": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "lathe_thread_g76": {
+      "category": "lathe_2_axis",
+      "display_name": "Lathe Threading (G76 Multi-Pass)",
+      "description": "BobCAD Lathe Pro single-point threading G76. OD/ID with radial/modified-flank/alternating-flank infeed.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "infeed"],
+      "parameters": {
+        "geometry": {
+          "thread_id": { "type": "string", "required": true },
+          "major_diameter_mm": { "type": "number", "min": 1, "max": 500, "required": true },
+          "pitch_mm": { "type": "number", "min": 0.2, "max": 10, "required": true },
+          "length_mm": { "type": "number", "min": 1, "max": 500, "required": true },
+          "is_internal": { "type": "boolean", "default": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_angle_deg": { "type": "number", "min": 30, "max": 60, "default": 60 }
+        },
+        "infeed": {
+          "infeed_mode": { "type": "enum", "values": ["radial", "modified_flank", "alternating_flank"], "default": "modified_flank" },
+          "spring_passes": { "type": "number", "min": 0, "max": 5, "default": 1 }
+        }
+      }
+    },
+    "mill_turn_live_tooling": {
+      "category": "lathe_mill_turn",
+      "display_name": "Mill-Turn Live Tooling (C-Axis / Y-Axis)",
+      "description": "BobCAD Lathe Pro live-tooling. C-axis indexed milling, Y-axis off-center features, polar interpolation.",
+      "parameter_count": 9,
+      "dialog_tabs": ["geometry", "tool", "axis"],
+      "parameters": {
+        "geometry": {
+          "feature_id": { "type": "string", "required": true },
+          "feature_type": { "type": "enum", "values": ["radial_hole", "axial_hole", "c_axis_pocket", "y_axis_slot"], "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "min": 0.5, "max": 50, "required": true },
+          "live_spindle_id": { "type": "string", "default": "S2" }
+        },
+        "axis": {
+          "axis_mode": { "type": "enum", "values": ["c_index", "c_simul", "y_axis", "polar_g12_1"], "required": true },
+          "c_step_deg": { "type": "number", "min": 0.1, "max": 360, "default": 5 },
+          "max_y_offset_mm": { "type": "number", "min": 0, "max": 100, "default": 25 },
+          "css_active": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "wedm_2axis_cut": {
+      "category": "wire_edm_2axis",
+      "display_name": "Wire EDM 2-Axis Profile Cut",
+      "description": "BobCAD WEDM Standard 2-axis straight wire profile cut with rough + skim passes.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "wire", "passes", "lead"],
+      "parameters": {
+        "geometry": {
+          "profile_chain_id": { "type": "string", "required": true },
+          "thickness_mm": { "type": "number", "min": 0.1, "max": 400, "required": true }
+        },
+        "wire": {
+          "wire_diameter_mm": { "type": "number", "min": 0.05, "max": 0.33, "default": 0.25 },
+          "wire_material": { "type": "enum", "values": ["brass", "zinc_coated_brass", "molybdenum"], "default": "brass" }
+        },
+        "passes": {
+          "rough_passes": { "type": "number", "min": 1, "max": 1, "default": 1 },
+          "skim_passes": { "type": "number", "min": 0, "max": 4, "default": 2 },
+          "target_ra_um": { "type": "number", "min": 0.1, "max": 6.3, "default": 0.8 }
+        },
+        "lead": {
+          "lead_in_mode": { "type": "enum", "values": ["arc", "perpendicular", "tangent"], "default": "perpendicular" },
+          "lead_in_length_mm": { "type": "number", "min": 0.5, "max": 25, "default": 3 },
+          "tab_count": { "type": "number", "min": 0, "max": 20, "default": 1 }
+        }
+      }
+    },
+    "wedm_4axis_taper": {
+      "category": "wire_edm_4axis",
+      "display_name": "Wire EDM 4-Axis Taper / U-V Cut",
+      "description": "BobCAD WEDM Pro 4-axis taper cut. Independent upper/lower (U-V) profiles and constant-angle taper.",
+      "parameter_count": 10,
+      "dialog_tabs": ["geometry", "taper", "wire", "passes"],
+      "parameters": {
+        "geometry": {
+          "lower_profile_id": { "type": "string", "required": true },
+          "upper_profile_id": { "type": "string", "required": false },
+          "thickness_mm": { "type": "number", "min": 0.5, "max": 400, "required": true }
+        },
+        "taper": {
+          "taper_mode": { "type": "enum", "values": ["constant_angle", "independent_uv", "transition"], "default": "constant_angle" },
+          "taper_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "reference_plane": { "type": "enum", "values": ["upper", "lower", "mid"], "default": "lower" }
+        },
+        "wire": {
+          "wire_diameter_mm": { "type": "number", "min": 0.05, "max": 0.33, "default": 0.25 }
+        },
+        "passes": {
+          "rough_passes": { "type": "number", "min": 1, "max": 1, "default": 1 },
+          "skim_passes": { "type": "number", "min": 0, "max": 4, "default": 1 },
+          "target_ra_um": { "type": "number", "min": 0.1, "max": 6.3, "default": 1.6 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "BobCAD Tier Tax",
+      "key_concepts": ["Mill Standard = 2-axis only", "Mill Pro adds Dynamic Motion + 3-axis surface", "Mill Premium adds 4/5-axis", "Lathe Pro adds threading + live-tooling", "WEDM Pro adds 4-axis taper"],
+      "best_practices": ["Quote a job against the cheapest tier that supports its feature set"]
+    },
+    {
+      "topic": "Dynamic Motion vs Stock-Aware Adaptive",
+      "key_concepts": ["BobCAD Dynamic Motion = stock-aware adaptive clearing", "Default 12% radial / 2×D axial — slightly more aggressive than VoluMill 10%/2×D"],
+      "best_practices": ["For ≥45 HRC steel, drop radial to ≤8% and let Dynamic Motion's smoothing handle the entry"]
+    },
+    {
+      "topic": "WEDM Lead-In Strategy",
+      "key_concepts": ["Perpendicular lead is BobCAD default — fastest pierce", "Arc lead leaves no witness mark — required for cosmetic edges"],
+      "best_practices": ["Use arc lead on any visible profile; perpendicular is fine for blanks and trim dies"]
+    }
+  ]
+}

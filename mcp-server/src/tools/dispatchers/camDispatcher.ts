@@ -115,6 +115,7 @@ import { ACTION_ESPRIT_WIRE_EDM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/esp
 import { ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritKBMFunctionIndexActionSchemas.js";
 import { ACTION_ESPRIT_FUNCTION_INDEX_SCHEMAS } from "../../schemas/espritFunctionIndexActionSchemas.js";
 import { ACTION_GIBBSCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/gibbsCAMFunctionIndexActionSchemas.js";
+import { ACTION_BOBCAD_FUNCTION_INDEX_SCHEMAS } from "../../schemas/bobcadFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -196,6 +197,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_ESPRIT_KBM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_ESPRIT_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_GIBBSCAM_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_BOBCAD_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -300,6 +302,7 @@ let _espritWedm: any;
 let _espritKbm: any;
 let _espritIndex: any;
 let _gibbsCam: any;
+let _bobCad: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -633,6 +636,7 @@ async function getEngine(name: string): Promise<any> {
     case "espritKbm": return _espritKbm ??= (await import("../../engines/ESPRITKBMFunctionIndexEngine.js")).ESPRITKBMFunctionIndexEngine;
     case "espritIndex": return _espritIndex ??= (await import("../../engines/ESPRITFunctionIndexEngine.js")).ESPRITFunctionIndexEngine;
     case "gibbsCam": return _gibbsCam ??= (await import("../../engines/GibbsCAMFunctionIndexEngine.js")).GibbsCAMFunctionIndexEngine;
+    case "bobCad": return _bobCad ??= (await import("../../engines/BobCADFunctionIndexEngine.js")).BobCADFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1321,6 +1325,7 @@ export const ACTIONS = [
   "esprit_kbm_index", "esprit_kbm_summary", "esprit_kbm_list_ops", "esprit_kbm_get_op", "esprit_kbm_by_category", "esprit_kbm_find_param", "esprit_kbm_recommend", "esprit_kbm_select_scan_depth", "esprit_kbm_probe_tolerance_for_it", "esprit_kbm_estimate_consolidation",
   "esprit_index", "esprit_summary", "esprit_list_sections", "esprit_section_stats", "esprit_list_ops", "esprit_find_op", "esprit_find_param", "esprit_categories", "esprit_recommend", "esprit_consistency",
   "gibbs_index", "gibbs_summary", "gibbs_list_ops", "gibbs_get_op", "gibbs_by_category", "gibbs_find_param", "gibbs_recommend", "gibbs_volumill_envelope", "gibbs_mtm_sync_policy", "gibbs_term_translate",
+  "bobcad_index", "bobcad_summary", "bobcad_list_ops", "bobcad_get_op", "bobcad_by_category", "bobcad_find_param", "bobcad_recommend", "bobcad_tier_for_op", "bobcad_dynamic_motion_envelope", "bobcad_wedm_lead_strategy",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7419,6 +7424,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "gibbs_term_translate": {
             const eng = await getEngine("gibbsCam");
             result = eng.gibbsTermTranslate(params.gibbs_term);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM55: BobCADFunctionIndexEngine ──
+          case "bobcad_index": {
+            const eng = await getEngine("bobCad");
+            result = eng.getIndex();
+            break;
+          }
+          case "bobcad_summary": {
+            const eng = await getEngine("bobCad");
+            result = eng.getSummary();
+            break;
+          }
+          case "bobcad_list_ops": {
+            const eng = await getEngine("bobCad");
+            result = eng.listOperations();
+            break;
+          }
+          case "bobcad_get_op": {
+            const eng = await getEngine("bobCad");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "bobcad_by_category": {
+            const eng = await getEngine("bobCad");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "bobcad_find_param": {
+            const eng = await getEngine("bobCad");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 50);
+            break;
+          }
+          case "bobcad_recommend": {
+            const eng = await getEngine("bobCad");
+            result = eng.recommendByFeature(params.intent);
+            break;
+          }
+          case "bobcad_tier_for_op": {
+            const eng = await getEngine("bobCad");
+            result = eng.tierForOperation(params.operation_id);
+            break;
+          }
+          case "bobcad_dynamic_motion_envelope": {
+            const eng = await getEngine("bobCad");
+            result = eng.dynamicMotionEnvelope();
+            break;
+          }
+          case "bobcad_wedm_lead_strategy": {
+            const eng = await getEngine("bobCad");
+            result = eng.wedmLeadStrategy(params.visibility);
             break;
           }
 
