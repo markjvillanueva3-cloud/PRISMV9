@@ -36,6 +36,11 @@
 
 import { JM_DIE_COMPANY, JM_DIE_SOURCE_ROOTS } from "../data/jm-die-profile.js";
 
+// MILL-MASTER-AI-WIRING / U10-AIINT-RETROFIT
+import { aiExtractionReasoner } from "./AIExtractionReasonerEngine.js";
+import { prismNeuralKnowledgeSynthesis } from "./PRISMNeuralKnowledgeSynthesisEngine.js";
+import { type UseAI } from "./MillAIWiring.js";
+
 // ============================================================================
 // TYPES — Program Archive
 // ============================================================================
@@ -1457,6 +1462,93 @@ export class MillingAIIntegrationEngine {
       reason: "General purpose milling for standard work",
       confidence: 70,
     };
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U10-AIINT-RETROFIT
+  // ==========================================================================
+
+  /**
+   * parseNaturalLanguageQueryUltra — async wrapper. useAI='off' is bit-identical
+   * to sync parseNaturalLanguageQuery. useAI='on' ALSO invokes aiExtractionReasoner.reason
+   * and attaches its classification + reasoning_chain as an ai side-channel.
+   */
+  async parseNaturalLanguageQueryUltra(
+    query: string,
+    opts: { useAI?: UseAI } = {},
+  ): Promise<{
+    legacy: MillingNLQueryParse;
+    ai?: {
+      classification: string;
+      reasoning_chain: string[];
+      processing_time_ms: number;
+      sources: string[];
+    };
+  }> {
+    const legacy = this.parseNaturalLanguageQuery(query);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+    try {
+      const decision = await aiExtractionReasoner.reason({ text: query || "empty" }, `mill_nl_query:${Date.now()}`);
+      const cls = decision?.classification
+        ? (decision.classification as unknown as { content_type?: string }).content_type ?? "unknown"
+        : "unknown";
+      return {
+        legacy,
+        ai: {
+          classification: typeof cls === "string" ? cls : String(cls),
+          reasoning_chain: Array.isArray(decision?.reasoning_chain) ? decision.reasoning_chain.slice(0, 8) : [],
+          processing_time_ms: Number.isFinite(decision?.processing_time_ms) ? decision.processing_time_ms : 0,
+          sources: ["ai_extraction_reasoner"],
+        },
+      };
+    } catch {
+      return { legacy };
+    }
+  }
+
+  /**
+   * findSimilarProgramsUltra — sync wrapper. useAI='off' bit-identical to legacy.
+   * useAI='on' calls prismNeuralKnowledgeSynthesis.synthesize() to produce a
+   * knowledge-graph-backed ranking rationale alongside the cosine results.
+   */
+  findSimilarProgramsUltra(
+    request: Parameters<MillingAIIntegrationEngine["findSimilarPrograms"]>[0],
+    opts: { useAI?: UseAI } = {},
+  ): {
+    legacy: ReturnType<MillingAIIntegrationEngine["findSimilarPrograms"]>;
+    ai?: {
+      confidence: number;
+      insights_count: number;
+      recommendations_count: number;
+      patterns_applied: string[];
+      sources: string[];
+    };
+  } {
+    const legacy = this.findSimilarPrograms(request);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+    try {
+      const res = prismNeuralKnowledgeSynthesis.synthesize({
+        domain: "cutting_parameters",
+        objective: `Find similar milling programs for ${request.material ?? "any"}/${request.part_type ?? "any"}`,
+        constraints: [],
+        context: request as Record<string, unknown>,
+        depth: "quick",
+      });
+      return {
+        legacy,
+        ai: {
+          confidence: Number.isFinite(res?.confidence) ? Math.max(0, Math.min(1, res.confidence)) : 0.5,
+          insights_count: Array.isArray(res?.insights) ? res.insights.length : 0,
+          recommendations_count: Array.isArray(res?.recommendations) ? res.recommendations.length : 0,
+          patterns_applied: Array.isArray(res?.patterns_applied) ? res.patterns_applied.slice(0, 8) : [],
+          sources: ["prism_neural_knowledge_synthesis"],
+        },
+      };
+    } catch {
+      return { legacy };
+    }
   }
 }
 

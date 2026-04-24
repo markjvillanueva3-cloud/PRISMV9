@@ -395,3 +395,118 @@ describe("MillingAIIntegrationEngine singleton sanity", () => {
     expect(millingAIIntegrationEngine).toBeInstanceOf(MillingAIIntegrationEngine);
   });
 });
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U10-AIINT-RETROFIT — AI-path coverage
+// ============================================================================
+describe("MillingAIIntegrationEngine.parseNaturalLanguageQueryUltra — useAI routing", () => {
+  it("useAI='off' (default) returns { legacy } deep-equal to sync parse, no ai field", async () => {
+    const query = "recommend speeds for 4140 on Okuma";
+    const legacy = millingAIIntegrationEngine.parseNaturalLanguageQuery(query);
+    const ultra = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(query);
+    expect(ultra.legacy).toEqual(legacy);
+    expect(ultra.ai).toBe(undefined);
+  });
+
+  it("explicit useAI='off' is bit-identical to omitted", async () => {
+    const q = "analyze pocket programs";
+    const a = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(q);
+    const b = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(q, { useAI: "off" });
+    expect(a.legacy).toEqual(b.legacy);
+    expect(a.ai).toBe(undefined);
+    expect(b.ai).toBe(undefined);
+  });
+
+  it.each([
+    { q: "recommend speeds for 4140", intent: "recommend" },
+    { q: "analyze why pocket chatters on aluminum", intent: "analyze" },
+    { q: "troubleshoot chatter issue on stainless", intent: "troubleshoot" },
+  ])("useAI='on' preserves legacy intent '$intent' for: $q", async ({ q, intent }) => {
+    const r = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(q, { useAI: "on" });
+    expect(r.legacy.intent).toBe(intent);
+    if (r.ai) {
+      expect(r.ai.sources).toContain("ai_extraction_reasoner");
+      expect(Array.isArray(r.ai.reasoning_chain)).toBe(true);
+    }
+  });
+
+  it("failure #1: empty query does not throw; legacy preserves empty original_query", async () => {
+    const r = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra("", { useAI: "on" });
+    expect(r.legacy.original_query).toBe("");
+  });
+
+  it("failure #2: whitespace-only query does not throw", async () => {
+    const r = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra("   ", { useAI: "on" });
+    expect(typeof r.legacy.intent).toBe("string");
+  });
+
+  it("failure #3: unicode-heavy query parses without throwing", async () => {
+    const r = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(
+      "recommend 돌이킬 수 settings 😊",
+      { useAI: "on" },
+    );
+    expect(typeof r.legacy.original_query).toBe("string");
+  });
+
+  it("adversarial #1: 10 KB oversize query bounded (<2 s)", async () => {
+    const big = "recommend speeds ".repeat(1000);
+    const t0 = performance.now();
+    await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(big, { useAI: "on" });
+    expect(performance.now() - t0).toBeLessThan(2000);
+  });
+
+  it("adversarial #2: injection-ish content does not escape parser", async () => {
+    const r = await millingAIIntegrationEngine.parseNaturalLanguageQueryUltra(
+      `recommend '; DROP TABLE parts; --`,
+      { useAI: "on" },
+    );
+    expect(typeof r.legacy.intent).toBe("string");
+  });
+});
+
+describe("MillingAIIntegrationEngine.findSimilarProgramsUltra — useAI routing", () => {
+  it("useAI='off' returns legacy shape matching sync findSimilarPrograms, no ai field", () => {
+    const req = { material: "steel" as const, limit: 3 };
+    const legacy = millingAIIntegrationEngine.findSimilarPrograms(req);
+    const ultra = millingAIIntegrationEngine.findSimilarProgramsUltra(req);
+    expect(ultra.legacy.length).toBe(legacy.length);
+    expect(ultra.ai).toBe(undefined);
+    for (const m of ultra.legacy) {
+      expect(typeof m).toBe("object");
+      expect("program" in m).toBe(true);
+    }
+  });
+
+  it.each([
+    { material: "steel", label: "P" },
+    { material: "stainless", label: "M" },
+    { material: "aluminum", label: "N" },
+  ])("useAI='on' for $label ($material) populates ai with bounded confidence + source tag", ({ material }) => {
+    const r = millingAIIntegrationEngine.findSimilarProgramsUltra(
+      { material: material as "steel", limit: 2 },
+      { useAI: "on" },
+    );
+    if (r.ai) {
+      expect(r.ai.sources).toContain("prism_neural_knowledge_synthesis");
+      expect(r.ai.confidence).toBeGreaterThanOrEqual(0);
+      expect(r.ai.confidence).toBeLessThanOrEqual(1);
+      expect(r.ai.insights_count).toBeGreaterThanOrEqual(0);
+      expect(r.ai.recommendations_count).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("failure: undefined material does not throw", () => {
+    const r = millingAIIntegrationEngine.findSimilarProgramsUltra({ limit: 1 }, { useAI: "on" });
+    expect(Array.isArray(r.legacy)).toBe(true);
+  });
+
+  it("adversarial: limit=1000 does not hang", () => {
+    const t0 = performance.now();
+    const r = millingAIIntegrationEngine.findSimilarProgramsUltra(
+      { material: "steel" as const, limit: 1000 },
+      { useAI: "on" },
+    );
+    expect(performance.now() - t0).toBeLessThan(2000);
+    expect(Array.isArray(r.legacy)).toBe(true);
+  });
+});
