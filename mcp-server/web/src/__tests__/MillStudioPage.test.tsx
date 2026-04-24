@@ -11,7 +11,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 // Mock the page since we're testing the wizard flow
 vi.mock("../contexts/MillStudioContext", () => {
-  const React = require("react");
+  const React = require("react") as typeof import("react");
+  void React;
   const actual = vi.importActual("../contexts/MillStudioContext");
 
   return {

@@ -196,7 +196,7 @@ function StepMaterial({ onComplete, onBack, isActive }: StepProps) {
 
 function StepStrategy({ onComplete, onBack, isActive }: StepProps) {
   const { updateStrategy } = useMillData();
-  const [strategies, setStrategies] = useState([
+  const [strategies, setStrategies] = useState<Array<{ id: string; type: string; sequence: number; stepdown_mm?: number; stepover_percent?: number; leave_stock_mm?: number; }>>([
     { id: "s1", type: "facing" as const, sequence: 1 },
     { id: "s2", type: "roughing" as const, stepdown_mm: 3, stepover_percent: 40, leave_stock_mm: 0.5, sequence: 2 },
     { id: "s3", type: "finishing" as const, stepdown_mm: 0.3, stepover_percent: 15, sequence: 3 },
