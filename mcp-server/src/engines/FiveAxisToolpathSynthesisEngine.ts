@@ -29,6 +29,10 @@
  */
 
 import { log } from "../utils/Logger.js";
+
+// MILL-MASTER-AI-WIRING / U12-SYNTH-RETROFIT
+import { bayesianOptimizationEngine } from "./BayesianOptimizationEngine.js";
+import { type UseAI } from "./MillAIWiring.js";
 import {
   singularityAvoidanceEngine,
   type SingularityResult,
@@ -1524,6 +1528,129 @@ export class FiveAxisToolpathSynthesisEngine {
     }
 
     return recs;
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U12-SYNTH-RETROFIT — BO-tuned scoring weights
+  // ==========================================================================
+
+  /**
+   * GP-BO-tuned synthesize. useAI='off' (default) returns { legacy } bit-identical
+   * to the static synthesize() with the handpicked 0.30/0.25/0.15/0.15/0.15/0.05
+   * weights retained per envelope. useAI='on'/'auto' runs
+   * bayesianOptimizationEngine.minimize over the 6-dim weight simplex to find
+   * weights that minimize the NEGATIVE top-strategy score (i.e. maximize it),
+   * then re-ranks with the tuned weights.
+   */
+  static synthesizeUltra(
+    input: FiveAxisSynthesisInput,
+    opts: { useAI?: UseAI; boIterations?: number } = {},
+  ): {
+    legacy: FiveAxisSynthesisResult;
+    ai?: {
+      tuned_weights: { surface_quality: number; productivity: number; skill: number; physics: number; novel: number; hsm: number };
+      original_weights: { surface_quality: number; productivity: number; skill: number; physics: number; novel: number; hsm: number };
+      best_score: number;
+      iterations: number;
+      tuned_ranking: Array<{ name: string; score: number }>;
+      sources: string[];
+    };
+  } {
+    const legacy = this.synthesize(input);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+
+    const original_weights = {
+      surface_quality: 0.30,
+      productivity: 0.25,
+      skill: 0.15,
+      physics: 0.15,
+      novel: 0.15,
+      hsm: 0.05,
+    };
+
+    // Re-run filterStrategies to get the current candidate set.
+    const candidates = (this as unknown as { filterStrategies: (i: FiveAxisSynthesisInput) => FiveAxisStrategyEntry[] })
+      .filterStrategies(input);
+
+    // Loss = -max(score) across candidates, given candidate weights vector x.
+    const lossFn = (x: number[]): number => {
+      const sum = x.reduce((a, b) => a + Math.max(0, b), 0) || 1;
+      const w = x.map(v => Math.max(0, v) / sum);
+      let best = 0;
+      for (const s of candidates) {
+        const skillMatch = 1 - Math.abs(s.complexity - input.operator_skill) / 5;
+        const score =
+          (s.surface_quality / 5) * w[0] +
+          (s.productivity / 5) * w[1] +
+          skillMatch * w[2] +
+          (s.physics_aware ? 1 : 0) * w[3] +
+          (input.prefer_novel && s.family === "novel_prism" ? 1 : 0) * w[4] +
+          (s.hsm ? 1 : 0) * w[5];
+        if (score > best) best = score;
+      }
+      return -best;
+    };
+
+    let tuned_weights = original_weights;
+    let best_score = 0;
+    let iterations = 0;
+    const sources: string[] = ["bayesian_optimization"];
+    try {
+      if (candidates.length > 0) {
+        const bo = bayesianOptimizationEngine.minimize(lossFn, {
+          dimensions: 6,
+          bounds: Array.from({ length: 6 }, () => ({ min: 0.02, max: 1.0 })),
+          acquisitionFunction: "EI",
+          initialPoints: 6,
+          maxIterations: typeof opts.boIterations === "number" && opts.boIterations > 0 ? Math.min(opts.boIterations, 30) : 12,
+          seed: 1234,
+        });
+        const rawX = bo.bestX;
+        const s = rawX.reduce((a, b) => a + Math.max(0, b), 0) || 1;
+        const nx = rawX.map(v => Math.max(0, v) / s);
+        tuned_weights = {
+          surface_quality: nx[0],
+          productivity: nx[1],
+          skill: nx[2],
+          physics: nx[3],
+          novel: nx[4],
+          hsm: nx[5],
+        };
+        best_score = Number.isFinite(bo.bestY) ? -bo.bestY : 0;
+        iterations = bo.iterations;
+      }
+    } catch {
+      // fail-closed: keep original weights
+    }
+
+    // Re-rank with tuned weights.
+    const tuned_ranking = candidates
+      .map(s => {
+        const skillMatch = 1 - Math.abs(s.complexity - input.operator_skill) / 5;
+        const score =
+          (s.surface_quality / 5) * tuned_weights.surface_quality +
+          (s.productivity / 5) * tuned_weights.productivity +
+          skillMatch * tuned_weights.skill +
+          (s.physics_aware ? 1 : 0) * tuned_weights.physics +
+          (input.prefer_novel && s.family === "novel_prism" ? 1 : 0) * tuned_weights.novel +
+          (s.hsm ? 1 : 0) * tuned_weights.hsm;
+        return { name: s.name, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
+
+    return {
+      legacy,
+      ai: {
+        tuned_weights,
+        original_weights,
+        best_score,
+        iterations,
+        tuned_ranking,
+        sources,
+      },
+    };
   }
 }
 

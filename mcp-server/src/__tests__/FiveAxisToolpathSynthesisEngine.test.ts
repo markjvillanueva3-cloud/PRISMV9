@@ -235,3 +235,117 @@ describe("FiveAxisToolpathSynthesisEngine.synthesize", () => {
     expect(Object.keys(result.rtcp_compensation as object).length).toBeGreaterThan(0);
   });
 });
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U12-SYNTH-RETROFIT — AI-path coverage
+// ============================================================================
+describe("FiveAxisToolpathSynthesisEngine.synthesizeUltra — useAI routing", () => {
+  const BASE_INPUT: Parameters<typeof FiveAxisToolpathSynthesisEngine.synthesize>[0] = {
+    geometry: "freeform_surface",
+    material: { name: "P20", iso_group: "P", kc11_mpa: 2200, mc: 0.25, density_kg_m3: 7850, thermal_conductivity_w_mk: 35, specific_heat_j_kgk: 460 },
+    tool: { type: "ball_nose", diameter_mm: 6, flute_length_mm: 20, overall_length_mm: 60, flute_count: 4, helix_angle_deg: 35, material: "carbide" },
+    machine: { machine_id: "M5_TEST", kinematic_type: "table_table", primary_axis: "A", secondary_axis: "C", axis_limits: { a_min_deg: -120, a_max_deg: 120, c_min_deg: -360, c_max_deg: 360 }, max_rotary_speed_deg_sec: 60, pivot_to_gauge_mm: 200, pivot_to_table_mm: 400, rtcp_enabled: true },
+    batch_size: 10,
+    operator_skill: 3,
+    prefer_novel: false,
+    use_ai_reasoning: false,
+  };
+
+  it("useAI='off' (default) returns { legacy } deep-equal to static synthesize, no ai field", () => {
+    const legacy = FiveAxisToolpathSynthesisEngine.synthesize(BASE_INPUT);
+    const ultra = FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT);
+    expect(ultra.legacy).toEqual(legacy);
+    expect(ultra.ai).toBe(undefined);
+  });
+
+  it("explicit useAI='off' is bit-identical to omitted", () => {
+    const a = FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT);
+    const b = FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT, { useAI: "off" });
+    expect(a.legacy).toEqual(b.legacy);
+    expect(a.ai).toBe(undefined);
+    expect(b.ai).toBe(undefined);
+  });
+
+  it("useAI='on' returns tuned weights that sum to 1 (±1e-9) and preserves originals", () => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT, { useAI: "on" });
+    expect(typeof r.ai).toBe("object");
+    const w = r.ai!.tuned_weights;
+    const sum = w.surface_quality + w.productivity + w.skill + w.physics + w.novel + w.hsm;
+    expect(sum).toBeCloseTo(1, 9);
+    for (const v of Object.values(w)) {
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThanOrEqual(1);
+    }
+    // Originals retained per envelope deliverable.
+    expect(r.ai!.original_weights.surface_quality).toBe(0.30);
+    expect(r.ai!.original_weights.productivity).toBe(0.25);
+    expect(r.ai!.original_weights.skill).toBe(0.15);
+    expect(r.ai!.original_weights.physics).toBe(0.15);
+    expect(r.ai!.original_weights.novel).toBe(0.15);
+    expect(r.ai!.original_weights.hsm).toBe(0.05);
+    expect(r.ai!.sources).toContain("bayesian_optimization");
+  });
+
+  it("useAI='on' best_score >= legacy max score (BO should not underperform hand-tuned)", () => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT, { useAI: "on" });
+    const legacyBest = r.legacy.recommended_strategy.score ?? 0;
+    // BO may find a higher-score weight assignment, or match — never strictly worse
+    // by more than floating-point noise.
+    expect(r.ai!.best_score).toBeGreaterThanOrEqual(legacyBest - 0.01);
+  });
+
+  it.each([
+    { geom: "impeller_blade" as const, label: "impeller" },
+    { geom: "mold_cavity" as const, label: "mold_cavity" },
+    { geom: "freeform_surface" as const, label: "freeform" },
+  ])("useAI='on' for $label geometry produces bounded tuned_ranking", ({ geom }) => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(
+      { ...BASE_INPUT, geometry: geom },
+      { useAI: "on" },
+    );
+    expect(Array.isArray(r.ai!.tuned_ranking)).toBe(true);
+    expect(r.ai!.tuned_ranking.length).toBeGreaterThanOrEqual(1);
+    for (let i = 1; i < r.ai!.tuned_ranking.length; i++) {
+      expect(r.ai!.tuned_ranking[i].score).toBeLessThanOrEqual(r.ai!.tuned_ranking[i - 1].score);
+    }
+  });
+
+  it("failure #1: boIterations=1 still produces tuned weights (boundary)", () => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT, { useAI: "on", boIterations: 1 });
+    expect(typeof r.ai).toBe("object");
+    const sum = Object.values(r.ai!.tuned_weights).reduce((a, b) => a + b, 0);
+    expect(sum).toBeCloseTo(1, 9);
+  });
+
+  it("failure #2: zero operator_skill does not throw", () => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(
+      { ...BASE_INPUT, operator_skill: 0 },
+      { useAI: "on" },
+    );
+    expect(r.ai!.tuned_ranking.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("failure #3: prefer_novel=true with novel_prism not in candidates still completes", () => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(
+      { ...BASE_INPUT, prefer_novel: true },
+      { useAI: "on" },
+    );
+    expect(typeof r.ai).toBe("object");
+  });
+
+  it("adversarial #1: boIterations=1000 is internally capped (<2 s wall clock)", () => {
+    const t0 = performance.now();
+    FiveAxisToolpathSynthesisEngine.synthesizeUltra(BASE_INPUT, { useAI: "on", boIterations: 1000 });
+    expect(performance.now() - t0).toBeLessThan(2000);
+  });
+
+  it("adversarial #2: operator_skill=100 (out of sane range) produces finite scores", () => {
+    const r = FiveAxisToolpathSynthesisEngine.synthesizeUltra(
+      { ...BASE_INPUT, operator_skill: 100 },
+      { useAI: "on" },
+    );
+    for (const tr of r.ai!.tuned_ranking) {
+      expect(Number.isFinite(tr.score)).toBe(true);
+    }
+  });
+});
