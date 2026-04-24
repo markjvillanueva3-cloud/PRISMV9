@@ -1017,6 +1017,7 @@ export const ACTIONS = [
   "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
   "lathe_safety_predicate_verify", "lathe_safety_predicate_verify_or_throw",
   "lathe_spindle_torque_gate", "lathe_spindle_torque_gate_or_throw",
+  "lathe_stock_boundary_gate", "lathe_stock_boundary_gate_or_throw",
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
@@ -3831,6 +3832,49 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               });
             } catch (e) {
               if (e instanceof SpindleTorqueBlockError) {
+                result = {
+                  thrown: true,
+                  code: e.code,
+                  message: e.message,
+                  gate_result: e.result,
+                };
+              } else {
+                throw e;
+              }
+            }
+            break;
+          }
+
+          case "lathe_stock_boundary_gate": {
+            const { stockBoundaryGateEngine } = await import(
+              "../../engines/StockBoundaryGateEngine.js"
+            );
+            result = stockBoundaryGateEngine.gate({
+              program: params.program,
+              stock: params.stock,
+              workholding: params.workholding,
+              min_jaw_clearance_mm: params.min_jaw_clearance_mm,
+              front_clearance_mm: params.front_clearance_mm,
+              od_approach_clearance_mm: params.od_approach_clearance_mm,
+            });
+            break;
+          }
+
+          case "lathe_stock_boundary_gate_or_throw": {
+            const { stockBoundaryGateEngine, StockBoundaryBlockError } = await import(
+              "../../engines/StockBoundaryGateEngine.js"
+            );
+            try {
+              result = stockBoundaryGateEngine.gateOrThrow({
+                program: params.program,
+                stock: params.stock,
+                workholding: params.workholding,
+                min_jaw_clearance_mm: params.min_jaw_clearance_mm,
+                front_clearance_mm: params.front_clearance_mm,
+                od_approach_clearance_mm: params.od_approach_clearance_mm,
+              });
+            } catch (e) {
+              if (e instanceof StockBoundaryBlockError) {
                 result = {
                   thrown: true,
                   code: e.code,
