@@ -220,6 +220,37 @@ const wingComputePropertiesSchema = z.object({
   })).describe("Ordered spanwise sections (root→tip). Must have ≥2 entries."),
 });
 
+// ── Involute Gear Engine Actions (U-CADC15) ────────────────────────────────
+const gearSpecSchema = z.object({
+  teeth: z.number().describe("Number of teeth z. Must be integer ≥ 5."),
+  module: z.number().describe("Module m in mm. Must be > 0."),
+  pressureAngleDeg: z.number().optional().describe("Pressure angle in degrees. Default 20 (ISO 53)."),
+  faceWidth: z.number().optional().describe("Face width in mm (informational, default 0)."),
+  profileShift: z.number().optional().describe("Profile shift coefficient x. Default 0."),
+  addendumCoeff: z.number().optional().describe("Addendum coefficient h_a* (default 1.0 per ISO 53)."),
+  dedendumCoeff: z.number().optional().describe("Dedendum coefficient h_d* (default 1.25 per ISO 53)."),
+});
+
+const gearComputeGeometrySchema = z.object({
+  spec: gearSpecSchema.optional().describe("Gear spec object. If omitted, the whole params object is used as the spec."),
+  teeth: z.number().optional(),
+  module: z.number().optional(),
+  pressureAngleDeg: z.number().optional(),
+  profileShift: z.number().optional(),
+  faceWidth: z.number().optional(),
+  addendumCoeff: z.number().optional(),
+  dedendumCoeff: z.number().optional(),
+});
+
+const gearGenerateToothProfileSchema = gearComputeGeometrySchema.extend({
+  samplesPerFlank: z.number().optional().describe("Number of involute samples per flank. Default 25, floor 5."),
+});
+
+const gearComputeContactRatioSchema = z.object({
+  gear1: gearSpecSchema.describe("First mesh partner (pinion)."),
+  gear2: gearSpecSchema.describe("Second mesh partner (gear). Module and pressure angle must match gear1."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -264,4 +295,8 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   wing_loft_single_profile: wingLoftSingleProfileSchema,
   wing_loft_between_profiles: wingLoftBetweenProfilesSchema,
   wing_compute_properties: wingComputePropertiesSchema,
+  // Involute Gear Engine (U-CADC15)
+  gear_compute_geometry: gearComputeGeometrySchema,
+  gear_generate_tooth_profile: gearGenerateToothProfileSchema,
+  gear_compute_contact_ratio: gearComputeContactRatioSchema,
 };
