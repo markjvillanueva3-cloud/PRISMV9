@@ -1018,6 +1018,7 @@ export const ACTIONS = [
   "lathe_safety_predicate_verify", "lathe_safety_predicate_verify_or_throw",
   "lathe_spindle_torque_gate", "lathe_spindle_torque_gate_or_throw",
   "lathe_stock_boundary_gate", "lathe_stock_boundary_gate_or_throw",
+  "lathe_proof_carrying_emit", "lathe_proof_carrying_reproduce",
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
@@ -3885,6 +3886,44 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 throw e;
               }
             }
+            break;
+          }
+
+          case "lathe_proof_carrying_emit": {
+            const { latheProofCarryingEmitEngine, SafetyProofViolation } = await import(
+              "../../engines/LatheProofCarryingEmitEngine.js"
+            );
+            try {
+              result = latheProofCarryingEmitEngine.emit({
+                program: params.program,
+                options: params.options,
+                safety_inputs: params.safety_inputs,
+                allow_override: params.allow_override,
+              });
+            } catch (e) {
+              if (e instanceof SafetyProofViolation) {
+                result = {
+                  thrown: true,
+                  code: e.code,
+                  message: e.message,
+                  safety_record: e.safety_record,
+                };
+              } else {
+                throw e;
+              }
+            }
+            break;
+          }
+
+          case "lathe_proof_carrying_reproduce": {
+            const { latheProofCarryingEmitEngine } = await import(
+              "../../engines/LatheProofCarryingEmitEngine.js"
+            );
+            result = latheProofCarryingEmitEngine.reproduce({
+              program: params.program,
+              options: params.options,
+              safety_inputs: params.safety_inputs,
+            });
             break;
           }
           case "lathe_p2p_signoff_generate": {
