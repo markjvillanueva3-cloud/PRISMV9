@@ -1,4 +1,4 @@
-// WIRE-EXEMPT: SLO budget tracker consumed by deploy gates + reliability dashboards, not a direct user action
+// Wired: prism_dev.{error_budget_set_target, error_budget_record, error_budget_status, error_budget_list} (devDispatcher.ts)
 /**
  * ErrorBudgetEngine — U-FORE-17 (Reliability Substrate)
  *

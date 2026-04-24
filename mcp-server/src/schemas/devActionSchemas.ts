@@ -121,4 +121,24 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     contextTokensLimit: z.number().optional().describe("Context window size"),
     modelName: z.string().optional().describe("Active model id (e.g. opus_4_7_1m)"),
   }),
+
+  // PSAU-FORESIGHT SLO reliability tracker (ErrorBudgetEngine)
+  error_budget_set_target: z.object({
+    service: z.string().min(1).describe("Service identifier (e.g. prism_session, mill_studio)"),
+    availabilityTarget: z.number().gt(0).lt(1).describe("SLO availability target in (0,1); e.g. 0.999 = 99.9%"),
+    windowHours: z.number().positive().describe("Rolling window for budget calculation (hours)"),
+  }),
+
+  error_budget_record: z.object({
+    service: z.string().min(1).describe("Service identifier"),
+    success: z.boolean().describe("Did the request/operation succeed?"),
+    weight: z.number().positive().optional().describe("Optional event weight (default 1)"),
+    at: z.number().optional().describe("Epoch ms; defaults to now"),
+  }),
+
+  error_budget_status: z.object({
+    service: z.string().min(1).describe("Service identifier"),
+  }),
+
+  error_budget_list: z.object({}).optional(),
 };
