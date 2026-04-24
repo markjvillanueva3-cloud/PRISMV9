@@ -2082,6 +2082,45 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "failure_risk_analyze": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const profile = failureModeAnticipationEngine.analyzeFailureRisk(
+              params.conditions as Parameters<typeof failureModeAnticipationEngine.analyzeFailureRisk>[0]
+            );
+            result = { success: true, profile };
+            break;
+          }
+
+          case "failure_modes_list": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const modes = failureModeAnticipationEngine.getFailureModes();
+            result = { success: true, modes };
+            break;
+          }
+
+          case "failure_mode_get": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const mode = failureModeAnticipationEngine.getFailureMode(String(params.id));
+            if (!mode) { result = { success: false, error: `unknown failure mode '${String(params.id)}'` }; break; }
+            result = { success: true, mode };
+            break;
+          }
+
+          case "failure_cascade_chain": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const chain = failureModeAnticipationEngine.getCascadeChain(String(params.failureId));
+            result = { success: true, chain };
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }
