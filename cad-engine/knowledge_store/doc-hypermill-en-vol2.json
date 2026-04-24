@@ -1,0 +1,2963 @@
+{
+  "tips": [
+    {
+      "title": "Define contours for turning operations",
+      "body": "Contours may correspond to the contour of the turning model.",
+      "category": "contouring",
+      "tags": [
+        "turning",
+        "model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing",
+        "grooving",
+        "parting",
+        "thread_cutting"
+      ],
+      "page_ref": "p.1",
+      "_chunk": 1
+    },
+    {
+      "title": "Select cutting side for turning",
+      "body": "Outside option creates external shape, Inside option creates internal shape.",
+      "category": "cutting_side",
+      "tags": [
+        "turning"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.1",
+      "_chunk": 1
+    },
+    {
+      "title": "Set infeed direction for turning",
+      "body": "Infeed can be performed from left to right or from right to left.",
+      "category": "infeed_direction",
+      "tags": [
+        "turning"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.2",
+      "_chunk": 1
+    },
+    {
+      "title": "Use automatic contour creation for machining operations",
+      "body": "Available for all turning cycles except 3X simultaneous Roughing and 3X simultaneous Finishing.",
+      "category": "contour_creation",
+      "tags": [
+        "turning",
+        "auto"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing",
+        "grooving",
+        "parting",
+        "thread_cutting"
+      ],
+      "page_ref": "p.2",
+      "_chunk": 1
+    },
+    {
+      "title": "Set radial and axial limits for machining area",
+      "body": "Limits the machining area of the tool used in the radial or axial direction.",
+      "category": "limits",
+      "tags": [
+        "turning",
+        "radial",
+        "axial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.2",
+      "_chunk": 1
+    },
+    {
+      "title": "Define infeed parameters for turning",
+      "body": "Options include Constant, Ascending, Descending, and Ramp.",
+      "category": "infeed_parameters",
+      "tags": [
+        "turning",
+        "infeed"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Enable chipbreak Z for controlled chip break and removal",
+      "body": "Controls the chip break and chip removal in combination with dwell time or rotations.",
+      "category": "chipbreak_z",
+      "tags": [
+        "turning",
+        "chipbreak"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Set clearance parameters for turning",
+      "body": "Macro clearance, clearance distance (Z), and clearance radius (X).",
+      "category": "clearance_parameters",
+      "tags": [
+        "turning",
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define approach and retract movements for turning",
+      "body": "Automatically adapt the approach and retract movement to the defined approach/retract macro.",
+      "category": "approach_retract",
+      "tags": [
+        "turning",
+        "macro"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.5",
+      "_chunk": 1
+    },
+    {
+      "title": "Use manual curves for approach and retract movements",
+      "body": "Define an individual approach or retract movement.",
+      "category": "manual_curves",
+      "tags": [
+        "turning",
+        "approach",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.5",
+      "_chunk": 1
+    },
+    {
+      "title": "Enable High Performance Mode for turning",
+      "body": "Supports round inserts, constant low load on tool and machine.",
+      "category": "high_performance_mode",
+      "tags": [
+        "turning",
+        "performance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Set strategy for High Performance Roughing",
+      "body": "Material is removed parallel to the turning axis or in a ramp-shaped first cut.",
+      "category": "strategy_high_performance",
+      "tags": [
+        "turning",
+        "performance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Define machining angle for linear and radial strategies",
+      "body": "Activate the Machining Angle option to remove material at a defined angle, available for L and R strategy options.",
+      "category": "strategy",
+      "tags": [
+        "machining_angle",
+        "L_strategy",
+        "R_strategy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.4",
+      "_chunk": 2
+    },
+    {
+      "title": "Calculate infeed using corner radius",
+      "body": "If the infeed is specified, the infeed factor is calculated automatically via the corner radius; if the infeed factor is specified, the infeed is calculated automatically via the corner radius.",
+      "category": "parameters",
+      "tags": [
+        "infeed",
+        "corner_radius"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.4",
+      "_chunk": 2
+    },
+    {
+      "title": "Set default fillet radius as corner radius * 0.1",
+      "body": "Fillet radius is set to the corner radius multiplied by 0.1 by default.",
+      "category": "parameters",
+      "tags": [
+        "fillet_radius",
+        "corner_radius"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.4",
+      "_chunk": 2
+    },
+    {
+      "title": "Define approach and retract macros for additional movement",
+      "body": "Additional movement during infeed to the first path or during retraction after the last path can be defined using Approach macro / Retract macro.",
+      "category": "macros",
+      "tags": [
+        "approach_macro",
+        "retract_macro"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.5",
+      "_chunk": 2
+    },
+    {
+      "title": "Set clearance distance for approach and retract movements",
+      "body": "Clearance distance is the minimum distance of the tool to the turning area during approach and retract movements.",
+      "category": "parameters",
+      "tags": [
+        "clearance_distance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 2
+    },
+    {
+      "title": "Define clearance radius for rapid tool movements in X direction",
+      "body": "Clearance radius (X) is the radius for rapid tool movements in the X direction.",
+      "category": "parameters",
+      "tags": [
+        "clearance_radius"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 2
+    },
+    {
+      "title": "Set clearance plane for rapid tool movements in Z direction",
+      "body": "Clearance plane (Z) is the plane for rapid tool movements in the Z direction, available for Inside machining and Plane options.",
+      "category": "parameters",
+      "tags": [
+        "clearance_plane"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 2
+    },
+    {
+      "title": "Define retract plane for driving out tool from undercutting areas",
+      "body": "Retract plane (Z) is used to drive out the tool from undercutting areas when the Radial limit / Axial limit option is activated.",
+      "category": "parameters",
+      "tags": [
+        "retract_plane"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 2
+    },
+    {
+      "title": "Set model allowance for global and additional allowances",
+      "body": "Model allowance includes global allowance on the model, additional allowance in Z direction, and additional allowance in X direction.",
+      "category": "parameters",
+      "tags": [
+        "model_allowance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 2
+    },
+    {
+      "title": "Define rapid angle for approach and retract movements",
+      "body": "Rapid angle can be defined for the approach, retract or both in the Transition mode.",
+      "category": "parameters",
+      "tags": [
+        "rapid_angle"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 2
+    },
+    {
+      "title": "Define tangential length",
+      "body": "Set tangential length for toolpath strategy.",
+      "category": "toolpath",
+      "tags": [
+        "tangential"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Define radius and arc angle for circular toolpath",
+      "body": "Set radius and arc angle for circular toolpath strategy.",
+      "category": "toolpath",
+      "tags": [
+        "circular"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Define ramp length and angle for ramp toolpath",
+      "body": "Set ramp length and angle for ramp toolpath strategy.",
+      "category": "toolpath",
+      "tags": [
+        "ramp"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Set infeed direction for stock trimming",
+      "body": "Define infeed direction (left or right) for stock trimming.",
+      "category": "toolpath",
+      "tags": [
+        "stock_trimming"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Define length for axial stock trimming",
+      "body": "Set length for axial stock trimming from the end point of the contour.",
+      "category": "toolpath",
+      "tags": [
+        "axial_trimming"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Define length for tangential stock trimming",
+      "body": "Set length for tangential stock trimming at a tangent to the contour.",
+      "category": "toolpath",
+      "tags": [
+        "tangential_trimming"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Define turning model for turning operations",
+      "body": "Create a closed, planar contour in the X-Z plane of the turning frame.",
+      "category": "toolpath",
+      "tags": [
+        "turning_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Enable collision check for turning operations",
+      "body": "Check tool collisions against stock model and current turning model.",
+      "category": "toolpath",
+      "tags": [
+        "collision_check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Define turning stock based on a closed contour",
+      "body": "Create a turning stock model in the X-Z plane of the turning frame.",
+      "category": "toolpath",
+      "tags": [
+        "turning_stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Generate milling stock from turning stock",
+      "body": "Create a milling stock model based on existing turning stock.",
+      "category": "toolpath",
+      "tags": [
+        "milling_stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 3
+    },
+    {
+      "title": "Set free angle for tool plunge",
+      "body": "Define the minimum angle between tool insert and calculated toolpath to automatically calculate plunge angle.",
+      "category": "toolpath",
+      "tags": [
+        "free_angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Select contours for turning operations",
+      "body": "Define start and end points for machining, either by selecting a point or entering coordinates.",
+      "category": "toolpath",
+      "tags": [
+        "contour_selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Assign cutting speed and feedrate to contour segments",
+      "body": "Modify cutting speed and feedrate manually or based on factors.",
+      "category": "toolpath",
+      "tags": [
+        "segment_settings"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Define chamfer length and angle for sharp corners",
+      "body": "Set chamfer length and angle for automatic corner braking.",
+      "category": "toolpath",
+      "tags": [
+        "corner_brake"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Set machining mode for selected areas",
+      "body": "Limit machining to flat or steep areas of the defined contour.",
+      "category": "toolpath",
+      "tags": [
+        "machining_mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Define clearance distance and radius for approach and retract",
+      "body": "Set clearance movement at feedrate before rapid movement begins.",
+      "category": "toolpath",
+      "tags": [
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Set model allowance for turning operations",
+      "body": "Define global and additional allowances on the model.",
+      "category": "toolpath",
+      "tags": [
+        "model_allowance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Define rapid angle for approach and retract",
+      "body": "Set a rapid angle for the approach, retract or both.",
+      "category": "toolpath",
+      "tags": [
+        "rapid_angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Define approach and retract movement for toolpath",
+      "body": "Set the approach movement from clearance radius to macro and departure movement from macro to clearance radius.",
+      "category": "toolpath",
+      "tags": [
+        "approach_retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Define manual approach or retract curves",
+      "body": "Set individual approach or retract movements using manual curves.",
+      "category": "toolpath",
+      "tags": [
+        "manual_curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Set feedrate for manual approach or retract curves",
+      "body": "Define the feedrate for approach and retract curves.",
+      "category": "toolpath",
+      "tags": [
+        "feedrate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 3
+    },
+    {
+      "title": "Define tangential length, arc angle, arc radius, and tangential extension for tangential approach/retract macros.",
+      "body": "Set values for tangential length (1), arc angle (2), arc radius (3), and tangential extension (4).",
+      "category": "toolpath",
+      "tags": [
+        "tangential",
+        "approach",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define radius and arc angle for circular approach/retract macros.",
+      "body": "Set values for radius (3) and arc angle (2).",
+      "category": "toolpath",
+      "tags": [
+        "circular",
+        "approach",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define ramp length and ramp angle for ramp approach/retract macros.",
+      "body": "Set values for ramp length (4) and ramp angle (2).",
+      "category": "toolpath",
+      "tags": [
+        "ramp",
+        "approach",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define ramp angle for a more smooth connection of partially finished areas.",
+      "body": "Set the ramp angle (1) considering the infeed direction (left or right).",
+      "category": "toolpath",
+      "tags": [
+        "ramp",
+        "connection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define length for axial stock trimming.",
+      "body": "Set the L ength (3) for trimming from the end point of the contour parallel to the axis of the workpiece.",
+      "category": "toolpath",
+      "tags": [
+        "trimming",
+        "axial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define length for tangential stock trimming.",
+      "body": "Set the L ength (3) for trimming carried out at a tangent to the contour.",
+      "category": "toolpath",
+      "tags": [
+        "trimming",
+        "tangential"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define a turning model based on a closed, planar contour in the X-Z plane.",
+      "body": "Select a frame for the turning axis and define the colour and layer of the turning contour.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Enable collision check for potential collisions against the current stock model and turning model.",
+      "body": "Select this option to permanently check the tool holder for collisions during machining.",
+      "category": "toolpath",
+      "tags": [
+        "collision",
+        "check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define a turning area by selecting a closed contour.",
+      "body": "Open the T urning area dialogue and specify a name and comment for the turning area.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Create a turning area from surfaces or solids.",
+      "body": "Open the C reate turning area from model dialogue and select surfaces or a solid.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the frame, colour, and layer of the turning contour.",
+      "body": "Select a frame for the turning axis, define the colour and layer, and choose to use model colours.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "contour"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the resolution for turning area creation.",
+      "body": "Set the resolution to define the fineness of the turning area.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "resolution"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the frame for turning axis.",
+      "body": "Select a frame from the list that matches the rotary axis of the tool.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the Z axis of the machining frame as the same as the rotary axis of the tool.",
+      "body": "Ensure both the turning area and turning stock lie in the X-Z plane.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "frame"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the cutting side for turning operations.",
+      "body": "Select Inside (1) for internal shape or Outside (2) for external shape.",
+      "category": "toolpath",
+      "tags": [
+        "cutting",
+        "side"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the infeed direction for turning operations.",
+      "body": "Select To left (1) or T o right (2) based on the axis of the turning surface.",
+      "category": "toolpath",
+      "tags": [
+        "infeed",
+        "direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the permissible contact area of the insert with the model.",
+      "body": "Set values for Roll start contact (0) and Roll end contact (1) for X Full Roll Turn and X Short Roll Turn inserts, or Side roll start contact (0) and Side roll end contact (1) for T Full Roll Turn and T Short Roll Turn inserts.",
+      "category": "toolpath",
+      "tags": [
+        "contact",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 4
+    },
+    {
+      "title": "Define the clearance distance and radius for approach/retract movements.",
+      "body": "Set values for Clearance distance (1), Clearance radius (X), and Clearance plane (Z).",
+      "category": "toolpath",
+      "tags": [
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 4
+    },
+    {
+      "title": "Define model allowance and additional allowances for the turning stock.",
+      "body": "Set values for Model allowance (1), Additional allowance Z (2), and Additional allowance X (3). Both can have positive or negative values.",
+      "category": "toolpath",
+      "tags": [
+        "stock",
+        "allowance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 4
+    },
+    {
+      "title": "Define additional movement during infeed to the first path or during retraction after the last path.",
+      "body": "Set values for Radial (1), Tangential (2), Circular (3), and Ramp (4) macros.",
+      "category": "toolpath",
+      "tags": [
+        "macros"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 4
+    },
+    {
+      "title": "Define ramp angle",
+      "body": "The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account.",
+      "category": "toolpath",
+      "tags": [
+        "ramp_angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Set trim to stock method",
+      "body": "Stock trimming can be defined separately for the right and left sides.",
+      "category": "toolpath",
+      "tags": [
+        "trim_to_stock"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Define turning model",
+      "body": "A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the turning frame.",
+      "category": "toolpath",
+      "tags": [
+        "turning_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Enable collision check",
+      "body": "Collision check: If this option is selected, the holder of the tool used is permanently checked for potential collisions against the current stock model (tracked stock model) and the current turning model.",
+      "category": "toolpath",
+      "tags": [
+        "collision_check"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Create turning area from surfaces or solids",
+      "body": "Open the Create turning area from model dialogue to create a turning area from surfaces or solids.",
+      "category": "toolpath",
+      "tags": [
+        "create_turning_area"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Define turning stock",
+      "body": "Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and the associated turning axis in the X-Z plane.",
+      "category": "toolpath",
+      "tags": [
+        "turning_stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Define frame for turning axis",
+      "body": "Frame for turning axis: Select a frame for the turning axis from the list.",
+      "category": "toolpath",
+      "tags": [
+        "frame"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Define contour selection",
+      "body": "Contours: Define contours for turning operations.",
+      "category": "toolpath",
+      "tags": [
+        "contour_selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define contour attributes",
+      "body": "Start point / end point: define the start and end points for machining, either by selecting a point or by entering coordinates.",
+      "category": "toolpath",
+      "tags": [
+        "contour_attributes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define infeed direction",
+      "body": "Infeed direction: To left (1)/ To right (2): Machining is performed from right to left or from left to right in the direction of the axis of the turning surface.",
+      "category": "toolpath",
+      "tags": [
+        "infeed_direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define strategy for axial roughing",
+      "body": "Axial roughing (1): Machining is performed parallel to the axis of the turning surface.",
+      "category": "toolpath",
+      "tags": [
+        "axial_roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define strategy for radial roughing",
+      "body": "Radial roughing (2): Machining is performed perpendicular to the axis of the turning surface.",
+      "category": "toolpath",
+      "tags": [
+        "radial_roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define cutting side for turning operations",
+      "body": "Cutting side: Outside (1) / Inside (2): The external shape of a workpiece is created by using the Outside option and the internal shape by using the Inside option.",
+      "category": "toolpath",
+      "tags": [
+        "cutting_side"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define infeed parameters for turning operations",
+      "body": "Infeed: Radial / axial infeed to the next machining plane.",
+      "category": "toolpath",
+      "tags": [
+        "infeed_parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Define clearance parameters for turning operations",
+      "body": "Clearance: Macro clearance: Minimum distance of the tool to the turning area during approach and retract movements.",
+      "category": "toolpath",
+      "tags": [
+        "clearance_parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Define approach and retract parameters for turning operations",
+      "body": "Approach and retract: Define the approach movement from the clearance radius (X) to the macro and the departure movement from the macro to the clearance radius (X).",
+      "category": "toolpath",
+      "tags": [
+        "approach_retract_parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Define tilt strategy for turning operations",
+      "body": "Tilt strategy: Select Tilt point (1) to specify the orientation of the tilting axis with the help of a tilt point.",
+      "category": "toolpath",
+      "tags": [
+        "tilt_strategy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Define high performance roughing strategy",
+      "body": "High Performance Roughing: Use if material that is difficult to cut is to be machined or a reliable chip break cannot be achieved with conventional strategies.",
+      "category": "toolpath",
+      "tags": [
+        "high_performance_roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Enable High Performance Mode for optimal tool and machine load",
+      "body": "Select 'High Performance Mode' checkbox in hyperMILL settings.",
+      "category": "strategy",
+      "tags": [
+        "performance",
+        "tool life"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.15",
+      "_chunk": 6
+    },
+    {
+      "title": "Define machining angle for non-parallel material removal",
+      "body": "Activate 'Machining angle' option in strategy settings to remove material at a defined angle.",
+      "category": "strategy",
+      "tags": [
+        "machining angle",
+        "material orientation"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.15",
+      "_chunk": 6
+    },
+    {
+      "title": "Set infeed factor based on corner radius for material removal",
+      "body": "Calculate infeed factor using formula: Infeed = Corner radius * Infeed factor.",
+      "category": "speeds_feeds",
+      "tags": [
+        "infeed",
+        "corner radius"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.15",
+      "_chunk": 6
+    },
+    {
+      "title": "Use approach and retract macros for additional movements",
+      "body": "Define macros for radial, tangential, circular, or ramp approaches/retractions.",
+      "category": "toolpath",
+      "tags": [
+        "approach",
+        "retract"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 6
+    },
+    {
+      "title": "Enable collision check for tool safety",
+      "body": "Select 'Collision check' option to permanently check tool against stock model.",
+      "category": "safety",
+      "tags": [
+        "collision detection",
+        "tool safety"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 6
+    },
+    {
+      "title": "Define turning model for machining operations",
+      "body": "Create a closed, planar contour in X-Z plane to define the turning model.",
+      "category": "toolpath",
+      "tags": [
+        "turning model",
+        "contour"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 6
+    },
+    {
+      "title": "Set resolution for turning area to define machining precision",
+      "body": "Adjust 'Resolution' parameter in contour settings to control the fineness of the turning area.",
+      "category": "toolpath",
+      "tags": [
+        "resolution",
+        "precision"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 6
+    },
+    {
+      "title": "Use synchronous lines for tilt strategy in finishing operations",
+      "body": "Define tilt strategy using synchronisation lines to machine complex contours with a single tool.",
+      "category": "strategy",
+      "tags": [
+        "tilt strategy",
+        "synchronous lines"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 6
+    },
+    {
+      "title": "Select appropriate tool inserts for machining operations",
+      "body": "Choose tools with rhombic, triangular, round, or W-shape inserts and set reference to midpoint.",
+      "category": "tool_selection",
+      "tags": [
+        "tool selection",
+        "inserts"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Define start and end points for machining contours",
+      "body": "Specify start and end points either by selecting a point or entering coordinates.",
+      "category": "contour_selection",
+      "tags": [
+        "start point",
+        "end point"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Invert machining direction for contour operations",
+      "body": "Use 'Reverse' option to invert the machining direction of selected contours.",
+      "category": "contour_selection",
+      "tags": [
+        "reverse",
+        "machining direction"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Limit machining to selected areas for complex contours",
+      "body": "Set 'Machining mode' to limit operations to selected flat and steep areas based on slope angle.",
+      "category": "strategy",
+      "tags": [
+        "machining mode",
+        "slope angle"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Control edge behavior for toolpath optimization",
+      "body": "Select 'Roll' or 'Extend' option to control the tool's movement around edges.",
+      "category": "toolpath",
+      "tags": [
+        "edge behavior",
+        "corner control"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Define clearance distance for approach and retract movements",
+      "body": "Set 'Clearance distance' to ensure the tool does not touch the turning area during rapid movements.",
+      "category": "speeds_feeds",
+      "tags": [
+        "clearance",
+        "approach",
+        "retract"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Set model allowance for additional material removal",
+      "body": "Adjust 'Model allowance' to add global or directional allowances on the turning model.",
+      "category": "toolpath",
+      "tags": [
+        "allowance",
+        "model"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Adjust B-axis angle range for tilting operations",
+      "body": "Use 'Min. B angle' and 'Max. B angle' to define the permissible angle range for B-axis tilting.",
+      "category": "strategy",
+      "tags": [
+        "B-axis",
+        "tilt"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Define rapid angle for toolpath transitions",
+      "body": "Set 'Rapid angle' to control the angle of rapid movements during approach, retract, or both.",
+      "category": "toolpath",
+      "tags": [
+        "rapid angle",
+        "transitions"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 6
+    },
+    {
+      "title": "Define approach movement from clearance radius to macro",
+      "body": "Use 'Angle \u2192Automatic' for automatic adaptation or specify an angle with 'Angle \u2192Rapid angle approach/retract'",
+      "category": "approach_retract",
+      "tags": [
+        "approach",
+        "retract",
+        "macro"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Use manual curves for approach and retract",
+      "body": "Select 'Manual curves \u2192Approach curve / Retract curve' to define individual movements, set feedrate (default = 5 mm/revolution)",
+      "category": "approach_retract",
+      "tags": [
+        "manual",
+        "curve"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Select connection type for approach and retract",
+      "body": "Choose 'Direct', 'Z X', or 'X Z' in the 'Connection to macro' section",
+      "category": "approach_retract",
+      "tags": [
+        "connection",
+        "macro"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Define approach and retract macros",
+      "body": "Create macros for additional movements during infeed or retraction, specify ramp angle and length",
+      "category": "approach_retract",
+      "tags": [
+        "macro",
+        "ramp"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Set trimming stock for right and left sides",
+      "body": "Choose 'Axial' or 'Tangential' trimming method, define length",
+      "category": "trimming_stock",
+      "tags": [
+        "trimming",
+        "stock"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Set collision check for turning operations",
+      "body": "Enable collision check to permanently check tool holder against stock model and turning model",
+      "category": "collision_check",
+      "tags": [
+        "check",
+        "stock"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Define turning stock based on contours",
+      "body": "Create a closed, planar contour in the X-Z plane of the turning frame and associated turning axis",
+      "category": "turning_stock",
+      "tags": [
+        "stock",
+        "contour"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Generate stock models for subsequent jobs",
+      "body": "Create 'Generate turn resulting stock' or 'Generate mill resulting stock' based on current job",
+      "category": "stock_models",
+      "tags": [
+        "model",
+        "generation"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Set frame for turning axis",
+      "body": "Select a frame from the list and define color and layer of turning contour",
+      "category": "frame_setup",
+      "tags": [
+        "frame",
+        "axis"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Define resolution for turning area",
+      "body": "Set the resolution (fineness) of the turning area",
+      "category": "resolution",
+      "tags": [
+        "area",
+        "resolution"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 7
+    },
+    {
+      "title": "Select surfaces or solids for turning operations",
+      "body": "hyperMILL automatically creates a turning contour based on selected surfaces or solids",
+      "category": "surface_selection",
+      "tags": [
+        "surfaces",
+        "solids"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Set strategy for turning operations",
+      "body": "Choose 'Axial roughing' or 'Axial roughing with ramp', define ramp angle if applicable",
+      "category": "strategy",
+      "tags": [
+        "strategy",
+        "ramp"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Define cutting side and direction for turning operations",
+      "body": "Choose 'Inside' or 'Outside' for external/internal shapes, set infeed direction to left or right",
+      "category": "cutting_parameters",
+      "tags": [
+        "side",
+        "direction"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Set cutting mode for turning operations",
+      "body": "Choose 'Oneway' or 'Zigzag'",
+      "category": "cutting_mode",
+      "tags": [
+        "mode",
+        "zigzag"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Set radial/axial limit for turning operations",
+      "body": "Limit machining area in radial or axial direction if needed",
+      "category": "limit_setting",
+      "tags": [
+        "limit",
+        "radial"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Enable radial compensation for finishing operations",
+      "body": "Pre-plunge during finishing to prevent tool from engaging with two sides of the insert simultaneously",
+      "category": "radial_compensation",
+      "tags": [
+        "compensation",
+        "pre-plunge"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Define radial compensation value for finishing operations",
+      "body": "Set radial deviation from model contour in final finishing, consider factors like feedrate, cutting depth, tool geometry, cutting speed, and workpiece material",
+      "category": "radial_compensation",
+      "tags": [
+        "compensation",
+        "value"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Set radial infeed and max. infeed depth for turning operations",
+      "body": "Define infeed in radial direction (cutting depth) and maximum depth of material removal in radial direction",
+      "category": "radial_parameters",
+      "tags": [
+        "infeed",
+        "depth"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Define turning model allowances",
+      "body": "Set global allowance on the model, additional allowances in Z and X directions",
+      "category": "model_allowances",
+      "tags": [
+        "allowance",
+        "model"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Set clearance for approach and retract movements",
+      "body": "Define macro clearance (minimum distance to turning area) and clearance distance before rapid movement begins",
+      "category": "clearance",
+      "tags": [
+        "macro",
+        "distance"
+      ],
+      "confidence": 80,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 7
+    },
+    {
+      "title": "Define a turning model",
+      "body": "Create a closed, planar contour in the X-Z plane of the turning frame.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Specify turning area details",
+      "body": "Open the Turning area dialogue, specify a name and comment for the turning area.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Create turning area from model",
+      "body": "Open the Create turning area from model dialogue to create a turning area from surfaces or solids.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Define turning stock model",
+      "body": "Create a closed, planar contour in the X-Z plane of the turning frame and associated turning axis.",
+      "category": "toolpath",
+      "tags": [
+        "turning",
+        "stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Generate resulting stock models",
+      "body": "Options include generating turn resulting stock, mill resulting stock, or from existing mill stock.",
+      "category": "toolpath",
+      "tags": [
+        "stock",
+        "models"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Set machining strategy",
+      "body": "Perform machining perpendicular to the axis of the turning surface.",
+      "category": "strategy",
+      "tags": [
+        "machining",
+        "perpendicular"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Define cutting side",
+      "body": "Choose between Inside or Outside for external and internal shapes.",
+      "category": "toolpath",
+      "tags": [
+        "cutting",
+        "side"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Set infeed direction",
+      "body": "Choose to machine from left, right, or centrally.",
+      "category": "toolpath",
+      "tags": [
+        "infeed",
+        "direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Set radial/axial limits",
+      "body": "Limit machining area in the radial or axial direction.",
+      "category": "parameters",
+      "tags": [
+        "limits",
+        "radial",
+        "axial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Define axial infeed parameters",
+      "body": "Set axial infeed depth and maximum removal depth.",
+      "category": "parameters",
+      "tags": [
+        "infeed",
+        "depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Set clearance parameters",
+      "body": "Define macro clearance, clearance distance, and clearance radius.",
+      "category": "clearance",
+      "tags": [
+        "clearance",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Create approach/retract macros",
+      "body": "Define ramp angle and length for approach/retract movements.",
+      "category": "macros",
+      "tags": [
+        "approach",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Set stock trimming parameters",
+      "body": "Define trimming from the end point or at a tangent to the contour.",
+      "category": "stock",
+      "tags": [
+        "trimming",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Increase retraction feedrate for strategies without ramp movement",
+      "body": "For all machining strategies where retraction occurs without a ramp, increase the retraction feedrate.",
+      "category": "speeds_feeds",
+      "tags": [
+        "retraction",
+        "feedrate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 9
+    },
+    {
+      "title": "Set start and end points for machining",
+      "body": "Select a point or enter coordinates to define the start and end points of a contour.",
+      "category": "contouring",
+      "tags": [
+        "start_point",
+        "end_point"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 9
+    },
+    {
+      "title": "Invert machining direction of selected contour",
+      "body": "Use the 'Reverse' option to invert the machining direction of a selected contour.",
+      "category": "contouring",
+      "tags": [
+        "reverse",
+        "machining_direction"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 9
+    },
+    {
+      "title": "Change cutting speed and feedrate based on factors",
+      "body": "Select a segment, click the link icon, enter the required factor directly, then click the link icon again.",
+      "category": "speeds_feeds",
+      "tags": [
+        "cutting_speed",
+        "feedrate"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 9
+    },
+    {
+      "title": "Enable path compensation for machining",
+      "body": "When enabled, path compensation is handled by the controller, calculating the cutting radius dynamically.",
+      "category": "toolpath",
+      "tags": [
+        "path_compensation"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Change reference side of recessing tool during machining",
+      "body": "The reference side changes (left/right) during machining if path compensation is enabled.",
+      "category": "toolpath",
+      "tags": [
+        "reference_side"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Limit machining to selected areas",
+      "body": "Define a slope angle to separate steep and flat areas of the defined contour.",
+      "category": "toolpath",
+      "tags": [
+        "machining_mode"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Pre-plunge during finishing to prevent tool engagement with two sides of the insert",
+      "body": "During finishing, plunge at the transition from axial to radial direction to avoid engaging both sides simultaneously.",
+      "category": "toolpath",
+      "tags": [
+        "pre_plunge"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Define tangential approach and retract macros for finishing",
+      "body": "Additional options can be defined for smooth connection of partially finished areas.",
+      "category": "macros",
+      "tags": [
+        "approach_macro",
+        "retract_macro"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Trim stock according to selected contour",
+      "body": "Stock trimming can be defined separately for the right and left sides.",
+      "category": "toolpath",
+      "tags": [
+        "trim_stock"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.25",
+      "_chunk": 9
+    },
+    {
+      "title": "Define parting off type",
+      "body": "Parting off and rapid (1): Retract to clearance distance, then rapid retract to clearance radius.\nParting off and rapid (2): Retract to clearance distance, then rapid retract at feedrate up to clearance radius.",
+      "category": "toolpath",
+      "tags": [
+        "parting_off"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 10
+    },
+    {
+      "title": "Set machining mode for parting off",
+      "body": "Normal (1): Parting off in one pass without interruption.\nRetract clearance distance (2): Multiple passes with retraction to clearance distance.\nRetract to clearance radius (3): Multiple passes with retracting movement to clearance distance, then rapid retract.",
+      "category": "toolpath",
+      "tags": [
+        "machining_mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 10
+    },
+    {
+      "title": "Enable part catcher for parting off",
+      "body": "Use part catcher: Enable when a part catcher should be swung in. Swing in on reaching reduction diameter if reduction option is enabled.",
+      "category": "toolpath",
+      "tags": [
+        "part_catcher"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 10
+    },
+    {
+      "title": "Define plunge depth for pecking",
+      "body": "Plunge depth (1): Tool infeed per parting movement. Only available for machining modes Retract to clearance radius and Retract clearance distance.",
+      "category": "toolpath",
+      "tags": [
+        "pecking"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 10
+    },
+    {
+      "title": "Set overrun in X for part separation",
+      "body": "Overrun in X (2): Value that the tool must move beyond the defined contour length in the X direction to cleanly separate the workpiece.",
+      "category": "toolpath",
+      "tags": [
+        "overrun"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 10
+    },
+    {
+      "title": "Define additional allowance Z for turning model",
+      "body": "Additional allowance Z (3): Additional allowance in Z direction on the parting side of the tool.",
+      "category": "toolpath",
+      "tags": [
+        "additional_allowance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 10
+    },
+    {
+      "title": "Enable collision check for turning model",
+      "body": "Collision check: Permanently checks the tool holder for potential collisions against the current stock model and turning model.",
+      "category": "toolpath",
+      "tags": [
+        "collision_check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Define frame for milling operations",
+      "body": "The Z axis of the machining frame must be the same as the rotary axis of the tool.",
+      "category": "toolpath",
+      "tags": [
+        "frame"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Select tool for face groove turning",
+      "body": "For information on selecting a tool and defining tool parameters, see section Components for NC tool (page 1433).",
+      "category": "tool_selection",
+      "tags": [
+        "face_groove_turning"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Define correction list for tool compensation",
+      "body": "Correction list: List number of the controller/machine register containing the tool compensation values.",
+      "category": "tool_selection",
+      "tags": [
+        "tool_compensation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Define start and end points for machining",
+      "body": "Start point / endpoint: Define the start and end points for machining, either by selecting a point or entering coordinates.",
+      "category": "toolpath",
+      "tags": [
+        "contour_attributes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Set strategy for radial roughing",
+      "body": "Radial roughing (1): Machining is performed perpendicularly to the axis of the turning surface.\nRadial roughing with ramp (2): Radial roughing with ramped plunging of the tool into the stock model.",
+      "category": "strategy",
+      "tags": [
+        "radial_roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Define infeed direction for radial roughing",
+      "body": "Infeed direction: Bottom (1): Infeed takes place from top to bottom.\nTop (2): Infeed takes place in an upward direction.",
+      "category": "strategy",
+      "tags": [
+        "infeed_direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Set cutting mode for radial roughing",
+      "body": "Oneway (1): Machining in constant orientation.\nZigzag (2): Machining with alternating orientation.",
+      "category": "strategy",
+      "tags": [
+        "cutting_mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Define radial/axial limit for machining area",
+      "body": "Radial / axial limit: Limits the machining area of the tool used in the radial and axial direction.",
+      "category": "strategy",
+      "tags": [
+        "radial_axial_limit"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Set retract plane for tool retraction",
+      "body": "Retract plane (Z): Activating the Radial / Axial limit option in combination with the Retract plane (Z) parameter makes it possible to drive out the tool from undercutting areas.",
+      "category": "strategy",
+      "tags": [
+        "retract_plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Define axial offset for pre-plunge",
+      "body": "Pre-plunge: The tool is plunged at the transition of the defined contour from the axial to the radial direction.",
+      "category": "toolpath",
+      "tags": [
+        "axial_offset"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Set axial compensation value for tool deflection",
+      "body": "Axial compensation value (1): Axial deviation from the model contour.",
+      "category": "toolpath",
+      "tags": [
+        "axial_compensation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 10
+    },
+    {
+      "title": "Set radial infeed for cutting depth",
+      "body": "Infeed in radial direction (parallel to the axis of the turning surface). Max. infeed depth: Maximum depth of material removal.",
+      "category": "speeds_feeds",
+      "tags": [
+        "infeed",
+        "cutting depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.28",
+      "_chunk": 11
+    },
+    {
+      "title": "Specify dwell time for tool movements",
+      "body": "Dwell time: Specify the dwell time of the tool and the unit either using revolutions of the model (rev) or time units (sec).",
+      "category": "speeds_feeds",
+      "tags": [
+        "dwell time"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.28",
+      "_chunk": 11
+    },
+    {
+      "title": "Define additional allowances for turning models",
+      "body": "Additional allowance Z: Allowance in Z direction. Additional allowance X: Allowance in X direction.",
+      "category": "toolpath",
+      "tags": [
+        "allowances"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.28",
+      "_chunk": 11
+    },
+    {
+      "title": "Define turning models for machining operations",
+      "body": "A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the turning frame.",
+      "category": "toolpath",
+      "tags": [
+        "turning model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.28",
+      "_chunk": 11
+    },
+    {
+      "title": "Set retraction feedrate for machining strategies",
+      "body": "The retraction feedrate can be increased for all machining strategies for which retraction occurs without a ramp movement.",
+      "category": "speeds_feeds",
+      "tags": [
+        "retraction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.28",
+      "_chunk": 11
+    },
+    {
+      "title": "Define contour selection for turning operations",
+      "body": "Contours: Define contours for turning operations.",
+      "category": "toolpath",
+      "tags": [
+        "contour selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 11
+    },
+    {
+      "title": "Set cutting side for machining operations",
+      "body": "Inside/ Outside: The external shape of a workpiece is created by using the Outside option, and the internal shape by using the Inside option.",
+      "category": "toolpath",
+      "tags": [
+        "cutting side"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 11
+    },
+    {
+      "title": "Define infeed direction for machining operations",
+      "body": "Bottom (1): Infeed takes place from top to bottom in the direction to the axis of the turning stock.",
+      "category": "toolpath",
+      "tags": [
+        "infeed direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 11
+    },
+    {
+      "title": "Set radial/axial limit for machining area",
+      "body": "Radial / axial limit: Limits the machining area of the tool used in the radial and axial direction.",
+      "category": "toolpath",
+      "tags": [
+        "radial/axial limit"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 11
+    },
+    {
+      "title": "Define retract plane for tool movements",
+      "body": "Retract plane (Z): Activating the R adial / A xial limit option in combination with the R etract plane (Z) parameter makes it possible to drive out the tool from the undercutting areas.",
+      "category": "toolpath",
+      "tags": [
+        "retract plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 11
+    },
+    {
+      "title": "Set pecking parameters for efficient chip removal",
+      "body": "In order to avoid damaging the tool or the workpiece and to remove chips more efficiently, the tool is plunged by the defined plunge depth and retracted by the defined retract value in alternating manner until the total radial infeed is reached.",
+      "category": "speeds_feeds",
+      "tags": [
+        "pecking"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 11
+    },
+    {
+      "title": "Set macro clearance to ensure tool safety during approach and retract",
+      "body": "Minimum distance of the tool to the turning area during approach and retract movements. If the tool is closer, a macro is generated automatically.",
+      "category": "workholding | safety",
+      "tags": [
+        "tool safety",
+        "approach/retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 12
+    },
+    {
+      "title": "Define clearance distance for rapid tool movements",
+      "body": "Clearance movement at feedrate before the rapid movement begins.",
+      "category": "speeds_feeds | workholding",
+      "tags": [
+        "clearance",
+        "rapid movements"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 12
+    },
+    {
+      "title": "Set clearance radius for rapid tool movements in the X direction",
+      "body": "Radius for rapid tool movements in the X direction.",
+      "category": "speeds_feeds | workholding",
+      "tags": [
+        "clearance",
+        "X-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 12
+    },
+    {
+      "title": "Define clearance plane for rapid tool movements in the Z direction",
+      "body": "Plane for rapid tool movements in the Z direction. Only available for Inside machining and Plane options.",
+      "category": "speeds_feeds | workholding",
+      "tags": [
+        "clearance",
+        "Z-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 12
+    },
+    {
+      "title": "Define model allowance for global allowance on the turning model",
+      "body": "Global allowance on the model.",
+      "category": "tool_selection | strategy",
+      "tags": [
+        "allowance",
+        "model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Define additional allowance in the X direction",
+      "body": "Allowance in X direction.",
+      "category": "tool_selection | strategy",
+      "tags": [
+        "allowance",
+        "X-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Define additional allowance in the Z direction",
+      "body": "Allowance in Z direction.",
+      "category": "tool_selection | strategy",
+      "tags": [
+        "allowance",
+        "Z-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Select cutting side for machining",
+      "body": "Inside (1)/ Outside (2): The external shape of a workpiece is created by using the Outside option, and the internal shape by using the Inside option.",
+      "category": "strategy | operation_types",
+      "tags": [
+        "cutting side",
+        "inside/outside"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Define infeed direction for machining",
+      "body": "Bottom (1): Infeed takes place from top to bottom in the direction to the axis of the turning stock. Top (2): Infeed takes place from bottom to top.",
+      "category": "strategy | operation_types",
+      "tags": [
+        "infeed direction",
+        "bottom/top"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Pre-plunge to remove material at the transition of the defined contour",
+      "body": "Material is removed with up and down movements. Since upward movements on vertical walls can lead to a risk of collision between the tool holder and the stockmodel geometry, not all geometries can be machined.",
+      "category": "strategy | operation_types",
+      "tags": [
+        "pre-plunge",
+        "up/down"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Set axial compensation value for axial deviation from the model contour",
+      "body": "Axial deviation from the model contour. The axial compensation value is necessary due to the deflection of the tool, which is affected by the following factors: feedrate (f), cut depth (ap), geometry of the tool, cutting speed (Vc), and workpiece material.",
+      "category": "speeds_feeds | strategy",
+      "tags": [
+        "axial compensation",
+        "deviation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 12
+    },
+    {
+      "title": "Define additional allowances for X and Z directions",
+      "body": "Additional allowance X (2): Allowance in X direction.\nAdditional allowance Z (3): Allowance in Z direction.",
+      "category": "workholding",
+      "tags": [
+        "allowances"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 13
+    },
+    {
+      "title": "Set up approach and retract macros for finishing operations",
+      "body": "For a more smooth connection of already finished areas, the tangential approach (A) and retract macros (B) for the finishing can be defined with additional options.",
+      "category": "toolpath",
+      "tags": [
+        "approach",
+        "retract"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 13
+    },
+    {
+      "title": "Define trimming stock options for right and left sides",
+      "body": "Stock trimming can be defined separately for the right and left sides.",
+      "category": "toolpath",
+      "tags": [
+        "trimming"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 13
+    },
+    {
+      "title": "Create turning areas from surfaces or solids",
+      "body": "Generate a turning area by selecting a closed contour.\nOpen the Create turning area from model dialogue to create a turning area from surfaces or solids.",
+      "category": "toolpath",
+      "tags": [
+        "turning"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 13
+    },
+    {
+      "title": "Define turning stock based on a closed contour in the X-Z plane",
+      "body": "Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and the associated turning axis in the X-Z plane.",
+      "category": "toolpath",
+      "tags": [
+        "stock"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 13
+    },
+    {
+      "title": "Select surfaces or a solid for turning area creation",
+      "body": "Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning area.",
+      "category": "toolpath",
+      "tags": [
+        "surfaces"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 13
+    },
+    {
+      "title": "Define thread outer edge parameters",
+      "body": "Select the contour that is to be used as the Thread outer edge (1). Specify whether the selected contour is to be used as the Core diameter (2) or Nominal diameter (3).",
+      "category": "feature",
+      "tags": [
+        "thread"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    },
+    {
+      "title": "Set infeed strategy for thread cutting",
+      "body": "Infeed can be performed either with constant chip section or with constant X value.",
+      "category": "strategy",
+      "tags": [
+        "infeed"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    },
+    {
+      "title": "Define machining area for thread cutting",
+      "body": "Machining area: Finish allowance: Remaining offset on the thread turn after machining.",
+      "category": "toolpath",
+      "tags": [
+        "machining"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    },
+    {
+      "title": "Set clearance plane and distance for thread cutting",
+      "body": "Clearance plane (Z): Plane for rapid tool movements in the Z direction.\nClearance distance (2): Distance to the current toolpath to be milled.",
+      "category": "toolpath",
+      "tags": [
+        "clearance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    },
+    {
+      "title": "Define roughing turns for thread cutting",
+      "body": "Roughing turns: Number of roughing turns required to reach the thread depth.",
+      "category": "strategy",
+      "tags": [
+        "roughing"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    },
+    {
+      "title": "Define finishing turns for thread cutting",
+      "body": "Finishing turns: Number of finishing turns.",
+      "category": "strategy",
+      "tags": [
+        "finishing"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    },
+    {
+      "title": "Set number of thread starts for thread cutting",
+      "body": "Nr. of thread starts: Number of thread starts between the startpoint and endpoint of machining.",
+      "category": "strategy",
+      "tags": [
+        "thread"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 13
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Infeed calculation",
+      "expression": "Infeed = Corner radius * Infeed factor",
+      "variables": {
+        "Infeed": "infeed distance [mm]",
+        "Corner radius": "corner radius [mm]",
+        "Infeed factor": "infeed factor"
+      },
+      "page_ref": "p.15"
+    }
+  ],
+  "parameter_tables": [
+    {
+      "context": "Toolpath strategy options",
+      "rows": [
+        {
+          "col": "Linear: Material removed parallel to the turning axis."
+        },
+        {
+          "col": "Ramping: Ramp-shaped material removal with a first cut on a plane and subsequent cuts parallel to the turning axis."
+        },
+        {
+          "col": "Zigzag: Machining with alternating cutting mode."
+        }
+      ],
+      "page_ref": "p.15"
+    },
+    {
+      "context": "Machining modes",
+      "rows": [
+        {
+          "col": "Off: Machining both steep and flat areas."
+        },
+        {
+          "col": "Steep areas: Machining only steep areas."
+        },
+        {
+          "col": "Flat areas: Machining only flat areas."
+        }
+      ],
+      "page_ref": "p.17"
+    }
+  ],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/hyperMILL_Manual-en-2.pdf",
+    "title": "hyperMILL Manual EN Vol 2 (extended)",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 33,
+    "chunk_count": 13,
+    "tips_total": 212,
+    "tips_unique": 194,
+    "formulas_total": 1,
+    "tables_total": 2,
+    "chunk_errors": 0
+  }
+}
