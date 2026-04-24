@@ -30,6 +30,9 @@ import { log } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 
+// MILL-MASTER-AI-WIRING / U7-DEEPLEARN-RETROFIT
+import { withPRISMReasoning, type UseAI } from "./MillAIWiring.js";
+
 // ============================================================================
 // TYPES — NEURAL NETWORK PATTERNS
 // ============================================================================
@@ -1071,6 +1074,56 @@ export class MillDeepLearningEngine {
       }
     }
     return Math.round(totalMin * 10) / 10;
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U7-DEEPLEARN-RETROFIT
+  // ==========================================================================
+
+  /**
+   * Augment deepReason with a TreeOfThought exploration via MillAIWiring.
+   * useAI='off' (default) returns { legacy } bit-identical to sync deepReason.
+   * useAI='on'|'auto' returns { legacy, ai } where ai carries the TreeOfThought
+   * branch_count, confidence, and reasoning chain. Fail-closed: any helper
+   * failure returns { legacy } only.
+   */
+  deepReasonUltra(
+    question: string,
+    context: Record<string, unknown>,
+    opts: { useAI?: UseAI } = {},
+  ): {
+    legacy: DeepReasoningChain;
+    ai?: {
+      branch_count: number;
+      max_depth_reached: number;
+      confidence: number;
+      reasoning_chain: string[];
+      sources: string[];
+    };
+  } {
+    const legacy = this.deepReason(question, context);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+    const tot = withPRISMReasoning({
+      question: question || "empty question",
+      goal: "mill_deep_reasoning_answer",
+      initial_state: context ?? {},
+      available_actions: ["gather_evidence", "apply_logic", "synthesize"],
+      constraints: typeof context.material_iso === "string" ? [`iso=${context.material_iso}`] : [],
+      depth: 3,
+      branches: 4,
+    });
+    if (!tot) return { legacy };
+    return {
+      legacy,
+      ai: {
+        branch_count: tot.branch_count,
+        max_depth_reached: tot.max_depth_reached,
+        confidence: tot.confidence,
+        reasoning_chain: tot.reasoning_chain,
+        sources: [tot.source],
+      },
+    };
   }
 }
 

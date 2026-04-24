@@ -98,4 +98,98 @@ describe("MillDeepLearningEngine", () => {
       }
     }, 60000);
   });
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U7-DEEPLEARN-RETROFIT — AI-path coverage
+  // ==========================================================================
+  describe("deepReasonUltra — useAI routing + MillAIWiring.withPRISMReasoning", () => {
+    it("useAI='off' (default) returns { legacy } deep-equal to sync deepReason, no ai field", () => {
+      const question = "What RPM for P20 at 12mm endmill?";
+      const ctx = { material_iso: "P", operation_type: "contour" };
+      const legacy = millDeepLearningEngine.deepReason(question, ctx);
+      const ultra = millDeepLearningEngine.deepReasonUltra(question, ctx);
+      expect(ultra.legacy).toEqual(legacy);
+      expect(ultra.ai).toBe(undefined);
+    });
+
+    it("useAI='off' explicit is bit-identical to omitted", () => {
+      const question = "What RPM for 316L?";
+      const ctx = { material_iso: "M", operation_type: "drill" };
+      const a = millDeepLearningEngine.deepReasonUltra(question, ctx);
+      const b = millDeepLearningEngine.deepReasonUltra(question, ctx, { useAI: "off" });
+      expect(a.legacy).toEqual(b.legacy);
+      expect(a.ai).toBe(undefined);
+      expect(b.ai).toBe(undefined);
+    });
+
+    it.each([
+      { iso: "P", label: "steel" },
+      { iso: "M", label: "stainless" },
+      { iso: "N", label: "aluminum" },
+    ])("useAI='on' for ISO $iso ($label) returns populated ai with tree_of_thought source", ({ iso }) => {
+      const r = millDeepLearningEngine.deepReasonUltra(
+        `What feed for ${iso}?`,
+        { material_iso: iso, operation_type: "contour" },
+        { useAI: "on" },
+      );
+      expect(typeof r.ai).toBe("object");
+      expect(r.ai === null).toBe(false);
+      expect(r.ai!.sources).toContain("tree_of_thought");
+      expect(r.ai!.branch_count).toBeGreaterThanOrEqual(1);
+      expect(r.ai!.max_depth_reached).toBeGreaterThanOrEqual(0);
+      expect(r.ai!.confidence).toBeGreaterThanOrEqual(0);
+      expect(r.ai!.confidence).toBeLessThanOrEqual(1);
+      expect(Array.isArray(r.ai!.reasoning_chain)).toBe(true);
+    });
+
+    it("useAI='on' preserves legacy result alongside ai", () => {
+      const question = "What order for face + profile?";
+      const ctx = { material_iso: "P" };
+      const legacy = millDeepLearningEngine.deepReason(question, ctx);
+      const ultra = millDeepLearningEngine.deepReasonUltra(question, ctx, { useAI: "on" });
+      expect(ultra.legacy).toEqual(legacy);
+      expect(typeof ultra.ai).toBe("object");
+    });
+
+    it("failure #1: empty question string does not throw; legacy + ai both populated", () => {
+      const r = millDeepLearningEngine.deepReasonUltra("", { material_iso: "P" }, { useAI: "on" });
+      expect(r.legacy.question).toBe("");
+      expect(typeof r.ai).toBe("object");
+    });
+
+    it("failure #2: empty context object does not throw; constraints list is empty", () => {
+      const r = millDeepLearningEngine.deepReasonUltra("generic question", {}, { useAI: "on" });
+      expect(typeof r.ai).toBe("object");
+      expect(Array.isArray(r.ai!.reasoning_chain)).toBe(true);
+    });
+
+    it("failure #3: context with numeric material_iso still produces bounded confidence", () => {
+      const r = millDeepLearningEngine.deepReasonUltra(
+        "what speed?",
+        { material_iso: 42, operation_type: "drill" },
+        { useAI: "on" },
+      );
+      expect(Number.isFinite(r.ai!.confidence)).toBe(true);
+      expect(r.ai!.confidence).toBeGreaterThanOrEqual(0);
+      expect(r.ai!.confidence).toBeLessThanOrEqual(1);
+    });
+
+    it("adversarial #1: 10 KB oversize question is bounded (<2 s, branch_count capped)", () => {
+      const big = "speed feed ".repeat(1000);
+      const t0 = performance.now();
+      const r = millDeepLearningEngine.deepReasonUltra(big, { material_iso: "P" }, { useAI: "on" });
+      expect(performance.now() - t0).toBeLessThan(2000);
+      expect(r.ai!.branch_count).toBeLessThanOrEqual(1000);
+    });
+
+    it("adversarial #2: context with NaN / null / undefined values does not throw", () => {
+      const r = millDeepLearningEngine.deepReasonUltra(
+        "what speed?",
+        { material_iso: "P", bogus: NaN, other: null, third: undefined },
+        { useAI: "on" },
+      );
+      expect(typeof r.ai).toBe("object");
+      expect(Number.isFinite(r.ai!.confidence)).toBe(true);
+    });
+  });
 });
