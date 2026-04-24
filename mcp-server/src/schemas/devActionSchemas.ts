@@ -141,4 +141,14 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   }),
 
   error_budget_list: z.object({}).optional(),
+
+  // PSAU-FORESIGHT multi-agent scheduling (DistributedCriticalPathEngine)
+  distributed_critical_path: z.object({
+    tasks: z.array(z.object({
+      id: z.string().min(1).describe("Task identifier"),
+      duration: z.number().nonnegative().describe("Task duration (hours or unitless)"),
+      owner: z.string().min(1).describe("Agent/owner who executes the task serially"),
+      predecessors: z.array(z.string()).optional().describe("IDs of tasks that must finish first"),
+    })).min(1).describe("Tasks to schedule across agents"),
+  }),
 };

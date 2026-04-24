@@ -1,4 +1,4 @@
-// WIRE-EXEMPT: cross-agent scheduling analysis consumed by swarm orchestrator and roadmap dashboards
+// Wired: prism_dev.distributed_critical_path (devDispatcher.ts)
 /**
  * DistributedCriticalPathEngine — U-FORE-18 (Multi-Agent Coordination Spine)
  *
