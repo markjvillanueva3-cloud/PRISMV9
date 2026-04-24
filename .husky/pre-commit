@@ -2,3 +2,7 @@ npx lint-staged
 
 # U-CAM-ENRICH-05: Phase-5 real-impl gate
 node mcp-server/scripts/hooks/cam-phase5-impl-gate.mjs || exit 1
+
+# U-EFF28: hooks health gate — blocks broken .claude/hooks/*.mjs
+# Catches: syntax errors, brace-bleed template-literal bug, invalid Stop schema.
+node mcp-server/scripts/hooks/hooks-health-gate.mjs || exit 1
