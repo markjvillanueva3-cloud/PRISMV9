@@ -622,3 +622,95 @@ M30
     });
   });
 });
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U9-PROGPAT-RETROFIT — AI-path coverage
+// ============================================================================
+import { persistentMemoryEngine } from "../../engines/PersistentMemoryEngine.js";
+
+describe("MillingProgramPatternEngine.recommendParamsUltra — useAI routing", () => {
+  it("useAI='off' (default) returns { legacy } deep-equal to sync recommendParams, no ai field", () => {
+    const legacy = millingProgramPatternEngine.recommendParams("spot_drill", "P");
+    const ultra = millingProgramPatternEngine.recommendParamsUltra("spot_drill", "P");
+    expect(ultra.legacy).toEqual(legacy);
+    expect(ultra.ai).toBe(undefined);
+  });
+
+  it("explicit useAI='off' is bit-identical to omitted", () => {
+    const a = millingProgramPatternEngine.recommendParamsUltra("rough_profile", "N");
+    const b = millingProgramPatternEngine.recommendParamsUltra("rough_profile", "N", undefined, { useAI: "off" });
+    expect(a.legacy).toEqual(b.legacy);
+    expect(a.ai).toBe(undefined);
+    expect(b.ai).toBe(undefined);
+  });
+
+  it.each([
+    { iso: "P", op: "spot_drill", label: "steel" },
+    { iso: "N", op: "rough_profile", label: "aluminum" },
+    { iso: "S", op: "bore", label: "heat-resistant" },
+  ])("useAI='on' for ISO $iso $op ($label) cites cross_disciplinary + persistent_memory sources", ({ iso, op }) => {
+    const withAI = millingProgramPatternEngine.recommendParamsUltra(op as "spot_drill", iso, undefined, { useAI: "on" });
+    expect(typeof withAI.ai).toBe("object");
+    expect(withAI.ai!.sources).toContain("cross_disciplinary_formula_integration");
+    expect(withAI.ai!.sources).toContain("persistent_memory");
+    expect(Array.isArray(withAI.ai!.physics_refs)).toBe(true);
+    expect(withAI.ai!.physics_refs.length).toBeGreaterThanOrEqual(1);
+    expect(withAI.ai!.persisted_matches).toBeGreaterThanOrEqual(0);
+  });
+
+  it("failure #1: unknown operation yields empty legacy array; ai still populated", () => {
+    const r = millingProgramPatternEngine.recommendParamsUltra(
+      "not_a_real_op" as "spot_drill",
+      "P",
+      undefined,
+      { useAI: "on" },
+    );
+    expect(Array.isArray(r.legacy)).toBe(true);
+    expect(r.legacy.length).toBe(0);
+    expect(typeof r.ai).toBe("object");
+  });
+
+  it("failure #2: unknown ISO group yields empty legacy; ai sources still cited", () => {
+    const r = millingProgramPatternEngine.recommendParamsUltra("spot_drill", "ZZ", undefined, { useAI: "on" });
+    expect(r.legacy.length).toBe(0);
+    expect(r.ai!.sources).toContain("cross_disciplinary_formula_integration");
+  });
+
+  it("failure #3: NaN tool_diameter_mm does not throw; legacy filters normally", () => {
+    const r = millingProgramPatternEngine.recommendParamsUltra("spot_drill", "P", Number.NaN, { useAI: "on" });
+    expect(Array.isArray(r.legacy)).toBe(true);
+    expect(r.ai!.sources.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("adversarial #1: extreme tool_diameter_mm (1e9) does not throw and legacy returns empty", () => {
+    const r = millingProgramPatternEngine.recommendParamsUltra("spot_drill", "P", 1e9, { useAI: "on" });
+    expect(r.legacy.length).toBe(0);
+    expect(typeof r.ai).toBe("object");
+  });
+
+  it("adversarial #2: negative tool_diameter_mm does not throw", () => {
+    const r = millingProgramPatternEngine.recommendParamsUltra("spot_drill", "P", -5, { useAI: "on" });
+    expect(Array.isArray(r.legacy)).toBe(true);
+  });
+});
+
+describe("MillingProgramPatternEngine.persistLearnedPatterns — cross-session persistence", () => {
+  it("first call persists >=1 patterns; second call skips them all (idempotent)", () => {
+    const engine = new MillingProgramPatternEngine();
+    const first = engine.persistLearnedPatterns();
+    expect(first.persisted).toBeGreaterThanOrEqual(1);
+    const second = engine.persistLearnedPatterns();
+    expect(second.skipped).toBeGreaterThanOrEqual(first.persisted);
+    expect(second.persisted).toBe(0);
+  });
+
+  it("persisted entries are discoverable via persistentMemoryEngine.search by pattern tag", () => {
+    const engine = new MillingProgramPatternEngine();
+    engine.persistLearnedPatterns();
+    const hit = persistentMemoryEngine.search({ tags: ["prog_pattern"], limit: 100 });
+    expect(hit.entries.length).toBeGreaterThanOrEqual(1);
+    for (const e of hit.entries) {
+      expect(e.tags).toContain("prog_pattern");
+    }
+  });
+});

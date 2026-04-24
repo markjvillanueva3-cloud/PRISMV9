@@ -27,6 +27,11 @@
 
 import { log } from "../utils/Logger.js";
 
+// MILL-MASTER-AI-WIRING / U9-PROGPAT-RETROFIT
+import { persistentMemoryEngine } from "./PersistentMemoryEngine.js";
+import { crossDisciplinaryFormulaIntegrationEngine } from "./CrossDisciplinaryFormulaIntegrationEngine.js";
+import { type UseAI } from "./MillAIWiring.js";
+
 // ============================================================================
 // TYPES — NC PROGRAM PARSING
 // ============================================================================
@@ -1046,6 +1051,74 @@ export class MillingProgramPatternEngine {
       learned: this.learnedPatterns.length - jmDieCount,
       sequences: this.sequencePatterns.length,
     };
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U9-PROGPAT-RETROFIT
+  // ==========================================================================
+
+  /** Recommend params with optional AI augmentation (physics refs + persisted history). */
+  recommendParamsUltra(
+    operation: OperationType,
+    material_iso: string,
+    tool_diameter_mm?: number,
+    opts: { useAI?: UseAI } = {},
+  ): {
+    legacy: MillingPattern[];
+    ai?: { physics_refs: string[]; persisted_matches: number; sources: string[] };
+  } {
+    const legacy = this.recommendParams(operation, material_iso, tool_diameter_mm);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+    const sources: string[] = [];
+    let physics_refs: string[] = [];
+    let persisted_matches = 0;
+    sources.push("cross_disciplinary_formula_integration");
+    try {
+      const names = crossDisciplinaryFormulaIntegrationEngine.listFormulaNames();
+      physics_refs = Array.isArray(names) ? names.slice(0, 6) : [];
+    } catch {
+      physics_refs = [];
+    }
+    sources.push("persistent_memory");
+    try {
+      const result = persistentMemoryEngine.search({
+        tags: ["prog_pattern", `op=${operation}`, `iso=${material_iso}`],
+        limit: 20,
+      });
+      persisted_matches = Array.isArray(result?.entries) ? result.entries.length : 0;
+    } catch {
+      persisted_matches = 0;
+    }
+    return { legacy, ai: { physics_refs, persisted_matches, sources } };
+  }
+
+  /** Persist learned patterns to PersistentMemory for cross-session survival. */
+  persistLearnedPatterns(): { persisted: number; skipped: number } {
+    let persisted = 0;
+    let skipped = 0;
+    for (const pat of this.learnedPatterns) {
+      try {
+        const tags = ["prog_pattern", `op=${pat.operation_type}`, `iso=${pat.material_iso}`, `pat=${pat.pattern_id}`];
+        const existing = persistentMemoryEngine.search({ tags, limit: 1 });
+        if (existing && Array.isArray(existing.entries) && existing.entries.length > 0) { skipped++; continue; }
+        persistentMemoryEngine.store(
+          "pattern",
+          "milling",
+          tags,
+          JSON.stringify(pat),
+          {
+            rpm_typical: pat.cutting_params.rpm_typical,
+            feed_typical: pat.cutting_params.feed_typical,
+            confidence: pat.confidence,
+          },
+        );
+        persisted++;
+      } catch {
+        skipped++;
+      }
+    }
+    return { persisted, skipped };
   }
 }
 
