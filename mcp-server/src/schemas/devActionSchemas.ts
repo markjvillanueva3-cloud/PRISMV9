@@ -169,4 +169,23 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     timeBudgetRemainingMs: z.number().optional(),
     minTimeBudgetMs: z.number().optional(),
   }),
+
+  // PSAU-FORESIGHT reliability — SchemaMigrationRollbackEngine read/snapshot surface
+  // (registerMigration/migrate/rollback NOT dispatched — they require runtime-registered callables)
+  schema_snapshot: z.object({
+    target: z.string().min(1).describe("State file or component identifier"),
+    data: z.any().describe("State payload to snapshot (JSON-serializable)"),
+    version: z.number().int().describe("Schema version the data conforms to"),
+    label: z.string().optional().describe("Optional human-readable label"),
+  }),
+
+  schema_restore_snapshot: z.object({
+    snapshotId: z.string().min(1).describe("Snapshot id returned by schema_snapshot"),
+  }),
+
+  schema_history: z.object({
+    target: z.string().min(1).describe("State file or component identifier"),
+  }),
+
+  schema_migrations_list: z.object({}).optional(),
 };

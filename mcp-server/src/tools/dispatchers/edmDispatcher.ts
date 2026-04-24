@@ -311,6 +311,11 @@ const ACTIONS = [
   "wedm_gnn_init", "wedm_gnn_attend", "wedm_gnn_train",
   "wedm_gnn_save", "wedm_gnn_load", "wedm_gnn_is_stale",
   "wedm_graph_query", "wedm_graph_query_cell",
+
+  // WEDM-AUTONOMY-MS0: tip-learner, autonomy gate, tribal runtime
+  "wedm_tip_learner_process", "wedm_tip_learner_stats", "wedm_tip_learner_approved",
+  "wedm_autonomy_gate_status", "wedm_autonomy_gate_metrics",
+  "wedm_tribal_runtime_stats", "wedm_tribal_runtime_select",
 ] as const;
 
 /** Registers edm dispatcher.

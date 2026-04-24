@@ -12,6 +12,15 @@ export interface EnvelopeReading {
   resistivity_Mohm_cm?: number;
   tank_level_pct?: number;
   wire_breaks_in_window?: number;
+  // Axis positions for envelope violation checks (WEDMFailsafeEngine).
+  // Upper/lower Z distinguished because the WEDM head has independent
+  // upper-guide height from the work surface; U/V are the taper axes.
+  X_mm?: number;
+  Y_mm?: number;
+  Z_upper_mm?: number;
+  Z_lower_mm?: number;
+  U_mm?: number;
+  V_mm?: number;
 }
 
 export interface EnvelopeLimit {

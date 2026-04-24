@@ -1,4 +1,4 @@
-// WIRE-EXEMPT: schema upgrade/downgrade substrate consumed by migration scripts + state-repair workflows; registerMigration takes callables that cannot round-trip through JSON-RPC
+// Partial-wired: prism_dev.{schema_snapshot, schema_restore_snapshot, schema_history, schema_migrations_list} (devDispatcher.ts). registerMigration/migrate/rollback remain library-only since up/down callables cannot round-trip through JSON-RPC.
 /**
  * SchemaMigrationRollbackEngine — U-FORE-17 (Reliability Substrate)
  *
