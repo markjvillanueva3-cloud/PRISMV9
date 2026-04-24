@@ -386,4 +386,95 @@ describe("MillComprehensiveNeuralEngine", () => {
       expect(stats.feature_categories).toBeGreaterThan(100);
     });
   });
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U8-COMPNEURAL-RETROFIT — AI-path coverage
+  // ==========================================================================
+  describe("deepReasonUltra — useAI routing + MillAIWiring.withPRISMReasoning", () => {
+    it("useAI='off' (default) returns { legacy } deep-equal to sync deepReason, no ai field", () => {
+      const ctx = { material: "P" as const, operation: "contour", machine: "HAAS_VF2" };
+      const legacy = millComprehensiveNeuralEngine.deepReason("What feed for P20?", ctx);
+      const ultra = millComprehensiveNeuralEngine.deepReasonUltra("What feed for P20?", ctx);
+      expect(ultra.legacy).toEqual(legacy);
+      expect(ultra.ai).toBe(undefined);
+    });
+
+    it("explicit useAI='off' is bit-identical to omitted", () => {
+      const ctx = { material: "M" as const };
+      const a = millComprehensiveNeuralEngine.deepReasonUltra("stainless finish", ctx);
+      const b = millComprehensiveNeuralEngine.deepReasonUltra("stainless finish", ctx, { useAI: "off" });
+      expect(a.legacy).toEqual(b.legacy);
+      expect(a.ai).toBe(undefined);
+      expect(b.ai).toBe(undefined);
+    });
+
+    it.each([
+      { iso: "P" as const, label: "steel" },
+      { iso: "M" as const, label: "stainless" },
+      { iso: "N" as const, label: "aluminum" },
+    ])("useAI='on' for ISO $iso ($label) returns ai with tree_of_thought source + bounded confidence", ({ iso }) => {
+      const r = millComprehensiveNeuralEngine.deepReasonUltra(
+        `optimize chipload for ${iso}`,
+        { material: iso, operation: "contour" },
+        { useAI: "on" },
+      );
+      expect(typeof r.ai).toBe("object");
+      expect(r.ai === null).toBe(false);
+      expect(r.ai!.sources).toContain("tree_of_thought");
+      expect(r.ai!.branch_count).toBeGreaterThanOrEqual(1);
+      expect(r.ai!.confidence).toBeGreaterThanOrEqual(0);
+      expect(r.ai!.confidence).toBeLessThanOrEqual(1);
+      expect(Array.isArray(r.ai!.reasoning_chain)).toBe(true);
+    });
+
+    it("useAI='on' preserves legacy alongside ai (additive contract)", () => {
+      const ctx = { material: "P" as const, operation: "rough_pocket" };
+      const legacy = millComprehensiveNeuralEngine.deepReason("rough P20", ctx);
+      const ultra = millComprehensiveNeuralEngine.deepReasonUltra("rough P20", ctx, { useAI: "on" });
+      expect(ultra.legacy).toEqual(legacy);
+      expect(typeof ultra.ai).toBe("object");
+    });
+
+    it("failure #1: empty query string does not throw; legacy preserves empty query", () => {
+      const r = millComprehensiveNeuralEngine.deepReasonUltra("", { material: "P" as const }, { useAI: "on" });
+      expect(r.legacy.query).toBe("");
+      expect(typeof r.ai).toBe("object");
+    });
+
+    it("failure #2: empty context object does not throw", () => {
+      const r = millComprehensiveNeuralEngine.deepReasonUltra("generic", {}, { useAI: "on" });
+      expect(typeof r.ai).toBe("object");
+      expect(Array.isArray(r.ai!.reasoning_chain)).toBe(true);
+    });
+
+    it("failure #3: caller-supplied constraints are forwarded to the reasoner", () => {
+      const r = millComprehensiveNeuralEngine.deepReasonUltra(
+        "rough P20 with thin-wall",
+        { material: "P" as const, constraints: ["thin_wall", "long_overhang"] },
+        { useAI: "on" },
+      );
+      expect(typeof r.ai).toBe("object");
+      expect(r.ai!.confidence).toBeGreaterThanOrEqual(0);
+    });
+
+    it("adversarial #1: 10 KB oversize query bounded (<2 s)", () => {
+      const big = "chipload chipload ".repeat(1000);
+      const t0 = performance.now();
+      const r = millComprehensiveNeuralEngine.deepReasonUltra(big, { material: "P" as const }, { useAI: "on" });
+      expect(performance.now() - t0).toBeLessThan(2000);
+      expect(r.ai!.branch_count).toBeLessThanOrEqual(1000);
+    });
+
+    it("adversarial #2: 20 constraint strings do not blow up confidence bounds", () => {
+      const many = Array.from({ length: 20 }, (_, i) => `constraint_${i}`);
+      const r = millComprehensiveNeuralEngine.deepReasonUltra(
+        "rough with many constraints",
+        { material: "P" as const, constraints: many },
+        { useAI: "on" },
+      );
+      expect(Number.isFinite(r.ai!.confidence)).toBe(true);
+      expect(r.ai!.confidence).toBeGreaterThanOrEqual(0);
+      expect(r.ai!.confidence).toBeLessThanOrEqual(1);
+    });
+  });
 });

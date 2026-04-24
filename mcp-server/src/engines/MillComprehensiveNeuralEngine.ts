@@ -45,6 +45,9 @@
 import { log } from "../utils/Logger.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup, type MaterialPhysics } from "../physics/constants.js";
 
+// MILL-MASTER-AI-WIRING / U8-COMPNEURAL-RETROFIT
+import { withPRISMReasoning, type UseAI } from "./MillAIWiring.js";
+
 // ============================================================================
 // MATHEMATICAL CONSTANTS — Neural Architecture
 // ============================================================================
@@ -1281,6 +1284,56 @@ export class MillComprehensiveNeuralEngine {
         Object.keys(SPINDLE_ENCODING).length +
         Object.keys(SAFETY_ENCODING).length +
         Object.keys(EQUIPMENT_ENCODING).length,
+    };
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U8-COMPNEURAL-RETROFIT
+  // ==========================================================================
+  /**
+   * Wrap the sync deepReason with MillAIWiring.withPRISMReasoning.
+   * useAI='off' (default) returns { legacy } bit-identical. useAI='on'/'auto'
+   * returns { legacy, ai } with TreeOfThought branches/confidence/sources.
+   */
+  deepReasonUltra(
+    query: string,
+    context: { material?: ISOGroup; machine?: string; operation?: string; constraints?: string[] },
+    opts: { useAI?: UseAI } = {},
+  ): {
+    legacy: ReturnType<MillComprehensiveNeuralEngine["deepReason"]>;
+    ai?: {
+      branch_count: number;
+      max_depth_reached: number;
+      confidence: number;
+      reasoning_chain: string[];
+      sources: string[];
+    };
+  } {
+    const legacy = this.deepReason(query, context);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+    const tot = withPRISMReasoning({
+      question: query || "empty query",
+      goal: "mill_comprehensive_neural_answer",
+      initial_state: context ?? {},
+      available_actions: ["gather_evidence", "apply_physics", "rank_alternatives"],
+      constraints: [
+        ...(typeof context.material === "string" ? [`material=${context.material}`] : []),
+        ...(Array.isArray(context.constraints) ? context.constraints : []),
+      ],
+      depth: 3,
+      branches: 4,
+    });
+    if (!tot) return { legacy };
+    return {
+      legacy,
+      ai: {
+        branch_count: tot.branch_count,
+        max_depth_reached: tot.max_depth_reached,
+        confidence: tot.confidence,
+        reasoning_chain: tot.reasoning_chain,
+        sources: [tot.source],
+      },
     };
   }
 }
