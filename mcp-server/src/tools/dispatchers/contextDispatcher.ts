@@ -63,6 +63,13 @@ const ACTIONS = [
   "identity_siblings",
   "identity_deregister",
   "identity_stats",
+  // ChatBus — live inter-chat messaging + file-claim registry (U-CHATBUS01)
+  "chat_post",
+  "chat_read",
+  "claim_file",
+  "release_file",
+  "presence",
+  "prune",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -909,6 +916,71 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
             const stats = identityModelEngine.getStats();
             return ok(stats);
+          }
+
+          // ─────────────────────────────────────────────────────────────────
+          // ChatBus — live inter-chat messaging + file-claim registry (U-CHATBUS01)
+          // ─────────────────────────────────────────────────────────────────
+          case "chat_post": {
+            const { chatBusEngine } = await import("../../engines/ChatBusEngine.js");
+            const id = chatBusEngine.postMessage({
+              sessionId: params.sessionId,
+              pcName: params.pcName,
+              kind: params.kind,
+              body: params.body,
+              path: params.path,
+              intent: params.intent,
+            });
+            return ok({ posted: true, id });
+          }
+
+          case "chat_read": {
+            const { chatBusEngine } = await import("../../engines/ChatBusEngine.js");
+            const result = chatBusEngine.readUnread(params.sessionId);
+            return ok({
+              count: result.messages.length,
+              messages: result.messages,
+              cursorAdvancedTo: result.cursorAdvancedTo,
+            });
+          }
+
+          case "claim_file": {
+            const { chatBusEngine } = await import("../../engines/ChatBusEngine.js");
+            const conflict = chatBusEngine.claimFile({
+              sessionId: params.sessionId,
+              pcName: params.pcName,
+              path: params.path,
+              intent: params.intent,
+            });
+            if (conflict === null) return ok({ acquired: true });
+            return ok({ acquired: false, conflict });
+          }
+
+          case "release_file": {
+            const { chatBusEngine } = await import("../../engines/ChatBusEngine.js");
+            const released = chatBusEngine.releaseFile({
+              sessionId: params.sessionId,
+              pcName: params.pcName,
+              path: params.path,
+            });
+            return ok({ released });
+          }
+
+          case "presence": {
+            const { chatBusEngine } = await import("../../engines/ChatBusEngine.js");
+            chatBusEngine.heartbeat(params.sessionId, params.pcName, params.meta || {});
+            const peers = chatBusEngine.activeSessions();
+            return ok({ heartbeat: true, peers });
+          }
+
+          case "prune": {
+            const { chatBusEngine } = await import("../../engines/ChatBusEngine.js");
+            const stats = chatBusEngine.prune(Date.now(), {
+              messageRetentionMs: params.messageRetentionMs,
+              claimTtlMs: params.claimTtlMs,
+              presenceTtlMs: params.presenceTtlMs,
+            });
+            return ok({ pruned: true, ...stats });
           }
 
           default:

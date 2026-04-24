@@ -19,7 +19,7 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
       description: z.string(),
       enforcedBy: z.string().optional(),
     })).optional(),
-    metadata: z.record(z.unknown()).optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
   }),
 
   identity_get: z.object({
@@ -98,7 +98,7 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   // Team coordination
   team_spawn: z.object({
     teamId: z.string(),
-    config: z.record(z.unknown()).optional(),
+    config: z.record(z.string(), z.unknown()).optional(),
   }).optional(),
 
   team_broadcast: z.object({
@@ -151,4 +151,43 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     name: z.string(),
   }).optional(),
   catalog_stats: z.object({}).optional(),
+
+  // ChatBus — live inter-chat messaging + file-claim registry (U-CHATBUS01)
+  chat_post: z.object({
+    sessionId: z.string().min(1).describe("stable session id of the posting chat"),
+    pcName: z.string().min(1).describe("hostname of the posting chat"),
+    kind: z.enum(["message", "claim", "release", "heartbeat"]).describe("message kind"),
+    body: z.string().optional().describe("required when kind=message"),
+    path: z.string().optional().describe("required when kind=claim|release"),
+    intent: z.string().optional().describe("free-form intent tag for kind=claim"),
+  }),
+
+  chat_read: z.object({
+    sessionId: z.string().min(1).describe("stable session id of the reading chat"),
+  }),
+
+  claim_file: z.object({
+    sessionId: z.string().min(1).describe("stable session id claiming the file"),
+    pcName: z.string().min(1).describe("hostname of the claiming chat"),
+    path: z.string().min(1).describe("absolute file path to claim"),
+    intent: z.enum(["edit", "write", "multi-edit", "read", "commit"]).optional().describe("claim intent; defaults to edit"),
+  }),
+
+  release_file: z.object({
+    sessionId: z.string().min(1),
+    pcName: z.string().min(1),
+    path: z.string().min(1),
+  }),
+
+  presence: z.object({
+    sessionId: z.string().min(1),
+    pcName: z.string().min(1),
+    meta: z.record(z.string(), z.unknown()).optional(),
+  }),
+
+  prune: z.object({
+    messageRetentionMs: z.number().optional(),
+    claimTtlMs: z.number().optional(),
+    presenceTtlMs: z.number().optional(),
+  }).optional(),
 };

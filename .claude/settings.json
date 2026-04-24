@@ -37,6 +37,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/lathe-p2p-suggest.mjs",
             "timeout": 1500,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/chat-bus-inject.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       }
@@ -91,6 +97,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pretool-context-forecast.mjs",
             "timeout": 1500,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-claim-guard.mjs",
+            "timeout": 2500,
+            "continueOnError": false
           }
         ]
       },
@@ -146,6 +158,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-destructive-guard.mjs",
             "timeout": 2000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-claim-commit-guard.mjs",
+            "timeout": 3000,
             "continueOnError": false
           }
         ]
