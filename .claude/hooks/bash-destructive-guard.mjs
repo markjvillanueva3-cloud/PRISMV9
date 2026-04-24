@@ -9,7 +9,42 @@
  * runtime. Keep the rule set in sync when GitSafetyEngine changes.
  */
 
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { dirname, join } from 'node:path';
+import os from 'node:os';
+
+// ── BlastDampenerEngine mirror (U-FORE-17): sliding-window rate limiter
+// for destructive operations. If a user insists on the same warn-level
+// destructive git command 3+ times within 10 minutes, escalate to block.
+const BLAST_WINDOW_MS = 10 * 60 * 1000;
+const BLAST_MAX = 3;
+const BLAST_FILE = join(os.tmpdir(), 'prism-hook-state', 'bash-destructive-blast.json');
+function blastLoad() { try { return JSON.parse(readFileSync(BLAST_FILE, 'utf8')); } catch { return {}; } }
+function blastSave(s) {
+  try {
+    const d = dirname(BLAST_FILE);
+    if (!existsSync(d)) mkdirSync(d, { recursive: true });
+    writeFileSync(BLAST_FILE, JSON.stringify(s));
+  } catch { /* ignore */ }
+}
+function blastRecordAndCheck(ruleIds) {
+  const now = Date.now();
+  const state = blastLoad();
+  let overLimit = null;
+  for (const id of ruleIds) {
+    const times = (state[id] || []).filter((t) => t > now - BLAST_WINDOW_MS);
+    times.push(now);
+    state[id] = times;
+    if (times.length >= BLAST_MAX) overLimit = { id, count: times.length };
+  }
+  for (const k of Object.keys(state)) {
+    const filtered = state[k].filter((t) => t > now - BLAST_WINDOW_MS * 2);
+    if (filtered.length === 0) delete state[k];
+    else state[k] = filtered;
+  }
+  blastSave(state);
+  return overLimit;
+}
 
 const input = JSON.parse(readFileSync(0, 'utf8'));
 const { tool_name, tool_input } = input;
@@ -168,7 +203,26 @@ if (matchedGitRules.length > 0) {
 
   // Warn-level — accumulate all rule IDs for accurate signal
   const rule = matchedGitRules[0];
-  const ruleIds = matchedGitRules.map((r) => r.id).join(', ');
+  const ruleIdList = matchedGitRules.map((r) => r.id);
+  const ruleIds = ruleIdList.join(', ');
+
+  // BlastDampener escalation: if any rule in this command has fired
+  // ≥3 times within 10 minutes, escalate warn → block. Prevents a user
+  // (or looping agent) from grinding through warnings unchecked.
+  const overLimit = blastRecordAndCheck(ruleIdList);
+  if (overLimit) {
+    const lines = [
+      `🛑 BLOCKED — blast-dampener escalation`,
+      `  Rule '${overLimit.id}' has fired ${overLimit.count} times within 10 minutes.`,
+      `  Repeated destructive attempts exceed the safety envelope.`,
+      `  ${rule.impact}`,
+    ];
+    if (rule.saferAlternative) lines.push(`  Safer alternative: ${rule.saferAlternative}`);
+    lines.push(`  Command: ${command.substring(0, 120)}${command.length > 120 ? '...' : ''}`);
+    console.log(JSON.stringify({ decision: 'block', reason: lines.join('\n') }));
+    process.exit(0);
+  }
+
   const lines = [
     `⚠️ Destructive git command — rules: ${ruleIds}`,
     `  ${rule.impact}`,
