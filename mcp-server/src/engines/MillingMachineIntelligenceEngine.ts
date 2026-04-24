@@ -26,10 +26,9 @@ import { JM_DIE_COMPANY, JM_DIE_SOURCE_ROOTS } from "../data/jm-die-profile.js";
 // Wire three bespoke-AI methods onto the PRISM reasoning stack behind an
 // additive useAI?: 'off'|'auto'|'on' flag. useAI='off' (default) preserves
 // bit-identical legacy output, verified against the U0 baseline.
-import { treeOfThoughtEngine } from "./TreeOfThoughtEngine.js";
-import { hypothesisRankerEngine } from "./HypothesisRankerEngine.js";
 import { aiDecisionExplanationEngine } from "./AIDecisionExplanationEngine.js";
 import { prismSelfAwarenessEngine } from "./PRISMSelfAwarenessEngine.js";
+import { rankCandidatesBayesian, withPRISMReasoning } from "./MillAIWiring.js";
 
 /**
  * Opt-in routing flag for mill-AI wiring:
@@ -1703,60 +1702,41 @@ export class MillingMachineIntelligenceEngine {
     limit: number,
     legacy: MachineSimilarityMatch[]
   ): MachineSimilarityMatch[] {
-    try {
-      if (allMatches.length === 0) return legacy;
-      const set = hypothesisRankerEngine.createHypothesisSet(
-        `most_similar_machines_to_${source.id}`
-      );
-      const idToMatch = new Map<string, MachineSimilarityMatch>();
-      for (const m of allMatches) {
-        const prior = Math.max(0.01, Math.min(0.99, m.similarity_score / 100));
-        const hyp = hypothesisRankerEngine.addHypothesis(
-          set.id,
-          `${m.machine.name} (${m.machine.controller}) is the best similar match`,
-          "empirical",
-          { prior, source: "MillingMachineIntelligenceEngine", tribal_alignment: m.capability_match / 100 }
-        );
-        if (!hyp) continue;
-        idToMatch.set(hyp.id, m);
-        hypothesisRankerEngine.addEvidence(set.id, hyp.id, {
+    if (allMatches.length === 0) return legacy;
+    const { ranked } = rankCandidatesBayesian({
+      problem: `most_similar_machines_to_${source.id}`,
+      candidates: allMatches,
+      statement: (m) => `${m.machine.name} (${m.machine.controller}) is the best similar match`,
+      prior: (m) => m.similarity_score / 100,
+      tribalAlignment: (m) => m.capability_match / 100,
+      evidence: (m) => [
+        {
           description: `controller_match=${m.controller_match}`,
-          type: "empirical",
           strength: m.controller_match / 100,
           reliability: 0.9,
-          source: "CONTROLLER_CAPABILITIES",
           supports: m.controller_match >= 75,
-        });
-        hypothesisRankerEngine.addEvidence(set.id, hyp.id, {
+          source: "CONTROLLER_CAPABILITIES",
+        },
+        {
           description: `capability_match=${m.capability_match}`,
-          type: "empirical",
           strength: m.capability_match / 100,
           reliability: 0.85,
-          source: "capability_vector",
           supports: m.capability_match >= 70,
-        });
-        hypothesisRankerEngine.addEvidence(set.id, hyp.id, {
+          source: "capability_vector",
+        },
+        {
           description: `application_match=${m.application_match}`,
-          type: "empirical",
           strength: m.application_match / 100,
           reliability: 0.8,
-          source: "primary_applications",
           supports: m.application_match >= 50,
-        });
-      }
-      const rankings = hypothesisRankerEngine.rankHypotheses(set.id);
-      if (rankings.length === 0) return legacy;
-      const reranked: MachineSimilarityMatch[] = [];
-      for (const r of rankings) {
-        const m = idToMatch.get(r.hypothesis_id);
-        if (!m) continue;
-        reranked.push({ ...m, similarity_score: Math.round(r.score * 100) });
-      }
-      return reranked.slice(0, limit);
-    } catch {
-      // Fail closed: return legacy output on any AI-primitive failure.
-      return legacy;
-    }
+          source: "primary_applications",
+        },
+      ],
+    });
+    if (ranked.length === 0) return legacy;
+    return ranked
+      .map((r) => ({ ...r.candidate, similarity_score: Math.round(r.score * 100) }))
+      .slice(0, limit);
   }
 
   /**
@@ -1770,66 +1750,50 @@ export class MillingMachineIntelligenceEngine {
     hasCam: boolean,
     legacy: ToolpathStrategy[]
   ): ToolpathStrategy[] {
-    try {
-      if (legacy.length === 0) return legacy;
-      const set = hypothesisRankerEngine.createHypothesisSet(
-        `toolpath_for_${operation}_on_${controller}`
-      );
-      const idToStrategy = new Map<string, ToolpathStrategy>();
-      const opLower = operation.toLowerCase();
-      for (const s of legacy) {
-        const hyp = hypothesisRankerEngine.addHypothesis(
-          set.id,
-          `${s.name} is the best toolpath for ${operation}`,
-          "empirical",
-          { prior: 0.5, source: "TOOLPATH_STRATEGIES" }
-        );
-        if (!hyp) continue;
-        idToStrategy.set(hyp.id, s);
+    if (legacy.length === 0) return legacy;
+    const opLower = operation.toLowerCase();
+    const { ranked } = rankCandidatesBayesian({
+      problem: `toolpath_for_${operation}_on_${controller}`,
+      candidates: legacy,
+      statement: (s) => `${s.name} is the best toolpath for ${operation}`,
+      prior: () => 0.5,
+      evidence: (s) => {
         const nameLower = s.name.toLowerCase();
         const kwHits =
           (opLower.includes("pocket") && nameLower.includes("pocket") ? 1 : 0) +
           (opLower.includes("slot") && nameLower.includes("trochoidal") ? 1 : 0) +
           (opLower.includes("bore") && nameLower.includes("bore") ? 1 : 0) +
           (opLower.includes("adaptive") && s.type === "cam_adaptive" ? 1 : 0);
-        hypothesisRankerEngine.addEvidence(set.id, hyp.id, {
-          description: `keyword_hits=${kwHits}`,
-          type: "empirical",
-          strength: Math.min(1, kwHits * 0.35),
-          reliability: 0.8,
-          source: "operation_keyword_match",
-          supports: kwHits > 0,
-        });
-        hypothesisRankerEngine.addEvidence(set.id, hyp.id, {
-          description: `controller_${controller}_supported`,
-          type: "empirical",
-          strength: 0.9,
-          reliability: 0.95,
-          source: "controllers_supported",
-          supports: s.controllers_supported.includes(controller),
-        });
+        const ev = [
+          {
+            description: `keyword_hits=${kwHits}`,
+            strength: Math.min(1, kwHits * 0.35),
+            reliability: 0.8,
+            supports: kwHits > 0,
+            source: "operation_keyword_match",
+          },
+          {
+            description: `controller_${controller}_supported`,
+            strength: 0.9,
+            reliability: 0.95,
+            supports: s.controllers_supported.includes(controller),
+            source: "controllers_supported",
+          },
+        ];
         if (!hasCam && (s.type === "cam_2d" || s.type === "cam_3d" || s.type === "cam_5axis" || s.type === "cam_adaptive")) {
-          hypothesisRankerEngine.addEvidence(set.id, hyp.id, {
+          ev.push({
             description: "no_cam_available",
-            type: "empirical",
             strength: 0.9,
             reliability: 0.99,
-            source: "hasCam_flag",
             supports: false,
+            source: "hasCam_flag",
           });
         }
-      }
-      const rankings = hypothesisRankerEngine.rankHypotheses(set.id);
-      if (rankings.length === 0) return legacy;
-      const reranked: ToolpathStrategy[] = [];
-      for (const r of rankings) {
-        const s = idToStrategy.get(r.hypothesis_id);
-        if (s) reranked.push(s);
-      }
-      return reranked.slice(0, 5);
-    } catch {
-      return legacy;
-    }
+        return ev;
+      },
+    });
+    if (ranked.length === 0) return legacy;
+    return ranked.map((r) => r.candidate).slice(0, 5);
   }
 
   /**
@@ -1846,55 +1810,38 @@ export class MillingMachineIntelligenceEngine {
     const steps: ReasoningStep[] = [...legacy.steps];
     const sources: string[] = [...legacy.sources];
     let nextStepNum = steps.length + 1;
-    // --- Tree of Thought: explore reasoning branches around the query. ---
-    try {
-      const tree = treeOfThoughtEngine.createTree(
-        query.natural_language || "empty query",
-        "actionable_machine_recommendation",
-        {
-          query_type: query.query_type,
-          machine: query.machine,
-          controller: query.controller,
-          operation: query.operation,
-          material: query.material,
-        }
-      );
-      const solution = treeOfThoughtEngine.explore(
-        tree,
-        {
-          current_state: { query: query.natural_language },
-          constraints: query.controller ? [`controller=${query.controller}`] : [],
-          available_actions: ["observe", "lookup_controller", "rank_toolpaths", "synthesize"],
-          tribal_tips: [],
-          physics_bounds: {},
-        },
-        {
-          strategy: "best_first",
-          max_depth: 3,
-          max_branches_per_node: 4,
-          beam_width: 3,
-          pruning_threshold: 0.1,
-          backtrack_on_violation: true,
-          tribal_weight: 0.2,
-          physics_weight: 0.2,
-        }
-      );
-      const branchCount = tree.exploration_count;
-      const evidence: string[] = solution
-        ? solution.reasoning_chain.slice(0, 4)
-        : [`exploration_count=${branchCount}`];
+
+    // --- Tree of Thought via MillAIWiring.withPRISMReasoning ---
+    const tot = withPRISMReasoning({
+      question: query.natural_language || "empty query",
+      goal: "actionable_machine_recommendation",
+      initial_state: {
+        query_type: query.query_type,
+        machine: query.machine,
+        controller: query.controller,
+        operation: query.operation,
+        material: query.material,
+      },
+      available_actions: ["observe", "lookup_controller", "rank_toolpaths", "synthesize"],
+      constraints: query.controller ? [`controller=${query.controller}`] : [],
+      depth: 3,
+      branches: 4,
+    });
+    if (tot) {
+      const evidence = tot.reasoning_chain.length > 0
+        ? tot.reasoning_chain
+        : [`exploration_count=${tot.branch_count}`];
       steps.push({
         step_number: nextStepNum++,
         type: "analysis",
-        content: `TreeOfThought explored ${branchCount} branches at depth ${tree.max_depth_reached}.`,
+        content: `TreeOfThought explored ${tot.branch_count} branches at depth ${tot.max_depth_reached}.`,
         evidence,
-        confidence: solution ? Math.round(solution.confidence * 100) : 60,
+        confidence: Math.round(tot.confidence * 100),
       });
-      sources.push("tree_of_thought");
-    } catch {
-      // tree-of-thought unavailable — continue with remaining AI sources.
+      sources.push(tot.source);
     }
-    // --- Self-awareness: cite a real capability from the manifest. ---
+
+    // --- PRISM self-awareness: cite a capability from the manifest ---
     try {
       const manifest = prismSelfAwarenessEngine.getManifest() as unknown as Record<string, unknown>;
       const summary = typeof manifest.summary === "string"
@@ -1909,13 +1856,14 @@ export class MillingMachineIntelligenceEngine {
       });
       sources.push("self_awareness");
     } catch {
-      // manifest unavailable — continue.
+      // manifest unavailable — continue
     }
-    // --- AI decision explanation: attribution for the synthesized chain. ---
+
+    // --- AI decision explanation: attribution for the synthesized chain ---
     try {
       const attribution = aiDecisionExplanationEngine.createPhysicsAttribution(
         "reasoning_chain",
-        `Chain synthesized for ${query.natural_language.slice(0, 80)}`
+        `Chain synthesized for ${query.natural_language.slice(0, 80)}`,
       );
       steps.push({
         step_number: nextStepNum++,
@@ -1926,8 +1874,9 @@ export class MillingMachineIntelligenceEngine {
       });
       sources.push("ai_decision_explanation");
     } catch {
-      // explainer unavailable.
+      // explainer unavailable
     }
+
     return {
       ...legacy,
       steps,
