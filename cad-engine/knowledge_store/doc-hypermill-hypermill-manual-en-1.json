@@ -1,0 +1,5498 @@
+{
+  "tips": [
+    {
+      "title": "Define measurement system and storage directories",
+      "body": "Configure hyperMILL to use Metric/Inch units and set project-specific directories for storing generated files.",
+      "category": "machine_setup",
+      "tags": [
+        "setup",
+        "measurement_system"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Set up workpiece origin and frame(s)",
+      "body": "Establish a connection to the machine coordinate system using an origin reference system and define machining sides and directions.",
+      "category": "workholding",
+      "tags": [
+        "origin",
+        "frame"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Define tool parameters",
+      "body": "Create a new tool or apply an existing tool from the database in hyperMILL.",
+      "category": "tool_selection",
+      "tags": [
+        "tool"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Prepare manufacturing geometry",
+      "body": "Use both 2D contours and CAD models for 2D machining, and a CAD model for 3D and 5-axis jobs.",
+      "category": "feature",
+      "tags": [
+        "geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Structure CAM project",
+      "body": "Define job and job list, use compound jobs to structure the workflow within a job list.",
+      "category": "strategy",
+      "tags": [
+        "job_structure"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Collision check preparations",
+      "body": "Specify milling or turning areas to define the collision-checked part of the CAD model.",
+      "category": "safety",
+      "tags": [
+        "collision_check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Calculate and analyse toolpaths",
+      "body": "Calculate toolpaths directly in the job definition or via hyperMILL browser, and analyse them using hyperCAD-S.",
+      "category": "toolpath",
+      "tags": [
+        "toolpath_calculation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Simulate machining and generate NC program",
+      "body": "Simulate machining using internal simulation, machine simulation, hyperVIEW, or an external simulation program.",
+      "category": "simulation",
+      "tags": [
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.3",
+      "_chunk": 1
+    },
+    {
+      "title": "Use Project Assistant for project creation",
+      "body": "Utilize the Project Assistant to create a milling or MillTurn project in a predefined sequence of steps.",
+      "category": "strategy",
+      "tags": [
+        "project_assistant"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define model and machining technology",
+      "body": "Select milling or MillTurn technology, choose surfaces or solids for machining, and define stock resolution.",
+      "category": "strategy",
+      "tags": [
+        "model_setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define NCS orientation for milling",
+      "body": "Set the orientation of the NCS using Workplane, Surface, or 3 Points, and reverse the Z axis direction if necessary.",
+      "category": "workholding",
+      "tags": [
+        "NCS_orientation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define NCS orientation for MillTurn",
+      "body": "Set the orientation of the NCS using Workplane, Surface, or Line, and reverse the Z axis direction if necessary.",
+      "category": "workholding",
+      "tags": [
+        "NCS_orientation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define stock size and allowances for milling",
+      "body": "Calculate the stock size automatically from defined offsets in X, Y, and Z directions.",
+      "category": "feature",
+      "tags": [
+        "stock_size"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define stock size and allowances for MillTurn",
+      "body": "Calculate the stock size automatically from defined offsets in Z and radial offset.",
+      "category": "feature",
+      "tags": [
+        "stock_size"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define NCS position for milling",
+      "body": "Select a predefined basic position or define a user-defined position relative to the model or stock.",
+      "category": "workholding",
+      "tags": [
+        "NCS_position"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define NCS position for MillTurn",
+      "body": "Select a predefined basic position or define a user-defined position relative to the model or stock.",
+      "category": "workholding",
+      "tags": [
+        "NCS_position"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define machining frames",
+      "body": "Create orthogonal frames for each machining side relative to the model or stock, and set global clearance plane height.",
+      "category": "workholding",
+      "tags": [
+        "frames"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define names, select material and machine",
+      "body": "Finalize setup by defining joblist, milling/turning area, stock name, and selecting material and machine.",
+      "category": "strategy",
+      "tags": [
+        "final_setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.4",
+      "_chunk": 1
+    },
+    {
+      "title": "Define NC system alignment",
+      "body": "Align NC system with world workplane before defining joblist.",
+      "category": "machine_setup",
+      "tags": [
+        "NC system",
+        "world workplane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 3
+    },
+    {
+      "title": "Set frame for multi-axis indexing",
+      "body": "Define a frame for each machining side in multi-axis indexing.",
+      "category": "machine_setup",
+      "tags": [
+        "multi-axis",
+        "frame"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 3
+    },
+    {
+      "title": "Adjust frame for collision checking",
+      "body": "Frames share responsibility for collision checking during machining.",
+      "category": "machine_setup",
+      "tags": [
+        "collision checking",
+        "frame"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 3
+    },
+    {
+      "title": "Define frame origin and orientation",
+      "body": "Use the Define frame dialogue to set frame origin, orientation, and clamping position.",
+      "category": "machine_setup",
+      "tags": [
+        "frame definition",
+        "clamping position"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 3
+    },
+    {
+      "title": "Modify frame origin and orientation",
+      "body": "Change the frame origin or project the coordinate system in the direction of X, Y, Z axis.",
+      "category": "machine_setup",
+      "tags": [
+        "frame modification",
+        "coordinate system"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 3
+    },
+    {
+      "title": "Use associative workplane in hyperMILL",
+      "body": "Activate Parametric Modelling, select Frame or Origin, and activate Associative workplane function.",
+      "category": "machine_setup",
+      "tags": [
+        "associative workplane",
+        "parametric modelling"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 3
+    },
+    {
+      "title": "Update clamping position in joblist",
+      "body": "Use Update clamping position function to update jobs after changes to the clamping position.",
+      "category": "machine_setup",
+      "tags": [
+        "clamping position",
+        "joblist"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.44",
+      "_chunk": 3
+    },
+    {
+      "title": "Apply macro function for hole feature assignment",
+      "body": "Use Frame limit dialogue page to automatically assign jobs with hole features based on direction.",
+      "category": "machine_setup",
+      "tags": [
+        "frame limit",
+        "hole feature"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 3
+    },
+    {
+      "title": "Define frame limit for hole features",
+      "body": "Specify permissible maximum angle range for A/B and C axes in selected coordinate system.",
+      "category": "workholding",
+      "tags": [
+        "frame_limit",
+        "hole_features"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.9",
+      "_chunk": 4
+    },
+    {
+      "title": "Create zero points for NC output",
+      "body": "Define multiple origins and assign them to jobs in hyperMILL job list settings.",
+      "category": "workholding",
+      "tags": [
+        "zero_points",
+        "NC_output"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Transfer NC tool from external database to hyperMILL",
+      "body": "Select an NC tool from the OPEN MIND tool database and transfer it to hyperMILL using the Transfer to hyperMILL function.",
+      "category": "tool_selection",
+      "tags": [
+        "external_database",
+        "NC_tool"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define new tool in hyperMILL",
+      "body": "Switch to the Tools tab, choose New \u2192[Tool type], and define all required parameters with a unique ID.",
+      "category": "tool_selection",
+      "tags": [
+        "define_tool"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10",
+      "_chunk": 4
+    },
+    {
+      "title": "Define a turning tool",
+      "body": "Right-click on the Tools tab, select New \u2192 Tool type, and specify parameters like Tool angle, Tool reference, Cutting edge position.",
+      "category": "tool_selection",
+      "tags": [
+        "turning",
+        "tool definition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Select a tool in a job",
+      "body": "Switch to the Jobs tab, create a job, and select the required tool type and defined tool.",
+      "category": "tool_selection",
+      "tags": [
+        "job setup",
+        "tool selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Define cutting profile parameters",
+      "body": "Parameters are defined in the external tool database on the Technology dialogue page.",
+      "category": "tool_selection",
+      "tags": [
+        "cutting profile",
+        "technology data"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Adjust cutting profile values",
+      "body": "Values can be changed with a factor by selecting the field and entering the required factor.",
+      "category": "tool_selection",
+      "tags": [
+        "cutting profile",
+        "adjustment"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 5
+    },
+    {
+      "title": "Select a reference tool for rest material areas",
+      "body": "Choose the reference tool type and ensure it is larger than the machining tool.",
+      "category": "tool_selection",
+      "tags": [
+        "rest material",
+        "reference tool"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Define free angle for toolpath calculation",
+      "body": "Set the minimum angle between the tool insert and the calculated toolpath.",
+      "category": "tool_selection",
+      "tags": [
+        "free angle",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Use free tip geometry for collision check",
+      "body": "Enable the function to use freely defined tool tip for collision checking and simulation.",
+      "category": "tool_selection",
+      "tags": [
+        "collision check",
+        "free tip"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 5
+    },
+    {
+      "title": "Import tools from external database",
+      "body": "Select the tool in the browser of the external OPEN MIND tool database and import it into hyperMILL.",
+      "category": "tool_selection",
+      "tags": [
+        "import",
+        "external database"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Export tools to external database",
+      "body": "Highlight the tool in the hyperMILL browser and choose Export to tool database from the shortcut menu.",
+      "category": "tool_selection",
+      "tags": [
+        "export",
+        "external database"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Remove link to external database",
+      "body": "Unlink the tool from the external database to store changes only in the document database.",
+      "category": "tool_selection",
+      "tags": [
+        "unlink",
+        "database"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Restore link to external database",
+      "body": "Re-link the tool to the external database to recover changes from the external database.",
+      "category": "tool_selection",
+      "tags": [
+        "restore",
+        "database"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 5
+    },
+    {
+      "title": "Define bounding geometry for stock model creation",
+      "body": "Use the profile, box/cylinder, or surfaces of the CAD model as the basis for creating a stock model.",
+      "category": "stock_model_creation",
+      "tags": [
+        "bounding_geometry",
+        "CAD_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Set resolution for stock model calculation",
+      "body": "Specify the maximum permissible distance between the faceted surface of the polyhedron model and the real model surface.",
+      "category": "stock_model_creation",
+      "tags": [
+        "resolution",
+        "accuracy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Create a cast stock model based on the current CAD model",
+      "body": "Use the 'Cast offset' option to create a cast stock model that is based on the outer boundary of the loaded model.",
+      "category": "stock_model_creation",
+      "tags": [
+        "cast_stock",
+        "offset"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Select a frame for the turning axis",
+      "body": "Choose the frame that corresponds to the turning axis of the turning stock, and define any required resolution or offset.",
+      "category": "stock_model_creation",
+      "tags": [
+        "turning_axis",
+        "frame"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Define a stock model based on the stock model of a reference job",
+      "body": "Use the 'From job' option to define a stock model based on the stock model of a previously defined reference job.",
+      "category": "stock_model_creation",
+      "tags": [
+        "reference_job",
+        "stock_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Calculate stock model in the job definition",
+      "body": "On the Setup dialogue page of a job, select the 'Generate resulting stock' option to calculate and store the stock model.",
+      "category": "stock_model_creation",
+      "tags": [
+        "job_definition",
+        "stock_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Calculate stock model in the browser",
+      "body": "In the hyperMILL browser, select a job and use the 'Create \u2192 stockmodel' function to calculate the stock model.",
+      "category": "stock_model_creation",
+      "tags": [
+        "browser",
+        "stock_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Optimize stock model generation in 5X machining",
+      "body": "Ensure the Cutting length parameter is defined in the tool definition for optimal stock model generation.",
+      "category": "stock_model_creation",
+      "tags": [
+        "5X_machining",
+        "cutting_length"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Mirror stock models individually or for a job list",
+      "body": "Use the 'Mirror stock' function to create mirrored versions of individual stock models or all stock models in a job list.",
+      "category": "stock_model_creation",
+      "tags": [
+        "mirror_stock",
+        "job_list"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Combine multiple stock models into a compound stock",
+      "body": "Use the 'New compound stock' function to merge multiple stock models into a single compound stock for simultaneous machining.",
+      "category": "stock_model_creation",
+      "tags": [
+        "compound_stock",
+        "multiple_stocks"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 7
+    },
+    {
+      "title": "Edit stock to further process resulting stock",
+      "body": "Select stock model and use Edit Stock function from shortcut menu.",
+      "category": "stock_management",
+      "tags": [
+        "edit_stock",
+        "split_stock",
+        "clean_stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 8
+    },
+    {
+      "title": "Create stock chain for job sequences",
+      "body": "Select jobs and use Create Stock Chain function from shortcut menu.",
+      "category": "stock_management",
+      "tags": [
+        "create_stock_chain"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 8
+    },
+    {
+      "title": "Structure CAM project using job lists and compound jobs",
+      "body": "Organize jobs in job lists or use compound jobs for extensive projects.",
+      "category": "project_structure",
+      "tags": [
+        "job_list",
+        "compound_job"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Export job lists for archiving and transfer",
+      "body": "Select job list, export with options to include tools, geometries, and references.",
+      "category": "project_management",
+      "tags": [
+        "export_job_list"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Import job lists into other CAD models",
+      "body": "Load *.jst file and select import options for tools, geometries, and references.",
+      "category": "project_management",
+      "tags": [
+        "import_job_list"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Define job list settings before calculating toolpaths",
+      "body": "Set joblist name, IDs, origins, and other parameters in Job List Settings.",
+      "category": "project_setup",
+      "tags": [
+        "job_list_settings"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Specify program zero point before creating toolpaths",
+      "body": "Set NCS (program zero point) before generating toolpaths.",
+      "category": "toolpath_setup",
+      "tags": [
+        "NCS",
+        "program_zero_point"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Allow multiple origins for machining",
+      "body": "Enable 'Allow multiple origins' to machine contours on different sides of a part.",
+      "category": "toolpath_setup",
+      "tags": [
+        "multiple_origins"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Activate Best Fit for measuring logs",
+      "body": "Enable 'Best Fit' to generate a measuring log for further processing with hyperMILL VIRTUAL Machining Center.",
+      "category": "toolpath_setup",
+      "tags": [
+        "best_fit"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 8
+    },
+    {
+      "title": "Define stock model for multiple jobs",
+      "body": "Set up a stock model in Part Data to be used across multiple jobs.",
+      "category": "stock_management",
+      "tags": [
+        "stock_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 8
+    },
+    {
+      "title": "Define milling area for multiple jobs",
+      "body": "Set up a milling area in Part Data to be used across multiple jobs.",
+      "category": "stock_management",
+      "tags": [
+        "milling_area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 8
+    },
+    {
+      "title": "Define material for machining purposes",
+      "body": "Select the required material from the list in Part Data.",
+      "category": "stock_management",
+      "tags": [
+        "material"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 8
+    },
+    {
+      "title": "Define clamping area for job list or new clamping area",
+      "body": "Set up a clamping area in Fixture Setup.",
+      "category": "workholding_setup",
+      "tags": [
+        "clamping_area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 8
+    },
+    {
+      "title": "Define fixture parameters for turning jobs",
+      "body": "Set up fixture parameters such as body length, jaw length, and spindle housing.",
+      "category": "workholding_setup",
+      "tags": [
+        "fixture_parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 8
+    },
+    {
+      "title": "Define part data including length and orientation",
+      "body": "Set up part data by defining length and orientation using two points.",
+      "category": "part_setup",
+      "tags": [
+        "part_data"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 8
+    },
+    {
+      "title": "Define a mirror for all jobs/compound jobs in the job list",
+      "body": "Select the respective checkbox and choose the required mirror under Selection.",
+      "category": "workholding",
+      "tags": [
+        "mirror",
+        "job_list"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 9
+    },
+    {
+      "title": "Set axial security distance for tool and part in the axial direction",
+      "body": "Define a value that is considered when optimizing the clearance plane.",
+      "category": "nc_safety",
+      "tags": [
+        "axial_security_distance",
+        "clearance_plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Calculate the height of the security plane",
+      "body": "The value should ensure all rotary axes can move without collision.",
+      "category": "nc_safety",
+      "tags": [
+        "security_plane",
+        "rotary_axes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Optimize clearance plane during NC file generation",
+      "body": "Trims fast travel movements from and to the hyperMILL job clearance plane.",
+      "category": "nc_safety",
+      "tags": [
+        "optimize_clearance_plane",
+        "fast_travel"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Use smooth linking for collision-free movement",
+      "body": "Optionally, link rapids using a natural movement adapted to machine kinematics.",
+      "category": "nc_safety",
+      "tags": [
+        "smooth_linking",
+        "collision_free"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 9
+    },
+    {
+      "title": "Activate functions for interactive safety",
+      "body": "Use manually generated 2D or 5X curves to enable collision-free machining.",
+      "category": "nc_safety",
+      "tags": [
+        "interactive_safety",
+        "curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.26",
+      "_chunk": 9
+    },
+    {
+      "title": "Select profiles for generating collision-free linking movements",
+      "body": "Choose the appropriate 2D or 5X curves.",
+      "category": "nc_safety",
+      "tags": [
+        "profiles",
+        "curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.26",
+      "_chunk": 9
+    },
+    {
+      "title": "Define the height of the linking movement",
+      "body": "Set the height starting from the clamping position.",
+      "category": "nc_safety",
+      "tags": [
+        "linking_height",
+        "clamping_position"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.26",
+      "_chunk": 9
+    },
+    {
+      "title": "Enable optimized tunnel logic for collision-safe positioning",
+      "body": "Developed for machines with two rotary axes and Z axis retreat into a tunnel.",
+      "category": "nc_safety",
+      "tags": [
+        "optimized_tunnel_logic",
+        "rotary_axes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.27",
+      "_chunk": 9
+    },
+    {
+      "title": "Enable optimized table logic for collision-safe positioning",
+      "body": "Available for all machines with two rotary axes in the table.",
+      "category": "nc_safety",
+      "tags": [
+        "optimized_table_logic",
+        "rotary_axes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.27",
+      "_chunk": 9
+    },
+    {
+      "title": "Select machine for NC file creation",
+      "body": "Click the icon to select or specify a new machine.",
+      "category": "post_processor",
+      "tags": [
+        "machine",
+        "nc_files"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.27",
+      "_chunk": 9
+    },
+    {
+      "title": "Set NC directory for saving generated programs",
+      "body": "Adapt the NC directory to the project directory.",
+      "category": "post_processor",
+      "tags": [
+        "nc_directory",
+        "project_directory"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.27",
+      "_chunk": 9
+    },
+    {
+      "title": "Enable document settings",
+      "body": "Document settings apply to the NC directory for saving generated NC programs.",
+      "category": "machine_setup",
+      "tags": [
+        "document_settings",
+        "NC_directory"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Disable NC directory path definition",
+      "body": "Click the icon to disable defining the path for the NC directory.",
+      "category": "machine_setup",
+      "tags": [
+        "NC_directory"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Enable NC file naming",
+      "body": "Enable and select the method for naming NC files (Single mode/Package mode).",
+      "category": "machine_setup",
+      "tags": [
+        "NC_file_naming"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define file name variables",
+      "body": "Available variables: <JLIST>, <JOB>, <JOBID>, <COUNTER>.",
+      "category": "machine_setup",
+      "tags": [
+        "NC_file_naming"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set default rapid mode",
+      "body": "Default: 5X rapid tool movements occur as defined in the cycle.",
+      "category": "speeds_feeds",
+      "tags": [
+        "rapid_mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Optimize rapid mode for 5X machining",
+      "body": "Select 'Optimised' to avoid pole pass and high acceleration of the C axis.",
+      "category": "speeds_feeds",
+      "tags": [
+        "rapid_mode",
+        "5X"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define main spindle/clamp setup",
+      "body": "Set the coordinate system, lamping setup, name, and comment for the main spindle/clamp.",
+      "category": "workholding",
+      "tags": [
+        "spindle_setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define counter spindle/clamp setup",
+      "body": "Set the coordinate system, lamping setup, name, and comment for the counter spindle/clamp.",
+      "category": "workholding",
+      "tags": [
+        "spindle_setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define local coordinate system (LCS)",
+      "body": "Create a new LCS or select a previously defined zero point.",
+      "category": "workholding",
+      "tags": [
+        "LCS"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define main spindle/clamp reach",
+      "body": "Select two points: jaw front and part surface point.",
+      "category": "workholding",
+      "tags": [
+        "clamping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define main spindle/clamp Z position",
+      "body": "Select the contact point on the spindle's contact surface.",
+      "category": "workholding",
+      "tags": [
+        "clamping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define counter spindle/clamp reach",
+      "body": "Select two points: jaw front and part surface point.",
+      "category": "workholding",
+      "tags": [
+        "clamping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define counter spindle/clamp Z position",
+      "body": "Select the contact point on the spindle's contact surface.",
+      "category": "workholding",
+      "tags": [
+        "clamping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define turning job frame",
+      "body": "Edit the standard frame for turning operations in the counterspindle subjob list.",
+      "category": "strategy",
+      "tags": [
+        "turning"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Transfer turning model for machining operations",
+      "body": "Program the transfer of the turning model with main and counter spindle.",
+      "category": "strategy",
+      "tags": [
+        "transfer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Enable parting during transfer",
+      "body": "Allow parting of a long component during transfer from the main spindle to the counter spindle.",
+      "category": "strategy",
+      "tags": [
+        "transfer",
+        "parting"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Activate cleanup tool during transfer",
+      "body": "Program the cleaning up of the tool during the transfer.",
+      "category": "strategy",
+      "tags": [
+        "transfer",
+        "cleanup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set transfer direction",
+      "body": "Choose the transfer direction of the component (UseMain to counterspindle or Counter to mainspindle).",
+      "category": "strategy",
+      "tags": [
+        "transfer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define spindle rotation during transfer",
+      "body": "Programming can take place without spindle rotation (None) or with spindle rotation (Clockwise/Counterclockwise).",
+      "category": "speeds_feeds",
+      "tags": [
+        "spindle_rotation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set spindle speed for transfer",
+      "body": "Specify the spindle speed for the transfer with a rotating spindle.",
+      "category": "speeds_feeds",
+      "tags": [
+        "spindle_speed"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define angle offset for transfer",
+      "body": "Rotate the clamping jaws by a defined value to ensure safe part transfer.",
+      "category": "strategy",
+      "tags": [
+        "transfer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set transfer position",
+      "body": "Select a point on the Z axis of the LCS to set a safe transfer position.",
+      "category": "strategy",
+      "tags": [
+        "transfer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define reduced feed rate for transfer",
+      "body": "Select a point on the Z axis of the LCS from which the counter spindle moves at reduced feedrate.",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed_rate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set reduced feed rate value",
+      "body": "Define the reduced feedrate for the movement of the counter spindle up to the transfer position.",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed_rate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define safety position for tool transfer",
+      "body": "Set a safety position (= parking position) for the tool during the transfer of the part.",
+      "category": "safety",
+      "tags": [
+        "safety_position"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Enable chuck washing during transfer",
+      "body": "Optionally clean the chuck during the transfer.",
+      "category": "safety",
+      "tags": [
+        "chuck_washing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define fixed stop during transfer",
+      "body": "Move to a fixed transfer position or defined contact pressure before closing the spindle.",
+      "category": "safety",
+      "tags": [
+        "fixed_stop"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set working position for counter spindle",
+      "body": "Use Automatic or Manual to move the counter spindle to a defined value.",
+      "category": "strategy",
+      "tags": [
+        "counter_spindle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Create a new job",
+      "body": "Use the New function on the browser's shortcut menu and specify required settings.",
+      "category": "job_management",
+      "tags": [
+        "new_job"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Transfer job parameters",
+      "body": "Use the Copy and Paste functions to transfer parameters between jobs.",
+      "category": "job_management",
+      "tags": [
+        "transfer_parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Define job-specific details",
+      "body": "Enter a name and comment for the job.",
+      "category": "job_management",
+      "tags": [
+        "job_details"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 10
+    },
+    {
+      "title": "Set job IDs",
+      "body": "Click 'Set job IDs' on the joblist shortcut menu to set new job ID numbers.",
+      "category": "other",
+      "tags": [
+        "job_ids"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 11
+    },
+    {
+      "title": "Generate NC file",
+      "body": "Enabled by default. An NC file is generated for the cycle if the 'Generate NC file' function is used on the shortcut menu of the job in hyperMILL or in hyperVIEW.",
+      "category": "other",
+      "tags": [
+        "nc_file"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 11
+    },
+    {
+      "title": "Use for additive manufacturing",
+      "body": "Activate if the cycle is to be used for additive manufacturing.",
+      "category": "other",
+      "tags": [
+        "additive_manufacturing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.33",
+      "_chunk": 11
+    },
+    {
+      "title": "Use name patterns for jobs and comments",
+      "body": "Proceed as follows: Click the icon to open the 'Define name pattern' dialogue and enable the 'Use pattern' function.",
+      "category": "other",
+      "tags": [
+        "name_patterns"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 11
+    },
+    {
+      "title": "Define tool feedback display",
+      "body": "If the feedback display is activated, the tool, tool holder and tool head are shown by default at the zero point of the WCS or selected frame.",
+      "category": "toolpath",
+      "tags": [
+        "tool_feedback"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 11
+    },
+    {
+      "title": "Use global colours for toolpath visualisation",
+      "body": "Set the colours for rapid tool movements (G0) and infeed movements (G1) using global colour definitions from the Setup hyperMILL dialogue.",
+      "category": "toolpath",
+      "tags": [
+        "global_colours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 11
+    },
+    {
+      "title": "Show NC-Path for specific cycles",
+      "body": "The Show NC-Path function is available for Thread Milling, Helical Drilling, Pocket Milling, Contour Milling, etc.",
+      "category": "toolpath",
+      "tags": [
+        "nc_path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 11
+    },
+    {
+      "title": "Define preferred direction for 5-axis machines",
+      "body": "For machines with 5-axis kinematics, define the preferred spindle orientation in machining situations with at least two solutions.",
+      "category": "toolpath",
+      "tags": [
+        "preferred_direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 11
+    },
+    {
+      "title": "Use global definition for VIRTUAL Machining",
+      "body": "Enable to use the default settings of the VIRTUAL Machining postprocessor for creating the NC file.",
+      "category": "toolpath",
+      "tags": [
+        "global_definition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 11
+    },
+    {
+      "title": "Force tool call for multiple jobs",
+      "body": "If the function is enabled for all jobs, the tool is called from all jobs at the beginning in the postprocessor run.",
+      "category": "toolpath",
+      "tags": [
+        "force_tool_call"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 11
+    },
+    {
+      "title": "Use NC Optimizer for specific machining situations",
+      "body": "OPEN MIND recommends using the NC Optimizer for 5-axis machining with rotary axes that do not rotate endlessly, simultaneous applications, machines that cannot move over the table centre, etc.",
+      "category": "toolpath",
+      "tags": [
+        "nc_optimizer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 11
+    },
+    {
+      "title": "Set maximum rotation angle for G1 movements",
+      "body": "Specify the maximum permissible rotation angle of the machine axes for G1 movements.",
+      "category": "toolpath",
+      "tags": [
+        "max_rotation_angle_g1"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 11
+    },
+    {
+      "title": "Set maximum rotation angle for G0 movements",
+      "body": "Specify the maximum permissible rotation angle of the machine axes for G0 movements.",
+      "category": "toolpath",
+      "tags": [
+        "max_rotation_angle_g0"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 11
+    },
+    {
+      "title": "Define overlap parameters for tool movement",
+      "body": "Blending distance factor: 0.5-2.0 (factor of machine tolerance)\nBlending length factor: 0.1-0.3 (factor of tool diameter)",
+      "category": "toolpath",
+      "tags": [
+        "overlap",
+        "blending"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 12
+    },
+    {
+      "title": "Optimize infeed movements with NC Optimizer",
+      "body": "Relink function removes and reconnects original infeed movements as collision-free linear paths on the shortest possible path.",
+      "category": "toolpath",
+      "tags": [
+        "NC Optimizer",
+        "relink"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 12
+    },
+    {
+      "title": "Define preset positions for additional axes",
+      "body": "Additional axes function depends on machine kinematics and requires an appropriate license.",
+      "category": "machine_setup",
+      "tags": [
+        "additional axes",
+        "kinematics"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 12
+    },
+    {
+      "title": "Create compound jobs for structured job lists",
+      "body": "Combine any 2D, 3D or 5X jobs into a compound job for better organization and management.",
+      "category": "strategy",
+      "tags": [
+        "compound job"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 12
+    },
+    {
+      "title": "Define linking jobs for optimized machining sequences",
+      "body": "Linking jobs combine multiple jobs into a single sequence with optimized approach and retract movements.",
+      "category": "strategy",
+      "tags": [
+        "linking job"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 12
+    },
+    {
+      "title": "Set conditions for linking movements",
+      "body": "Use min. distance G0 to execute direct links between pairs of contour points in G1.",
+      "category": "toolpath",
+      "tags": [
+        "min. distance G0"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 12
+    },
+    {
+      "title": "Configure clearance radius and plane for rapid tool movements",
+      "body": "Clearance radius X: 10-20mm\nClearance plane Z: 5-10mm",
+      "category": "toolpath",
+      "tags": [
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 12
+    },
+    {
+      "title": "Define retract mode for collision-free movements",
+      "body": "Retract mode defines the Z level where horizontal infeed movements are executed.",
+      "category": "toolpath",
+      "tags": [
+        "retract mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 12
+    },
+    {
+      "title": "Use NC events for structured program flow",
+      "body": "Create NC events by selecting the event type and entering respective commands.",
+      "category": "gcode",
+      "tags": [
+        "NC events"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 12
+    },
+    {
+      "title": "Create associative job copies for parameter synchronization",
+      "body": "Copy of a job with parameters linked to the original job.",
+      "category": "tool_selection",
+      "tags": [
+        "associative job copy"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 12
+    },
+    {
+      "title": "Optimize manually created jobs",
+      "body": "Use the Optimization function on the job list's shortcut menu to group jobs by tool or machining step.",
+      "category": "strategy",
+      "tags": [
+        "optimization",
+        "tool change"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.40",
+      "_chunk": 13
+    },
+    {
+      "title": "Optimize macro jobs",
+      "body": "Use the Optimization function on the job list's shortcut menu to sort macro jobs by tool sequence or without grouping.",
+      "category": "strategy",
+      "tags": [
+        "optimization",
+        "macro"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.40",
+      "_chunk": 13
+    },
+    {
+      "title": "Tool sorting in macros",
+      "body": "Sort tools by ascending or descending diameter within a macro to maintain logical order.",
+      "category": "strategy",
+      "tags": [
+        "tool sorting",
+        "macro"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.41",
+      "_chunk": 13
+    },
+    {
+      "title": "Define machining parameters in the Setup input dialogue",
+      "body": "Set required frame and define job's machining parameters when defining a machining cycle.",
+      "category": "machine_setup",
+      "tags": [
+        "setup",
+        "machining"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.41",
+      "_chunk": 13
+    },
+    {
+      "title": "Explode macro job lists for tool change optimization",
+      "body": "Expand macro job lists into individual jobs before optimizing tool changes.",
+      "category": "strategy",
+      "tags": [
+        "tool change",
+        "macro"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.41",
+      "_chunk": 13
+    },
+    {
+      "title": "Edit job definition parameters globally",
+      "body": "Select multiple jobs and edit common parameters using the Global editing input window.",
+      "category": "strategy",
+      "tags": [
+        "global editing",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.41",
+      "_chunk": 13
+    },
+    {
+      "title": "Create new job elements",
+      "body": "Use the Job... function to open the Select new operation dialogue for creating various job types.",
+      "category": "job_creation",
+      "tags": [
+        "new job",
+        "operation"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Load job data from file",
+      "body": "Load data of a job or job list that was previously exported using the Export function in .jst format.",
+      "category": "job_creation",
+      "tags": [
+        "load",
+        "export"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Apply macros to jobs",
+      "body": "Open the Apply macros dialogue to apply macros to selected jobs.",
+      "category": "macro_application",
+      "tags": [
+        "macros",
+        "apply"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Replace selected job with another",
+      "body": "Replace the selected job with another job using the Replace by function.",
+      "category": "job_management",
+      "tags": [
+        "replace",
+        "job"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Create stock chain for jobs",
+      "body": "Select any jobs in a job list or compound jobs to create a stock chain.",
+      "category": "stock_management",
+      "tags": [
+        "stock",
+        "chain"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Calculate toolpath file for selected jobs",
+      "body": "Update the toolpath file by calculating it based on modified job parameters.",
+      "category": "toolpath_generation",
+      "tags": [
+        "toolpath",
+        "calculate"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Generate NC file for selected entry",
+      "body": "Perform a postprocessor run to generate an NC file for the selected job or job list.",
+      "category": "nc_file_generation",
+      "tags": [
+        "NC",
+        "file"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 13
+    },
+    {
+      "title": "Postprocessor creates link rapids on clearance plane",
+      "body": "Ensure clearance plane is above all collision-relevant elements.",
+      "category": "post_processor",
+      "tags": [
+        "link_rapids",
+        "clearance_plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 15
+    },
+    {
+      "title": "Define transformations in hyperMILL browser",
+      "body": "Switch to F rames tab, select desired transformation from shortcut menu or create new.",
+      "category": "tool_selection",
+      "tags": [
+        "transformations",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Apply transformation to a job",
+      "body": "Enable Active checkbox, select type of transformation, and choose existing or new transformation.",
+      "category": "tool_selection",
+      "tags": [
+        "transformations",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Use linear pattern in a job",
+      "body": "Define transformation name, comment, direction of pattern, and structure (fixed distance or fit elements).",
+      "category": "tool_selection",
+      "tags": [
+        "linear_pattern",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Apply linear pattern to a job",
+      "body": "Enable Active checkbox, select required linear pattern, specify start and target references.",
+      "category": "tool_selection",
+      "tags": [
+        "linear_pattern",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Use circular pattern in a job",
+      "body": "Define transformation name, comment, axis type, and structure (fit to total angle or fixed step angle).",
+      "category": "tool_selection",
+      "tags": [
+        "circular_pattern",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Apply circular pattern to a job",
+      "body": "Enable Active checkbox, select required circular pattern, specify start and target references.",
+      "category": "tool_selection",
+      "tags": [
+        "circular_pattern",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Use general pattern in a job",
+      "body": "Define transformation name, comment, add target reference system, and change orientation if necessary.",
+      "category": "tool_selection",
+      "tags": [
+        "general_pattern",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Apply general pattern to a job",
+      "body": "Enable Active checkbox, select required circular pattern, specify start and target references.",
+      "category": "tool_selection",
+      "tags": [
+        "general_pattern",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Mirror mode in hyperMILL",
+      "body": "Use Mirror path to mirror toolpath without geometry, improves performance but no collision check.",
+      "category": "tool_selection",
+      "tags": [
+        "mirror_mode",
+        "hyperMILL"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Climb milling vs Conventional milling in mirroring",
+      "body": "For contour machining, choose Left/Right or On contour to ensure geometrically symmetric material removal.",
+      "category": "operation_types",
+      "tags": [
+        "climb_milling",
+        "conventional_milling"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2D Contour Milling",
+        "3D Free Path Milling",
+        "5X Contouring"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 15
+    },
+    {
+      "title": "Define a transformation for mirroring",
+      "body": "Navigate to the Transformation dialogue, enter a name and comment if required.",
+      "category": "workholding",
+      "tags": [
+        "mirror",
+        "transformation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 16
+    },
+    {
+      "title": "Apply a mirror to a job or job list",
+      "body": "Enable the mirror in the job, compound job, or job list and select the required mirror under Selection.",
+      "category": "workholding",
+      "tags": [
+        "mirror",
+        "application"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 16
+    },
+    {
+      "title": "Create a mirrored copy of an element",
+      "body": "Enable the Copy option to create a mirrored copy that is associatively linked with the original.",
+      "category": "workholding",
+      "tags": [
+        "mirror",
+        "copy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 16
+    },
+    {
+      "title": "Remove the link between mirrored parameters and original job",
+      "body": "Right-click the respective location in the greyed-out dialogue and select Unlink to edit directly.",
+      "category": "workholding",
+      "tags": [
+        "mirror",
+        "unlink"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 16
+    },
+    {
+      "title": "Define a milling area for collision checking",
+      "body": "Select the Milling area or Turning area in the hyperMILL browser and define the boundaries.",
+      "category": "workholding",
+      "tags": [
+        "milling_area",
+        "collision_check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 16
+    },
+    {
+      "title": "Define a fixture area for collision checking",
+      "body": "Select the surfaces to be used as fixtures and define the colour and layer of the turning contour.",
+      "category": "workholding",
+      "tags": [
+        "fixture_area",
+        "collision_check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 16
+    },
+    {
+      "title": "Enable wildcard option in filter definition",
+      "body": "Use the '*' wildcard to search for character strings before or after a placeholder in a layer name.",
+      "category": "workholding",
+      "tags": [
+        "filter",
+        "layer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.51",
+      "_chunk": 17
+    },
+    {
+      "title": "Set minimum tool safe distance for fixture area",
+      "body": "The minimum distance between the tool and the fixture should not fall below 0.1 mm (0.004 inch). Values between 0.1 mm (0.004 inch) and 0.5 mm (0.02 inch) may lead to long calculation times if collision check is on and stop/clip tolerance is small.",
+      "category": "workholding",
+      "tags": [
+        "tool safe distance",
+        "fixture area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.51",
+      "_chunk": 17
+    },
+    {
+      "title": "Collision check limitations for certain tools",
+      "body": "A collision check against the defined fixture area is not supported for Chamfered Cutter, T-Slot Cutter, Woodruff Cutter, Barrel Cutter, Turning Tool, Recessing Tool, Axial Recessing Tool and Threading Tool.",
+      "category": "workholding",
+      "tags": [
+        "collision check",
+        "tools"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.51",
+      "_chunk": 17
+    },
+    {
+      "title": "Define storage location for 3DF files",
+      "body": "Click the Path button to define the storage location for 3DF files.",
+      "category": "post_processor",
+      "tags": [
+        "3DF file",
+        "storage"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Set default storage location for 3DF files",
+      "body": "Set the default storage location in the hyperMILL settings dialogue.",
+      "category": "post_processor",
+      "tags": [
+        "3DF file",
+        "storage"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Specify resolution for edge curve circle segments",
+      "body": "Set the maximum chordal height to specify the resolution of edge curve circle segments in G1 lengths.",
+      "category": "post_processor",
+      "tags": [
+        "resolution",
+        "edge curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Set surface resolution for 3DF models",
+      "body": "The surface resolution should be somewhat finer than the dimensional accuracy required in production.",
+      "category": "post_processor",
+      "tags": [
+        "resolution",
+        "surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Set maximum facet length for 3DF models",
+      "body": "Controls the maximum facet length within the 3DF model.",
+      "category": "post_processor",
+      "tags": [
+        "facet",
+        "3DF"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Select solids or surfaces for conversion in 3DF files",
+      "body": "Select solids or surfaces to be converted. The same mathematical resolution applies to all selected surfaces/solids.",
+      "category": "post_processor",
+      "tags": [
+        "conversion",
+        "3DF"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Define group definitions for different resolutions and allowances",
+      "body": "Select this option if you want to convert areas with different mathematical resolutions and/or different stock allowances.",
+      "category": "post_processor",
+      "tags": [
+        "group",
+        "resolution"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Set mathematical resolution for different groups",
+      "body": "A coarse resolution is sufficient for roughing areas. A finer resolution should be defined for different fine machining processes.",
+      "category": "post_processor",
+      "tags": [
+        "group",
+        "resolution"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.52",
+      "_chunk": 17
+    },
+    {
+      "title": "Calculate toolpaths for individual jobs or job lists",
+      "body": "Either directly in the job definition (for an individual job) or in the hyperMILL browser (for an individual job, multiple jobs or all the jobs in a job list).",
+      "category": "toolpath",
+      "tags": [
+        "toolpath",
+        "job"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 17
+    },
+    {
+      "title": "Recalculate sub-jobs when updating linking jobs",
+      "body": "If you choose No, only the linking job, and not its sub-jobs, are recalculated.",
+      "category": "toolpath",
+      "tags": [
+        "recalculation",
+        "sub-jobs"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 17
+    },
+    {
+      "title": "Ignore messages before calculating toolpaths",
+      "body": "Ignore the messages and calculate the job.",
+      "category": "toolpath",
+      "tags": [
+        "messages",
+        "ignore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 17
+    },
+    {
+      "title": "Cancel toolpath calculation",
+      "body": "Select 'Cancel' from the calculation control options.",
+      "category": "toolpath",
+      "tags": [
+        "cancel",
+        "calculation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 18
+    },
+    {
+      "title": "Stop toolpath calculation",
+      "body": "Select 'Stop' from the calculation control options.",
+      "category": "toolpath",
+      "tags": [
+        "stop",
+        "calculation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 18
+    },
+    {
+      "title": "Continue toolpath calculation",
+      "body": "Select 'Continue' from the calculation control options.",
+      "category": "toolpath",
+      "tags": [
+        "continue",
+        "calculation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 18
+    },
+    {
+      "title": "Delete all toolpaths",
+      "body": "Use the 'hyperMILL D elete toolpaths' menu or shortcut menu T oolpaths \u2192 Delete all.",
+      "category": "toolpath",
+      "tags": [
+        "delete",
+        "all"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.53",
+      "_chunk": 18
+    },
+    {
+      "title": "Read toolpaths for a job",
+      "body": "Select 'Toolpaths \u2192 Read' from the shortcut menu of a job list or job.",
+      "category": "toolpath",
+      "tags": [
+        "read",
+        "job"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.54",
+      "_chunk": 18
+    },
+    {
+      "title": "Read any toolpaths for analyses",
+      "body": "Select 'Read toolpath hyperMILL' from the shortcut menu of a job list or job.",
+      "category": "toolpath",
+      "tags": [
+        "read",
+        "analysis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.54",
+      "_chunk": 18
+    },
+    {
+      "title": "Edit toolpaths using boundary",
+      "body": "Select 'Edit job' from the Mode dropdown in the Parameters dialogue page.",
+      "category": "toolpath",
+      "tags": [
+        "edit",
+        "boundary"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.54",
+      "_chunk": 18
+    },
+    {
+      "title": "Edit toolpaths by splitting based on time",
+      "body": "Select 'Time' in the Split job dialogue page and define the Tool life (min).",
+      "category": "toolpath",
+      "tags": [
+        "edit",
+        "split",
+        "time"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.55",
+      "_chunk": 18
+    },
+    {
+      "title": "Edit toolpaths by splitting based on length",
+      "body": "Select 'Length' in the Split job dialogue page and define the Tool life in millimetres (inch).",
+      "category": "toolpath",
+      "tags": [
+        "edit",
+        "split",
+        "length"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.55",
+      "_chunk": 18
+    },
+    {
+      "title": "Change tolerance factor for splitting",
+      "body": "Define the permissible deviation of the splitting positions based on the defined tool life.",
+      "category": "toolpath",
+      "tags": [
+        "split",
+        "tolerance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.55",
+      "_chunk": 18
+    },
+    {
+      "title": "Change mode for splitting toolpaths",
+      "body": "Select the reason for splitting the toolpath from the Change mode dropdown.",
+      "category": "toolpath",
+      "tags": [
+        "split",
+        "mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.55",
+      "_chunk": 18
+    },
+    {
+      "title": "Split toolpaths at the end of a machining step",
+      "body": "Select 'End of path' in the Split mode dropdown.",
+      "category": "toolpath",
+      "tags": [
+        "split",
+        "end"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.55",
+      "_chunk": 18
+    },
+    {
+      "title": "Select toolpath section within a rectangular selection area",
+      "body": "Use 'Select window' icon to define a rectangular area for selecting toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "rectangular"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Select toolpath section within a polygonal chain area",
+      "body": "Use 'Select lasso' icon to define an area using a polygonal chain for selecting toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "polygonal"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Select toolpath section within a circular selection area",
+      "body": "Use 'Select circle' icon to define a circular area for selecting toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "circular"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Enter middle point and point on the circumference of a circular selection area",
+      "body": "In 'Select circle' mode, use C + P to enter the middle point and a point on the circumference.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "circular"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Enter middle point and radius of a circular selection area",
+      "body": "In 'Select circle' mode, use C + R to enter the middle point and the radius.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "circular"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Select elements arranged in an arc",
+      "body": "Use 'Select segment' icon to select elements that are arranged in an arc.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "arc"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Select center and vertices of an arc",
+      "body": "In 'Select segment' mode, select the center with the left mouse button or snap a position, then click two diagonally opposite corners to draw the selection area.",
+      "category": "toolpath",
+      "tags": [
+        "selection",
+        "arc"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Trim toolpath by plane using selected points",
+      "body": "Use 'Trim by plane' mode and select three non-collinear points to trim the toolpath.",
+      "category": "toolpath",
+      "tags": [
+        "trim",
+        "plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Trim toolpath by plane using direction and origin",
+      "body": "In 'Trim by plane' mode, select a direction and an origin to define the plane for trimming.",
+      "category": "toolpath",
+      "tags": [
+        "trim",
+        "plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Untrim toolpath by plane using selected point",
+      "body": "Select a point in the graphics area for the origin of the plane and use 'Untrim by plane' to remove previous trims.",
+      "category": "toolpath",
+      "tags": [
+        "untrim",
+        "plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Trim toolpath by curves using selected closed curved line",
+      "body": "Use 'Trim by curves' mode and select a closed curved line to trim the toolpath.",
+      "category": "toolpath",
+      "tags": [
+        "trim",
+        "curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Untrim toolpath by curves using selected closed curved line",
+      "body": "Use 'Untrim by curves' to remove previous trims based on a selected closed curved line.",
+      "category": "toolpath",
+      "tags": [
+        "untrim",
+        "curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Invert current selection",
+      "body": "Use 'Invert selection' to reverse the current toolpath selection.",
+      "category": "toolpath",
+      "tags": [
+        "selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Untrim all previous trims",
+      "body": "Use 'Untrim all' to remove all previously applied trims from the toolpath.",
+      "category": "toolpath",
+      "tags": [
+        "untrim"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 19
+    },
+    {
+      "title": "Simulate machining using internal simulation",
+      "body": "To simulate machining, select the required job and choose 'Internal simulation' from the shortcut menu.",
+      "category": "simulation",
+      "tags": [
+        "internal",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 19
+    },
+    {
+      "title": "Simulate machining using internal machine simulation",
+      "body": "To simulate machining with machine model collision checks, select the required job and choose 'Internal machine simulation' from the shortcut menu.",
+      "category": "simulation",
+      "tags": [
+        "internal",
+        "machine",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 19
+    },
+    {
+      "title": "Simulate machining using hyperMILL VIRTUAL Machining Center",
+      "body": "To simulate machining with collision checks and virtual machine capabilities, use the hyperMILL VIRTUAL Machining Center.",
+      "category": "simulation",
+      "tags": [
+        "virtual",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 19
+    },
+    {
+      "title": "Simulate machining using external simulation programs",
+      "body": "To simulate machining with collision checks and virtual machine capabilities, use external simulation programs like VERICUT.",
+      "category": "simulation",
+      "tags": [
+        "external",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 19
+    },
+    {
+      "title": "Simulate material removal based on stock model",
+      "body": "To simulate complete material removal, start the material removal simulation and define the stock and tolerance.",
+      "category": "simulation",
+      "tags": [
+        "material",
+        "removal"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Show model defined in joblist during simulation",
+      "body": "Use 'Show the model defined in the joblist' option to visualize the part being machined during the simulation.",
+      "category": "simulation",
+      "tags": [
+        "model",
+        "visualization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Show defined fixture during simulation",
+      "body": "Use 'Show the defined fixture' option to visualize the fixture being used during the simulation.",
+      "category": "simulation",
+      "tags": [
+        "fixture",
+        "visualization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Create cut through stockmodel at current tool position",
+      "body": "Use 'Create a cut through the stockmodel at the current tool position' option to visualize the material being removed.",
+      "category": "simulation",
+      "tags": [
+        "cut",
+        "visualization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Open restmaterial display dialogue during simulation",
+      "body": "Use 'Open the Restmaterial display dialogue' option to visualize the remaining material after machining.",
+      "category": "simulation",
+      "tags": [
+        "restmaterial",
+        "visualization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Open measure dialogue during simulation",
+      "body": "Use 'Open the Measure dialogue' option to perform measurements during the simulation.",
+      "category": "simulation",
+      "tags": [
+        "measure",
+        "dialogue"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Decouple simulation window and graphics window",
+      "body": "Use 'Decouple the simulation window and graphics window' option to separate the simulation view from the CAD model.",
+      "category": "simulation",
+      "tags": [
+        "decouple",
+        "windows"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 19
+    },
+    {
+      "title": "Use Restmaterial display function for remaining rest material analysis",
+      "body": "Select job, go to Utilities -> Restmaterial display, define stock model, specify parameters, and view results in color gradient (yellow > green > blue).",
+      "category": "toolpath",
+      "tags": [
+        "rest material",
+        "stock calculation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.59",
+      "_chunk": 20
+    },
+    {
+      "title": "Define allowance and max rest material for rest material display",
+      "body": "Allowance: <0.25, second step = < 0.5, third step < 0.75, fourth step > 0.75. Max rest material determines the color blue in the display.",
+      "category": "toolpath",
+      "tags": [
+        "rest material",
+        "allowance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.59",
+      "_chunk": 20
+    },
+    {
+      "title": "Measure distances and angles between surfaces or points",
+      "body": "Left-click to specify first point, then left-click again for second point. Results include angle, surface distance, and point distance.",
+      "category": "measurements",
+      "tags": [
+        "distance",
+        "angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.60",
+      "_chunk": 20
+    },
+    {
+      "title": "Enable machine cone shape interpolation for vector jumps",
+      "body": "Use Enable machine cone shape interpolation option in Machine Structure dialogue for machines with rotary axes.",
+      "category": "machine_setup",
+      "tags": [
+        "cone shape interpolation",
+        "vector jumps"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.60",
+      "_chunk": 20
+    },
+    {
+      "title": "Configure machine components during simulation",
+      "body": "Open Machine Structure dialogue to specify which components (spindle, table, body) should be displayed during the simulation.",
+      "category": "machine_setup",
+      "tags": [
+        "machine components",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.60",
+      "_chunk": 20
+    },
+    {
+      "title": "Set up collision checks during simulation",
+      "body": "Open Setup collision check dialogue to specify which elements (tool, holder, model) are checked during the simulation.",
+      "category": "simulation",
+      "tags": [
+        "collision checks",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Enable tool against model collision check",
+      "body": "Select Tool against model option to consider only the non-cutting part of the tool during collision checks.",
+      "category": "simulation",
+      "tags": [
+        "tool collision",
+        "model collision"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Enable stock checks during simulation",
+      "body": "Select Enable stock checks option to check collisions with the stock for tool head, holder, and non-cutting area of tool.",
+      "category": "simulation",
+      "tags": [
+        "stock collision",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Set simulation tolerance and tool mode during setup",
+      "body": "Specify Simulation tolerance in Setup dialogue, choose Tool mode (Tool from job or Tool from tool list).",
+      "category": "simulation",
+      "tags": [
+        "simulation tolerance",
+        "tool mode"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Configure setup point mode during simulation",
+      "body": "Select Automatic centre or Manual to specify the setup point for the model in Setup dialogue.",
+      "category": "simulation",
+      "tags": [
+        "setup point",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Display toolpaths and machine during simulation",
+      "body": "Enable Display toolpaths and Show machine options in Simulation dialogue to display current toolpath and machine.",
+      "category": "simulation",
+      "tags": [
+        "toolpaths",
+        "machine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Switch collision check on during simulation",
+      "body": "Enable Switches the collision check option in Simulation dialogue to activate collision checks.",
+      "category": "simulation",
+      "tags": [
+        "collision check",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 20
+    },
+    {
+      "title": "Use hyperVIEW for collision checks",
+      "body": "hyperVIEW is a simulation tool based on calculated toolpaths, not NC code-based.",
+      "category": "simulation",
+      "tags": [
+        "collision_check",
+        "toolpath"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 21
+    },
+    {
+      "title": "Transfer jobs to hyperVIEW",
+      "body": "Individual jobs or the complete joblist can be transferred from hyperMILL to hyperVIEW.",
+      "category": "simulation",
+      "tags": [
+        "job_transfer"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 21
+    },
+    {
+      "title": "Simulate operations in hyperMILL SIMULATION Center",
+      "body": "Start simulation by right-clicking on the job or job list and selecting 'Simulation Center'.",
+      "category": "simulation",
+      "tags": [
+        "simulation_center"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 21
+    },
+    {
+      "title": "Use two-window mode for analysis",
+      "body": "Activate two-window mode by right-clicking and selecting 'Machining simulation' or 'Toolpath preview'.",
+      "category": "simulation",
+      "tags": [
+        "two_window_mode"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 21
+    },
+    {
+      "title": "Manage project in hyperMILL SIMULATION Center",
+      "body": "Project administration includes managing main programs, stock, moving setup, and performing collision checks.",
+      "category": "project_management",
+      "tags": [
+        "project_administration"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.64",
+      "_chunk": 21
+    },
+    {
+      "title": "Simulate complete NC list",
+      "body": "In the Program run (Simulation) operating mode, select 'Simulate complete NC list' to simulate all operations.",
+      "category": "simulation",
+      "tags": [
+        "simulate_nc"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.64",
+      "_chunk": 21
+    },
+    {
+      "title": "Load specific jobs for simulation",
+      "body": "Select 'This job only' in the shortcut menu of a main program, tool change job, or operation to limit simulation.",
+      "category": "simulation",
+      "tags": [
+        "job_selection"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.64",
+      "_chunk": 21
+    },
+    {
+      "title": "Load program",
+      "body": "Select 'entry in the shortcut menu of the main program' to load a program for run.",
+      "category": "machine_setup",
+      "tags": [
+        "program loading"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Show postprocessor log",
+      "body": "Select 'entry in the shortcut menu of main program, tool change job or operation' to display postprocessor messages.",
+      "category": "post_processor",
+      "tags": [
+        "log",
+        "messages"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Stop at the end of a program",
+      "body": "Simulation stops after every main program.",
+      "category": "simulation",
+      "tags": [
+        "stop",
+        "end"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Move setup",
+      "body": "Select 'Move part', 'Move stock', or 'Move fixture' to adjust the setup position.",
+      "category": "workholding",
+      "tags": [
+        "setup",
+        "move"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Configure program run view",
+      "body": "Select 'VNC program file', 'NC program file', 'coordinate values', or 'status messages' in the block display.",
+      "category": "program_run",
+      "tags": [
+        "view",
+        "configuration"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Simulate toolpath file",
+      "body": "Set start and end of program run, approach a position with the machine, analyse, start/stop simulation, move axes step-by-step.",
+      "category": "simulation",
+      "tags": [
+        "toolpath",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Collision check and material removal",
+      "body": "Control collision check and activate stock removal simulation.",
+      "category": "simulation",
+      "tags": [
+        "collision",
+        "material"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.65",
+      "_chunk": 22
+    },
+    {
+      "title": "Set simulation area",
+      "body": "Select start and end points on the toolpath or use slide controls A and B.",
+      "category": "simulation",
+      "tags": [
+        "area",
+        "setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.66",
+      "_chunk": 22
+    },
+    {
+      "title": "Regulate simulation speed",
+      "body": "Set speeds for rapids (G0) and normal feedrate (G1/2/3), minimum 0.01 mm, maximum 100 mm.",
+      "category": "simulation",
+      "tags": [
+        "speed",
+        "regulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.66",
+      "_chunk": 22
+    },
+    {
+      "title": "Keyboard shortcuts for simulation control",
+      "body": "Use CTRL+F for full-text search, Back/Forward keys to move one step at a time.",
+      "category": "simulation",
+      "tags": [
+        "shortcuts",
+        "control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.67",
+      "_chunk": 22
+    },
+    {
+      "title": "Collision check options",
+      "body": "Specify components to be checked during collision check, tolerance values should be reasonable.",
+      "category": "simulation",
+      "tags": [
+        "options",
+        "collision"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.67",
+      "_chunk": 22
+    },
+    {
+      "title": "Check tool against model",
+      "body": "Ensure tool matches model for accurate machining.",
+      "category": "tool_selection",
+      "tags": [
+        "tool",
+        "model"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Check holder/shaft/core against model",
+      "body": "Ensure tool holder, shank, and core match model for accurate machining.",
+      "category": "tool_selection",
+      "tags": [
+        "holder",
+        "shaft",
+        "core",
+        "model"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Activate rapid traverse check",
+      "body": "Default is on; can be turned off for certain situations.",
+      "category": "machine_setup",
+      "tags": [
+        "rapid traverse",
+        "check"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Check stock during collision check",
+      "body": "Ensure tool and holder do not collide with stock.",
+      "category": "safety",
+      "tags": [
+        "stock",
+        "collision"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Remove detached stock during simulation",
+      "body": "Automatically remove stock areas with no contact with milling area.",
+      "category": "safety",
+      "tags": [
+        "stock",
+        "simulation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Consider core diameter for milling tools",
+      "body": "Check tool tip collisions with stock, taking core diameter into account.",
+      "category": "tool_selection",
+      "tags": [
+        "core diameter",
+        "milling"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Set tip limit for G0 and G1 movements",
+      "body": "Limit tool tip contact with model in G0 and G1 movements.",
+      "category": "safety",
+      "tags": [
+        "G0",
+        "G1",
+        "tip limit"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Define part allowance for collision check",
+      "body": "Offset tool shape by entered value during collision check.",
+      "category": "safety",
+      "tags": [
+        "allowance",
+        "collision"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Use job settings for allowance values",
+      "body": "Enable to use job-defined values for allowance, allowance XY, and allowance Z.",
+      "category": "safety",
+      "tags": [
+        "job settings",
+        "allowance"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Allow thin shank contact with stock",
+      "body": "Use tool where shank and cutting edge have same diameter, allowing slight contact.",
+      "category": "safety",
+      "tags": [
+        "shank",
+        "stock"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Derive tolerance from stock model resolution",
+      "body": "Automatically derive collision check tolerance from stock model resolution.",
+      "category": "safety",
+      "tags": [
+        "tolerance",
+        "stock model"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Set safety distance to fixture",
+      "body": "Maintain safe distance between tool and fixture, except for touch probe.",
+      "category": "safety",
+      "tags": [
+        "fixture",
+        "safety distance"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Set collision check resolution",
+      "body": "Adjust accuracy for collision check.",
+      "category": "safety",
+      "tags": [
+        "collision",
+        "resolution"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Stop on first collision during simulation",
+      "body": "Program stops at the first collision found during simulation.",
+      "category": "safety",
+      "tags": [
+        "collision",
+        "stop"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Display collision information in simulation",
+      "body": "Show status messages for collisions, gouges, contacts, errors, and warnings.",
+      "category": "safety",
+      "tags": [
+        "simulation",
+        "information"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Run to selected position in simulation",
+      "body": "Move tool to selected position during simulation.",
+      "category": "simulation",
+      "tags": [
+        "run",
+        "position"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Set start and end points for simulation",
+      "body": "Adjust start and end points for selected job during simulation.",
+      "category": "simulation",
+      "tags": [
+        "start",
+        "end",
+        "job"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Search for coordinates or control commands in program file",
+      "body": "Find specific blocks containing search string in VNC or NC program file.",
+      "category": "simulation",
+      "tags": [
+        "search",
+        "coordinates"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Save current stock in X format",
+      "body": "Save the current stock data in *.xformat.",
+      "category": "post_processor",
+      "tags": [
+        "stock",
+        "save"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Switch rest material display on/off",
+      "body": "Toggle visibility of rest material during simulation.",
+      "category": "display",
+      "tags": [
+        "rest material",
+        "display"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Control visibility of machine elements in graphics area",
+      "body": "Manually control display of machine elements, axes, and limits.",
+      "category": "machine_setup",
+      "tags": [
+        "visibility",
+        "graphics"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Manually position machine axes",
+      "body": "Position linear and rotary axes of the machine for real conditions testing.",
+      "category": "machine_setup",
+      "tags": [
+        "axes",
+        "position"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Display machine axis limits",
+      "body": "Show limit values of linear and rotary axes for machine coordinate system.",
+      "category": "machine_setup",
+      "tags": [
+        "limits",
+        "axes"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.68",
+      "_chunk": 23
+    },
+    {
+      "title": "Set machine axis limits",
+      "body": "Displays the limits (Minimum/Maximum) of the linear and rotary axes of the machine.",
+      "category": "machine_setup",
+      "tags": [
+        "limits",
+        "configuration"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.72",
+      "_chunk": 24
+    },
+    {
+      "title": "Load tool files",
+      "body": "Only compatible tool files in the neutral tool exchange format of the tool database can be loaded.",
+      "category": "tool_selection",
+      "tags": [
+        "tools",
+        "database"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.72",
+      "_chunk": 24
+    },
+    {
+      "title": "Configure simulation settings",
+      "body": "Set minimum feedrate for rapid movements, number of replay steps, and simulation tolerance.",
+      "category": "simulation",
+      "tags": [
+        "settings",
+        "accuracy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.73",
+      "_chunk": 24
+    },
+    {
+      "title": "Visualize tool paths",
+      "body": "Display toolpaths for linking movements, toolpath points, and tool vectors with customizable colors and sizes.",
+      "category": "visualization",
+      "tags": [
+        "display",
+        "tooling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.73",
+      "_chunk": 24
+    },
+    {
+      "title": "Analyze movement paths",
+      "body": "Perform graphical analysis of the movement paths of linear and rotary axes, insert breakpoints, and display a list of all breakpoints.",
+      "category": "analysis",
+      "tags": [
+        "path",
+        "breakpoints"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 24
+    },
+    {
+      "title": "Write planes/radii on separate layers",
+      "body": "Use the function in the results list shortcut menu to save radii/planes from analysis on separate layers.",
+      "category": "other",
+      "tags": [
+        "layer management"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Test tool position for optimal machining frame",
+      "body": "Use the Test tool position function to determine the best frame for a particular type of machining.",
+      "category": "toolpath",
+      "tags": [
+        "tool positioning"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Setup machine and tool for analysis",
+      "body": "Click the Tool/Frame line to specify the frame and tool, then select the machine model.",
+      "category": "machine_setup",
+      "tags": [
+        "machine setup",
+        "tool selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Configure setup point mode",
+      "body": "Use Automatic centre to place the CAD model automatically at the centre of the machine table, or Manual to specify a custom setup point.",
+      "category": "machine_setup",
+      "tags": [
+        "setup point"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Align tool at frame or surface normal",
+      "body": "Use the left mouse button to position the tool anywhere in the CAD model, or align it at the current frame or surface normal.",
+      "category": "toolpath",
+      "tags": [
+        "tool alignment"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Change tool position based on displayed coordinate system",
+      "body": "Adjust the tool position based on the current coordinate system using the provided options.",
+      "category": "toolpath",
+      "tags": [
+        "tool positioning"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Optimise tool length for any tool position",
+      "body": "hyperMILL calculates the optimum tool length for any specified tool position.",
+      "category": "tool_selection",
+      "tags": [
+        "tool optimization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Display surface errors during conversion",
+      "body": "Use the Converter \u2013 display surface errors function to identify and view incorrectly converted surfaces.",
+      "category": "post_processor",
+      "tags": [
+        "surface error detection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Export geometry data in OMX format",
+      "body": "Use the Export OMX function to save selected geometry data in a separate *.omxfile.",
+      "category": "post_processor",
+      "tags": [
+        "geometry export"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Import TDM Systems tools for data exchange",
+      "body": "Use the Import TDM Systems tools function to exchange data between TDM Systems and hyperMILL.",
+      "category": "post_processor",
+      "tags": [
+        "data exchange"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Import WinTool tools for data exchange",
+      "body": "Use the Import WinTool tools function to exchange data between WinTool and hyperMILL, automatically assigning NC numbers.",
+      "category": "post_processor",
+      "tags": [
+        "data exchange"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Import Zoller tools for data exchange",
+      "body": "Use the Import Zoller tools function to exchange data between Zoller tool management system and hyperMILL.",
+      "category": "post_processor",
+      "tags": [
+        "data exchange"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Contour offset to limit machining areas",
+      "body": "Use the Contour offset function to change the size of contours and optimize machining areas.",
+      "category": "toolpath",
+      "tags": [
+        "contour modification"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Edit contours with specified tolerance and color",
+      "body": "Select contours to edit, specify the required tolerance value, and choose a new color for the contour.",
+      "category": "toolpath",
+      "tags": [
+        "contour editing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 26
+    },
+    {
+      "title": "Project contour onto workplane",
+      "body": "Projects a contour from a CAD model onto the current workplane.",
+      "category": "feature",
+      "tags": [
+        "contour",
+        "workplane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 27
+    },
+    {
+      "title": "Create new contour from existing data",
+      "body": "Creates a new contour using previously entered data.",
+      "category": "feature",
+      "tags": [
+        "contour",
+        "new"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 27
+    },
+    {
+      "title": "Link adjacent contours with tolerance",
+      "body": "Automatically links adjacent contours that do not meet exactly, trimming overlaps and closing gaps within a specified tolerance.",
+      "category": "feature",
+      "tags": [
+        "contour",
+        "link"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.80",
+      "_chunk": 27
+    },
+    {
+      "title": "Select curves for machining",
+      "body": "Selects curves that will be machined.",
+      "category": "feature",
+      "tags": [
+        "curve",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Select surfaces for boundary contours",
+      "body": "Selects surfaces whose boundary contours will be used in subsequent machining.",
+      "category": "feature",
+      "tags": [
+        "surface",
+        "boundary"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Convert grid to Nurbs curves",
+      "body": "Converts grids generated in hyperMILL into Nurbs curves for subsequent machining.",
+      "category": "feature",
+      "tags": [
+        "grid",
+        "Nurbs"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Recognize external contours of surfaces",
+      "body": "Recognizes external contours of any number of surfaces based on a specified tolerance.",
+      "category": "feature",
+      "tags": [
+        "surface",
+        "contour"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Search for double elements",
+      "body": "Recognizes any number of double elements based on a specified tolerance.",
+      "category": "feature",
+      "tags": [
+        "double",
+        "elements"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Search for small surfaces",
+      "body": "Recognizes any number of small surfaces based on a specified minimal area.",
+      "category": "feature",
+      "tags": [
+        "surface",
+        "small"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Extract circles and arcs from contours",
+      "body": "Extracts circles and arcs from contours for drilling cycles and circular pockets.",
+      "category": "feature",
+      "tags": [
+        "contour",
+        "circles",
+        "arcs"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Convert .3DFF files to STL format",
+      "body": "Converts .3DFF files into STL format for further processing.",
+      "category": "feature",
+      "tags": [
+        "3DFF",
+        "STL"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 27
+    },
+    {
+      "title": "Compare two models in CAD",
+      "body": "Compares two models created in a CAD program, showing changes and options to move or copy changed solid faces.",
+      "category": "feature",
+      "tags": [
+        "model",
+        "comparison"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Delete graphical hyperMILL data",
+      "body": "Deletes all graphical hyperMILL data, such as temporary tool graphics.",
+      "category": "feature",
+      "tags": [
+        "data",
+        "deletion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Thicken planes in CAD model",
+      "body": "Increases the thickness of selected planes in a CAD model.",
+      "category": "feature",
+      "tags": [
+        "plane",
+        "thickening"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Export parameter list from CAD model",
+      "body": "Exports a parameter list from a parametrised CAD model for further changes.",
+      "category": "feature",
+      "tags": [
+        "parameter",
+        "export"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Import parameter list into CAD model",
+      "body": "Imports changes to a parametrised model as a parameter list.",
+      "category": "feature",
+      "tags": [
+        "parameter",
+        "import"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Show surfaces with errors in CAD model",
+      "body": "Shows all surfaces that could not be converted correctly when generating the polyhedron.",
+      "category": "feature",
+      "tags": [
+        "surface",
+        "errors"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Hide surfaces with errors in CAD model",
+      "body": "Hides all surfaces that could not be converted correctly when generating the polyhedron.",
+      "category": "feature",
+      "tags": [
+        "surface",
+        "errors"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Clear information about surfaces with errors in CAD model",
+      "body": "Deletes information about surfaces that could not be converted correctly when generating the polyhedron.",
+      "category": "feature",
+      "tags": [
+        "surface",
+        "errors"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Incorrect converted faces in CAD model",
+      "body": "Shows all incorrectly converted faces and provides options to zoom, hide, show, or delete them.",
+      "category": "feature",
+      "tags": [
+        "face",
+        "errors"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Update model geometry in hyperMILL",
+      "body": "Transfers changes in the model geometry to hyperMILL for updated CAM operations.",
+      "category": "feature",
+      "tags": [
+        "geometry",
+        "update"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.82",
+      "_chunk": 27
+    },
+    {
+      "title": "Define bottom edge type",
+      "body": "Options include sharp, fillet, chamfer, corner radius, chamfer angle, and chamfer length.",
+      "category": "feature",
+      "tags": [
+        "bottom_edge"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.93",
+      "_chunk": 30
+    },
+    {
+      "title": "Configure plunge point for drilling",
+      "body": "Enable the option to use hyperMILL's automatically calculated plunge point for drilling operations.",
+      "category": "feature",
+      "tags": [
+        "plunge_point"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.93",
+      "_chunk": 30
+    },
+    {
+      "title": "Set boring diameter limit",
+      "body": "Define the maximum permissible diameter of the tool for drilling operations.",
+      "category": "feature",
+      "tags": [
+        "boring_diameter"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.93",
+      "_chunk": 30
+    },
+    {
+      "title": "Use geometric data for drilling",
+      "body": "Geometric parameters from the job definition can be automatically copied for use in drilling cycles.",
+      "category": "feature",
+      "tags": [
+        "geometric_data"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.93",
+      "_chunk": 30
+    },
+    {
+      "title": "Define generic hole parameters",
+      "body": "Parameters include center, diameter, inner diameter, depth, height inside, inclined angles, and hole position.",
+      "category": "feature",
+      "tags": [
+        "generic_hole"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "turning"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 30
+    },
+    {
+      "title": "Use ISO fit parameters for holes",
+      "body": "Define ISO fit parameters such as designation, diameter, length, and pitch.",
+      "category": "feature",
+      "tags": [
+        "iso_fit"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "turning"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 30
+    },
+    {
+      "title": "Define thread parameters for holes",
+      "body": "Parameters include designation, diameter, length, and pitch.",
+      "category": "feature",
+      "tags": [
+        "thread"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "turning"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 30
+    },
+    {
+      "title": "Define spot parameters for holes",
+      "body": "Parameters include top spot depth and bottom spot depth.",
+      "category": "feature",
+      "tags": [
+        "spot"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "turning"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 30
+    },
+    {
+      "title": "Define generic turning feature parameters",
+      "body": "Parameters include outside profile, plane profile, inside profile, and roughing profiles.",
+      "category": "feature",
+      "tags": [
+        "generic_turning"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "turning"
+      ],
+      "page_ref": "p.96",
+      "_chunk": 30
+    },
+    {
+      "title": "Define simple hole parameters",
+      "body": "Parameters include orientation, group, position, chamfer, chamfer depth, diameter, depth, bottom chamfer, and tip angle.",
+      "category": "feature",
+      "tags": [
+        "simple_hole"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.97",
+      "_chunk": 30
+    },
+    {
+      "title": "Define sink hole parameters",
+      "body": "Parameters include orientation, group, position, chamfer, depth, core hole diameter, core hole depth, bottom type, offset bottom, tip angle, ISO fit, and thread.",
+      "category": "feature",
+      "tags": [
+        "sink_hole"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 30
+    },
+    {
+      "title": "Define free defined hole parameters",
+      "body": "Parameters include orientation, group, position, ISO fit, ISO fit offset, thread, bottom type, offset bottom, number of steps, step type, diameter, depth, and angle.",
+      "category": "feature",
+      "tags": [
+        "free_defined_hole"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.99",
+      "_chunk": 30
+    },
+    {
+      "title": "Define surface parameters",
+      "body": "Parameters include specifying the surface in the CAD system and defining the strategy type.",
+      "category": "feature",
+      "tags": [
+        "surface"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "turning"
+      ],
+      "page_ref": "p.99",
+      "_chunk": 30
+    },
+    {
+      "title": "Define pocket parameters",
+      "body": "Parameters include specifying the surface in the CAD system and defining the strategy type.",
+      "category": "feature",
+      "tags": [
+        "pocket"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "turning"
+      ],
+      "page_ref": "p.99",
+      "_chunk": 30
+    },
+    {
+      "title": "Define orientation for pocket milling",
+      "body": "Enter coordinate values or determine the orientation vector from the CAD system.",
+      "category": "workholding",
+      "tags": [
+        "orientation",
+        "pocket_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Specify contour for pocket milling",
+      "body": "Define contour in the CAD system.",
+      "category": "workholding",
+      "tags": [
+        "contour",
+        "pocket_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Set wall angle for pocket milling",
+      "body": "Enter angle of pocket wall or derive it from the CAD system.",
+      "category": "workholding",
+      "tags": [
+        "wall_angle",
+        "pocket_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Define Z values for individual contour areas",
+      "body": "For individual contour areas, it is possible to define different Z values (Top / Depth).",
+      "category": "workholding",
+      "tags": [
+        "z_values",
+        "contour_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Use Compound Feature for complex machining",
+      "body": "Geometric data from the Compound Feature can be used for 2D, 3D, 5X and drilling cycles in the job definition.",
+      "category": "feature",
+      "tags": [
+        "compound_feature",
+        "complex_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "drilling"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Define frame for Compound Feature",
+      "body": "Frame: Yes if uniform frame required. If this option is selected, only sub features with the same frame system within the Compound Feature are used.",
+      "category": "feature",
+      "tags": [
+        "frame",
+        "compound_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Select sub features for Compound Feature",
+      "body": "Sub features: Select previously defined features.",
+      "category": "feature",
+      "tags": [
+        "sub_features",
+        "compound_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Optimise points for Compound Feature",
+      "body": "Point optimisation: hyperMILL optimises the paths to be travelled between the holes of the Compound Feature.",
+      "category": "strategy",
+      "tags": [
+        "point_optimization",
+        "compound_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Reverse sequence for Compound Feature",
+      "body": "Reverse sequence: Use this function to reverse the machining sequence for the holes in a Compound Feature.",
+      "category": "strategy",
+      "tags": [
+        "reverse_sequence",
+        "compound_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Sort holes in Compound Feature",
+      "body": "Sort Holes: Sort the list of intersecting holes of a Compound Feature in the feature browser.",
+      "category": "strategy",
+      "tags": [
+        "sort_holes",
+        "compound_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Import and export holes in Compound Feature",
+      "body": "Import hole / Export hole: Import or export all parameters defined with a hole in*.hmfformat.",
+      "category": "feature",
+      "tags": [
+        "import_export",
+        "compound_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Define reference frame for exported holes",
+      "body": "Reference frame: A reference frame can be selected when exporting holes.",
+      "category": "feature",
+      "tags": [
+        "reference_frame",
+        "export_holes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Use feature lists for imported holes",
+      "body": "Use feature lists: When importing the holes, you can enable the Use feature list option to preserve the allocation of the Features to the Feature lists.",
+      "category": "feature",
+      "tags": [
+        "use_feature_lists",
+        "import_holes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 31
+    },
+    {
+      "title": "Define blade parameters for turbomachinery feature",
+      "body": "Under General, specify the required Name for the feature.",
+      "category": "feature",
+      "tags": [
+        "blade_feature",
+        "turbomachinery"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.101",
+      "_chunk": 31
+    },
+    {
+      "title": "Select geometric elements for blade feature",
+      "body": "In the Feature parameters area, select the geometric elements.",
+      "category": "feature",
+      "tags": [
+        "blade_feature",
+        "turbomachinery"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.101",
+      "_chunk": 31
+    },
+    {
+      "title": "Define multi-blade parameters",
+      "body": "Under General, specify the required Name and, if necessary, the Class of the feature.",
+      "category": "feature",
+      "tags": [
+        "multi_blade_feature",
+        "turbomachinery"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.101",
+      "_chunk": 31
+    },
+    {
+      "title": "Assign geometry to job parameters",
+      "body": "Geometry element (CPF) Job parameters: Assign CPF elements to job parameters.",
+      "category": "strategy",
+      "tags": [
+        "geometry_assignment",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Define structure for CPF",
+      "body": "Define structure: In the hyperMILL browser, switch to the Feature tab and create a new Customised Process Feature.",
+      "category": "feature",
+      "tags": [
+        "cpf_structure",
+        "customized_process_feature"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Rename parameters in CPF",
+      "body": "You can rename the parameters and assign graphics to each parameter.",
+      "category": "feature",
+      "tags": [
+        "rename_parameters",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Define filter for CPF",
+      "body": "To define a filter, click the icon to open the Filter definition dialogue and select the required filter option.",
+      "category": "feature",
+      "tags": [
+        "define_filter",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Prepare CAD model for CPF",
+      "body": "For the automatic reading of geometry elements to work correctly, prepare the CAD models according to the filter definition.",
+      "category": "feature",
+      "tags": [
+        "prepare_cad_model",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Link CPF to CAD data",
+      "body": "To link CAD data of a model to the CPF, proceed as follows: Right-click the feature browser and open the CPF dialogue.",
+      "category": "feature",
+      "tags": [
+        "link_cpf_to_cad",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Use CPF in job definition",
+      "body": "To use a CPF in the job definition, switch to the Feature dialogue page and select the corresponding CPF.",
+      "category": "feature",
+      "tags": [
+        "use_cpf_in_job",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Reuse CPF in new CAD model",
+      "body": "To reuse the CPF and the machining sequence with modified CAD data, insert the new CAD model using hyperCAD-S menu File \u2192Merge.",
+      "category": "feature",
+      "tags": [
+        "reuse_cpf",
+        "cpf"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 31
+    },
+    {
+      "title": "Use Feature Mapping (Hole) function for automatic hole assignment",
+      "body": "Switch to the Feature tab in hyperMILL browser, right-click upper area of feature browser, select Feature Mapping (Hole).",
+      "category": "feature",
+      "tags": [
+        "hole mapping",
+        "CAD model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.103",
+      "_chunk": 32
+    },
+    {
+      "title": "Set tolerance for transferring geometric data from CAD model",
+      "body": "In Feature Mapping (Hole) dialogue, under General tab, set Tolerance to specify accuracy level.",
+      "category": "feature",
+      "tags": [
+        "tolerance",
+        "geometric data"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.103",
+      "_chunk": 32
+    },
+    {
+      "title": "Enable slot recognition for Feature Mapping (Hole)",
+      "body": "In Feature Mapping (Hole) dialogue, under Options tab, check 'Check slot' to enable slot recognition.",
+      "category": "feature",
+      "tags": [
+        "slot recognition",
+        "Feature Mapping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.103",
+      "_chunk": 32
+    },
+    {
+      "title": "Set maximum diameter for feature creation",
+      "body": "In Feature Mapping (Hole) dialogue, under Options tab, check 'Limiting diameter' and set Max. diameter.",
+      "category": "feature",
+      "tags": [
+        "max diameter",
+        "feature creation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.104",
+      "_chunk": 32
+    },
+    {
+      "title": "Use preferred machining direction for hole features",
+      "body": "In Feature Mapping (Hole) dialogue, under Options tab, check 'Use preferred machining direction' and set Offset angle.",
+      "category": "feature",
+      "tags": [
+        "machining direction",
+        "offset angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.104",
+      "_chunk": 32
+    },
+    {
+      "title": "Check if sinks can be machined from defined direction",
+      "body": "In Feature Mapping (Hole) dialogue, under Options tab, check 'Check sink' to enable the check.",
+      "category": "feature",
+      "tags": [
+        "check sink",
+        "machining direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.104",
+      "_chunk": 32
+    },
+    {
+      "title": "Define machining direction for hole features",
+      "body": "In Feature Mapping (Hole) dialogue, under More tab, click icon to select a geometric element or enter vectors manually.",
+      "category": "feature",
+      "tags": [
+        "machining direction",
+        "geometric elements"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.104",
+      "_chunk": 32
+    },
+    {
+      "title": "Set offset to bottom for through holes",
+      "body": "In Feature Mapping (Hole) dialogue, under More tab, set Offset to bottom.",
+      "category": "feature",
+      "tags": [
+        "offset to bottom",
+        "through holes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.104",
+      "_chunk": 32
+    },
+    {
+      "title": "Use feature list for hole assignment",
+      "body": "In Feature Mapping (Hole) dialogue, under More tab, check 'Use feature list' to save holes in existing feature lists.",
+      "category": "feature",
+      "tags": [
+        "feature list",
+        "hole assignment"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.104",
+      "_chunk": 32
+    },
+    {
+      "title": "Create associative point for hole features",
+      "body": "In Feature Mapping (Hole) dialogue, under More tab, check 'Create associative point' to display and edit point coordinates.",
+      "category": "feature",
+      "tags": [
+        "associative point",
+        "hole features"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.105",
+      "_chunk": 32
+    },
+    {
+      "title": "Grouping features with same geometry",
+      "body": "In Feature Mapping (Hole) dialogue, under More tab, check 'Grouping features' to combine features with the same geometry.",
+      "category": "feature",
+      "tags": [
+        "grouping features",
+        "same geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.105",
+      "_chunk": 32
+    },
+    {
+      "title": "Define a sample hole for feature recognition",
+      "body": "Select a surface of the base hole and all other surfaces are automatically recognised.",
+      "category": "feature",
+      "tags": [
+        "single_hole_recognition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Use manual definition for feature recognition",
+      "body": "Select all surfaces of the base hole manually.",
+      "category": "feature",
+      "tags": [
+        "single_hole_recognition",
+        "manual_definition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Set reference feature for creating Generic Holes",
+      "body": "Select surfaces/points that are to be used to create the hole features.",
+      "category": "feature",
+      "tags": [
+        "reference_feature",
+        "generic_hole"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Assign features to an existing feature list",
+      "body": "Select an existing feature list or create a new one.",
+      "category": "feature",
+      "tags": [
+        "move_to_featurelist",
+        "new_option"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Filter recognized holes by color",
+      "body": "Only recognize holes of the same color as the base hole.",
+      "category": "feature",
+      "tags": [
+        "filter",
+        "same_color"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Filter recognized holes by layer",
+      "body": "Only recognize holes on the same layer as the base hole.",
+      "category": "feature",
+      "tags": [
+        "filter",
+        "same_layer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Filter recognized holes by orientation",
+      "body": "Only recognize holes with the same orientation as the base hole.",
+      "category": "feature",
+      "tags": [
+        "filter",
+        "same_orientation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Set frame limit for hole recognition",
+      "body": "Define a frame limit (angle) for the recognition process using B axis and C axis.",
+      "category": "feature",
+      "tags": [
+        "frame_limit",
+        "b_axis",
+        "c_axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Filter recognized holes by depth",
+      "body": "Only recognize holes of the same depth as the base hole.",
+      "category": "feature",
+      "tags": [
+        "filter",
+        "same_depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Reverse the direction of recognized holes",
+      "body": "Mark a hole and select the Reverse function in the shortcut menu.",
+      "category": "feature",
+      "tags": [
+        "reverse_hole_direction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.107",
+      "_chunk": 33
+    },
+    {
+      "title": "Use solid info for drill feature direction",
+      "body": "If activated, copy the direction of the drill features from the CAD model (solid). If not activated, calculate based on surface information.",
+      "category": "feature",
+      "tags": [
+        "use_solid_info"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.108",
+      "_chunk": 33
+    },
+    {
+      "title": "Recognize pockets with bottoms",
+      "body": "Ensure the model is a static solid for accurate recognition of pocket bottoms.",
+      "category": "feature",
+      "tags": [
+        "pocket_recognition",
+        "bottom"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.108",
+      "_chunk": 33
+    },
+    {
+      "title": "Combine pockets for more efficient processing",
+      "body": "Enable Combine pockets to automatically combine individual pockets into a more complex pocket.",
+      "category": "feature",
+      "tags": [
+        "combine_pockets"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.108",
+      "_chunk": 33
+    },
+    {
+      "title": "Suppress chamfers and planes from recognition",
+      "body": "Exclude planes and chamfers that do not have pocket walls or have been recognised as chamfers.",
+      "category": "feature",
+      "tags": [
+        "suppress_chamfers"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.108",
+      "_chunk": 33
+    },
+    {
+      "title": "Reduce the number of open pockets recognized",
+      "body": "Enable Open pocket reduction to use the largest plane by area as the pocket bottom.",
+      "category": "feature",
+      "tags": [
+        "open_pocket_reduction"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.108",
+      "_chunk": 33
+    },
+    {
+      "title": "Manually combine pockets in hyperMILL",
+      "body": "Highlight pockets in feature browser, select Combine pockets from shortcut menu.",
+      "category": "feature",
+      "tags": [
+        "pocket",
+        "combination"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 34
+    },
+    {
+      "title": "Define colours for pocket combination",
+      "body": "Open Colour table dialogue in Setup hyperMILL, define colours for hub and wall surfaces.",
+      "category": "feature",
+      "tags": [
+        "colour",
+        "combination"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 34
+    },
+    {
+      "title": "Reverse pocket direction manually",
+      "body": "Double-click list item, right-click and select Reverse or Reverse all for manual direction correction.",
+      "category": "feature",
+      "tags": [
+        "direction",
+        "reversal"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 34
+    },
+    {
+      "title": "Create new job for slot milling",
+      "body": "Use corresponding Pocket feature to create a new job (2D Contour Milling).",
+      "category": "feature",
+      "tags": [
+        "slot",
+        "milling"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.110",
+      "_chunk": 34
+    },
+    {
+      "title": "Define tool diameter for slot milling",
+      "body": "Specify tool diameter according to slot width and set On contour option.",
+      "category": "feature",
+      "tags": [
+        "slot",
+        "milling"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.110",
+      "_chunk": 34
+    },
+    {
+      "title": "Select active slot profile",
+      "body": "Select Active only option from shortcut menu of slot profile on Feature dialogue page.",
+      "category": "feature",
+      "tags": [
+        "slot",
+        "milling"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.110",
+      "_chunk": 34
+    },
+    {
+      "title": "Search for pockets in model",
+      "body": "Select Complete model or User option to search entire model or part of the model.",
+      "category": "feature",
+      "tags": [
+        "search",
+        "pocket"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.110",
+      "_chunk": 34
+    },
+    {
+      "title": "Limit pocket search using filter criteria",
+      "body": "Define comparison parameters, set conditions for accessibility of pockets, and create feature lists.",
+      "category": "feature",
+      "tags": [
+        "filter",
+        "search"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.110",
+      "_chunk": 34
+    },
+    {
+      "title": "Limit pocket size using tool diameter",
+      "body": "Set upper and lower diameter criteria for pocket recognition.",
+      "category": "feature",
+      "tags": [
+        "tool",
+        "diameter"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    },
+    {
+      "title": "Prevent circular pocket recognition",
+      "body": "Define diameter limitation to prevent holes from being recognized as circular pockets.",
+      "category": "feature",
+      "tags": [
+        "circular",
+        "pocket"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    },
+    {
+      "title": "Set chamfer height and fillet radius",
+      "body": "Define height of chamfer or radius of fillet between bottom surface and pocket wall.",
+      "category": "feature",
+      "tags": [
+        "chamfer",
+        "fillet"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    },
+    {
+      "title": "Set chamfer angle limits",
+      "body": "Define lower and upper limit for chamfer angle between bottom surface and pocket wall.",
+      "category": "feature",
+      "tags": [
+        "chamfer",
+        "angle"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    },
+    {
+      "title": "Specify allowed wall types",
+      "body": "Select Perpendicular option for Z axis of frame defined on Pocket example dialogue page.",
+      "category": "feature",
+      "tags": [
+        "wall",
+        "type"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    },
+    {
+      "title": "Suppress original pockets after combination",
+      "body": "Enable Suppress original pockets option to delete original pockets after combining.",
+      "category": "feature",
+      "tags": [
+        "combination",
+        "suppression"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    },
+    {
+      "title": "Compare sample pocket with pockets to be recognised",
+      "body": "Define scale limit and comparison tolerance for accurate parameter comparison.",
+      "category": "feature",
+      "tags": [
+        "comparison",
+        "tolerance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.111",
+      "_chunk": 34
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/hyperMILL_Manual-en-1.pdf",
+    "title": "hyperMILL_Manual-en-1",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 111,
+    "chunk_count": 34,
+    "tips_total": 388,
+    "tips_unique": 385,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 1
+  }
+}
