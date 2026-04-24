@@ -2040,6 +2040,48 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "schema_snapshot": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            const id = schemaMigrationRollbackEngine.snapshot(
+              String(params.target),
+              params.data,
+              Number(params.version),
+              params.label as string | undefined,
+            );
+            result = { success: true, snapshotId: id };
+            break;
+          }
+
+          case "schema_restore_snapshot": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            const data = schemaMigrationRollbackEngine.restoreFromSnapshot(String(params.snapshotId));
+            result = { success: true, data };
+            break;
+          }
+
+          case "schema_history": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            const history = schemaMigrationRollbackEngine.historyFor(String(params.target));
+            result = { success: true, history };
+            break;
+          }
+
+          case "schema_migrations_list": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            // Strip the up/down callables — they cannot round-trip through JSON-RPC
+            const migrations = schemaMigrationRollbackEngine.listMigrations().map((m) => ({ from: m.from, to: m.to }));
+            result = { success: true, migrations };
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }
