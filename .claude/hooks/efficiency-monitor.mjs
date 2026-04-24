@@ -82,8 +82,8 @@ async function main() {
   }
 
   if (alert) {
-    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Efficiency Alert\n${alert } }`
-    }));
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `## Efficiency Alert\n${alert}`
+    } }));
   } else {
     console.log(JSON.stringify({ continue: true }));
   }

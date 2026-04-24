@@ -167,7 +167,8 @@ const MATERIALS: Record<string, MaterialProps> = {
   },
   'AISI 4140': {
     sigma_y_MPa: 655, E_GPa: 200, alpha_per_K: 12.3e-6, k_W_mK: 42.7,
-    phase_transform_C: 727, kc1_1: 1500, mc: 0.26,
+    // kc1_1=1800, mc=0.25 per canonical ISO P in src/physics/constants.ts (was 1500/0.26, below Sandvik/ISO 3685).
+    phase_transform_C: 727, kc1_1: 1800, mc: 0.25,
     C_str: 0.0003, n_str: 1.0, k_f: 0.30, dry_mu: 0.40, Ra_ratio_cryo: 0.85,
   },
   'AISI 316L': {
