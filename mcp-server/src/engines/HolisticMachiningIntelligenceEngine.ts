@@ -327,7 +327,11 @@ export interface PotentialIssue {
   affectedParameter: string;
   rootCause: string;
   mitigation: string;
-  source: "thermal" | "force" | "vibration" | "wear" | "material" | "machine" | "fixture" | "environment";
+  source:
+    | "thermal" | "force" | "vibration" | "wear" | "material" | "machine" | "fixture" | "environment"
+    // Extended: AdaptiveMachiningIntegrationEngine + AdaptiveSystemIntegrationEngine attribute
+    // issues to the anticipation pipeline that generated them.
+    | "failure_anticipation" | "failure_mode_anticipation";
 }
 
 export interface ProcessRiskAssessment {
