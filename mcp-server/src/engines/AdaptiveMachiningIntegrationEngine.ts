@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF39 only renamed a local enum ("caution"/"delay" → "proceed_with_caution"/"modify_parameters") to match ProcessRiskAssessment. Engine is the Phase 0.26 integration facade, consumed via AdaptiveSystemIntegrationEngine.
 /**
  * AdaptiveMachiningIntegrationEngine — Unified Integration Layer
  *

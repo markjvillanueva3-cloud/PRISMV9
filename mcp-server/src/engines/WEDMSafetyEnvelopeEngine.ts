@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF36 only added 6 optional axis-position fields (X_mm/Y_mm/U_mm/V_mm/Z_upper_mm/Z_lower_mm) to EnvelopeReading. Engine is consumed via the wedm-erp route + WEDMFailsafeEngine, not dispatched directly.
 /**
  * WEDMSafetyEnvelopeEngine - operating envelope checks for WEDM routes.
  *

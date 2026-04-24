@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF40 only hardened undefined-safety in the risk-assessment builder (nullish fallbacks on currentVB_mm/currentLoad, FailurePrediction alias resolution). Engine is a super-facade consumed by higher layers, not directly dispatched.
 /**
  * AdaptiveSystemIntegrationEngine — Phase 0.26 System-Wide Integration
  *

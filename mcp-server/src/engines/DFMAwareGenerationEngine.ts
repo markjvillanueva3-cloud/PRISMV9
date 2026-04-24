@@ -16,6 +16,7 @@
 
 import { log } from "../utils/Logger.js";
 import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
+// WIRE-EXEMPT: U-EFF43 only added a num() coercion helper for FeatureSpec.params (Record<string, number | string>). Engine is consumed via CAD generation facades, not directly dispatched.
 import type { FeatureSpec } from "./NeuralCADGenerationEngine.js";
 
 /**
