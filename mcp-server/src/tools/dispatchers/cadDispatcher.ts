@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -53,6 +53,7 @@ async function getEngine(name: string): Promise<any> {
     case "naca": return _naca ??= (await import("../../engines/NACAAirfoilEngine.js")).nacaAirfoilEngine;
     case "loftedWing": return _loftedWing ??= (await import("../../engines/LoftedWingEngine.js")).loftedWingEngine;
     case "gear": return _gear ??= (await import("../../engines/InvoluteGearEngine.js")).involuteGearEngine;
+    case "spring": return _spring ??= (await import("../../engines/HelicalSpringEngine.js")).helicalSpringEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -165,6 +166,8 @@ const ACTIONS = [
   "wing_loft_single_profile", "wing_loft_between_profiles", "wing_compute_properties",
   // Involute Gear Engine (U-CADC15)
   "gear_compute_geometry", "gear_generate_tooth_profile", "gear_compute_contact_ratio",
+  // Helical Spring Engine (U-CADC16)
+  "spring_compute_geometry", "spring_compute_mechanics", "spring_compute_stress_at_force", "spring_generate_coil_path",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1271,6 +1274,38 @@ Params vary by action — pass relevant fields in params object.`,
             const gearEngine = await getEngine("gear");
             const mesh = gearEngine.computeContactRatio(params.gear1, params.gear2);
             result = { success: true, mesh };
+            break;
+          }
+          // Helical Spring Engine (U-CADC16) — Shigley spring rate, Wahl, coil path
+          case "spring_compute_geometry": {
+            const springEngine = await getEngine("spring");
+            const geometry = springEngine.computeGeometry(params.spec ?? params);
+            result = { success: true, geometry };
+            break;
+          }
+          case "spring_compute_mechanics": {
+            const springEngine = await getEngine("spring");
+            const mechanics = springEngine.computeMechanics(params.spec ?? params);
+            result = { success: true, mechanics };
+            break;
+          }
+          case "spring_compute_stress_at_force": {
+            const springEngine = await getEngine("spring");
+            const stress = springEngine.computeStressAtForce(
+              params.spec ?? params,
+              params.forceN,
+              params.useWahl ?? true
+            );
+            result = { success: true, stress };
+            break;
+          }
+          case "spring_generate_coil_path": {
+            const springEngine = await getEngine("spring");
+            const path = springEngine.generateCoilPath(
+              params.spec ?? params,
+              { samplesPerCoil: params.samplesPerCoil }
+            );
+            result = { success: true, path };
             break;
           }
           default:

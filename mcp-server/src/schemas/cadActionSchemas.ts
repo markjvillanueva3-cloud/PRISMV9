@@ -251,6 +251,44 @@ const gearComputeContactRatioSchema = z.object({
   gear2: gearSpecSchema.describe("Second mesh partner (gear). Module and pressure angle must match gear1."),
 });
 
+// ── Helical Spring Engine Actions (U-CADC16) ──────────────────────────────
+const springSpecSchema = z.object({
+  wireDiameter: z.number().describe("Wire diameter d in mm. Must be > 0."),
+  meanCoilDiameter: z.number().describe("Mean coil diameter D in mm. Must be > d."),
+  activeCoils: z.number().describe("Active coils N_a. Must be > 0."),
+  endCondition: z.enum(["plain", "plain_ground", "squared", "squared_ground"]).optional(),
+  material: z.enum(["music_wire", "hard_drawn", "chrome_vanadium", "chrome_silicon", "stainless_302", "phosphor_bronze", "inconel_x750"]).optional(),
+  shearModulusMPa: z.number().optional().describe("Shear modulus G in MPa (override material lookup)."),
+  pitch: z.number().optional(),
+  freeLength: z.number().optional(),
+  materialDensityKgM3: z.number().optional(),
+});
+
+const springBaseSchema = z.object({
+  spec: springSpecSchema.optional(),
+  wireDiameter: z.number().optional(),
+  meanCoilDiameter: z.number().optional(),
+  activeCoils: z.number().optional(),
+  endCondition: z.string().optional(),
+  material: z.string().optional(),
+  shearModulusMPa: z.number().optional(),
+  pitch: z.number().optional(),
+  freeLength: z.number().optional(),
+  materialDensityKgM3: z.number().optional(),
+});
+
+const springComputeGeometrySchema = springBaseSchema;
+const springComputeMechanicsSchema = springBaseSchema;
+
+const springComputeStressAtForceSchema = springBaseSchema.extend({
+  forceN: z.number().describe("Axial force in N."),
+  useWahl: z.boolean().optional().describe("Apply Wahl correction. Default true."),
+});
+
+const springGenerateCoilPathSchema = springBaseSchema.extend({
+  samplesPerCoil: z.number().optional().describe("Samples per coil. Floor 8. Default 36."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -299,4 +337,9 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   gear_compute_geometry: gearComputeGeometrySchema,
   gear_generate_tooth_profile: gearGenerateToothProfileSchema,
   gear_compute_contact_ratio: gearComputeContactRatioSchema,
+  // Helical Spring Engine (U-CADC16)
+  spring_compute_geometry: springComputeGeometrySchema,
+  spring_compute_mechanics: springComputeMechanicsSchema,
+  spring_compute_stress_at_force: springComputeStressAtForceSchema,
+  spring_generate_coil_path: springGenerateCoilPathSchema,
 };
