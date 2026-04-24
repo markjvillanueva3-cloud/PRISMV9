@@ -2012,6 +2012,17 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "distributed_critical_path": {
+            const { distributedCriticalPathEngine } = await import(
+              "../../engines/DistributedCriticalPathEngine.js"
+            );
+            const analysis = distributedCriticalPathEngine.analyze(
+              (params.tasks as Array<{ id: string; duration: number; owner: string; predecessors?: string[] }>) ?? []
+            );
+            result = { success: true, analysis };
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }
