@@ -5,6 +5,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { latheLoRAPhysicsAugmentedInferenceEngine } from "../engines/LatheLoRAPhysicsAugmentedInferenceEngine.js";
+import { ACTIONS as camActions } from "../tools/dispatchers/camDispatcher.js";
 
 describe("LatheLoRAPhysicsAugmentedInferenceEngine", () => {
   beforeEach(() => {
@@ -321,6 +322,20 @@ describe("LatheLoRAPhysicsAugmentedInferenceEngine", () => {
       latheLoRAPhysicsAugmentedInferenceEngine.reset();
 
       expect(latheLoRAPhysicsAugmentedInferenceEngine.getConfig().safety_threshold).toBe(0.70);
+    });
+  });
+
+  describe("Dispatcher Integration (U-LSR07 wiring)", () => {
+    it("ACTIONS contains lathe_lora_physics_validate", () => {
+      expect(camActions).toContain("lathe_lora_physics_validate");
+    });
+
+    it("ACTIONS contains lathe_lora_physics_process", () => {
+      expect(camActions).toContain("lathe_lora_physics_process");
+    });
+
+    it("ACTIONS contains lathe_lora_physics_kienzle_coefs", () => {
+      expect(camActions).toContain("lathe_lora_physics_kienzle_coefs");
     });
   });
 });
