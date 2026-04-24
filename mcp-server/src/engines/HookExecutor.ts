@@ -19,28 +19,84 @@ import { log } from "../utils/Logger.js";
 
 /** Phases at which hooks can execute */
 export type HookPhase =
+  // calculation / dispatch lifecycle
   | "pre-calculation"
   | "post-calculation"
+  | "pre-dispatch"
+  | "post-dispatch"
+  // file I/O
   | "pre-file-write"
   | "post-file-write"
   | "pre-file-read"
   | "post-file-read"
-  | "pre-dispatch"
-  | "post-dispatch"
+  | "pre-file-delete"
+  // toolpath / physics
   | "pre-toolpath"
   | "post-toolpath"
+  | "pre-kienzle"
+  | "post-kienzle"
+  | "pre-taylor"
+  | "post-taylor"
+  | "pre-johnson-cook"
+  // material / machine / alarm registries
   | "pre-material-add"
   | "post-material-add"
+  | "pre-material-update"
+  | "post-material-update"
+  | "pre-machine-add"
+  | "post-machine-add"
+  | "pre-machine-update"
+  | "pre-alarm-add"
+  | "post-alarm-add"
+  | "post-alarm-batch"
+  // batch / schema / page
+  | "pre-batch-import"
+  | "post-batch-import"
+  | "pre-page-create"
+  // output / code generation
   | "pre-output"
   | "post-output"
-  | "pre-kienzle"
-  | "pre-taylor"
-  | "pre-johnson-cook"
+  | "pre-code-generate"
+  // tool-call / commit lifecycle (used by MCP tool hooks)
+  | "pre-tool"
+  | "post-tool"
+  | "pre-commit"
+  | "on-tool-call"
+  // agents / swarms / orchestration
+  | "pre-agent-execute"
+  | "post-agent-execute"
+  | "on-agent-timeout"
+  | "pre-swarm-execute"
+  | "post-swarm-complete"
+  | "on-swarm-consensus"
+  // session lifecycle
+  | "on-session-start"
+  | "on-session-end"
+  | "on-session-checkpoint"
+  | "on-session-resume"
+  | "on-context-pressure"
+  | "on-compaction"
+  | "session-start"
+  // quality / safety event streams
+  | "on-quality-drop"
+  | "on-force-limit"
+  | "on-thermal-limit"
+  | "on-tool-life-warning"
+  | "on-machine-limit"
+  // observability / cognition
+  | "on-error"
+  | "on-audit"
+  | "on-decision"
+  | "on-anomaly"
+  | "on-outcome"
+  | "on-pattern-match"
+  | "on-learning-update"
+  // legacy short forms retained for backward compatibility
   | "error"
   | "cadence";
 
 /** Hook execution modes */
-export type HookMode = "blocking" | "warning" | "silent";
+export type HookMode = "blocking" | "warning" | "logging" | "silent";
 
 /** Hook priority levels */
 export type HookPriority = "critical" | "high" | "normal" | "low";
