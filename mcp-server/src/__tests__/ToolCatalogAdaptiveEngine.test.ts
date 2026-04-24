@@ -36,7 +36,7 @@ vi.mock("../engines/ToolCatalogEngine.js", () => ({
       ],
       total_count: 247,
     }),
-    recommendTool: vi.fn().mockReturnValue({
+    recommend: vi.fn().mockReturnValue({
       tool_id: "SANDVIK-123",
       tool_type: "endmill",
       diameter_mm: 12,
