@@ -18,6 +18,20 @@ import { log } from "../utils/Logger.js";
 import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
 import type { FeatureSpec } from "./NeuralCADGenerationEngine.js";
 
+/**
+ * Coerce a Record<string, number | string> param value to number.
+ * Returns undefined when the value is missing or non-numeric so guarded
+ * `if (x !== undefined)` branches continue to short-circuit correctly.
+ */
+function num(v: number | string | undefined): number | undefined {
+  if (typeof v === "number") return Number.isFinite(v) ? v : undefined;
+  if (typeof v === "string") {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  return undefined;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════════════════
@@ -184,7 +198,7 @@ class DFMAwareGenerationEngine implements BaseEngine {
       const featureName = `${f.type}[${i}]`;
 
       // Wall thickness check
-      const wallThickness = f.params.wallThickness ?? f.params.thickness;
+      const wallThickness = num(f.params.wallThickness ?? f.params.thickness);
       if (wallThickness !== undefined) {
         if (wallThickness < matConstraints.minWall) {
           rules.push({
@@ -210,7 +224,7 @@ class DFMAwareGenerationEngine implements BaseEngine {
       }
 
       // Corner radius check
-      const cornerRadius = f.params.cornerRadius ?? f.params.radius;
+      const cornerRadius = num(f.params.cornerRadius ?? f.params.radius);
       if (cornerRadius !== undefined && f.type !== "fillet" && f.type !== "chamfer") {
         if (cornerRadius < matConstraints.minRadius) {
           rules.push({
@@ -237,8 +251,8 @@ class DFMAwareGenerationEngine implements BaseEngine {
 
       // Depth-to-width ratio for pockets/slots
       if (f.type === "pocket" || f.type === "slot") {
-        const depth = f.params.depth ?? 0;
-        const width = f.params.width ?? 1;
+        const depth = num(f.params.depth) ?? 0;
+        const width = num(f.params.width) ?? 1;
         const ratio = depth / width;
         if (ratio > envelope.maxDepthToWidth) {
           rules.push({
@@ -264,7 +278,7 @@ class DFMAwareGenerationEngine implements BaseEngine {
 
       // Hole diameter check (min 1mm for practical drilling)
       if (f.type === "hole" || f.type === "bore") {
-        const diameter = f.params.diameter ?? 0;
+        const diameter = num(f.params.diameter) ?? 0;
         if (diameter < 1.0) {
           rules.push({
             ruleId: `hole-${i}`,
@@ -282,9 +296,9 @@ class DFMAwareGenerationEngine implements BaseEngine {
 
       // Thread check
       if (f.type === "thread") {
-        const threadDia = f.params.diameter ?? 0;
-        const depth = f.params.depth ?? 0;
-        const pitch = f.params.pitch ?? 1;
+        const threadDia = num(f.params.diameter) ?? 0;
+        const depth = num(f.params.depth) ?? 0;
+        const pitch = num(f.params.pitch) ?? 1;
         const threadDepthRatio = depth / threadDia;
 
         if (threadDepthRatio > 3) {
@@ -313,7 +327,7 @@ class DFMAwareGenerationEngine implements BaseEngine {
 
       // Fillet/chamfer size check
       if (f.type === "fillet" || f.type === "chamfer") {
-        const size = f.params.radius ?? f.params.size ?? 0;
+        const size = num(f.params.radius ?? f.params.size) ?? 0;
         if (size < 0.2) {
           rules.push({
             ruleId: `edge-${i}`,
@@ -440,7 +454,8 @@ class DFMAwareGenerationEngine implements BaseEngine {
 
       // Auto-fix small edge treatments
       if (rule.ruleId.startsWith("edge-") && rule.limitValue) {
-        const originalValue = feature.params.radius ?? feature.params.size;
+        const originalValue = (typeof feature.params.radius === "number" ? feature.params.radius : undefined)
+          ?? (typeof feature.params.size === "number" ? feature.params.size : undefined);
         const newValue = Math.max(originalValue ?? 0, rule.limitValue);
         if (feature.params.radius !== undefined) {
           feature.params.radius = newValue;
@@ -489,7 +504,7 @@ class DFMAwareGenerationEngine implements BaseEngine {
       const f = result[i];
 
       // Fix wall thickness
-      const wallThickness = f.params.wallThickness ?? f.params.thickness;
+      const wallThickness = num(f.params.wallThickness ?? f.params.thickness);
       if (wallThickness !== undefined && wallThickness < matConstraints.minWall) {
         const newVal = matConstraints.minWall * 1.1;
         if (f.params.wallThickness !== undefined) f.params.wallThickness = newVal;
@@ -498,19 +513,23 @@ class DFMAwareGenerationEngine implements BaseEngine {
       }
 
       // Fix corner radius
-      const cornerRadius = f.params.cornerRadius;
+      const cornerRadius = num(f.params.cornerRadius);
       if (cornerRadius !== undefined && cornerRadius < matConstraints.minRadius) {
         f.params.cornerRadius = matConstraints.minRadius * 1.1;
-        fixes.push(`${f.type}[${i}]: corner radius ${cornerRadius}→${f.params.cornerRadius.toFixed(1)}mm`);
+        fixes.push(`${f.type}[${i}]: corner radius ${cornerRadius}→${(matConstraints.minRadius * 1.1).toFixed(1)}mm`);
       }
 
       // Fix pocket depth-to-width
-      if ((f.type === "pocket" || f.type === "slot") && f.params.depth && f.params.width) {
-        const ratio = f.params.depth / f.params.width;
-        if (ratio > envelope.maxDepthToWidth) {
-          const maxDepth = f.params.width * envelope.maxDepthToWidth;
-          fixes.push(`${f.type}[${i}]: depth ${f.params.depth}→${maxDepth.toFixed(1)}mm (ratio limit)`);
-          f.params.depth = maxDepth;
+      if (f.type === "pocket" || f.type === "slot") {
+        const depth = num(f.params.depth);
+        const width = num(f.params.width);
+        if (depth !== undefined && width !== undefined && width > 0) {
+          const ratio = depth / width;
+          if (ratio > envelope.maxDepthToWidth) {
+            const maxDepth = width * envelope.maxDepthToWidth;
+            fixes.push(`${f.type}[${i}]: depth ${depth}→${maxDepth.toFixed(1)}mm (ratio limit)`);
+            f.params.depth = maxDepth;
+          }
         }
       }
     }
@@ -549,9 +568,9 @@ class DFMAwareGenerationEngine implements BaseEngine {
     let maxLength = 0, maxWidth = 0, maxHeight = 0;
 
     for (const f of features) {
-      maxLength = Math.max(maxLength, f.params.length ?? 0, f.params.diameter ?? 0);
-      maxWidth = Math.max(maxWidth, f.params.width ?? 0, f.params.diameter ?? 0);
-      maxHeight = Math.max(maxHeight, f.params.height ?? 0, f.params.depth ?? 0, f.params.thickness ?? 0);
+      maxLength = Math.max(maxLength, num(f.params.length) ?? 0, num(f.params.diameter) ?? 0);
+      maxWidth = Math.max(maxWidth, num(f.params.width) ?? 0, num(f.params.diameter) ?? 0);
+      maxHeight = Math.max(maxHeight, num(f.params.height) ?? 0, num(f.params.depth) ?? 0, num(f.params.thickness) ?? 0);
     }
 
     return { length: maxLength, width: maxWidth, height: maxHeight };
