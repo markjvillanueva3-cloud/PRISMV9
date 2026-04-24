@@ -1,0 +1,923 @@
+{
+  "tips": [
+    {
+      "title": "Define Coordinate System for Rotary Machining",
+      "body": "Choose a CoordSys from the combo-box or select it from the graphic screen by clicking 'define'. The default MAC Number is 1.",
+      "category": "machine_setup",
+      "tags": [
+        "CoordSys",
+        "MAC Number"
+      ],
+      "confidence": 90,
+      "material_groups": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ],
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.11",
+      "_chunk": 1
+    },
+    {
+      "title": "Set Tool Start Level",
+      "body": "Define the Z-level at which the tool starts in the Planar section of the CoordSys settings.",
+      "category": "toolpath",
+      "tags": [
+        "Tool start level"
+      ],
+      "confidence": 85,
+      "material_groups": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ],
+      "operation_types": [
+        "contouring",
+        "drilling",
+        "pocketing"
+      ],
+      "page_ref": "p.12",
+      "_chunk": 1
+    },
+    {
+      "title": "Define clearance level for rapid tool travel",
+      "body": "Clearance level is the Z-level to which the tool rapidly travels between operations.",
+      "category": "workholding",
+      "tags": [
+        "clearance",
+        "rapid_travel"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Set part upper and lower levels for milling",
+      "body": "Part Upper level defines the height of the upper surface of the part to be milled, while Part Lower level defines the lower surface level.",
+      "category": "geometry",
+      "tags": [
+        "part_upper",
+        "part_lower"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Define tool Z-level to avoid collisions",
+      "body": "Tool Z-level is the height that the tool moves to before rotating the 4/5 axes, avoiding collision with the workpiece.",
+      "category": "workholding",
+      "tags": [
+        "tool_z_level",
+        "collision_avoidance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Configure translation data for machine coordinate system",
+      "body": "Shift and Rotation parameters define the distance and angle from Mac CoordSys to Position in the coordinate system.",
+      "category": "machine_setup",
+      "tags": [
+        "translation_data",
+        "mac_coord_sys"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Select work plane for operations",
+      "body": "Choose the default work plane (XY, YZ, ZX) in the Plane section of CoordSys.",
+      "category": "machine_setup",
+      "tags": [
+        "work_plane",
+        "plane_selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Define roughing strategy for rotary machining",
+      "body": "Roughing strategy enables creation of the roughing tool path using Offset, Offset and Spiral methods.",
+      "category": "strategy",
+      "tags": [
+        "roughing",
+        "tool_path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Define finishing strategy for rotary machining",
+      "body": "Finishing strategy enables creation of the finishing tool path.",
+      "category": "strategy",
+      "tags": [
+        "finishing",
+        "tool_path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Set offset for machining surfaces",
+      "body": "Offset parameter allows defining the offset for the machining surfaces.",
+      "category": "geometry",
+      "tags": [
+        "offset",
+        "machining_surfaces"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Enable Side shift for rotary machining with roughing strategy",
+      "body": "Side shift allows using cutting edges instead of tool center, improving stability and close-to-diameter cutting.",
+      "category": "strategy",
+      "tags": [
+        "side_shift",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Set cone angle for conical workpieces",
+      "body": "Cone angle defines the angle between the cone line and rotary axis, improving machining normal to conical surfaces.",
+      "category": "geometry",
+      "tags": [
+        "cone_angle",
+        "conical_workpieces"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Limit machining area using axial and radial limits",
+      "body": "Machining area check box allows setting limits for the machining area, useful when part needs to be clamped or only a special area requires machining.",
+      "category": "geometry",
+      "tags": [
+        "machining_area",
+        "limits"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Define stock shape, size, and orientation",
+      "body": "Stock tab enables defining the shape, size, and orientation of the raw material to be machined around the machining surfaces.",
+      "category": "material_groups",
+      "tags": [
+        "stock",
+        "raw_material"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Set tolerance for tool deviation from surface",
+      "body": "Tolerance option allows setting the value for the tool to deviate from the surface.",
+      "category": "material_groups",
+      "tags": [
+        "tolerance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.19",
+      "_chunk": 2
+    },
+    {
+      "title": "Define shrink or expand stock model",
+      "body": "Shrink/Expand options allow expanding or shrinking the stock model by a given value.",
+      "category": "material_groups",
+      "tags": [
+        "shrink_expand"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.19",
+      "_chunk": 2
+    },
+    {
+      "title": "Select tool from TOOLKIT table",
+      "body": "Click the Select button to display the TOOLKIT table and choose a tool for the operation.",
+      "category": "tool_selection",
+      "tags": [
+        "toolkit",
+        "tool_selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 2
+    },
+    {
+      "title": "Define feed for rotary machining operation",
+      "body": "Feed value can be defined in units of F (Units per minute) or FZ (Units per tooth).",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed",
+        "units"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Define spin for rotary machining operation",
+      "body": "Spin value can be defined in units of S (Revolutions per Minute) or V (Material cutting speed).",
+      "category": "speeds_feeds",
+      "tags": [
+        "spin",
+        "units"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Select gear producing the spinning speed",
+      "body": "Gear list enables selecting a Gear producing the spinning speed based on defined spin value.",
+      "category": "speeds_feeds",
+      "tags": [
+        "gear",
+        "spinning_speed"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Define spin direction for rotary machining operation",
+      "body": "Choose between clockwise (CW) or counterclockwise (CCW) direction for the spinning speed.",
+      "category": "speeds_feeds",
+      "tags": [
+        "spin_direction",
+        "cw_ccw"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Define length offset number for tool",
+      "body": "Length offset number defines the number of the Length Offset Register of the current tool in the Offset table of the CNC-machine.",
+      "category": "tool_selection",
+      "tags": [
+        "length_offset",
+        "offset_register"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Enable rapid feed replacement for CNC machines",
+      "body": "Check 'Rapid motion in Feed mode' to replace G0 with non-rapid movements using a specific feed rate.",
+      "category": "speeds_feeds",
+      "tags": [
+        "G-code",
+        "feed rate"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 3
+    },
+    {
+      "title": "Define retract and safety distances",
+      "body": "Set 'Retract distance' for rapid descent, 'Safety distance' for approach movement, and 'Air move safety distance' for clearance area.",
+      "category": "workholding",
+      "tags": [
+        "retract",
+        "safety"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.26",
+      "_chunk": 3
+    },
+    {
+      "title": "Use boundary constraints for tool path optimization",
+      "body": "Enable 'Use 3D Boundary' to limit the tool path within defined boundaries, optimizing retracts and machining efficiency.",
+      "category": "toolpath",
+      "tags": [
+        "boundary",
+        "optimization"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 3
+    },
+    {
+      "title": "Adjust surface quality parameters",
+      "body": "Set 'Cut tolerance' for tool path accuracy, 'Max. distance' for maximum point distance, and 'Step down' for cut level step.",
+      "category": "speeds_feeds",
+      "tags": [
+        "surface finish",
+        "cutting"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.30",
+      "_chunk": 3
+    },
+    {
+      "title": "Define tool path sorting method",
+      "body": "Choose 'Zigzag' or 'One way' for cutting direction changes and define 'Direction for closed cuts' based on spindle rotation.",
+      "category": "toolpath",
+      "tags": [
+        "sorting",
+        "direction"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3
+    },
+    {
+      "title": "Configure adaptive stepdown for roughing cuts",
+      "body": "Enable 'Intermediate slices' and choose between 'Constant Stepdown' or 'Number of slices' for step down calculation.",
+      "category": "toolpath",
+      "tags": [
+        "adaptive",
+        "stepdown"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 3
+    },
+    {
+      "title": "Smooth tool path corners",
+      "body": "Select 'Corners %' to create fillets in sharp corners of inner contours and 'Final Contour %' for outer contour.",
+      "category": "toolpath",
+      "tags": [
+        "smoothing",
+        "corners"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 3
+    },
+    {
+      "title": "Set rotary axis direction and base point",
+      "body": "Choose the rotary axis (X-, Y-, Z-axis) in 'Direction' and set the base point using 'Base point'.",
+      "category": "toolpath",
+      "tags": [
+        "rotary axis",
+        "base point"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Define approach/retract and linking strategies",
+      "body": "Select 'Approach moves' type (Auto, Line, Helical) in 'Ramping' to control tool path approach and retraction.",
+      "category": "toolpath",
+      "tags": [
+        "approach",
+        "retract"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 3
+    },
+    {
+      "title": "Define ramp angle for profile moves",
+      "body": "Set Ramp angle in Profile mode to define the angle at which the tool engages the stock.",
+      "category": "toolpath",
+      "tags": [
+        "profile",
+        "ramp"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 4
+    },
+    {
+      "title": "Set ramp length as percentage of tool diameter",
+      "body": "Use Ramp length (tool diameter %) to define the ramp length as a percentage of the tool diameter.",
+      "category": "toolpath",
+      "tags": [
+        "ramp",
+        "diameter"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 4
+    },
+    {
+      "title": "Limit minimum ramp diameter",
+      "body": "Check Min. ramp diameter to limit the minimum diameter of the ramping movement.",
+      "category": "toolpath",
+      "tags": [
+        "ramp",
+        "diameter"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 4
+    },
+    {
+      "title": "Use ramp for first entry movement",
+      "body": "Select Use ramp/Don\u2019t use ramp to apply a ramp with the first entry movement.",
+      "category": "approach_retract",
+      "tags": [
+        "ramp",
+        "first_entry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 4
+    },
+    {
+      "title": "Use ramp for last exit movement",
+      "body": "Select Use ramp/Don\u2019t use ramp to apply a ramp with the last exit movement.",
+      "category": "approach_retract",
+      "tags": [
+        "ramp",
+        "last_exit"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 4
+    },
+    {
+      "title": "Define approach from rapid distance",
+      "body": "Select Approach from rapid distance to apply cutting position once the tool reaches rapid distance.",
+      "category": "approach_retract",
+      "tags": [
+        "rapid",
+        "distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 4
+    },
+    {
+      "title": "Define approach from feed distance",
+      "body": "Select Approach from feed distance to apply plunge or cutting feed rate on the feed distance.",
+      "category": "approach_retract",
+      "tags": [
+        "feed",
+        "distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 4
+    },
+    {
+      "title": "Define retract to rapid distance",
+      "body": "Select Retract to rapid distance to apply straight line connection with retracting tool to the specified rapid distance.",
+      "category": "approach_retract",
+      "tags": [
+        "rapid",
+        "distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 4
+    },
+    {
+      "title": "Define retract to feed distance",
+      "body": "Select Retract to feed distance to apply straight line connection with retracting tool to the specified feed distance.",
+      "category": "approach_retract",
+      "tags": [
+        "feed",
+        "distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 4
+    },
+    {
+      "title": "Define link type for area connections",
+      "body": "Select Direct, Blend spline, or Step to define connection moves between tool paths in the same level.",
+      "category": "links",
+      "tags": [
+        "area",
+        "connections"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 4
+    },
+    {
+      "title": "Define link type for links between slices",
+      "body": "Select Direct, Blend spline, Step, Retract to feed distance, or Retract to rapid distance to define connection moves between cutting layers.",
+      "category": "links",
+      "tags": [
+        "slices",
+        "connections"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 4
+    },
+    {
+      "title": "Define link type for links between regions",
+      "body": "Select Direct, Blend spline, Retract to feed distance, or Retract to rapid distance to define connection moves between different machining regions.",
+      "category": "links",
+      "tags": [
+        "regions",
+        "connections"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 4
+    },
+    {
+      "title": "Define approach/retreat type",
+      "body": "Select Tangential arc, Tangential line, or Orthogonal line to define the approach/retreat movement.",
+      "category": "approach_retract",
+      "tags": [
+        "type"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 4
+    },
+    {
+      "title": "Define approach/retreat dimensions",
+      "body": "Set Width/Length to define the bounding rectangle surrounding the arc or line.",
+      "category": "approach_retract",
+      "tags": [
+        "dimensions"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 4
+    },
+    {
+      "title": "Define approach/retreat arc sweep/diameter",
+      "body": "Set Arc sweep/Arc diameter to specify the diameter of the approach/retreat arc using the percentage of the Arc diameter to the Tool diameter.",
+      "category": "approach_retract",
+      "tags": [
+        "arc",
+        "sweep"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 4
+    },
+    {
+      "title": "Define approach/retreat feed rate",
+      "body": "Set Feed rate to define the feed rate for the approach/retreat movement.",
+      "category": "approach_retract",
+      "tags": [
+        "feed",
+        "rate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 4
+    },
+    {
+      "title": "Use default lead-in/lead-out settings for finishing",
+      "body": "Enable Default Lead-In/Out page when Strategy is selected as Finishing to define parameters for approach/retreat movements.",
+      "category": "approach_retract",
+      "tags": [
+        "default",
+        "settings"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 4
+    },
+    {
+      "title": "Select second rotation angle",
+      "body": "InventorCAM chooses an angle pair where the second rotation angle is closer to the Rotation angle value parameter.",
+      "category": "toolpath",
+      "tags": [
+        "5axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.45",
+      "_chunk": 5
+    },
+    {
+      "title": "Deactivate Minimum angle change for single axis machines",
+      "body": "If a machine can only use one of the angle pairs due to mechanical limitations, deactivate the Minimum angle change option.",
+      "category": "toolpath",
+      "tags": [
+        "5axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.45",
+      "_chunk": 5
+    },
+    {
+      "title": "Use machine limits to restrict tool path movements",
+      "body": "Enable the Machine limits option to use machine-defined limits for translation and/or rotation axis movements.",
+      "category": "toolpath",
+      "tags": [
+        "machine_limits"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 5
+    },
+    {
+      "title": "Ignore machine limits with No limits option",
+      "body": "Select the No limits option to ignore all machine-defined limits for tool path movements.",
+      "category": "toolpath",
+      "tags": [
+        "machine_limits"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 5
+    },
+    {
+      "title": "Handle pole areas in 5-axis machining",
+      "body": "Use multiple methods to handle pole areas, such as freezing angle around pole or using rotation angle around pole.",
+      "category": "toolpath",
+      "tags": [
+        "5axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 5
+    },
+    {
+      "title": "Set angle limits for output tool paths",
+      "body": "Define angle limits in the Move list writer options to ensure compatibility with specific CNC-Machine controllers.",
+      "category": "toolpath",
+      "tags": [
+        "angle_limits"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.46",
+      "_chunk": 5
+    },
+    {
+      "title": "Control angular tool movements with Angle change parameter",
+      "body": "Set the maximal angle variation between two successive tool positions to control retract movements.",
+      "category": "toolpath",
+      "tags": [
+        "angle_change"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.47",
+      "_chunk": 5
+    },
+    {
+      "title": "Set retract distance for angle change",
+      "body": "Define the distance of the retract movement when the angle change exceeds the Angle change value.",
+      "category": "toolpath",
+      "tags": [
+        "retract_distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.47",
+      "_chunk": 5
+    },
+    {
+      "title": "Use Retract&Rewind option for rotational axis limits",
+      "body": "Enable the Retract&Rewind option to retract to a safe area and perform a reverse rotation when reaching maximum limit.",
+      "category": "toolpath",
+      "tags": [
+        "retract_rewind"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.47",
+      "_chunk": 5
+    },
+    {
+      "title": "Set interpolation angle step for distance and angles",
+      "body": "Use the Interpolation angle step parameter to interpolate linear and angular movements.",
+      "category": "toolpath",
+      "tags": [
+        "interpolation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 5
+    },
+    {
+      "title": "Limit rotation angle with Max. angle step for rotation axis",
+      "body": "Set the maximum rotation angle to limit the distance between two tool path points due to machine kinematics.",
+      "category": "toolpath",
+      "tags": [
+        "max_angle_step"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.51",
+      "_chunk": 5
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Feed calculation formula",
+      "expression": "FZ = F/(Number of Flutes * S)",
+      "variables": {
+        "FZ": "Units per tooth",
+        "F": "Units per minute",
+        "Number of Flutes": "number of flutes on the tool",
+        "S": "Revolutions per Minute"
+      },
+      "page_ref": "p.22"
+    },
+    {
+      "name": "Spin calculation formula",
+      "expression": "V = (S * PI * Tool Diameter) / 1000",
+      "variables": {
+        "V": "Material cutting speed in Meters per Minute",
+        "S": "Revolutions per Minute",
+        "Tool Diameter": "diameter of the tool"
+      },
+      "page_ref": "p.22"
+    }
+  ],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Rotary_Machining_User_Guide.pdf",
+    "title": "InventorCAM2024_Rotary_Machining_User_Guide",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 52,
+    "chunk_count": 6,
+    "tips_total": 59,
+    "tips_unique": 59,
+    "formulas_total": 2,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}
