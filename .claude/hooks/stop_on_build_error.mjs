@@ -15,7 +15,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(HEALTH_REPORT)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -26,16 +26,15 @@ async function main() {
 
     // Only warn if build was within last 4 hours
     if (age < 14400000 && tscErrors > 0) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `${tscErrors} TypeScript errors. Run \`npm run build\` to fix before exit.`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `${tscErrors} TypeScript errors. Run \`npm run build\` to fix before exit.`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));

@@ -14,7 +14,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(SVI_STATE)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
       return;
     }
 
@@ -23,16 +23,15 @@ async function main() {
     const psiChange = data.psiDelta || 0;
 
     if (delta < 0 || psiChange < -0.05) {
-      console.log(JSON.stringify({
-        result: "warn",
-        message: `SVI regression: delta=${delta.toExponential(2)}, Psi change=${(psiChange * 100).toFixed(1)}%`
+      console.log(JSON.stringify({ continue: false,
+        stopReason: `SVI regression: delta=${delta.toExponential(2)}, Psi change=${(psiChange * 100).toFixed(1)}%`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true, systemMessage: "pass" }));
   }
 }
 
-main().catch(() => console.log(JSON.stringify({ result: "pass" })));
+main().catch(() => console.log(JSON.stringify({ continue: true, systemMessage: "pass" })));
