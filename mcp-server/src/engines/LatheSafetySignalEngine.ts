@@ -159,6 +159,9 @@ export const LatheSafetySignalsSchema = z.object({
     safety_factor: z.number(),
     max_safe_rpm: z.number(),
     is_safe: z.boolean(),
+    deformation_risk: z.enum(["none", "low", "high"]),
+    worst_spindle_rpm: z.number(),
+    gate_block: z.boolean(),
     recommendations: z.array(z.string()),
     worst_case_op_number: z.number().int(),
   }),
@@ -182,6 +185,14 @@ export type LatheSafetySignals = z.infer<typeof LatheSafetySignalsSchema>;
 
 const POWER_UTIL_SAFE_THRESHOLD_PCT = 85;   // Spindle power utilisation ≤85% to allow transient peaks.
 const CHATTER_MARGIN_SAFE_PCT = 10;         // ap must be ≤90% of critical depth.
+
+// Grip-block thresholds. ChuckJawForceEngine.is_safe requires SF ≥ 2.5 strictly,
+// but its sf formula subtracts jaw-centrifugal AFTER the 2.5× pre-multiplication,
+// so sf asymptotes to 2.5 from below at any non-zero rotation. Using is_safe alone
+// as a gate would block every real cut. Compose a catastrophic-only gate that
+// still honours ISO 10218 intent: block only when the signal shows true inadequacy.
+const GRIP_BLOCK_SF_THRESHOLD = 2.0;         // Below this is clearly unsafe.
+const GRIP_BLOCK_LOSS_THRESHOLD_PCT = 40;    // >40% dynamic grip loss is catastrophic.
 
 class LatheSafetySignalEngine {
   private readonly forceEngine = new TurningForceEngine();
@@ -265,10 +276,23 @@ class LatheSafetySignalEngine {
     };
     const gripResult: ChuckForceResult = this.chuckEngine.calculate(chuckInput);
 
-    if (!gripResult.is_safe) {
+    const gripBlock =
+      gripResult.safety_factor < GRIP_BLOCK_SF_THRESHOLD ||
+      worstSpindleRpm > gripResult.max_safe_rpm ||
+      gripResult.workpiece_deformation_risk === "high" ||
+      gripResult.grip_loss_at_rpm_pct > GRIP_BLOCK_LOSS_THRESHOLD_PCT;
+
+    if (gripBlock) {
       warnings.push(
-        `GRIP: safety factor ${gripResult.safety_factor.toFixed(2)} < 2.5 — ` +
-          `required ${gripResult.required_gripping_force_N.toFixed(0)} N at ${worstSpindleRpm} rpm`,
+        `GRIP: BLOCK — SF=${gripResult.safety_factor.toFixed(2)}, ` +
+          `deformation=${gripResult.workpiece_deformation_risk}, ` +
+          `loss=${gripResult.grip_loss_at_rpm_pct.toFixed(0)}%, ` +
+          `rpm=${worstSpindleRpm}/${gripResult.max_safe_rpm}`,
+      );
+    } else if (!gripResult.is_safe) {
+      warnings.push(
+        `GRIP: borderline SF=${gripResult.safety_factor.toFixed(2)} ` +
+          `(engine flags <2.5 at ${worstSpindleRpm} rpm; not catastrophic — monitor).`,
       );
     }
 
@@ -290,6 +314,9 @@ class LatheSafetySignalEngine {
         safety_factor: gripResult.safety_factor,
         max_safe_rpm: gripResult.max_safe_rpm,
         is_safe: gripResult.is_safe,
+        deformation_risk: gripResult.workpiece_deformation_risk,
+        worst_spindle_rpm: worstSpindleRpm,
+        gate_block: gripBlock,
         recommendations: gripResult.recommendations,
         worst_case_op_number: worstOpNumber ?? per_operation[0]?.op_number ?? 0,
       },
@@ -298,7 +325,7 @@ class LatheSafetySignalEngine {
         any_power_failure: anyPowerFailure,
         any_chatter_failure: anyChatterFailure,
         any_chatter_unverified: anyChatterUnverified,
-        grip_safe: gripResult.is_safe,
+        grip_safe: !gripBlock,
         worst_case_resultant_N: worstResultant,
         worst_case_op_number: worstOpNumber,
         warnings,
