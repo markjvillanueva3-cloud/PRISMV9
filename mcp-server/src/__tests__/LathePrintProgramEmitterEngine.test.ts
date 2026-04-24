@@ -9,6 +9,7 @@
 import { describe, it, expect } from "vitest";
 import {
   lathePrintProgramEmitterEngine,
+  EnvelopeBlockError,
   type EmitOptions,
   type ControllerFamily,
 } from "../engines/LathePrintProgramEmitterEngine.js";
@@ -227,7 +228,7 @@ describe("LathePrintProgramEmitterEngine", () => {
       expect(result.valid).toBe(true);
     });
 
-    it("validate flags envelope violations", () => {
+    it("validate flags envelope violations (with override) — U-LSR04 audit path", () => {
       const features: FeatureInput[] = [
         { id: "XL1", type: "od_turn", diameter_mm: 100, length_mm: 500 },
       ];
@@ -236,9 +237,104 @@ describe("LathePrintProgramEmitterEngine", () => {
       const tp = lathePrintToolpathGeneratorEngine.generateProgram(seq, features, STEEL, {
         max_x_mm: 1, max_z_mm: 1, max_rpm: 5000, max_feed_mm_min: 10000,
       });
-      const out = lathePrintProgramEmitterEngine.emit(tp, { controller: "fanuc" });
+      const out = lathePrintProgramEmitterEngine.emit(tp, {
+        controller: "fanuc",
+        allow_envelope_override: true,
+      });
+      expect(out.warnings.some((w) => w.startsWith("AUDIT: envelope override applied"))).toBe(true);
       const result = lathePrintProgramEmitterEngine.validate(out);
       expect(result.valid).toBe(false);
+    });
+  });
+
+  describe("U-LSR04 Envelope Hard-Block", () => {
+    const outOfEnvelopeProgram = () => {
+      const features: FeatureInput[] = [
+        { id: "XL1", type: "od_turn", diameter_mm: 100, length_mm: 500 },
+      ];
+      const strat = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(features, STEEL);
+      const seq = lathePrintSequencePlannerEngine.planSequence(strat, STOCK, features);
+      return lathePrintToolpathGeneratorEngine.generateProgram(seq, features, STEEL, {
+        max_x_mm: 1, max_z_mm: 1, max_rpm: 5000, max_feed_mm_min: 10000,
+      });
+    };
+
+    it("emit() hard-blocks with EnvelopeBlockError when envelope violated and no override", () => {
+      const tp = outOfEnvelopeProgram();
+      expect(tp.machine_envelope_check.within_envelope).toBe(false);
+      expect(() => {
+        lathePrintProgramEmitterEngine.emit(tp, { controller: "fanuc" });
+      }).toThrow(EnvelopeBlockError);
+    });
+
+    it("thrown EnvelopeBlockError exposes code, detail, and ENVELOPE_BLOCKED message", () => {
+      const tp = outOfEnvelopeProgram();
+      let caught: unknown = null;
+      try {
+        lathePrintProgramEmitterEngine.emit(tp, { controller: "fanuc" });
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(EnvelopeBlockError);
+      const err = caught as EnvelopeBlockError;
+      expect(err.code).toBe("ENVELOPE_BLOCKED");
+      expect(err.name).toBe("EnvelopeBlockError");
+      expect(err.message).toContain("ENVELOPE_BLOCKED");
+      expect(err.message).toContain("allow_envelope_override=true");
+      expect(err.detail.max_x_mm).toBe(tp.machine_envelope_check.max_x_mm);
+      expect(err.detail.max_z_mm).toBe(tp.machine_envelope_check.max_z_mm);
+      expect(err.detail.min_x_mm).toBe(tp.machine_envelope_check.min_x_mm);
+      expect(err.detail.min_z_mm).toBe(tp.machine_envelope_check.min_z_mm);
+    });
+
+    it("allow_envelope_override=true lets emit succeed but tags AUDIT warning", () => {
+      const tp = outOfEnvelopeProgram();
+      const out = lathePrintProgramEmitterEngine.emit(tp, {
+        controller: "fanuc",
+        allow_envelope_override: true,
+      });
+      expect(out.gcode_lines).toBeGreaterThan(0);
+      const audit = out.warnings.find((w) => w.startsWith("AUDIT: envelope override applied"));
+      expect(typeof audit).toBe("string");
+      expect(audit!).toContain("exceeds declared envelope");
+      expect(audit!).toContain("machinist + engineer sign-off");
+    });
+
+    it("override still fails validate() because dossier.safety_checks retains machine_envelope=fail", () => {
+      const tp = outOfEnvelopeProgram();
+      const out = lathePrintProgramEmitterEngine.emit(tp, {
+        controller: "fanuc",
+        allow_envelope_override: true,
+      });
+      const envCheck = out.dossier.safety_checks.find((c) => c.check === "machine_envelope");
+      expect(envCheck?.status).toBe("fail");
+      const result = lathePrintProgramEmitterEngine.validate(out);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("machine_envelope"))).toBe(true);
+    });
+
+    it("clean envelope emits normally with no AUDIT warning", () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      expect(tp.machine_envelope_check.within_envelope).toBe(true);
+      const out = lathePrintProgramEmitterEngine.emit(tp, { controller: "fanuc" });
+      expect(out.warnings.some((w) => w.startsWith("AUDIT: envelope"))).toBe(false);
+    });
+
+    it("dryRun returns ok=false on envelope hard-block (catches throw)", () => {
+      const tp = outOfEnvelopeProgram();
+      const result = lathePrintProgramEmitterEngine.dryRun(tp, { controller: "fanuc" });
+      expect(result.ok).toBe(false);
+      expect(result.lines).toBe(0);
+    });
+
+    it("dryRun returns ok=true when override bypasses the block", () => {
+      const tp = outOfEnvelopeProgram();
+      const result = lathePrintProgramEmitterEngine.dryRun(tp, {
+        controller: "fanuc",
+        allow_envelope_override: true,
+      });
+      expect(result.ok).toBe(true);
+      expect(result.lines).toBeGreaterThan(0);
     });
   });
 

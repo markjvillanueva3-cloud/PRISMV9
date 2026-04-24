@@ -18,6 +18,46 @@ import type { ToolpathProgram, ToolpathOperation, ToolpathMove } from "./LathePr
 // CONTROLLER DIALECTS
 // ============================================================================
 
+/**
+ * Thrown when the toolpath violates the declared machine envelope and the
+ * caller has not explicitly opted into override. ISO 16090-1 §5.3.2 requires
+ * the controller to reject motion outside the declared work envelope; PRISM
+ * enforces the same at emission time so a non-conforming program cannot reach
+ * the post/controller in the first place.
+ */
+export class EnvelopeBlockError extends Error {
+  readonly code = "ENVELOPE_BLOCKED" as const;
+  readonly detail: {
+    max_x_mm: number;
+    max_z_mm: number;
+    min_x_mm: number;
+    min_z_mm: number;
+  };
+  constructor(check: {
+    max_x_mm: number;
+    max_z_mm: number;
+    min_x_mm: number;
+    min_z_mm: number;
+    within_envelope: boolean;
+  }) {
+    super(
+      `ENVELOPE_BLOCKED: toolpath exceeds declared machine envelope ` +
+        `(X[${check.min_x_mm.toFixed(1)}..${check.max_x_mm.toFixed(1)}] mm, ` +
+        `Z[${check.min_z_mm.toFixed(1)}..${check.max_z_mm.toFixed(1)}] mm). ` +
+        `Refusing to emit G-code. Set allow_envelope_override=true with ` +
+        `written machinist sign-off to bypass (emits with audit warning and ` +
+        `fails validation).`,
+    );
+    this.detail = {
+      max_x_mm: check.max_x_mm,
+      max_z_mm: check.max_z_mm,
+      min_x_mm: check.min_x_mm,
+      min_z_mm: check.min_z_mm,
+    };
+    this.name = "EnvelopeBlockError";
+  }
+}
+
 export type ControllerFamily = "fanuc" | "haas" | "okuma_osp" | "mitsubishi" | "mazak" | "siemens" | "generic";
 
 interface ControllerDialect {
@@ -199,7 +239,10 @@ export const EmitOptionsSchema = z.object({
   program_name: z.string().optional(),
   decimal_precision: z.number().int().min(0).max(6).optional(),
 });
-export type EmitOptions = z.infer<typeof EmitOptionsSchema>;
+export type EmitOptions = z.infer<typeof EmitOptionsSchema> & {
+  /** U-LSR04: bypass envelope hard-block with audit trail. */
+  allow_envelope_override?: boolean;
+};
 
 export const SignoffDossierSchema = z.object({
   program_id: z.string(),
@@ -267,6 +310,24 @@ class LathePrintProgramEmitterEngine {
 
     const precision = opts.decimal_precision ?? 3;
     const warnings: string[] = [...program.warnings];
+
+    // U-LSR04 envelope hard-block. A toolpath that exceeds the declared
+    // machine envelope must never reach the post/controller (ISO 16090-1
+    // §5.3.2). Override is supported for written machinist sign-off but the
+    // emission carries an AUDIT warning and validate() still fails on the
+    // dossier.safety_checks machine_envelope "fail" status.
+    const envCheck = program.machine_envelope_check;
+    if (!envCheck.within_envelope) {
+      if ((options as EmitOptions).allow_envelope_override !== true) {
+        throw new EnvelopeBlockError(envCheck);
+      }
+      warnings.push(
+        `AUDIT: envelope override applied — toolpath X[${envCheck.min_x_mm.toFixed(1)}..` +
+          `${envCheck.max_x_mm.toFixed(1)}] Z[${envCheck.min_z_mm.toFixed(1)}..` +
+          `${envCheck.max_z_mm.toFixed(1)}] exceeds declared envelope. Requires ` +
+          `machinist + engineer sign-off before program release.`,
+      );
+    }
 
     // Header
     const lines: string[] = [];
