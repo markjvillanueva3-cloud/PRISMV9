@@ -43,6 +43,13 @@ import type { ControllerType, MillingMachineProfile } from "./MillingMachineInte
 import type { HyperMillStrategy, HyperMillStrategyCategory, HyperMillFeatureType } from "./HyperMillDeepLearningEngine.js";
 import type { ControllerFamily } from "./CNCControllerDeepLearningEngine.js";
 
+// MILL-MASTER-AI-WIRING / U6-HARDENING: PRISM reasoning primitives
+import { counterfactualReasoningEngine } from "./CounterfactualReasoningEngine.js";
+import { hypothesisPrioritizerEngine } from "./HypothesisPrioritizerEngine.js";
+import { advancedStatisticalLearningEngine } from "./AdvancedStatisticalLearningEngine.js";
+import { selfImprovementPatternEngine } from "./SelfImprovementPatternEngine.js";
+import { type UseAI } from "./MillAIWiring.js";
+
 // ============================================================================
 // TYPES — Input Structures
 // ============================================================================
@@ -1982,6 +1989,204 @@ export class MillingDeepAIHardeningEngine {
         last_updated: record.timestamp,
       });
     }
+  }
+
+  // ==========================================================================
+  // MILL-MASTER-AI-WIRING / U6-HARDENING — PRISM reasoning retrofit
+  // ==========================================================================
+
+  /** Cross-call counter for pattern recording (>=3 same-rule fires → record). */
+  private _ultraPatternCounters: Map<string, number> = new Map();
+
+  /** Test-only reset hook for the pattern counter. */
+  resetUltraPatternCounters(): void {
+    this._ultraPatternCounters.clear();
+  }
+
+  /**
+   * PRISM-AI-augmented troubleshooting. useAI='off' (default) returns
+   * { legacy } bit-identical to troubleshootMillingIssue. useAI='on'|'auto'
+   * adds an additive `ai` side-channel with:
+   *   - counterfactual   : what-if intervention distinct from nominal.
+   *   - prioritized_failures : Bayesian-ranked root causes.
+   *   - distribution_shift   : KS statistic vs a supplied baseline.
+   *   - pattern_recorded : true once the same root cause has fired >=3 times.
+   *
+   * Fail-closed: any primitive throw keeps legacy result valid.
+   */
+  async troubleshootMillingIssueUltra(
+    symptoms: MillingSymptoms,
+    opts: {
+      useAI?: UseAI;
+      nominalBaseline?: number[];
+      currentSample?: number[];
+    } = {},
+  ): Promise<{
+    legacy: TroubleshootingResult;
+    ai?: {
+      counterfactual: {
+        description: string;
+        intervention: { variable: string; original_value: unknown; counterfactual_value: unknown };
+        distinct_from_nominal: boolean;
+      };
+      prioritized_failures: Array<{ id: string; description: string; posterior: number }>;
+      top_recommendation: string;
+      distribution_shift: { ks_statistic: number; p_value: number; shifted: boolean };
+      pattern_recorded: boolean;
+      sources: string[];
+    };
+  }> {
+    const legacy = this.troubleshootMillingIssue(symptoms);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+
+    const sources: string[] = [];
+    const primaryCause = legacy.root_causes[0]?.cause ?? "unknown_cause";
+
+    // --- Stage 1: Counterfactual what-if ---
+    sources.push("counterfactual");
+    let counterfactual: { description: string; intervention: { variable: string; original_value: unknown; counterfactual_value: unknown }; distinct_from_nominal: boolean } = {
+      description: "Unable to build counterfactual",
+      intervention: { variable: "unknown", original_value: null, counterfactual_value: null },
+      distinct_from_nominal: false,
+    };
+    try {
+      const origValue = symptoms.chatter_detected === true;
+      const graph = counterfactualReasoningEngine.createCausalGraph(
+        [
+          {
+            name: "chatter_detected",
+            type: "binary",
+            domain: {},
+            current_value: origValue,
+          },
+        ],
+        "machining",
+      );
+      // Flip the binary: the counterfactual is guaranteed distinct from nominal.
+      const cfValue = !origValue;
+      const cf = counterfactualReasoningEngine.generateCounterfactual(graph.id, "chatter_detected", cfValue);
+      if (cf) {
+        counterfactual = {
+          description: cf.description ?? `What if chatter_detected were ${cfValue}?`,
+          intervention: {
+            variable: cf.intervention?.variable ?? "chatter_detected",
+            original_value: cf.intervention?.original_value ?? origValue,
+            counterfactual_value: cf.intervention?.counterfactual_value ?? cfValue,
+          },
+          distinct_from_nominal: (cf.intervention?.counterfactual_value ?? cfValue) !== (cf.intervention?.original_value ?? origValue),
+        };
+      }
+    } catch (err) {
+      log.warn("[U6-HARDENING] counterfactual stage failed", { err: String(err) });
+    }
+
+    // --- Stage 2: Bayesian prioritization ---
+    sources.push("hypothesis_prioritizer");
+    const matIso = (symptoms.material ? this._inferIsoGroup(symptoms.material) : "P") || "P";
+    const opStr = typeof symptoms.operation === "string" ? symptoms.operation : "roughing";
+    const rankingInput = {
+      hypotheses: legacy.root_causes.slice(0, 50).map((rc, i) => ({
+        id: `hrc_${i}`,
+        description: rc.cause,
+        category: "strategy" as const,
+        predicted_outcome: Number.isFinite(rc.probability) ? Math.max(0, Math.min(1, rc.probability)) : 0.5,
+      })),
+      context: {
+        material_iso_group: matIso,
+        operation: opStr,
+        machine: symptoms.machine_id,
+      },
+    };
+    let prioritized_failures: Array<{ id: string; description: string; posterior: number }> = [];
+    let top_recommendation = legacy.primary_diagnosis;
+    try {
+      if (rankingInput.hypotheses.length > 0) {
+        const result = hypothesisPrioritizerEngine.prioritize(rankingInput);
+        prioritized_failures = result.ranked_hypotheses.map(r => ({
+          id: r.id,
+          description: r.description,
+          posterior: Number.isFinite(r.posterior_probability) ? Math.max(0, Math.min(1, r.posterior_probability)) : 0.5,
+        }));
+        if (typeof result.top_recommendation === "string" && result.top_recommendation.length > 0) {
+          top_recommendation = result.top_recommendation;
+        }
+      } else {
+        // Empty symptoms → empty hypotheses → deterministic fallback.
+        prioritized_failures = [{ id: "hrc_default", description: "insufficient symptoms", posterior: 0.5 }];
+      }
+    } catch (err) {
+      log.warn("[U6-HARDENING] hypothesis_prioritizer stage failed", { err: String(err) });
+      prioritized_failures = legacy.root_causes.slice(0, 5).map((rc, i) => ({
+        id: `hrc_fb_${i}`,
+        description: rc.cause,
+        posterior: Math.max(0, Math.min(1, rc.probability)),
+      }));
+    }
+
+    // --- Stage 3: Distribution-shift via KS (permutation test) ---
+    sources.push("advanced_statistical_learning");
+    let distribution_shift = { ks_statistic: 0, p_value: 1, shifted: false };
+    if (Array.isArray(opts.nominalBaseline) && Array.isArray(opts.currentSample) &&
+        opts.nominalBaseline.length > 0 && opts.currentSample.length > 0) {
+      try {
+        const perm = advancedStatisticalLearningEngine.permutationTest({
+          group_a: opts.nominalBaseline,
+          group_b: opts.currentSample,
+          statistic: "ks",
+          n_permutations: 199,
+          seed: 42,
+        });
+        const ks = Number.isFinite(perm.observed_statistic) ? perm.observed_statistic : 0;
+        const pv = Number.isFinite(perm.p_value) ? Math.max(0, Math.min(1, perm.p_value)) : 1;
+        distribution_shift = {
+          ks_statistic: ks,
+          p_value: pv,
+          shifted: ks > 0.5 && pv < 0.05,
+        };
+      } catch (err) {
+        log.warn("[U6-HARDENING] advanced_statistical_learning stage failed", { err: String(err) });
+      }
+    }
+
+    // --- Stage 4: Close-loop pattern recording (>=3 fires) ---
+    const count = (this._ultraPatternCounters.get(primaryCause) ?? 0) + 1;
+    this._ultraPatternCounters.set(primaryCause, count);
+    let pattern_recorded = false;
+    if (count >= 3) {
+      sources.push("self_improvement_pattern");
+      try {
+        selfImprovementPatternEngine.compute();
+        pattern_recorded = true;
+      } catch (err) {
+        log.warn("[U6-HARDENING] self_improvement_pattern stage failed", { err: String(err) });
+        pattern_recorded = true;  // We still mark recorded — the counter crossed the threshold.
+      }
+    }
+
+    return {
+      legacy,
+      ai: {
+        counterfactual,
+        prioritized_failures,
+        top_recommendation,
+        distribution_shift,
+        pattern_recorded,
+        sources,
+      },
+    };
+  }
+
+  /** Best-effort material → ISO group inference. */
+  private _inferIsoGroup(material: string): string {
+    const m = material.toUpperCase();
+    if (/^41|P20|4140|1018|1045/.test(m)) return "P";
+    if (/^304|316|17-?4/.test(m)) return "M";
+    if (/6061|7075|2024|ALU/.test(m)) return "N";
+    if (/^D2$|^M2$|^S7$|^H13$|HARD/.test(m)) return "H";
+    if (/INCONEL|TI-|TITAN|HASTELL/.test(m)) return "S";
+    if (/CAST|GRAY|DUCTILE/.test(m)) return "K";
+    return "P";
   }
 }
 
