@@ -80,6 +80,13 @@ export interface ConsistencyReport {
   actual_total_parameters: number;
   duplicate_operation_ids: Array<{ operation_id: string; sections: string[] }>;
   missing_files: string[];
+
+  /** CAM-EXHAUST-MS0/U-CAM56: section-level category coverage. */
+  sections_missing_categories: string[];
+  /** Per-op categories not declared in their catalog's top-level categories[]. */
+  orphan_categories: Array<{ section_key: string; operation_id: string; category: string }>;
+  /** Sections where manifest's categories[] != catalog top-level categories[]. */
+  manifest_catalog_category_mismatches: Array<{ section_key: string; in_manifest_only: string[]; in_catalog_only: string[] }>;
 }
 
 export interface FeatureRecommendation {
@@ -253,6 +260,9 @@ export class SolidCAMFunctionIndexEngine {
     let actualOps = 0;
     let actualParams = 0;
     const missing: string[] = [];
+    const sections_missing_categories: string[] = [];
+    const orphan_categories: Array<{ section_key: string; operation_id: string; category: string }> = [];
+    const manifest_catalog_category_mismatches: Array<{ section_key: string; in_manifest_only: string[]; in_catalog_only: string[] }> = [];
 
     for (const section_key of sectionKeys) {
       const sec = loadSection(section_key);
@@ -260,12 +270,33 @@ export class SolidCAMFunctionIndexEngine {
         missing.push(m.sections[section_key].file);
         continue;
       }
-      for (const [op_id, op] of Object.entries(sec.operations || {}) as any) {
+      const catalogCats: string[] = Array.isArray(sec.categories) ? sec.categories : [];
+      const catalogCatSet = new Set(catalogCats);
+      if (catalogCats.length === 0) sections_missing_categories.push(section_key);
+
+      const manifestCats: string[] = Array.isArray(m.sections[section_key].categories)
+        ? m.sections[section_key].categories
+        : [];
+      const manifestSet = new Set(manifestCats);
+      const inManifestOnly = manifestCats.filter((c) => !catalogCatSet.has(c));
+      const inCatalogOnly = catalogCats.filter((c) => !manifestSet.has(c));
+      if (inManifestOnly.length > 0 || inCatalogOnly.length > 0) {
+        manifest_catalog_category_mismatches.push({
+          section_key,
+          in_manifest_only: inManifestOnly,
+          in_catalog_only: inCatalogOnly,
+        });
+      }
+
+      for (const [op_id, op] of Object.entries(sec.operations || {}) as Array<[string, { parameter_count?: number; category?: string }]>) {
         actualOps += 1;
         actualParams += op.parameter_count ?? 0;
         const arr = id_to_sections.get(op_id) ?? [];
         arr.push(section_key);
         id_to_sections.set(op_id, arr);
+        if (op.category && catalogCats.length > 0 && !catalogCatSet.has(op.category)) {
+          orphan_categories.push({ section_key, operation_id: op_id, category: op.category });
+        }
       }
     }
 
@@ -280,7 +311,10 @@ export class SolidCAMFunctionIndexEngine {
       actualOps === (expected.operations ?? actualOps) &&
       actualParams === (expected.parameters ?? actualParams) &&
       duplicates.length === 0 &&
-      missing.length === 0;
+      missing.length === 0 &&
+      sections_missing_categories.length === 0 &&
+      orphan_categories.length === 0 &&
+      manifest_catalog_category_mismatches.length === 0;
 
     return {
       is_consistent,
@@ -292,6 +326,9 @@ export class SolidCAMFunctionIndexEngine {
       actual_total_parameters: actualParams,
       duplicate_operation_ids: duplicates,
       missing_files: missing,
+      sections_missing_categories,
+      orphan_categories,
+      manifest_catalog_category_mismatches,
     };
   }
 }
