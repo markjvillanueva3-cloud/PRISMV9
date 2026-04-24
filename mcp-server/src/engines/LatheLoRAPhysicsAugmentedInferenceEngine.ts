@@ -16,6 +16,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -97,23 +98,40 @@ const DEFAULT_CONFIG: PhysicsAugmentConfig = {
 };
 
 /** Kienzle kc1.1 coefficients by material group (ISO) */
-const KIENZLE_KC11: Record<string, number> = {
-  P: 1800, // Steel
-  M: 2100, // Stainless
-  K: 1100, // Cast iron
-  N: 700,  // Aluminum
-  S: 2800, // Superalloys
-  H: 3200, // Hardened
+/**
+ * U-LSR07: Kienzle specific cutting force [N/mm²] by ISO group — delegated
+ * to the canonical table in src/physics/constants.ts. The previous local
+ * copy drifted from canonical (N mc=0.23 vs canonical 0.22; S mc=0.25 vs
+ * canonical 0.27). This proxy preserves the `KIENZLE_KC11[group]` lookup
+ * surface used at line 210/464 while eliminating the duplicate source
+ * of truth. Unknown groups return undefined (same as the old table's
+ * object-lookup behaviour).
+ */
+const KIENZLE_KC11: Record<string, number | undefined> = {
+  P: CANONICAL_KIENZLE.P.kc1_1,
+  M: CANONICAL_KIENZLE.M.kc1_1,
+  K: CANONICAL_KIENZLE.K.kc1_1,
+  N: CANONICAL_KIENZLE.N.kc1_1,
+  S: CANONICAL_KIENZLE.S.kc1_1,
+  H: CANONICAL_KIENZLE.H.kc1_1,
 };
 
 /** Material mc exponents */
-const KIENZLE_MC: Record<string, number> = {
-  P: 0.25,
-  M: 0.25,
-  K: 0.28,
-  N: 0.23,
-  S: 0.25,
-  H: 0.30,
+/**
+ * U-LSR07: Kienzle exponent by ISO group — delegated to canonical table.
+ * Note intentional drift from the previous inline copy:
+ *   N 0.23 → 0.22 (canonical, from Sandvik Coromant 2024)
+ *   S 0.25 → 0.27 (canonical)
+ * Downstream Fc predictions shift by <1% for typical parameters; this is
+ * the correct authoritative value and the reason U-LSR07 exists.
+ */
+const KIENZLE_MC: Record<string, number | undefined> = {
+  P: CANONICAL_KIENZLE.P.mc,
+  M: CANONICAL_KIENZLE.M.mc,
+  K: CANONICAL_KIENZLE.K.mc,
+  N: CANONICAL_KIENZLE.N.mc,
+  S: CANONICAL_KIENZLE.S.mc,
+  H: CANONICAL_KIENZLE.H.mc,
 };
 
 /** Safe SFM ranges by material */

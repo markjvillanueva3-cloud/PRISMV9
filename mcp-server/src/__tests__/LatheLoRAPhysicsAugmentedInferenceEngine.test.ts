@@ -289,6 +289,18 @@ describe("LatheLoRAPhysicsAugmentedInferenceEngine", () => {
     it("returns null for unknown group", () => {
       expect(latheLoRAPhysicsAugmentedInferenceEngine.getKienzleCoefficients("X")).toBeNull();
     });
+
+    // U-LSR07 anti-regression: engine must delegate to canonical table, not
+    // shadow it. Each group's (kc1.1, mc) must match src/physics/constants.ts.
+    it.each<["P" | "M" | "K" | "N" | "S" | "H"]>([["P"], ["M"], ["K"], ["N"], ["S"], ["H"]])(
+      "matches canonical Sandvik values for group %s",
+      async (group) => {
+        const { CANONICAL_KIENZLE } = await import("../physics/constants.js");
+        const coef = latheLoRAPhysicsAugmentedInferenceEngine.getKienzleCoefficients(group);
+        expect(coef?.kc11).toBe(CANONICAL_KIENZLE[group].kc1_1);
+        expect(coef?.mc).toBe(CANONICAL_KIENZLE[group].mc);
+      },
+    );
   });
 
   describe("getSafeSFMRange", () => {
