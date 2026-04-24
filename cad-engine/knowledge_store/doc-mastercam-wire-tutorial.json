@@ -1,0 +1,566 @@
+{
+  "tips": [
+    {
+      "title": "Open a part file and assign a machine definition",
+      "body": "Start Mastercam, select the default metric configuration file, open the part file 'single_contour.mcam', and choose a wire EDM machine definition.",
+      "category": "machine_setup",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 1
+    },
+    {
+      "title": "Create a contour toolpath with a single contour",
+      "body": "On the Wireframe tab, choose Point Position and create a thread point at X-40, Y0.2, Z0.",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Define stock model for better visualization",
+      "body": "In the Toolpaths Manager, set up stock boundaries with dimensions Y75, X75, Z10 and a Z origin of 10.",
+      "category": "workholding",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.9",
+      "_chunk": 1
+    },
+    {
+      "title": "Select geometry for toolpath chaining",
+      "body": "On the Wirepaths tab, choose Contour and chain the thread point with the gear shape.",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.11",
+      "_chunk": 1
+    },
+    {
+      "title": "Enter wire path parameters",
+      "body": "Set Wire Diameter to 0.2, Compensation Type to Computer, and Taper settings for UV height.",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.13",
+      "_chunk": 1
+    },
+    {
+      "title": "Backplot the toolpath to check for errors",
+      "body": "Click Backplot selected operations, display wire and guides, and run the backplot to verify the path.",
+      "category": "troubleshooting",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.15",
+      "_chunk": 1
+    },
+    {
+      "title": "Change toolpath parameters for better machining",
+      "body": "Modify parameters and update the operation to include new settings for more effective machining.",
+      "category": "strategy",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": [],
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 1
+    },
+    {
+      "title": "Set Wire Overburn for Passes",
+      "body": "Pass1: 0.035; Pass2: 0.02; Pass3: 0.01; Pass4: 0",
+      "category": "toolpath",
+      "tags": [
+        "Wire Contouring",
+        "Overburn"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Add Additional Skim Cuts",
+      "body": "Enter 3 for additional skim cuts before tab.",
+      "category": "cut_parameters",
+      "tags": [
+        "Wire Cutting",
+        "Skim Cuts"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Tab Width",
+      "body": "Enter 1.0 for tab width.",
+      "category": "cut_parameters",
+      "tags": [
+        "Wire Cutting",
+        "Tab Width"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Select Reverse Cutting Method",
+      "body": "Set cutting method to Reverse.",
+      "category": "cut_parameters",
+      "tags": [
+        "Wire Cutting",
+        "Cutting Method"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Arc Radius and Sweep for Leads",
+      "body": "Enter 0.125 for arc radius and 60 for arc sweep.",
+      "category": "lead_and_retract",
+      "tags": [
+        "Wire Cutting",
+        "Leads"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Maximum Leadout Distance",
+      "body": "Enter 0.3 for maximum leadout distance.",
+      "category": "lead_and_retract",
+      "tags": [
+        "Wire Cutting",
+        "Leadout"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Select Glue Stop for Output Stop Code",
+      "body": "Choose As glue stop for output stop code.",
+      "category": "stops",
+      "tags": [
+        "Wire Cutting",
+        "Stops"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Select Arc Motion for Leads and Leadout",
+      "body": "Select Line and arc for lead in, Arc and line for lead out.",
+      "category": "lead_and_retract",
+      "tags": [
+        "Wire Cutting",
+        "Leads"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Overlap for Multiple Contour Toolpath",
+      "body": "Enter 0.02 for overlap.",
+      "category": "toolpath",
+      "tags": [
+        "Multiple Contour",
+        "Overlap"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2
+    },
+    {
+      "title": "Set Rapid Height for Taper",
+      "body": "Enter 20.0 for rapid height.",
+      "category": "taper",
+      "tags": [
+        "Multiple Contour",
+        "Taper"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2
+    },
+    {
+      "title": "Sort Chains in Chain Manager",
+      "body": "Select Y+X option for sorting chains.",
+      "category": "chain_manager",
+      "tags": [
+        "Multiple Contour",
+        "Chain Sorting"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 2
+    },
+    {
+      "title": "Verify selected operations in Toolpaths Manager",
+      "body": "Click 'Verify' at the top of the Toolpaths Manager to display stock, wire, and guides in the Mastercam Simulator window.",
+      "category": "toolpath",
+      "tags": [
+        "verification",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3
+    },
+    {
+      "title": "Set up NoCore stock in Mastercam Wire",
+      "body": "In the Toolpaths Manager, expand Properties under Machine Group and click Stock setup. Set Shape to Cylindrical, Axis to Z, Height to 30, Diameter to 40.",
+      "category": "stock_setup",
+      "tags": [
+        "NoCore",
+        "cylinder"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 3
+    },
+    {
+      "title": "Select thread points for NoCore toolpaths",
+      "body": "On the Wireframe tab, choose Point Position and select ThreadPoint. Move cursor to end of a slot to detect center of an arc.",
+      "category": "feature",
+      "tags": [
+        "NoCore",
+        "thread_points"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Set up 4-axis stock in Mastercam Wire",
+      "body": "In the Toolpaths Manager, expand Properties under Makino Machine Group and click Stock setup. Set Shape to Cylindrical, Axis to Z, Height to 40, Diameter to 70.",
+      "category": "stock_setup",
+      "tags": [
+        "4-axis",
+        "cylinder"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 3
+    },
+    {
+      "title": "Select geometry for 4-axis toolpaths",
+      "body": "In the Wirepath tabs, choose 4 Axis. Select thread point to left of part as first chain and lower purple contour to right of green point as XY plane.",
+      "category": "feature",
+      "tags": [
+        "4-axis",
+        "geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.44",
+      "_chunk": 3
+    },
+    {
+      "title": "Set up synchronization for 4-axis toolpaths",
+      "body": "In the Chaining dialog box, select by Entity to match endpoints of each entity. Click OK to close the Chaining Options dialog box.",
+      "category": "feature",
+      "tags": [
+        "4-axis",
+        "synchronization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 3
+    },
+    {
+      "title": "Configure power settings for 4-axis toolpaths",
+      "body": "Choose Wire/Power from the TreeView pane and click the Tech button to change power settings for this toolpath.",
+      "category": "power_settings",
+      "tags": [
+        "4-axis",
+        "TECH library"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 3
+    },
+    {
+      "title": "Select number of passes for part",
+      "body": "Choose 3 from Sequencedrop-downlist at bottom of dialog box.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "roughing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "Set UV and XY tabs to same size",
+      "body": "Select Equal in Tabs section, enter 1.5 for XY Tab Width.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "finishing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "Set compensation type and direction",
+      "body": "Choose Compensation, set type to Computer and direction to Left.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "compensation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "Add stop codes before each tab cut",
+      "body": "Choose Stops, select Foreach to add a stop code before the first tab cut on each chain and As glue stop to add them as optional stops.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "stops"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "Select lead-in and lead-out paths",
+      "body": "Choose Leads, select Line and arc for the lead-in and Arc and line for the lead-out.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "leads"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "View shaded part with toolpath",
+      "body": "Press [Alt+S] to view the shaded part with the toolpath.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "visualization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "Backplot tool motion in Mastercam Simulator",
+      "body": "Click Verify selected operations at top of Toolpaths Manager, check Workpiece to shade the solid, click Backplot to change to Backplot mode.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Enable vectors for 4-axis wire positions",
+      "body": "Click the Backplottab and select Enable Vectors to view the 4-axis wire positions as it moves around the part.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.48",
+      "_chunk": 4
+    },
+    {
+      "title": "Run backplot and observe tool motion",
+      "body": "Click Play at bottom of Simulator window to run the backplot, observe wire movement around part.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.48",
+      "_chunk": 4
+    },
+    {
+      "title": "View final part shapes for comparison",
+      "body": "Click the Hometab and select Workpiece to see the final part shapes, compare with tool motion.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.48",
+      "_chunk": 4
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/Mastercam-Wire-Tutorial.pdf",
+    "title": "Mastercam-Wire-Tutorial",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 50,
+    "chunk_count": 4,
+    "tips_total": 35,
+    "tips_unique": 35,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}

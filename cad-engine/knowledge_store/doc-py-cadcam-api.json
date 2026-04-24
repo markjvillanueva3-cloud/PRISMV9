@@ -1,0 +1,999 @@
+{
+  "tips": [
+    {
+      "title": "Select solid entities",
+      "body": "Use `om.commands.select.GetEntities(types=om.commands.select.EntityTypeSelection.SOLID)` to select all solid entities.",
+      "category": "other",
+      "tags": [
+        "selection",
+        "solid"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 4
+    },
+    {
+      "title": "Select curve entities by layer",
+      "body": "Use `om.commands.select.GetEntities(types=om.commands.select.EntityTypeSelection.ALL_CURVES, layers='layer0')` to select all curve entities on layer 'layer0'.",
+      "category": "other",
+      "tags": [
+        "selection",
+        "curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 4
+    },
+    {
+      "title": "Select entities by ID",
+      "body": "Use `om.commands.select.GetEntitiesById([1, 2, 4])` to select entities with specific IDs.",
+      "category": "other",
+      "tags": [
+        "selection",
+        "id"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 4
+    },
+    {
+      "title": "Select pre-selected entities",
+      "body": "Use `om.commands.select.GetPreSelection()` to get entities that have been selected in the model.",
+      "category": "other",
+      "tags": [
+        "selection",
+        "pre-selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 4
+    },
+    {
+      "title": "Inspect entity geometry",
+      "body": "Check if an entity is a `GeomEntity` and access its geometry using `ent.Geometry`, which returns a `TopoGeom`.",
+      "category": "other",
+      "tags": [
+        "geometry",
+        "inspection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 4
+    },
+    {
+      "title": "Change entity layer",
+      "body": "Create a new layer with `layer_manager.AddLayer('newLayer')` and move entities to it using `layer_manager.MoveToLayer(ents, layer)`.",
+      "category": "other",
+      "tags": [
+        "layer",
+        "change"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 4
+    },
+    {
+      "title": "Read geometric information from an entity",
+      "body": "Get the geometry of a face using `face_ent.Geometry`, then access its surface and domain.",
+      "category": "other",
+      "tags": [
+        "geometry",
+        "read"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.29",
+      "_chunk": 4
+    },
+    {
+      "title": "Create a cone shape using notable points",
+      "body": "Use `om.commands.shapes.CreateConeShape(centerPoint, baseRadius=10., height=50.)` to create a cone at specific points.",
+      "category": "other",
+      "tags": [
+        "shape",
+        "cone"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 4
+    },
+    {
+      "title": "Open an undo entry",
+      "body": "Call `cad_model.OpenUndo('script_0')` before executing a script to create a single undo entry.",
+      "category": "other",
+      "tags": [
+        "undo",
+        "single"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Close an undo entry",
+      "body": "Call `cad_model.CloseUndo()` to close the current undo entry.",
+      "category": "other",
+      "tags": [
+        "undo",
+        "close"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Convert angle units",
+      "body": "Use `math.radians(degrees)` to convert degrees to radians for API functions that require radian values.",
+      "category": "other",
+      "tags": [
+        "units",
+        "angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 4
+    },
+    {
+      "title": "Work with multiple workplanes",
+      "body": "Create a new workplane using `cad_model.Workplanes.Add('wp1')` and switch to it.",
+      "category": "other",
+      "tags": [
+        "workplane",
+        "create"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 4
+    },
+    {
+      "title": "Create a 2D chamfer on curves",
+      "body": "Use `om.commands.drafting.Create2DChamfers` with parameters like `curves`, `trim`, `mode`, `distance1`, `distance2`, and `angle`. Default values are provided for each parameter.",
+      "category": "chamfering",
+      "tags": [
+        "2D",
+        "chamfer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.237",
+      "_chunk": 35
+    },
+    {
+      "title": "Create a 2D fillet on curves",
+      "body": "Use `om.commands.drafting.Create2DFillets` with parameters like `curves`, `radius`, `trim`, and `curvesParameters`. Default values are provided for each parameter.",
+      "category": "chamfering",
+      "tags": [
+        "2D",
+        "fillet"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.237",
+      "_chunk": 35
+    },
+    {
+      "title": "Create intersection points between entities",
+      "body": "Use `om.commands.drafting.CreateIntersectionPoints` with parameters like `firstEntity`, `secondEntities`, `extensions`, and `all`. Default values are provided for each parameter.",
+      "category": "feature",
+      "tags": [
+        "intersection",
+        "points"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.238",
+      "_chunk": 35
+    },
+    {
+      "title": "Create points on a curve",
+      "body": "Use `om.commands.drafting.CreatePointsOnCurve` with parameters like `curves`, `mode`, `startU`, `endU`, `nPoints`, `onExtension`, and `inflDirection`. Default values are provided for each parameter.",
+      "category": "feature",
+      "tags": [
+        "points",
+        "curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.238",
+      "_chunk": 35
+    },
+    {
+      "title": "Create points on a face",
+      "body": "Use `om.commands.drafting.CreatePointsOnFace` with parameters like `faces`, `u`, `nPointsU`, `v`, `nPointsV`, `onDomain`, and `pointCloud`. Default values are provided for each parameter.",
+      "category": "feature",
+      "tags": [
+        "points",
+        "face"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.238",
+      "_chunk": 35
+    },
+    {
+      "title": "Create a parallel line to a base line",
+      "body": "Use `om.commands.drafting.CreateParallelLine` with parameters like `baseLine`, `fixedAngle`, `angle`, `length`, `definitionMode`, `symmetric`, `nCopies`, `distance`, and `parallelToXY`. Default values are provided for each parameter.",
+      "category": "feature",
+      "tags": [
+        "line",
+        "parallel"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.238",
+      "_chunk": 35
+    },
+    {
+      "title": "Create contour curves from shapes",
+      "body": "Use `om.commands.curves.CreateShapeContourCurvesLinear`, `om.commands.curves.CreateShapeContourCurvesRotational`, or `om.commands.curves.CreateShapeContourCurves3D` to generate contour curves based on selected shapes in a specified plane.",
+      "category": "contouring",
+      "tags": [
+        "contour",
+        "curves",
+        "shapes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.251",
+      "_chunk": 39
+    },
+    {
+      "title": "Wrap curves to a face",
+      "body": "Use `om.commands.curves.CreateWrappingCurves` to wrap planar curves and text onto a rotated face, specifying wrapping mode, initial point, direction, and other parameters.",
+      "category": "wrapping",
+      "tags": [
+        "wrapping",
+        "curves",
+        "face"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.251",
+      "_chunk": 39
+    },
+    {
+      "title": "Create a guided face along curves",
+      "body": "Use `om.commands.shapes.CreateAlongGuideShape` to create a guided face based on contour curves led along guide curves, specifying mode, reference entities, and other parameters.",
+      "category": "contouring",
+      "tags": [
+        "guiding",
+        "curves",
+        "faces"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.253",
+      "_chunk": 39
+    },
+    {
+      "title": "Create a blended face between two boundaries",
+      "body": "Use `om.commands.shapes.CreateBlendingShape` to insert a blending face (NURBS) between two faces with a tangentially constant transition, specifying weights and inversion.",
+      "category": "blending",
+      "tags": [
+        "blending",
+        "faces"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.254",
+      "_chunk": 39
+    },
+    {
+      "title": "Create faces from coplanar curves",
+      "body": "Use `om.commands.shapes.CreateBoundedPlaneShapes` to create faces from coplanar curves, planar boundaries, and almost planar boundaries.",
+      "category": "faces",
+      "tags": [
+        "faces",
+        "curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.254",
+      "_chunk": 39
+    },
+    {
+      "title": "Close openings within faces",
+      "body": "Use `om.commands.shapes.CreateCloseHolesShapes` to close openings within selected faces, specifying layers and options for closing cross-holes.",
+      "category": "faces",
+      "tags": [
+        "faces",
+        "holes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.254",
+      "_chunk": 39
+    },
+    {
+      "title": "Create Chamfer Shape",
+      "body": "Use `om.commands.shapes.CreateChamferShape` to create a chamfer between two faces. Parameters include mode, distances, angle, and more.",
+      "category": "feature",
+      "tags": [
+        "chamfer",
+        "face"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "chamfering"
+      ],
+      "page_ref": "p.264",
+      "_chunk": 43
+    },
+    {
+      "title": "Create Shape from Grid",
+      "body": "Use `om.commands.shapes.CreateFromGridShape` to create a shape using a grid of curves.",
+      "category": "feature",
+      "tags": [
+        "grid",
+        "shape"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.264",
+      "_chunk": 43
+    },
+    {
+      "title": "Boolean Union",
+      "body": "Use `om.commands.booleans.CreateBooleanUnion` to join multiple solids into a single solid.",
+      "category": "feature",
+      "tags": [
+        "union",
+        "solid"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.265",
+      "_chunk": 43
+    },
+    {
+      "title": "Boolean Difference",
+      "body": "Use `om.commands.booleans.CreateBooleanDifference` to remove areas of one solid that intersect with another.",
+      "category": "feature",
+      "tags": [
+        "difference",
+        "solid"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.265",
+      "_chunk": 43
+    },
+    {
+      "title": "Boolean Intersection",
+      "body": "Use `om.commands.booleans.CreateBooleanIntersection` to create a solid from the areas that intersect with each other.",
+      "category": "feature",
+      "tags": [
+        "intersection",
+        "solid"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.265",
+      "_chunk": 43
+    },
+    {
+      "title": "Boolean Split",
+      "body": "Use `om.commands.booleans.CreateBooleanSplit` to split a solid using another solid.",
+      "category": "feature",
+      "tags": [
+        "split",
+        "solid"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.265",
+      "_chunk": 43
+    },
+    {
+      "title": "Split Curves",
+      "body": "Use `om.commands.modify.SplitCurves` to split one or several curves via boundaries or at their NURBS arc joints.",
+      "category": "feature",
+      "tags": [
+        "split",
+        "curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.266",
+      "_chunk": 43
+    },
+    {
+      "title": "Split Faces by Parameter",
+      "body": "Use `om.commands.modify.SplitFacesByParameter` to split faces along isoparametric curves.",
+      "category": "feature",
+      "tags": [
+        "split",
+        "face"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.267",
+      "_chunk": 43
+    },
+    {
+      "title": "Split Faces by Joints",
+      "body": "Use `om.commands.modify.SplitFacesByJoints` to split faces at the NURBS arc joints.",
+      "category": "feature",
+      "tags": [
+        "split",
+        "face"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.267",
+      "_chunk": 43
+    },
+    {
+      "title": "Deform Entities",
+      "body": "Use `om.commands.modify.DeformEntities` to deform selected entities using fixed points and target points.",
+      "category": "feature",
+      "tags": [
+        "deform",
+        "entity"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.267",
+      "_chunk": 43
+    },
+    {
+      "title": "Set initial and target curves for deformation",
+      "body": "Use `initialCurves` and `targetCurves` parameters to specify the starting and ending shapes.",
+      "category": "toolpath",
+      "tags": [
+        "deformation",
+        "curves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "deform"
+      ],
+      "page_ref": "p.268",
+      "_chunk": 44
+    },
+    {
+      "title": "Control continuity of deformed faces",
+      "body": "Set `targetCurvesContinuity` to either POSITION or G1 for tangency constraint.",
+      "category": "toolpath",
+      "tags": [
+        "continuity",
+        "face"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "deform"
+      ],
+      "page_ref": "p.268",
+      "_chunk": 44
+    },
+    {
+      "title": "Invert curve orientation",
+      "body": "Use `invertedCurves` to reverse the direction of selected curves.",
+      "category": "toolpath",
+      "tags": [
+        "curve",
+        "orientation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "deform"
+      ],
+      "page_ref": "p.268",
+      "_chunk": 44
+    },
+    {
+      "title": "Adjust number of iterations for deformation",
+      "body": "Set `nIterations` to control the refinement level of the deformation process.",
+      "category": "toolpath",
+      "tags": [
+        "iteration",
+        "deform"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "deform"
+      ],
+      "page_ref": "p.268",
+      "_chunk": 44
+    },
+    {
+      "title": "Regularize space during deformation",
+      "body": "Enable `regularizeSpace` to ensure even distribution of deformation across the space.",
+      "category": "toolpath",
+      "tags": [
+        "space",
+        "deform"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "deform"
+      ],
+      "page_ref": "p.268",
+      "_chunk": 44
+    },
+    {
+      "title": "Set NURBS tolerance for conversion",
+      "body": "Use `nurbsTolerance` to specify the positional conversion tolerance for NURBS entities.",
+      "category": "toolpath",
+      "tags": [
+        "NURBS",
+        "conversion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "convert"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Specify maximum degree for NURBS conversion",
+      "body": "Set `nurbsMaxDegree` to define the highest degree of NURBS entities.",
+      "category": "toolpath",
+      "tags": [
+        "NURBS",
+        "conversion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "convert"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Skip conversion of existing NURBS entities",
+      "body": "Enable `skipNURBS` to avoid re-converting entities that are already in NURBS format.",
+      "category": "toolpath",
+      "tags": [
+        "NURBS",
+        "conversion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "convert"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Convert entities to analytical geometry",
+      "body": "Use `om.commands.modify.ConvertToAnalytical` to convert NURBS entities into analytical geometry.",
+      "category": "toolpath",
+      "tags": [
+        "NURBS",
+        "conversion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "convert"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Set conversion tolerance for analytical geometry",
+      "body": "Use `conversionTolerance` to specify the precision of the conversion process.",
+      "category": "toolpath",
+      "tags": [
+        "NURBS",
+        "conversion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "convert"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Keep original entities during conversion",
+      "body": "Set `keepOriginal` to true if you want the original entities to be retained after conversion.",
+      "category": "toolpath",
+      "tags": [
+        "conversion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "convert"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Simplify selected entities",
+      "body": "Use `om.commands.modify.Simplify` to reduce the complexity of faces, boundaries, and curves.",
+      "category": "toolpath",
+      "tags": [
+        "simplification"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "simplify"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Set tolerance for simplification",
+      "body": "Use `tolerance` to specify the maximum size of gaps within selected entities.",
+      "category": "toolpath",
+      "tags": [
+        "simplification"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "simplify"
+      ],
+      "page_ref": "p.270",
+      "_chunk": 44
+    },
+    {
+      "title": "Set angular tolerance for curve extension",
+      "body": "angularTolerance: float, optional - controls deviation from mutual tangency; default is 0.1",
+      "category": "toolpath",
+      "tags": [
+        "curve_extension",
+        "tangency"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Modify curve continuity",
+      "body": "MakeContinuityCurve: modifies transition between two curves; parameters include continuity type and propagation",
+      "category": "toolpath",
+      "tags": [
+        "curve_continuity",
+        "transition"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Invert face UV direction",
+      "body": "InvertFaceUV: inverts U and V direction of isoparametric curves; mode options include INVERT_UV, INVERT_V, INVERT_BOTH",
+      "category": "toolpath",
+      "tags": [
+        "face_edit",
+        "uv_inversion"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Trim faces by limits",
+      "body": "TrimFacesByLimits: trims faces at boundaries; parameters include projection direction and forwardOnly mode",
+      "category": "toolpath",
+      "tags": [
+        "face_edit",
+        "trimming"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Trim faces by plane",
+      "body": "TrimFacesByPlane: trims faces at planes; parameters include projection mode and normal direction",
+      "category": "toolpath",
+      "tags": [
+        "face_edit",
+        "trimming"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Untrim faces",
+      "body": "UntrimFaces: restores the domain of trimmed faces; parameters include mode and onlyComplementary flag",
+      "category": "toolpath",
+      "tags": [
+        "face_edit",
+        "untrimming"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Break shapes",
+      "body": "BreakShapes: breaks one or several shapes; parameters include target layer and keepOriginal flag",
+      "category": "toolpath",
+      "tags": [
+        "shape_edit",
+        "breaking"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Modify face continuity",
+      "body": "MakeContinuityFace: modifies transitions between two faces; parameters include continuity type and tension",
+      "category": "toolpath",
+      "tags": [
+        "face_edit",
+        "continuity"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.271",
+      "_chunk": 45
+    },
+    {
+      "title": "Create a point tag",
+      "body": "Use `om.commands.tags.CreatePointTag` with parameters like `name`, `parentCategory`, `description`, `defaultValue`, `readOnlyType`, `readOnlyValues`, `propagate`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag creation",
+        "point tag"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.286",
+      "_chunk": 49
+    },
+    {
+      "title": "Create a real array tag",
+      "body": "Use `om.commands.tags.CreateRealArrayTag` with parameters like `name`, `parentCategory`, `description`, `defaultValue`, `readOnlyType`, `readOnlyValues`, `propagate`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag creation",
+        "real array tag"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.286",
+      "_chunk": 49
+    },
+    {
+      "title": "Create an RGB tag",
+      "body": "Use `om.commands.tags.CreateRgbTag` with parameters like `name`, `parentCategory`, `description`, `defaultValue`, `readOnlyType`, `readOnlyValues`, `propagate`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag creation",
+        "RGB tag"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.286",
+      "_chunk": 49
+    },
+    {
+      "title": "Redefine a tag category",
+      "body": "Use `om.commands.tags.RedefineTagCategory` with parameters like `tag`, `newName`, `newDescription`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag management",
+        "redefine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.287",
+      "_chunk": 49
+    },
+    {
+      "title": "Redefine a keyword tag",
+      "body": "Use `om.commands.tags.RedefineKeywordTag` with parameters like `tag`, `newName`, `newDescription`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag management",
+        "redefine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.287",
+      "_chunk": 49
+    },
+    {
+      "title": "Redefine an integer tag",
+      "body": "Use `om.commands.tags.RedefineIntegerTag` with parameters like `tag`, `newName`, `newDescription`, `newDefaultValue`, `newReadOnlyValues`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag management",
+        "redefine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.287",
+      "_chunk": 49
+    },
+    {
+      "title": "Redefine a real tag",
+      "body": "Use `om.commands.tags.RedefineRealTag` with parameters like `tag`, `newName`, `newDescription`, `newDefaultValue`, `newReadOnlyValues`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag management",
+        "redefine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.287",
+      "_chunk": 49
+    },
+    {
+      "title": "Redefine a text tag",
+      "body": "Use `om.commands.tags.RedefineTextTag` with parameters like `tag`, `newName`, `newDescription`, `newDefaultValue`, `newReadOnlyValues`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag management",
+        "redefine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.287",
+      "_chunk": 49
+    },
+    {
+      "title": "Redefine a boolean tag",
+      "body": "Use `om.commands.tags.RedefineBooleanTag` with parameters like `tag`, `newName`, `newDescription`, `newDefaultValue`, `newReadOnlyValues`, and `warnings`.",
+      "category": "other",
+      "tags": [
+        "tag management",
+        "redefine"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.287",
+      "_chunk": 49
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/OPEN MIND/Shared/33.0/python/docs/py_cadcam_api.pdf",
+    "title": "py_cadcam_api",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 389,
+    "chunk_count": 66,
+    "tips_total": 64,
+    "tips_unique": 64,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}

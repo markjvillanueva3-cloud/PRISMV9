@@ -1,0 +1,940 @@
+{
+  "tips": [
+    {
+      "title": "Open a part file and assign a machine definition",
+      "body": "Start Mastercam, select the default metric configuration file, open the part file 'single_contour.mcam', and choose a wire EDM machine definition.",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.8-10",
+      "_chunk": 1
+    },
+    {
+      "title": "Create a contour toolpath with a single contour",
+      "body": "On the Wireframe tab, choose Point Position and select ThreadPoint to create a thread point for the tool path.",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.10",
+      "_chunk": 1
+    },
+    {
+      "title": "Define stock model for better visualization",
+      "body": "In the ToolpathsManager, expand Properties under MachineGroup, click Stock Setup, and enter stock dimensions (Y75, X75, Z10) and origin (Z10).",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.12-13",
+      "_chunk": 1
+    },
+    {
+      "title": "Select geometry for toolpaths (chaining)",
+      "body": "On the Wirepathstab, choose Contour and chain wireframe geometry by selecting the thread point as the first chain and the gear shape as the second chain.",
+      "category": "toolpath",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.14-15",
+      "_chunk": 1
+    },
+    {
+      "title": "Break closest entity to thread point",
+      "body": "This option breaks the entity closest to the thread point into two pieces, starting the toolpath with a perpendicular move.",
+      "category": "toolpath",
+      "tags": [
+        "chaining",
+        "threading"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Set compensation type to Computer",
+      "body": "This option computes the compensated wire path and does not output control codes for compensation, allowing you to see a more accurate representation of the toolpath motion.",
+      "category": "toolpath",
+      "tags": [
+        "compensation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Set rapid height, UV trim plane, and UV height",
+      "body": "Set the rapid height to 15.0, the UV trim plane, and the UV height to 15.0.",
+      "category": "toolpath",
+      "tags": [
+        "heights"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Set wire diameter for Pass 1",
+      "body": "Enter 0.2 for the wire diameter in Pass 1.",
+      "category": "toolpath",
+      "tags": [
+        "diameter",
+        "pass"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Set wire overburn for Pass 1",
+      "body": "Enter 0.035 for the wire overburn in Pass 1.",
+      "category": "toolpath",
+      "tags": [
+        "overburn",
+        "pass"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.22",
+      "_chunk": 2
+    },
+    {
+      "title": "Set additional skim cuts before tab",
+      "body": "Enter 3 for the number of additional skim cuts before tab.",
+      "category": "toolpath",
+      "tags": [
+        "skim",
+        "tab"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Set tab width",
+      "body": "Enter 1.0 for the tab width.",
+      "category": "toolpath",
+      "tags": [
+        "tab",
+        "width"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Set cutting method to Reverse",
+      "body": "Select the Reverse cutting method.",
+      "category": "toolpath",
+      "tags": [
+        "cutting",
+        "method"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2
+    },
+    {
+      "title": "Set lead-in and lead-out moves",
+      "body": "Select Line and arc for the lead-in, and Arc and line for the lead-out.",
+      "category": "toolpath",
+      "tags": [
+        "lead",
+        "moves"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 2
+    },
+    {
+      "title": "Set arc radius and sweep for entry and exit moves",
+      "body": "Enter 0.125 for the arc radius and 60 for the arc sweep.",
+      "category": "toolpath",
+      "tags": [
+        "arc",
+        "radius"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 2
+    },
+    {
+      "title": "Set max lead-out distance",
+      "body": "Enter 0.3 for the max lead-out distance.",
+      "category": "toolpath",
+      "tags": [
+        "lead",
+        "out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 2
+    },
+    {
+      "title": "Select multiple contours",
+      "body": "Select multiple contours in the ToolpathsManager.",
+      "category": "toolpath",
+      "tags": [
+        "multiple",
+        "contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 2
+    },
+    {
+      "title": "Create multiple tabs and stops",
+      "body": "Create multiple tabs and stops in the ToolpathsManager.",
+      "category": "toolpath",
+      "tags": [
+        "tabs",
+        "stops"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 2
+    },
+    {
+      "title": "Change stock origin Z coordinate",
+      "body": "Set to 10.",
+      "category": "machine_setup",
+      "tags": [
+        "stock setup"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3
+    },
+    {
+      "title": "Select display and fit screen",
+      "body": "Show stock boundaries and include them when using the Fit to Screen function.",
+      "category": "machine_setup",
+      "tags": [
+        "display",
+        "fit screen"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3
+    },
+    {
+      "title": "Save part under a different filename",
+      "body": "Protect the original tutorial file from being overwritten.",
+      "category": "machine_setup",
+      "tags": [
+        "backup"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 3
+    },
+    {
+      "title": "Select multiple contour geometry using window chaining",
+      "body": "Quickly select multiple parts by clicking Window on the Chaining dialog box.",
+      "category": "toolpath",
+      "tags": [
+        "window chaining"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 3
+    },
+    {
+      "title": "Set tab width for contour milling",
+      "body": "Enter 2.0 for the tab width to keep it from dropping out of stock.",
+      "category": "toolpath",
+      "tags": [
+        "tab width"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.33",
+      "_chunk": 3
+    },
+    {
+      "title": "Select skim cut for contour milling",
+      "body": "Set Maketabcutoffmovewithskimcut to make the toolpath motion more efficient.",
+      "category": "toolpath",
+      "tags": [
+        "skim cut"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.33",
+      "_chunk": 3
+    },
+    {
+      "title": "Add finish pass after tab cutting",
+      "body": "Select Skimcutsaftertab to add a finish pass after cutting the tab.",
+      "category": "toolpath",
+      "tags": [
+        "finish pass"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.33",
+      "_chunk": 3
+    },
+    {
+      "title": "Select compensation type and direction",
+      "body": "Set the compensation type to Computer and the compensation direction to Left.",
+      "category": "toolpath",
+      "tags": [
+        "compensation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Add stop code for each tab cut",
+      "body": "Select Foreachtab to add a stop code before the tab cut on each chain and Asgluestopto add them as optional stops.",
+      "category": "toolpath",
+      "tags": [
+        "stop code"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Set lead in and out parameters",
+      "body": "Select Lineandarc for the leadin and Arcandline for the leadout. Enter 0.5 for the arc radius and 90 for the arcsweep on entry and exit moves.",
+      "category": "toolpath",
+      "tags": [
+        "lead in",
+        "lead out"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Set overlap for contour milling",
+      "body": "Enter 0.02 for the overlap to eliminate potential burrs by overlapping the start and end of the contour by the entered amount.",
+      "category": "toolpath",
+      "tags": [
+        "overlap"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Set taper parameters for contour milling",
+      "body": "Select Taper and set the Rapidheight, UVtrim plane, and UVheight to 20.0.",
+      "category": "toolpath",
+      "tags": [
+        "taper"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 3
+    },
+    {
+      "title": "Sort chains in Chain Manager",
+      "body": "Select the Y+X option to sort the chains from right to left.",
+      "category": "toolpath",
+      "tags": [
+        "chain sorting"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 3
+    },
+    {
+      "title": "Verify toolpath using Mastercam Simulator",
+      "body": "Simulate material removal in addition to tool motion.",
+      "category": "verification",
+      "tags": [
+        "toolpath verification"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 3
+    },
+    {
+      "title": "Zoom window in Mastercam Simulator",
+      "body": "Draw a window around the center part to look at the results more closely.",
+      "category": "verification",
+      "tags": [
+        "zoom window"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 3
+    },
+    {
+      "title": "Remove chips in Mastercam Simulator",
+      "body": "Click Remove Chipson the Verify tab and then click on the middle part to see the slug dropout of the stock.",
+      "category": "verification",
+      "tags": [
+        "chip removal"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.39",
+      "_chunk": 3
+    },
+    {
+      "title": "Select thread points for NoCore toolpaths",
+      "body": "Move cursor to the end of a slot and select the center of an arc using Mastercam\u2019s AutoCursor.",
+      "category": "toolpath",
+      "tags": [
+        "thread point"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "NoCore"
+      ],
+      "page_ref": "p.42",
+      "_chunk": 3
+    },
+    {
+      "title": "Define thread points for NoCore toolpaths",
+      "body": "Select four points close together to reduce travel time between slots.",
+      "category": "toolpath",
+      "tags": [
+        "thread point"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "NoCore"
+      ],
+      "page_ref": "p.42",
+      "_chunk": 3
+    },
+    {
+      "title": "Set stock shape for NoCore toolpaths",
+      "body": "Select Cylindrical in the Shapes section and select Z as the cylinder axis.",
+      "category": "machine_setup",
+      "tags": [
+        "stock setup"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "NoCore"
+      ],
+      "page_ref": "p.44",
+      "_chunk": 3
+    },
+    {
+      "title": "Set stock dimensions for NoCore toolpaths",
+      "body": "Enter 30 for the cylinder height and 40 for the diameter.",
+      "category": "machine_setup",
+      "tags": [
+        "stock setup"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "NoCore"
+      ],
+      "page_ref": "p.44",
+      "_chunk": 3
+    },
+    {
+      "title": "Select closed shape for NoCore toolpaths",
+      "body": "All chains (except thread points) must be a closed shape for NoCore toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "closed shape"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "NoCore"
+      ],
+      "page_ref": "p.45",
+      "_chunk": 3
+    },
+    {
+      "title": "Select NoCore toolpaths",
+      "body": "Choose 'NoCore' on the Wirepath tab.",
+      "category": "toolpath",
+      "tags": [
+        "no_core",
+        "wire_path"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 4
+    },
+    {
+      "title": "Set rapid height and UV trim plane",
+      "body": "Set Rapidheight, UVtrimplane, and UVheight to 40.0.",
+      "category": "toolpath",
+      "tags": [
+        "rapid_height",
+        "uv_trim_plane"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Select Parallel Spiral for roughing",
+      "body": "Choose 'ParallelSpiral' as the cutting method for the rough pass.",
+      "category": "toolpath",
+      "tags": [
+        "parallel_spiral",
+        "roughing"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Enable finish pass for finishing",
+      "body": "Select 'Finish' in the TreeView pane and enable the default finish pass parameters.",
+      "category": "toolpath",
+      "tags": [
+        "finish_pass",
+        "finishing"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Set compensation type for finish pass",
+      "body": "Select 'Computer' as the compensation type for the finish pass.",
+      "category": "toolpath",
+      "tags": [
+        "compensation_type",
+        "finish_pass"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Start finish pass at closest entity",
+      "body": "Select 'Startpassatclosestentity' to start the finish pass with the closest endpoint of the closest entity.",
+      "category": "toolpath",
+      "tags": [
+        "start_pass",
+        "finish_pass"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Generate toolpath and save part file",
+      "body": "Click OK to generate the toolpath and save your part file.",
+      "category": "toolpath",
+      "tags": [
+        "generate_toolpath",
+        "save_file"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 4
+    },
+    {
+      "title": "Quick verify backplot",
+      "body": "Select 'Quickverify' from the Backplot dialog box to display a shaded path.",
+      "category": "backplot",
+      "tags": [
+        "quick_verify",
+        "backplot"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.48",
+      "_chunk": 4
+    },
+    {
+      "title": "Play backplot to check material removal",
+      "body": "Click Play to run the backplot and confirm that all slots are machined completely.",
+      "category": "backplot",
+      "tags": [
+        "play_backplot",
+        "material_removal"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.48",
+      "_chunk": 4
+    },
+    {
+      "title": "Import 4-axis machine",
+      "body": "Copy the required files to the specified folders to import the 4-axis machine.",
+      "category": "machine_setup",
+      "tags": [
+        "import_machine",
+        "4_axis"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "4axis"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 4
+    },
+    {
+      "title": "Select 4-axis machine definition",
+      "body": "Choose a different machinedefinition from the Machine tab for 4-axis toolpath creation.",
+      "category": "machine_setup",
+      "tags": [
+        "select_machine",
+        "4_axis"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "4axis"
+      ],
+      "page_ref": "p.53",
+      "_chunk": 4
+    },
+    {
+      "title": "Set up 4-axis stock",
+      "body": "Enter cylindrical values for the stock setup in the ToolpathsManager.",
+      "category": "stock_setup",
+      "tags": [
+        "set_up_stock",
+        "4_axis"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "4axis"
+      ],
+      "page_ref": "p.55",
+      "_chunk": 4
+    },
+    {
+      "title": "Select 4-axis geometry",
+      "body": "Change geometry to two planes: XY and UV, using synchronization methods like 'ByEntity'.",
+      "category": "toolpath",
+      "tags": [
+        "select_geometry",
+        "4_axis"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "4axis"
+      ],
+      "page_ref": "p.57",
+      "_chunk": 4
+    },
+    {
+      "title": "Set power settings for 4-axis toolpath",
+      "body": "Select 'Rough&2 skim(s)' from the Sequencedrop-downlist in the Technology Databasedialogbox.",
+      "category": "toolpath",
+      "tags": [
+        "set_power",
+        "4_axis"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "4axis"
+      ],
+      "page_ref": "p.60",
+      "_chunk": 4
+    },
+    {
+      "title": "Set UV and XY tabs to be the same size",
+      "body": "Enter 1.5 for the XY Tab Width in the Tabs section.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "toolpaths"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 5
+    },
+    {
+      "title": "Choose Compensation from the TreeView pane",
+      "body": "Set the compensation type to Computer and direction to Left.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "compensation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 5
+    },
+    {
+      "title": "Add stop codes before the first tab cut on each chain",
+      "body": "Select Foreach tab to add a stop code and As glue stop to add them as optional stops.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "stops"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 5
+    },
+    {
+      "title": "Select Line and arc for the lead-in, Arc and line for the lead-out",
+      "body": "Choose Leads from the TreeView pane.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "leads"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.61",
+      "_chunk": 5
+    },
+    {
+      "title": "Backplot your tool motion in the same MastercamSimulator window",
+      "body": "Click Verify selected operations at the top of the Toolpaths Manager.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 5
+    },
+    {
+      "title": "Enable vectors to view 4-axis wire positions",
+      "body": "Click the Backplottab and select Enable Vectors.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 5
+    },
+    {
+      "title": "Run the backplot to see the wire move around the part",
+      "body": "Click Play at the bottom of the Simulator window.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 5
+    },
+    {
+      "title": "View the final part shapes to compare with tool motion",
+      "body": "Click Workpiece to toggle between different shades of translucency.",
+      "category": "toolpath",
+      "tags": [
+        "4-axis",
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 5
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Mastercam_Wire_EDM_Tutorial_2017.pdf",
+    "title": "Mastercam_Wire_EDM_Tutorial_2017",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 68,
+    "chunk_count": 5,
+    "tips_total": 61,
+    "tips_unique": 60,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}

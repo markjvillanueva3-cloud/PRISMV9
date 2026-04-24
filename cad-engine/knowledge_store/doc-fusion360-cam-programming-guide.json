@@ -1,0 +1,464 @@
+{
+  "tips": [
+    {
+      "title": "Select model body or component for machining",
+      "body": "Ensure the correct part is selected in the CAM setup to limit toolpath motion.",
+      "category": "workholding",
+      "tags": [
+        "model selection",
+        "toolpath containment"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2D Milling",
+        "3D Milling"
+      ],
+      "page_ref": "p.5",
+      "_chunk": 1
+    },
+    {
+      "title": "Use Pocket/Contour Selections for 2D milling",
+      "body": "Select areas in which the tool can move (Pocket Selections) and areas that need material removed (Stock Contours).",
+      "category": "toolpath",
+      "tags": [
+        "2D Milling",
+        "Pocket Selections",
+        "Stock Contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2D Milling"
+      ],
+      "page_ref": "p.5",
+      "_chunk": 1
+    },
+    {
+      "title": "Use Machining Boundaries for 3D milling",
+      "body": "Limit toolpath motion to a particular area using Machining Boundaries (tool inside, center on, or outside boundary).",
+      "category": "toolpath",
+      "tags": [
+        "3D Milling",
+        "Machining Boundaries"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "3D Milling"
+      ],
+      "page_ref": "p.8",
+      "_chunk": 1
+    },
+    {
+      "title": "Avoid using Stock Contours if not necessary",
+      "body": "If machining of only the pocket selection is desired, avoid defining Stock Contours for more efficient toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "2D Milling",
+        "Stock Contours"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2D Milling"
+      ],
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Use Slope containment for 3D finishing",
+      "body": "Limit motion by applying an allowable range of surface angles to the toolpath in all 3D finishing toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "3D Finishing",
+        "Slope Containment"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "3D Milling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 1
+    },
+    {
+      "title": "Use Model selections for interference avoidance",
+      "body": "Recognize bodies or surfaces by 3D toolpaths without adding them to the CAM Setup to avoid interference.",
+      "category": "toolpath",
+      "tags": [
+        "Model Selections",
+        "Interference Avoidance"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "3D Milling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 1
+    },
+    {
+      "title": "Use Avoid/touch for multi-axis toolpaths",
+      "body": "Define surfaces to be machined or avoided during machining, avoiding the need for boundaries along the Z-axis.",
+      "category": "toolpath",
+      "tags": [
+        "Multi-Axis Toolpaths",
+        "Avoid/Touch"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "3D Milling"
+      ],
+      "page_ref": "p.7",
+      "_chunk": 1
+    },
+    {
+      "title": "Avoid surfaces during multi-axis toolpaths",
+      "body": "Use 'Avoid Surfaces' in 3D strategies to prevent construction or fixture bodies from being machined.",
+      "category": "toolpath",
+      "tags": [
+        "multi-axis",
+        "avoidance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 2
+    },
+    {
+      "title": "Automatic containment for Pencil and Horizontal toolpaths",
+      "body": "Pencil and Horizontal toolpaths use automatic containment, looking for internal fillets within a range defined by the tool size plus/minus the 'Overthickness' parameter.",
+      "category": "toolpath",
+      "tags": [
+        "Pencil",
+        "Horizontal",
+        "containment"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 2
+    },
+    {
+      "title": "Rest Machining limits toolpaths based on stock definition options",
+      "body": "Rest Machining removes only remaining stock based on various stock definition options.",
+      "category": "toolpath",
+      "tags": [
+        "Rest Machining",
+        "stock"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 2
+    },
+    {
+      "title": "Set cutting passes between Top and Bottom height definitions",
+      "body": "Limiting toolpaths along the Z-axis is done in the Heights tab for all milling toolpaths, generating passes between defined Top and Bottom heights.",
+      "category": "toolpath",
+      "tags": [
+        "heights",
+        "cutting passes"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 2
+    },
+    {
+      "title": "Select closed loops for model edges or sketch contours",
+      "body": "Fusion 360 defaults to selecting closed loops when choosing model edges or sketch contours.",
+      "category": "toolpath",
+      "tags": [
+        "closed loops"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 2
+    },
+    {
+      "title": "Edit selections using the Contour Editor",
+      "body": "Access the Contour Editor by hovering over a selection and clicking it again to edit model edges or sketch contours.",
+      "category": "toolpath",
+      "tags": [
+        "Contour Editor"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12",
+      "_chunk": 2
+    },
+    {
+      "title": "Tolerance parameter controls mesh accuracy for toolpath generation",
+      "body": "The Tolerance parameter in Fusion 360 determines the allowable variance between true model geometry and the mesh as a chord distance.",
+      "category": "toolpath",
+      "tags": [
+        "tolerance",
+        "mesh"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Smoothing parameter fits arc moves to toolpath within specified tolerance",
+      "body": "The Smoothing parameter in Fusion 360 adjusts the number of linear segments used for arcs, balancing output size, accuracy, and generation time.",
+      "category": "toolpath",
+      "tags": [
+        "smoothing",
+        "arcs"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 2
+    },
+    {
+      "title": "Troubleshooting toolpaths involves identifying, isolating, experimenting, and resolving issues",
+      "body": "Fusion 360 provides tools for troubleshooting CAM programs, including the Compare and Edit dialog to isolate variables.",
+      "category": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "Compare and Edit"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14",
+      "_chunk": 2
+    },
+    {
+      "title": "Toolpath warnings indicate changes to heights, ramping moves, or entry positions",
+      "body": "Warnings in Fusion 360 may indicate that toolpaths were automatically adjusted, such as lifting retract and clearance planes.",
+      "category": "troubleshooting",
+      "tags": [
+        "warnings",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Toolpath errors occur when toolpaths cannot be generated with current parameters",
+      "body": "Errors in Fusion 360 indicate issues like missing selections, irresolvable parameters, or unexpected errors during toolpath generation.",
+      "category": "troubleshooting",
+      "tags": [
+        "errors",
+        "missing selections"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2
+    },
+    {
+      "title": "Failed NC output occurs when post-processor cannot translate toolpath information",
+      "body": "A '.failed' file extension on the NC output file indicates that the post-processor is unable to translate Fusion 360 toolpath information into g-code.",
+      "category": "troubleshooting",
+      "tags": [
+        "NC output",
+        "post-processor"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 2
+    },
+    {
+      "title": "Use Compare and Edit to isolate variables in troubleshooting",
+      "body": "The Compare and Edit tool allows for easy identification of parameter differences between multiple toolpaths, aiding in troubleshooting.",
+      "category": "troubleshooting",
+      "tags": [
+        "Compare and Edit"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 2
+    },
+    {
+      "title": "Use Compare and Edit to identify parameter differences",
+      "body": "Apply the 'different' toolpath parameters filter in the Compare and Edit dialog to isolate variables with different values.",
+      "category": "toolpath",
+      "tags": [
+        "Compare and Edit",
+        "parameter comparison"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.19",
+      "_chunk": 3
+    },
+    {
+      "title": "Adjust Minimum Cutting Radius (MCR) for efficient toolpaths",
+      "body": "Set a non-zero MCR value to prevent sharp corners and minimize chatter, while avoiding material removal in certain areas.",
+      "category": "toolpath",
+      "tags": [
+        "MCR",
+        "toolpath optimization"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 3
+    },
+    {
+      "title": "Create derived operations for alternative toolpaths",
+      "body": "Right-click any existing operation in the MFG browser and select 'Create Derived Operation' to quickly create alternative strategies while maintaining the same parameters.",
+      "category": "toolpath",
+      "tags": [
+        "derived operations",
+        "alternative strategies"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 3
+    },
+    {
+      "title": "Use defeatured models for cleaner roughing results",
+      "body": "Simplify models during the initial design process to avoid rollover and ensure clean results on curved walls.",
+      "category": "toolpath",
+      "tags": [
+        "defeatured models",
+        "clean toolpaths"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.25",
+      "_chunk": 3
+    },
+    {
+      "title": "Avoid dropping into holes during surfacing operations",
+      "body": "Create a patch surface with curvature (G2) boundaries to force the toolpath to machine over the hole, avoiding unwanted drop-in.",
+      "category": "toolpath",
+      "tags": [
+        "patch surfaces",
+        "avoiding drops"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.27",
+      "_chunk": 3
+    },
+    {
+      "title": "Use a machining boundary for side entry",
+      "body": "Create a machining boundary with 'Tool inside boundary' condition to avoid wraparound and air cutting on upper passes.",
+      "category": "toolpath",
+      "tags": [
+        "side_entry",
+        "wraparound"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "3D_operation"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 4
+    },
+    {
+      "title": "Adjust toolpath tolerance for clean machining",
+      "body": "Reduce toolpath tolerance to 0.002\" from default 0.004\" to avoid issues with faceting in imported models.",
+      "category": "toolpath",
+      "tags": [
+        "tolerance",
+        "faceting"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "3D_operation"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4
+    },
+    {
+      "title": "Use UV Diagnostic Tools for surface quality issues",
+      "body": "Access 'Texture Map Controls' and set Display Mode to 'UV Diagnostic Texture' to investigate inconsistencies in toolpath passes.",
+      "category": "toolpath",
+      "tags": [
+        "surface_quality",
+        "uv_diagnostic"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "3D_operation"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 4
+    },
+    {
+      "title": "Create a new surface to clean up UV isolines",
+      "body": "Use lofted t-spline/sculpted/form surfaces to create a cleaner surface that improves toolpath quality.",
+      "category": "toolpath",
+      "tags": [
+        "surface_cleaning",
+        "loft"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "3D_operation"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 4
+    },
+    {
+      "title": "Experiment with number of faces for accurate loft",
+      "body": "Adjust the number of faces in the loft to match the original model geometry accurately.",
+      "category": "toolpath",
+      "tags": [
+        "loft",
+        "face_count"
+      ],
+      "confidence": 75,
+      "material_groups": null,
+      "operation_types": [
+        "3D_operation"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 4
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/resources/PDF/CAM-Training-Downloaded/Fusion360-CAM-Programming-Guide.pdf",
+    "title": "Fusion360-CAM-Programming-Guide",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 40,
+    "chunk_count": 4,
+    "tips_total": 30,
+    "tips_unique": 30,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}
