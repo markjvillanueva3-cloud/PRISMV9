@@ -449,7 +449,7 @@ export class PPValidatorAGIWiringEngine {
         if (sMatch && context.tool_diameter_mm) {
           const rpm = parseInt(sMatch[1]);
           const vc = (Math.PI * toolDia * rpm) / 1000;
-          const taylor = CANONICAL_TAYLOR.n[isoGroup];
+          const taylor = CANONICAL_TAYLOR[isoGroup]?.n;
           const optVc = isoGroup === "N" ? 400 : isoGroup === "S" ? 40 : 200;
           physicsCtx = `Vc=${vc.toFixed(0)} m/min, Taylor n=${taylor}, optimal Vc=${optVc} m/min`;
           if (vc > optVc * 1.5) {
