@@ -345,6 +345,10 @@ class HookExecutorEngine {
     results: HookResult[];
     blockingHook?: string;
     message?: string;
+    /** Alias for blockingHook — 14+ dispatchers read `result.blockedBy`. */
+    blockedBy?: string;
+    /** Alias for message — dispatchers render `result.summary` in error payloads. */
+    summary?: string;
   }> {
     const phaseHooks = this.hooks.get(phase) || [];
     const enabledHooks = phaseHooks.filter(h => h.enabled);
@@ -380,7 +384,9 @@ class HookExecutorEngine {
             blocked: true,
             results,
             blockingHook: hook.id,
+            blockedBy: hook.id,
             message: result.message,
+            summary: result.message,
           };
         }
 
