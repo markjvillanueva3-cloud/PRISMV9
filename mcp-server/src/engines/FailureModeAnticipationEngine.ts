@@ -1,4 +1,4 @@
-// WIRE-EXEMPT: U-EFF30 only added optional field aliases (failureMode/physicsRationale/mitigation) to the FailurePrediction interface; engine is consumed by AdaptiveSystemIntegrationEngine, not directly dispatched.
+// Wired: prism_dev.{failure_risk_analyze, failure_modes_list, failure_mode_get, failure_cascade_chain} (devDispatcher.ts). Also consumed by AdaptiveSystemIntegrationEngine.
 /**
  * FailureModeAnticipationEngine — Predictive Failure Analysis
  *

@@ -256,9 +256,15 @@ export interface CADExecutionResult {
     vertexCount?: number;
     massKg?: number;
     surfaceAreaMm2?: number;
+    /** Number of top-level solid bodies in the assembly (Fusion360). */
+    bodyCount?: number;
+    /** Count of feature-tree operations applied (Inventor CAD). */
+    operationCount?: number;
   };
   /** Artifacts written to disk (STEP/STL/DXF exports, NC files, logs). */
   outputs?: ReadonlyArray<{ path: string; kind: string; bytes?: number }>;
+  /** Legacy alias for `outputs` used by HyperCADS generator — flat string[] of paths. */
+  outputFiles?: string[];
   /** Full stdout/stderr for debugging, truncated to 64 KiB by convention. */
   log?: string;
 }
@@ -294,6 +300,8 @@ export interface CADCapabilityMatrix {
   typicalLatencyMs: number;
   /** Any op-specific limits (e.g. max loft profiles, max fillet radius). */
   limits?: Record<string, number>;
+  /** Optional host software version (e.g. "Fusion360 2.0.19401"). Informational. */
+  version?: string;
 }
 
 // ── The interface itself ───────────────────────────────────────────────────

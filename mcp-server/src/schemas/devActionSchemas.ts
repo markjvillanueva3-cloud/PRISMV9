@@ -188,4 +188,38 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   }),
 
   schema_migrations_list: z.object({}).optional(),
+
+  // PSAU-FORESIGHT predictive failure analysis (FailureModeAnticipationEngine)
+  failure_risk_analyze: z.object({
+    conditions: z.object({
+      toolWearPercent: z.number().min(0).max(100),
+      toolOverhangRatio: z.number().nonnegative(),
+      toolGradeMatch: z.number().min(0).max(1),
+      cuttingForce: z.number().nonnegative(),
+      spindleLoad: z.number().min(0).max(200),
+      vibrationLevel: z.number().nonnegative(),
+      temperature: z.number(),
+      clampingForce: z.number().nonnegative(),
+      cuttingForceRequired: z.number().nonnegative(),
+      fixtureRigidity: z.number().min(0).max(1),
+      machineHours: z.number().nonnegative(),
+      spindleCondition: z.number().min(0).max(100),
+      lastMaintenance: z.number().nonnegative(),
+      materialHardness: z.number(),
+      materialAbrasivity: z.number().min(0).max(1),
+      engagementPercent: z.number().min(0).max(100),
+      depthOfCut: z.number().nonnegative(),
+      programVerified: z.boolean(),
+    }).describe("Full 18-factor condition set driving failure prediction"),
+  }),
+
+  failure_modes_list: z.object({}).optional(),
+
+  failure_mode_get: z.object({
+    id: z.string().min(1).describe("Failure mode identifier"),
+  }),
+
+  failure_cascade_chain: z.object({
+    failureId: z.string().min(1).describe("Root failure mode id to trace cascade from"),
+  }),
 };
