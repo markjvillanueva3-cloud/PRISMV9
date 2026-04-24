@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF28 fixed only a Taylor-table indexing typo (CANONICAL_TAYLOR.n[iso] → [iso]?.n); engine wires 50+ validators internally and is driven by the PP pipeline, not dispatched directly.
 /**
  * PPValidatorAGIWiringEngine — AGI Orchestration for 50+ PP Validators
  *

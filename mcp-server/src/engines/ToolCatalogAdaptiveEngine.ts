@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF28 renamed one method call (recommendTool→recommend); engine is consumed by the Phase 0.26 adaptive chain, not directly dispatched.
 /**
  * ToolCatalogAdaptiveEngine — Connects Tool Catalog to Phase 0.26 Adaptive System
  *

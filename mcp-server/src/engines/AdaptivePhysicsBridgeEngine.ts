@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF30 only added optional aliases to AdaptiveSpindleAnalysis/AdaptiveWearAnalysis; engine is a physics-layer bridge consumed by AdaptiveSystemIntegrationEngine, not directly dispatched.
 /**
  * AdaptivePhysicsBridgeEngine — Bridges Existing Physics to Phase 0.26 Adaptive System
  *
@@ -85,6 +86,8 @@ export interface AdaptiveSpindleAnalysis {
   adaptiveFeedMultiplier: number; // 0.5 to 1.5
   breakageRisk: number; // 0-1
   recommendations: string[];
+  /** Current measured spindle load — mirrors loadPercentage for callers that want an absolute reading. */
+  currentLoad?: number;
 }
 
 export interface AdaptiveWearAnalysis {
@@ -94,6 +97,8 @@ export interface AdaptiveWearAnalysis {
   failureModeRisk: Record<string, number>;
   recommendations: string[];
   adaptations: WearAdaptation[];
+  /** Current flank wear land width (VB) in millimetres — mirrors wearProgression.flankWearVB for callers that want a flat field. */
+  currentVB_mm?: number;
 }
 
 export interface WearAdaptation {

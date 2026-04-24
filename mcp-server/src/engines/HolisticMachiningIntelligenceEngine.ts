@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF29 only widened the ChipState interface (added optional chipType alias); engine is a shared type surface for Phase 0.26 adaptive engines and is not directly dispatched.
 /**
  * HolisticMachiningIntelligenceEngine — Total Process Intelligence
  *
