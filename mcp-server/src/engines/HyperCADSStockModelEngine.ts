@@ -336,7 +336,7 @@ const hyperCADSImportValidation: HookDefinition = {
  * Call this once at server startup.
  */
 export function registerHyperCADSHooks(): void {
-  hookExecutor.registerMany([hyperCADSImportValidation]);
+  hookExecutor.register(hyperCADSImportValidation);
 }
 
 // Auto-register on module load

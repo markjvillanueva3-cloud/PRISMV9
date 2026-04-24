@@ -263,7 +263,7 @@ eventBus.registerAction("update_capacity_forecast", async (params) => {
 
     // Get current load for machine
     const period = getCurrentPeriod();
-    const loads = capacityPlanningEngine.getMachineLoads(period);
+    const loads = capacityPlanningEngine.getAllMachineLoads();
     const machineLoad = loads.find(l => l.machine_id === machine_id);
 
     if (!machineLoad) {
@@ -282,7 +282,7 @@ eventBus.registerAction("update_capacity_forecast", async (params) => {
     });
 
     // Get updated load
-    const newLoads = capacityPlanningEngine.getMachineLoads(period);
+    const newLoads = capacityPlanningEngine.getAllMachineLoads();
     const newMachineLoad = newLoads.find(l => l.machine_id === machine_id);
 
     const capacityPayload: CapacityUpdatedPayload = {
@@ -324,11 +324,7 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
 
     // Trigger schedule optimization
     // Note: This is a simplified version - full implementation would use the schedule_optimize action
-    const result = schedulingEngine.scheduleJobs?.({
-      jobs: [],  // Re-optimize existing schedule
-      machines: [],
-      strategy: "balanced",
-    });
+    const result = schedulingEngine.schedule([], [], "balanced");
 
     const elapsed = Date.now() - startTime;
 

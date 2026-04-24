@@ -138,6 +138,17 @@ export interface HookContext {
   metadata?: Record<string, unknown>;
   /** Session ID if available */
   sessionId?: string;
+  /**
+   * Rich session snapshot passed in by lifecycle hooks — optional so older
+   * call sites that only know sessionId keep type-checking.
+   */
+  session?: {
+    id?: string;
+    toolCalls?: unknown;
+    checkpoints?: unknown;
+    bufferZone?: unknown;
+    [key: string]: unknown;
+  };
   /** Timestamp */
   timestamp?: string;
   /** User ID if available */

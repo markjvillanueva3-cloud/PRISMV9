@@ -165,3 +165,39 @@ export const JM_DIE_CUSTOMER_COUNT = JM_DIE_CUSTOMERS.length;
 
 export type JMDieCustomer = (typeof JM_DIE_CUSTOMERS)[number];
 export type JMDieMachinePath = keyof typeof JM_DIE_MACHINE_PATHS;
+
+// ============================================================================
+// CONTROLLER MAP (U-EFF28: added so CAMPost* engines type-check; legacy
+// data will be backfilled by the shop-controller ingestion pipeline)
+// ============================================================================
+
+/**
+ * One row per physical machine on the JM Die shop floor, pairing it with
+ * its controller family/model and the CAM post-processor registered for it.
+ * `post_processor` paths are relative to JM_DIE_SOURCE_ROOTS.controllers_root.
+ */
+export interface MachineControllerPair {
+  machine_id: string;
+  machine_name: string;
+  controller_family: string;
+  controller_model: string;
+  post_processor?: string;
+}
+
+/**
+ * Where shared controller assets (post-processor files, macro libraries,
+ * cycle catalogs) live on disk. Populated as the ingest pipeline maps them.
+ */
+export const JM_DIE_SOURCE_ROOTS = {
+  controllers_root: "H:\\PRISM\\JM DIE\\CONTROLLERS",
+  posts_root: "H:\\PRISM\\JM DIE\\POSTS",
+  macros_root: "H:\\PRISM\\JM DIE\\MACROS",
+} as const;
+
+/**
+ * Authoritative JM Die controller inventory. Start with an empty array —
+ * downstream engines treat `resolveMachine(id) === null` as "unknown" and
+ * surface an actionable error, so missing rows degrade gracefully. Rows
+ * are added as machines are onboarded via `/machine-harden`.
+ */
+export const JM_DIE_CONTROLLER_MAP: readonly MachineControllerPair[] = [] as const;
