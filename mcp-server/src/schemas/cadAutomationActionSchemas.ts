@@ -576,6 +576,101 @@ const feature_tree_recompute_signature = z
 const feature_tree_canonical_types = z.object({}).passthrough();
 
 const feature_tree_source_formats = z.object({}).passthrough();
+
+// ─── Native parsers (U-CGT01 FCStd, U-CGT02 F3D / CAD-GROUND-TRUTH-MS0) ───
+
+const fcstd_parse = z
+  .object({ filePath: z.string().min(1) })
+  .passthrough();
+
+const f3d_parse = z
+  .object({ filePath: z.string().min(1) })
+  .passthrough();
+
+const f3z_parse = z
+  .object({ filePath: z.string().min(1) })
+  .passthrough();
+
+// ─── Dimensional signature (U-CGT05 / CAD-GROUND-TRUTH-MS0) ──────────────
+
+const dim_signature_extract = z
+  .object({ filePath: z.string().min(1) })
+  .passthrough();
+
+const dim_signature_extract_text = z
+  .object({
+    stepText: z.string().min(1),
+    sourceFile: z.string().min(1),
+  })
+  .passthrough();
+
+const dim_signature_compare = z
+  .object({ a: z.unknown(), b: z.unknown() })
+  .passthrough();
+
+const dim_signature_validate = z
+  .object({ candidate: z.unknown() })
+  .passthrough();
+
+const dim_signature_recompute = z
+  .object({ signature: z.unknown() })
+  .passthrough();
+
+// ─── Ground-truth registry (U-CGT08 / CAD-GROUND-TRUTH-MS0) ──────────────
+
+const machineCategoryEnum = z.enum(["mill","lathe","edm","wedm","grinder","additive","other"]);
+const complexityTierEnum = z.enum(["simple","medium","complex"]);
+const bundleStatusEnum = z.enum(["ok","partial","failed","skipped"]);
+
+const gtRegistryQueryOptions = z
+  .object({
+    limit: z.number().int().min(0).optional(),
+    sortBy: z.enum(["fileId","envelopeM","featureCount"]).optional(),
+    status: bundleStatusEnum.optional(),
+  })
+  .passthrough();
+
+const gt_registry_build_index = z
+  .object({ outputRoot: z.string().min(1), includeNonOk: z.boolean().optional() })
+  .passthrough();
+
+const gt_registry_find_file_id = z
+  .object({ fileId: z.string().min(1) })
+  .passthrough();
+
+const gt_registry_find_customer = z
+  .object({ name: z.string().min(1), options: gtRegistryQueryOptions.optional() })
+  .passthrough();
+
+const gt_registry_find_machine = z
+  .object({ category: machineCategoryEnum, options: gtRegistryQueryOptions.optional() })
+  .passthrough();
+
+const gt_registry_find_complexity = z
+  .object({ tier: complexityTierEnum, options: gtRegistryQueryOptions.optional() })
+  .passthrough();
+
+const gt_registry_find_format = z
+  .object({ format: z.string().min(2), options: gtRegistryQueryOptions.optional() })
+  .passthrough();
+
+const gt_registry_query = z
+  .object({
+    filter: z.object({
+      customer: z.string().optional(),
+      machineCategory: machineCategoryEnum.optional(),
+      complexity: complexityTierEnum.optional(),
+      format: z.string().optional(),
+      status: bundleStatusEnum.optional(),
+    }).passthrough(),
+    options: gtRegistryQueryOptions.optional(),
+  })
+  .passthrough();
+
+const gt_registry_stats = z.object({}).passthrough();
+const gt_registry_dump = z.object({ filePath: z.string().min(1) }).passthrough();
+const gt_registry_load = z.object({ filePath: z.string().min(1) }).passthrough();
+
 // ─── Export map ──────────────────────────────────────────────────────────
 
 export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
@@ -614,4 +709,22 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   feature_tree_recompute_signature,
   feature_tree_canonical_types,
   feature_tree_source_formats,
+  fcstd_parse,
+  f3d_parse,
+  f3z_parse,
+  dim_signature_extract,
+  dim_signature_extract_text,
+  dim_signature_compare,
+  dim_signature_validate,
+  dim_signature_recompute,
+  gt_registry_build_index,
+  gt_registry_find_file_id,
+  gt_registry_find_customer,
+  gt_registry_find_machine,
+  gt_registry_find_complexity,
+  gt_registry_find_format,
+  gt_registry_query,
+  gt_registry_stats,
+  gt_registry_dump,
+  gt_registry_load,
 };

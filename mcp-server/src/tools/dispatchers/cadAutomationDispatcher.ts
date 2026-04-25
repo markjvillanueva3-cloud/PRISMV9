@@ -133,6 +133,11 @@ const ACTIONS = [
   "feature_tree_recompute_signature",
   "feature_tree_canonical_types",
   "feature_tree_source_formats",
+  // U-CGT01 — FCStdNativeParserEngine: native FreeCAD .FCStd parsing (ZIP+XML)
+  "fcstd_parse",
+  // U-CGT02 — F3DSQLiteParserEngine: native Fusion .f3d / .f3z parsing (ZIP+SQLite)
+  "f3d_parse",
+  "f3z_parse",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -879,6 +884,37 @@ Actions: ${ACTIONS.join(", ")}.`,
               "../../engines/GroundTruthFeatureTreeExtractor.js"
             );
             result = { count: SOURCE_FORMATS.length, formats: SOURCE_FORMATS };
+            break;
+          }
+          case "fcstd_parse": {
+            // U-CGT01 — FreeCAD native .FCStd parser (no FreeCAD installation needed).
+            const { fcStdNativeParserEngine } = await import(
+              "../../engines/FCStdNativeParserEngine.js"
+            );
+            result = await fcStdNativeParserEngine.parse(
+              String(params["filePath"] ?? ""),
+            );
+            break;
+          }
+          case "f3d_parse": {
+            // U-CGT02 — Fusion 360 native .f3d parser (ZIP+SQLite, no Fusion install).
+            const { f3dSqliteParserEngine } = await import(
+              "../../engines/F3DSQLiteParserEngine.js"
+            );
+            result = await f3dSqliteParserEngine.parse(
+              String(params["filePath"] ?? ""),
+            );
+            break;
+          }
+          case "f3z_parse": {
+            // U-CGT02 — Fusion 360 .f3z multi-document archive (returns array).
+            const { f3dSqliteParserEngine } = await import(
+              "../../engines/F3DSQLiteParserEngine.js"
+            );
+            const arr = await f3dSqliteParserEngine.parseF3Z(
+              String(params["filePath"] ?? ""),
+            );
+            result = { count: arr.length, documents: arr };
             break;
           }
           default:
