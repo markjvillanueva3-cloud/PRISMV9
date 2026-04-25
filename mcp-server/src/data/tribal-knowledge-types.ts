@@ -57,6 +57,12 @@ export interface TribalTip {
   controller?: string;
   /** Optional explicit material list this tip is gated on. */
   materials?: string[];
+  /** Optional code snippet — controller-specific G/M-code pattern (Okuma/Fanuc/Haas dialect). */
+  code_pattern?: string;
+  /** Optional worked code example — usually a complete macro or program fragment. */
+  code_example?: string;
+  /** Optional ISO-group-keyed numeric values (e.g. Kienzle kc1.1/mc per P/M/K/N/S/H). */
+  values_by_iso?: Record<string, Record<string, number>>;
 }
 
 /** Catalog wrapper used when a module exports multiple named tip arrays. */
