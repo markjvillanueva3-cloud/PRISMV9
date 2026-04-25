@@ -23,9 +23,11 @@ import {
   fiveAxisDecisionEngine,
   OKUMA_M460V_5AX,
   type FiveAxisDecisionInput,
+  type FiveAxisDecisionResult,
   type FiveAxisPartFeature,
   type FiveAxisStrategy,
   type MachineKinematics,
+  type DecideUltraResult,
 } from "../engines/FiveAxisDecisionEngine.js";
 import { MILL_DISPATCHER_ACTIONS } from "../tools/dispatchers/millDispatcher.js";
 import { MILL_ACTION_SCHEMAS } from "../schemas/millActionSchemas.js";
@@ -536,5 +538,169 @@ describe("Dispatcher wiring — mill_five_axis_decide", () => {
       feed_rate_mm_per_min: 1500,
     });
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe("FiveAxisDecisionEngine.decideUltra — useAI=off legacy parity (U13)", () => {
+  it("returns result with legacy payload AND no ai side-channel when useAI=off", async () => {
+    const input = makeInput([MULTI_FACE_FEATURE]);
+    const r: DecideUltraResult = await FiveAxisDecisionEngine.decideUltra(input, { useAI: "off" });
+    expect(r.ai).toBe(undefined);
+    expect(VALID_STRATEGIES.includes(r.legacy.recommended_strategy)).toBe(true);
+    expect(r.legacy.expected_cycle_time_min).toBeGreaterThan(0);
+    expect(r.legacy.expected_cost_per_part).toBeGreaterThan(0);
+    expect(Array.isArray(r.legacy.alternatives)).toBe(true);
+  });
+
+  it("opts omitted defaults useAI=off (no ai side-channel)", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(makeInput([MULTI_FACE_FEATURE]));
+    expect(r.ai).toBe(undefined);
+    expect(VALID_STRATEGIES.includes(r.legacy.recommended_strategy)).toBe(true);
+  });
+
+  it("legacy payload matches decide() on every deterministic field (IMPELLER fixture)", async () => {
+    const input = makeInput([IMPELLER_FEATURE]);
+    const ultra = await FiveAxisDecisionEngine.decideUltra(input, { useAI: "off" });
+    const direct = FiveAxisDecisionEngine.decide(input);
+    expect(ultra.legacy.recommended_strategy).toBe(direct.recommended_strategy);
+    expect(ultra.legacy.expected_cycle_time_min).toBe(direct.expected_cycle_time_min);
+    expect(ultra.legacy.expected_cost_per_part).toBe(direct.expected_cost_per_part);
+    expect(ultra.legacy.expected_surface_quality).toBe(direct.expected_surface_quality);
+    expect(ultra.legacy.rtcp_required).toBe(direct.rtcp_required);
+    expect(ultra.legacy.singularity_safe).toBe(direct.singularity_safe);
+    expect(ultra.legacy.confidence).toBe(direct.confidence);
+    expect(ultra.legacy.alternatives.length).toBe(direct.alternatives.length);
+    expect(ultra.legacy.safety_warnings).toEqual(direct.safety_warnings);
+    expect(ultra.legacy.explanation).toBe(direct.explanation);
+  });
+
+  it("legacy payload matches decide() for RULED_SURFACE fixture (strategy + time + cost)", async () => {
+    const input = makeInput([RULED_SURFACE_FEATURE]);
+    const ultra = await FiveAxisDecisionEngine.decideUltra(input, { useAI: "off" });
+    const direct = FiveAxisDecisionEngine.decide(input);
+    expect(ultra.legacy.recommended_strategy).toBe(direct.recommended_strategy);
+    expect(ultra.legacy.expected_cycle_time_min).toBe(direct.expected_cycle_time_min);
+    expect(ultra.legacy.expected_cost_per_part).toBe(direct.expected_cost_per_part);
+    expect(ultra.legacy.alternatives.map(a => a.strategy)).toEqual(direct.alternatives.map(a => a.strategy));
+  });
+});
+
+describe("FiveAxisDecisionEngine.decideUltra — useAI=on AI-path behavior (U13)", () => {
+  it("useAI=on emits ai side-channel with legacy preserved (legacy strategy matches decide())", async () => {
+    const input = makeInput([MULTI_FACE_FEATURE, IMPELLER_FEATURE]);
+    const r = await FiveAxisDecisionEngine.decideUltra(input, { useAI: "on" });
+    const direct = FiveAxisDecisionEngine.decide(input);
+    expect(r.ai).not.toBe(undefined);
+    expect(r.legacy.recommended_strategy).toBe(direct.recommended_strategy);
+    expect(r.legacy.expected_cycle_time_min).toBe(direct.expected_cycle_time_min);
+  });
+
+  it("ai.sources contains at least one of {tree_of_thought, deep_ai_intelligence}", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      makeInput([IMPELLER_FEATURE]),
+      { useAI: "on" },
+    );
+    const sources = r.ai?.sources ?? [];
+    const allowed = new Set(["tree_of_thought", "deep_ai_intelligence"]);
+    expect(sources.length).toBeGreaterThanOrEqual(1);
+    for (const src of sources) {
+      expect(allowed.has(src)).toBe(true);
+    }
+  });
+
+  it("ai.confidence and ai.deep_confidence are clamped to [0, 1]", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      makeInput([MULTI_FACE_FEATURE]),
+      { useAI: "on" },
+    );
+    const conf = r.ai?.confidence ?? -1;
+    const deepConf = r.ai?.deep_confidence ?? -1;
+    expect(conf).toBeGreaterThanOrEqual(0);
+    expect(conf).toBeLessThanOrEqual(1);
+    expect(deepConf).toBeGreaterThanOrEqual(0);
+    expect(deepConf).toBeLessThanOrEqual(1);
+    expect(Number.isFinite(conf)).toBe(true);
+    expect(Number.isFinite(deepConf)).toBe(true);
+  });
+
+  it("ai.reasoning_chain is a string array with length <= 6 (helper slice contract)", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      makeInput([FREEFORM_FEATURE]),
+      { useAI: "on" },
+    );
+    const chain = r.ai?.reasoning_chain ?? [];
+    expect(Array.isArray(chain)).toBe(true);
+    expect(chain.length).toBeLessThanOrEqual(6);
+    for (const step of chain) {
+      expect(typeof step).toBe("string");
+    }
+  });
+
+  it("ai.branch_count and ai.max_depth_reached are non-negative finite numbers", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      makeInput([MULTI_FACE_FEATURE]),
+      { useAI: "on" },
+    );
+    const branches = r.ai?.branch_count ?? -1;
+    const depth = r.ai?.max_depth_reached ?? -1;
+    expect(Number.isFinite(branches)).toBe(true);
+    expect(Number.isFinite(depth)).toBe(true);
+    expect(branches).toBeGreaterThanOrEqual(0);
+    expect(depth).toBeGreaterThanOrEqual(0);
+  });
+
+  it("invalid ai.mode falls back to 'multi_path'", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      makeInput([MULTI_FACE_FEATURE]),
+      { useAI: "on", mode: "not_a_mode" as unknown as never },
+    );
+    expect(r.ai?.mode).toBe("multi_path");
+  });
+
+  it("explicit ai.mode='chain_of_thought' is honored (no fallback)", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      makeInput([MULTI_FACE_FEATURE]),
+      { useAI: "on", mode: "chain_of_thought" },
+    );
+    expect(r.ai?.mode).toBe("chain_of_thought");
+  });
+
+  it("useAI=auto still preserves legacy strategy equal to decide()", async () => {
+    const input = makeInput([MULTI_FACE_FEATURE]);
+    const r = await FiveAxisDecisionEngine.decideUltra(input, { useAI: "auto" });
+    const direct = FiveAxisDecisionEngine.decide(input);
+    expect(r.legacy.recommended_strategy).toBe(direct.recommended_strategy);
+    if (r.ai) {
+      expect(r.ai.confidence).toBeGreaterThanOrEqual(0);
+      expect(r.ai.confidence).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("NaN maxReasoningDepth is clamped — legacy strategy unchanged", async () => {
+    const input = makeInput([IMPELLER_FEATURE]);
+    const r = await FiveAxisDecisionEngine.decideUltra(
+      input,
+      { useAI: "on", maxReasoningDepth: NaN as unknown as number },
+    );
+    const direct = FiveAxisDecisionEngine.decide(input);
+    expect(r.legacy.recommended_strategy).toBe(direct.recommended_strategy);
+    expect(r.legacy.expected_cycle_time_min).toBe(direct.expected_cycle_time_min);
+  });
+
+  it("empty part_features still produces valid strategy with useAI=on", async () => {
+    const r = await FiveAxisDecisionEngine.decideUltra(makeInput([]), { useAI: "on" });
+    expect(VALID_STRATEGIES.includes(r.legacy.recommended_strategy)).toBe(true);
+    expect(r.legacy.expected_cycle_time_min).toBeGreaterThanOrEqual(0);
+    expect(Number.isFinite(r.legacy.expected_cost_per_part)).toBe(true);
+  });
+
+  it("useAI=on legacy payload matches decide() on cycle time + cost (AI layer non-invasive)", async () => {
+    const input = makeInput([RULED_SURFACE_FEATURE]);
+    const ultra = await FiveAxisDecisionEngine.decideUltra(input, { useAI: "on" });
+    const direct = FiveAxisDecisionEngine.decide(input);
+    expect(ultra.legacy.recommended_strategy).toBe(direct.recommended_strategy);
+    expect(ultra.legacy.expected_cycle_time_min).toBe(direct.expected_cycle_time_min);
+    expect(ultra.legacy.expected_cost_per_part).toBe(direct.expected_cost_per_part);
+    expect(ultra.legacy.expected_surface_quality).toBe(direct.expected_surface_quality);
   });
 });

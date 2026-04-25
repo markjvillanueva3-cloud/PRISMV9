@@ -52,6 +52,13 @@ import {
   type DecisionCriterion,
 } from "./DecisionReasoningEngine.js";
 
+// MILL-MASTER-AI-WIRING / U13-DECISION-RETROFIT — PRISM AI primitives
+import { withPRISMReasoning, type UseAI } from "./MillAIWiring.js";
+import {
+  deepAIIntelligenceEngine,
+  type ReasoningMode as DeepReasoningMode,
+} from "./DeepAIIntelligenceEngine.js";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -1146,6 +1153,124 @@ export class FiveAxisDecisionEngine {
 
     return predictionId;
   }
+
+  // =============================================================================
+  // MILL-MASTER-AI-WIRING / U13-DECISION-RETROFIT
+  // decideUltra — PRISM-AI multi-path deliberation layered on top of decide().
+  // Legacy bit-identical when useAI='off'. AI path fail-closes to legacy-only.
+  // =============================================================================
+
+  /**
+   * AI-augmented 5-axis decision. Returns the legacy sync decision bit-identical,
+   * plus an `ai` side-channel (TreeOfThought branches + deepAIIntelligence.deepReason
+   * multi-path conclusion) when useAI='on'|'auto'. Fail-closed: any AI primitive
+   * exception is caught and the ai side-channel is omitted from the result.
+   */
+  static async decideUltra(
+    input: FiveAxisDecisionInput,
+    opts: DecideUltraOptions = {},
+  ): Promise<DecideUltraResult> {
+    const legacy = FiveAxisDecisionEngine.decide(input);
+    const useAI: UseAI = opts.useAI ?? "off";
+    if (useAI === "off") return { legacy };
+
+    // --- Build question + context from the legacy result for the AI primitives ---
+    const featureTypes = input.part_features.map((f) => f.feature_type);
+    const question =
+      `Select optimal 5-axis strategy for ${input.part_features.length} feature(s) ` +
+      `(types: ${featureTypes.join(",") || "none"}) on ${input.machine.machine_name}. ` +
+      `Legacy recommendation: ${legacy.recommended_strategy}.`;
+    const constraints: string[] = [
+      `kinematic_type=${input.machine.kinematic_type}`,
+      `rtcp_enabled=${input.machine.rtcp_enabled}`,
+      `operator_skill=${input.operator_skill}`,
+      ...legacy.safety_warnings,
+    ];
+
+    const sources: string[] = [];
+    let tot_branch_count = 0;
+    let tot_max_depth_reached = 0;
+    let tot_confidence = 0;
+    let tot_chain: string[] = [];
+    let deep_conclusion = "";
+    let deep_confidence = 0;
+
+    // --- Stage 1: TreeOfThought multi-branch deliberation via MillAIWiring ---
+    try {
+      const tot = withPRISMReasoning({
+        question,
+        goal: "five_axis_strategy_selection",
+        initial_state: {
+          machine: input.machine.machine_name,
+          feature_count: input.part_features.length,
+          legacy_choice: legacy.recommended_strategy,
+        },
+        available_actions: [
+          "evaluate_3plus2_positioning",
+          "evaluate_5axis_simultaneous",
+          "evaluate_swarf_cutting",
+          "evaluate_multiaxis_contouring",
+          "evaluate_impeller_turbine",
+          "evaluate_port_cavity",
+        ],
+        constraints,
+        depth: clampInt(opts.maxReasoningDepth, 1, 6, 3),
+        branches: 4,
+      });
+      if (tot) {
+        tot_branch_count = tot.branch_count;
+        tot_max_depth_reached = tot.max_depth_reached;
+        tot_confidence = tot.confidence;
+        tot_chain = tot.reasoning_chain;
+        sources.push("tree_of_thought");
+      }
+    } catch (err) {
+      log.warn(`[U13-DECISION-RETROFIT] tree_of_thought stage failed: ${String(err)}`);
+    }
+
+    // --- Stage 2: DeepAIIntelligence multi-path reasoning ---
+    const VALID_MODES: DeepReasoningMode[] = [
+      "chain_of_thought", "tree_of_thought", "multi_path", "backtracking",
+      "abductive", "deductive", "inductive", "analogical",
+    ];
+    const mode: DeepReasoningMode =
+      opts.mode && VALID_MODES.includes(opts.mode) ? opts.mode : "multi_path";
+    try {
+      const deep = await deepAIIntelligenceEngine.deepReason(
+        {
+          query: question,
+          domain: "five_axis_strategy",
+          constraints,
+          targetOutcome: `Recommend best 5-axis strategy for ${input.machine.machine_name}`,
+          maxReasoningDepth: clampInt(opts.maxReasoningDepth, 1, 20, 6),
+          allowBacktracking: true,
+        },
+        mode,
+      );
+      deep_conclusion = typeof deep.conclusion === "string" ? deep.conclusion : "";
+      deep_confidence = clamp01Util(deep.confidence);
+      sources.push("deep_ai_intelligence");
+    } catch (err) {
+      log.warn(`[U13-DECISION-RETROFIT] deep_ai_intelligence stage failed: ${String(err)}`);
+    }
+
+    // Fail-closed: if BOTH AI stages failed, emit legacy-only.
+    if (sources.length === 0) return { legacy };
+
+    return {
+      legacy,
+      ai: {
+        mode,
+        branch_count: tot_branch_count,
+        max_depth_reached: tot_max_depth_reached,
+        confidence: clamp01Util(tot_confidence),
+        reasoning_chain: tot_chain,
+        deep_conclusion,
+        deep_confidence,
+        sources,
+      },
+    };
+  }
 }
 
 // ============================================================================
@@ -1173,6 +1298,57 @@ interface CandidateMetrics {
   cycleTime: number;
   costPerPart: number;
   surfaceQuality: "excellent" | "good" | "acceptable" | "poor";
+}
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U13-DECISION-RETROFIT — exported AI types + helpers
+// ============================================================================
+
+/** Options for FiveAxisDecisionEngine.decideUltra. Additive-only API. */
+export interface DecideUltraOptions {
+  /** AI routing: 'off' (default, legacy bit-identical) | 'auto' | 'on'. */
+  useAI?: UseAI;
+  /** Optional DeepAIIntelligence reasoning mode. Invalid values fall back to 'multi_path'. */
+  mode?: DeepReasoningMode;
+  /** Reasoning depth clamp [1,20] (deepReason) / [1,6] (TreeOfThought). NaN/inf -> defaults. */
+  maxReasoningDepth?: number;
+}
+
+/** AI side-channel from decideUltra. Present only when useAI != 'off' and >=1 AI stage succeeded. */
+export interface DecideUltraAISide {
+  mode: DeepReasoningMode;
+  branch_count: number;
+  max_depth_reached: number;
+  /** TreeOfThought confidence in [0,1]. */
+  confidence: number;
+  reasoning_chain: string[];
+  deep_conclusion: string;
+  /** DeepAIIntelligence confidence in [0,1]. */
+  deep_confidence: number;
+  /** Ordered tags of PRISM AI primitives actually invoked. */
+  sources: string[];
+}
+
+export interface DecideUltraResult {
+  legacy: FiveAxisDecisionResult;
+  ai?: DecideUltraAISide;
+}
+
+function clamp01Util(x: unknown): number {
+  const n = typeof x === "number" ? x : Number(x);
+  if (!Number.isFinite(n)) return 0;
+  if (n < 0) return 0;
+  if (n > 1) return 1;
+  return n;
+}
+
+function clampInt(x: unknown, lo: number, hi: number, fallback: number): number {
+  const n = typeof x === "number" ? x : Number(x);
+  if (!Number.isFinite(n)) return fallback;
+  const r = Math.round(n);
+  if (r < lo) return lo;
+  if (r > hi) return hi;
+  return r;
 }
 
 // Export singleton
