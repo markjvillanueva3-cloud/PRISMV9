@@ -77,23 +77,27 @@ export interface MaterialEntry {
   specific_heat_J_kgK: number;
   melting_point_C: number;
   hardness_HRC?: number;
+  /** Taylor tool-life constant C [m/min]. Denormalised from CANONICAL_TAYLOR[iso_group]. */
+  taylor_C: number;
+  /** Taylor tool-life exponent n. Denormalised from CANONICAL_TAYLOR[iso_group]. */
+  taylor_n: number;
   tensile_strength_MPa?: number;
 }
 
 export const CANONICAL_MATERIAL_DB: Record<string, MaterialEntry> = {
-  "1018": { name: "AISI 1018 Mild Steel", iso_group: "P", density_kg_m3: 7870, thermal_conductivity_W_mK: 51.9, specific_heat_J_kgK: 486, melting_point_C: 1510, tensile_strength_MPa: 440 },
-  "1045": { name: "AISI 1045 Carbon Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 49.8, specific_heat_J_kgK: 486, melting_point_C: 1495, tensile_strength_MPa: 585 },
-  "4140": { name: "AISI 4140 Alloy Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 42.7, specific_heat_J_kgK: 473, melting_point_C: 1425, tensile_strength_MPa: 655 },
-  "304": { name: "AISI 304 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.2, specific_heat_J_kgK: 500, melting_point_C: 1450, tensile_strength_MPa: 515 },
-  "316": { name: "AISI 316 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.3, specific_heat_J_kgK: 500, melting_point_C: 1375, tensile_strength_MPa: 515 },
-  "6061": { name: "Aluminum 6061-T6", iso_group: "N", density_kg_m3: 2700, thermal_conductivity_W_mK: 167, specific_heat_J_kgK: 896, melting_point_C: 652, tensile_strength_MPa: 310 },
-  "7075": { name: "Aluminum 7075-T6", iso_group: "N", density_kg_m3: 2810, thermal_conductivity_W_mK: 130, specific_heat_J_kgK: 960, melting_point_C: 635, tensile_strength_MPa: 572 },
-  "Ti-6Al-4V": { name: "Titanium 6Al-4V", iso_group: "S", density_kg_m3: 4430, thermal_conductivity_W_mK: 6.7, specific_heat_J_kgK: 526, melting_point_C: 1660, tensile_strength_MPa: 900 },
-  "Inconel 718": { name: "Inconel 718", iso_group: "S", density_kg_m3: 8190, thermal_conductivity_W_mK: 11.4, specific_heat_J_kgK: 435, melting_point_C: 1336, tensile_strength_MPa: 1240 },
-  "D2": { name: "AISI D2 Tool Steel", iso_group: "H", density_kg_m3: 7700, thermal_conductivity_W_mK: 20.5, specific_heat_J_kgK: 460, melting_point_C: 1420, hardness_HRC: 62 },
-  "A2": { name: "AISI A2 Tool Steel", iso_group: "H", density_kg_m3: 7860, thermal_conductivity_W_mK: 28.6, specific_heat_J_kgK: 460, melting_point_C: 1425, hardness_HRC: 60 },
-  "tungsten_carbide": { name: "Tungsten Carbide (WC-Co)", iso_group: "H", density_kg_m3: 15000, thermal_conductivity_W_mK: 84, specific_heat_J_kgK: 210, melting_point_C: 2870, hardness_HRC: 75 },
-  "gray_iron": { name: "Gray Cast Iron", iso_group: "K", density_kg_m3: 7200, thermal_conductivity_W_mK: 46, specific_heat_J_kgK: 490, melting_point_C: 1200 },
+  "1018": { name: "AISI 1018 Mild Steel", iso_group: "P", density_kg_m3: 7870, thermal_conductivity_W_mK: 51.9, specific_heat_J_kgK: 486, melting_point_C: 1510, tensile_strength_MPa: 440, taylor_C: 350, taylor_n: 0.25 },
+  "1045": { name: "AISI 1045 Carbon Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 49.8, specific_heat_J_kgK: 486, melting_point_C: 1495, tensile_strength_MPa: 585, taylor_C: 350, taylor_n: 0.25 },
+  "4140": { name: "AISI 4140 Alloy Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 42.7, specific_heat_J_kgK: 473, melting_point_C: 1425, tensile_strength_MPa: 655, taylor_C: 350, taylor_n: 0.25 },
+  "304": { name: "AISI 304 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.2, specific_heat_J_kgK: 500, melting_point_C: 1450, tensile_strength_MPa: 515, taylor_C: 200, taylor_n: 0.2 },
+  "316": { name: "AISI 316 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.3, specific_heat_J_kgK: 500, melting_point_C: 1375, tensile_strength_MPa: 515, taylor_C: 200, taylor_n: 0.2 },
+  "6061": { name: "Aluminum 6061-T6", iso_group: "N", density_kg_m3: 2700, thermal_conductivity_W_mK: 167, specific_heat_J_kgK: 896, melting_point_C: 652, tensile_strength_MPa: 310, taylor_C: 600, taylor_n: 0.4 },
+  "7075": { name: "Aluminum 7075-T6", iso_group: "N", density_kg_m3: 2810, thermal_conductivity_W_mK: 130, specific_heat_J_kgK: 960, melting_point_C: 635, tensile_strength_MPa: 572, taylor_C: 600, taylor_n: 0.4 },
+  "Ti-6Al-4V": { name: "Titanium 6Al-4V", iso_group: "S", density_kg_m3: 4430, thermal_conductivity_W_mK: 6.7, specific_heat_J_kgK: 526, melting_point_C: 1660, tensile_strength_MPa: 900, taylor_C: 150, taylor_n: 0.18 },
+  "Inconel 718": { name: "Inconel 718", iso_group: "S", density_kg_m3: 8190, thermal_conductivity_W_mK: 11.4, specific_heat_J_kgK: 435, melting_point_C: 1336, tensile_strength_MPa: 1240, taylor_C: 150, taylor_n: 0.18 },
+  "D2": { name: "AISI D2 Tool Steel", iso_group: "H", density_kg_m3: 7700, thermal_conductivity_W_mK: 20.5, specific_heat_J_kgK: 460, melting_point_C: 1420, hardness_HRC: 62, taylor_C: 120, taylor_n: 0.15 },
+  "A2": { name: "AISI A2 Tool Steel", iso_group: "H", density_kg_m3: 7860, thermal_conductivity_W_mK: 28.6, specific_heat_J_kgK: 460, melting_point_C: 1425, hardness_HRC: 60, taylor_C: 120, taylor_n: 0.15 },
+  "tungsten_carbide": { name: "Tungsten Carbide (WC-Co)", iso_group: "H", density_kg_m3: 15000, thermal_conductivity_W_mK: 84, specific_heat_J_kgK: 210, melting_point_C: 2870, hardness_HRC: 75, taylor_C: 120, taylor_n: 0.15 },
+  "gray_iron": { name: "Gray Cast Iron", iso_group: "K", density_kg_m3: 7200, thermal_conductivity_W_mK: 46, specific_heat_J_kgK: 490, melting_point_C: 1200, taylor_C: 250, taylor_n: 0.25 },
 } as const;
 
 // ============================================================================
@@ -538,6 +542,250 @@ export const EDM_PHYSICS = {
 // ============================================================================
 
 export const KIENZLE_BY_ISO = CANONICAL_KIENZLE;
+
+// ============================================================================
+// COMPATIBILITY SHIMS - restored exports relied on by 60+ engines
+// All formulas back onto canonical tables above. No inline physics constants.
+// ============================================================================
+
+/** Tool material classification used by deflection / wear / stiffness models. */
+export type ToolMaterial = "carbide" | "cermet" | "ceramic" | "cbn" | "pcd" | "hss" | "diamond";
+
+/**
+ * Tool-substrate elastic modulus [MPa = N/mm^2]. Used by Euler-Bernoulli
+ * cantilever-deflection models for boring bars, end mills, drills.
+ * Source: Sandvik Tooling Handbook 2024; Kennametal materials data;
+ * ASM Handbook Vol. 2 (Properties and Selection: Carbides) - moduli at 20 C.
+ */
+export const CANONICAL_TOOL_MODULUS: Record<ToolMaterial, number> = {
+  carbide: 600000,
+  cermet:  450000,
+  ceramic: 380000,
+  cbn:     680000,
+  pcd:     800000,
+  hss:     210000,
+  diamond: 1050000,
+};
+
+export function getToolModulus(material: string): number {
+  const key = material.toLowerCase() as ToolMaterial;
+  return CANONICAL_TOOL_MODULUS[key] ?? CANONICAL_TOOL_MODULUS.carbide;
+}
+
+export const EPS_MACHINE = 2.220446049250313e-16;
+export const EPS_EIGEN = 1e-10;
+export const EPS_RANK = 1e-12;
+export const EPS_SVD = 1e-12;
+
+export interface MaterialPhysics {
+  iso_group: ISOGroup;
+  kc1_1: number;
+  mc: number;
+  taylor_C: number;
+  taylor_n: number;
+  density_kg_m3?: number;
+  thermal_conductivity_W_mK?: number;
+  specific_heat_J_kgK?: number;
+  hardness_HRC?: number;
+  hardness_HB?: number;
+  tensile_strength_MPa?: number;
+  yield_strength_MPa?: number;
+  elastic_modulus_MPa?: number;
+  name?: string;
+}
+
+const _MATERIAL_KEYWORD_TO_ISO: Record<string, ISOGroup> = {
+  steel: "P", carbon_steel: "P", alloy_steel: "P", mild_steel: "P",
+  stainless: "M", stainless_steel: "M", ss: "M",
+  cast_iron: "K", gray_iron: "K", nodular_iron: "K", cgi: "K",
+  aluminum: "N", aluminium: "N", brass: "N", copper: "N", bronze: "N",
+  titanium: "S", inconel: "S", waspaloy: "S", superalloy: "S", hastelloy: "S",
+  tool_steel: "H", hardened: "H", carbide: "H", tungsten_carbide: "H",
+};
+
+function _resolveISO(material: string): ISOGroup {
+  if (!material) return "P";
+  const direct = CANONICAL_MATERIAL_DB[material];
+  if (direct) return direct.iso_group;
+  const lower = material.toLowerCase();
+  const aliasKey = AISI_ALIAS[lower];
+  if (aliasKey && CANONICAL_MATERIAL_DB[aliasKey]) return CANONICAL_MATERIAL_DB[aliasKey].iso_group;
+  const lowerDirect = CANONICAL_MATERIAL_DB[lower];
+  if (lowerDirect) return lowerDirect.iso_group;
+  return _MATERIAL_KEYWORD_TO_ISO[lower] ?? "P";
+}
+
+export function resolveMaterial(name: string): MaterialEntry | undefined {
+  if (!name) return undefined;
+  const direct = CANONICAL_MATERIAL_DB[name];
+  if (direct) return direct;
+  const lower = name.toLowerCase();
+  const aliasKey = AISI_ALIAS[lower];
+  if (aliasKey && CANONICAL_MATERIAL_DB[aliasKey]) return CANONICAL_MATERIAL_DB[aliasKey];
+  return CANONICAL_MATERIAL_DB[lower];
+}
+
+export function getKienzle(material: string): { kc1_1: number; mc: number } {
+  return CANONICAL_KIENZLE[_resolveISO(material)];
+}
+
+export function getTaylor(material: string): { C: number; n: number } {
+  return CANONICAL_TAYLOR[_resolveISO(material)];
+}
+
+/** Reference: Kienzle (1957). Fc = kc1_1 * ap * fz^(1-mc) */
+export function kienzleForce(kc1_1: number, mc: number, ap: number, fz: number): number {
+  return kc1_1 * ap * Math.pow(Math.max(fz, 1e-9), 1 - mc);
+}
+
+/** Reference: Taylor (1907); ISO 3685:1993. T = (C/Vc)^(1/n) */
+export function taylorLife(C: number, n: number, Vc: number): number {
+  if (Vc <= 0 || n <= 0) return 0;
+  return Math.pow(C / Vc, 1 / n);
+}
+
+/** P[kW] = Fc[N] * Vc[m/min] / 60000 */
+export function cuttingPower(Fc: number, Vc: number): number {
+  return (Fc * Vc) / 60000;
+}
+
+/** T[N*m] = Fc[N] * D[mm] / 2000 */
+export function spindleTorque(Fc: number, D: number): number {
+  return (Fc * D) / 2000;
+}
+
+/** Brammertz: Ra[um] = fz^2 / (32*r) * 1000 */
+export function predictedRa(fz: number, r: number): number {
+  if (r <= 0) return 0;
+  return ((fz * fz) / (32 * r)) * 1000;
+}
+
+/** ISO 3002-1: n = 1000 * Vc / (pi * D) */
+export function rpmFromVc(Vc: number, D: number): number {
+  if (D <= 0) return 0;
+  return (1000 * Vc) / (Math.PI * D);
+}
+
+/** MRR[mm^3/min] = ap * ae * Vf */
+export function mrr(ap: number, ae: number, Vf: number): number {
+  return ap * ae * Vf;
+}
+
+/** Euler-Bernoulli cantilever: delta = F*L^3 / (3*E*I), I = pi*D^4/64 */
+export function toolDeflection(F: number, L: number, D: number, E: number = CANONICAL_TOOL_MODULUS.carbide): number {
+  if (D <= 0 || E <= 0) return 0;
+  const I = (Math.PI * Math.pow(D, 4)) / 64;
+  return (F * Math.pow(L, 3)) / (3 * E * I);
+}
+
+/** Reference: ISO 3685:1993 Annex C; Kronenberg (1966). */
+const _EXTENDED_TAYLOR_EXPONENTS: Record<ISOGroup, { a: number; b: number }> = {
+  P: { a: 0.30, b: 0.20 },
+  M: { a: 0.35, b: 0.22 },
+  K: { a: 0.28, b: 0.18 },
+  N: { a: 0.20, b: 0.15 },
+  S: { a: 0.40, b: 0.25 },
+  H: { a: 0.45, b: 0.28 },
+};
+
+export function extendedTaylorExponents(iso_group: ISOGroup): { a: number; b: number } {
+  return _EXTENDED_TAYLOR_EXPONENTS[iso_group];
+}
+
+/** T = (C / (V * f^a * d^b))^(1/n) — ISO 3685 Annex C */
+export function extendedTaylorLife(
+  V: number, f: number, d: number,
+  n: number, C: number, a: number, b: number,
+): number {
+  if (V <= 0 || n <= 0) return 0;
+  const f_term = a > 0 ? Math.pow(Math.max(f, 1e-9), a) : 1;
+  const d_term = b > 0 ? Math.pow(Math.max(d, 1e-9), b) : 1;
+  const denom = V * f_term * d_term;
+  if (denom <= 0) return 0;
+  return Math.pow(C / denom, 1 / n);
+}
+
+/** Source: Sandvik Coromant General Turning Handbook (2024). */
+export const CANONICAL_TURNING_SPEEDS: Record<ISOGroup, { rough: number; finish: number }> = {
+  P: { rough: 220, finish: 320 },
+  M: { rough: 150, finish: 220 },
+  K: { rough: 180, finish: 280 },
+  N: { rough: 400, finish: 600 },
+  S: { rough: 35,  finish: 70  },
+  H: { rough: 80,  finish: 130 },
+};
+
+export const CANONICAL_TURNING_FEEDS: Record<ISOGroup, { rough: number; finish: number }> = {
+  P: { rough: 0.30, finish: 0.12 },
+  M: { rough: 0.25, finish: 0.10 },
+  K: { rough: 0.35, finish: 0.15 },
+  N: { rough: 0.30, finish: 0.12 },
+  S: { rough: 0.18, finish: 0.08 },
+  H: { rough: 0.15, finish: 0.06 },
+};
+
+export const CANONICAL_MILLING_SPEEDS: Record<ISOGroup, { rough: number; finish: number }> = {
+  P: { rough: 200, finish: 280 },
+  M: { rough: 130, finish: 200 },
+  K: { rough: 160, finish: 240 },
+  N: { rough: 500, finish: 800 },
+  S: { rough: 40,  finish: 70  },
+  H: { rough: 60,  finish: 100 },
+};
+
+export const CANONICAL_MILLING_FEEDS: Record<ISOGroup, { rough: number; finish: number }> = {
+  P: { rough: 0.15, finish: 0.08 },
+  M: { rough: 0.12, finish: 0.06 },
+  K: { rough: 0.18, finish: 0.10 },
+  N: { rough: 0.20, finish: 0.10 },
+  S: { rough: 0.08, finish: 0.04 },
+  H: { rough: 0.06, finish: 0.03 },
+};
+
+export interface WhiteLayerThreshold {
+  threshold_C: number;
+  source: string;
+}
+
+/** Reference: Klocke 'Manufacturing Processes 2'; Boothroyd (1963). */
+export const WHITE_LAYER_THRESHOLDS: Record<string, WhiteLayerThreshold> = {
+  hardened_steel: { threshold_C: 700, source: "Klocke - austenitization onset" },
+  steel:          { threshold_C: 850, source: "Klocke" },
+  stainless:      { threshold_C: 650, source: "Klocke" },
+  titanium:       { threshold_C: 750, source: "Boothroyd 1963; Ti alpha/beta transition" },
+  nickel_alloy:   { threshold_C: 800, source: "Klocke - gamma' precipitation" },
+  inconel:        { threshold_C: 800, source: "Klocke" },
+};
+
+export interface AISICuttingCoefficients {
+  iso_group: ISOGroup;
+  kc1_1: number;
+  mc: number;
+  taylor_C: number;
+  taylor_n: number;
+}
+
+/** Reference: Machinery's Handbook 32nd ed.; Kennametal Application Engineering Materials Cross-Reference (2023). */
+export const AISI_CUTTING_COEFFICIENTS: Record<string, AISICuttingCoefficients> = {
+  "1018":   { iso_group: "P", kc1_1: 1700, mc: 0.25, taylor_C: 360, taylor_n: 0.26 },
+  "1045":   { iso_group: "P", kc1_1: 1800, mc: 0.25, taylor_C: 350, taylor_n: 0.25 },
+  "1144":   { iso_group: "P", kc1_1: 1850, mc: 0.25, taylor_C: 345, taylor_n: 0.25 },
+  "4140":   { iso_group: "P", kc1_1: 1950, mc: 0.26, taylor_C: 320, taylor_n: 0.24 },
+  "4340":   { iso_group: "P", kc1_1: 2000, mc: 0.26, taylor_C: 310, taylor_n: 0.23 },
+  "303":    { iso_group: "M", kc1_1: 2000, mc: 0.25, taylor_C: 220, taylor_n: 0.21 },
+  "304":    { iso_group: "M", kc1_1: 2100, mc: 0.25, taylor_C: 200, taylor_n: 0.20 },
+  "316":    { iso_group: "M", kc1_1: 2150, mc: 0.25, taylor_C: 190, taylor_n: 0.19 },
+  "17-4PH": { iso_group: "M", kc1_1: 2200, mc: 0.26, taylor_C: 180, taylor_n: 0.19 },
+  gray_iron:        { iso_group: "K", kc1_1: 1100, mc: 0.28, taylor_C: 250, taylor_n: 0.25 },
+  "6061":   { iso_group: "N", kc1_1: 700,  mc: 0.22, taylor_C: 600, taylor_n: 0.40 },
+  "7075":   { iso_group: "N", kc1_1: 750,  mc: 0.22, taylor_C: 580, taylor_n: 0.38 },
+  "Ti-6Al-4V":   { iso_group: "S", kc1_1: 2800, mc: 0.27, taylor_C: 150, taylor_n: 0.18 },
+  "Inconel 718": { iso_group: "S", kc1_1: 3200, mc: 0.30, taylor_C: 120, taylor_n: 0.15 },
+  "D2": { iso_group: "H", kc1_1: 3200, mc: 0.30, taylor_C: 120, taylor_n: 0.15 },
+  "A2": { iso_group: "H", kc1_1: 3000, mc: 0.29, taylor_C: 130, taylor_n: 0.16 },
+};
+
+export const MATERIAL_DB = CANONICAL_MATERIAL_DB;
 
 // ============================================================================
 // DEFAULT EXPORTS

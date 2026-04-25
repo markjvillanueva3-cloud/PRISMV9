@@ -207,6 +207,12 @@ export const JM_DIE_SOURCE_ROOTS = {
   tool_holders_root: "H:\\PRISM\\JM DIE\\TOOL HOLDERS",
   tooling_root: "H:\\PRISM\\JM DIE\\TOOLING",
   materials_root: "H:\\PRISM\\JM DIE\\MATERIALS",
+  /** Source root for the JM Die employee database (Excel + CSV exports). */
+  employee_database_root: "H:\\PRISM\\JM DIE\\EMPLOYEE DATABASE",
+  /** Source root for engineering prints / drawings / blueprints. */
+  prints_root: "H:\\PRISM\\JM DIE\\PRINTS",
+  /** Generic shop-floor program archive (mixed lathe/mill/edm). */
+  programs_root: "H:\\PRISM\\JM DIE",
 } as const;
 
 /**

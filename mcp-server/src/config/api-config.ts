@@ -16,19 +16,34 @@ import { getEffort } from "./effortTiers.js";
 config({ path: join(PATHS.MCP_SERVER, '.env'), override: true, quiet: true });
 config({ path: join(process.cwd(), '.env'), override: true, quiet: true });
 
+export type ReasoningProvider = "anthropic" | "openai";
+export type ReasoningProviderPreference = ReasoningProvider | "auto";
+export type ReasoningTier = "haiku" | "sonnet" | "opus";
+
 export interface APIConfig {
   anthropicApiKey: string | undefined;
+  openaiApiKey: string | undefined;
   opusModel: string;
   sonnetModel: string;
   haikuModel: string;
+  /** Codex CLI model identifier (env CODEX_CLI_MODEL). Used by reasoningProfiles. */
+  codexCliModel: string;
+  /** GPT-5.4 model identifier (env GPT54_MODEL). Used by reasoningProfiles. */
+  gpt54Model: string;
+  /** Preferred reasoning provider (env PRISM_REASONING_PROVIDER). */
+  preferredReasoningProvider: ReasoningProviderPreference;
   enableRealExecution: boolean;
 }
 
 export const apiConfig: APIConfig = {
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  openaiApiKey: process.env.OPENAI_API_KEY,
   opusModel: process.env.OPUS_MODEL || 'claude-opus-4-6',
   sonnetModel: process.env.SONNET_MODEL || 'claude-sonnet-4-5-20250929',
   haikuModel: process.env.HAIKU_MODEL || 'claude-haiku-4-5-20251001',
+  codexCliModel: process.env.CODEX_CLI_MODEL || 'gpt-5.4-codex',
+  gpt54Model: process.env.GPT54_MODEL || 'gpt-5.4',
+  preferredReasoningProvider: ((process.env.PRISM_REASONING_PROVIDER as ReasoningProviderPreference) || 'auto'),
   enableRealExecution: !!process.env.ANTHROPIC_API_KEY && 
                         process.env.ANTHROPIC_API_KEY !== 'your-api-key-here'
 };
@@ -44,12 +59,27 @@ export function getApiKey(): string {
   return apiConfig.anthropicApiKey;
 }
 
-export function getModelForTier(tier: 'opus' | 'sonnet' | 'haiku'): string {
+/**
+ * Resolve a Claude-style model identifier for the given tier and provider.
+ * For provider="openai", tiers map onto Codex/GPT-5.4 equivalents.
+ */
+export function getModelForTier(
+  tier: ReasoningTier,
+  provider: ReasoningProvider = "anthropic",
+): string {
+  if (provider === "openai") {
+    switch (tier) {
+      case 'opus':   return apiConfig.gpt54Model;
+      case 'sonnet': return apiConfig.gpt54Model;
+      case 'haiku':  return apiConfig.codexCliModel;
+      default:       return apiConfig.gpt54Model;
+    }
+  }
   switch (tier) {
-    case 'opus': return apiConfig.opusModel;
+    case 'opus':   return apiConfig.opusModel;
     case 'sonnet': return apiConfig.sonnetModel;
-    case 'haiku': return apiConfig.haikuModel;
-    default: return apiConfig.sonnetModel;
+    case 'haiku':  return apiConfig.haikuModel;
+    default:       return apiConfig.sonnetModel;
   }
 }
 
@@ -136,3 +166,40 @@ export async function parallelAPICalls(
 
   return Promise.all(promises);
 }
+
+
+// ============================================================================
+// REASONING PROVIDER HELPERS (compat shims for reasoningProfiles + others)
+// ============================================================================
+
+/** True iff a real ANTHROPIC_API_KEY is configured. */
+export function hasAnthropicApiKey(): boolean {
+  return !!apiConfig.anthropicApiKey && apiConfig.anthropicApiKey !== 'your-api-key-here';
+}
+
+/** True iff a real OPENAI_API_KEY is configured. */
+export function hasOpenAIApiKey(): boolean {
+  return !!apiConfig.openaiApiKey && apiConfig.openaiApiKey !== 'your-api-key-here';
+}
+
+/** Returns the list of reasoning providers that currently have valid credentials. */
+export function getAvailableReasoningProviders(): ReasoningProvider[] {
+  const out: ReasoningProvider[] = [];
+  if (hasAnthropicApiKey()) out.push("anthropic");
+  if (hasOpenAIApiKey()) out.push("openai");
+  return out;
+}
+
+/**
+ * Resolve the preferred reasoning provider from PRISM_REASONING_PROVIDER
+ * (or first available if set to "auto"). Falls back to "anthropic" if
+ * neither key is configured (caller is expected to surface that as profile-only).
+ */
+export function getPreferredReasoningProvider(): ReasoningProvider {
+  const pref = apiConfig.preferredReasoningProvider;
+  if (pref === "anthropic" || pref === "openai") return pref;
+  // pref === "auto" → first available, else default to anthropic
+  const avail = getAvailableReasoningProviders();
+  return avail[0] ?? "anthropic";
+}
+
