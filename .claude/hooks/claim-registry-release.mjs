@@ -33,7 +33,10 @@ function main() {
     encoding: "utf-8",
     timeout: 3000,
   });
-  process.stdout.write(`claim-registry: ${(r.stdout || "").trim()}\n`);
+  // Stop hook contract: emit valid JSON. Log human-readable detail to stderr
+  // (which Claude doesn't parse as hook output, so it's safe diagnostic noise).
+  process.stderr.write(`claim-registry: ${(r.stdout || "").trim()}\n`);
+  process.stdout.write(JSON.stringify({ continue: true }));
   process.exit(0);
 }
 
