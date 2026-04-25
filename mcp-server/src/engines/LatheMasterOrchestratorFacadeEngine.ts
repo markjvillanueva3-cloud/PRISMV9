@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: facade consumed engine-to-engine by AdaptiveMachiningIntegrationEngine; no dispatcher route by design (LATHE-HARDENED-MS0).
 /**
  * LatheMasterOrchestratorFacadeEngine (E106)
  * ===========================================

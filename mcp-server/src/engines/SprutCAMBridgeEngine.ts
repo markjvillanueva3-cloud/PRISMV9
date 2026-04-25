@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: external HTTP client consumed via direct import; SprutCAM integration follows the bridge-engine pattern. Test: src/__tests__/sprutcam-bridge.test.ts (kebab-case naming predates the hook).
 /**
  * SprutCAMBridgeEngine — PRISM-side HTTP client for SprutCAM/SprutCAM X automation.
  *
