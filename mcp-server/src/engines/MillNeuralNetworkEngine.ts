@@ -325,6 +325,30 @@ export class MillNeuralNetworkEngine {
   }
 
   // --------------------------------------------------------------------------
+  // MILL-MASTER-AI-WIRING / U14-NEURAL-RETROFIT
+  // encode — structured-input wrapper consumable by neuralIntegrationEngine.
+  // Bit-identical delegation to encodeFeatures; isProven defaults to false.
+  // --------------------------------------------------------------------------
+
+  /** Structured input for {@link MillNeuralNetworkEngine.encode}. */
+  // (interface declared at module scope below the class)
+
+  encode(input: MillNeuralEncodeInput): number[] {
+    return this.encodeFeatures(
+      input.materialIso,
+      input.toolType,
+      input.operationType,
+      input.toolDiameterMm,
+      input.rpm,
+      input.feed,
+      input.doc,
+      input.zLevelCount,
+      input.cutterComp,
+      input.isProven ?? false,
+    );
+  }
+
+  // --------------------------------------------------------------------------
   // FORWARD PROPAGATION
   // --------------------------------------------------------------------------
 
@@ -738,6 +762,25 @@ export class MillNeuralNetworkEngine {
       avg_confidence: avgConf,
     };
   }
+}
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U14-NEURAL-RETROFIT — exported encode input type
+// ============================================================================
+
+/** Structured input shape for {@link MillNeuralNetworkEngine.encode}. */
+export interface MillNeuralEncodeInput {
+  materialIso: string;
+  toolType: string;
+  operationType: string;
+  toolDiameterMm: number;
+  rpm: number;
+  feed: number;
+  doc: number;
+  zLevelCount: number;
+  cutterComp: boolean;
+  /** Whether the operation is from a proven program (defaults to false). */
+  isProven?: boolean;
 }
 
 // ============================================================================

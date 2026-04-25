@@ -5,7 +5,12 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { MillNeuralNetworkEngine } from "../engines/MillNeuralNetworkEngine.js";
+import {
+  MillNeuralNetworkEngine,
+  millNeuralNetworkEngine,
+  type MillNeuralEncodeInput,
+} from "../engines/MillNeuralNetworkEngine.js";
+import { neuralIntegrationEngine } from "../engines/NeuralIntegrationEngine.js";
 
 const INPUT_SIZE = 37;
 const OUTPUT_SIZE = 5;
@@ -227,5 +232,143 @@ describe("MillNeuralNetworkEngine.getNetworkStats", () => {
     // Output layer contributes OUTPUT_SIZE neurons; verify via architecture sum
     const hiddenAndInputNeurons = 37 + 32 + 16 + 8;
     expect(stats.total_neurons - hiddenAndInputNeurons).toBe(OUTPUT_SIZE);
+  });
+});
+
+// ============================================================================
+// MILL-MASTER-AI-WIRING / U14-NEURAL-RETROFIT
+// encode() public wrapper + neuralIntegrationEngine.route() reachability
+// ============================================================================
+
+describe("MillNeuralNetworkEngine.encode — structured input wrapper (U14)", () => {
+  const engine = new MillNeuralNetworkEngine();
+
+  const ENCODE_INPUT: MillNeuralEncodeInput = {
+    materialIso: "P",
+    toolType: "flat_endmill",
+    operationType: "rough_pocket",
+    toolDiameterMm: 12,
+    rpm: 6000,
+    feed: 60,
+    doc: 2,
+    zLevelCount: 4,
+    cutterComp: true,
+    isProven: true,
+  };
+
+  it("returns array of length INPUT_SIZE (37) for a valid structured input", () => {
+    const features = engine.encode(ENCODE_INPUT);
+    expect(features).toHaveLength(INPUT_SIZE);
+  });
+
+  it("encode() output is bit-identical to encodeFeatures() with the same args", () => {
+    const fromWrapper = engine.encode(ENCODE_INPUT);
+    const fromDirect = engine.encodeFeatures(
+      ENCODE_INPUT.materialIso,
+      ENCODE_INPUT.toolType,
+      ENCODE_INPUT.operationType,
+      ENCODE_INPUT.toolDiameterMm,
+      ENCODE_INPUT.rpm,
+      ENCODE_INPUT.feed,
+      ENCODE_INPUT.doc,
+      ENCODE_INPUT.zLevelCount,
+      ENCODE_INPUT.cutterComp,
+      ENCODE_INPUT.isProven ?? false,
+    );
+    expect(fromWrapper).toEqual(fromDirect);
+  });
+
+  it("encode() defaults isProven to false when omitted", () => {
+    const noProven: MillNeuralEncodeInput = { ...ENCODE_INPUT };
+    delete noProven.isProven;
+    const features = engine.encode(noProven);
+    // Slot 36 is isProven flag
+    expect(features[36]).toBe(0);
+  });
+
+  it("encode() honors materialIso one-hot at slot 0..5 (K → slot 2)", () => {
+    const features = engine.encode({ ...ENCODE_INPUT, materialIso: "K" });
+    expect(features[0]).toBe(0);
+    expect(features[2]).toBe(1);
+    expect(features[5]).toBe(0);
+  });
+
+  it("encode() honors cutterComp at slot 35", () => {
+    const off = engine.encode({ ...ENCODE_INPUT, cutterComp: false });
+    const on = engine.encode({ ...ENCODE_INPUT, cutterComp: true });
+    expect(off[35]).toBe(0);
+    expect(on[35]).toBe(1);
+  });
+
+  it("encode() output is consumable by predict() (round-trip via singleton)", () => {
+    const prediction = millNeuralNetworkEngine.predict(
+      ENCODE_INPUT.materialIso,
+      ENCODE_INPUT.toolType,
+      ENCODE_INPUT.operationType,
+      ENCODE_INPUT.toolDiameterMm,
+      ENCODE_INPUT.rpm,
+      ENCODE_INPUT.feed,
+      ENCODE_INPUT.doc,
+      ENCODE_INPUT.zLevelCount,
+      ENCODE_INPUT.cutterComp,
+    );
+    expect(prediction.output).toHaveLength(3);
+    expect(Number.isFinite(prediction.output[0])).toBe(true);
+    expect(Number.isFinite(prediction.output[1])).toBe(true);
+    expect(Number.isFinite(prediction.output[2])).toBe(true);
+    expect(prediction.confidence).toBeGreaterThanOrEqual(0);
+    expect(prediction.confidence).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("neuralIntegrationEngine.route — reaches MillNeuralNetworkEngine for mill-domain neural queries (U14)", () => {
+  it("route('mill neural network prediction') returns engine === MillNeuralNetworkEngine", () => {
+    const r = neuralIntegrationEngine.route({
+      input: "mill neural network prediction model",
+    });
+    expect(r.engine).toBe("MillNeuralNetworkEngine");
+    expect(r.action).toBe("prism_calc:mill_neural_predict");
+  });
+
+  it("route('neural network for milling') matches the mill_neural pattern", () => {
+    const r = neuralIntegrationEngine.route({
+      input: "neural network for milling parameter prediction",
+    });
+    expect(r.engine).toBe("MillNeuralNetworkEngine");
+  });
+
+  it("route confidence on mill_neural match is in [0.6, 0.95]", () => {
+    const r = neuralIntegrationEngine.route({
+      input: "mill neural network prediction",
+    });
+    expect(r.confidence).toBeGreaterThanOrEqual(0.6);
+    expect(r.confidence).toBeLessThanOrEqual(0.95);
+  });
+
+  it("route reasoning string mentions the mill_neural pattern name", () => {
+    const r = neuralIntegrationEngine.route({
+      input: "mill neural prediction model",
+    });
+    expect(r.reasoning).toMatch(/mill_neural/i);
+  });
+
+  it("route preserves the milling pattern for non-neural mill queries", () => {
+    const r = neuralIntegrationEngine.route({ input: "milling roughing strategy" });
+    expect(r.engine).toBe("MillingDeepAIHardeningEngine");
+  });
+
+  it("route falls through to default reasoning for off-domain queries", () => {
+    const r = neuralIntegrationEngine.route({ input: "  " });
+    // Empty/whitespace queries should not falsely match mill_neural.
+    expect(r.engine).not.toBe("MillNeuralNetworkEngine");
+  });
+
+  it("route alternatives never duplicate the primary engine", () => {
+    const r = neuralIntegrationEngine.route({
+      input: "mill neural network prediction",
+    });
+    for (const alt of r.alternatives) {
+      expect(alt.engine).not.toBe(r.engine);
+    }
   });
 });

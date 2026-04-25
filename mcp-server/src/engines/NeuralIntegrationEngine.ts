@@ -107,9 +107,20 @@ const NEURAL_PATTERNS = {
     autoInvoke: true,
   },
 
-  // Milling patterns
+  // Mill neural-net patterns (MILL-MASTER-AI-WIRING / U14-NEURAL-RETROFIT)
+  mill_neural: {
+    patterns: [
+      /mill.*(neural|nn\b|deep.*learning|prediction)/i,
+      /(neural|nn\b).*(mill|milling)/i,
+    ],
+    engines: ["MillNeuralNetworkEngine"],
+    commands: ["/mill-optimize"],
+    actions: ["prism_calc:mill_neural_predict"],
+  },
+
+  // Milling patterns (excludes neural-net queries via negative lookahead so mill_neural wins)
   milling: {
-    patterns: [/mill|milling|haas|hurco|roughing|finishing|5.*axis/i],
+    patterns: [/(?:mill|milling|haas|hurco|roughing|finishing|5.*axis)(?!.*(?:neural|\bnn\b|prediction))/i],
     engines: ["MillingDeepAIHardeningEngine", "MillingUltimateAIEngine", "FiveAxisToolpathSynthesisEngine"],
     commands: ["/machine-harden mill"],
     actions: ["prism_cam:analyze", "prism_calc:milling_force"],
