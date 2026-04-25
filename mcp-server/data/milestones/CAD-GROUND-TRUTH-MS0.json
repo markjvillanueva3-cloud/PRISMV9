@@ -1,0 +1,363 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "CAD-GROUND-TRUTH-MS0",
+  "title": "CAD Ground-Truth Extraction — Native Parsers, STEP Pipelines, Canonical References",
+  "track": "CAD-GROUND-TRUTH",
+  "status": "in_progress",
+  "priority": "CRITICAL",
+  "total_units": 10,
+  "completed_units": 4,
+  "completed_unit_ids": ["U-CGT01", "U-CGT02", "U-CGT03", "U-CGT04"],
+  "last_unit_completed": {
+    "id": "U-CGT04",
+    "title": "GroundTruthFeatureTreeExtractor — canonical JSON feature tree",
+    "completed_at": "2026-04-25",
+    "engine": "src/engines/GroundTruthFeatureTreeExtractor.ts",
+    "test": "src/__tests__/groundTruthFeatureTreeExtractor.test.ts",
+    "tests_passed": 28,
+    "delivered_in_commit": "cb7436cc1 (bundled by auto-commit hook)"
+  },
+  "sessions_p50": 4,
+  "sessions_p90": 5,
+  "dependencies": [
+    "CAD-AUTOMATION-MS0"
+  ],
+  "blocks": [
+    "CAD-SYNTHESIS-MS0",
+    "CAD-DRAW-EVERY-MS0"
+  ],
+  "goal": "Convert every native CAD file in the 20,006-file corpus into a canonical ground-truth representation (STEP + JSON feature tree + dimensional signature). This is the frozen reference against which PRISM's generated output will be compared in the ultimate test.",
+  "ultimate_test_contribution": "The ground-truth corpus IS the scoring oracle. When PRISM draws file X from scratch, we compare against ground_truth[X]. Without ground truth, there is no pass/fail signal.",
+  "exit_criteria": {
+    "ground_truth_corpus_complete": "All 20,006 files have corresponding ground-truth bundle: {step, feature_tree_json, dimensions_json, screenshots}",
+    "canonical_signature_stable": "Re-running extraction produces bit-identical signatures (modulo timestamp fields)",
+    "coverage_report": "Report shows % of corpus successfully extracted, broken down by format",
+    "fctstd_native_parser": "FreeCAD .FCStd files parseable without launching FreeCAD (ZIP+XML path)",
+    "f3d_sqlite_parser": "Fusion360 .f3d files parseable without launching Fusion (SQLite extraction)"
+  },
+  "units": [
+    {
+      "id": "U-CGT01",
+      "title": "FCStdNativeParserEngine — direct ZIP+XML extraction",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "src/engines/FCStdNativeParserEngine.ts",
+        "Parses .FCStd as ZIP archive, extracts Document.xml, GuiDocument.xml, *.brp",
+        "Maps object tree, properties, spreadsheet cells without launching FreeCAD",
+        "Fallback to FreeCADAutomationBridge for complex feature trees",
+        "Handles FreeCAD 0.19, 0.20, 0.21, 1.0 format variations"
+      ],
+      "exit": "Parses 50 sample .FCStd files with >95% object coverage without launching FreeCAD",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "FCStdNativeParserEngine — direct ZIP+XML extraction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT02",
+      "title": "F3DSQLiteParserEngine — Fusion360 archive extraction",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "src/engines/F3DSQLiteParserEngine.ts",
+        "Treats .f3d as ZIP containing SQLite database + binary streams",
+        "Extracts timeline, sketch geometry, parameter table without Fusion running",
+        "Handles .f3z (multi-file archive) unpacking",
+        "Fallback to Fusion360AutomationBridge for baked geometry"
+      ],
+      "exit": "Parses 50 .f3d files offline with timeline + parameters coverage >90%",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "F3DSQLiteParserEngine — Fusion360 archive extraction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT03",
+      "title": "CADToSTEPPipelineEngine — one pipeline per format",
+      "estimated_duration_min": 75,
+      "deliverables": [
+        "src/engines/CADToSTEPPipelineEngine.ts",
+        "Orchestrates: identify format → select bridge → open → export STEP → validate",
+        "Per-format strategies: .sldprt→SolidWorks, .ipt→Inventor, .FCStd→FreeCAD, .mcx-8→Mastercam, .f3d→Fusion360, .hmc→hyperMILL",
+        "Fallback chain: native bridge → STEP-export add-in → manual trigger",
+        "Output: normalized STEP AP214/AP242 file"
+      ],
+      "exit": "Produces valid STEP for 100 mixed-format files; STEP passes ISO-10303 validation",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CADToSTEPPipelineEngine — one pipeline per format — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT04",
+      "title": "GroundTruthFeatureTreeExtractor — canonical JSON feature tree",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "src/engines/GroundTruthFeatureTreeExtractor.ts",
+        "Normalizes feature tree across 6 CAD systems into canonical schema",
+        "Schema: {features: [{type, name, parameters, sketch?, parent?}]}",
+        "Feature type normalization: Extrude, Revolve, Sweep, Loft, Fillet, Chamfer, Hole, Pattern, Mirror, Shell",
+        "Handles assembly tree with component references"
+      ],
+      "exit": "Feature trees for 100 files validate against canonical Zod schema",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "GroundTruthFeatureTreeExtractor — canonical JSON feature tree — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT05",
+      "title": "DimensionalSignatureEngine — file → dimensional fingerprint",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "src/engines/DimensionalSignatureEngine.ts",
+        "Extracts from STEP: bounding box, volume, surface area, center of mass, moments of inertia",
+        "Extracts critical dimensions: hole diameters, thread specs, overall envelope",
+        "Produces deterministic hash of dimensional signature for regression comparison",
+        "Units normalized to SI (meters, kg, m³)"
+      ],
+      "exit": "Signature re-computation on identical input produces bit-identical hash",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "DimensionalSignatureEngine — file → dimensional fingerprint — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT06",
+      "title": "CADScreenshotCapturer — reference views for visual diff",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "src/engines/CADScreenshotCapturer.ts",
+        "Captures 6 canonical views: ISO, front, top, right, section-XZ, section-YZ",
+        "Resolution: 1024x1024, white background, no annotations",
+        "Uses OCCT viewer (pythonocc) for STEP rendering — bypasses CAD apps for speed",
+        "Saves to data/cad-ground-truth/{fileId}/screenshots/{view}.png"
+      ],
+      "exit": "100 STEP files produce 6 screenshots each in <5min total",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CADScreenshotCapturer — reference views for visual diff — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT07",
+      "title": "GroundTruthBatchExtractor — 20K parallel extraction",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "src/engines/GroundTruthBatchExtractor.ts",
+        "Runs CADToSTEP + FeatureTree + DimensionalSig + Screenshots across 20K files",
+        "Reuses CADRegressionTestOrchestratorEngine worker pool",
+        "Checkpoint-resumable; produces coverage report (extracted vs skipped vs failed)",
+        "Writes to data/cad-ground-truth/{fileId}/"
+      ],
+      "exit": "20K-file extraction completes in <8hrs; coverage >85% across formats",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "GroundTruthBatchExtractor — 20K parallel extraction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT08",
+      "title": "GroundTruthRegistryEngine — indexed, queryable corpus",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "src/engines/GroundTruthRegistryEngine.ts",
+        "Indexes ground-truth bundles by fileId, customer, format, complexity",
+        "Query API: findByCustomer, findByComplexity, findByMachineCategory",
+        "Serves as input to training data loader and regression test comparator"
+      ],
+      "exit": "Registry returns 10-file sample for 'ALCOA lathe parts' in <100ms",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "GroundTruthRegistryEngine — indexed, queryable corpus — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT09",
+      "title": "GroundTruthValidationEngine — detect corrupted extractions",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "src/engines/GroundTruthValidationEngine.ts",
+        "Validates each extracted bundle: STEP parses, feature tree well-formed, signature non-degenerate",
+        "Flags: zero-volume bodies, missing screenshots, NaN dimensions",
+        "Produces QUARANTINE list of files to re-extract or exclude from regression"
+      ],
+      "exit": "Validates 20K bundles in <10min; quarantine rate <5%",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "GroundTruthValidationEngine — detect corrupted extractions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CGT10",
+      "title": "Regression test: ground-truth determinism",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "src/__tests__/groundTruthDeterminism.test.ts",
+        "Re-extract 100-file sample twice; assert bit-identical signatures",
+        "Assert feature trees structurally equal (modulo timestamps)",
+        "Assert screenshots pixel-diff <1% between runs"
+      ],
+      "exit": "Test green: ground-truth pipeline is deterministic",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Regression test: ground-truth determinism — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cad-ground-truth-ms0-gate",
+    "mcp_action": "prism_cad-ground-truth:cad_ground_truth_ms0_run",
+    "skill_command": "/cad-ground-truth-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cad-ground-truth-ms0-gate"
+    ],
+    "new_actions": [
+      "cad_ground_truth_ms0_run"
+    ],
+    "new_skills": [
+      "/cad-ground-truth-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Deliver CAD Ground-Truth Extraction — Native Parsers, STEP Pipelines, Canonical References per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}
