@@ -218,7 +218,7 @@ export function generateSetupSheet(
   const confidence = result.confidence_score;
 
   // ── Build pass table ────────────────────────────────────────────────
-  const passTable: PassTableRow[] = passes.map(p => ({
+  const passTable: PassTableRow[] = passes.map((p: any) => ({
     pass_number: p.pass_number,
     pass_type: p.type,
     e_pack_code: p.e_pack_code || "—",
@@ -233,7 +233,7 @@ export function generateSetupSheet(
   // ── Cycle time breakdown ────────────────────────────────────────────
   const cuttingMin = cycleTime.cutting_time_min;
   const nonCuttingMin = cycleTime.total_time_min - cuttingMin;
-  const perPass = cycleTime.per_pass.map(p => ({
+  const perPass = cycleTime.per_pass.map((p: any) => ({
     pass: p.pass_number,
     type: p.pass_type,
     time_min: round2(p.cutting_time_min),
@@ -261,7 +261,7 @@ export function generateSetupSheet(
     safetyNotes.push(`High hardness (${hardness_hrc} HRC): expect slower cutting speeds and monitor for wire breaks`);
   }
   // Surface tribal knowledge tips for operator reference
-  const hasTaper = result.pass_details?.some?.(p => p.type === "taper") ?? false;
+  const hasTaper = result.pass_details?.some?.((p: any) => p.type === "taper") ?? false;
   const tips = selectTipsForJob(sheet.thickness_mm, sheet.material, hasTaper, sheet.num_passes);
   safetyNotes.push(...tips);
 

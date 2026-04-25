@@ -320,7 +320,7 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
 
     // Get current jobs for the affected machine
     const slots = schedulingEngine.getSlots?.() || [];
-    const affectedJobs = slots.filter(s => s.machine_id === machine_id);
+    const affectedJobs = slots.filter((s: any) => s.machine_id === machine_id);
 
     // Trigger schedule optimization
     // Note: This is a simplified version - full implementation would use the schedule_optimize action

@@ -2538,7 +2538,7 @@ Params vary by action — pass relevant fields in params object.`,
               explanation: explanations[audience],
               recommendation: calcResult.recommendation,
               confidence: calcResult.confidence,
-              reasoning_steps: calcResult.reasoning.map(r => r.step),
+              reasoning_steps: calcResult.reasoning.map((r: any) => r.step),
             };
             break;
           }
@@ -2742,7 +2742,7 @@ Params vary by action — pass relevant fields in params object.`,
             const gcodeStr = Array.isArray(gcodeInput) ? gcodeInput.join("\n") : gcodeInput;
             const blocks = LathePostProcessorDialectValidatorEngine.parseProgram(gcodeStr);
             const features = LathePostProcessorDialectValidatorEngine.detectDialectFeatures(blocks);
-            const hasM30 = blocks.some(b => b.codes.some(c => c.letter === "M" && c.value === 30));
+            const hasM30 = blocks.some(b => b.codes.some((c: any) => c.letter === "M" && c.value === 30));
             const validatorResults = [
               { validator: "PPProgramEndValidator", category: "program_end", status: hasM30 ? "pass" : "fail" as const },
               { validator: "PPRapidMoveValidator", category: "rapid_move", status: "pass" as const },
