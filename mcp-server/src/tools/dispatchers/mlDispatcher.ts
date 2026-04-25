@@ -27,6 +27,9 @@ import { ML_ACTIONS, ACTION_ML_SCHEMAS } from "../../schemas/mlActionSchemas.js"
 
 // Lazy-loaded engine singletons
 let _minParser: typeof import("../../engines/MINFileParserEngine.js").minFileParserEngine | null = null;
+let _mcxParser: typeof import("../../engines/McxProgramParserEngine.js").mcxProgramParserEngine | null = null;
+let _minBatch: typeof import("../../engines/MINBatchExtractorEngine.js").minBatchExtractorEngine | null = null;
+let _mcxBatch: typeof import("../../engines/McxBatchExtractorEngine.js").mcxBatchExtractorEngine | null = null;
 let _ncParser: typeof import("../../engines/NCFileParserEngine.js").ncFileParserEngine | null = null;
 let _runLogParser: typeof import("../../engines/OkumaRunLogParserEngine.js").okumaRunLogParserEngine | null = null;
 let _assembler: typeof import("../../engines/TrainingExampleAssemblerEngine.js").trainingExampleAssemblerEngine | null = null;
@@ -68,6 +71,12 @@ async function getEngine(name: string): Promise<unknown> {
   switch (name) {
     case "min":
       return _minParser ??= (await import("../../engines/MINFileParserEngine.js")).minFileParserEngine;
+    case "mcx":
+      return _mcxParser ??= (await import("../../engines/McxProgramParserEngine.js")).mcxProgramParserEngine;
+    case "minBatch":
+      return _minBatch ??= (await import("../../engines/MINBatchExtractorEngine.js")).minBatchExtractorEngine;
+    case "mcxBatch":
+      return _mcxBatch ??= (await import("../../engines/McxBatchExtractorEngine.js")).mcxBatchExtractorEngine;
     case "nc":
       return _ncParser ??= (await import("../../engines/NCFileParserEngine.js")).ncFileParserEngine;
     case "runLog":
@@ -221,6 +230,59 @@ export function registerMLDispatcher(server: unknown): void {
               program: parseResult.program,
               warnings: parseResult.warnings,
             };
+            break;
+          }
+
+          case "program_parse_mcx": {
+            // U-LPR26: Mastercam binary metadata parser.
+            const engine = await getEngine("mcx") as typeof import("../../engines/McxProgramParserEngine.js").mcxProgramParserEngine;
+            const maxBytes = (params.max_bytes as number) ?? 64 * 1024 * 1024;
+            const filePath = params.file_path as string | undefined;
+            const contentB64 = params.content_base64 as string | undefined;
+            const filename = (params.filename as string) ?? "inline.mcx-8";
+            const metadata = filePath
+              ? engine.parseFile(filePath, { maxBytes })
+              : engine.parseBuffer(Buffer.from(contentB64 ?? "", "base64"), filename);
+            result = {
+              success: metadata.parse_ok,
+              metadata,
+              warnings: metadata.warnings,
+              errors: metadata.errors,
+            };
+            break;
+          }
+
+          case "min_batch_extract": {
+            // U-LPR27: bounded-concurrency .MIN corpus parser.
+            const engine = await getEngine("minBatch") as typeof import("../../engines/MINBatchExtractorEngine.js").minBatchExtractorEngine;
+            const batch = await engine.extractBatch({
+              rootDir: params.root_dir as string,
+              outputRoot: params.output_root as string,
+              runId: params.run_id as string,
+              maxFiles: params.max_files as number | undefined,
+              maxConcurrency: params.max_concurrency as number | undefined,
+              checkpointEvery: (params.checkpoint_every as number) ?? 250,
+              maxBytesPerFile: (params.max_bytes_per_file as number) ?? 32 * 1024 * 1024,
+              resume: (params.resume as boolean) ?? true,
+            });
+            result = { success: true, batch };
+            break;
+          }
+
+          case "mcx_batch_extract": {
+            // U-LPR28: bounded-concurrency Mastercam-binary corpus parser.
+            const engine = await getEngine("mcxBatch") as typeof import("../../engines/McxBatchExtractorEngine.js").mcxBatchExtractorEngine;
+            const batch = await engine.extractBatch({
+              rootDir: params.root_dir as string,
+              outputRoot: params.output_root as string,
+              runId: params.run_id as string,
+              maxFiles: params.max_files as number | undefined,
+              maxConcurrency: params.max_concurrency as number | undefined,
+              checkpointEvery: (params.checkpoint_every as number) ?? 250,
+              maxBytesPerFile: (params.max_bytes_per_file as number) ?? 32 * 1024 * 1024,
+              resume: (params.resume as boolean) ?? true,
+            });
+            result = { success: true, batch };
             break;
           }
 

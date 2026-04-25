@@ -38,6 +38,9 @@ export const ML_ACTIONS = [
   "corpus_crawl",
   "corpus_stats",
   "program_parse_min",
+  "program_parse_mcx",
+  "min_batch_extract",
+  "mcx_batch_extract",
   "program_parse_nc",
   "run_log_parse",
   "training_assemble",
@@ -147,6 +150,37 @@ export const ACTION_ML_SCHEMAS: Record<string, z.ZodType<unknown>> = {
     source_path: z.string().default("<inline>").describe("Source file path for provenance"),
     max_lines: z.number().int().positive().max(1_000_000).default(200_000).describe("Max lines to parse"),
   }).describe("Parse an Okuma .MIN lathe program"),
+
+  program_parse_mcx: z.object({
+    file_path: z.string().optional().describe("Absolute path to .mcx/.mcx-8/.mcx-9/.mcam file (mutually exclusive with content_base64)"),
+    content_base64: z.string().optional().describe("Base64-encoded file bytes for in-memory parse (mutually exclusive with file_path)"),
+    filename: z.string().default("inline.mcx-8").describe("Filename used for extension-based format detection when content_base64 is supplied"),
+    max_bytes: z.number().int().positive().max(64 * 1024 * 1024).default(64 * 1024 * 1024).describe("Per-file byte cap (≤64 MiB)"),
+  }).refine((v) => Boolean(v.file_path) !== Boolean(v.content_base64), {
+    message: "exactly one of file_path or content_base64 must be supplied",
+  }).describe("Parse a Mastercam binary part file (LATHE-PROD-READY-MS0/U-LPR26)"),
+
+  min_batch_extract: z.object({
+    root_dir: z.string().describe("Root directory containing the .MIN corpus to walk recursively"),
+    output_root: z.string().describe("Where the resumable checkpoint will be persisted under _checkpoints/"),
+    run_id: z.string().min(1).describe("Stable run identifier — supply same value to resume"),
+    max_files: z.number().int().positive().max(50_000).optional().describe("Cap on attempted files (e.g. 2000 for pt1)"),
+    max_concurrency: z.number().int().positive().max(64).optional().describe("Worker pool size; defaults to min(cpus-1, 8)"),
+    checkpoint_every: z.number().int().positive().max(10_000).default(250).describe("Persist checkpoint every N completions"),
+    max_bytes_per_file: z.number().int().positive().max(64 * 1024 * 1024).default(32 * 1024 * 1024).describe("Per-file byte cap; oversized files are skipped"),
+    resume: z.boolean().default(true).describe("Skip files already in the checkpoint when true"),
+  }).describe("Bounded-concurrency .MIN batch parser with checkpoint+resume (LATHE-PROD-READY-MS0/U-LPR27)"),
+
+  mcx_batch_extract: z.object({
+    root_dir: z.string().describe("Root directory containing the Mastercam binary corpus"),
+    output_root: z.string().describe("Where the resumable checkpoint will be persisted under _checkpoints/"),
+    run_id: z.string().min(1).describe("Stable run identifier — supply same value to resume"),
+    max_files: z.number().int().positive().max(50_000).optional().describe("Cap on attempted files"),
+    max_concurrency: z.number().int().positive().max(64).optional().describe("Worker pool size; defaults to min(cpus-1, 8)"),
+    checkpoint_every: z.number().int().positive().max(10_000).default(250).describe("Persist checkpoint every N completions"),
+    max_bytes_per_file: z.number().int().positive().max(64 * 1024 * 1024).default(32 * 1024 * 1024).describe("Per-file byte cap; oversized files are skipped"),
+    resume: z.boolean().default(true).describe("Skip files already in the checkpoint when true"),
+  }).describe("Bounded-concurrency Mastercam-binary batch parser with checkpoint+resume (LATHE-PROD-READY-MS0/U-LPR28)"),
 
   program_parse_nc: z.object({
     text: z.string().describe("Standard G-code .NC program text"),
