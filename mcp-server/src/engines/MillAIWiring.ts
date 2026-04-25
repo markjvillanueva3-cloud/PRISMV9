@@ -219,33 +219,100 @@ export function recordCapabilityUsage(event: CapabilityUsageEvent): void {
  *              auto-downgrade on the next invocation.
  *   - 'on'   : AI first, with fail-closed catch that falls back to legacy.
  *
+ * MILL-MASTER-AI-WIRING / U15-MXU-TELEMETRY — every invocation auto-records via
+ * capabilityEffectivenessEngine.recordUsage. Telemetry is fail-safe: a thrown
+ * recordUsage never affects the call path. Disable per-call with
+ * opts.recordTelemetry=false.
+ *
  * Sync-only in U2 (mill-master engines are all sync today). An async overload
  * is planned alongside the first long-running mill-AI method.
  */
 const budgetOverruns = new Map<string, number>();
 
+/** Options for {@link budgetedAIPath}. */
+export interface BudgetedAIPathOpts {
+  /** Capability id used as the recordUsage key. Defaults to 'mill-ai-wiring:default'. */
+  capabilityId?: string;
+  /** AI-path latency budget in ms. Overrun marks the cap for 60s auto-downgrade. */
+  budgetMs?: number;
+  /** Pillar tag passed through to capabilityEffectivenessEngine. Default: 'toolpath'. */
+  pillar?: PillarId;
+  /** Set false to skip recordUsage (useful in microbenchmarks). Default: true. */
+  recordTelemetry?: boolean;
+}
+
 export function budgetedAIPath<T>(
   useAI: UseAI,
   legacyFn: () => T,
   aiFn: () => T,
-  opts?: { capabilityId?: string; budgetMs?: number },
+  opts: BudgetedAIPathOpts = {},
 ): T {
-  if (useAI === "off") return legacyFn();
-  const capId = opts?.capabilityId ?? "mill-ai-wiring:default";
-  const budget = opts?.budgetMs ?? 500;
+  const capId = opts.capabilityId ?? "mill-ai-wiring:default";
+  const budget = opts.budgetMs ?? 500;
+  const pillar = opts.pillar;
+  const recordTelemetry = opts.recordTelemetry !== false;
+
+  // Decide whether to enter the AI path or downgrade to legacy.
+  let useLegacy = useAI === "off";
   if (useAI === "auto") {
     const lastOverrun = budgetOverruns.get(capId) ?? 0;
-    if (Date.now() - lastOverrun < 60_000) return legacyFn();
+    if (Date.now() - lastOverrun < 60_000) useLegacy = true;
   }
+
+  if (useLegacy) {
+    return runWithMxuTelemetry(legacyFn, {
+      capId, pillar, useAI, recordTelemetry, fallback: useAI !== "off",
+    });
+  }
+
+  // AI path — fail-closed fallback to legacy on AI exception.
   const t0 = performance.now();
   try {
     const out = aiFn();
     const dt = performance.now() - t0;
     if (dt > budget) budgetOverruns.set(capId, Date.now());
+    if (recordTelemetry) {
+      recordCapabilityUsage({
+        capabilityId: capId, pillar, useAI,
+        durationMs: dt, success: true, fallback: false,
+      });
+    }
     return out;
   } catch {
     budgetOverruns.set(capId, Date.now());
-    return legacyFn();
+    return runWithMxuTelemetry(legacyFn, {
+      capId, pillar, useAI, recordTelemetry, fallback: true,
+    });
+  }
+}
+
+interface RunWithMxuOpts {
+  capId: string;
+  pillar?: PillarId;
+  useAI: UseAI;
+  recordTelemetry: boolean;
+  fallback: boolean;
+}
+
+function runWithMxuTelemetry<T>(fn: () => T, opts: RunWithMxuOpts): T {
+  const t0 = performance.now();
+  try {
+    const out = fn();
+    if (opts.recordTelemetry) {
+      recordCapabilityUsage({
+        capabilityId: opts.capId, pillar: opts.pillar, useAI: opts.useAI,
+        durationMs: performance.now() - t0, success: true, fallback: opts.fallback,
+      });
+    }
+    return out;
+  } catch (err) {
+    if (opts.recordTelemetry) {
+      recordCapabilityUsage({
+        capabilityId: opts.capId, pillar: opts.pillar, useAI: opts.useAI,
+        durationMs: performance.now() - t0, success: false, fallback: opts.fallback,
+      });
+    }
+    throw err;
   }
 }
 
