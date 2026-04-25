@@ -2076,7 +2076,7 @@
       "title": "NX CAM â€” Complete Function Index Assembly",
       "phase": "PHASE-2",
       "type": "integration",
-      "status": "not_started",
+      "status": "completed",
       "description": "Assemble all NX CAM functions into unified CAMFunctionIndex.",
       "entry_conditions": [
         "U-CAM39 through U-CAM41 complete"
@@ -2096,7 +2096,14 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:31:28.639Z",
+      "evidence": {
+        "engine": "mcp-server/src/engines/NXCAMFunctionIndexEngine.ts",
+        "test": "mcp-server/src/__tests__/NXCAMFunctionIndexEngine.test.ts (45/45 pass)",
+        "index": "mcp-server/data/cam-functions/nxcam/function-index.json (3 sections: milling, turning, fbm)",
+        "dispatcher": "camDispatcher.ts has nxcam_index_* actions wired (per U-CAM42 marker block)"
+      }
     },
     {
       "id": "U-CAM43",
@@ -2878,7 +2885,7 @@
       "title": "Engine Generation â€” CAMFunctionRouterEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that routes to appropriate CAM function based on intent and target CAM system.",
       "entry_conditions": [
         "PHASE-4 complete",
@@ -2899,14 +2906,23 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:31:28.639Z",
+      "evidence": {
+        "engine": "mcp-server/src/engines/CAMFunctionRouterEngine.ts",
+        "test": "mcp-server/src/__tests__/CAMFunctionRouterEngine.test.ts (21/21 pass)",
+        "prior_commits": [
+          "cb7436cc1 [MAIN] CAM-EXHAUST-MS0/U-CAM71: production CAMFunctionRouterEngine",
+          "b90b8eac6 [MAIN] CAM-EXHAUST-MS0/U-CAM71: SQL Macro DB + InventorHSM extraction"
+        ]
+      }
     },
     {
       "id": "U-CAM72",
       "title": "Engine Generation â€” CAMParameterValidatorEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that validates CAM parameters against function index schema.",
       "entry_conditions": [
         "U-CAM71 complete",
@@ -2927,7 +2943,16 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:31:28.639Z",
+      "evidence": {
+        "engine": "mcp-server/src/engines/CAMParameterValidatorEngine.ts",
+        "test": "mcp-server/src/__tests__/CAMParameterValidatorEngine.test.ts (17/17 pass)",
+        "prior_commits": [
+          "ea071ff19 [MAIN] CAM-EXHAUST-MS0/U-CAM72: production CAMParameterValidatorEngine",
+          "c1caf5234 [MAIN] CAM-EXHAUST-MS0/U-CAM72-WIRE: cam_parameter_validate dispatcher action"
+        ]
+      }
     },
     {
       "id": "U-CAM73",
