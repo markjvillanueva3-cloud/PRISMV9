@@ -168,3 +168,30 @@ import { crossDisciplinaryDeepLearningEngine } from "mcp-server/src/engines/Cros
 Full directive: `state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md`
 - AI capability inventory, recommended features, multi-agent patterns
 - Automatically injected during compaction survival
+
+---
+
+## Mill engines: useAI contract (MILL-MASTER-AI-WIRING)
+
+The mill-master engine stack reaches into the shared PRISM AI layer via
+`src/engines/MillAIWiring.ts`. Wired engine methods expose an optional
+`useAI?: 'off' | 'auto' | 'on'`. Default is `'off'`.
+
+| `useAI` | Behavior | Prefer when |
+| --- | --- | --- |
+| `'off'` (default) | Legacy path, bit-identical to pre-wiring output. p95 <= 50 ms. | Existing call sites, regressions, hot paths |
+| `'auto'` | AI path unless capability hit its budget in the last 60 s; downgrades to legacy on cooldown. p95 <= 100 ms. | Production code that needs bounded tail latency |
+| `'on'` | AI path always; fail-closed legacy fallback on AI exception. p95 <= 500 ms / hard ceiling 2000 ms. | Tools, exploration, batch jobs |
+
+`budgetedAIPath` auto-records every invocation on
+`capabilityEffectivenessEngine`. Disable per call with
+`opts.recordTelemetry: false` for benchmarks.
+
+Direct PRISM-AI access without an engine: dispatcher action
+`mill_prism_reason` (`{op: enum(['reason','rank','explain','budget'])}`),
+distinct from facade-routed `mill_agi_reason`.
+
+Migration + ops details:
+`mcp-server/data/docs/migration/MILL-AI-WIRING-MIGRATION.md`,
+`mcp-server/data/docs/runbooks/MILL-AI-WIRING-RUNBOOK.md`,
+`mcp-server/data/docs/CHANGELOG-MILL-MASTER-AI-WIRING.md`.
