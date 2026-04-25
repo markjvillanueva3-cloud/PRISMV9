@@ -196,6 +196,12 @@ export interface CADOperation {
   description?: string;
   /** Non-fatal hints — e.g. "use peck drilling on L/D > 5". */
   hints?: ReadonlyArray<string>;
+  /** Compatibility alias for args used by some legacy CAD generators. */
+  params?: Record<string, unknown>;
+  /** Index in the originating operation stream (lineage telemetry). */
+  opIndex?: number;
+  /** Compatibility alias for description used by some legacy CAD generators. */
+  comment?: string;
 }
 
 // ── Build phase outputs ────────────────────────────────────────────────────
