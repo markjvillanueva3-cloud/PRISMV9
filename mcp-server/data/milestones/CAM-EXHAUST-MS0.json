@@ -1767,7 +1767,7 @@
       "title": "InventorCAM/HSM â€” Complete Function Index Assembly",
       "phase": "PHASE-1",
       "type": "integration",
-      "status": "not_started",
+      "status": "completed",
       "description": "Assemble all InventorCAM functions into unified CAMFunctionIndex.",
       "entry_conditions": [
         "U-CAM26 through U-CAM31 complete"
@@ -1787,7 +1787,15 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:08:28.855Z",
+      "evidence": {
+        "engine": "mcp-server/src/engines/InventorCAMFunctionIndexEngine.ts (305 LOC, wraps InventorHSMFunctionIndexEngine)",
+        "test": "mcp-server/src/__tests__/InventorCAMFunctionIndexEngine.test.ts (43/43 pass after turning-millturn rename fix)",
+        "index": "mcp-server/data/cam-functions/inventor-hsm/function-index.json (6 sections, 64 ops, 873 params)",
+        "base_engine_fix": "InventorHSMFunctionIndexEngine.ts file list updated turning.json -> turning-millturn.json (was breaking 4 tests)",
+        "notes": "Dispatcher actions for unified InventorCAMFunctionIndexEngine deferred (peer claim on camDispatcher.ts at edit-time). Base InventorHSMFunctionIndexEngine already has 10 actions wired covering same data."
+      }
     },
     {
       "id": "U-CAM33",
