@@ -161,6 +161,13 @@ const ACTIONS = [
   "gt_export_quarantine",
   "gt_validate_report",
   "gt_list_issue_codes",
+  // U-CADC01..U-CADC04 — UniversalCADIndexEngine: master CAD-file registry
+  "universal_cad_index",
+  "universal_cad_load",
+  "universal_cad_coverage",
+  "universal_cad_has_coverage",
+  "universal_cad_target_formats",
+  "universal_cad_root_paths",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -1159,6 +1166,78 @@ Actions: ${ACTIONS.join(", ")}.`,
             );
             const codes = groundTruthValidationEngine.listIssueCodes();
             result = { count: codes.length, codes };
+            break;
+          }
+          case "universal_cad_index": {
+            // U-CADC01 — Run full corpus scan; persist master-index.json by default.
+            const { universalCADIndexEngine } = await import(
+              "../../engines/UniversalCADIndexEngine.js"
+            );
+            const indexOpts: Record<string, unknown> = {};
+            if (Array.isArray(params["rootPaths"])) indexOpts["rootPaths"] = params["rootPaths"];
+            if (typeof params["outputPath"] === "string") indexOpts["outputPath"] = params["outputPath"];
+            if (Array.isArray(params["extensions"])) indexOpts["extensions"] = params["extensions"];
+            if (typeof params["maxDepth"] === "number") indexOpts["maxDepth"] = params["maxDepth"];
+            if (typeof params["persist"] === "boolean") indexOpts["persist"] = params["persist"];
+            result = await universalCADIndexEngine.index(
+              indexOpts as Parameters<typeof universalCADIndexEngine.index>[0],
+            );
+            break;
+          }
+          case "universal_cad_load": {
+            const { universalCADIndexEngine } = await import(
+              "../../engines/UniversalCADIndexEngine.js"
+            );
+            const loaded = universalCADIndexEngine.load(
+              typeof params["outputPath"] === "string"
+                ? (params["outputPath"] as string)
+                : undefined,
+            );
+            result = loaded ?? { error: "master index not found or invalid" };
+            break;
+          }
+          case "universal_cad_coverage": {
+            const { universalCADIndexEngine } = await import(
+              "../../engines/UniversalCADIndexEngine.js"
+            );
+            try {
+              result = universalCADIndexEngine.computeCoverage(
+                params["index"] as Parameters<typeof universalCADIndexEngine.computeCoverage>[0],
+              );
+            } catch (err) {
+              result = { error: (err as Error).message ?? String(err) };
+            }
+            break;
+          }
+          case "universal_cad_has_coverage": {
+            const { universalCADIndexEngine } = await import(
+              "../../engines/UniversalCADIndexEngine.js"
+            );
+            try {
+              const ok = universalCADIndexEngine.hasUniversalCoverage(
+                params["index"] as Parameters<typeof universalCADIndexEngine.hasUniversalCoverage>[0],
+                typeof params["minCoveragePct"] === "number"
+                  ? (params["minCoveragePct"] as number)
+                  : 1.0,
+              );
+              result = { hasCoverage: ok };
+            } catch (err) {
+              result = { error: (err as Error).message ?? String(err) };
+            }
+            break;
+          }
+          case "universal_cad_target_formats": {
+            const { TARGET_CAD_FORMATS } = await import(
+              "../../engines/UniversalCADIndexEngine.js"
+            );
+            result = { count: TARGET_CAD_FORMATS.length, formats: TARGET_CAD_FORMATS };
+            break;
+          }
+          case "universal_cad_root_paths": {
+            const { UNIVERSAL_ROOT_PATHS } = await import(
+              "../../engines/UniversalCADIndexEngine.js"
+            );
+            result = { count: UNIVERSAL_ROOT_PATHS.length, paths: UNIVERSAL_ROOT_PATHS };
             break;
           }
           default:

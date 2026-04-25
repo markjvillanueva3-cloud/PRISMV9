@@ -707,6 +707,37 @@ const gt_validate_report = z
 
 const gt_list_issue_codes = z.object({}).passthrough();
 
+
+// ─── Universal CAD Index (U-CADC01..U-CADC04 / CAD-COMPLETE-MS0 PHASE-0) ─
+
+const universal_cad_index = z
+  .object({
+    rootPaths: z.array(z.string().min(1)).optional(),
+    outputPath: z.string().min(1).optional(),
+    extensions: z.array(z.string().min(1)).optional(),
+    maxDepth: z.number().int().min(0).optional(),
+    persist: z.boolean().optional(),
+  })
+  .passthrough();
+
+const universal_cad_load = z
+  .object({ outputPath: z.string().min(1).optional() })
+  .passthrough();
+
+const universal_cad_coverage = z
+  .object({ index: z.unknown() })
+  .passthrough();
+
+const universal_cad_has_coverage = z
+  .object({
+    index: z.unknown(),
+    minCoveragePct: z.number().min(0).max(1).optional(),
+  })
+  .passthrough();
+
+const universal_cad_target_formats = z.object({}).passthrough();
+const universal_cad_root_paths = z.object({}).passthrough();
+
 // ─── Export map ──────────────────────────────────────────────────────────
 
 export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
@@ -768,4 +799,10 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   gt_export_quarantine,
   gt_validate_report,
   gt_list_issue_codes,
+  universal_cad_index,
+  universal_cad_load,
+  universal_cad_coverage,
+  universal_cad_has_coverage,
+  universal_cad_target_formats,
+  universal_cad_root_paths,
 };
