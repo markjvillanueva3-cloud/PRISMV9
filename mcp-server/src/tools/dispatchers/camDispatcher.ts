@@ -932,7 +932,7 @@ export const ACTIONS = [
   "cam_multiaxis_recommend", "cam_material_map",
   "cam_cycle_catalog",
   "cam_catalog_load_all", "cam_catalog_load_one", "cam_catalog_priority5_coverage",
-  "cam_function_route",
+  "cam_function_route", "cam_parameter_validate",
   "cam_inventor_hsm_analyze_operation",
   "cam_inventor_hsm_analyze_project",
   "cam_inventor_hsm_generate_nc_header",
@@ -1870,6 +1870,15 @@ Params vary by action — pass relevant fields in params object.`,
             result = camFunctionRouterEngine.route({
               intent: String(params.intent ?? ""),
               target_cam: params.target_cam ?? params.slug,
+            });
+            break;
+          }
+          case "cam_parameter_validate": {
+            const { camParameterValidatorEngine } = await import("../../engines/CAMParameterValidatorEngine.js");
+            result = camParameterValidatorEngine.validate({
+              target_cam: String(params.target_cam ?? params.slug ?? ""),
+              parameters: (params.parameters as Record<string, unknown>) ?? {},
+              operation: params.operation !== undefined ? String(params.operation) : undefined,
             });
             break;
           }
