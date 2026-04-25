@@ -58,3 +58,9 @@ mcp-server/data/state/portable-*-drift.jsonl
 .claude/global-rules-backup/
 .claude/helpers/.compaction-survival-*
 .claude/skills/
+# Live worktrees (1.5 GB of duplicated source - kills recursive grep/find)
+.claude/worktrees/
+# Per-chat handoffs (accumulate; 99+ files - slows /startup dir-walk)
+state/shared/handoffs/HANDOFF-*.md
+# Per-chat chat-bus claim files
+state/shared/chat-bus/

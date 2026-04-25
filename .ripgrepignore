@@ -1,0 +1,30 @@
+# PRISM ripgrep exclusions — mirror of .gitignore, plus rg-only paths
+# Created 2026-04-25 to fix recursive-grep hangs on 1.5 GB worktree dir.
+# rg respects this in addition to .gitignore by default; explicit list is faster.
+
+# Worktrees — 5 abandoned full-source copies, 1.5 GB total
+.claude/worktrees/
+prism-cad-complete/
+prism-cam-exhaust/
+prism-mill-worktree/
+prism-session-efficiency/
+
+# Per-chat ephemera
+.claude/helpers/.compaction-survival-*
+state/shared/handoffs/HANDOFF-*.md
+state/shared/chat-bus/
+
+# Build artifacts
+mcp-server/dist/
+mcp-server/node_modules/
+node_modules/
+**/node_modules/
+
+# Caches
+.claude/cache/
+.claude/projects/
+
+# Tooling temp
+.claude/tmp-*.cjs
+.tmp-*.cjs
+.tmp-*.py

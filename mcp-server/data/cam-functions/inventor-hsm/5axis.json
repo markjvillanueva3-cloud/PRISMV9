@@ -5,267 +5,1001 @@
   "summary": {
     "total_operations": 9,
     "total_parameters": 124,
-    "categories": ["multi_axis", "positioning"]
+    "categories": [
+      "multi_axis",
+      "positioning"
+    ]
   },
   "operations": {
     "swarf_5axis": {
       "display_name": "Swarf",
       "category": "multi_axis",
       "description": "Side milling with tilting tool axis along ruled surfaces. Tool flank contacts surface for efficient material removal on walls and blades.",
-      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Heights",
+        "Passes",
+        "Linking",
+        "Multi-Axis"
+      ],
       "parameter_count": 16,
       "parameters": {
         "geometry": {
-          "surfaces": { "type": "selection", "required": true, "description": "Ruled surfaces to machine", "tab": "Geometry" },
-          "guideCurves": { "type": "selection", "description": "Tool axis guide curves for orientation control", "tab": "Geometry" },
-          "checkSurfaces": { "type": "selection", "description": "Collision check surfaces", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Ruled surfaces to machine",
+            "tab": "Geometry"
+          },
+          "guideCurves": {
+            "type": "selection",
+            "description": "Tool axis guide curves for orientation control",
+            "tab": "Geometry"
+          },
+          "checkSurfaces": {
+            "type": "selection",
+            "description": "Collision check surfaces",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "stepover": { "type": "number", "unit": "mm", "description": "Axial stepover along surface", "tab": "Passes" },
-          "stepdown": { "type": "number", "unit": "mm", "description": "Radial depth per pass", "tab": "Passes" },
-          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "climb", "tab": "Passes" }
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Axial stepover along surface",
+            "tab": "Passes"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Radial depth per pass",
+            "tab": "Passes"
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "both_ways"
+            ],
+            "default": "climb",
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "toolAxisMode": { "type": "enum", "values": ["from_surface", "to_surface", "guide_curves", "tilted"], "default": "from_surface", "description": "How tool axis is determined", "tab": "Multi-Axis" },
-          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-15, 15], "description": "Lead/lag angle", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Lead angle along path", "tab": "Multi-Axis" },
-          "sidewaysTilt": { "type": "number", "unit": "deg", "default": 0, "description": "Sideways tilt perpendicular to path", "tab": "Multi-Axis" },
-          "maximumTilt": { "type": "number", "unit": "deg", "default": 90, "description": "Max tool tilt from vertical", "tab": "Multi-Axis" },
-          "rotaryAxesLimits": { "type": "boolean", "default": true, "description": "Respect machine rotary limits", "tab": "Multi-Axis" }
+          "toolAxisMode": {
+            "type": "enum",
+            "values": [
+              "from_surface",
+              "to_surface",
+              "guide_curves",
+              "tilted"
+            ],
+            "default": "from_surface",
+            "description": "How tool axis is determined",
+            "tab": "Multi-Axis"
+          },
+          "tiltAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "range": [
+              -15,
+              15
+            ],
+            "description": "Lead/lag angle",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Lead angle along path",
+            "tab": "Multi-Axis"
+          },
+          "sidewaysTilt": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Sideways tilt perpendicular to path",
+            "tab": "Multi-Axis"
+          },
+          "maximumTilt": {
+            "type": "number",
+            "unit": "deg",
+            "default": 90,
+            "description": "Max tool tilt from vertical",
+            "tab": "Multi-Axis"
+          },
+          "rotaryAxesLimits": {
+            "type": "boolean",
+            "default": true,
+            "description": "Respect machine rotary limits",
+            "tab": "Multi-Axis"
+          }
         }
       }
     },
-
     "contour_5axis": {
       "display_name": "Multi-Axis Contour",
       "category": "multi_axis",
       "description": "5-axis profiling with controlled tool orientation along curves. Tool orientation follows surface normals or is user-defined.",
-      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Heights",
+        "Passes",
+        "Linking",
+        "Multi-Axis"
+      ],
       "parameter_count": 14,
       "parameters": {
         "geometry": {
-          "curves": { "type": "selection", "required": true, "description": "Profile curves to follow", "tab": "Geometry" },
-          "surfaces": { "type": "selection", "description": "Reference surfaces for tool orientation", "tab": "Geometry" },
-          "checkSurfaces": { "type": "selection", "description": "Collision check surfaces", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "curves": {
+            "type": "selection",
+            "required": true,
+            "description": "Profile curves to follow",
+            "tab": "Geometry"
+          },
+          "surfaces": {
+            "type": "selection",
+            "description": "Reference surfaces for tool orientation",
+            "tab": "Geometry"
+          },
+          "checkSurfaces": {
+            "type": "selection",
+            "description": "Collision check surfaces",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "multipleDepths": { "type": "boolean", "default": false, "description": "Enable multiple depth passes", "tab": "Passes" },
-          "stepdown": { "type": "number", "unit": "mm", "description": "Depth per pass if multiple depths", "tab": "Passes" },
-          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
-          "compensation": { "type": "enum", "values": ["off", "left", "right"], "default": "off", "description": "Cutter compensation", "tab": "Passes" }
+          "multipleDepths": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable multiple depth passes",
+            "tab": "Passes"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Depth per pass if multiple depths",
+            "tab": "Passes"
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "tab": "Passes"
+          },
+          "compensation": {
+            "type": "enum",
+            "values": [
+              "off",
+              "left",
+              "right"
+            ],
+            "default": "off",
+            "description": "Cutter compensation",
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "toolOrientation": { "type": "enum", "values": ["normal_to_surface", "parallel_to_surface", "inclined", "point_at_surface"], "default": "normal_to_surface", "tab": "Multi-Axis" },
-          "inclinationAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "description": "Inclination from normal", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Lead angle along path direction", "tab": "Multi-Axis" },
-          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Sideways tilt angle", "tab": "Multi-Axis" },
-          "smoothing": { "type": "boolean", "default": true, "description": "Smooth axis transitions between segments", "tab": "Multi-Axis" }
+          "toolOrientation": {
+            "type": "enum",
+            "values": [
+              "normal_to_surface",
+              "parallel_to_surface",
+              "inclined",
+              "point_at_surface"
+            ],
+            "default": "normal_to_surface",
+            "tab": "Multi-Axis"
+          },
+          "inclinationAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "range": [
+              -90,
+              90
+            ],
+            "description": "Inclination from normal",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Lead angle along path direction",
+            "tab": "Multi-Axis"
+          },
+          "tiltAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Sideways tilt angle",
+            "tab": "Multi-Axis"
+          },
+          "smoothing": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis transitions between segments",
+            "tab": "Multi-Axis"
+          }
         }
       }
     },
-
     "flow_5axis": {
       "display_name": "Flow",
       "category": "multi_axis",
       "description": "UV-based machining following surface flow lines. Ideal for sculptured surfaces with natural UV parameterization.",
-      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Heights",
+        "Passes",
+        "Linking",
+        "Multi-Axis"
+      ],
       "parameter_count": 11,
       "parameters": {
         "geometry": {
-          "surfaces": { "type": "selection", "required": true, "description": "Surfaces with UV parameterization", "tab": "Geometry" },
-          "checkSurfaces": { "type": "selection", "description": "Collision avoidance surfaces", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces with UV parameterization",
+            "tab": "Geometry"
+          },
+          "checkSurfaces": {
+            "type": "selection",
+            "description": "Collision avoidance surfaces",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "stepover": { "type": "number", "unit": "mm", "description": "Cross-flow stepover distance", "tab": "Passes" },
-          "direction": { "type": "enum", "values": ["along_U", "along_V", "both"], "default": "along_U", "description": "Flow direction relative to UV", "tab": "Passes" },
-          "bothWays": { "type": "boolean", "default": true, "description": "Machine in both directions", "tab": "Passes" }
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Cross-flow stepover distance",
+            "tab": "Passes"
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "along_U",
+              "along_V",
+              "both"
+            ],
+            "default": "along_U",
+            "description": "Flow direction relative to UV",
+            "tab": "Passes"
+          },
+          "bothWays": {
+            "type": "boolean",
+            "default": true,
+            "description": "Machine in both directions",
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "toolOrientation": { "type": "enum", "values": ["normal", "tilted", "point_control"], "default": "normal", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Lead angle", "tab": "Multi-Axis" },
-          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Tilt angle", "tab": "Multi-Axis" },
-          "minimumRadius": { "type": "number", "unit": "mm", "description": "Min curvature radius for tool axis", "tab": "Multi-Axis" }
+          "toolOrientation": {
+            "type": "enum",
+            "values": [
+              "normal",
+              "tilted",
+              "point_control"
+            ],
+            "default": "normal",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Lead angle",
+            "tab": "Multi-Axis"
+          },
+          "tiltAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Tilt angle",
+            "tab": "Multi-Axis"
+          },
+          "minimumRadius": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Min curvature radius for tool axis",
+            "tab": "Multi-Axis"
+          }
         }
       }
     },
-
     "drilling_5axis": {
       "display_name": "Multi-Axis Drilling",
       "category": "multi_axis",
       "description": "Drilling holes at compound angles with automatic tool axis alignment. Supports peck, chip break, and deep hole cycles.",
-      "dialog_tabs": ["Tool", "Geometry", "Cycle", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Cycle",
+        "Multi-Axis"
+      ],
       "parameter_count": 14,
       "parameters": {
         "geometry": {
-          "holes": { "type": "selection", "required": true, "description": "Holes or points to drill", "tab": "Geometry" },
-          "surfaces": { "type": "selection", "description": "Surface for normal alignment", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "holes": {
+            "type": "selection",
+            "required": true,
+            "description": "Holes or points to drill",
+            "tab": "Geometry"
+          },
+          "surfaces": {
+            "type": "selection",
+            "description": "Surface for normal alignment",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "cycle": {
-          "cycleType": { "type": "enum", "values": ["drilling", "peck_drilling", "chip_breaking", "deep_drilling", "tapping", "boring"], "default": "drilling", "tab": "Cycle" },
-          "depth": { "type": "number", "unit": "mm", "required": true, "description": "Total hole depth", "tab": "Cycle" },
-          "peckDepth": { "type": "number", "unit": "mm", "description": "Peck increment for peck cycles", "tab": "Cycle" },
-          "dwellTime": { "type": "number", "unit": "sec", "default": 0, "description": "Dwell at bottom", "tab": "Cycle" },
-          "retractHeight": { "type": "number", "unit": "mm", "default": 3, "description": "Retract above hole", "tab": "Cycle" }
+          "cycleType": {
+            "type": "enum",
+            "values": [
+              "drilling",
+              "peck_drilling",
+              "chip_breaking",
+              "deep_drilling",
+              "tapping",
+              "boring"
+            ],
+            "default": "drilling",
+            "tab": "Cycle"
+          },
+          "depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Total hole depth",
+            "tab": "Cycle"
+          },
+          "peckDepth": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Peck increment for peck cycles",
+            "tab": "Cycle"
+          },
+          "dwellTime": {
+            "type": "number",
+            "unit": "sec",
+            "default": 0,
+            "description": "Dwell at bottom",
+            "tab": "Cycle"
+          },
+          "retractHeight": {
+            "type": "number",
+            "unit": "mm",
+            "default": 3,
+            "description": "Retract above hole",
+            "tab": "Cycle"
+          }
         },
         "multi_axis": {
-          "toolAxisMode": { "type": "enum", "values": ["normal_to_surface", "along_hole_axis", "custom"], "default": "along_hole_axis", "tab": "Multi-Axis" },
-          "approach": { "type": "enum", "values": ["direct", "tangent", "arc"], "default": "direct", "description": "Approach motion type", "tab": "Multi-Axis" },
-          "safeDistance": { "type": "number", "unit": "mm", "default": 5, "description": "Clearance before tilting", "tab": "Multi-Axis" },
-          "simultaneousAxes": { "type": "boolean", "default": true, "description": "Move all axes simultaneously", "tab": "Multi-Axis" }
+          "toolAxisMode": {
+            "type": "enum",
+            "values": [
+              "normal_to_surface",
+              "along_hole_axis",
+              "custom"
+            ],
+            "default": "along_hole_axis",
+            "tab": "Multi-Axis"
+          },
+          "approach": {
+            "type": "enum",
+            "values": [
+              "direct",
+              "tangent",
+              "arc"
+            ],
+            "default": "direct",
+            "description": "Approach motion type",
+            "tab": "Multi-Axis"
+          },
+          "safeDistance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Clearance before tilting",
+            "tab": "Multi-Axis"
+          },
+          "simultaneousAxes": {
+            "type": "boolean",
+            "default": true,
+            "description": "Move all axes simultaneously",
+            "tab": "Multi-Axis"
+          }
         }
       }
     },
-
     "impeller_5axis": {
       "display_name": "Impeller",
       "category": "multi_axis",
       "description": "Dedicated impeller and blade machining with splitter support. Roughing, hub finishing, blade finishing, and splitter operations.",
-      "dialog_tabs": ["Tool", "Geometry", "Passes", "Multi-Axis", "Safety"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Passes",
+        "Multi-Axis",
+        "Safety"
+      ],
       "parameter_count": 18,
       "parameters": {
         "geometry": {
-          "hubSurface": { "type": "selection", "required": true, "description": "Hub surface", "tab": "Geometry" },
-          "bladeSurfaces": { "type": "selection", "required": true, "description": "Blade surfaces", "tab": "Geometry" },
-          "splitterSurfaces": { "type": "selection", "description": "Splitter blade surfaces if present", "tab": "Geometry" },
-          "shroudSurface": { "type": "selection", "description": "Shroud surface for covered impellers", "tab": "Geometry" },
-          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" }
+          "hubSurface": {
+            "type": "selection",
+            "required": true,
+            "description": "Hub surface",
+            "tab": "Geometry"
+          },
+          "bladeSurfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Blade surfaces",
+            "tab": "Geometry"
+          },
+          "splitterSurfaces": {
+            "type": "selection",
+            "description": "Splitter blade surfaces if present",
+            "tab": "Geometry"
+          },
+          "shroudSurface": {
+            "type": "selection",
+            "description": "Shroud surface for covered impellers",
+            "tab": "Geometry"
+          },
+          "stockToLeave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.3,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "operationType": { "type": "enum", "values": ["roughing", "hub_finishing", "blade_finishing", "splitter_finishing", "combined"], "default": "combined", "tab": "Passes" },
-          "stepover": { "type": "number", "unit": "mm", "description": "Stepover for finishing", "tab": "Passes" },
-          "stepdown": { "type": "number", "unit": "mm", "description": "Step down for roughing", "tab": "Passes" },
-          "direction": { "type": "enum", "values": ["hub_to_shroud", "shroud_to_hub"], "default": "hub_to_shroud", "tab": "Passes" }
+          "operationType": {
+            "type": "enum",
+            "values": [
+              "roughing",
+              "hub_finishing",
+              "blade_finishing",
+              "splitter_finishing",
+              "combined"
+            ],
+            "default": "combined",
+            "tab": "Passes"
+          },
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Stepover for finishing",
+            "tab": "Passes"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Step down for roughing",
+            "tab": "Passes"
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "hub_to_shroud",
+              "shroud_to_hub"
+            ],
+            "default": "hub_to_shroud",
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "bladeStrategy": { "type": "enum", "values": ["flow", "isoline", "morph"], "default": "flow", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-30, 30], "tab": "Multi-Axis" },
-          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-15, 15], "tab": "Multi-Axis" },
-          "smoothTransitions": { "type": "boolean", "default": true, "description": "Smooth axis changes at blade edges", "tab": "Multi-Axis" }
+          "bladeStrategy": {
+            "type": "enum",
+            "values": [
+              "flow",
+              "isoline",
+              "morph"
+            ],
+            "default": "flow",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "range": [
+              -30,
+              30
+            ],
+            "tab": "Multi-Axis"
+          },
+          "tiltAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "range": [
+              -15,
+              15
+            ],
+            "tab": "Multi-Axis"
+          },
+          "smoothTransitions": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis changes at blade edges",
+            "tab": "Multi-Axis"
+          }
         },
         "safety": {
-          "gougeCheck": { "type": "boolean", "default": true, "description": "Enable gouge detection", "tab": "Safety" },
-          "holderCollision": { "type": "boolean", "default": true, "description": "Check holder collisions", "tab": "Safety" },
-          "minimumClearance": { "type": "number", "unit": "mm", "default": 1, "tab": "Safety" }
+          "gougeCheck": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable gouge detection",
+            "tab": "Safety"
+          },
+          "holderCollision": {
+            "type": "boolean",
+            "default": true,
+            "description": "Check holder collisions",
+            "tab": "Safety"
+          },
+          "minimumClearance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1,
+            "tab": "Safety"
+          }
         }
       }
     },
-
     "port_5axis": {
       "display_name": "Port Machining",
       "category": "multi_axis",
       "description": "Machining of intake/exhaust ports with tool axis following port centerline. Supports roughing and finishing.",
-      "dialog_tabs": ["Tool", "Geometry", "Passes", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Passes",
+        "Multi-Axis"
+      ],
       "parameter_count": 13,
       "parameters": {
         "geometry": {
-          "portSurfaces": { "type": "selection", "required": true, "description": "Port wall surfaces", "tab": "Geometry" },
-          "guideCurve": { "type": "selection", "required": true, "description": "Port centerline curve", "tab": "Geometry" },
-          "entrySurface": { "type": "selection", "description": "Port entry face", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "portSurfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Port wall surfaces",
+            "tab": "Geometry"
+          },
+          "guideCurve": {
+            "type": "selection",
+            "required": true,
+            "description": "Port centerline curve",
+            "tab": "Geometry"
+          },
+          "entrySurface": {
+            "type": "selection",
+            "description": "Port entry face",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "operationType": { "type": "enum", "values": ["roughing", "finishing"], "default": "finishing", "tab": "Passes" },
-          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
-          "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
-          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Passes" }
+          "operationType": {
+            "type": "enum",
+            "values": [
+              "roughing",
+              "finishing"
+            ],
+            "default": "finishing",
+            "tab": "Passes"
+          },
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "tab": "Passes"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "tab": "Passes"
+          },
+          "stockToLeave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "toolAxisMode": { "type": "enum", "values": ["along_guide", "normal_to_surface", "interpolated"], "default": "along_guide", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
-          "maximumTilt": { "type": "number", "unit": "deg", "default": 60, "description": "Max tool tilt", "tab": "Multi-Axis" },
-          "smoothAxis": { "type": "boolean", "default": true, "tab": "Multi-Axis" }
+          "toolAxisMode": {
+            "type": "enum",
+            "values": [
+              "along_guide",
+              "normal_to_surface",
+              "interpolated"
+            ],
+            "default": "along_guide",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "tab": "Multi-Axis"
+          },
+          "maximumTilt": {
+            "type": "number",
+            "unit": "deg",
+            "default": 60,
+            "description": "Max tool tilt",
+            "tab": "Multi-Axis"
+          },
+          "smoothAxis": {
+            "type": "boolean",
+            "default": true,
+            "tab": "Multi-Axis"
+          }
         }
       }
     },
-
     "tilted_plane_3plus2": {
       "display_name": "Tilted Work Plane (3+2)",
       "category": "positioning",
       "description": "3+2 axis positioning with tilted work plane. Rotary axes position then lock for 3-axis cutting.",
-      "dialog_tabs": ["Tool", "Geometry", "Orientation", "Passes"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Orientation",
+        "Passes"
+      ],
       "parameter_count": 12,
       "parameters": {
         "geometry": {
-          "surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "boundary": { "type": "selection", "description": "Machining boundary", "tab": "Geometry" },
-          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+          "surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "boundary": {
+            "type": "selection",
+            "description": "Machining boundary",
+            "tab": "Geometry"
+          },
+          "stockToLeave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "tab": "Geometry"
+          }
         },
         "orientation": {
-          "orientationMode": { "type": "enum", "values": ["surface_normal", "axis_direction", "euler_angles", "two_points"], "default": "surface_normal", "tab": "Orientation" },
-          "primaryAxis": { "type": "enum", "values": ["A", "B", "C"], "default": "A", "description": "Primary rotary axis", "tab": "Orientation" },
-          "primaryAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Primary axis angle", "tab": "Orientation" },
-          "secondaryAxis": { "type": "enum", "values": ["A", "B", "C"], "default": "B", "description": "Secondary rotary axis", "tab": "Orientation" },
-          "secondaryAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Secondary axis angle", "tab": "Orientation" }
+          "orientationMode": {
+            "type": "enum",
+            "values": [
+              "surface_normal",
+              "axis_direction",
+              "euler_angles",
+              "two_points"
+            ],
+            "default": "surface_normal",
+            "tab": "Orientation"
+          },
+          "primaryAxis": {
+            "type": "enum",
+            "values": [
+              "A",
+              "B",
+              "C"
+            ],
+            "default": "A",
+            "description": "Primary rotary axis",
+            "tab": "Orientation"
+          },
+          "primaryAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Primary axis angle",
+            "tab": "Orientation"
+          },
+          "secondaryAxis": {
+            "type": "enum",
+            "values": [
+              "A",
+              "B",
+              "C"
+            ],
+            "default": "B",
+            "description": "Secondary rotary axis",
+            "tab": "Orientation"
+          },
+          "secondaryAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Secondary axis angle",
+            "tab": "Orientation"
+          }
         },
         "passes": {
-          "operationType": { "type": "enum", "values": ["adaptive", "pocket", "contour", "facing", "drilling"], "default": "adaptive", "description": "3-axis operation after positioning", "tab": "Passes" },
-          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
-          "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" }
+          "operationType": {
+            "type": "enum",
+            "values": [
+              "adaptive",
+              "pocket",
+              "contour",
+              "facing",
+              "drilling"
+            ],
+            "default": "adaptive",
+            "description": "3-axis operation after positioning",
+            "tab": "Passes"
+          },
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "tab": "Passes"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "tab": "Passes"
+          }
         }
       }
     },
-
     "trimming_5axis": {
       "display_name": "Trimming",
       "category": "multi_axis",
       "description": "Trimming edges with 5-axis tool orientation. Used for composite and sheet metal edge finishing.",
-      "dialog_tabs": ["Tool", "Geometry", "Passes", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Passes",
+        "Multi-Axis"
+      ],
       "parameter_count": 12,
       "parameters": {
         "geometry": {
-          "trimCurves": { "type": "selection", "required": true, "description": "Curves defining trim path", "tab": "Geometry" },
-          "surfaces": { "type": "selection", "description": "Surface for orientation", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "trimCurves": {
+            "type": "selection",
+            "required": true,
+            "description": "Curves defining trim path",
+            "tab": "Geometry"
+          },
+          "surfaces": {
+            "type": "selection",
+            "description": "Surface for orientation",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "numberOfPasses": { "type": "integer", "default": 1, "description": "Number of trim passes", "tab": "Passes" },
-          "depth": { "type": "number", "unit": "mm", "description": "Cut depth", "tab": "Passes" },
-          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
-          "compensation": { "type": "enum", "values": ["off", "left", "right"], "default": "left", "tab": "Passes" }
+          "numberOfPasses": {
+            "type": "integer",
+            "default": 1,
+            "description": "Number of trim passes",
+            "tab": "Passes"
+          },
+          "depth": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Cut depth",
+            "tab": "Passes"
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "tab": "Passes"
+          },
+          "compensation": {
+            "type": "enum",
+            "values": [
+              "off",
+              "left",
+              "right"
+            ],
+            "default": "left",
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "toolOrientation": { "type": "enum", "values": ["normal_to_surface", "perpendicular_to_curve", "fixed"], "default": "normal_to_surface", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
-          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
-          "smoothing": { "type": "boolean", "default": true, "tab": "Multi-Axis" }
+          "toolOrientation": {
+            "type": "enum",
+            "values": [
+              "normal_to_surface",
+              "perpendicular_to_curve",
+              "fixed"
+            ],
+            "default": "normal_to_surface",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "tab": "Multi-Axis"
+          },
+          "tiltAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "tab": "Multi-Axis"
+          },
+          "smoothing": {
+            "type": "boolean",
+            "default": true,
+            "tab": "Multi-Axis"
+          }
         }
       }
     },
-
     "deburring_5axis": {
       "display_name": "Deburring / Edge Break",
       "category": "multi_axis",
       "description": "Edge breaking and chamfering with 5-axis orientation. Follows edges with controlled chamfer depth.",
-      "dialog_tabs": ["Tool", "Geometry", "Passes", "Multi-Axis"],
+      "dialog_tabs": [
+        "Tool",
+        "Geometry",
+        "Passes",
+        "Multi-Axis"
+      ],
       "parameter_count": 14,
       "parameters": {
         "geometry": {
-          "edges": { "type": "selection", "required": true, "description": "Edges to deburr", "tab": "Geometry" },
-          "surfaces": { "type": "selection", "description": "Adjacent surfaces for orientation", "tab": "Geometry" },
-          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          "edges": {
+            "type": "selection",
+            "required": true,
+            "description": "Edges to deburr",
+            "tab": "Geometry"
+          },
+          "surfaces": {
+            "type": "selection",
+            "description": "Adjacent surfaces for orientation",
+            "tab": "Geometry"
+          },
+          "tolerance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.01,
+            "tab": "Geometry"
+          }
         },
         "passes": {
-          "chamferSize": { "type": "number", "unit": "mm", "default": 0.3, "description": "Chamfer width", "tab": "Passes" },
-          "chamferAngle": { "type": "number", "unit": "deg", "default": 45, "description": "Chamfer angle", "tab": "Passes" },
-          "depthOffset": { "type": "number", "unit": "mm", "default": 0, "description": "Additional depth offset", "tab": "Passes" },
-          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+          "chamferSize": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.3,
+            "description": "Chamfer width",
+            "tab": "Passes"
+          },
+          "chamferAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 45,
+            "description": "Chamfer angle",
+            "tab": "Passes"
+          },
+          "depthOffset": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Additional depth offset",
+            "tab": "Passes"
+          },
+          "direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "tab": "Passes"
+          }
         },
         "multi_axis": {
-          "toolOrientation": { "type": "enum", "values": ["bisector", "normal_to_face1", "normal_to_face2", "perpendicular_to_edge"], "default": "bisector", "description": "Tool orientation relative to edge", "tab": "Multi-Axis" },
-          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
-          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
-          "approachDistance": { "type": "number", "unit": "mm", "default": 5, "description": "Distance before engaging edge", "tab": "Multi-Axis" },
-          "smoothTransitions": { "type": "boolean", "default": true, "description": "Smooth axis changes at corners", "tab": "Multi-Axis" },
-          "cornerHandling": { "type": "enum", "values": ["roll_around", "lift_over", "arc"], "default": "roll_around", "description": "Corner transition method", "tab": "Multi-Axis" }
+          "toolOrientation": {
+            "type": "enum",
+            "values": [
+              "bisector",
+              "normal_to_face1",
+              "normal_to_face2",
+              "perpendicular_to_edge"
+            ],
+            "default": "bisector",
+            "description": "Tool orientation relative to edge",
+            "tab": "Multi-Axis"
+          },
+          "leadAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "tab": "Multi-Axis"
+          },
+          "tiltAngle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "tab": "Multi-Axis"
+          },
+          "approachDistance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Distance before engaging edge",
+            "tab": "Multi-Axis"
+          },
+          "smoothTransitions": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis changes at corners",
+            "tab": "Multi-Axis"
+          },
+          "cornerHandling": {
+            "type": "enum",
+            "values": [
+              "roll_around",
+              "lift_over",
+              "arc"
+            ],
+            "default": "roll_around",
+            "description": "Corner transition method",
+            "tab": "Multi-Axis"
+          }
         }
       }
     }
   },
-
   "training_topics": [
     {
       "topic": "Swarf Cutting Fundamentals",
@@ -388,7 +1122,6 @@
       ]
     }
   ],
-
   "axis_considerations": {
     "machine_types": {
       "table_table": {
@@ -412,5 +1145,8 @@
       "purpose": "Maintains programmed TCP during rotary axis motion",
       "requirement": "Essential for accurate 5-axis simultaneous cutting"
     }
-  }
+  },
+  "milestone": "CAM-EXHAUST-MS0/U-CAM28",
+  "extraction_source": "InventorCAM2024 training PDFs + INVENTOR_HSM_COMPLETE_PARAMETER_CATALOG.json",
+  "extraction_date": "2026-04-22"
 }

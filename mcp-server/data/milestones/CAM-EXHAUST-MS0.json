@@ -1524,7 +1524,7 @@
       "title": "Fusion 360 CAM â€” Complete Function Index Assembly",
       "phase": "PHASE-1",
       "type": "integration",
-      "status": "not_started",
+      "status": "completed",
       "description": "Assemble all Fusion 360 CAM functions into unified CAMFunctionIndex.",
       "entry_conditions": [
         "U-CAM21 through U-CAM24 complete"
@@ -1544,14 +1544,21 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T20:53:34.358Z",
+      "evidence": {
+        "engine": "mcp-server/src/engines/Fusion360FunctionIndexEngine.ts (594 lines)",
+        "test": "mcp-server/src/__tests__/Fusion360FunctionIndexEngine.test.ts (72/72 pass)",
+        "index": "mcp-server/data/cam-functions/fusion360/function-index.json (6 modules, 2,790 params)",
+        "dispatcher": "mcp-server/src/tools/dispatchers/camDispatcher.ts (5 actions wired)"
+      }
     },
     {
       "id": "U-CAM26",
       "title": "InventorCAM/HSM â€” 2.5D Milling Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract InventorCAM 2.5D operations using PDF training materials.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_2.5D_Milling_Training_Course.pdf"
@@ -1573,14 +1580,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T20:57:11.707Z",
+      "evidence": {
+        "json": "data/cam-functions/inventor-hsm/2.5d-milling.json",
+        "ops": 11,
+        "params": 152
+      }
     },
     {
       "id": "U-CAM27",
       "title": "InventorCAM/HSM â€” 3D HSM Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract InventorCAM 3D HSM operations using PDF training materials.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_3D_HSM_User_Guide.pdf",
@@ -1603,14 +1616,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T20:57:11.709Z",
+      "evidence": {
+        "json": "data/cam-functions/inventor-hsm/3d-hsm.json",
+        "ops": 12,
+        "params": 123
+      }
     },
     {
       "id": "U-CAM28",
       "title": "InventorCAM/HSM â€” 5-Axis Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract InventorCAM 5-Axis operations from all three training volumes.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-1.pdf",
@@ -1634,14 +1653,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T20:57:11.709Z",
+      "evidence": {
+        "json": "data/cam-functions/inventor-hsm/5axis.json",
+        "ops": 9,
+        "params": 124
+      }
     },
     {
       "id": "U-CAM29",
       "title": "InventorCAM/HSM â€” Multiaxis Machining Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract InventorCAM multiaxis: SWARF, Geodesic, Contour 5X, Rotary, Edge Breaking, Multiaxis Drilling.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_SWARF_Machining.pdf",
@@ -1666,14 +1691,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T20:57:11.709Z",
+      "evidence": {
+        "json": "data/cam-functions/inventor-hsm/multiaxis.json",
+        "ops": 6,
+        "params": 82
+      }
     },
     {
       "id": "U-CAM30",
       "title": "InventorCAM/HSM â€” Turning & Mill-Turn Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract InventorCAM turning operations from training course.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Turning_&_Mill-Turn_Training_Course.pdf"
@@ -1695,7 +1726,13 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T20:57:11.709Z",
+      "evidence": {
+        "json": "data/cam-functions/inventor-hsm/turning-millturn.json",
+        "ops": 14,
+        "params": 156
+      }
     },
     {
       "id": "U-CAM31",
