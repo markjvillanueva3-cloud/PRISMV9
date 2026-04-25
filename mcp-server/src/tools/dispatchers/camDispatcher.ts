@@ -1575,6 +1575,12 @@ export const ACTIONS = [
   "inventor_hsm_function_index_find_parameter", "inventor_hsm_function_index_search_parameters",
   "inventor_hsm_function_index_get_operations_by_category", "inventor_hsm_function_index_get_summary",
   "inventor_hsm_function_index_get_hsm_operations", "inventor_hsm_function_index_get_25d_operations",
+  // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
+  "cam_param_optimize",
+  "cam_cross_translate",
+  "cam_agi_reason",
+  "cam_tribal_lookup",
+  "cam_feature_recognize",
   // MILL-MASTER/P1-U06 — CAM AGI Master Orchestrator (3 actions)
   "cam_agi_route", "cam_compare_systems", "cam_ensemble",
 ] as const;
@@ -11785,6 +11791,53 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "inventor_hsm_function_index_get_25d_operations": {
             const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
             result = { success: true, operations: InventorHSMFunctionIndexEngine.get25DOperations() };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
+          case "cam_param_optimize": {
+            const { camParameterOptimizerEngine } = await import("../../engines/CAMParameterOptimizerEngine.js");
+            result = { success: true, ...camParameterOptimizerEngine.optimize({
+              target_cam: params.target_cam as string,
+              objective: params.objective as "cycle_time" | "surface_finish" | "tool_life" | "balanced",
+              current: (params.current as Record<string, number>) ?? {},
+              max_step_pct: params.max_step_pct as number | undefined,
+            }) };
+            break;
+          }
+          case "cam_cross_translate": {
+            const { camCrossSystemTranslatorEngine } = await import("../../engines/CAMCrossSystemTranslatorEngine.js");
+            result = { success: true, ...camCrossSystemTranslatorEngine.translate({
+              source_cam: params.source_cam as string,
+              target_cam: params.target_cam as string,
+              source_operation: params.source_operation as string,
+              source_parameters: (params.source_parameters as Record<string, unknown>) ?? {},
+            }) };
+            break;
+          }
+          case "cam_agi_reason": {
+            const { camAGIReasoningEngine } = await import("../../engines/CAMAGIReasoningEngine.js");
+            result = { success: true, ...camAGIReasoningEngine.reason({
+              target_cam: params.target_cam as string,
+              decision_context: params.decision_context as string,
+              options: (params.options as string[] | undefined) ?? [],
+            }) };
+            break;
+          }
+          case "cam_tribal_lookup": {
+            const { camTribalKnowledgeEngine } = await import("../../engines/CAMTribalKnowledgeEngine.js");
+            result = { success: true, ...camTribalKnowledgeEngine.lookup({
+              target_cam: params.target_cam as string,
+              query: params.query as string,
+              max_tips: params.max_tips as number | undefined,
+            }) };
+            break;
+          }
+          case "cam_feature_recognize": {
+            const { camFeatureLearningEngine } = await import("../../engines/CAMFeatureLearningEngine.js");
+            result = { success: true, ...camFeatureLearningEngine.recognize({
+              target_cam: params.target_cam as string,
+              part_geometry_hint: params.part_geometry_hint as string | undefined,
+            }) };
             break;
           }
 

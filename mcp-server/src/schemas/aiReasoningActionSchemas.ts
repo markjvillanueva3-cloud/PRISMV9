@@ -50,6 +50,15 @@ export const AI_REASONING_ACTIONS = [
   "ai_explain",
   "ai_explain_formula",
   "ai_reading_level_label",
+  // WIRE-MS0/U-WIRE11: AI/ML deep-learning + capability orchestration orphans
+  "ai_capability_metrics",
+  "ai_intelligence_maximize",
+  "ai_system_sync",
+  "ai_deep_knowledge_query",
+  "ai_resource_recommend",
+  "ai_neural_route",
+  "ai_active_learning_rank",
+  "ai_peer_learning",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -441,6 +450,130 @@ const ai_reading_level_label = z.object({
   grade: z.number().finite().describe("Reading grade level (≥0; typical 5-18)"),
 }).passthrough();
 
+
+// ─────────────────────────────────────────────────────────────────────────
+// WIRE-MS0/U-WIRE11 — AI/ML deep-learning + capability orchestration
+// AICapabilityMaximizer + AIIntelligenceMaximizer + AISystemSynchronizer
+// + AIDeepKnowledgeIntegration + AIResourceLearning + NeuralIntegration
+// + ActiveLearningStrategy + PeerLearningCoordinator
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Snapshot AI capability metrics + enhancement recommendations */
+const ai_capability_metrics = z.object({
+  include_patterns: z.boolean().optional().describe("Include the 6 reasoning patterns"),
+  include_sources: z.boolean().optional().describe("Include knowledge-source summary"),
+  area: z.enum([
+    "deepReasoning","crossDisciplinary","creativeReasoning",
+    "selfAwareness","duplicationGuard","tribalKnowledge","mitLearning",
+  ]).optional().describe("Filter enhancement strategy to a single area"),
+}).passthrough();
+
+/** Maximize AI intelligence for an operation (>handbook params) */
+const ai_intelligence_maximize = z.object({
+  operation: z.enum([
+    "roughing","finishing","semi_finishing",
+    "drilling","boring","reaming","tapping",
+    "turning_od","turning_id","facing","grooving","threading",
+    "milling_pocket","milling_contour","milling_slot","milling_face",
+    "5axis_swarf","5axis_multiaxis","5axis_positioning",
+    "grinding","edm_wire","edm_sinker",
+    "adaptive","trochoidal","hsm",
+  ]).describe("Operation type"),
+  material: z.string().min(1).describe("Workpiece material"),
+  tool: z.record(z.string(), z.unknown()).describe("Tool definition (free-form passthrough)"),
+  machine: z.object({
+    type: z.enum([
+      "mill_3axis","mill_4axis","mill_5axis",
+      "lathe_2axis","lathe_live","mill_turn",
+      "wire_edm","sinker_edm",
+      "grinder_surface","grinder_cylindrical","grinder_centerless",
+    ]).describe("Machine kinematic class"),
+  }).passthrough().describe("Machine context"),
+  feature: z.record(z.string(), z.unknown()).optional().describe("Feature context"),
+  priority: z.enum(["quality","speed","tool_life","cost","balanced"]).describe("Optimization priority"),
+}).passthrough();
+
+/** Inspect / sync the cross-engine AI synchronizer */
+const ai_system_sync = z.object({
+  mode: z.enum(["status","sync_all","summary","synergize","recommend"]).describe("Sub-action to invoke"),
+  problem: z.string().optional().describe("Problem statement (required when mode=synergize)"),
+  task: z.object({
+    type: z.enum(["build","optimize","analyze","extract","reason"]),
+    domain: z.string().min(1),
+    description: z.string().min(1),
+  }).optional().describe("Task object (required when mode=recommend)"),
+}).passthrough();
+
+/** Query the AI deep-knowledge integration layer */
+const ai_deep_knowledge_query = z.object({
+  intent: z.enum([
+    "create_engine","extend_engine","fix_bug","optimize_code","explain_concept",
+    "validate_physics","find_program","extract_pattern","integrate_resource",
+  ]).describe("Knowledge query intent"),
+  domain: z.string().min(1).describe("Domain context (e.g. 'cutting_force', 'wire_edm')"),
+  context: z.record(z.string(), z.unknown()).optional().describe("Free-form context bag"),
+  history: z.array(z.string()).optional().describe("Recent queries for continuity"),
+  preferences: z.object({
+    audience: z.enum(["expert","intermediate","beginner"]).optional(),
+    detailLevel: z.enum(["brief","standard","detailed"]).optional(),
+    formats: z.array(z.enum(["text","code","formula","program"])).optional(),
+  }).passthrough().optional(),
+}).passthrough();
+
+/** Recommend code/material/g-code patterns from learned shop resources */
+const ai_resource_recommend = z.object({
+  mode: z.enum([
+    "code_quality","material_params","speed_feed",
+    "okuma_pattern","hypermill_template","stats","training_data","coverage",
+  ]).describe("What kind of recommendation to surface"),
+  task: z.string().optional().describe("Task description (for code_quality)"),
+  language: z.enum(["typescript","python","gcode","macro"]).optional().describe("Code language (for code_quality)"),
+  material: z.string().optional().describe("Material (for material_params / speed_feed)"),
+  operation: z.enum(["roughing","finishing"]).optional().describe("Operation (for speed_feed)"),
+  cycle: z.string().optional().describe("Okuma G/M code cycle (for okuma_pattern)"),
+  template: z.enum(["electrode_create","joblist_iterate","feature_edit","workplane_transform"]).optional().describe("hyperMILL template (for hypermill_template)"),
+}).passthrough();
+
+/** Route a natural-language query through the neural integration engine */
+const ai_neural_route = z.object({
+  mode: z.enum(["route","synthesize","commands","stats","summary"]).describe("Sub-action"),
+  query: z.string().optional().describe("Natural-language query (route/synthesize/commands)"),
+  context: z.record(z.string(), z.unknown()).optional().describe("Context for the routing decision"),
+  intent: z.string().optional().describe("Intent hint"),
+}).passthrough();
+
+/** Rank learning candidates by expected information gain per minute */
+const ai_active_learning_rank = z.object({
+  candidates: z.array(z.object({
+    id: z.string().min(1).describe("Candidate id"),
+    topic: z.string().min(1).describe("Topic label"),
+    currentUncertainty: z.number().min(0).max(1).describe("Current uncertainty in [0,1]"),
+    expectedReduction: z.number().min(0).max(1).describe("Expected reduction in [0,1]"),
+    costMinutes: z.number().gt(0).describe("Cost in minutes (>0)"),
+    tags: z.array(z.string()).optional().describe("Optional tag list"),
+  })).min(1).describe("Candidates to rank (≥1)"),
+  include_summary: z.boolean().optional().describe("Include rank summary stats"),
+}).passthrough();
+
+/** Broadcast / query peer-session insights for collective learning */
+const ai_peer_learning = z.object({
+  mode: z.enum(["broadcast","query","get","size","clear"]).describe("Sub-action"),
+  insight: z.object({
+    fromSession: z.string().min(1),
+    summary: z.string().min(1),
+    severity: z.enum(["info","warning","critical"]),
+    tags: z.array(z.string()),
+    confidence: z.number().min(0).max(1),
+  }).passthrough().optional().describe("Insight body (required when mode=broadcast)"),
+  query: z.object({
+    tag: z.string().optional(),
+    severity: z.enum(["info","warning","critical"]).optional(),
+    minConfidence: z.number().min(0).max(1).optional(),
+    limit: z.number().int().positive().max(100).optional(),
+  }).passthrough().optional().describe("Query options (mode=query)"),
+  id: z.string().optional().describe("Insight id (mode=get)"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -477,4 +610,13 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_explain,
   ai_explain_formula,
   ai_reading_level_label,
+  // WIRE-MS0/U-WIRE11
+  ai_capability_metrics,
+  ai_intelligence_maximize,
+  ai_system_sync,
+  ai_deep_knowledge_query,
+  ai_resource_recommend,
+  ai_neural_route,
+  ai_active_learning_rank,
+  ai_peer_learning,
 };

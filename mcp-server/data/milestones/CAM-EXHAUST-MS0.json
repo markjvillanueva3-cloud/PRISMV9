@@ -2959,7 +2959,7 @@
       "title": "Engine Generation â€” CAMStrategyRecommenderEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that recommends optimal CAM strategies based on part geometry and material.",
       "entry_conditions": [
         "U-CAM72 complete",
@@ -2980,14 +2980,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T23:33:00.992Z",
+      "evidence": {
+        "engine": "src/engines/CAMStrategyRecommenderEngine.ts",
+        "test": "CAMStrategyRecommenderEngine.test.ts (19/19 pass)",
+        "notes": "test assertion updated: SolidCAM premise flipped from no-data to has-data after U-CAM33-37"
+      }
     },
     {
       "id": "U-CAM74",
       "title": "Engine Generation â€” CAMParameterOptimizerEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that optimizes CAM parameters for cycle time, surface finish, and tool life.",
       "entry_conditions": [
         "U-CAM73 complete",
@@ -3008,14 +3014,21 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T23:33:00.995Z",
+      "evidence": {
+        "engine": "src/engines/CAMParameterOptimizerEngine.ts",
+        "test": "CAMParameterOptimizerEngine.test.ts (16/16 pass)",
+        "dispatcher_action": "cam_param_optimize",
+        "e2e": "camDispatcher.cam74-78.test.ts"
+      }
     },
     {
       "id": "U-CAM75",
       "title": "Engine Generation â€” CAMCrossSystemTranslatorEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that translates CAM operations between different CAM systems.",
       "entry_conditions": [
         "U-CAM74 complete",
@@ -3036,14 +3049,21 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T23:33:00.995Z",
+      "evidence": {
+        "engine": "src/engines/CAMCrossSystemTranslatorEngine.ts",
+        "test": "CAMCrossSystemTranslatorEngine.test.ts (13/13 pass)",
+        "dispatcher_action": "cam_cross_translate",
+        "e2e": "camDispatcher.cam74-78.test.ts"
+      }
     },
     {
       "id": "U-CAM76",
       "title": "Engine Generation â€” CAMAGIReasoningEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that provides AGI-level reasoning for complex CAM decisions.",
       "entry_conditions": [
         "U-CAM75 complete",
@@ -3064,14 +3084,21 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T23:33:00.995Z",
+      "evidence": {
+        "engine": "src/engines/CAMAGIReasoningEngine.ts",
+        "test": "CAMAGIReasoningEngine.test.ts (15/15 pass)",
+        "dispatcher_action": "cam_agi_reason",
+        "e2e": "camDispatcher.cam74-78.test.ts"
+      }
     },
     {
       "id": "U-CAM77",
       "title": "Engine Generation â€” CAMTribalKnowledgeEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that surfaces relevant tribal knowledge during CAM programming.",
       "entry_conditions": [
         "U-CAM76 complete",
@@ -3092,14 +3119,21 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T23:33:00.995Z",
+      "evidence": {
+        "engine": "src/engines/CAMTribalKnowledgeEngine.ts",
+        "test": "CAMTribalKnowledgeEngine.test.ts (16/16 pass)",
+        "dispatcher_action": "cam_tribal_lookup",
+        "e2e": "camDispatcher.cam74-78.test.ts"
+      }
     },
     {
       "id": "U-CAM78",
       "title": "Engine Generation â€” CAMFeatureLearningEngine",
       "phase": "PHASE-5",
       "type": "engine",
-      "status": "not_started",
+      "status": "completed",
       "description": "Create engine that learns from production outcomes to improve recommendations.",
       "entry_conditions": [
         "U-CAM77 complete",
@@ -3120,7 +3154,14 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T23:33:00.995Z",
+      "evidence": {
+        "engine": "src/engines/CAMFeatureLearningEngine.ts",
+        "test": "CAMFeatureLearningEngine.test.ts (16/16 pass)",
+        "dispatcher_action": "cam_feature_recognize",
+        "e2e": "camDispatcher.cam74-78.test.ts"
+      }
     },
     {
       "id": "U-CAM79",

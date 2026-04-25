@@ -115,6 +115,50 @@ async function getExplainer() {
   return _explainer;
 }
 
+
+// WIRE-MS0/U-WIRE11 — AI/ML deep-learning + capability orchestration singletons
+let _capMaximizer: typeof import("../../engines/AICapabilityMaximizerEngine.js").aiCapabilityMaximizerEngine | null = null;
+let _intelMaximizer: typeof import("../../engines/AIIntelligenceMaximizerEngine.js").aiIntelligenceMaximizer | null = null;
+let _sysSync: typeof import("../../engines/AISystemSynchronizerEngine.js").aiSystemSynchronizerEngine | null = null;
+let _deepKnow: typeof import("../../engines/AIDeepKnowledgeIntegrationEngine.js").aiDeepKnowledgeIntegration | null = null;
+let _resLearn: typeof import("../../engines/AIResourceLearningEngine.js").aiResourceLearningEngine | null = null;
+let _neuralInteg: typeof import("../../engines/NeuralIntegrationEngine.js").neuralIntegrationEngine | null = null;
+let _activeLearn: typeof import("../../engines/ActiveLearningStrategyEngine.js").activeLearningStrategyEngine | null = null;
+let _peerLearn: typeof import("../../engines/PeerLearningCoordinatorEngine.js").peerLearningCoordinatorEngine | null = null;
+
+async function getCapMaximizer() {
+  if (!_capMaximizer) { _capMaximizer = (await import("../../engines/AICapabilityMaximizerEngine.js")).aiCapabilityMaximizerEngine; }
+  return _capMaximizer;
+}
+async function getIntelMaximizer() {
+  if (!_intelMaximizer) { _intelMaximizer = (await import("../../engines/AIIntelligenceMaximizerEngine.js")).aiIntelligenceMaximizer; }
+  return _intelMaximizer;
+}
+async function getSysSync() {
+  if (!_sysSync) { _sysSync = (await import("../../engines/AISystemSynchronizerEngine.js")).aiSystemSynchronizerEngine; }
+  return _sysSync;
+}
+async function getDeepKnow() {
+  if (!_deepKnow) { _deepKnow = (await import("../../engines/AIDeepKnowledgeIntegrationEngine.js")).aiDeepKnowledgeIntegration; }
+  return _deepKnow;
+}
+async function getResLearn() {
+  if (!_resLearn) { _resLearn = (await import("../../engines/AIResourceLearningEngine.js")).aiResourceLearningEngine; }
+  return _resLearn;
+}
+async function getNeuralInteg() {
+  if (!_neuralInteg) { _neuralInteg = (await import("../../engines/NeuralIntegrationEngine.js")).neuralIntegrationEngine; }
+  return _neuralInteg;
+}
+async function getActiveLearn() {
+  if (!_activeLearn) { _activeLearn = (await import("../../engines/ActiveLearningStrategyEngine.js")).activeLearningStrategyEngine; }
+  return _activeLearn;
+}
+async function getPeerLearn() {
+  if (!_peerLearn) { _peerLearn = (await import("../../engines/PeerLearningCoordinatorEngine.js")).peerLearningCoordinatorEngine; }
+  return _peerLearn;
+}
+
 /** Dispatcher definition for MCP registration */
 export const aiReasoningDispatcherDef = {
   name: "prism_ai",
@@ -549,6 +593,149 @@ export async function executeAIReasoningAction(
           grade,
           label: explainer.getReadingLevelLabel(grade),
         };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // WIRE-MS0/U-WIRE11 — AI/ML deep-learning + capability orchestration
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_capability_metrics": {
+        const eng = await getCapMaximizer();
+        const metrics = eng.computeMetrics();
+        const recs = eng.getEnhancementRecommendations();
+        const out: Record<string, unknown> = { metrics, recommendations: recs };
+        if (params.include_patterns) out.patterns = eng.getReasoningPatterns();
+        if (params.include_sources) out.knowledgeSources = eng.getKnowledgeSources();
+        if (params.area) {
+          out.strategy = eng.getEnhancementStrategy(params.area as Parameters<typeof eng.getEnhancementStrategy>[0]);
+        }
+        result = out;
+        break;
+      }
+      case "ai_intelligence_maximize": {
+        const eng = await getIntelMaximizer();
+        result = await eng.maximize({
+          operation: params.operation as Parameters<typeof eng.maximize>[0]["operation"],
+          material: params.material as string,
+          tool: params.tool as Parameters<typeof eng.maximize>[0]["tool"],
+          machine: params.machine as Parameters<typeof eng.maximize>[0]["machine"],
+          feature: params.feature as Parameters<typeof eng.maximize>[0]["feature"],
+          priority: params.priority as Parameters<typeof eng.maximize>[0]["priority"],
+        });
+        break;
+      }
+      case "ai_system_sync": {
+        const eng = await getSysSync();
+        const mode = params.mode as "status"|"sync_all"|"summary"|"synergize"|"recommend";
+        switch (mode) {
+          case "status":     result = eng.getStatus(); break;
+          case "sync_all":   result = await eng.syncAll(); break;
+          case "summary":    result = { summary: eng.getSummary() }; break;
+          case "synergize":  result = eng.getSynergizedCapabilities(String(params.problem ?? "")); break;
+          case "recommend":  result = eng.recommend(params.task as Parameters<typeof eng.recommend>[0]); break;
+          default: { const _x: never = mode; throw new Error(`unknown mode ${_x}`); }
+        }
+        break;
+      }
+      case "ai_deep_knowledge_query": {
+        const eng = await getDeepKnow();
+        result = await eng.query({
+          intent: params.intent as Parameters<typeof eng.query>[0]["intent"],
+          domain: params.domain as string,
+          context: (params.context as Record<string, unknown>) ?? {},
+          history: params.history as string[] | undefined,
+          preferences: params.preferences as Parameters<typeof eng.query>[0]["preferences"] | undefined,
+        });
+        break;
+      }
+      case "ai_resource_recommend": {
+        const eng = await getResLearn();
+        const mode = params.mode as "code_quality"|"material_params"|"speed_feed"|"okuma_pattern"|"hypermill_template"|"stats"|"training_data"|"coverage";
+        switch (mode) {
+          case "code_quality":
+            result = eng.getCodeQualityRecommendations(
+              String(params.task ?? ""),
+              (params.language as "typescript"|"python"|"gcode"|"macro" | undefined) ?? "typescript",
+            );
+            break;
+          case "material_params":
+            result = { material: params.material, params: eng.getMaterialParameters(String(params.material ?? "")) };
+            break;
+          case "speed_feed":
+            result = eng.getRecommendedSpeedFeed(
+              String(params.material ?? ""),
+              (params.operation as "roughing"|"finishing" | undefined) ?? "finishing",
+            );
+            break;
+          case "okuma_pattern":
+            result = { cycle: params.cycle, pattern: eng.getOkumaGCodePattern(String(params.cycle ?? "")) };
+            break;
+          case "hypermill_template":
+            result = { template: params.template, code: eng.generateHyperMillTemplate(params.template as Parameters<typeof eng.generateHyperMillTemplate>[0]) };
+            break;
+          case "stats":
+            result = eng.getStats() ?? { stats: null };
+            break;
+          case "training_data":
+            result = eng.getAITrainingData();
+            break;
+          case "coverage":
+            result = eng.getKnowledgeCoverage();
+            break;
+          default: { const _x: never = mode; throw new Error(`unknown mode ${_x}`); }
+        }
+        break;
+      }
+      case "ai_neural_route": {
+        const eng = await getNeuralInteg();
+        const mode = params.mode as "route"|"synthesize"|"commands"|"stats"|"summary";
+        const q = String(params.query ?? "");
+        switch (mode) {
+          case "route":
+            result = eng.route({
+              input: q,
+              context: params.context as Record<string, unknown> | undefined,
+              intent: params.intent as string | undefined,
+            });
+            break;
+          case "synthesize": result = eng.synthesize(q); break;
+          case "commands":   result = { recommendations: eng.recommendCommands(q) }; break;
+          case "stats":      result = eng.getLearningStats(); break;
+          case "summary":    result = { summary: eng.getSummary() }; break;
+          default: { const _x: never = mode; throw new Error(`unknown mode ${_x}`); }
+        }
+        break;
+      }
+      case "ai_active_learning_rank": {
+        const eng = await getActiveLearn();
+        const ranked = eng.rank(params.candidates as Parameters<typeof eng.rank>[0]);
+        result = params.include_summary
+          ? { ranked, summary: eng.summary(ranked) }
+          : { ranked };
+        break;
+      }
+      case "ai_peer_learning": {
+        const eng = await getPeerLearn();
+        const mode = params.mode as "broadcast"|"query"|"get"|"size"|"clear";
+        switch (mode) {
+          case "broadcast":
+            result = eng.broadcast(params.insight as Parameters<typeof eng.broadcast>[0]);
+            break;
+          case "query":
+            result = { insights: eng.query((params.query as Parameters<typeof eng.query>[0]) ?? {}) };
+            break;
+          case "get":
+            result = { insight: eng.get(String(params.id ?? "")) };
+            break;
+          case "size":
+            result = { size: eng.size() };
+            break;
+          case "clear":
+            eng.clear();
+            result = { cleared: true, size: eng.size() };
+            break;
+          default: { const _x: never = mode; throw new Error(`unknown mode ${_x}`); }
+        }
         break;
       }
 
