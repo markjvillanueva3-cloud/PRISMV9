@@ -155,6 +155,12 @@ const ACTIONS = [
   "gt_registry_stats",
   "gt_registry_dump",
   "gt_registry_load",
+  // U-CGT09 — GroundTruthValidationEngine: corpus integrity gate + quarantine
+  "gt_validate_bundle",
+  "gt_validate_corpus",
+  "gt_export_quarantine",
+  "gt_validate_report",
+  "gt_list_issue_codes",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -1087,6 +1093,72 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = await groundTruthRegistryEngine.loadManifest(
               String(params["filePath"] ?? ""),
             );
+            break;
+          }
+          case "gt_validate_bundle": {
+            const { groundTruthValidationEngine } = await import(
+              "../../engines/GroundTruthValidationEngine.js"
+            );
+            result = groundTruthValidationEngine.validateBundle(
+              String(params["bundleDir"] ?? ""),
+              String(params["fileId"] ?? ""),
+              {
+                skipScreenshots: params["skipScreenshots"] === true,
+                quarantineFailedStatus:
+                  params["quarantineFailedStatus"] === undefined
+                    ? true
+                    : params["quarantineFailedStatus"] === true,
+                quarantinePartialStatus:
+                  params["quarantinePartialStatus"] === true,
+              },
+            );
+            break;
+          }
+          case "gt_validate_corpus": {
+            const { groundTruthValidationEngine } = await import(
+              "../../engines/GroundTruthValidationEngine.js"
+            );
+            result = groundTruthValidationEngine.validateCorpus(
+              String(params["outputRoot"] ?? ""),
+              {
+                skipScreenshots: params["skipScreenshots"] === true,
+                quarantineFailedStatus:
+                  params["quarantineFailedStatus"] === undefined
+                    ? true
+                    : params["quarantineFailedStatus"] === true,
+                quarantinePartialStatus:
+                  params["quarantinePartialStatus"] === true,
+                ...(typeof params["limit"] === "number"
+                  ? { limit: params["limit"] as number }
+                  : {}),
+              },
+            );
+            break;
+          }
+          case "gt_export_quarantine": {
+            const { groundTruthValidationEngine } = await import(
+              "../../engines/GroundTruthValidationEngine.js"
+            );
+            await groundTruthValidationEngine.exportQuarantine(
+              params["report"] as Parameters<typeof groundTruthValidationEngine.exportQuarantine>[0],
+              String(params["filePath"] ?? ""),
+            );
+            result = { ok: true, filePath: String(params["filePath"] ?? "") };
+            break;
+          }
+          case "gt_validate_report": {
+            const { groundTruthValidationEngine } = await import(
+              "../../engines/GroundTruthValidationEngine.js"
+            );
+            result = groundTruthValidationEngine.validate(params["candidate"]);
+            break;
+          }
+          case "gt_list_issue_codes": {
+            const { groundTruthValidationEngine } = await import(
+              "../../engines/GroundTruthValidationEngine.js"
+            );
+            const codes = groundTruthValidationEngine.listIssueCodes();
+            result = { count: codes.length, codes };
             break;
           }
           default:

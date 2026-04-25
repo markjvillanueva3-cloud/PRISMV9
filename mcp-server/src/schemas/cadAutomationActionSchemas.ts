@@ -671,6 +671,42 @@ const gt_registry_stats = z.object({}).passthrough();
 const gt_registry_dump = z.object({ filePath: z.string().min(1) }).passthrough();
 const gt_registry_load = z.object({ filePath: z.string().min(1) }).passthrough();
 
+
+// ─── Ground-truth validation (U-CGT09 / CAD-GROUND-TRUTH-MS0) ────────────
+
+const gt_validate_bundle = z
+  .object({
+    bundleDir: z.string().min(1),
+    fileId: z.string().min(1),
+    skipScreenshots: z.boolean().optional(),
+    quarantineFailedStatus: z.boolean().optional(),
+    quarantinePartialStatus: z.boolean().optional(),
+  })
+  .passthrough();
+
+const gt_validate_corpus = z
+  .object({
+    outputRoot: z.string().min(1),
+    skipScreenshots: z.boolean().optional(),
+    quarantineFailedStatus: z.boolean().optional(),
+    quarantinePartialStatus: z.boolean().optional(),
+    limit: z.number().int().min(0).optional(),
+  })
+  .passthrough();
+
+const gt_export_quarantine = z
+  .object({
+    report: z.unknown(),
+    filePath: z.string().min(1),
+  })
+  .passthrough();
+
+const gt_validate_report = z
+  .object({ candidate: z.unknown() })
+  .passthrough();
+
+const gt_list_issue_codes = z.object({}).passthrough();
+
 // ─── Export map ──────────────────────────────────────────────────────────
 
 export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
@@ -727,4 +763,9 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   gt_registry_stats,
   gt_registry_dump,
   gt_registry_load,
+  gt_validate_bundle,
+  gt_validate_corpus,
+  gt_export_quarantine,
+  gt_validate_report,
+  gt_list_issue_codes,
 };
