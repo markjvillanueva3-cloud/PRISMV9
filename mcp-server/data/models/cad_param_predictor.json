@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "modelId": "cad_param_predictor",
+  "modelType": "feature-conditioned-linear-regression",
+  "version": "0.1.0-prior",
+  "trainedOn": null,
+  "trainedAt": null,
+  "corpusSize": 0,
+  "notes": "Initial coefficients are analytic priors derived from feature taxonomy, classifier thresholds, and ISO standard sizing tables (ISO 286, ISO 4762, ISO 286-2, Machinery's Handbook 30th Ed.). Replace via CADParameterPredictorEngine.train(samples) once corpus regression is run.",
+  "inputFeatures": [
+    "volume_mm3",
+    "bbox_x_mm",
+    "bbox_y_mm",
+    "bbox_z_mm",
+    "faceCount",
+    "edgeCount",
+    "longestDim_mm",
+    "aspectRatio",
+    "featureType_oneHot"
+  ],
+  "outputs": {
+    "extrusion_depth_mm": {
+      "intercept": 0,
+      "weights": { "longestDim": 0.25, "bbox_z": 0.5 },
+      "minValue": 0.5,
+      "maxValue": 500,
+      "defaultUncertainty_pct": 8,
+      "source": "ISO general extrusion priors; depth ≈ 0.5·z-bbox + 0.25·longest"
+    },
+    "hole_diameter_mm": {
+      "intercept": 0,
+      "weights": { "bbox_min_xy": 0.18 },
+      "minValue": 0.5,
+      "maxValue": 80,
+      "defaultUncertainty_pct": 6,
+      "source": "Holes ≈ 0.18·min(bbox.x,bbox.y) — derived from JM Die hole-distribution histogram"
+    },
+    "hole_depth_mm": {
+      "intercept": 0,
+      "weights": { "bbox_z": 0.85 },
+      "minValue": 0.5,
+      "maxValue": 300,
+      "defaultUncertainty_pct": 7,
+      "source": "Through-hole depth tracks bbox.z; blind ≈ 0.6·bbox.z"
+    },
+    "fillet_radius_mm": {
+      "intercept": 0.2,
+      "weights": { "longestDim": 0.015 },
+      "minValue": 0.1,
+      "maxValue": 25,
+      "defaultUncertainty_pct": 12,
+      "source": "Default cosmetic fillet ≈ 1.5%·longestDim, floored at 0.2 mm"
+    },
+    "chamfer_size_mm": {
+      "intercept": 0.1,
+      "weights": { "longestDim": 0.008 },
+      "minValue": 0.1,
+      "maxValue": 10,
+      "defaultUncertainty_pct": 12,
+      "source": "Edge-break chamfer ≈ 0.8%·longestDim, ISO 13715 cosmetic break range"
+    },
+    "pocket_depth_mm": {
+      "intercept": 0,
+      "weights": { "bbox_z": 0.55 },
+      "minValue": 0.5,
+      "maxValue": 200,
+      "defaultUncertainty_pct": 10,
+      "source": "Pocket depth ≈ 55% of bbox.z (avoids floor break-through)"
+    },
+    "slot_width_mm": {
+      "intercept": 0,
+      "weights": { "bbox_min_xy": 0.25 },
+      "minValue": 1,
+      "maxValue": 60,
+      "defaultUncertainty_pct": 9,
+      "source": "Slot width ≈ 0.25·min(bbox.x,bbox.y)"
+    },
+    "slot_length_mm": {
+      "intercept": 0,
+      "weights": { "bbox_max_xy": 0.7 },
+      "minValue": 2,
+      "maxValue": 250,
+      "defaultUncertainty_pct": 9,
+      "source": "Slot length ≈ 0.7·max(bbox.x,bbox.y)"
+    },
+    "thread_pitch_mm": {
+      "intercept": 0,
+      "weights": { "hole_diameter": 0.18 },
+      "minValue": 0.2,
+      "maxValue": 6,
+      "defaultUncertainty_pct": 5,
+      "source": "ISO 261 metric coarse: pitch ≈ 0.18·major_diameter (M3=0.5, M10=1.5, M24=3)"
+    },
+    "boss_diameter_mm": {
+      "intercept": 0,
+      "weights": { "bbox_min_xy": 0.4 },
+      "minValue": 1,
+      "maxValue": 150,
+      "defaultUncertainty_pct": 10,
+      "source": "Circular boss ≈ 0.4·min(bbox.x,bbox.y)"
+    },
+    "boss_height_mm": {
+      "intercept": 0,
+      "weights": { "bbox_z": 0.4 },
+      "minValue": 0.5,
+      "maxValue": 100,
+      "defaultUncertainty_pct": 10,
+      "source": "Boss height ≈ 0.4·bbox.z"
+    },
+    "groove_width_mm": {
+      "intercept": 0,
+      "weights": { "longestDim": 0.04 },
+      "minValue": 0.5,
+      "maxValue": 30,
+      "defaultUncertainty_pct": 11,
+      "source": "Groove width ≈ 4%·longestDim — typical retainer/o-ring range"
+    },
+    "groove_depth_mm": {
+      "intercept": 0.2,
+      "weights": { "longestDim": 0.025 },
+      "minValue": 0.2,
+      "maxValue": 15,
+      "defaultUncertainty_pct": 11,
+      "source": "Groove depth ≈ 2.5%·longestDim + 0.2 mm floor"
+    },
+    "countersink_angle_deg": {
+      "intercept": 90,
+      "weights": {},
+      "minValue": 60,
+      "maxValue": 120,
+      "defaultUncertainty_pct": 0,
+      "source": "ISO standard countersink: 82° (UNC) or 90° (metric); default 90°"
+    },
+    "counterbore_diameter_mm": {
+      "intercept": 0,
+      "weights": { "hole_diameter": 1.5 },
+      "minValue": 1,
+      "maxValue": 80,
+      "defaultUncertainty_pct": 4,
+      "source": "ISO 4762 socket-head clearance: cbore_dia ≈ 1.5·screw_dia"
+    },
+    "counterbore_depth_mm": {
+      "intercept": 0,
+      "weights": { "hole_diameter": 1.05 },
+      "minValue": 0.5,
+      "maxValue": 50,
+      "defaultUncertainty_pct": 6,
+      "source": "ISO 4762: cbore_depth ≈ 1.05·screw_dia (head height + 5% clearance)"
+    }
+  },
+  "metrics": {
+    "rmsePct": null,
+    "maeAbs": null,
+    "validationSetSize": 0,
+    "lastEvaluatedAt": null
+  }
+}
