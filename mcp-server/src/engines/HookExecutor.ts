@@ -110,6 +110,7 @@ export type HookCategory =
   | "observability"
   | "automation"
   | "safety"
+  | "security"
   | "validation"
   | "recovery"
   | "agent"
@@ -128,6 +129,14 @@ export interface HookContext {
     id?: string;
     path?: string;
     data?: Record<string, unknown>;
+    /** Dispatcher action when ctx.target is a dispatcher invocation. */
+    action?: string;
+    /** Dispatcher namespace, e.g. "prism_calc". */
+    dispatcher?: string;
+    /** Input params for pre-dispatch hooks. */
+    input?: Record<string, unknown>;
+    /** Output payload for post-dispatch hooks. */
+    output?: Record<string, unknown>;
   };
   /** Content for file operations */
   content?: {
@@ -220,6 +229,7 @@ export function hookSuccess(
   options?: {
     data?: Record<string, unknown>;
     actions?: string[];
+    [key: string]: unknown;
   }
 ): HookResult {
   return {
@@ -242,6 +252,7 @@ export function hookBlock(
   options?: {
     issues?: string[];
     data?: Record<string, unknown>;
+    [key: string]: unknown;
   }
 ): HookResult {
   return {
@@ -264,6 +275,7 @@ export function hookWarning(
   options?: {
     warnings?: string[];
     data?: Record<string, unknown>;
+    [key: string]: unknown;
   }
 ): HookResult {
   return {
