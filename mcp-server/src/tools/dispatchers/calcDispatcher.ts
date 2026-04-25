@@ -987,6 +987,17 @@ const ACTIONS = [
   "sparse_solve", "iterative_solve", "matrix_norms", "matrix_factorize",
   "tensor_stress_invariants", "system_identify", "robust_regression",
   "random_matrix_noise_floor",
+  // PHYSICS-WIRE-MS0: wire 11 unwired physics engines
+  "clamping_force_calc", "clamping_force_quick",
+  "cross_phys_upqi", "cross_phys_tool_life", "cross_phys_surface", "cross_phys_stability",
+  "cross_phys_tool_change", "cross_phys_thermal_error", "cross_phys_energy_eff", "cross_phys_dyn_stiffness",
+  "face_driver_analyze", "face_driver_penetration",
+  "mdof_stability", "mdof_stability_eigen", "mdof_compare_sdof",
+  "machine_force_limit_validate", "machine_force_limit_quick",
+  "timoshenko_deflect", "timoshenko_multi_section", "timoshenko_compare", "timoshenko_max_ld",
+  "goal_stability_observe", "goal_stability_analyze",
+  "session_stability_report", "session_stability_lyapunov",
+  "tribal_playbook_validate", "tribal_playbook_ranges", "tribal_playbook_guidance",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -8304,6 +8315,154 @@ export function registerCalcDispatcher(server: any): void {
               standards: ["DIN", "AISI", "JIS", "UNS", "AFNOR", "BS"],
               groups: stats.groups,
             };
+            break;
+          }
+
+          // ── PHYSICS-WIRE-MS0: 11 previously unwired physics engines (27 actions) ──
+          case "clamping_force_calc": {
+            const { clampingForceEngine: cfe } = await import("../../engines/ClampingForceEngine.js");
+            result = cfe.calculate(params as ValidatedParams);
+            break;
+          }
+          case "clamping_force_quick": {
+            const { clampingForceEngine: cfe } = await import("../../engines/ClampingForceEngine.js");
+            result = cfe.quickEstimate(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_upqi": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().unifiedProcessQualityIndex(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_tool_life": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().coupledToolLife(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_surface": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().multiSourceSurfaceFinish(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_stability": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().processStabilityMargin(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_tool_change": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().optimalToolChangePoint(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_thermal_error": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().thermalGeometricErrorBudget(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_energy_eff": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().cuttingEnergyEfficiency(params as ValidatedParams);
+            break;
+          }
+          case "cross_phys_dyn_stiffness": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().dynamicProcessStiffness(params as ValidatedParams);
+            break;
+          }
+          case "face_driver_analyze": {
+            const { faceDriverTorqueEngine: fdt } = await import("../../engines/FaceDriverTorqueEngine.js");
+            { const p = params as ValidatedParams; result = fdt.analyze(p.driver, p.part, p.requiredTorqueNm); }
+            break;
+          }
+          case "face_driver_penetration": {
+            const { faceDriverTorqueEngine: fdt } = await import("../../engines/FaceDriverTorqueEngine.js");
+            { const p = params as ValidatedParams; result = fdt.recommendPenetration(p.targetTorqueNm, p.driver, p.part); }
+            break;
+          }
+          case "mdof_stability": {
+            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
+            result = mdof.compute(params as ValidatedParams);
+            break;
+          }
+          case "mdof_stability_eigen": {
+            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
+            result = mdof.computeWithEigenvalue(params as ValidatedParams);
+            break;
+          }
+          case "mdof_compare_sdof": {
+            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
+            result = mdof.compareSDOFvsMDOF(params as ValidatedParams);
+            break;
+          }
+          case "machine_force_limit_validate": {
+            const { machineForceLimitValidationEngine: mfl } = await import("../../engines/MachineForceLimitValidationEngine.js");
+            result = mfl.validate(params as ValidatedParams);
+            break;
+          }
+          case "machine_force_limit_quick": {
+            const { machineForceLimitValidationEngine: mfl } = await import("../../engines/MachineForceLimitValidationEngine.js");
+            { const p = params as ValidatedParams; result = mfl.quickValidate(p.powerKw, p.torqueNm, p.rpm, p.machineSpecs); }
+            break;
+          }
+          case "timoshenko_deflect": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            result = td.calculate(params as ValidatedParams);
+            break;
+          }
+          case "timoshenko_multi_section": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            result = td.calculateMultiSection(params as ValidatedParams);
+            break;
+          }
+          case "timoshenko_compare": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            result = td.compareModels(params as ValidatedParams);
+            break;
+          }
+          case "timoshenko_max_ld": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            const p = params as ValidatedParams;
+            result = td.calculateMaxLD(p.params ?? p, p.max_deflection_um ?? p.maxDeflection_um);
+            break;
+          }
+          case "goal_stability_observe": {
+            const { goalStabilityVerifierEngine: gsv } = await import("../../engines/GoalStabilityVerifierEngine.js");
+            gsv.observe(params as ValidatedParams);
+            result = { observed: true };
+            break;
+          }
+          case "goal_stability_analyze": {
+            const { goalStabilityVerifierEngine: gsv } = await import("../../engines/GoalStabilityVerifierEngine.js");
+            result = gsv.analyze();
+            break;
+          }
+          case "session_stability_report": {
+            const { sessionStabilityEngine: sse } = await import("../../engines/SessionStabilityEngine.js");
+            const p = params as ValidatedParams;
+            if (p.state) sse.recordState(p.state);
+            result = sse.generateReport(p.state ?? p);
+            break;
+          }
+          case "session_stability_lyapunov": {
+            const { sessionStabilityEngine: sse } = await import("../../engines/SessionStabilityEngine.js");
+            result = sse.analyzeLyapunov((params as ValidatedParams).state ?? params);
+            break;
+          }
+          case "tribal_playbook_validate": {
+            const { tribalPlaybookEnforcementEngine: tpe } = await import("../../engines/TribalPlaybookEnforcementEngine.js");
+            const p = params as ValidatedParams;
+            result = tpe.validate(p.parameters ?? p, p.context ?? {});
+            break;
+          }
+          case "tribal_playbook_ranges": {
+            const { tribalPlaybookEnforcementEngine: tpe } = await import("../../engines/TribalPlaybookEnforcementEngine.js");
+            result = { ranges: tpe.getRecommendedRanges((params as ValidatedParams).material) };
+            break;
+          }
+          case "tribal_playbook_guidance": {
+            const { tribalPlaybookEnforcementEngine: tpe } = await import("../../engines/TribalPlaybookEnforcementEngine.js");
+            const p = params as ValidatedParams;
+            result = { tips: tpe.searchGuidance(p.query, p.material, p.operation) };
             break;
           }
 

@@ -23,7 +23,24 @@ import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_gate", "pre_write_diff", "pre_call_validate", "autohook_status", "autohook_test",
   // D3: Learning & Pattern Detection — Python module wiring
-  "pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score"
+  "pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score",
+  // SAFETY-WIRE-MS0: wire 17 unwired safety/audit engines (39 actions)
+  "agi_containment_evaluate", "agi_containment_evaluate_batch",
+  "audit_query", "audit_report",
+  "audit_schedule", "audit_list", "audit_create_finding",
+  "bayes_safety_set_prior", "bayes_safety_get_prior", "bayes_safety_observe",
+  "collision_hazard_detect",
+  "dup_guard_check", "dup_guard_summary",
+  "engine_util_audit", "engine_util_orphans",
+  "machine_audit_brand", "machine_audit_wave", "machine_audit_all",
+  "nist_register_control", "nist_get_control", "nist_list_controls",
+  "osha_create_incident", "osha_300_log", "osha_300a_summary",
+  "operator_audit_record", "operator_audit_stats",
+  "safety_explain_veto", "safety_explain_gate", "safety_explain_brief", "safety_counterfactual",
+  "safety_gate_open", "safety_gate_attach_veto", "safety_gate_attach_sim", "safety_gate_attach_collision",
+  "sem_sim_guard_compute",
+  "sys_util_audit_all", "sys_util_run_pillar",
+  "test_quality_list", "test_quality_classify", "test_quality_audit"
 ] as const;
 
 function ok(data: any) {
@@ -749,6 +766,178 @@ export function registerGuardDispatcher(server: any): void {
             if (params.target && !isNaN(Number(params.target))) pyArgs.push("--target", String(params.target));
             const output = runPythonScript("priority_scorer.py", pyArgs);
             try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
+          }
+
+          // ── SAFETY-WIRE-MS0: 17 unwired safety/audit engines ──
+          case "agi_containment_evaluate": {
+            const { AGISafetyContainmentEngine: AGI } = await import("../../engines/AGISafetyContainmentEngine.js");
+            return ok(new AGI().evaluate(params as any));
+          }
+          case "agi_containment_evaluate_batch": {
+            const { AGISafetyContainmentEngine: AGI } = await import("../../engines/AGISafetyContainmentEngine.js");
+            return ok(new AGI().evaluateBatch((params as any).candidates ?? []));
+          }
+          case "audit_query": {
+            const { auditEngine } = await import("../../engines/AuditEngine.js");
+            return ok(auditEngine.query(params as any));
+          }
+          case "audit_report": {
+            const { auditEngine } = await import("../../engines/AuditEngine.js");
+            const p = params as any;
+            return ok(auditEngine.report(p.periodStart, p.periodEnd));
+          }
+          case "audit_schedule": {
+            const { auditManagerEngine } = await import("../../engines/AuditManagerEngine.js");
+            return ok(auditManagerEngine.scheduleAudit(params as any));
+          }
+          case "audit_list": {
+            const { auditManagerEngine } = await import("../../engines/AuditManagerEngine.js");
+            return ok(auditManagerEngine.listAudits(params as any));
+          }
+          case "audit_create_finding": {
+            const { auditManagerEngine } = await import("../../engines/AuditManagerEngine.js");
+            return ok(auditManagerEngine.createFinding(params as any));
+          }
+          case "bayes_safety_set_prior": {
+            const { bayesianSafetyEngine } = await import("../../engines/BayesianSafetyEngine.js");
+            const p = params as any;
+            bayesianSafetyEngine.setPrior(p.operationType, p.alpha, p.beta, p.source);
+            return ok({ ok: true });
+          }
+          case "bayes_safety_get_prior": {
+            const { bayesianSafetyEngine } = await import("../../engines/BayesianSafetyEngine.js");
+            return ok(bayesianSafetyEngine.getPrior((params as any).operationType));
+          }
+          case "bayes_safety_observe": {
+            const { bayesianSafetyEngine } = await import("../../engines/BayesianSafetyEngine.js");
+            return ok(bayesianSafetyEngine.observe(params as any));
+          }
+          case "collision_hazard_detect": {
+            const { CollisionHazardDetectorEngine: CHD } = await import("../../engines/CollisionHazardDetectorEngine.js");
+            const eng = new CHD() as any;
+            const fn = eng.detect || eng.check || eng.analyze;
+            return ok(fn ? fn.call(eng, params as any) : { error: "no public method found" });
+          }
+          case "dup_guard_check": {
+            const { duplicationGuardEngine } = await import("../../engines/DuplicationGuardEngine.js");
+            return ok((duplicationGuardEngine as any).checkBeforeCreating(params as any));
+          }
+          case "dup_guard_summary": {
+            const { duplicationGuardEngine } = await import("../../engines/DuplicationGuardEngine.js");
+            return ok({ summary: await duplicationGuardEngine.getExistingSummary() });
+          }
+          case "engine_util_audit": {
+            const { engineUtilizationAuditorEngine } = await import("../../engines/EngineUtilizationAuditorEngine.js");
+            return ok(await engineUtilizationAuditorEngine.audit((params as any) ?? {}));
+          }
+          case "engine_util_orphans": {
+            const { engineUtilizationAuditorEngine } = await import("../../engines/EngineUtilizationAuditorEngine.js");
+            return ok({ orphans: engineUtilizationAuditorEngine.getOrphans() });
+          }
+          case "machine_audit_brand": {
+            const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+            return ok(machineAuditEngine.auditBrand((params as any).brand));
+          }
+          case "machine_audit_wave": {
+            const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+            return ok(machineAuditEngine.auditWave((params as any).waveNumber));
+          }
+          case "machine_audit_all": {
+            const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+            return ok(machineAuditEngine.auditAll());
+          }
+          case "nist_register_control": {
+            const { nistAIRMFComplianceEngine } = await import("../../engines/NISTAIRMFComplianceEngine.js");
+            return ok(nistAIRMFComplianceEngine.registerControl(params as any));
+          }
+          case "nist_get_control": {
+            const { nistAIRMFComplianceEngine } = await import("../../engines/NISTAIRMFComplianceEngine.js");
+            return ok(nistAIRMFComplianceEngine.getControl((params as any).id));
+          }
+          case "nist_list_controls": {
+            const { nistAIRMFComplianceEngine } = await import("../../engines/NISTAIRMFComplianceEngine.js");
+            const p = params as any;
+            return ok(nistAIRMFComplianceEngine.listControls(p.framework, p.category));
+          }
+          case "osha_create_incident": {
+            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
+            return ok(oshaComplianceEngine.createIncident(params as any));
+          }
+          case "osha_300_log": {
+            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
+            return ok(oshaComplianceEngine.generateOSHA300Log((params as any).year));
+          }
+          case "osha_300a_summary": {
+            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
+            return ok(oshaComplianceEngine.generateOSHA300ASummary((params as any).year));
+          }
+          case "operator_audit_record": {
+            const { operatorActionAuditTrailEngine } = await import("../../engines/OperatorActionAuditTrailEngine.js");
+            return ok(operatorActionAuditTrailEngine.record(params as any));
+          }
+          case "operator_audit_stats": {
+            const { operatorActionAuditTrailEngine } = await import("../../engines/OperatorActionAuditTrailEngine.js");
+            return ok(operatorActionAuditTrailEngine.getStats());
+          }
+          case "safety_explain_veto": {
+            const { safetyExplanationEngine } = await import("../../engines/SafetyExplanationEngine.js");
+            return ok(safetyExplanationEngine.explainVetoReport(params as any));
+          }
+          case "safety_explain_gate": {
+            const { safetyExplanationEngine } = await import("../../engines/SafetyExplanationEngine.js");
+            return ok(safetyExplanationEngine.explainGate(params as any));
+          }
+          case "safety_explain_brief": {
+            const { safetyExplanationEngine } = await import("../../engines/SafetyExplanationEngine.js");
+            return ok({ brief: safetyExplanationEngine.explainBrief((params as any).report) });
+          }
+          case "safety_counterfactual": {
+            const { safetyExplanationEngine } = await import("../../engines/SafetyExplanationEngine.js");
+            return ok({ counterfactual: safetyExplanationEngine.findMinimalFlip((params as any).report) });
+          }
+          case "safety_gate_open": {
+            const { safetyVetoSimulationGateEngine } = await import("../../engines/SafetyVetoSimulationGateEngine.js");
+            return ok(safetyVetoSimulationGateEngine.openGate(params as any));
+          }
+          case "safety_gate_attach_veto": {
+            const { safetyVetoSimulationGateEngine } = await import("../../engines/SafetyVetoSimulationGateEngine.js");
+            const p = params as any;
+            return ok(safetyVetoSimulationGateEngine.attachVetoReport(p.gate_id, p.report));
+          }
+          case "safety_gate_attach_sim": {
+            const { safetyVetoSimulationGateEngine } = await import("../../engines/SafetyVetoSimulationGateEngine.js");
+            const p = params as any;
+            return ok(safetyVetoSimulationGateEngine.attachSimulation(p.gate_id, p.result));
+          }
+          case "safety_gate_attach_collision": {
+            const { safetyVetoSimulationGateEngine } = await import("../../engines/SafetyVetoSimulationGateEngine.js");
+            const p = params as any;
+            return ok(safetyVetoSimulationGateEngine.attachCollision(p.gate_id, p.result));
+          }
+          case "sem_sim_guard_compute": {
+            const { semanticSimilarityGuardEngine } = await import("../../engines/SemanticSimilarityGuardEngine.js");
+            const p = params as any;
+            return ok({ similarity: semanticSimilarityGuardEngine.computeSimilarity(p.content1, p.content2) });
+          }
+          case "sys_util_audit_all": {
+            const { systemUtilizationAuditEngine } = await import("../../engines/SystemUtilizationAuditEngine.js");
+            return ok(systemUtilizationAuditEngine.auditAll());
+          }
+          case "sys_util_run_pillar": {
+            const { systemUtilizationAuditEngine } = await import("../../engines/SystemUtilizationAuditEngine.js");
+            return ok(systemUtilizationAuditEngine.runPillar((params as any).id));
+          }
+          case "test_quality_list": {
+            const { testQualityAuditEngine } = await import("../../engines/TestQualityAuditEngine.js");
+            return ok({ files: testQualityAuditEngine.listTestFiles((params as any).dir) });
+          }
+          case "test_quality_classify": {
+            const { testQualityAuditEngine } = await import("../../engines/TestQualityAuditEngine.js");
+            return ok(testQualityAuditEngine.classifyFile((params as any).filePath));
+          }
+          case "test_quality_audit": {
+            const { testQualityAuditEngine } = await import("../../engines/TestQualityAuditEngine.js");
+            return ok(testQualityAuditEngine.auditAll());
           }
 
           default:

@@ -107,6 +107,21 @@ const DataDispatcherSchema = z.object({
     "box_program_memory_recall", "box_program_memory_defaults", "box_program_memory_stats",
     // BOX-MS8: Wire EDM parsing + mill pattern mining
     "box_parse_wedm", "box_mine_mill_patterns",
+    // QCMG-WIRE-MS0: 14 unwired quality/controller/material/grinding engines
+    "cmm_history_add", "cmm_history_trend", "cmm_history_features", "cmm_history_alerts", "cmm_history_stats",
+    "cmm_import_data", "cmm_import_get", "cmm_import_list", "cmm_import_formats", "cmm_import_validate",
+    "spc_feedback_evaluate",
+    "controller_knowledge_get", "controller_knowledge_list", "controller_knowledge_compare",
+    "hook_controller_compute", "hook_controller_get_setpoint", "hook_controller_set_setpoint", "hook_controller_gains",
+    "fusion_material_find", "fusion_material_iso", "fusion_material_cutting", "fusion_material_list_iso",
+    "material_cert_register", "material_cert_assign", "material_cert_link_program", "material_cert_record_inspection",
+    "material_db_bridge_query", "material_db_bridge_get", "material_db_bridge_by_type",
+    "material_db_get", "material_db_search", "material_db_by_category", "material_db_kienzle",
+    "material_stock_create", "material_stock_get", "material_stock_update", "material_stock_adjust",
+    "pdf_material_save", "pdf_material_stats",
+    "grinding_lora_cadence_config", "grinding_lora_cadence_state", "grinding_lora_cadence_record",
+    "grinding_lora_dataset_build", "grinding_lora_dataset_schema",
+    "grinding_replacement_evaluate", "grinding_replacement_stats",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -1962,6 +1977,248 @@ export function registerDataDispatcher(server: any): void {
               parsed: any;
             }>;
             result = millPatternMinerEngine.mineAll(programs);
+            break;
+          }
+
+          // ── QCMG-WIRE-MS0: 14 unwired quality/controller/material/grinding engines ──
+          case "cmm_history_add": {
+            const { CMMHistoryEngine } = await import("../../engines/CMMHistoryEngine.js");
+            result = CMMHistoryEngine.addRecord(params as any);
+            break;
+          }
+          case "cmm_history_trend": {
+            const { CMMHistoryEngine } = await import("../../engines/CMMHistoryEngine.js");
+            const p = params as any;
+            result = CMMHistoryEngine.getFeatureTrend(p.partNumber, p.featureName, p.limit);
+            break;
+          }
+          case "cmm_history_features": {
+            const { CMMHistoryEngine } = await import("../../engines/CMMHistoryEngine.js");
+            result = { features: CMMHistoryEngine.getPartFeatures((params as any).partNumber) };
+            break;
+          }
+          case "cmm_history_alerts": {
+            const { CMMHistoryEngine } = await import("../../engines/CMMHistoryEngine.js");
+            result = { alerts: CMMHistoryEngine.getActiveAlerts((params as any).partNumber) };
+            break;
+          }
+          case "cmm_history_stats": {
+            const { CMMHistoryEngine } = await import("../../engines/CMMHistoryEngine.js");
+            result = CMMHistoryEngine.getHistoryStats();
+            break;
+          }
+          case "cmm_import_data": {
+            const { CMMImportEngine } = await import("../../engines/CMMImportEngine.js");
+            const p = params as any;
+            result = CMMImportEngine.importData(p.content, p.format, p.metadata);
+            break;
+          }
+          case "cmm_import_get": {
+            const { CMMImportEngine } = await import("../../engines/CMMImportEngine.js");
+            result = CMMImportEngine.getImportResult((params as any).id);
+            break;
+          }
+          case "cmm_import_list": {
+            const { CMMImportEngine } = await import("../../engines/CMMImportEngine.js");
+            result = { imports: CMMImportEngine.listByPartNumber((params as any).partNumber) };
+            break;
+          }
+          case "cmm_import_formats": {
+            const { CMMImportEngine } = await import("../../engines/CMMImportEngine.js");
+            result = { formats: CMMImportEngine.getSupportedFormats() };
+            break;
+          }
+          case "cmm_import_validate": {
+            const { CMMImportEngine } = await import("../../engines/CMMImportEngine.js");
+            result = CMMImportEngine.validateImport((params as any).id);
+            break;
+          }
+          case "spc_feedback_evaluate": {
+            const { spcFeedbackLoopEngine } = await import("../../engines/SPCFeedbackLoopEngine.js");
+            result = spcFeedbackLoopEngine.evaluate(params as any);
+            break;
+          }
+          case "controller_knowledge_get": {
+            const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
+            result = controllerKnowledgeEngine.getProfile((params as any).family);
+            break;
+          }
+          case "controller_knowledge_list": {
+            const { getAvailableControllers } = await import("../../engines/ControllerKnowledgeEngine.js");
+            result = { controllers: getAvailableControllers() };
+            break;
+          }
+          case "controller_knowledge_compare": {
+            const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
+            const p = params as any;
+            result = controllerKnowledgeEngine.compare(p.source, p.target);
+            break;
+          }
+          case "hook_controller_compute": {
+            const { hookControllerEngine } = await import("../../engines/HookControllerEngine.js");
+            result = hookControllerEngine.compute(params as any);
+            break;
+          }
+          case "hook_controller_get_setpoint": {
+            const { hookControllerEngine } = await import("../../engines/HookControllerEngine.js");
+            result = { setpoint: hookControllerEngine.getSetpoint() };
+            break;
+          }
+          case "hook_controller_set_setpoint": {
+            const { hookControllerEngine } = await import("../../engines/HookControllerEngine.js");
+            hookControllerEngine.setSetpoint((params as any).value);
+            result = { ok: true };
+            break;
+          }
+          case "hook_controller_gains": {
+            const { hookControllerEngine } = await import("../../engines/HookControllerEngine.js");
+            result = hookControllerEngine.getGains();
+            break;
+          }
+          case "fusion_material_find": {
+            const { fusionMaterialBridgeEngine } = await import("../../engines/FusionMaterialBridgeEngine.js");
+            result = fusionMaterialBridgeEngine.findMaterial((params as any).query);
+            break;
+          }
+          case "fusion_material_iso": {
+            const { fusionMaterialBridgeEngine } = await import("../../engines/FusionMaterialBridgeEngine.js");
+            result = { iso: fusionMaterialBridgeEngine.mapToISO((params as any).fusionMaterialName) };
+            break;
+          }
+          case "fusion_material_cutting": {
+            const { fusionMaterialBridgeEngine } = await import("../../engines/FusionMaterialBridgeEngine.js");
+            result = fusionMaterialBridgeEngine.getCuttingRecommendation((params as any).materialId);
+            break;
+          }
+          case "fusion_material_list_iso": {
+            const { fusionMaterialBridgeEngine } = await import("../../engines/FusionMaterialBridgeEngine.js");
+            result = { materials: fusionMaterialBridgeEngine.listByISO((params as any).iso) };
+            break;
+          }
+          case "material_cert_register": {
+            const { materialCertTraceabilityEngine } = await import("../../engines/MaterialCertTraceabilityEngine.js");
+            result = materialCertTraceabilityEngine.registerCert(params as any);
+            break;
+          }
+          case "material_cert_assign": {
+            const { materialCertTraceabilityEngine } = await import("../../engines/MaterialCertTraceabilityEngine.js");
+            result = materialCertTraceabilityEngine.assignStock(params as any);
+            break;
+          }
+          case "material_cert_link_program": {
+            const { materialCertTraceabilityEngine } = await import("../../engines/MaterialCertTraceabilityEngine.js");
+            result = materialCertTraceabilityEngine.linkProgram(params as any);
+            break;
+          }
+          case "material_cert_record_inspection": {
+            const { materialCertTraceabilityEngine } = await import("../../engines/MaterialCertTraceabilityEngine.js");
+            result = materialCertTraceabilityEngine.recordInspection(params as any);
+            break;
+          }
+          case "material_db_bridge_query": {
+            const { materialDatabaseBridgeEngine } = await import("../../engines/MaterialDatabaseBridgeEngine.js");
+            result = await materialDatabaseBridgeEngine.query(params as any);
+            break;
+          }
+          case "material_db_bridge_get": {
+            const { materialDatabaseBridgeEngine } = await import("../../engines/MaterialDatabaseBridgeEngine.js");
+            result = await materialDatabaseBridgeEngine.getMaterial((params as any).id);
+            break;
+          }
+          case "material_db_bridge_by_type": {
+            const { materialDatabaseBridgeEngine } = await import("../../engines/MaterialDatabaseBridgeEngine.js");
+            result = await materialDatabaseBridgeEngine.getByType((params as any).type);
+            break;
+          }
+          case "material_db_get": {
+            const { materialDatabaseEngine } = await import("../../engines/MaterialDatabaseEngine.js");
+            result = materialDatabaseEngine.getMaterial((params as any).idOrAlias);
+            break;
+          }
+          case "material_db_search": {
+            const { materialDatabaseEngine } = await import("../../engines/MaterialDatabaseEngine.js");
+            result = { matches: materialDatabaseEngine.search((params as any).query) };
+            break;
+          }
+          case "material_db_by_category": {
+            const { materialDatabaseEngine } = await import("../../engines/MaterialDatabaseEngine.js");
+            result = { materials: materialDatabaseEngine.getByCategory((params as any).category) };
+            break;
+          }
+          case "material_db_kienzle": {
+            const { materialDatabaseEngine } = await import("../../engines/MaterialDatabaseEngine.js");
+            result = materialDatabaseEngine.getKienzleCoefficients((params as any).material);
+            break;
+          }
+          case "material_stock_create": {
+            const { materialStockEngine } = await import("../../engines/MaterialStockEngine.js");
+            result = materialStockEngine.create(params as any);
+            break;
+          }
+          case "material_stock_get": {
+            const { materialStockEngine } = await import("../../engines/MaterialStockEngine.js");
+            result = materialStockEngine.get((params as any).itemId);
+            break;
+          }
+          case "material_stock_update": {
+            const { materialStockEngine } = await import("../../engines/MaterialStockEngine.js");
+            const p = params as any;
+            result = materialStockEngine.update(p.itemId, p.updates);
+            break;
+          }
+          case "material_stock_adjust": {
+            const { materialStockEngine } = await import("../../engines/MaterialStockEngine.js");
+            const p = params as any;
+            result = materialStockEngine.adjustStock(p.itemId, p.delta, p.reason);
+            break;
+          }
+          case "pdf_material_save": {
+            const { pdfMaterialPropertyExtractionEngine } = await import("../../engines/PDFMaterialPropertyExtractionEngine.js");
+            await pdfMaterialPropertyExtractionEngine.saveExtracted((params as any).pdfId);
+            result = { saved: true };
+            break;
+          }
+          case "pdf_material_stats": {
+            const { pdfMaterialPropertyExtractionEngine } = await import("../../engines/PDFMaterialPropertyExtractionEngine.js");
+            result = pdfMaterialPropertyExtractionEngine.getStats();
+            break;
+          }
+          case "grinding_lora_cadence_config": {
+            const { grindingLoRACadenceEngine } = await import("../../engines/GrindingLoRACadenceEngine.js");
+            const p = params as any;
+            if (p && Object.keys(p).length > 0) result = grindingLoRACadenceEngine.setConfig(p);
+            else result = grindingLoRACadenceEngine.getConfig();
+            break;
+          }
+          case "grinding_lora_cadence_state": {
+            const { grindingLoRACadenceEngine } = await import("../../engines/GrindingLoRACadenceEngine.js");
+            result = grindingLoRACadenceEngine.getState();
+            break;
+          }
+          case "grinding_lora_cadence_record": {
+            const { grindingLoRACadenceEngine } = await import("../../engines/GrindingLoRACadenceEngine.js");
+            result = { total: grindingLoRACadenceEngine.recordJobs((params as any).n) };
+            break;
+          }
+          case "grinding_lora_dataset_build": {
+            const { grindingLoRADatasetBuilderEngine } = await import("../../engines/GrindingLoRADatasetBuilderEngine.js");
+            const p = params as any;
+            result = grindingLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split);
+            break;
+          }
+          case "grinding_lora_dataset_schema": {
+            const { grindingLoRADatasetBuilderEngine } = await import("../../engines/GrindingLoRADatasetBuilderEngine.js");
+            result = grindingLoRADatasetBuilderEngine.requiredSchema();
+            break;
+          }
+          case "grinding_replacement_evaluate": {
+            const { grindingReplacementEngine } = await import("../../engines/GrindingReplacementEngine.js");
+            result = grindingReplacementEngine.evaluate(params as any);
+            break;
+          }
+          case "grinding_replacement_stats": {
+            const { grindingReplacementEngine } = await import("../../engines/GrindingReplacementEngine.js");
+            result = grindingReplacementEngine.getStats();
             break;
           }
 
