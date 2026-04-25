@@ -147,6 +147,34 @@ const cadRegenThresholdsSchema = z.object({
   set: z.record(z.number()).optional(),
 });
 
+// ── CAD Trial-Error Learning Actions (U-CADC29) ───────────────────────────────
+const cadTrialIngestSchema = z.object({
+  outcome: z.unknown().optional(),
+  outcomes: z.array(z.unknown()).optional(),
+});
+
+const cadTrialPatternsSchema = z.object({}).passthrough();
+
+const cadTrialRecommendSchema = z.object({
+  candidate: z
+    .object({
+      partType: z.string().optional(),
+      features: z.array(z.string()).optional(),
+      generator: z.string().optional(),
+    })
+    .passthrough()
+    .optional(),
+});
+
+const cadTrialStatsSchema = z.object({
+  since: z.string().optional(),
+  partType: z.string().optional(),
+});
+
+const cadTrialResetSchema = z.object({
+  eraseLedger: z.boolean().optional(),
+});
+
 // ── NACA Airfoil Engine Actions (U-CADC13) ────────────────────────────────────
 const nacaGenerate4DigitSchema = z.object({
   designation: z.string().describe("4-digit NACA designator (e.g. '2412', '0012'). 'NACA' prefix and dashes/spaces are stripped automatically."),
@@ -325,6 +353,12 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   cad_regen_batch: cadRegenBatchSchema,
   cad_regen_compare: cadRegenCompareSchema,
   cad_regen_thresholds: cadRegenThresholdsSchema,
+  // CAD Trial-Error Learning (U-CADC29)
+  cad_trial_ingest: cadTrialIngestSchema,
+  cad_trial_patterns: cadTrialPatternsSchema,
+  cad_trial_recommend: cadTrialRecommendSchema,
+  cad_trial_stats: cadTrialStatsSchema,
+  cad_trial_reset: cadTrialResetSchema,
   // NACA Airfoil Engine (U-CADC13)
   naca_generate_4digit: nacaGenerate4DigitSchema,
   naca_generate_5digit: nacaGenerate5DigitSchema,

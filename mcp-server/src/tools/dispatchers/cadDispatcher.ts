@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -54,6 +54,7 @@ async function getEngine(name: string): Promise<any> {
     case "loftedWing": return _loftedWing ??= (await import("../../engines/LoftedWingEngine.js")).loftedWingEngine;
     case "gear": return _gear ??= (await import("../../engines/InvoluteGearEngine.js")).involuteGearEngine;
     case "spring": return _spring ??= (await import("../../engines/HelicalSpringEngine.js")).helicalSpringEngine;
+    case "cadTrialLearn": return _cadTrialLearn ??= (await import("../../engines/CADTrialErrorLearningEngine.js")).cadTrialErrorLearningEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -155,6 +156,8 @@ const ACTIONS = [
   "cad_training_start", "cad_training_status", "cad_training_corpus_stats",
   // CAD Regeneration Test Engine (U-CADC21)
   "cad_regen_test", "cad_regen_batch", "cad_regen_compare", "cad_regen_thresholds",
+  // CAD Trial-Error Learning Engine (U-CADC29)
+  "cad_trial_ingest", "cad_trial_patterns", "cad_trial_recommend", "cad_trial_stats", "cad_trial_reset",
   // CAD Geometry Comparison Engine (U-CADC26)
   "geometry_compare_files", "geometry_extract_metrics", "geometry_batch_compare",
   "geometry_set_thresholds", "geometry_format_detect",
@@ -1093,6 +1096,46 @@ Params vary by action — pass relevant fields in params object.`,
             const thresholds = params?.thresholds as any;
             const compareResult = engine.compare(original, generated, thresholds);
             result = { success: true, ...compareResult };
+            break;
+          }
+          // U-CADC29: Trial-Error Learning Engine
+          case "cad_trial_ingest": {
+            const engine = await getEngine("cadTrialLearn");
+            const single = (params as { outcome?: unknown })?.outcome;
+            const many = (params as { outcomes?: unknown[] })?.outcomes;
+            if (Array.isArray(many)) {
+              result = { success: true, ...engine.ingestBatch(many) };
+            } else if (single !== undefined) {
+              result = { success: true, ...engine.ingest(single) };
+            } else {
+              result = { success: false, error: "Provide 'outcome' (single) or 'outcomes' (batch)" };
+            }
+            break;
+          }
+          case "cad_trial_patterns": {
+            const engine = await getEngine("cadTrialLearn");
+            result = { success: true, patterns: engine.extractPatterns() };
+            break;
+          }
+          case "cad_trial_recommend": {
+            const engine = await getEngine("cadTrialLearn");
+            const candidate = (params as { candidate?: unknown })?.candidate ?? params ?? {};
+            result = { success: true, ...engine.recommendAdjustments(candidate) };
+            break;
+          }
+          case "cad_trial_stats": {
+            const engine = await getEngine("cadTrialLearn");
+            const opts = {
+              since: (params as { since?: string })?.since,
+              partType: (params as { partType?: string })?.partType,
+            };
+            result = { success: true, ...engine.getFailureStats(opts) };
+            break;
+          }
+          case "cad_trial_reset": {
+            const engine = await getEngine("cadTrialLearn");
+            engine.reset({ eraseLedger: Boolean((params as { eraseLedger?: boolean })?.eraseLedger) });
+            result = { success: true, reset: true };
             break;
           }
           case "cad_regen_thresholds": {

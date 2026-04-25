@@ -5,7 +5,7 @@
   "track": "CAD-COMPLETE",
   "status": "in_progress",
   "created_at": "2026-04-19",
-  "updated_at": "2026-04-24T12:46:24.798746+00:00",
+  "updated_at": "2026-04-25T21:47:55.754Z",
   "target_omega": 1,
   "scrutiny_score": 1,
   "scrutiny_rounds": 17,
@@ -102,7 +102,7 @@
   },
   "total_units": 336,
   "ml_learning_goal": "Draw ANY CAD file from scratch via trial/error learning — remember every successful feature pattern, auto-generate templates for part families, get exponentially faster",
-  "completed_units": 57,
+  "completed_units": 31,
   "sessions_estimate": {
     "p50": 269,
     "p90": 394
@@ -10834,7 +10834,9 @@
         "src/engines/FreeCADCodeGeneratorEngine.ts",
         "Tests"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC06": {
       "title": "FreeCAD Executor Script",
@@ -10867,7 +10869,9 @@
       "deliverables": [
         "src/__tests__/FreeCADIntegration.test.ts"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC08": {
       "title": "Extend InventorCAMCodeGeneratorEngine for Pure CAD Operations",
@@ -10885,8 +10889,10 @@
         "src/engines/InventorCAMCodeGeneratorEngine.ts (extended)",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Round 3: Refactored to EXTEND existing E2401 instead of creating duplicate"
+      "status": "completed",
+      "scrutiny_update": "Round 3: Refactored to EXTEND existing E2401 instead of creating duplicate",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC09": {
       "title": "Inventor Executor Script",
@@ -10901,7 +10907,9 @@
       "deliverables": [
         "scripts/inventor-executor.ps1"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC10": {
       "title": "Inventor Integration Test Suite",
@@ -10915,7 +10923,9 @@
       "deliverables": [
         "src/__tests__/InventorIntegration.test.ts"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC11": {
       "title": "SolidWorksCodeGeneratorEngine — Extends SolidCAM Bridge",
@@ -10935,8 +10945,10 @@
         "src/engines/SolidWorksCodeGeneratorEngine.ts",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Must extend existing SolidCAMCodeGeneratorEngine to avoid duplication — per 10-agent scrutiny finding"
+      "status": "completed",
+      "scrutiny_update": "Must extend existing SolidCAMCodeGeneratorEngine to avoid duplication — per 10-agent scrutiny finding",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC12": {
       "title": "SolidWorks Integration Test Suite",
@@ -10951,7 +10963,9 @@
       "deliverables": [
         "src/__tests__/SolidWorksCodeGenerator.test.ts"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC13": {
       "title": "BladeProfileLibraryEngine — NACA/NASA airfoil profiles from UIUC",
@@ -10991,8 +11005,10 @@
         "src/engines/TurbineBladeCADEngine.ts",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Round 3: Specified NURBS loft via existing NURBSEngine, added twist distribution"
+      "status": "completed",
+      "scrutiny_update": "Round 3: Specified NURBS loft via existing NURBSEngine, added twist distribution",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC15": {
       "title": "ImpellerCADEngine — Radial/Mixed/Axial flow types",
@@ -11010,8 +11026,10 @@
         "src/engines/ImpellerCADEngine.ts",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Round 3: Added explicit flow type enum, specified ruled surface for transitions"
+      "status": "completed",
+      "scrutiny_update": "Round 3: Added explicit flow type enum, specified ruled surface for transitions",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC16": {
       "title": "BliskCADEngine — CAD-agnostic circular pattern API",
@@ -11030,8 +11048,10 @@
         "src/interfaces/ICADPatternAPI.ts",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Round 3: Defined cross-CAD pattern API, specified blend_surface for fillets"
+      "status": "completed",
+      "scrutiny_update": "Round 3: Defined cross-CAD pattern API, specified blend_surface for fillets",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC17": {
       "title": "CADTrainingCorpusOrchestrator — Thin wrapper over CADCorpusIngesterEngine",
@@ -11049,8 +11069,10 @@
         "src/engines/CADTrainingCorpusOrchestratorEngine.ts",
         "data/state/CAD_TRAINING_CORPUS.jsonl"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Round 3: Refactored to thin orchestrator over CADCorpusIngesterEngine"
+      "status": "completed",
+      "scrutiny_update": "Round 3: Refactored to thin orchestrator over CADCorpusIngesterEngine",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC18": {
       "title": "CADEmbeddingIndexOrchestrator — Wrapper over CADFeatureEmbeddingEngine",
@@ -11067,8 +11089,10 @@
       "deliverables": [
         "src/engines/CADEmbeddingIndexOrchestratorEngine.ts"
       ],
-      "status": "not_started",
-      "scrutiny_update": "Round 3: Refactored to wrapper over existing embedding infrastructure"
+      "status": "completed",
+      "scrutiny_update": "Round 3: Refactored to wrapper over existing embedding infrastructure",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC19": {
       "title": "CADTrainingPipelineOrchestratorEngine — End-to-end training",
@@ -11083,7 +11107,9 @@
       "deliverables": [
         "src/engines/CADTrainingPipelineOrchestratorEngine.ts"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC20": {
       "title": "Training Pipeline MCP Actions",
@@ -11099,7 +11125,9 @@
         "Dispatcher updates",
         "Test coverage"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC21": {
       "title": "CADRegenerationTestEngine — Compare generated vs original",
@@ -11116,7 +11144,9 @@
         "src/engines/CADRegenerationTestEngine.ts",
         "Tests"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC22": {
       "title": "Regeneration Test Harness — Batch testing",
@@ -11164,7 +11194,9 @@
       "deliverables": [
         "data/docs/REGEN_TEST_MEDIUM_REPORT.md"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC25": {
       "title": "Regeneration Dashboard — Track progress to 100%",
@@ -11180,7 +11212,9 @@
         "web/src/pages/CADRegenerationDashboard.tsx",
         "API endpoints"
       ],
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC26": {
       "title": "CADGeometryComparisonEngine — Format-agnostic comparison",
@@ -11200,8 +11234,10 @@
         "src/interfaces/ICADFormatAdapter.ts",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_source": "Round 3: Agent 8 identified missing comparison capability for PHASE-6"
+      "status": "completed",
+      "scrutiny_source": "Round 3: Agent 8 identified missing comparison capability for PHASE-6",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC27": {
       "title": "Extend CADOperationTaxonomyEngine — 5 Aerospace Operations",
@@ -11218,8 +11254,10 @@
         "src/engines/CADOperationTaxonomyEngine.ts (extended)",
         "Tests"
       ],
-      "status": "not_started",
-      "scrutiny_source": "Round 3: Agent 7 identified missing complex surface operations"
+      "status": "completed",
+      "scrutiny_source": "Round 3: Agent 7 identified missing complex surface operations",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC28": {
       "title": "CADFeatureMemoryEngine — Remember successful feature patterns",
@@ -11236,8 +11274,10 @@
         "src/engines/CADFeatureMemoryEngine.ts",
         "data/state/CAD_FEATURE_MEMORY.json"
       ],
-      "status": "not_started",
-      "ml_goal": "Remember every successful feature pattern for instant reuse"
+      "status": "completed",
+      "ml_goal": "Remember every successful feature pattern for instant reuse",
+      "completed_at": "2026-04-25T21:31:42.644Z",
+      "reconciliation_note": "Status reconciled — git log + passing tests confirm shipment"
     },
     "U-CADC29": {
       "title": "CADTrialErrorLearningEngine — Learn from generation failures",
@@ -11255,8 +11295,10 @@
         "src/engines/CADTrialErrorLearningEngine.ts",
         "data/state/CAD_LEARNING_LOG.jsonl"
       ],
-      "status": "not_started",
-      "ml_goal": "Learn from every failure, never make the same mistake twice"
+      "status": "completed",
+      "ml_goal": "Learn from every failure, never make the same mistake twice",
+      "completed_at": "2026-04-25T21:47:55.754Z",
+      "completion_note": "Engine (495 LOC) + 29-test suite + dispatcher wiring (5 actions: cad_trial_ingest|patterns|recommend|stats|reset) + Zod schemas. Bayesian failure-rate model with Laplace smoothing + Efron-Morris shrinkage. 0 tsc errors."
     },
     "U-CADC30": {
       "title": "CADFeatureClassifierEngine — Classify features for learning",
@@ -16019,5 +16061,5 @@
     "track_a_git_repair_status": "pending — planned as separate step (fresh clone + patch replay) per Plan Track A.option-1"
   },
   "scrutiny_round_5_complete": true,
-  "reconciled_at": "2026-04-22T03:33:50.077Z"
+  "reconciled_at": "2026-04-25T21:31:42.644Z"
 }
