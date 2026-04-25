@@ -987,6 +987,8 @@ const ACTIONS = [
   "sparse_solve", "iterative_solve", "matrix_norms", "matrix_factorize",
   "tensor_stress_invariants", "system_identify", "robust_regression",
   "random_matrix_noise_floor",
+  // OPT-WIRE-MS0: BanditParameterOptimizerEngine actions
+  "bandit_register_arm", "bandit_select_arm", "bandit_update_reward",
   // PHYSICS-WIRE-MS0: wire 11 unwired physics engines
   "clamping_force_calc", "clamping_force_quick",
   "cross_phys_upqi", "cross_phys_tool_life", "cross_phys_surface", "cross_phys_stability",
@@ -8500,6 +8502,46 @@ export function registerCalcDispatcher(server: any): void {
           case "physics_calibrate_reset": {
             const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
             result = physicsAutoCalibrationEngine.reset(params as ValidatedParams);
+            break;
+          }
+
+          // ── OPT-WIRE-MS0: 5 unwired optimization engines (8 actions) ──
+          case "drill_cycle_optimize": {
+            const { drillCycleOptimizationEngine } = await import("../../engines/DrillCycleOptimizationEngine.js");
+            result = drillCycleOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "finishing_pass": {
+            const { finishingPassOptimizationEngine } = await import("../../engines/FinishingPassOptimizationEngine.js");
+            result = finishingPassOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "adaptive_engagement_calc": {
+            const { adaptiveEngagementEngine } = await import("../../engines/AdaptiveEngagementEngine.js");
+            result = adaptiveEngagementEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "chance_constrained_optimize": {
+            const { chanceConstrainedOptimizationEngine } = await import("../../engines/ChanceConstrainedOptimizationEngine.js");
+            result = chanceConstrainedOptimizationEngine.optimize(params as ValidatedParams);
+            break;
+          }
+          case "bandit_register_arm": {
+            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
+            banditParameterOptimizerEngine.registerArm(params as ValidatedParams);
+            result = { registered: true };
+            break;
+          }
+          case "bandit_select_arm": {
+            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
+            result = banditParameterOptimizerEngine.selectArm((params as ValidatedParams).context);
+            break;
+          }
+          case "bandit_update_reward": {
+            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
+            const p = params as ValidatedParams;
+            banditParameterOptimizerEngine.updateReward(p.armId, p.reward, p.context);
+            result = { updated: true };
             break;
           }
 
