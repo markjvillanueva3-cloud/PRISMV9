@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "milestone": "QA-MS13",
+  "deliverable": "data/state/QA-MS13/typescript-error-audit.json",
+  "auditDate": "2026-04-14",
+  "recoveryNote": "Original file head (chars 0-1347) was overwritten by a misplaced QRDecompositionEngine.d.ts.map source-map blob during the 60GB backup-restore. Tail audit content (rootCauses/fixPlan/buildStatus/verdict) recovered intact; first entry of topErrorFiles whose filename was lost is marked unknown.",
+  "topErrorFiles": [
+    { "file": "unknown-file (corrupted in original)", "errors": 9 },
+    { "file": "engines/WedmProgramIndexEngine.ts", "errors": 7 },
+    { "file": "tools/dispatchers/shopPracticeDispatcher.ts", "errors": 6 },
+    { "file": "tools/dispatchers/knowledgeDispatcher.ts", "errors": 6 },
+    { "file": "tools/dispatchers/hookDispatcher.ts", "errors": 6 },
+    { "file": "engines/PrintToProgramPipelineEngine.ts", "errors": 6 }
+  ],
+  "rootCauses": [
+    {
+      "id": "RC1",
+      "title": "ValidationResult interface collision",
+      "severity": "high",
+      "affectedFiles": 17,
+      "affectedErrors": 64,
+      "description": "17 separate ValidationResult interfaces across codebase with different structures",
+      "locations": [
+        "src/algorithms/types.ts:56 (has errors, warnings, issues)",
+        "src/utils/validators.ts:42 (has status, issues, score)",
+        "src/validation/actionParamValidator.ts:27 (has params, error)",
+        "src/types/nl-hook-types.ts:105 (has passed, violations)",
+        "src/engines/CAMKernelValidationEngine.ts:93 (has valid, errors)",
+        "src/engines/CapabilityEffectivenessEngine.ts:31 (has test_id, pillar)",
+        "src/schemas/actionSchemaTypes.ts:63 (has valid, errorMessage)",
+        "...10 more engine-local definitions"
+      ],
+      "fix": "Create unified ValidationResult in src/types/validation.ts, export namespace-qualified aliases (AlgorithmValidationResult, EngineValidationResult, etc.)"
+    },
+    {
+      "id": "RC2",
+      "title": "AlgorithmInput interface mismatch",
+      "severity": "high",
+      "affectedFiles": 43,
+      "affectedErrors": 86,
+      "description": "Algorithm-specific inputs don't extend AlgorithmInput base interface",
+      "pattern": "Type 'XInput' has no properties in common with type 'AlgorithmInput'",
+      "fix": "Make algorithm inputs extend AlgorithmInput with optional fields, or use mapped generic type"
+    },
+    {
+      "id": "RC3",
+      "title": "AlgorithmMeta.domain restricted enum",
+      "severity": "medium",
+      "affectedFiles": 52,
+      "affectedErrors": 52,
+      "description": "domain only allows 6 values but algorithms use 15+ categories",
+      "currentAllowed": ["physics", "thermal", "surface", "stability", "constitutive", "toolpath"],
+      "neededAdditions": ["force", "signal", "planning", "optimization", "tool_life", "ml", "dynamics", "control", "numerical", "power", "collision", "geometry"],
+      "fix": "Expand domain union type to include all algorithm categories"
+    },
+    {
+      "id": "RC4",
+      "title": "Duplicate identifier in engines/index.ts",
+      "severity": "medium",
+      "affectedFiles": 1,
+      "affectedErrors": 20,
+      "description": "Re-exports cause duplicate identifier errors",
+      "fix": "Use explicit import/export aliases or barrel file restructuring"
+    }
+  ],
+  "fixPlan": {
+    "priority1_blockers": [
+      {
+        "task": "Unify ValidationResult types",
+        "effort": "4h",
+        "files": "Create src/types/validation.ts, update 17 files",
+        "approach": "Define base ValidationResultBase, extend with context-specific fields"
+      },
+      {
+        "task": "Fix AlgorithmInput inheritance",
+        "effort": "6h",
+        "files": "43 algorithm files",
+        "approach": "Add 'extends AlgorithmInput' or make base properties optional"
+      }
+    ],
+    "priority2_cleanup": [
+      {
+        "task": "Expand AlgorithmMeta.domain",
+        "effort": "1h",
+        "files": "src/algorithms/types.ts + 52 algorithm files",
+        "approach": "Add missing domain values to union type"
+      },
+      {
+        "task": "Fix duplicate identifiers in barrel exports",
+        "effort": "2h",
+        "files": "engines/index.ts, engines/reactiveChainBootstrap.ts",
+        "approach": "Use explicit aliases: export { X as ModuleX }"
+      }
+    ],
+    "priority3_minor": [
+      {
+        "task": "Fix null checks (TS18047)",
+        "effort": "1h",
+        "approach": "Add optional chaining or explicit null guards"
+      },
+      {
+        "task": "Fix missing return paths (TS7030)",
+        "effort": "1h",
+        "approach": "Add explicit return statements"
+      }
+    ],
+    "estimatedTotalEffort": "15h",
+    "recommendedApproach": "Address RC1 + RC2 first (covers 150 errors), then RC3 (52 errors), then minor fixes"
+  },
+  "buildStatus": {
+    "tscNoEmit": "FAIL (266 errors)",
+    "esbuildBundle": "PASS (ignores type errors)",
+    "runtimeBehavior": "Works despite type errors"
+  },
+  "verdict": "NEEDS_REMEDIATION",
+  "unitComplete": true
+}
