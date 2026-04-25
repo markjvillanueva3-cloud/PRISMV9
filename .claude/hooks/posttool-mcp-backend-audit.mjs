@@ -113,8 +113,7 @@ saveCache(cache);
 if (result.status !== 0) {
   const errorText = String(result.error?.message || result.stderr || result.stdout || "").trim();
   console.log(
-    JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `MCP backend audit failed for ${filePath } }: ${errorText.slice(0, 280)}`,
-    }),
+    JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `MCP backend audit failed for ${filePath}: ${errorText.slice(0, 280)}` } }),
   );
   process.exit(0);
 }
