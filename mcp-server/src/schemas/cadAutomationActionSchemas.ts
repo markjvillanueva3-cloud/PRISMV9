@@ -708,6 +708,62 @@ const gt_validate_report = z
 const gt_list_issue_codes = z.object({}).passthrough();
 
 
+// ─── Screenshot capture (U-CGT06 / CAD-GROUND-TRUTH-MS0) ─────────────────
+
+const screenshot_capture_views = z
+  .object({
+    stepPath: z.string().min(1),
+    fileId: z.string().min(1),
+    outputRoot: z.string().min(1).optional(),
+    views: z.array(z.string().min(1)).optional(),
+    overwrite: z.boolean().optional(),
+  })
+  .passthrough();
+
+const screenshot_list_views = z.object({}).passthrough();
+
+const screenshot_validate = z
+  .object({ candidate: z.unknown() })
+  .passthrough();
+
+const screenshot_recompute_signature = z
+  .object({ result: z.unknown() })
+  .passthrough();
+
+
+// ─── Batch ground-truth extraction (U-CGT07 / CAD-GROUND-TRUTH-MS0) ──────
+
+const batch_extract = z
+  .object({
+    tasks: z
+      .array(
+        z
+          .object({
+            fileId: z.string().min(1),
+            sourcePath: z.string().min(1),
+            format: z.string().min(2),
+          })
+          .passthrough(),
+      )
+      .min(1),
+    outputRoot: z.string().min(1),
+    runId: z.string().min(1).optional(),
+    maxConcurrency: z.number().int().min(1).max(64).optional(),
+    checkpointEvery: z.number().int().min(1).optional(),
+    skipExisting: z.boolean().optional(),
+    force: z.boolean().optional(),
+  })
+  .passthrough();
+
+const batch_coverage_report = z
+  .object({ results: z.array(z.unknown()) })
+  .passthrough();
+
+const batch_validate = z
+  .object({ candidate: z.unknown() })
+  .passthrough();
+
+
 // ─── Universal CAD Index (U-CADC01..U-CADC04 / CAD-COMPLETE-MS0 PHASE-0) ─
 
 const universal_cad_index = z
@@ -799,6 +855,13 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   gt_export_quarantine,
   gt_validate_report,
   gt_list_issue_codes,
+  screenshot_capture_views,
+  screenshot_list_views,
+  screenshot_validate,
+  screenshot_recompute_signature,
+  batch_extract,
+  batch_coverage_report,
+  batch_validate,
   universal_cad_index,
   universal_cad_load,
   universal_cad_coverage,

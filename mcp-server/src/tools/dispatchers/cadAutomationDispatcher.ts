@@ -168,6 +168,15 @@ const ACTIONS = [
   "universal_cad_has_coverage",
   "universal_cad_target_formats",
   "universal_cad_root_paths",
+  // U-CGT06 — CADScreenshotCapturer: 6 canonical views via OCCT (mock fallback)
+  "screenshot_capture_views",
+  "screenshot_list_views",
+  "screenshot_validate",
+  "screenshot_recompute_signature",
+  // U-CGT07 — GroundTruthBatchExtractor: 4-stage pipeline across 20K corpus
+  "batch_extract",
+  "batch_coverage_report",
+  "batch_validate",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -1238,6 +1247,82 @@ Actions: ${ACTIONS.join(", ")}.`,
               "../../engines/UniversalCADIndexEngine.js"
             );
             result = { count: UNIVERSAL_ROOT_PATHS.length, paths: UNIVERSAL_ROOT_PATHS };
+            break;
+          }
+          // U-CGT06 — CADScreenshotCapturer wiring
+          case "screenshot_capture_views": {
+            const { cadScreenshotCapturer } = await import(
+              "../../engines/CADScreenshotCapturer.js"
+            );
+            result = await cadScreenshotCapturer.captureViews(
+              String(params["stepPath"] ?? ""),
+              {
+                fileId: String(params["fileId"] ?? ""),
+                outputRoot: String(params["outputRoot"] ?? ""),
+                views: params["views"] as readonly string[] | undefined,
+                overwrite: params["overwrite"] as boolean | undefined,
+                forceMock: params["forceMock"] as boolean | undefined,
+              } as never,
+            );
+            break;
+          }
+          case "screenshot_list_views": {
+            const { cadScreenshotCapturer } = await import(
+              "../../engines/CADScreenshotCapturer.js"
+            );
+            result = { views: cadScreenshotCapturer.listCanonicalViews() };
+            break;
+          }
+          case "screenshot_validate": {
+            const { cadScreenshotCapturer } = await import(
+              "../../engines/CADScreenshotCapturer.js"
+            );
+            result = cadScreenshotCapturer.validate(params["candidate"]);
+            break;
+          }
+          case "screenshot_recompute_signature": {
+            const { cadScreenshotCapturer } = await import(
+              "../../engines/CADScreenshotCapturer.js"
+            );
+            result = {
+              signature: cadScreenshotCapturer.recomputeSignature(
+                params["result"] as never,
+              ),
+            };
+            break;
+          }
+          // U-CGT07 — GroundTruthBatchExtractor wiring
+          case "batch_extract": {
+            const { groundTruthBatchExtractor } = await import(
+              "../../engines/GroundTruthBatchExtractor.js"
+            );
+            result = await groundTruthBatchExtractor.extractBatch(
+              params["tasks"] as never,
+              {
+                outputRoot: String(params["outputRoot"] ?? ""),
+                runId: params["runId"] as string | undefined,
+                maxConcurrency: params["maxConcurrency"] as number | undefined,
+                checkpointEvery: params["checkpointEvery"] as number | undefined,
+                skipExisting: params["skipExisting"] as boolean | undefined,
+                force: params["force"] as boolean | undefined,
+              } as never,
+            );
+            break;
+          }
+          case "batch_coverage_report": {
+            const { groundTruthBatchExtractor } = await import(
+              "../../engines/GroundTruthBatchExtractor.js"
+            );
+            result = groundTruthBatchExtractor.generateCoverageReport(
+              params["results"] as never,
+            );
+            break;
+          }
+          case "batch_validate": {
+            const { groundTruthBatchExtractor } = await import(
+              "../../engines/GroundTruthBatchExtractor.js"
+            );
+            result = groundTruthBatchExtractor.validate(params["candidate"]);
             break;
           }
           default:
