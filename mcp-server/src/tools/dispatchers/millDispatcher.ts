@@ -76,6 +76,12 @@ async function getHolders(): Promise<any> {
     .toolHolderRegistryEngine);
 }
 
+// MILL-MASTER-AI-WIRING / U16-DISPATCHER-E2E — MillAIWiring helpers (lazy)
+let _millAIWiring: any;
+async function getMillAIWiring(): Promise<any> {
+  return (_millAIWiring ??= await import("../../engines/MillAIWiring.js"));
+}
+
 // P4-U01-COL3: Collision engine lazy loader
 let _collision: any;
 async function getCollision(): Promise<any> {
@@ -206,6 +212,8 @@ const ACTIONS = [
   // AI layer
   "mill_agi_reason", "mill_agi_counterfactual", "mill_agi_explain",
   "mill_meta_adapt", "mill_rl_recommend",
+  // MILL-MASTER-AI-WIRING / U16-DISPATCHER-E2E — direct PRISM AI primitives via MillAIWiring
+  "mill_prism_reason",
   // Scientific
   "mill_physics_analyze", "mill_force_kienzle", "mill_chatter_sld",
   "mill_thermal_predict", "mill_wear_predict", "mill_deflection_check",
@@ -941,6 +949,77 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
       return { error: `Unknown op for mill_pattern_mine: ${op}` };
     }
 
+    // ── MILL-MASTER-AI-WIRING / U16-DISPATCHER-E2E ──────────────────────
+    case "mill_prism_reason": {
+      const wiring = await getMillAIWiring();
+      const op = (params.op as string) ?? "reason";
+
+      if (op === "reason" || op === "explain") {
+        const result = wiring.withPRISMReasoning({
+          question: typeof params.question === "string" ? params.question : "",
+          goal: typeof params.goal === "string" ? params.goal : undefined,
+          initial_state: params.context && typeof params.context === "object"
+            ? params.context as Record<string, unknown>
+            : undefined,
+          constraints: Array.isArray(params.constraints)
+            ? params.constraints as string[]
+            : undefined,
+          available_actions: Array.isArray(params.available_actions)
+            ? params.available_actions as string[]
+            : undefined,
+        });
+        if (!result) return { op, error: "TreeOfThought returned no solution" };
+        return { op, ...result };
+      }
+
+      if (op === "rank") {
+        const candidates = Array.isArray(params.candidates) ? params.candidates : [];
+        if (candidates.length === 0) {
+          return { op, error: "mill_prism_reason op=rank requires candidates[]" };
+        }
+        const ranked = wiring.rankCandidatesBayesian({
+          problem: typeof params.question === "string" ? params.question : "mill candidate ranking",
+          candidates,
+          statement: (c: unknown, i: number) => typeof c === "string" ? c : `candidate ${i}`,
+          evidence: () => [{
+            description: "neutral default evidence",
+            strength: 0.5,
+            reliability: 0.5,
+            supports: true,
+            source: "mill_prism_reason",
+          }],
+        });
+        return { op, best: ranked.best, ranked: ranked.ranked };
+      }
+
+      if (op === "budget") {
+        const budgetMs = typeof params.budget_ms === "number" ? params.budget_ms : 500;
+        const out = wiring.budgetedAIPath(
+          "on",
+          () => ({
+            reasoning_chain: [],
+            branch_count: 0,
+            max_depth_reached: 0,
+            confidence: 0,
+            source: "legacy" as const,
+          }),
+          () => wiring.withPRISMReasoning({
+            question: typeof params.question === "string" ? params.question : "budget probe",
+          }) ?? {
+            reasoning_chain: [],
+            branch_count: 0,
+            max_depth_reached: 0,
+            confidence: 0,
+            source: "tree_of_thought" as const,
+          },
+          { capabilityId: "mill_prism_reason:budget", budgetMs },
+        );
+        return { op, ...out };
+      }
+
+      return { op, error: `Unknown op for mill_prism_reason: ${op}` };
+    }
+
     default:
       return { error: `Unknown action: ${action as string}` };
   }
@@ -1025,3 +1104,6 @@ Actions: ${ACTIONS.join(", ")}.`,
 }
 
 export { ACTIONS as MILL_DISPATCHER_ACTIONS };
+
+// MILL-MASTER-AI-WIRING / U16-DISPATCHER-E2E — internal handler exposed for E2E tests
+export { executeAction as executeMillAction };

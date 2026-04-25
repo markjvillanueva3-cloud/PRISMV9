@@ -112,6 +112,20 @@ const mill_rl_recommend = z.object({
   objective: z.enum(["cycle_time", "tool_life", "surface_finish", "pareto"]).default("pareto"),
 }).passthrough();
 
+// MILL-MASTER-AI-WIRING / U16-DISPATCHER-E2E
+// mill_prism_reason — direct invocation of the PRISM AI primitives via MillAIWiring.
+// Distinct from mill_agi_reason (which routes through MillMasterOrchestratorFacadeEngine).
+const mill_prism_reason = z.object({
+  op: z.enum(["reason", "rank", "explain", "budget"]).default("reason"),
+  question: z.string().optional(),
+  goal: z.string().optional(),
+  context: z.record(z.string(), z.any()).optional(),
+  constraints: z.array(z.string()).optional(),
+  available_actions: z.array(z.string()).optional(),
+  candidates: z.array(z.any()).optional(),
+  budget_ms: z.number().int().min(1).max(10000).optional(),
+}).passthrough();
+
 // ============================================================================
 // SCIENTIFIC LAYER — physics + unified science
 // ============================================================================
@@ -749,6 +763,8 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_agi_explain,
   mill_meta_adapt,
   mill_rl_recommend,
+  // MILL-MASTER-AI-WIRING / U16-DISPATCHER-E2E
+  mill_prism_reason,
   // Scientific layer
   mill_physics_analyze,
   mill_force_kienzle,
