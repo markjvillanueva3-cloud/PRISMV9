@@ -5,65 +5,322 @@
   "summary": {
     "total_operations": 13,
     "total_parameters": 325,
-    "categories": ["roughing", "finishing_z_level", "finishing_planar", "finishing_specialty"]
+    "categories": [
+      "roughing",
+      "finishing_z_level",
+      "finishing_planar",
+      "finishing_specialty"
+    ]
   },
   "operations": {
     "hsr_roughing": {
       "display_name": "HSR Roughing (High Speed Roughing)",
       "category": "roughing",
       "description": "SolidCAM HSR adaptive roughing — hybrid waterline + offset with trochoidal motion in tight corners. Constant cutter engagement, smooth feed, ideal for hard milling.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Passes", "HSM", "Lead-In/Out", "Link"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link"
+      ],
       "parameter_count": 36,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces/solid", "tab": "Geometry" },
-          "stock_definition": { "type": "selection", "required": true, "description": "Initial stock (CoordSys/box/STL/from-op)", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "2D containment boundary", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid (fixtures, clamps)", "tab": "Geometry" },
-          "machining_region": { "type": "enum", "values": ["inside", "outside", "automatic"], "default": "automatic", "description": "Tool position vs boundary", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces/solid",
+            "tab": "Geometry"
+          },
+          "stock_definition": {
+            "type": "selection",
+            "required": true,
+            "description": "Initial stock (CoordSys/box/STL/from-op)",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "2D containment boundary",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid (fixtures, clamps)",
+            "tab": "Geometry"
+          },
+          "machining_region": {
+            "type": "enum",
+            "values": [
+              "inside",
+              "outside",
+              "automatic"
+            ],
+            "default": "automatic",
+            "description": "Tool position vs boundary",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top machining elevation", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom machining elevation", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.3, "description": "Wall + floor offset for finish", "tab": "Levels" },
-          "stock_to_leave_walls": { "type": "number", "unit": "mm", "description": "Wall offset (overrides stock_to_leave)", "tab": "Levels" },
-          "stock_to_leave_floors": { "type": "number", "unit": "mm", "description": "Floor offset (overrides stock_to_leave)", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z above stock for rapids", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top machining elevation",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom machining elevation",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.3,
+            "description": "Wall + floor offset for finish",
+            "tab": "Levels"
+          },
+          "stock_to_leave_walls": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Wall offset (overrides stock_to_leave)",
+            "tab": "Levels"
+          },
+          "stock_to_leave_floors": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Floor offset (overrides stock_to_leave)",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z above stock for rapids",
+            "tab": "Levels"
+          }
         },
         "passes": {
-          "step_down_mm": { "type": "number", "unit": "mm", "required": true, "default": 0.5, "description": "Z step (axial DOC)", "tab": "Passes" },
-          "step_over_pct_diam": { "type": "number", "unit": "%", "default": 30, "range": [5, 50], "description": "XY step as % tool diameter", "tab": "Passes" },
-          "step_over_mode": { "type": "enum", "values": ["constant", "morph", "adaptive"], "default": "adaptive", "description": "How XY step is computed", "tab": "Passes" },
-          "machining_strategy": { "type": "enum", "values": ["waterline", "offset", "hybrid", "vortex"], "default": "hybrid", "description": "Pass topology", "tab": "Passes" },
-          "cut_direction": { "type": "enum", "values": ["climb", "conventional", "auto"], "default": "climb", "description": "Climb vs conventional", "tab": "Passes" },
-          "open_pocket_handling": { "type": "boolean", "default": true, "description": "Treat open boundaries correctly", "tab": "Passes" }
+          "step_down_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "default": 0.5,
+            "description": "Z step (axial DOC)",
+            "tab": "Passes"
+          },
+          "step_over_pct_diam": {
+            "type": "number",
+            "unit": "%",
+            "default": 30,
+            "range": [
+              5,
+              50
+            ],
+            "description": "XY step as % tool diameter",
+            "tab": "Passes"
+          },
+          "step_over_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "morph",
+              "adaptive"
+            ],
+            "default": "adaptive",
+            "description": "How XY step is computed",
+            "tab": "Passes"
+          },
+          "machining_strategy": {
+            "type": "enum",
+            "values": [
+              "waterline",
+              "offset",
+              "hybrid",
+              "vortex"
+            ],
+            "default": "hybrid",
+            "description": "Pass topology",
+            "tab": "Passes"
+          },
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "auto"
+            ],
+            "default": "climb",
+            "description": "Climb vs conventional",
+            "tab": "Passes"
+          },
+          "open_pocket_handling": {
+            "type": "boolean",
+            "default": true,
+            "description": "Treat open boundaries correctly",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "Enable HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.2, "description": "Corner smoothing radius", "tab": "HSM" },
-          "trochoidal_in_corners": { "type": "boolean", "default": true, "description": "Use trochoidal motion in narrow corners", "tab": "HSM" },
-          "trochoidal_loop_radius_mm": { "type": "number", "unit": "mm", "default": 1.5, "description": "Trochoidal loop radius", "tab": "HSM" },
-          "max_engagement_pct": { "type": "number", "unit": "%", "default": 50, "range": [10, 100], "description": "Max radial engagement target", "tab": "HSM" },
-          "feed_reduction_in_corner": { "type": "number", "unit": "%", "default": 20, "description": "Feed reduction at sharp corners", "tab": "HSM" },
-          "look_ahead_distance_mm": { "type": "number", "unit": "mm", "default": 5.0, "description": "Look-ahead for feed adjustment", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "description": "Corner smoothing radius",
+            "tab": "HSM"
+          },
+          "trochoidal_in_corners": {
+            "type": "boolean",
+            "default": true,
+            "description": "Use trochoidal motion in narrow corners",
+            "tab": "HSM"
+          },
+          "trochoidal_loop_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1.5,
+            "description": "Trochoidal loop radius",
+            "tab": "HSM"
+          },
+          "max_engagement_pct": {
+            "type": "number",
+            "unit": "%",
+            "default": 50,
+            "range": [
+              10,
+              100
+            ],
+            "description": "Max radial engagement target",
+            "tab": "HSM"
+          },
+          "feed_reduction_in_corner": {
+            "type": "number",
+            "unit": "%",
+            "default": 20,
+            "description": "Feed reduction at sharp corners",
+            "tab": "HSM"
+          },
+          "look_ahead_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Look-ahead for feed adjustment",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "entry_method": { "type": "enum", "values": ["helix", "ramp", "plunge", "external", "pre_drilled"], "default": "helix", "description": "Z entry strategy", "tab": "Lead-In/Out" },
-          "helix_radius_mm": { "type": "number", "unit": "mm", "description": "Helix entry radius", "tab": "Lead-In/Out" },
-          "helix_pitch_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Helix pitch per revolution", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "default": 3.0, "range": [0.5, 15], "description": "Ramp entry angle", "tab": "Lead-In/Out" },
-          "lead_arc_radius_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Tangential lead-in arc radius", "tab": "Lead-In/Out" }
+          "entry_method": {
+            "type": "enum",
+            "values": [
+              "helix",
+              "ramp",
+              "plunge",
+              "external",
+              "pre_drilled"
+            ],
+            "default": "helix",
+            "description": "Z entry strategy",
+            "tab": "Lead-In/Out"
+          },
+          "helix_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Helix entry radius",
+            "tab": "Lead-In/Out"
+          },
+          "helix_pitch_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1,
+            "description": "Helix pitch per revolution",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 3,
+            "range": [
+              0.5,
+              15
+            ],
+            "description": "Ramp entry angle",
+            "tab": "Lead-In/Out"
+          },
+          "lead_arc_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1,
+            "description": "Tangential lead-in arc radius",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_z_clearance_mm": { "type": "number", "unit": "mm", "default": 5.0, "description": "Z lift for transitions within stock", "tab": "Link" },
-          "min_link_length_mm": { "type": "number", "unit": "mm", "default": 2.0, "description": "Min length for cutting motion (else lift)", "tab": "Link" },
-          "smooth_link_paths": { "type": "boolean", "default": true, "description": "Round-off transitions", "tab": "Link" }
+          "rapid_z_clearance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Z lift for transitions within stock",
+            "tab": "Link"
+          },
+          "min_link_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 2,
+            "description": "Min length for cutting motion (else lift)",
+            "tab": "Link"
+          },
+          "smooth_link_paths": {
+            "type": "boolean",
+            "default": true,
+            "description": "Round-off transitions",
+            "tab": "Link"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle speed", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "HSM" },
-          "plunge_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Plunge / ramp feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "through_spindle", "description": "Coolant delivery", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle speed",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "HSM"
+          },
+          "plunge_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge / ramp feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "through_spindle",
+            "description": "Coolant delivery",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -71,45 +328,209 @@
       "display_name": "HSR Rest Material Roughing",
       "category": "roughing",
       "description": "Re-rough after a larger tool. Targets material left in corners and detail areas. Uses stock-aware adaptive engagement to clear unmachined regions only.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Rest", "Passes", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Rest",
+        "Passes",
+        "HSM"
+      ],
       "parameter_count": 25,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces/solid", "tab": "Geometry" },
-          "previous_operation": { "type": "selection", "required": true, "description": "Source operation for rest stock", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Optional containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces/solid",
+            "tab": "Geometry"
+          },
+          "previous_operation": {
+            "type": "selection",
+            "required": true,
+            "description": "Source operation for rest stock",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Optional containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top of machining region", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom of machining region", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.2, "description": "Stock for finish", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top of machining region",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom of machining region",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "description": "Stock for finish",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "rest": {
-          "rest_source": { "type": "enum", "values": ["previous_tool", "stock_model", "both"], "default": "stock_model", "description": "How rest area is identified", "tab": "Rest" },
-          "previous_tool_diameter_mm": { "type": "number", "unit": "mm", "description": "Diameter of previous (larger) tool", "tab": "Rest" },
-          "previous_corner_radius_mm": { "type": "number", "unit": "mm", "default": 0, "description": "Previous tool corner radius", "tab": "Rest" },
-          "min_rest_thickness_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Skip rest areas thinner than this", "tab": "Rest" },
-          "expand_rest_area_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Overlap into machined area for blending", "tab": "Rest" },
-          "extend_to_full_depth": { "type": "boolean", "default": true, "description": "Extend each rest pass to part bottom", "tab": "Rest" }
+          "rest_source": {
+            "type": "enum",
+            "values": [
+              "previous_tool",
+              "stock_model",
+              "both"
+            ],
+            "default": "stock_model",
+            "description": "How rest area is identified",
+            "tab": "Rest"
+          },
+          "previous_tool_diameter_mm": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Diameter of previous (larger) tool",
+            "tab": "Rest"
+          },
+          "previous_corner_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Previous tool corner radius",
+            "tab": "Rest"
+          },
+          "min_rest_thickness_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Skip rest areas thinner than this",
+            "tab": "Rest"
+          },
+          "expand_rest_area_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Overlap into machined area for blending",
+            "tab": "Rest"
+          },
+          "extend_to_full_depth": {
+            "type": "boolean",
+            "default": true,
+            "description": "Extend each rest pass to part bottom",
+            "tab": "Rest"
+          }
         },
         "passes": {
-          "step_down_mm": { "type": "number", "unit": "mm", "default": 0.3, "description": "Z step", "tab": "Passes" },
-          "step_over_pct_diam": { "type": "number", "unit": "%", "default": 25, "description": "XY step", "tab": "Passes" },
-          "machining_strategy": { "type": "enum", "values": ["waterline", "offset", "hybrid"], "default": "hybrid", "description": "Pass topology", "tab": "Passes" },
-          "cut_direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Direction", "tab": "Passes" }
+          "step_down_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.3,
+            "description": "Z step",
+            "tab": "Passes"
+          },
+          "step_over_pct_diam": {
+            "type": "number",
+            "unit": "%",
+            "default": 25,
+            "description": "XY step",
+            "tab": "Passes"
+          },
+          "machining_strategy": {
+            "type": "enum",
+            "values": [
+              "waterline",
+              "offset",
+              "hybrid"
+            ],
+            "default": "hybrid",
+            "description": "Pass topology",
+            "tab": "Passes"
+          },
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "trochoidal_in_corners": { "type": "boolean", "default": true, "description": "Trochoidal motion in narrow rest pockets", "tab": "HSM" },
-          "max_engagement_pct": { "type": "number", "unit": "%", "default": 40, "description": "Max radial engagement", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.15, "description": "Corner smoothing", "tab": "HSM" }
+          "trochoidal_in_corners": {
+            "type": "boolean",
+            "default": true,
+            "description": "Trochoidal motion in narrow rest pockets",
+            "tab": "HSM"
+          },
+          "max_engagement_pct": {
+            "type": "number",
+            "unit": "%",
+            "default": 40,
+            "description": "Max radial engagement",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.15,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle speed", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "HSM" },
-          "plunge_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Plunge/ramp feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "through_spindle", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle speed",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "HSM"
+          },
+          "plunge_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge/ramp feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "through_spindle",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -117,49 +538,246 @@
       "display_name": "HSS Constant Z (Waterline) Finish",
       "category": "finishing_z_level",
       "description": "Z-level waterline finishing for steep walls. Constant axial step, follows part contour at each Z. Best for vertical / near-vertical surfaces.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Passes", "HSM", "Lead-In/Out"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Passes",
+        "HSM",
+        "Lead-In/Out"
+      ],
       "parameter_count": 29,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Optional containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" },
-          "steep_area_only": { "type": "boolean", "default": true, "description": "Limit to steep regions (use combined for shallow)", "tab": "Geometry" },
-          "steep_angle_deg": { "type": "number", "unit": "deg", "default": 30.0, "range": [0, 90], "description": "Min wall angle to include", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Optional containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          },
+          "steep_area_only": {
+            "type": "boolean",
+            "default": true,
+            "description": "Limit to steep regions (use combined for shallow)",
+            "tab": "Geometry"
+          },
+          "steep_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 30,
+            "range": [
+              0,
+              90
+            ],
+            "description": "Min wall angle to include",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Wall offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Wall offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "passes": {
-          "step_down_mode": { "type": "enum", "values": ["constant", "scallop_height", "adaptive"], "default": "scallop_height", "description": "Z step strategy", "tab": "Passes" },
-          "step_down_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Constant Z step (if constant mode)", "tab": "Passes" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Target scallop height", "tab": "Passes" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Cut direction", "tab": "Passes" },
-          "spiral_between_levels": { "type": "boolean", "default": true, "description": "Spiral down vs lift between Z levels", "tab": "Passes" },
-          "machining_order": { "type": "enum", "values": ["top_down", "bottom_up", "by_region"], "default": "top_down", "description": "Z processing order", "tab": "Passes" }
+          "step_down_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "scallop_height",
+              "adaptive"
+            ],
+            "default": "scallop_height",
+            "description": "Z step strategy",
+            "tab": "Passes"
+          },
+          "step_down_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Constant Z step (if constant mode)",
+            "tab": "Passes"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.005,
+            "description": "Target scallop height",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Cut direction",
+            "tab": "Passes"
+          },
+          "spiral_between_levels": {
+            "type": "boolean",
+            "default": true,
+            "description": "Spiral down vs lift between Z levels",
+            "tab": "Passes"
+          },
+          "machining_order": {
+            "type": "enum",
+            "values": [
+              "top_down",
+              "bottom_up",
+              "by_region"
+            ],
+            "default": "top_down",
+            "description": "Z processing order",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "remove_pass_steps": { "type": "boolean", "default": true, "description": "Remove tiny dwells / micro-steps", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Filter segments shorter than this", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Acceleration cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "remove_pass_steps": {
+            "type": "boolean",
+            "default": true,
+            "description": "Remove tiny dwells / micro-steps",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Filter segments shorter than this",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Acceleration cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "enum", "values": ["arc", "line", "horizontal_arc", "tangential"], "default": "horizontal_arc", "description": "Lead-in shape", "tab": "Lead-In/Out" },
-          "lead_arc_radius_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Lead arc radius", "tab": "Lead-In/Out" },
-          "lead_arc_angle_deg": { "type": "number", "unit": "deg", "default": 90.0, "description": "Lead arc sweep", "tab": "Lead-In/Out" },
-          "lead_in_extension_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Lead-in straight extension", "tab": "Lead-In/Out" },
-          "use_same_lead_out": { "type": "boolean", "default": true, "description": "Mirror lead-in for lead-out", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "arc",
+              "line",
+              "horizontal_arc",
+              "tangential"
+            ],
+            "default": "horizontal_arc",
+            "description": "Lead-in shape",
+            "tab": "Lead-In/Out"
+          },
+          "lead_arc_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Lead arc radius",
+            "tab": "Lead-In/Out"
+          },
+          "lead_arc_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 90,
+            "description": "Lead arc sweep",
+            "tab": "Lead-In/Out"
+          },
+          "lead_in_extension_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Lead-in straight extension",
+            "tab": "Lead-In/Out"
+          },
+          "use_same_lead_out": {
+            "type": "boolean",
+            "default": true,
+            "description": "Mirror lead-in for lead-out",
+            "tab": "Lead-In/Out"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle speed", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Slower feed for last pass", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle speed",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Slower feed for last pass",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -167,46 +785,216 @@
       "display_name": "HSS Linear (Parallel) Finish",
       "category": "finishing_planar",
       "description": "Parallel pass surface finish. Best for shallow / horizontal regions. User-defined cut direction angle. Constant XY step, projected onto surface.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Direction", "Passes", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Direction",
+        "Passes",
+        "HSM"
+      ],
       "parameter_count": 26,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment boundary", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" },
-          "shallow_area_only": { "type": "boolean", "default": true, "description": "Limit to shallow regions", "tab": "Geometry" },
-          "shallow_angle_deg": { "type": "number", "unit": "deg", "default": 30.0, "description": "Max wall angle (above = steep)", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment boundary",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          },
+          "shallow_area_only": {
+            "type": "boolean",
+            "default": true,
+            "description": "Limit to shallow regions",
+            "tab": "Geometry"
+          },
+          "shallow_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 30,
+            "description": "Max wall angle (above = steep)",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "direction": {
-          "cut_angle_deg": { "type": "number", "unit": "deg", "default": 0.0, "range": [0, 360], "description": "Pass direction in XY plane", "tab": "Direction" },
-          "auto_optimize_angle": { "type": "boolean", "default": false, "description": "Auto-pick best angle from surface", "tab": "Direction" },
-          "extend_passes_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Extend passes beyond boundary", "tab": "Direction" }
+          "cut_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "range": [
+              0,
+              360
+            ],
+            "description": "Pass direction in XY plane",
+            "tab": "Direction"
+          },
+          "auto_optimize_angle": {
+            "type": "boolean",
+            "default": false,
+            "description": "Auto-pick best angle from surface",
+            "tab": "Direction"
+          },
+          "extend_passes_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1,
+            "description": "Extend passes beyond boundary",
+            "tab": "Direction"
+          }
         },
         "passes": {
-          "step_over_mode": { "type": "enum", "values": ["constant_xy", "constant_scallop", "adaptive"], "default": "constant_scallop", "description": "Step strategy", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "default": 0.2, "description": "XY step (if constant)", "tab": "Passes" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Target scallop", "tab": "Passes" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "zigzag", "description": "Direction", "tab": "Passes" },
-          "skip_undercuts": { "type": "boolean", "default": true, "description": "Skip undercut regions", "tab": "Passes" }
+          "step_over_mode": {
+            "type": "enum",
+            "values": [
+              "constant_xy",
+              "constant_scallop",
+              "adaptive"
+            ],
+            "default": "constant_scallop",
+            "description": "Step strategy",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "description": "XY step (if constant)",
+            "tab": "Passes"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.005,
+            "description": "Target scallop",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "zigzag",
+            "description": "Direction",
+            "tab": "Passes"
+          },
+          "skip_undercuts": {
+            "type": "boolean",
+            "default": true,
+            "description": "Skip undercut regions",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "fillet_corners": { "type": "boolean", "default": true, "description": "Fillet sharp turns", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Min segment length", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "fillet_corners": {
+            "type": "boolean",
+            "default": true,
+            "description": "Fillet sharp turns",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Min segment length",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Last-pass feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Last-pass feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -214,45 +1002,213 @@
       "display_name": "HSS Radial Finish",
       "category": "finishing_planar",
       "description": "Radial pass finish from a center point. Best for circular bosses, hemispheres, and rotational features. Step-over varies with radius.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Center", "Passes", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Center",
+        "Passes",
+        "HSM"
+      ],
       "parameter_count": 25,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Optional boundary", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Optional boundary",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "center": {
-          "center_x_mm": { "type": "number", "unit": "mm", "required": true, "description": "Center X", "tab": "Center" },
-          "center_y_mm": { "type": "number", "unit": "mm", "required": true, "description": "Center Y", "tab": "Center" },
-          "auto_pick_center": { "type": "boolean", "default": false, "description": "Auto-derive from surface centroid", "tab": "Center" },
-          "min_radius_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Inner radius", "tab": "Center" },
-          "max_radius_mm": { "type": "number", "unit": "mm", "default": 50.0, "description": "Outer radius", "tab": "Center" },
-          "start_angle_deg": { "type": "number", "unit": "deg", "default": 0.0, "description": "First pass angle", "tab": "Center" },
-          "end_angle_deg": { "type": "number", "unit": "deg", "default": 360.0, "description": "Last pass angle", "tab": "Center" }
+          "center_x_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Center X",
+            "tab": "Center"
+          },
+          "center_y_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Center Y",
+            "tab": "Center"
+          },
+          "auto_pick_center": {
+            "type": "boolean",
+            "default": false,
+            "description": "Auto-derive from surface centroid",
+            "tab": "Center"
+          },
+          "min_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Inner radius",
+            "tab": "Center"
+          },
+          "max_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 50,
+            "description": "Outer radius",
+            "tab": "Center"
+          },
+          "start_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "First pass angle",
+            "tab": "Center"
+          },
+          "end_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 360,
+            "description": "Last pass angle",
+            "tab": "Center"
+          }
         },
         "passes": {
-          "step_over_mode": { "type": "enum", "values": ["angle", "arc_length", "scallop"], "default": "scallop", "description": "Angular vs scallop step", "tab": "Passes" },
-          "step_over_angle_deg": { "type": "number", "unit": "deg", "default": 5.0, "description": "Angular step", "tab": "Passes" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Target scallop", "tab": "Passes" },
-          "machining_direction": { "type": "enum", "values": ["inside_out", "outside_in", "alternating"], "default": "outside_in", "description": "Radial direction", "tab": "Passes" },
-          "cut_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "zigzag", "description": "Within-pass direction", "tab": "Passes" }
+          "step_over_mode": {
+            "type": "enum",
+            "values": [
+              "angle",
+              "arc_length",
+              "scallop"
+            ],
+            "default": "scallop",
+            "description": "Angular vs scallop step",
+            "tab": "Passes"
+          },
+          "step_over_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 5,
+            "description": "Angular step",
+            "tab": "Passes"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.005,
+            "description": "Target scallop",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "inside_out",
+              "outside_in",
+              "alternating"
+            ],
+            "default": "outside_in",
+            "description": "Radial direction",
+            "tab": "Passes"
+          },
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "zigzag",
+            "description": "Within-pass direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -260,40 +1216,187 @@
       "display_name": "HSS Spiral Finish",
       "category": "finishing_planar",
       "description": "Continuous spiral toolpath finish. No stepovers / no air-cut transitions. Excellent for hemispheres and round bosses with no chatter from re-entry.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Spiral", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Spiral",
+        "HSM"
+      ],
       "parameter_count": 22,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "spiral": {
-          "spiral_center_x_mm": { "type": "number", "unit": "mm", "required": true, "description": "Spiral center X", "tab": "Spiral" },
-          "spiral_center_y_mm": { "type": "number", "unit": "mm", "required": true, "description": "Spiral center Y", "tab": "Spiral" },
-          "spiral_direction": { "type": "enum", "values": ["inward", "outward"], "default": "inward", "description": "Inward vs outward spiral", "tab": "Spiral" },
-          "min_radius_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Inner spiral radius", "tab": "Spiral" },
-          "max_radius_mm": { "type": "number", "unit": "mm", "default": 50.0, "description": "Outer spiral radius", "tab": "Spiral" },
-          "step_over_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Step per revolution", "tab": "Spiral" },
-          "step_over_mode": { "type": "enum", "values": ["constant", "scallop"], "default": "scallop", "description": "Step strategy", "tab": "Spiral" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Target scallop", "tab": "Spiral" },
-          "cut_direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Direction", "tab": "Spiral" }
+          "spiral_center_x_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Spiral center X",
+            "tab": "Spiral"
+          },
+          "spiral_center_y_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Spiral center Y",
+            "tab": "Spiral"
+          },
+          "spiral_direction": {
+            "type": "enum",
+            "values": [
+              "inward",
+              "outward"
+            ],
+            "default": "inward",
+            "description": "Inward vs outward spiral",
+            "tab": "Spiral"
+          },
+          "min_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Inner spiral radius",
+            "tab": "Spiral"
+          },
+          "max_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 50,
+            "description": "Outer spiral radius",
+            "tab": "Spiral"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Step per revolution",
+            "tab": "Spiral"
+          },
+          "step_over_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "scallop"
+            ],
+            "default": "scallop",
+            "description": "Step strategy",
+            "tab": "Spiral"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.005,
+            "description": "Target scallop",
+            "tab": "Spiral"
+          },
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Spiral"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.03, "description": "Corner smoothing", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.03,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -301,40 +1404,183 @@
       "display_name": "HSS 3D Step Over (Constant Scallop)",
       "category": "finishing_specialty",
       "description": "Constant scallop height across all surface angles. Step-over auto-adjusts on slopes to maintain uniform finish quality. Best for organic surfaces.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Scallop", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Scallop",
+        "HSM"
+      ],
       "parameter_count": 22,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" },
-          "starting_curve": { "type": "selection", "description": "Pattern source curve", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          },
+          "starting_curve": {
+            "type": "selection",
+            "description": "Pattern source curve",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "scallop": {
-          "scallop_height_mm": { "type": "number", "unit": "mm", "required": true, "default": 0.005, "description": "Target scallop height", "tab": "Scallop" },
-          "max_step_over_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Max XY step (cap)", "tab": "Scallop" },
-          "min_step_over_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Min XY step (floor)", "tab": "Scallop" },
-          "follow_pattern": { "type": "enum", "values": ["from_curve", "from_boundary", "auto"], "default": "auto", "description": "Step-over reference", "tab": "Scallop" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "zigzag", "description": "Direction", "tab": "Scallop" },
-          "smooth_3d_transitions": { "type": "boolean", "default": true, "description": "Smooth between adjacent passes", "tab": "Scallop" }
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "default": 0.005,
+            "description": "Target scallop height",
+            "tab": "Scallop"
+          },
+          "max_step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1,
+            "description": "Max XY step (cap)",
+            "tab": "Scallop"
+          },
+          "min_step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Min XY step (floor)",
+            "tab": "Scallop"
+          },
+          "follow_pattern": {
+            "type": "enum",
+            "values": [
+              "from_curve",
+              "from_boundary",
+              "auto"
+            ],
+            "default": "auto",
+            "description": "Step-over reference",
+            "tab": "Scallop"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "zigzag",
+            "description": "Direction",
+            "tab": "Scallop"
+          },
+          "smooth_3d_transitions": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth between adjacent passes",
+            "tab": "Scallop"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.03, "description": "Corner smoothing", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Min segment", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.03,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Min segment",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Slow feed in tight zones", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Slow feed in tight zones",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -342,39 +1588,178 @@
       "display_name": "HSS Pencil Trace (Corner Cleanup)",
       "category": "finishing_specialty",
       "description": "Single-pass cleanup along inside corners and concave fillets. Tool tracks the natural corner contour. Best after a finish pass left scallops in fillets.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Pencil", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Pencil",
+        "HSM"
+      ],
       "parameter_count": 21,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "pencil": {
-          "min_corner_angle_deg": { "type": "number", "unit": "deg", "default": 90.0, "description": "Min internal angle to trace", "tab": "Pencil" },
-          "max_corner_angle_deg": { "type": "number", "unit": "deg", "default": 175.0, "description": "Max internal angle", "tab": "Pencil" },
-          "passes_per_corner": { "type": "integer", "default": 1, "range": [1, 5], "description": "Multi-pass for deep fillets", "tab": "Pencil" },
-          "side_step_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Side-step between multi-passes", "tab": "Pencil" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Direction", "tab": "Pencil" },
-          "min_corner_radius_mm": { "type": "number", "unit": "mm", "default": 0.0, "description": "Skip corners tighter than this", "tab": "Pencil" },
-          "extend_ends_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Extend trace beyond corner ends", "tab": "Pencil" }
+          "min_corner_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 90,
+            "description": "Min internal angle to trace",
+            "tab": "Pencil"
+          },
+          "max_corner_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 175,
+            "description": "Max internal angle",
+            "tab": "Pencil"
+          },
+          "passes_per_corner": {
+            "type": "integer",
+            "default": 1,
+            "range": [
+              1,
+              5
+            ],
+            "description": "Multi-pass for deep fillets",
+            "tab": "Pencil"
+          },
+          "side_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Side-step between multi-passes",
+            "tab": "Pencil"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Pencil"
+          },
+          "min_corner_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Skip corners tighter than this",
+            "tab": "Pencil"
+          },
+          "extend_ends_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Extend trace beyond corner ends",
+            "tab": "Pencil"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.02, "description": "Corner smoothing", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Min segment", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.4, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.02,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Min segment",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.4,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Slower finish feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Slower finish feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -382,43 +1767,205 @@
       "display_name": "HSS Boundary Finish",
       "category": "finishing_specialty",
       "description": "Offset toolpath following user-defined boundary curves. Constant offset onto the surface. Useful for trim edges and sealing surfaces.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Offsets", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Offsets",
+        "HSM"
+      ],
       "parameter_count": 23,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "required": true, "description": "Boundary curves to follow", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" },
-          "machining_side": { "type": "enum", "values": ["inside", "outside", "on"], "default": "inside", "description": "Tool side", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "required": true,
+            "description": "Boundary curves to follow",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          },
+          "machining_side": {
+            "type": "enum",
+            "values": [
+              "inside",
+              "outside",
+              "on"
+            ],
+            "default": "inside",
+            "description": "Tool side",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "offsets": {
-          "offset_count": { "type": "integer", "default": 5, "range": [1, 50], "description": "Number of offset passes", "tab": "Offsets" },
-          "offset_step_mm": { "type": "number", "unit": "mm", "default": 0.2, "description": "Spacing per offset", "tab": "Offsets" },
-          "offset_direction": { "type": "enum", "values": ["inward", "outward", "both"], "default": "inward", "description": "Offset direction", "tab": "Offsets" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Direction", "tab": "Offsets" },
-          "spiral_offsets": { "type": "boolean", "default": true, "description": "Connect offsets with spiral", "tab": "Offsets" }
+          "offset_count": {
+            "type": "integer",
+            "default": 5,
+            "range": [
+              1,
+              50
+            ],
+            "description": "Number of offset passes",
+            "tab": "Offsets"
+          },
+          "offset_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "description": "Spacing per offset",
+            "tab": "Offsets"
+          },
+          "offset_direction": {
+            "type": "enum",
+            "values": [
+              "inward",
+              "outward",
+              "both"
+            ],
+            "default": "inward",
+            "description": "Offset direction",
+            "tab": "Offsets"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Offsets"
+          },
+          "spiral_offsets": {
+            "type": "boolean",
+            "default": true,
+            "description": "Connect offsets with spiral",
+            "tab": "Offsets"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "fillet_corners": { "type": "boolean", "default": true, "description": "Fillet sharp turns", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "fillet_corners": {
+            "type": "boolean",
+            "default": true,
+            "description": "Fillet sharp turns",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "enum", "values": ["arc", "tangent", "perpendicular"], "default": "arc", "description": "Lead-in shape", "tab": "HSM" },
-          "lead_arc_radius_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Lead arc radius", "tab": "HSM" },
-          "lead_in_extension_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Lead extension", "tab": "HSM" }
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "arc",
+              "tangent",
+              "perpendicular"
+            ],
+            "default": "arc",
+            "description": "Lead-in shape",
+            "tab": "HSM"
+          },
+          "lead_arc_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Lead arc radius",
+            "tab": "HSM"
+          },
+          "lead_in_extension_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Lead extension",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -426,39 +1973,187 @@
       "display_name": "HSS Morph Between Curves",
       "category": "finishing_specialty",
       "description": "Smooth morphing toolpath between two user-defined boundary curves. Useful for blending transitions, sweeping rib surfaces, and freeform finishing.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Morph", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Morph",
+        "HSM"
+      ],
       "parameter_count": 21,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "first_curve": { "type": "selection", "required": true, "description": "Start morph curve", "tab": "Geometry" },
-          "second_curve": { "type": "selection", "required": true, "description": "End morph curve", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "first_curve": {
+            "type": "selection",
+            "required": true,
+            "description": "Start morph curve",
+            "tab": "Geometry"
+          },
+          "second_curve": {
+            "type": "selection",
+            "required": true,
+            "description": "End morph curve",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "morph": {
-          "morph_pass_count": { "type": "integer", "required": true, "default": 20, "range": [2, 500], "description": "Number of morphed passes", "tab": "Morph" },
-          "morph_distribution": { "type": "enum", "values": ["uniform", "clustered_first", "clustered_second", "scallop_based"], "default": "uniform", "description": "Pass distribution", "tab": "Morph" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Scallop target (if scallop_based)", "tab": "Morph" },
-          "cut_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "zigzag", "description": "Direction", "tab": "Morph" },
-          "machining_order": { "type": "enum", "values": ["first_to_second", "second_to_first", "outside_in"], "default": "first_to_second", "description": "Pass order", "tab": "Morph" },
-          "twist_compensation": { "type": "boolean", "default": true, "description": "Compensate for twisted curves", "tab": "Morph" }
+          "morph_pass_count": {
+            "type": "integer",
+            "required": true,
+            "default": 20,
+            "range": [
+              2,
+              500
+            ],
+            "description": "Number of morphed passes",
+            "tab": "Morph"
+          },
+          "morph_distribution": {
+            "type": "enum",
+            "values": [
+              "uniform",
+              "clustered_first",
+              "clustered_second",
+              "scallop_based"
+            ],
+            "default": "uniform",
+            "description": "Pass distribution",
+            "tab": "Morph"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.005,
+            "description": "Scallop target (if scallop_based)",
+            "tab": "Morph"
+          },
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "zigzag",
+            "description": "Direction",
+            "tab": "Morph"
+          },
+          "machining_order": {
+            "type": "enum",
+            "values": [
+              "first_to_second",
+              "second_to_first",
+              "outside_in"
+            ],
+            "default": "first_to_second",
+            "description": "Pass order",
+            "tab": "Morph"
+          },
+          "twist_compensation": {
+            "type": "boolean",
+            "default": true,
+            "description": "Compensate for twisted curves",
+            "tab": "Morph"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Min segment", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Min segment",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -466,51 +2161,257 @@
       "display_name": "HSS Combined (Z-Level + Step Over) Finish",
       "category": "finishing_specialty",
       "description": "Hybrid finish that auto-routes steep regions to constant-Z waterline and shallow regions to 3D step-over, blended seamlessly. One-op solution for full part finish.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Steep/Shallow", "Passes", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Steep/Shallow",
+        "Passes",
+        "HSM"
+      ],
       "parameter_count": 29,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "steep_shallow": {
-          "transition_angle_deg": { "type": "number", "unit": "deg", "required": true, "default": 30.0, "range": [0, 90], "description": "Steep/shallow boundary angle", "tab": "Steep/Shallow" },
-          "overlap_angle_deg": { "type": "number", "unit": "deg", "default": 5.0, "description": "Overlap between methods", "tab": "Steep/Shallow" },
-          "blend_method": { "type": "enum", "values": ["smooth", "trim", "morph"], "default": "smooth", "description": "Blend strategy", "tab": "Steep/Shallow" },
-          "machining_order": { "type": "enum", "values": ["steep_first", "shallow_first", "by_region"], "default": "steep_first", "description": "Process order", "tab": "Steep/Shallow" }
+          "transition_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "required": true,
+            "default": 30,
+            "range": [
+              0,
+              90
+            ],
+            "description": "Steep/shallow boundary angle",
+            "tab": "Steep/Shallow"
+          },
+          "overlap_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 5,
+            "description": "Overlap between methods",
+            "tab": "Steep/Shallow"
+          },
+          "blend_method": {
+            "type": "enum",
+            "values": [
+              "smooth",
+              "trim",
+              "morph"
+            ],
+            "default": "smooth",
+            "description": "Blend strategy",
+            "tab": "Steep/Shallow"
+          },
+          "machining_order": {
+            "type": "enum",
+            "values": [
+              "steep_first",
+              "shallow_first",
+              "by_region"
+            ],
+            "default": "steep_first",
+            "description": "Process order",
+            "tab": "Steep/Shallow"
+          }
         },
         "passes": {
-          "z_step_mode": { "type": "enum", "values": ["constant", "scallop"], "default": "scallop", "description": "Z step (steep area)", "tab": "Passes" },
-          "z_step_mm": { "type": "number", "unit": "mm", "default": 0.1, "description": "Z step value", "tab": "Passes" },
-          "xy_step_mode": { "type": "enum", "values": ["constant", "scallop", "adaptive"], "default": "scallop", "description": "XY step (shallow area)", "tab": "Passes" },
-          "xy_step_mm": { "type": "number", "unit": "mm", "default": 0.2, "description": "XY step value", "tab": "Passes" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Scallop target", "tab": "Passes" },
-          "cut_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "zigzag", "description": "Direction", "tab": "Passes" }
+          "z_step_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "scallop"
+            ],
+            "default": "scallop",
+            "description": "Z step (steep area)",
+            "tab": "Passes"
+          },
+          "z_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Z step value",
+            "tab": "Passes"
+          },
+          "xy_step_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "scallop",
+              "adaptive"
+            ],
+            "default": "scallop",
+            "description": "XY step (shallow area)",
+            "tab": "Passes"
+          },
+          "xy_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "description": "XY step value",
+            "tab": "Passes"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.005,
+            "description": "Scallop target",
+            "tab": "Passes"
+          },
+          "cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "zigzag",
+            "description": "Direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "fillet_corners": { "type": "boolean", "default": true, "description": "Fillet sharp turns", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Min segment", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "fillet_corners": {
+            "type": "boolean",
+            "default": true,
+            "description": "Fillet sharp turns",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Min segment",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "enum", "values": ["arc", "tangent", "horizontal_arc"], "default": "horizontal_arc", "description": "Lead-in shape", "tab": "HSM" },
-          "lead_arc_radius_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Lead arc radius", "tab": "HSM" }
+          "lead_in_type": {
+            "type": "enum",
+            "values": [
+              "arc",
+              "tangent",
+              "horizontal_arc"
+            ],
+            "default": "horizontal_arc",
+            "description": "Lead-in shape",
+            "tab": "HSM"
+          },
+          "lead_arc_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Lead arc radius",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Last-pass feed", "tab": "HSM" },
-          "plunge_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Plunge feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Last-pass feed",
+            "tab": "HSM"
+          },
+          "plunge_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -518,45 +2419,210 @@
       "display_name": "HSS Rest Material Finish",
       "category": "finishing_specialty",
       "description": "Finish residual material left by a previous larger finishing tool (typically in fillets/corners). Stock-aware step-over keeps engagement constant.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Rest", "Passes", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Rest",
+        "Passes",
+        "HSM"
+      ],
       "parameter_count": 25,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "previous_operation": { "type": "selection", "required": true, "description": "Previous finishing op", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "previous_operation": {
+            "type": "selection",
+            "required": true,
+            "description": "Previous finishing op",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "rest": {
-          "rest_source": { "type": "enum", "values": ["previous_tool", "stock_model", "both"], "default": "both", "description": "Rest source", "tab": "Rest" },
-          "previous_tool_diameter_mm": { "type": "number", "unit": "mm", "required": true, "description": "Previous tool diameter", "tab": "Rest" },
-          "previous_corner_radius_mm": { "type": "number", "unit": "mm", "default": 0, "description": "Previous tool corner radius", "tab": "Rest" },
-          "min_rest_thickness_mm": { "type": "number", "unit": "mm", "default": 0.02, "description": "Skip rest thinner than this", "tab": "Rest" },
-          "expand_rest_area_mm": { "type": "number", "unit": "mm", "default": 0.2, "description": "Overlap into machined region", "tab": "Rest" }
+          "rest_source": {
+            "type": "enum",
+            "values": [
+              "previous_tool",
+              "stock_model",
+              "both"
+            ],
+            "default": "both",
+            "description": "Rest source",
+            "tab": "Rest"
+          },
+          "previous_tool_diameter_mm": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Previous tool diameter",
+            "tab": "Rest"
+          },
+          "previous_corner_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Previous tool corner radius",
+            "tab": "Rest"
+          },
+          "min_rest_thickness_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.02,
+            "description": "Skip rest thinner than this",
+            "tab": "Rest"
+          },
+          "expand_rest_area_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.2,
+            "description": "Overlap into machined region",
+            "tab": "Rest"
+          }
         },
         "passes": {
-          "step_over_mode": { "type": "enum", "values": ["constant", "scallop"], "default": "scallop", "description": "Step strategy", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Step (constant)", "tab": "Passes" },
-          "scallop_height_mm": { "type": "number", "unit": "mm", "default": 0.003, "description": "Scallop target", "tab": "Passes" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Direction", "tab": "Passes" },
-          "follow_steep_first": { "type": "boolean", "default": true, "description": "Steep regions before shallow", "tab": "Passes" }
+          "step_over_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "scallop"
+            ],
+            "default": "scallop",
+            "description": "Step strategy",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Step (constant)",
+            "tab": "Passes"
+          },
+          "scallop_height_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.003,
+            "description": "Scallop target",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Passes"
+          },
+          "follow_steep_first": {
+            "type": "boolean",
+            "default": true,
+            "description": "Steep regions before shallow",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "high_speed_mode": { "type": "boolean", "default": true, "description": "HSM smoothing", "tab": "HSM" },
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.03, "description": "Corner smoothing", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.4, "description": "Accel cap", "tab": "HSM" }
+          "high_speed_mode": {
+            "type": "boolean",
+            "default": true,
+            "description": "HSM smoothing",
+            "tab": "HSM"
+          },
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.03,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.4,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Slow feed in tight zones", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Slow feed in tight zones",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     },
@@ -564,39 +2630,177 @@
       "display_name": "HSS 3D Corner Cleanup (Bi-Tangent)",
       "category": "finishing_specialty",
       "description": "Single-pass 3D corner trace using bi-tangent contact. Tool stays tangent to both intersecting surfaces along internal corner curve. Best for hard-milled mold cores.",
-      "dialog_tabs": ["Geometry", "Tool", "Levels", "Corner", "HSM"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Levels",
+        "Corner",
+        "HSM"
+      ],
       "parameter_count": 21,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Drive surfaces", "tab": "Geometry" },
-          "boundary_chains": { "type": "selection", "description": "Containment", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "description": "Surfaces to avoid", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Drive surfaces",
+            "tab": "Geometry"
+          },
+          "boundary_chains": {
+            "type": "selection",
+            "description": "Containment",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "description": "Surfaces to avoid",
+            "tab": "Geometry"
+          }
         },
         "levels": {
-          "upper_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z", "tab": "Levels" },
-          "lower_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z", "tab": "Levels" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0.0, "description": "Surface offset", "tab": "Levels" },
-          "clearance_z": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z",
+            "tab": "Levels"
+          },
+          "lower_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z",
+            "tab": "Levels"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Surface offset",
+            "tab": "Levels"
+          },
+          "clearance_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "corner": {
-          "min_concave_angle_deg": { "type": "number", "unit": "deg", "default": 90.0, "description": "Min concave angle to trace", "tab": "Corner" },
-          "max_concave_angle_deg": { "type": "number", "unit": "deg", "default": 175.0, "description": "Max angle", "tab": "Corner" },
-          "passes_per_corner": { "type": "integer", "default": 1, "range": [1, 5], "description": "Multi-pass count", "tab": "Corner" },
-          "side_step_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Side step between passes", "tab": "Corner" },
-          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Direction", "tab": "Corner" },
-          "extend_ends_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Extend trace beyond corner", "tab": "Corner" },
-          "use_3d_offset": { "type": "boolean", "default": true, "description": "True 3D offset (vs projected)", "tab": "Corner" }
+          "min_concave_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 90,
+            "description": "Min concave angle to trace",
+            "tab": "Corner"
+          },
+          "max_concave_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "default": 175,
+            "description": "Max angle",
+            "tab": "Corner"
+          },
+          "passes_per_corner": {
+            "type": "integer",
+            "default": 1,
+            "range": [
+              1,
+              5
+            ],
+            "description": "Multi-pass count",
+            "tab": "Corner"
+          },
+          "side_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Side step between passes",
+            "tab": "Corner"
+          },
+          "machining_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Corner"
+          },
+          "extend_ends_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Extend trace beyond corner",
+            "tab": "Corner"
+          },
+          "use_3d_offset": {
+            "type": "boolean",
+            "default": true,
+            "description": "True 3D offset (vs projected)",
+            "tab": "Corner"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "default": 0.02, "description": "Corner smoothing", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "default": 0.03, "description": "Min segment", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "default": 0.4, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.02,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.03,
+            "description": "Min segment",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "default": 0.4,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "technology": {
-          "spindle_speed_rpm": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle", "tab": "HSM" },
-          "feed_rate_mm_min": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed", "tab": "HSM" },
-          "finish_feed_mm_min": { "type": "number", "unit": "mm/min", "description": "Slow finish feed", "tab": "HSM" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle", "mql"], "default": "mist", "description": "Coolant", "tab": "HSM" }
+          "spindle_speed_rpm": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle",
+            "tab": "HSM"
+          },
+          "feed_rate_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed",
+            "tab": "HSM"
+          },
+          "finish_feed_mm_min": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Slow finish feed",
+            "tab": "HSM"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle",
+              "mql"
+            ],
+            "default": "mist",
+            "description": "Coolant",
+            "tab": "HSM"
+          }
         }
       }
     }
@@ -686,5 +2890,8 @@
         "Always verify corner radius vs tool radius before scheduling — undersized tool = bi-tangent fails."
       ]
     }
-  ]
+  ],
+  "milestone": "CAM-EXHAUST-MS0/U-CAM35",
+  "extraction_source": "SolidCAM 2024 training PDFs (per pre-existing extraction)",
+  "extraction_date": "2026-04-22"
 }

@@ -1802,7 +1802,7 @@
       "title": "SolidCAM â€” 2.5D Operations Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract SolidCAM 2.5D operations: Profile, Pocket, Drill, Slot, Face, Thread Mill. Promoted to PHASE-1 (priority-5 Tier-1) per F2 fix 2026-04-21 â€” SolidCAM is in the user's priority-5 alongside Mastercam / hyperMILL / Fusion 360 / Inventor HSM.",
       "entry_conditions": [
         "U-CAM01 complete"
@@ -1821,14 +1821,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:11:01.526Z",
+      "evidence": {
+        "json": "data/cam-functions/solidcam/2.5d-operations.json",
+        "ops": 12,
+        "params": 209
+      }
     },
     {
       "id": "U-CAM34",
       "title": "SolidCAM â€” iMachining Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract SolidCAM iMachining: iMachining 2D, iMachining 3D, Technology Wizard, Milling vs Tool Database.",
       "entry_conditions": [
         "U-CAM33 complete"
@@ -1847,14 +1853,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:11:01.529Z",
+      "evidence": {
+        "json": "data/cam-functions/solidcam/imachining.json",
+        "ops": 4,
+        "params": 129
+      }
     },
     {
       "id": "U-CAM35",
       "title": "SolidCAM â€” 3D HSS & HSR Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract SolidCAM 3D High Speed: HSS (Surface), HSR (Roughing), Rest, Pencil, Constant Cusp.",
       "entry_conditions": [
         "U-CAM34 complete"
@@ -1873,14 +1885,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:11:01.529Z",
+      "evidence": {
+        "json": "data/cam-functions/solidcam/3d-hss-hsr.json",
+        "ops": 13,
+        "params": 325
+      }
     },
     {
       "id": "U-CAM36",
       "title": "SolidCAM â€” 5-Axis & Indexial Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract SolidCAM 5-axis: Simultaneous, Indexial, Swarf, Contour 5X, Rest 5X.",
       "entry_conditions": [
         "U-CAM35 complete"
@@ -1899,14 +1917,21 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:11:01.529Z",
+      "evidence": {
+        "json": "data/cam-functions/solidcam/5-axis.json",
+        "ops": 12,
+        "params": 300,
+        "note": "canonical filename uses hyphen (5-axis.json), 6 src/ refs use this form"
+      }
     },
     {
       "id": "U-CAM37",
       "title": "SolidCAM â€” Turning & Mill-Turn Functions",
       "phase": "PHASE-1",
       "type": "extraction",
-      "status": "not_started",
+      "status": "completed",
       "description": "Extract SolidCAM turning and mill-turn operations.",
       "entry_conditions": [
         "U-CAM36 complete"
@@ -1926,14 +1951,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:11:01.529Z",
+      "evidence": {
+        "json": "data/cam-functions/solidcam/turning.json",
+        "ops": 13,
+        "params": 232
+      }
     },
     {
       "id": "U-CAM38",
       "title": "SolidCAM â€” Complete Function Index Assembly",
       "phase": "PHASE-1",
       "type": "integration",
-      "status": "not_started",
+      "status": "completed",
       "description": "Assemble all SolidCAM functions into unified CAMFunctionIndex.",
       "entry_conditions": [
         "U-CAM33 through U-CAM37 complete"
@@ -1953,7 +1984,14 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-25T21:12:10.776Z",
+      "evidence": {
+        "engine": "mcp-server/src/engines/SolidCAMFunctionIndexEngine.ts",
+        "test": "mcp-server/src/__tests__/SolidCAMFunctionIndexEngine.test.ts (48/48 pass)",
+        "index": "mcp-server/data/cam-functions/solidcam/function-index.json (6 sections: 2.5d_operations, 3d-hss-hsr, 5-axis, imachining, millturn, turning)",
+        "dispatcher": "mcp-server/src/tools/dispatchers/camDispatcher.ts (9 actions wired: solidcam_index_manifest/sections/section_stats/all_ops/find_op/find_param/categories/recommend/validate)"
+      }
     },
     {
       "id": "U-CAM39",

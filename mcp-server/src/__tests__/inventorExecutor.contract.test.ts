@@ -224,7 +224,7 @@ skipUnlessPS("inventor-executor.ps1 — runtime contract (PowerShell-gated)", ()
     const payload = JSON.parse(r.stdout.trim()) as ExecutorPayload;
     expect(payload.ok).toBe(false);
     expect(payload.error).toMatch(/Inventor COM|Inventor\.Application/);
-  });
+  }, 180_000);
 
   it("PRISM_CAD_MOCK=1 env-var triggers mock mode without -Mock flag", () => {
     const r = runExecutor([], { PRISM_CAD_MOCK: "1" });

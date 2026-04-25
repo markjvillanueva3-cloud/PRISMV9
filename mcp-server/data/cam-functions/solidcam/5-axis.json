@@ -17,52 +17,304 @@
       "display_name": "3+2 Indexed Machining",
       "category": "positional",
       "description": "Positional 5-axis: rotary axes are locked at a fixed orientation while a 3-axis cutting motion runs against the indexed face. Used to bring an angled feature into the XY working plane without simultaneous motion.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Levels", "Passes", "HSM", "Lead-In/Out", "Link"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Levels",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link"
+      ],
       "parameter_count": 28,
       "parameters": {
         "geometry": {
-          "machining_surfaces": { "type": "selection", "required": true, "description": "Surfaces or faces driven by the indexed plane", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Surfaces to avoid for collision checking", "tab": "Geometry" },
-          "machining_boundary": { "type": "selection", "required": false, "description": "2D boundary curve clipping the toolpath", "tab": "Geometry" }
+          "machining_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces or faces driven by the indexed plane",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Surfaces to avoid for collision checking",
+            "tab": "Geometry"
+          },
+          "machining_boundary": {
+            "type": "selection",
+            "required": false,
+            "description": "2D boundary curve clipping the toolpath",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference from tool table", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder/tool assembly id", "tab": "Tool" },
-          "tool_orientation": { "type": "selection", "values": ["auto", "manual"], "default": "auto", "description": "Auto-derive from indexed face or user-specified", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference from tool table",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder/tool assembly id",
+            "tab": "Tool"
+          },
+          "tool_orientation": {
+            "type": "selection",
+            "values": [
+              "auto",
+              "manual"
+            ],
+            "default": "auto",
+            "description": "Auto-derive from indexed face or user-specified",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "orient_method": { "type": "selection", "values": ["auto_from_face", "manual_angles", "by_two_points"], "default": "auto_from_face", "description": "How the locked tool axis is defined", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [0, 90], "default": 0, "description": "Tilt of tool axis from machine Z", "tab": "Tool-Axis" },
-          "rotary_b_deg": { "type": "number", "unit": "deg", "range": [-180, 180], "default": 0, "description": "B (or A) rotary index angle", "tab": "Tool-Axis" },
-          "rotary_c_deg": { "type": "number", "unit": "deg", "range": [-360, 360], "default": 0, "description": "C rotary index angle", "tab": "Tool-Axis" }
+          "orient_method": {
+            "type": "selection",
+            "values": [
+              "auto_from_face",
+              "manual_angles",
+              "by_two_points"
+            ],
+            "default": "auto_from_face",
+            "description": "How the locked tool axis is defined",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0,
+              90
+            ],
+            "default": 0,
+            "description": "Tilt of tool axis from machine Z",
+            "tab": "Tool-Axis"
+          },
+          "rotary_b_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -180,
+              180
+            ],
+            "default": 0,
+            "description": "B (or A) rotary index angle",
+            "tab": "Tool-Axis"
+          },
+          "rotary_c_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -360,
+              360
+            ],
+            "default": 0,
+            "description": "C rotary index angle",
+            "tab": "Tool-Axis"
+          }
         },
         "levels": {
-          "top_z": { "type": "number", "unit": "mm", "required": true, "description": "Top Z in indexed coordinate system", "tab": "Levels" },
-          "bottom_z": { "type": "number", "unit": "mm", "required": true, "description": "Bottom Z in indexed coordinate system", "tab": "Levels" },
-          "depth_per_step_mm": { "type": "number", "unit": "mm", "range": [0.05, 50], "default": 1.0, "description": "Z step per pass", "tab": "Levels" },
-          "step_down_mode": { "type": "selection", "values": ["constant", "morph", "scallop_constant"], "default": "constant", "description": "Z stepping method", "tab": "Levels" }
+          "top_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Top Z in indexed coordinate system",
+            "tab": "Levels"
+          },
+          "bottom_z": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Bottom Z in indexed coordinate system",
+            "tab": "Levels"
+          },
+          "depth_per_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.05,
+              50
+            ],
+            "default": 1,
+            "description": "Z step per pass",
+            "tab": "Levels"
+          },
+          "step_down_mode": {
+            "type": "selection",
+            "values": [
+              "constant",
+              "morph",
+              "scallop_constant"
+            ],
+            "default": "constant",
+            "description": "Z stepping method",
+            "tab": "Levels"
+          }
         },
         "passes": {
-          "pass_type": { "type": "selection", "values": ["parallel", "spiral", "morph", "offset"], "default": "parallel", "description": "Toolpath pattern in indexed plane", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 50], "default": 1.5, "description": "Lateral step", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["x_axis", "y_axis", "user_angle"], "default": "x_axis", "description": "Pass orientation in indexed plane", "tab": "Passes" },
-          "climb_mode": { "type": "selection", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Cut direction relative to spindle rotation", "tab": "Passes" },
-          "finish_pass": { "type": "boolean", "default": true, "description": "Add a finishing pass at the boundary", "tab": "Passes" }
+          "pass_type": {
+            "type": "selection",
+            "values": [
+              "parallel",
+              "spiral",
+              "morph",
+              "offset"
+            ],
+            "default": "parallel",
+            "description": "Toolpath pattern in indexed plane",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              50
+            ],
+            "default": 1.5,
+            "description": "Lateral step",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "x_axis",
+              "y_axis",
+              "user_angle"
+            ],
+            "default": "x_axis",
+            "description": "Pass orientation in indexed plane",
+            "tab": "Passes"
+          },
+          "climb_mode": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Cut direction relative to spindle rotation",
+            "tab": "Passes"
+          },
+          "finish_pass": {
+            "type": "boolean",
+            "default": true,
+            "description": "Add a finishing pass at the boundary",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Corner smoothing arc radius", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Acceleration cap", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "range": [0.001, 5], "default": 0.01, "description": "Minimum allowed segment length", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Corner smoothing arc radius",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Acceleration cap",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              5
+            ],
+            "default": 0.01,
+            "description": "Minimum allowed segment length",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "vertical_plunge", "spiral"], "default": "arc", "description": "Entry move geometry", "tab": "Lead-In/Out" },
-          "lead_in_radius_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Entry arc/spiral radius", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp descent angle", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "vertical_plunge",
+              "spiral"
+            ],
+            "default": "arc",
+            "description": "Entry move geometry",
+            "tab": "Lead-In/Out"
+          },
+          "lead_in_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Entry arc/spiral radius",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp descent angle",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract", "shortcut"], "default": "smart_retract", "description": "Linking move strategy", "tab": "Link" },
-          "retract_z_mm": { "type": "number", "unit": "mm", "range": [0.5, 500], "default": 25.0, "description": "Z retract clearance", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Distance above stock for rapid", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract",
+              "shortcut"
+            ],
+            "default": "smart_retract",
+            "description": "Linking move strategy",
+            "tab": "Link"
+          },
+          "retract_z_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.5,
+              500
+            ],
+            "default": 25,
+            "description": "Z retract clearance",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Distance above stock for rapid",
+            "tab": "Link"
+          }
         }
       }
     },
@@ -70,50 +322,281 @@
       "display_name": "Swarf (Side) Cutting",
       "category": "simultaneous_axis",
       "description": "Side milling where the tool flank stays tangent to a ruled drive surface. Tool axis is computed from the surface ruling; produces a single pass per height, ideal for ruled walls (impeller blades, turbine vanes, conical flanks).",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 26,
       "parameters": {
         "geometry": {
-          "drive_surface": { "type": "selection", "required": true, "description": "Ruled surface the flank rolls along", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Surfaces for collision checking", "tab": "Geometry" },
-          "top_curve": { "type": "selection", "required": false, "description": "Optional upper boundary edge", "tab": "Geometry" },
-          "bottom_curve": { "type": "selection", "required": false, "description": "Optional lower boundary edge", "tab": "Geometry" }
+          "drive_surface": {
+            "type": "selection",
+            "required": true,
+            "description": "Ruled surface the flank rolls along",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Surfaces for collision checking",
+            "tab": "Geometry"
+          },
+          "top_curve": {
+            "type": "selection",
+            "required": false,
+            "description": "Optional upper boundary edge",
+            "tab": "Geometry"
+          },
+          "bottom_curve": {
+            "type": "selection",
+            "required": false,
+            "description": "Optional lower boundary edge",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "tool_axis_mode": { "type": "selection", "values": ["tangent_to_drive_surface", "lead_lag_offset", "user_offset_curve"], "default": "tangent_to_drive_surface", "description": "How the flank-tangent axis is computed", "tab": "Tool-Axis" },
-          "side_tilt_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Side tilt away from tangency", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Lead/lag along feed direction", "tab": "Tool-Axis" },
-          "contact_side": { "type": "selection", "values": ["left", "right"], "default": "right", "description": "Which side of the tool contacts the wall", "tab": "Tool-Axis" }
+          "tool_axis_mode": {
+            "type": "selection",
+            "values": [
+              "tangent_to_drive_surface",
+              "lead_lag_offset",
+              "user_offset_curve"
+            ],
+            "default": "tangent_to_drive_surface",
+            "description": "How the flank-tangent axis is computed",
+            "tab": "Tool-Axis"
+          },
+          "side_tilt_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Side tilt away from tangency",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Lead/lag along feed direction",
+            "tab": "Tool-Axis"
+          },
+          "contact_side": {
+            "type": "selection",
+            "values": [
+              "left",
+              "right"
+            ],
+            "default": "right",
+            "description": "Which side of the tool contacts the wall",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "num_cuts": { "type": "integer", "range": [1, 20], "default": 1, "description": "Number of vertical passes", "tab": "Passes" },
-          "side_step_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step into wall between cuts", "tab": "Passes" },
-          "multi_pass_offset_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.2, "description": "Stock allowance per pass", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Cut direction", "tab": "Passes" },
-          "finish_allowance_mm": { "type": "number", "unit": "mm", "range": [0, 2], "default": 0, "description": "Wall stock left for finishing", "tab": "Passes" }
+          "num_cuts": {
+            "type": "integer",
+            "range": [
+              1,
+              20
+            ],
+            "default": 1,
+            "description": "Number of vertical passes",
+            "tab": "Passes"
+          },
+          "side_step_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step into wall between cuts",
+            "tab": "Passes"
+          },
+          "multi_pass_offset_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.2,
+            "description": "Stock allowance per pass",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Cut direction",
+            "tab": "Passes"
+          },
+          "finish_allowance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              2
+            ],
+            "default": 0,
+            "description": "Wall stock left for finishing",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "max_acceleration_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Accel cap", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Controller lookahead", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "max_acceleration_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Controller lookahead",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_type": { "type": "selection", "values": ["arc", "tangent_line", "ramp"], "default": "arc", "description": "Entry geometry", "tab": "Lead-In/Out" },
-          "lead_distance_mm": { "type": "number", "unit": "mm", "range": [0.5, 50], "default": 5.0, "description": "Lead length", "tab": "Lead-In/Out" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [0, 90], "default": 90, "description": "Tangent angle", "tab": "Lead-In/Out" }
+          "lead_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "tangent_line",
+              "ramp"
+            ],
+            "default": "arc",
+            "description": "Entry geometry",
+            "tab": "Lead-In/Out"
+          },
+          "lead_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.5,
+              50
+            ],
+            "default": 5,
+            "description": "Lead length",
+            "tab": "Lead-In/Out"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0,
+              90
+            ],
+            "default": 90,
+            "description": "Tangent angle",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract", "rotary_first"], "default": "smart_retract", "description": "Link strategy", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract distance", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff above surface", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract",
+              "rotary_first"
+            ],
+            "default": "smart_retract",
+            "description": "Link strategy",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract distance",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff above surface",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 5.0, "description": "Max rotary delta per linear mm — controls singularity stress", "tab": "Multi-Axis Limits" },
-          "rotary_limits_active": { "type": "boolean", "default": true, "description": "Enforce machine rotary travel limits", "tab": "Multi-Axis Limits" }
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 5,
+            "description": "Max rotary delta per linear mm — controls singularity stress",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_limits_active": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enforce machine rotary travel limits",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -121,49 +604,269 @@
       "display_name": "Morph Between Boundaries",
       "category": "simultaneous_drive",
       "description": "Morphs passes between two user-defined boundary curves on a drive surface. Each pass interpolates linearly (or by user weighting) from boundary A to boundary B; tool axis follows surface normal with optional lead/lag.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 25,
       "parameters": {
         "geometry": {
-          "drive_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "first_boundary": { "type": "selection", "required": true, "description": "Start boundary curve", "tab": "Geometry" },
-          "second_boundary": { "type": "selection", "required": true, "description": "End boundary curve", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" }
+          "drive_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "first_boundary": {
+            "type": "selection",
+            "required": true,
+            "description": "Start boundary curve",
+            "tab": "Geometry"
+          },
+          "second_boundary": {
+            "type": "selection",
+            "required": true,
+            "description": "End boundary curve",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["normal_to_surface", "lead_lag", "through_point"], "default": "normal_to_surface", "description": "Tool axis control", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Lead angle", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Side tilt", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "normal_to_surface",
+              "lead_lag",
+              "through_point"
+            ],
+            "default": "normal_to_surface",
+            "description": "Tool axis control",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Lead angle",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Side tilt",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "morph_type": { "type": "selection", "values": ["parallel", "spiral", "weighted"], "default": "parallel", "description": "Interpolation pattern", "tab": "Passes" },
-          "num_passes": { "type": "integer", "range": [1, 500], "default": 30, "description": "Pass count between boundaries", "tab": "Passes" },
-          "step_over_mode": { "type": "selection", "values": ["constant_step", "constant_scallop", "by_count"], "default": "by_count", "description": "How spacing is determined", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step value when constant_step", "tab": "Passes" },
-          "scallop_mm": { "type": "number", "unit": "mm", "range": [0.001, 1], "default": 0.01, "description": "Target scallop when constant_scallop", "tab": "Passes" }
+          "morph_type": {
+            "type": "selection",
+            "values": [
+              "parallel",
+              "spiral",
+              "weighted"
+            ],
+            "default": "parallel",
+            "description": "Interpolation pattern",
+            "tab": "Passes"
+          },
+          "num_passes": {
+            "type": "integer",
+            "range": [
+              1,
+              500
+            ],
+            "default": 30,
+            "description": "Pass count between boundaries",
+            "tab": "Passes"
+          },
+          "step_over_mode": {
+            "type": "selection",
+            "values": [
+              "constant_step",
+              "constant_scallop",
+              "by_count"
+            ],
+            "default": "by_count",
+            "description": "How spacing is determined",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step value when constant_step",
+            "tab": "Passes"
+          },
+          "scallop_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              1
+            ],
+            "default": 0.01,
+            "description": "Target scallop when constant_scallop",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Corner smoothing", "tab": "HSM" },
-          "max_accel_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Accel cap", "tab": "HSM" },
-          "min_segment_length_mm": { "type": "number", "unit": "mm", "range": [0.001, 5], "default": 0.01, "description": "Min segment length", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Corner smoothing",
+            "tab": "HSM"
+          },
+          "max_accel_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          },
+          "min_segment_length_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              5
+            ],
+            "default": 0.01,
+            "description": "Min segment length",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "tangent"], "default": "arc", "description": "Entry geometry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp angle", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "tangent"
+            ],
+            "default": "arc",
+            "description": "Entry geometry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp angle",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking strategy", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking strategy",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "rotary_a_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "A-axis travel limit source", "tab": "Multi-Axis Limits" },
-          "rotary_c_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "C-axis travel limit source", "tab": "Multi-Axis Limits" },
-          "smoothing_axis_change": { "type": "boolean", "default": true, "description": "Smooth abrupt axis-change discontinuities", "tab": "Multi-Axis Limits" }
+          "rotary_a_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "A-axis travel limit source",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_c_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "C-axis travel limit source",
+            "tab": "Multi-Axis Limits"
+          },
+          "smoothing_axis_change": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth abrupt axis-change discontinuities",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -171,48 +874,262 @@
       "display_name": "Parallel to Drive Curve",
       "category": "simultaneous_drive",
       "description": "Generates parallel passes guided by a single drive curve projected onto the part surfaces. Tool axis can follow curve tangent + lead/tilt or stay normal to surface.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 24,
       "parameters": {
         "geometry": {
-          "drive_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "drive_curve": { "type": "selection", "required": true, "description": "Guide curve", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" }
+          "drive_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "drive_curve": {
+            "type": "selection",
+            "required": true,
+            "description": "Guide curve",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["normal_to_surface", "tangent_to_curve", "user_angles"], "default": "normal_to_surface", "description": "Axis derivation", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Lead angle", "tab": "Tool-Axis" },
-          "side_tilt_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Side tilt", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "normal_to_surface",
+              "tangent_to_curve",
+              "user_angles"
+            ],
+            "default": "normal_to_surface",
+            "description": "Axis derivation",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Lead angle",
+            "tab": "Tool-Axis"
+          },
+          "side_tilt_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Side tilt",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "step_over_mode": { "type": "selection", "values": ["constant_step", "constant_scallop", "by_count"], "default": "constant_step", "description": "Spacing rule", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step", "tab": "Passes" },
-          "num_passes": { "type": "integer", "range": [1, 500], "default": 30, "description": "Pass count if by_count", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["one_way", "zigzag", "spiral"], "default": "zigzag", "description": "Pass direction strategy", "tab": "Passes" },
-          "climb_mode": { "type": "selection", "values": ["climb", "conventional"], "default": "climb", "description": "Cut direction", "tab": "Passes" }
+          "step_over_mode": {
+            "type": "selection",
+            "values": [
+              "constant_step",
+              "constant_scallop",
+              "by_count"
+            ],
+            "default": "constant_step",
+            "description": "Spacing rule",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "num_passes": {
+            "type": "integer",
+            "range": [
+              1,
+              500
+            ],
+            "default": 30,
+            "description": "Pass count if by_count",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "one_way",
+              "zigzag",
+              "spiral"
+            ],
+            "default": "zigzag",
+            "description": "Pass direction strategy",
+            "tab": "Passes"
+          },
+          "climb_mode": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Cut direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" },
-          "max_accel_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          },
+          "max_accel_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "tangent"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "lead_in_radius_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Lead radius", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "tangent"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "lead_in_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Lead radius",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "rotary_a_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "A limits", "tab": "Multi-Axis Limits" },
-          "max_axis_change_deg": { "type": "number", "unit": "deg", "range": [0.1, 90], "default": 30, "description": "Max axis change between segments", "tab": "Multi-Axis Limits" },
-          "smoothing_axis_change": { "type": "boolean", "default": true, "description": "Smooth axis discontinuities", "tab": "Multi-Axis Limits" }
+          "rotary_a_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "A limits",
+            "tab": "Multi-Axis Limits"
+          },
+          "max_axis_change_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              90
+            ],
+            "default": 30,
+            "description": "Max axis change between segments",
+            "tab": "Multi-Axis Limits"
+          },
+          "smoothing_axis_change": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis discontinuities",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -220,48 +1137,263 @@
       "display_name": "Parallel to Drive Surface",
       "category": "simultaneous_drive",
       "description": "Passes follow the iso-curves of a separate drive surface projected onto the machining surfaces. Useful when geometry has a natural flow that the part itself does not expose.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 24,
       "parameters": {
         "geometry": {
-          "drive_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "parallel_drive_surface": { "type": "selection", "required": true, "description": "Surface whose iso-curves drive the passes", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" }
+          "drive_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "parallel_drive_surface": {
+            "type": "selection",
+            "required": true,
+            "description": "Surface whose iso-curves drive the passes",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["normal_to_surface", "lead_lag", "through_point"], "default": "normal_to_surface", "description": "Axis derivation", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Lead", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Tilt", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "normal_to_surface",
+              "lead_lag",
+              "through_point"
+            ],
+            "default": "normal_to_surface",
+            "description": "Axis derivation",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Lead",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Tilt",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "step_over_mode": { "type": "selection", "values": ["constant_step", "constant_scallop", "by_count"], "default": "constant_scallop", "description": "Spacing rule", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step", "tab": "Passes" },
-          "scallop_mm": { "type": "number", "unit": "mm", "range": [0.001, 1], "default": 0.01, "description": "Scallop", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["one_way", "zigzag", "spiral"], "default": "zigzag", "description": "Direction", "tab": "Passes" },
-          "climb_mode": { "type": "selection", "values": ["climb", "conventional"], "default": "climb", "description": "Cut direction", "tab": "Passes" }
+          "step_over_mode": {
+            "type": "selection",
+            "values": [
+              "constant_step",
+              "constant_scallop",
+              "by_count"
+            ],
+            "default": "constant_scallop",
+            "description": "Spacing rule",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "scallop_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              1
+            ],
+            "default": 0.01,
+            "description": "Scallop",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "one_way",
+              "zigzag",
+              "spiral"
+            ],
+            "default": "zigzag",
+            "description": "Direction",
+            "tab": "Passes"
+          },
+          "climb_mode": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Cut direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" },
-          "max_accel_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          },
+          "max_accel_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "tangent"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "tangent"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "rotary_a_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "A limits", "tab": "Multi-Axis Limits" },
-          "max_axis_change_deg": { "type": "number", "unit": "deg", "range": [0.1, 90], "default": 30, "description": "Max axis change", "tab": "Multi-Axis Limits" },
-          "smoothing_axis_change": { "type": "boolean", "default": true, "description": "Smooth axis discontinuities", "tab": "Multi-Axis Limits" }
+          "rotary_a_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "A limits",
+            "tab": "Multi-Axis Limits"
+          },
+          "max_axis_change_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              90
+            ],
+            "default": 30,
+            "description": "Max axis change",
+            "tab": "Multi-Axis Limits"
+          },
+          "smoothing_axis_change": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis discontinuities",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -269,50 +1401,281 @@
       "display_name": "Drive Surface Tool Axis",
       "category": "simultaneous_drive",
       "description": "Tool axis is derived from a separate drive surface (not the part surface). Used when a designer-supplied axis-control surface controls inclination independently of the cutting surface (e.g., turbomachinery hub trace).",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 26,
       "parameters": {
         "geometry": {
-          "part_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "drive_surface": { "type": "selection", "required": true, "description": "Separate surface that controls tool axis", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" },
-          "machining_boundary": { "type": "selection", "required": false, "description": "Bounding curve", "tab": "Geometry" }
+          "part_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "drive_surface": {
+            "type": "selection",
+            "required": true,
+            "description": "Separate surface that controls tool axis",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          },
+          "machining_boundary": {
+            "type": "selection",
+            "required": false,
+            "description": "Bounding curve",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["normal_to_drive_surface", "tangent_to_drive_surface", "through_point_on_drive"], "default": "normal_to_drive_surface", "description": "Axis derivation from drive surface", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Lead", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [-45, 45], "default": 0, "description": "Tilt", "tab": "Tool-Axis" },
-          "axis_offset_mm": { "type": "number", "unit": "mm", "range": [-50, 50], "default": 0, "description": "Offset of drive surface origin", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "normal_to_drive_surface",
+              "tangent_to_drive_surface",
+              "through_point_on_drive"
+            ],
+            "default": "normal_to_drive_surface",
+            "description": "Axis derivation from drive surface",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Lead",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -45,
+              45
+            ],
+            "default": 0,
+            "description": "Tilt",
+            "tab": "Tool-Axis"
+          },
+          "axis_offset_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              -50,
+              50
+            ],
+            "default": 0,
+            "description": "Offset of drive surface origin",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "pass_pattern": { "type": "selection", "values": ["parallel_iso", "morph", "spiral"], "default": "parallel_iso", "description": "Pattern in drive surface UV space", "tab": "Passes" },
-          "step_over_mode": { "type": "selection", "values": ["constant_step", "constant_scallop", "by_count"], "default": "constant_scallop", "description": "Spacing rule", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step", "tab": "Passes" },
-          "scallop_mm": { "type": "number", "unit": "mm", "range": [0.001, 1], "default": 0.01, "description": "Scallop target", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["one_way", "zigzag", "spiral"], "default": "zigzag", "description": "Direction", "tab": "Passes" }
+          "pass_pattern": {
+            "type": "selection",
+            "values": [
+              "parallel_iso",
+              "morph",
+              "spiral"
+            ],
+            "default": "parallel_iso",
+            "description": "Pattern in drive surface UV space",
+            "tab": "Passes"
+          },
+          "step_over_mode": {
+            "type": "selection",
+            "values": [
+              "constant_step",
+              "constant_scallop",
+              "by_count"
+            ],
+            "default": "constant_scallop",
+            "description": "Spacing rule",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "scallop_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              1
+            ],
+            "default": 0.01,
+            "description": "Scallop target",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "one_way",
+              "zigzag",
+              "spiral"
+            ],
+            "default": "zigzag",
+            "description": "Direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" },
-          "max_accel_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          },
+          "max_accel_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "tangent"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "tangent"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "rotary_a_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "A limits", "tab": "Multi-Axis Limits" },
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 5.0, "description": "Max rotary delta per mm", "tab": "Multi-Axis Limits" },
-          "smoothing_axis_change": { "type": "boolean", "default": true, "description": "Smooth axis discontinuities", "tab": "Multi-Axis Limits" }
+          "rotary_a_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "A limits",
+            "tab": "Multi-Axis Limits"
+          },
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 5,
+            "description": "Max rotary delta per mm",
+            "tab": "Multi-Axis Limits"
+          },
+          "smoothing_axis_change": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis discontinuities",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -320,47 +1683,255 @@
       "display_name": "Normal to Drive Surface",
       "category": "simultaneous_drive",
       "description": "Tool axis is held normal to the machining surface at every contact point. The simplest simultaneous mode — best for shallow freeform, ball-end finishing where rake is not critical.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 23,
       "parameters": {
         "geometry": {
-          "drive_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" },
-          "boundary": { "type": "selection", "required": false, "description": "Bounding curve", "tab": "Geometry" }
+          "drive_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          },
+          "boundary": {
+            "type": "selection",
+            "required": false,
+            "description": "Bounding curve",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["pure_normal", "normal_with_lead", "normal_with_side_tilt"], "default": "pure_normal", "description": "Normal-axis variants", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Lead", "tab": "Tool-Axis" },
-          "side_tilt_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Side tilt — reduces ball-end center cutting", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "pure_normal",
+              "normal_with_lead",
+              "normal_with_side_tilt"
+            ],
+            "default": "pure_normal",
+            "description": "Normal-axis variants",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Lead",
+            "tab": "Tool-Axis"
+          },
+          "side_tilt_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Side tilt — reduces ball-end center cutting",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "pass_pattern": { "type": "selection", "values": ["iso_u", "iso_v", "morph", "spiral"], "default": "iso_u", "description": "UV pattern", "tab": "Passes" },
-          "step_over_mode": { "type": "selection", "values": ["constant_step", "constant_scallop", "by_count"], "default": "constant_scallop", "description": "Spacing rule", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.3, "description": "Step", "tab": "Passes" },
-          "scallop_mm": { "type": "number", "unit": "mm", "range": [0.001, 0.5], "default": 0.005, "description": "Scallop target", "tab": "Passes" },
-          "climb_mode": { "type": "selection", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Cut direction", "tab": "Passes" }
+          "pass_pattern": {
+            "type": "selection",
+            "values": [
+              "iso_u",
+              "iso_v",
+              "morph",
+              "spiral"
+            ],
+            "default": "iso_u",
+            "description": "UV pattern",
+            "tab": "Passes"
+          },
+          "step_over_mode": {
+            "type": "selection",
+            "values": [
+              "constant_step",
+              "constant_scallop",
+              "by_count"
+            ],
+            "default": "constant_scallop",
+            "description": "Spacing rule",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.3,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "scallop_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              0.5
+            ],
+            "default": 0.005,
+            "description": "Scallop target",
+            "tab": "Passes"
+          },
+          "climb_mode": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Cut direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" },
-          "max_accel_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.5, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          },
+          "max_accel_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.5,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "tangent"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "tangent"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 5.0, "description": "Max rotary delta per mm", "tab": "Multi-Axis Limits" },
-          "smoothing_axis_change": { "type": "boolean", "default": true, "description": "Smooth axis discontinuities", "tab": "Multi-Axis Limits" }
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 5,
+            "description": "Max rotary delta per mm",
+            "tab": "Multi-Axis Limits"
+          },
+          "smoothing_axis_change": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis discontinuities",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -368,46 +1939,234 @@
       "display_name": "Tool Axis Through Fixed Point",
       "category": "simultaneous_axis",
       "description": "Tool axis is constrained to always point through a fixed XYZ point (e.g., focal point of a port). Ideal for machining funnel-shaped cavities and cone-symmetric features.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 22,
       "parameters": {
         "geometry": {
-          "drive_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" },
-          "machining_boundary": { "type": "selection", "required": false, "description": "Bounding curve", "tab": "Geometry" }
+          "drive_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          },
+          "machining_boundary": {
+            "type": "selection",
+            "required": false,
+            "description": "Bounding curve",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "focus_point_xyz": { "type": "vector3", "required": true, "description": "Fixed point [x,y,z] in mm", "tab": "Tool-Axis" },
-          "focus_point_offset_mm": { "type": "number", "unit": "mm", "range": [-100, 100], "default": 0, "description": "Offset along axis from focus", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Lead", "tab": "Tool-Axis" },
-          "tool_axis_orientation": { "type": "selection", "values": ["away_from_point", "toward_point"], "default": "away_from_point", "description": "Axis direction relative to point", "tab": "Tool-Axis" }
+          "focus_point_xyz": {
+            "type": "vector3",
+            "required": true,
+            "description": "Fixed point [x,y,z] in mm",
+            "tab": "Tool-Axis"
+          },
+          "focus_point_offset_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              -100,
+              100
+            ],
+            "default": 0,
+            "description": "Offset along axis from focus",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Lead",
+            "tab": "Tool-Axis"
+          },
+          "tool_axis_orientation": {
+            "type": "selection",
+            "values": [
+              "away_from_point",
+              "toward_point"
+            ],
+            "default": "away_from_point",
+            "description": "Axis direction relative to point",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "pass_pattern": { "type": "selection", "values": ["radial", "spiral", "iso"], "default": "radial", "description": "Pass pattern", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["climb", "conventional"], "default": "climb", "description": "Direction", "tab": "Passes" },
-          "num_passes": { "type": "integer", "range": [1, 500], "default": 30, "description": "Pass count", "tab": "Passes" }
+          "pass_pattern": {
+            "type": "selection",
+            "values": [
+              "radial",
+              "spiral",
+              "iso"
+            ],
+            "default": "radial",
+            "description": "Pass pattern",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Passes"
+          },
+          "num_passes": {
+            "type": "integer",
+            "range": [
+              1,
+              500
+            ],
+            "default": 30,
+            "description": "Pass count",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 5.0, "description": "Max rotary delta", "tab": "Multi-Axis Limits" },
-          "rotary_limits_active": { "type": "boolean", "default": true, "description": "Enforce rotary limits", "tab": "Multi-Axis Limits" }
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 5,
+            "description": "Max rotary delta",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_limits_active": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enforce rotary limits",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -415,47 +2174,247 @@
       "display_name": "Tool Axis Through Guide Curve",
       "category": "simultaneous_axis",
       "description": "Tool axis at every contact point passes through a designer-supplied 3D guide curve. Used for fan-shaped cavities and turbine flow paths where the focal axis varies continuously.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 23,
       "parameters": {
         "geometry": {
-          "drive_surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
-          "guide_curve": { "type": "selection", "required": true, "description": "Curve through which the tool axis passes", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" },
-          "machining_boundary": { "type": "selection", "required": false, "description": "Bounding curve", "tab": "Geometry" }
+          "drive_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Surfaces to machine",
+            "tab": "Geometry"
+          },
+          "guide_curve": {
+            "type": "selection",
+            "required": true,
+            "description": "Curve through which the tool axis passes",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          },
+          "machining_boundary": {
+            "type": "selection",
+            "required": false,
+            "description": "Bounding curve",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "curve_offset_mm": { "type": "number", "unit": "mm", "range": [-50, 50], "default": 0, "description": "Lateral offset from guide curve", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Lead", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Tilt", "tab": "Tool-Axis" },
-          "fan_curve_mode": { "type": "selection", "values": ["closest_point", "by_arc_length", "by_uv"], "default": "closest_point", "description": "How contact point maps to curve", "tab": "Tool-Axis" }
+          "curve_offset_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              -50,
+              50
+            ],
+            "default": 0,
+            "description": "Lateral offset from guide curve",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Lead",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Tilt",
+            "tab": "Tool-Axis"
+          },
+          "fan_curve_mode": {
+            "type": "selection",
+            "values": [
+              "closest_point",
+              "by_arc_length",
+              "by_uv"
+            ],
+            "default": "closest_point",
+            "description": "How contact point maps to curve",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "pass_pattern": { "type": "selection", "values": ["parallel", "morph", "spiral"], "default": "parallel", "description": "Pass pattern", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step", "tab": "Passes" },
-          "num_passes": { "type": "integer", "range": [1, 500], "default": 30, "description": "Pass count", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Direction", "tab": "Passes" }
+          "pass_pattern": {
+            "type": "selection",
+            "values": [
+              "parallel",
+              "morph",
+              "spiral"
+            ],
+            "default": "parallel",
+            "description": "Pass pattern",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "num_passes": {
+            "type": "integer",
+            "range": [
+              1,
+              500
+            ],
+            "default": 30,
+            "description": "Pass count",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 5.0, "description": "Max rotary delta", "tab": "Multi-Axis Limits" },
-          "rotary_limits_active": { "type": "boolean", "default": true, "description": "Enforce rotary limits", "tab": "Multi-Axis Limits" }
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 5,
+            "description": "Max rotary delta",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_limits_active": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enforce rotary limits",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -463,54 +2422,314 @@
       "display_name": "Multi-Blade (Impeller / Blisk)",
       "category": "specialty",
       "description": "Specialised multi-blade machining for impellers, blisks, and bladed disks. Roughs hub-shroud channels and finishes blade flanks + fillets per blade with rotational pattern about the part axis.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 30,
       "parameters": {
         "geometry": {
-          "hub_surface": { "type": "selection", "required": true, "description": "Inner hub surface", "tab": "Geometry" },
-          "shroud_surface": { "type": "selection", "required": true, "description": "Outer shroud surface", "tab": "Geometry" },
-          "blade_surfaces": { "type": "selection", "required": true, "description": "Main blade flanks (per blade)", "tab": "Geometry" },
-          "splitter_surfaces": { "type": "selection", "required": false, "description": "Splitter blade flanks if present", "tab": "Geometry" },
-          "fillet_surfaces": { "type": "selection", "required": false, "description": "Fillet surfaces between blade and hub", "tab": "Geometry" },
-          "num_blades": { "type": "integer", "range": [2, 60], "default": 11, "description": "Number of main blades — drives rotational pattern", "tab": "Geometry" }
+          "hub_surface": {
+            "type": "selection",
+            "required": true,
+            "description": "Inner hub surface",
+            "tab": "Geometry"
+          },
+          "shroud_surface": {
+            "type": "selection",
+            "required": true,
+            "description": "Outer shroud surface",
+            "tab": "Geometry"
+          },
+          "blade_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Main blade flanks (per blade)",
+            "tab": "Geometry"
+          },
+          "splitter_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Splitter blade flanks if present",
+            "tab": "Geometry"
+          },
+          "fillet_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Fillet surfaces between blade and hub",
+            "tab": "Geometry"
+          },
+          "num_blades": {
+            "type": "integer",
+            "range": [
+              2,
+              60
+            ],
+            "default": 11,
+            "description": "Number of main blades — drives rotational pattern",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference (typically tapered ball)", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id (often shrink-fit, slim)", "tab": "Tool" },
-          "taper_tool_angle_deg": { "type": "number", "unit": "deg", "range": [0, 30], "default": 0, "description": "Tool taper half-angle for clearance", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference (typically tapered ball)",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id (often shrink-fit, slim)",
+            "tab": "Tool"
+          },
+          "taper_tool_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0,
+              30
+            ],
+            "default": 0,
+            "description": "Tool taper half-angle for clearance",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["perpendicular_to_blade", "tilt_from_hub", "tangent_to_blade"], "default": "perpendicular_to_blade", "description": "Axis derivation", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 5, "description": "Lead — protects ball center", "tab": "Tool-Axis" },
-          "side_tilt_deg": { "type": "number", "unit": "deg", "range": [-30, 30], "default": 0, "description": "Side tilt — clears adjacent blade", "tab": "Tool-Axis" },
-          "smooth_axis_change_deg": { "type": "number", "unit": "deg", "range": [0.1, 20], "default": 2.0, "description": "Max axis change per segment", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "perpendicular_to_blade",
+              "tilt_from_hub",
+              "tangent_to_blade"
+            ],
+            "default": "perpendicular_to_blade",
+            "description": "Axis derivation",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 5,
+            "description": "Lead — protects ball center",
+            "tab": "Tool-Axis"
+          },
+          "side_tilt_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -30,
+              30
+            ],
+            "default": 0,
+            "description": "Side tilt — clears adjacent blade",
+            "tab": "Tool-Axis"
+          },
+          "smooth_axis_change_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 2,
+            "description": "Max axis change per segment",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "roughing_strategy": { "type": "selection", "values": ["plunge_then_morph", "spiral_down", "step_down"], "default": "spiral_down", "description": "Channel roughing strategy", "tab": "Passes" },
-          "finishing_strategy": { "type": "selection", "values": ["morph_pressure_suction", "iso_blade", "swarf_blade"], "default": "morph_pressure_suction", "description": "Blade finishing strategy", "tab": "Passes" },
-          "hub_finish_pass": { "type": "boolean", "default": true, "description": "Add hub finish pass", "tab": "Passes" },
-          "blade_finish_pass": { "type": "boolean", "default": true, "description": "Add blade finish pass", "tab": "Passes" },
-          "num_layers": { "type": "integer", "range": [1, 100], "default": 8, "description": "Roughing layer count hub→shroud", "tab": "Passes" },
-          "depth_per_layer_mm": { "type": "number", "unit": "mm", "range": [0.05, 10], "default": 1.0, "description": "Layer depth", "tab": "Passes" }
+          "roughing_strategy": {
+            "type": "selection",
+            "values": [
+              "plunge_then_morph",
+              "spiral_down",
+              "step_down"
+            ],
+            "default": "spiral_down",
+            "description": "Channel roughing strategy",
+            "tab": "Passes"
+          },
+          "finishing_strategy": {
+            "type": "selection",
+            "values": [
+              "morph_pressure_suction",
+              "iso_blade",
+              "swarf_blade"
+            ],
+            "default": "morph_pressure_suction",
+            "description": "Blade finishing strategy",
+            "tab": "Passes"
+          },
+          "hub_finish_pass": {
+            "type": "boolean",
+            "default": true,
+            "description": "Add hub finish pass",
+            "tab": "Passes"
+          },
+          "blade_finish_pass": {
+            "type": "boolean",
+            "default": true,
+            "description": "Add blade finish pass",
+            "tab": "Passes"
+          },
+          "num_layers": {
+            "type": "integer",
+            "range": [
+              1,
+              100
+            ],
+            "default": 8,
+            "description": "Roughing layer count hub→shroud",
+            "tab": "Passes"
+          },
+          "depth_per_layer_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.05,
+              10
+            ],
+            "default": 1,
+            "description": "Layer depth",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" },
-          "max_accel_g": { "type": "number", "unit": "g", "range": [0.1, 5], "default": 0.4, "description": "Accel cap", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          },
+          "max_accel_g": {
+            "type": "number",
+            "unit": "g",
+            "range": [
+              0.1,
+              5
+            ],
+            "default": 0.4,
+            "description": "Accel cap",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp", "spiral"], "default": "spiral", "description": "Entry", "tab": "Lead-In/Out" },
-          "lead_radius_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 1.0, "description": "Lead radius", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 15], "default": 2.0, "description": "Ramp angle", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp",
+              "spiral"
+            ],
+            "default": "spiral",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "lead_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 1,
+            "description": "Lead radius",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              15
+            ],
+            "default": 2,
+            "description": "Ramp angle",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract", "rotary_first"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_to_shroud_offset_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 5.0, "description": "Retract relative to shroud", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract",
+              "rotary_first"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_to_shroud_offset_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 5,
+            "description": "Retract relative to shroud",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "rotary_axis_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "Rotary limit source", "tab": "Multi-Axis Limits" },
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 3.0, "description": "Max rotary delta per mm", "tab": "Multi-Axis Limits" }
+          "rotary_axis_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "Rotary limit source",
+            "tab": "Multi-Axis Limits"
+          },
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 3,
+            "description": "Max rotary delta per mm",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -518,51 +2737,300 @@
       "display_name": "Internal Port Machining",
       "category": "specialty",
       "description": "Specialised intake / exhaust port machining using a lollipop or barrel-end tool. Tool axis follows a port centerline curve, allowing the cutter to enter narrow openings and machine internal walls.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 27,
       "parameters": {
         "geometry": {
-          "port_centerline_curve": { "type": "selection", "required": true, "description": "Curve along port axis", "tab": "Geometry" },
-          "port_inlet_diameter_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 20, "description": "Port inlet diameter", "tab": "Geometry" },
-          "port_outlet_diameter_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25, "description": "Port outlet diameter", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" }
+          "port_centerline_curve": {
+            "type": "selection",
+            "required": true,
+            "description": "Curve along port axis",
+            "tab": "Geometry"
+          },
+          "port_inlet_diameter_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 20,
+            "description": "Port inlet diameter",
+            "tab": "Geometry"
+          },
+          "port_outlet_diameter_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Port outlet diameter",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference (lollipop/barrel)", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" },
-          "lollipop_tool_radius_mm": { "type": "number", "unit": "mm", "range": [0.5, 30], "default": 6.0, "description": "Lollipop ball radius", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference (lollipop/barrel)",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          },
+          "lollipop_tool_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.5,
+              30
+            ],
+            "default": 6,
+            "description": "Lollipop ball radius",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["along_centerline", "tangent_to_centerline", "lead_lag_offset"], "default": "along_centerline", "description": "Axis derivation", "tab": "Tool-Axis" },
-          "lead_angle_deg": { "type": "number", "unit": "deg", "range": [-15, 15], "default": 0, "description": "Lead", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [-15, 15], "default": 0, "description": "Tilt", "tab": "Tool-Axis" },
-          "fan_at_entry_deg": { "type": "number", "unit": "deg", "range": [0, 45], "default": 0, "description": "Axis fan-out at port entry", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "along_centerline",
+              "tangent_to_centerline",
+              "lead_lag_offset"
+            ],
+            "default": "along_centerline",
+            "description": "Axis derivation",
+            "tab": "Tool-Axis"
+          },
+          "lead_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -15,
+              15
+            ],
+            "default": 0,
+            "description": "Lead",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -15,
+              15
+            ],
+            "default": 0,
+            "description": "Tilt",
+            "tab": "Tool-Axis"
+          },
+          "fan_at_entry_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0,
+              45
+            ],
+            "default": 0,
+            "description": "Axis fan-out at port entry",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "num_passes": { "type": "integer", "range": [1, 200], "default": 12, "description": "Pass count along centerline", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 10], "default": 0.3, "description": "Circumferential step", "tab": "Passes" },
-          "scallop_mm": { "type": "number", "unit": "mm", "range": [0.001, 0.5], "default": 0.005, "description": "Scallop target", "tab": "Passes" },
-          "finish_allowance_mm": { "type": "number", "unit": "mm", "range": [0, 2], "default": 0, "description": "Stock left for finishing", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["climb", "conventional"], "default": "climb", "description": "Cut direction", "tab": "Passes" }
+          "num_passes": {
+            "type": "integer",
+            "range": [
+              1,
+              200
+            ],
+            "default": 12,
+            "description": "Pass count along centerline",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              10
+            ],
+            "default": 0.3,
+            "description": "Circumferential step",
+            "tab": "Passes"
+          },
+          "scallop_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              0.5
+            ],
+            "default": 0.005,
+            "description": "Scallop target",
+            "tab": "Passes"
+          },
+          "finish_allowance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              2
+            ],
+            "default": 0,
+            "description": "Stock left for finishing",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Cut direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "entry_strategy": { "type": "selection", "values": ["spiral_in", "ramp", "arc"], "default": "spiral_in", "description": "Entry through port mouth", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 15], "default": 1.5, "description": "Ramp angle", "tab": "Lead-In/Out" }
+          "entry_strategy": {
+            "type": "selection",
+            "values": [
+              "spiral_in",
+              "ramp",
+              "arc"
+            ],
+            "default": "spiral_in",
+            "description": "Entry through port mouth",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              15
+            ],
+            "default": 1.5,
+            "description": "Ramp angle",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract", "back_along_axis"], "default": "back_along_axis", "description": "Link strategy", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 500], "default": 50.0, "description": "Retract distance", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract",
+              "back_along_axis"
+            ],
+            "default": "back_along_axis",
+            "description": "Link strategy",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              500
+            ],
+            "default": 50,
+            "description": "Retract distance",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 3.0, "description": "Max rotary delta per mm", "tab": "Multi-Axis Limits" },
-          "smooth_axis_change": { "type": "boolean", "default": true, "description": "Smooth axis discontinuities", "tab": "Multi-Axis Limits" },
-          "rotary_a_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "A limits", "tab": "Multi-Axis Limits" },
-          "rotary_c_limits": { "type": "selection", "values": ["machine_default", "custom"], "default": "machine_default", "description": "C limits", "tab": "Multi-Axis Limits" }
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 3,
+            "description": "Max rotary delta per mm",
+            "tab": "Multi-Axis Limits"
+          },
+          "smooth_axis_change": {
+            "type": "boolean",
+            "default": true,
+            "description": "Smooth axis discontinuities",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_a_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "A limits",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_c_limits": {
+            "type": "selection",
+            "values": [
+              "machine_default",
+              "custom"
+            ],
+            "default": "machine_default",
+            "description": "C limits",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     },
@@ -570,46 +3038,237 @@
       "display_name": "Undercut / T-Slot Machining",
       "category": "specialty",
       "description": "Machines undercut features (T-slots, dovetails, lollipop reliefs) by tilting the tool to clear the overhanging stock and engage the undercut surface. Often paired with a lollipop or T-slot cutter.",
-      "dialog_tabs": ["Geometry", "Tool", "Tool-Axis", "Passes", "HSM", "Lead-In/Out", "Link", "Multi-Axis Limits"],
+      "dialog_tabs": [
+        "Geometry",
+        "Tool",
+        "Tool-Axis",
+        "Passes",
+        "HSM",
+        "Lead-In/Out",
+        "Link",
+        "Multi-Axis Limits"
+      ],
       "parameter_count": 22,
       "parameters": {
         "geometry": {
-          "undercut_surfaces": { "type": "selection", "required": true, "description": "Undercut wall surfaces", "tab": "Geometry" },
-          "check_surfaces": { "type": "selection", "required": false, "description": "Avoid surfaces", "tab": "Geometry" },
-          "machining_boundary": { "type": "selection", "required": false, "description": "Bounding curve", "tab": "Geometry" }
+          "undercut_surfaces": {
+            "type": "selection",
+            "required": true,
+            "description": "Undercut wall surfaces",
+            "tab": "Geometry"
+          },
+          "check_surfaces": {
+            "type": "selection",
+            "required": false,
+            "description": "Avoid surfaces",
+            "tab": "Geometry"
+          },
+          "machining_boundary": {
+            "type": "selection",
+            "required": false,
+            "description": "Bounding curve",
+            "tab": "Geometry"
+          }
         },
         "tool": {
-          "tool_id": { "type": "string", "required": true, "description": "Tool reference (lollipop/T-slot)", "tab": "Tool" },
-          "holder": { "type": "string", "required": false, "description": "Holder id", "tab": "Tool" },
-          "lollipop_tool_radius_mm": { "type": "number", "unit": "mm", "range": [0.5, 30], "default": 5.0, "description": "Lollipop radius", "tab": "Tool" }
+          "tool_id": {
+            "type": "string",
+            "required": true,
+            "description": "Tool reference (lollipop/T-slot)",
+            "tab": "Tool"
+          },
+          "holder": {
+            "type": "string",
+            "required": false,
+            "description": "Holder id",
+            "tab": "Tool"
+          },
+          "lollipop_tool_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.5,
+              30
+            ],
+            "default": 5,
+            "description": "Lollipop radius",
+            "tab": "Tool"
+          }
         },
         "tool_axis": {
-          "axis_mode": { "type": "selection", "values": ["tilt_to_clear", "horizontal", "user_angles"], "default": "tilt_to_clear", "description": "Axis strategy for undercut clearance", "tab": "Tool-Axis" },
-          "tilt_angle_deg": { "type": "number", "unit": "deg", "range": [0, 90], "default": 90, "description": "Tilt from vertical (90° = horizontal)", "tab": "Tool-Axis" },
-          "retract_axis_clear": { "type": "boolean", "default": true, "description": "Retract along axis to clear overhang", "tab": "Tool-Axis" }
+          "axis_mode": {
+            "type": "selection",
+            "values": [
+              "tilt_to_clear",
+              "horizontal",
+              "user_angles"
+            ],
+            "default": "tilt_to_clear",
+            "description": "Axis strategy for undercut clearance",
+            "tab": "Tool-Axis"
+          },
+          "tilt_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0,
+              90
+            ],
+            "default": 90,
+            "description": "Tilt from vertical (90° = horizontal)",
+            "tab": "Tool-Axis"
+          },
+          "retract_axis_clear": {
+            "type": "boolean",
+            "default": true,
+            "description": "Retract along axis to clear overhang",
+            "tab": "Tool-Axis"
+          }
         },
         "passes": {
-          "pass_pattern": { "type": "selection", "values": ["parallel", "spiral", "morph"], "default": "parallel", "description": "Pattern", "tab": "Passes" },
-          "step_over_mm": { "type": "number", "unit": "mm", "range": [0.01, 20], "default": 0.5, "description": "Step", "tab": "Passes" },
-          "scallop_mm": { "type": "number", "unit": "mm", "range": [0.001, 0.5], "default": 0.01, "description": "Scallop target", "tab": "Passes" },
-          "machining_direction": { "type": "selection", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Direction", "tab": "Passes" }
+          "pass_pattern": {
+            "type": "selection",
+            "values": [
+              "parallel",
+              "spiral",
+              "morph"
+            ],
+            "default": "parallel",
+            "description": "Pattern",
+            "tab": "Passes"
+          },
+          "step_over_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.01,
+              20
+            ],
+            "default": 0.5,
+            "description": "Step",
+            "tab": "Passes"
+          },
+          "scallop_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.001,
+              0.5
+            ],
+            "default": 0.01,
+            "description": "Scallop target",
+            "tab": "Passes"
+          },
+          "machining_direction": {
+            "type": "selection",
+            "values": [
+              "climb",
+              "conventional",
+              "zigzag"
+            ],
+            "default": "climb",
+            "description": "Direction",
+            "tab": "Passes"
+          }
         },
         "hsm": {
-          "smoothing_radius_mm": { "type": "number", "unit": "mm", "range": [0, 5], "default": 0.05, "description": "Smoothing", "tab": "HSM" },
-          "lookahead_blocks": { "type": "integer", "range": [10, 1000], "default": 200, "description": "Lookahead", "tab": "HSM" }
+          "smoothing_radius_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0,
+              5
+            ],
+            "default": 0.05,
+            "description": "Smoothing",
+            "tab": "HSM"
+          },
+          "lookahead_blocks": {
+            "type": "integer",
+            "range": [
+              10,
+              1000
+            ],
+            "default": 200,
+            "description": "Lookahead",
+            "tab": "HSM"
+          }
         },
         "lead_in_out": {
-          "lead_in_type": { "type": "selection", "values": ["arc", "ramp"], "default": "arc", "description": "Entry", "tab": "Lead-In/Out" },
-          "ramp_angle_deg": { "type": "number", "unit": "deg", "range": [0.1, 30], "default": 3.0, "description": "Ramp", "tab": "Lead-In/Out" }
+          "lead_in_type": {
+            "type": "selection",
+            "values": [
+              "arc",
+              "ramp"
+            ],
+            "default": "arc",
+            "description": "Entry",
+            "tab": "Lead-In/Out"
+          },
+          "ramp_angle_deg": {
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              0.1,
+              30
+            ],
+            "default": 3,
+            "description": "Ramp",
+            "tab": "Lead-In/Out"
+          }
         },
         "link": {
-          "rapid_type": { "type": "selection", "values": ["g0_clearance", "smart_retract"], "default": "smart_retract", "description": "Linking", "tab": "Link" },
-          "retract_distance_mm": { "type": "number", "unit": "mm", "range": [1, 200], "default": 25.0, "description": "Retract", "tab": "Link" },
-          "safe_distance_mm": { "type": "number", "unit": "mm", "range": [0.1, 50], "default": 2.0, "description": "Standoff", "tab": "Link" }
+          "rapid_type": {
+            "type": "selection",
+            "values": [
+              "g0_clearance",
+              "smart_retract"
+            ],
+            "default": "smart_retract",
+            "description": "Linking",
+            "tab": "Link"
+          },
+          "retract_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 25,
+            "description": "Retract",
+            "tab": "Link"
+          },
+          "safe_distance_mm": {
+            "type": "number",
+            "unit": "mm",
+            "range": [
+              0.1,
+              50
+            ],
+            "default": 2,
+            "description": "Standoff",
+            "tab": "Link"
+          }
         },
         "multi_axis_limits": {
-          "max_axis_change_deg_per_mm": { "type": "number", "unit": "deg/mm", "range": [0.1, 20], "default": 5.0, "description": "Max rotary delta per mm", "tab": "Multi-Axis Limits" },
-          "rotary_limits_active": { "type": "boolean", "default": true, "description": "Enforce rotary limits", "tab": "Multi-Axis Limits" }
+          "max_axis_change_deg_per_mm": {
+            "type": "number",
+            "unit": "deg/mm",
+            "range": [
+              0.1,
+              20
+            ],
+            "default": 5,
+            "description": "Max rotary delta per mm",
+            "tab": "Multi-Axis Limits"
+          },
+          "rotary_limits_active": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enforce rotary limits",
+            "tab": "Multi-Axis Limits"
+          }
         }
       }
     }
@@ -701,5 +3360,8 @@
         "Inspect first port with a probe or borescope before unattended production."
       ]
     }
-  ]
+  ],
+  "milestone": "CAM-EXHAUST-MS0/U-CAM36",
+  "extraction_source": "SolidCAM 2024 training PDFs (per pre-existing extraction)",
+  "extraction_date": "2026-04-22"
 }

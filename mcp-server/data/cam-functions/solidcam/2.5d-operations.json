@@ -5,45 +5,211 @@
   "summary": {
     "total_operations": 12,
     "total_parameters": 209,
-    "categories": ["roughing", "finishing", "holemaking", "threading"]
+    "categories": [
+      "roughing",
+      "finishing",
+      "holemaking",
+      "threading"
+    ]
   },
   "operations": {
     "profile_2d": {
       "display_name": "Profile",
       "category": "finishing",
       "description": "2.5D contouring along open or closed contours with approach/retract control",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels", "Link"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels",
+        "Link"
+      ],
       "parameter_count": 22,
       "parameters": {
         "geometry": {
-          "chain_selection": { "type": "selection", "required": true, "description": "Profile chain to machine", "tab": "Geometry" },
-          "offset_side": { "type": "enum", "values": ["left", "right", "on"], "default": "left", "description": "Tool offset side relative to chain", "tab": "Geometry" },
-          "corner_type": { "type": "enum", "values": ["sharp", "round", "chamfer"], "default": "sharp", "description": "Corner treatment", "tab": "Geometry" },
-          "extend_start": { "type": "number", "unit": "mm", "default": 0, "description": "Extend profile at start", "tab": "Geometry" },
-          "extend_end": { "type": "number", "unit": "mm", "default": 0, "description": "Extend profile at end", "tab": "Geometry" }
+          "chain_selection": {
+            "type": "selection",
+            "required": true,
+            "description": "Profile chain to machine",
+            "tab": "Geometry"
+          },
+          "offset_side": {
+            "type": "enum",
+            "values": [
+              "left",
+              "right",
+              "on"
+            ],
+            "default": "left",
+            "description": "Tool offset side relative to chain",
+            "tab": "Geometry"
+          },
+          "corner_type": {
+            "type": "enum",
+            "values": [
+              "sharp",
+              "round",
+              "chamfer"
+            ],
+            "default": "sharp",
+            "description": "Corner treatment",
+            "tab": "Geometry"
+          },
+          "extend_start": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Extend profile at start",
+            "tab": "Geometry"
+          },
+          "extend_end": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Extend profile at end",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Cutting feed rate", "tab": "Technology" },
-          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Plunge feed rate", "tab": "Technology" },
-          "stepdown": { "type": "number", "unit": "mm", "default": 3, "description": "Axial depth per pass", "tab": "Technology" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0, "description": "Radial stock allowance", "tab": "Technology" },
-          "finish_passes": { "type": "integer", "default": 1, "description": "Number of finish passes", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Cutting feed rate",
+            "tab": "Technology"
+          },
+          "plunge_feed": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge feed rate",
+            "tab": "Technology"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "default": 3,
+            "description": "Axial depth per pass",
+            "tab": "Technology"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Radial stock allowance",
+            "tab": "Technology"
+          },
+          "finish_passes": {
+            "type": "integer",
+            "default": 1,
+            "description": "Number of finish passes",
+            "tab": "Technology"
+          }
         },
         "levels": {
-          "upper_level": { "type": "number", "unit": "mm", "required": true, "description": "Z start level", "tab": "Levels" },
-          "lower_level": { "type": "number", "unit": "mm", "required": true, "description": "Z end level", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z for rapids", "tab": "Levels" }
+          "upper_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Z start level",
+            "tab": "Levels"
+          },
+          "lower_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Z end level",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z for rapids",
+            "tab": "Levels"
+          }
         },
         "link": {
-          "approach_type": { "type": "enum", "values": ["tangent", "perpendicular", "ramp", "arc"], "default": "tangent", "description": "Approach motion type", "tab": "Link" },
-          "retract_type": { "type": "enum", "values": ["tangent", "perpendicular", "vertical", "arc"], "default": "tangent", "description": "Retract motion type", "tab": "Link" },
-          "approach_distance": { "type": "number", "unit": "mm", "default": 5, "description": "Approach length", "tab": "Link" },
-          "retract_distance": { "type": "number", "unit": "mm", "default": 5, "description": "Retract length", "tab": "Link" },
-          "compensation_type": { "type": "enum", "values": ["computer", "control", "wear", "reverse"], "default": "computer", "description": "Cutter compensation method", "tab": "Link" },
-          "lead_in_radius": { "type": "number", "unit": "mm", "default": 2, "description": "Lead-in arc radius", "tab": "Link" },
-          "lead_out_radius": { "type": "number", "unit": "mm", "default": 2, "description": "Lead-out arc radius", "tab": "Link" },
-          "climb_or_conventional": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Cutting direction", "tab": "Link" }
+          "approach_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "perpendicular",
+              "ramp",
+              "arc"
+            ],
+            "default": "tangent",
+            "description": "Approach motion type",
+            "tab": "Link"
+          },
+          "retract_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "perpendicular",
+              "vertical",
+              "arc"
+            ],
+            "default": "tangent",
+            "description": "Retract motion type",
+            "tab": "Link"
+          },
+          "approach_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Approach length",
+            "tab": "Link"
+          },
+          "retract_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Retract length",
+            "tab": "Link"
+          },
+          "compensation_type": {
+            "type": "enum",
+            "values": [
+              "computer",
+              "control",
+              "wear",
+              "reverse"
+            ],
+            "default": "computer",
+            "description": "Cutter compensation method",
+            "tab": "Link"
+          },
+          "lead_in_radius": {
+            "type": "number",
+            "unit": "mm",
+            "default": 2,
+            "description": "Lead-in arc radius",
+            "tab": "Link"
+          },
+          "lead_out_radius": {
+            "type": "number",
+            "unit": "mm",
+            "default": 2,
+            "description": "Lead-out arc radius",
+            "tab": "Link"
+          },
+          "climb_or_conventional": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Cutting direction",
+            "tab": "Link"
+          }
         }
       }
     },
@@ -51,44 +217,212 @@
       "display_name": "Pocket",
       "category": "roughing",
       "description": "2.5D pocket clearing with island avoidance and multiple finishing strategies",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels", "Roughing", "Finishing"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels",
+        "Roughing",
+        "Finishing"
+      ],
       "parameter_count": 26,
       "parameters": {
         "geometry": {
-          "boundary_chain": { "type": "selection", "required": true, "description": "Pocket boundary", "tab": "Geometry" },
-          "island_chains": { "type": "selection", "description": "Island boundaries to avoid", "tab": "Geometry" },
-          "corner_radius": { "type": "number", "unit": "mm", "default": 0, "description": "Internal corner radius", "tab": "Geometry" }
+          "boundary_chain": {
+            "type": "selection",
+            "required": true,
+            "description": "Pocket boundary",
+            "tab": "Geometry"
+          },
+          "island_chains": {
+            "type": "selection",
+            "description": "Island boundaries to avoid",
+            "tab": "Geometry"
+          },
+          "corner_radius": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Internal corner radius",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Cutting feed rate", "tab": "Technology" },
-          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Plunge feed rate", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Cutting feed rate",
+            "tab": "Technology"
+          },
+          "plunge_feed": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge feed rate",
+            "tab": "Technology"
+          }
         },
         "roughing": {
-          "cutting_method": { "type": "enum", "values": ["offset", "zigzag", "zigzag_45", "spiral", "hatch"], "default": "offset", "description": "Pocket clearing strategy", "tab": "Roughing" },
-          "stepover": { "type": "number", "unit": "mm", "required": true, "description": "Radial stepover", "tab": "Roughing" },
-          "stepover_percent": { "type": "number", "unit": "%", "default": 70, "range": [10, 95], "description": "Stepover as % of tool diameter", "tab": "Roughing" },
-          "stepdown": { "type": "number", "unit": "mm", "required": true, "description": "Axial depth per level", "tab": "Roughing" },
-          "plunge_type": { "type": "enum", "values": ["plunge", "ramp", "helix"], "default": "helix", "description": "Entry method into material", "tab": "Roughing" },
-          "ramp_angle": { "type": "number", "unit": "deg", "default": 3, "range": [0.5, 15], "description": "Ramp entry angle", "tab": "Roughing" },
-          "helix_diameter": { "type": "number", "unit": "mm", "description": "Helix entry diameter", "tab": "Roughing" }
+          "cutting_method": {
+            "type": "enum",
+            "values": [
+              "offset",
+              "zigzag",
+              "zigzag_45",
+              "spiral",
+              "hatch"
+            ],
+            "default": "offset",
+            "description": "Pocket clearing strategy",
+            "tab": "Roughing"
+          },
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Radial stepover",
+            "tab": "Roughing"
+          },
+          "stepover_percent": {
+            "type": "number",
+            "unit": "%",
+            "default": 70,
+            "range": [
+              10,
+              95
+            ],
+            "description": "Stepover as % of tool diameter",
+            "tab": "Roughing"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Axial depth per level",
+            "tab": "Roughing"
+          },
+          "plunge_type": {
+            "type": "enum",
+            "values": [
+              "plunge",
+              "ramp",
+              "helix"
+            ],
+            "default": "helix",
+            "description": "Entry method into material",
+            "tab": "Roughing"
+          },
+          "ramp_angle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 3,
+            "range": [
+              0.5,
+              15
+            ],
+            "description": "Ramp entry angle",
+            "tab": "Roughing"
+          },
+          "helix_diameter": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Helix entry diameter",
+            "tab": "Roughing"
+          }
         },
         "finishing": {
-          "finish_walls": { "type": "boolean", "default": true, "description": "Include wall finish pass", "tab": "Finishing" },
-          "finish_floor": { "type": "boolean", "default": true, "description": "Include floor finish pass", "tab": "Finishing" },
-          "wall_stock": { "type": "number", "unit": "mm", "default": 0.1, "description": "Wall stock for finishing", "tab": "Finishing" },
-          "floor_stock": { "type": "number", "unit": "mm", "default": 0.1, "description": "Floor stock for finishing", "tab": "Finishing" },
-          "finish_passes": { "type": "integer", "default": 1, "description": "Number of finish passes", "tab": "Finishing" },
-          "finish_stepover": { "type": "number", "unit": "mm", "description": "Finish pass stepover", "tab": "Finishing" }
+          "finish_walls": {
+            "type": "boolean",
+            "default": true,
+            "description": "Include wall finish pass",
+            "tab": "Finishing"
+          },
+          "finish_floor": {
+            "type": "boolean",
+            "default": true,
+            "description": "Include floor finish pass",
+            "tab": "Finishing"
+          },
+          "wall_stock": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Wall stock for finishing",
+            "tab": "Finishing"
+          },
+          "floor_stock": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.1,
+            "description": "Floor stock for finishing",
+            "tab": "Finishing"
+          },
+          "finish_passes": {
+            "type": "integer",
+            "default": 1,
+            "description": "Number of finish passes",
+            "tab": "Finishing"
+          },
+          "finish_stepover": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Finish pass stepover",
+            "tab": "Finishing"
+          }
         },
         "levels": {
-          "upper_level": { "type": "number", "unit": "mm", "required": true, "description": "Z start", "tab": "Levels" },
-          "lower_level": { "type": "number", "unit": "mm", "required": true, "description": "Z end", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" },
-          "max_pocket_depth": { "type": "number", "unit": "mm", "description": "Maximum pocket depth limit", "tab": "Levels" },
-          "check_undercuts": { "type": "boolean", "default": true, "description": "Check for tool/holder collisions", "tab": "Levels" },
-          "pre_drill_holes": { "type": "boolean", "default": false, "description": "Generate pre-drill positions", "tab": "Levels" },
-          "machine_to_island": { "type": "boolean", "default": true, "description": "Machine fully up to island boundaries", "tab": "Levels" }
+          "upper_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Z start",
+            "tab": "Levels"
+          },
+          "lower_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Z end",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          },
+          "max_pocket_depth": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Maximum pocket depth limit",
+            "tab": "Levels"
+          },
+          "check_undercuts": {
+            "type": "boolean",
+            "default": true,
+            "description": "Check for tool/holder collisions",
+            "tab": "Levels"
+          },
+          "pre_drill_holes": {
+            "type": "boolean",
+            "default": false,
+            "description": "Generate pre-drill positions",
+            "tab": "Levels"
+          },
+          "machine_to_island": {
+            "type": "boolean",
+            "default": true,
+            "description": "Machine fully up to island boundaries",
+            "tab": "Levels"
+          }
         }
       }
     },
@@ -96,30 +430,139 @@
       "display_name": "Face Milling",
       "category": "roughing",
       "description": "Surface facing with zigzag or one-way patterns",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels"
+      ],
       "parameter_count": 16,
       "parameters": {
         "geometry": {
-          "boundary": { "type": "selection", "required": true, "description": "Face milling boundary", "tab": "Geometry" },
-          "face_extension": { "type": "number", "unit": "mm", "default": 5, "description": "Extend beyond boundary", "tab": "Geometry" }
+          "boundary": {
+            "type": "selection",
+            "required": true,
+            "description": "Face milling boundary",
+            "tab": "Geometry"
+          },
+          "face_extension": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Extend beyond boundary",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Cutting feed rate", "tab": "Technology" },
-          "stepover": { "type": "number", "unit": "mm", "required": true, "description": "Radial stepover", "tab": "Technology" },
-          "stepover_percent": { "type": "number", "unit": "%", "default": 75, "description": "Stepover as % of cutter diameter", "tab": "Technology" },
-          "cutting_direction": { "type": "enum", "values": ["zigzag", "one_way", "spiral"], "default": "zigzag", "description": "Cutting pattern", "tab": "Technology" },
-          "cut_angle": { "type": "number", "unit": "deg", "default": 0, "description": "Cutting direction angle", "tab": "Technology" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0, "description": "Z stock allowance", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Cutting feed rate",
+            "tab": "Technology"
+          },
+          "stepover": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Radial stepover",
+            "tab": "Technology"
+          },
+          "stepover_percent": {
+            "type": "number",
+            "unit": "%",
+            "default": 75,
+            "description": "Stepover as % of cutter diameter",
+            "tab": "Technology"
+          },
+          "cutting_direction": {
+            "type": "enum",
+            "values": [
+              "zigzag",
+              "one_way",
+              "spiral"
+            ],
+            "default": "zigzag",
+            "description": "Cutting pattern",
+            "tab": "Technology"
+          },
+          "cut_angle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Cutting direction angle",
+            "tab": "Technology"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Z stock allowance",
+            "tab": "Technology"
+          }
         },
         "levels": {
-          "face_level": { "type": "number", "unit": "mm", "required": true, "description": "Final face Z level", "tab": "Levels" },
-          "stock_level": { "type": "number", "unit": "mm", "required": true, "description": "Initial stock top Z", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z for rapids", "tab": "Levels" },
-          "depth_per_cut": { "type": "number", "unit": "mm", "default": 2, "description": "Max axial depth per pass", "tab": "Levels" },
-          "approach_distance": { "type": "number", "unit": "mm", "default": 5, "description": "Lead-in distance before cut", "tab": "Levels" },
-          "exit_distance": { "type": "number", "unit": "mm", "default": 5, "description": "Lead-out distance after cut", "tab": "Levels" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle"], "default": "flood", "description": "Coolant delivery mode", "tab": "Levels" }
+          "face_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Final face Z level",
+            "tab": "Levels"
+          },
+          "stock_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Initial stock top Z",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z for rapids",
+            "tab": "Levels"
+          },
+          "depth_per_cut": {
+            "type": "number",
+            "unit": "mm",
+            "default": 2,
+            "description": "Max axial depth per pass",
+            "tab": "Levels"
+          },
+          "approach_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Lead-in distance before cut",
+            "tab": "Levels"
+          },
+          "exit_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Lead-out distance after cut",
+            "tab": "Levels"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle"
+            ],
+            "default": "flood",
+            "description": "Coolant delivery mode",
+            "tab": "Levels"
+          }
         }
       }
     },
@@ -127,29 +570,128 @@
       "display_name": "Slot",
       "category": "roughing",
       "description": "Full-width slot milling with ramping entry",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels"
+      ],
       "parameter_count": 15,
       "parameters": {
         "geometry": {
-          "slot_chain": { "type": "selection", "required": true, "description": "Slot centerline or boundary", "tab": "Geometry" },
-          "slot_width": { "type": "number", "unit": "mm", "description": "Slot width (auto from geometry if closed)", "tab": "Geometry" }
+          "slot_chain": {
+            "type": "selection",
+            "required": true,
+            "description": "Slot centerline or boundary",
+            "tab": "Geometry"
+          },
+          "slot_width": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Slot width (auto from geometry if closed)",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Cutting feed rate", "tab": "Technology" },
-          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Ramp/plunge feed", "tab": "Technology" },
-          "stepdown": { "type": "number", "unit": "mm", "required": true, "description": "Axial depth per pass", "tab": "Technology" },
-          "entry_method": { "type": "enum", "values": ["ramp", "helix", "plunge"], "default": "ramp", "description": "Entry method", "tab": "Technology" },
-          "ramp_angle": { "type": "number", "unit": "deg", "default": 3, "description": "Ramp angle", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Cutting feed rate",
+            "tab": "Technology"
+          },
+          "plunge_feed": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Ramp/plunge feed",
+            "tab": "Technology"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Axial depth per pass",
+            "tab": "Technology"
+          },
+          "entry_method": {
+            "type": "enum",
+            "values": [
+              "ramp",
+              "helix",
+              "plunge"
+            ],
+            "default": "ramp",
+            "description": "Entry method",
+            "tab": "Technology"
+          },
+          "ramp_angle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 3,
+            "description": "Ramp angle",
+            "tab": "Technology"
+          }
         },
         "levels": {
-          "upper_level": { "type": "number", "unit": "mm", "required": true, "description": "Start Z", "tab": "Levels" },
-          "lower_level": { "type": "number", "unit": "mm", "required": true, "description": "Slot bottom Z", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" },
-          "finish_walls": { "type": "boolean", "default": true, "description": "Add wall finish pass", "tab": "Levels" },
-          "wall_stock": { "type": "number", "unit": "mm", "default": 0.05, "description": "Wall stock for finish", "tab": "Levels" },
-          "floor_stock": { "type": "number", "unit": "mm", "default": 0.05, "description": "Floor stock for finish", "tab": "Levels" },
-          "compensation_type": { "type": "enum", "values": ["computer", "control", "wear"], "default": "computer", "description": "Cutter compensation method", "tab": "Levels" }
+          "upper_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Start Z",
+            "tab": "Levels"
+          },
+          "lower_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Slot bottom Z",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          },
+          "finish_walls": {
+            "type": "boolean",
+            "default": true,
+            "description": "Add wall finish pass",
+            "tab": "Levels"
+          },
+          "wall_stock": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Wall stock for finish",
+            "tab": "Levels"
+          },
+          "floor_stock": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.05,
+            "description": "Floor stock for finish",
+            "tab": "Levels"
+          },
+          "compensation_type": {
+            "type": "enum",
+            "values": [
+              "computer",
+              "control",
+              "wear"
+            ],
+            "default": "computer",
+            "description": "Cutter compensation method",
+            "tab": "Levels"
+          }
         }
       }
     },
@@ -157,34 +699,156 @@
       "display_name": "Drill",
       "category": "holemaking",
       "description": "Point-to-point drilling with canned cycle support",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels", "Cycle"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels",
+        "Cycle"
+      ],
       "parameter_count": 18,
       "parameters": {
         "geometry": {
-          "hole_positions": { "type": "selection", "required": true, "description": "Hole center points", "tab": "Geometry" },
-          "hole_pattern": { "type": "enum", "values": ["points", "chain", "auto_detect"], "default": "points", "description": "Hole selection method", "tab": "Geometry" }
+          "hole_positions": {
+            "type": "selection",
+            "required": true,
+            "description": "Hole center points",
+            "tab": "Geometry"
+          },
+          "hole_pattern": {
+            "type": "enum",
+            "values": [
+              "points",
+              "chain",
+              "auto_detect"
+            ],
+            "default": "points",
+            "description": "Hole selection method",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Drilling feed rate", "tab": "Technology" },
-          "retract_feed": { "type": "number", "unit": "mm/min", "description": "Rapid retract override", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Drilling feed rate",
+            "tab": "Technology"
+          },
+          "retract_feed": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Rapid retract override",
+            "tab": "Technology"
+          }
         },
         "cycle": {
-          "cycle_type": { "type": "enum", "values": ["simple", "peck", "chip_break", "deep_hole"], "default": "simple", "description": "Drilling cycle type", "tab": "Cycle" },
-          "peck_depth": { "type": "number", "unit": "mm", "description": "Peck increment depth", "tab": "Cycle" },
-          "peck_retract": { "type": "number", "unit": "mm", "default": 1, "description": "Retract distance between pecks", "tab": "Cycle" },
-          "dwell_time": { "type": "number", "unit": "sec", "default": 0, "description": "Dwell at bottom", "tab": "Cycle" },
-          "chip_break_distance": { "type": "number", "unit": "mm", "default": 0.5, "description": "Chip break retract", "tab": "Cycle" }
+          "cycle_type": {
+            "type": "enum",
+            "values": [
+              "simple",
+              "peck",
+              "chip_break",
+              "deep_hole"
+            ],
+            "default": "simple",
+            "description": "Drilling cycle type",
+            "tab": "Cycle"
+          },
+          "peck_depth": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Peck increment depth",
+            "tab": "Cycle"
+          },
+          "peck_retract": {
+            "type": "number",
+            "unit": "mm",
+            "default": 1,
+            "description": "Retract distance between pecks",
+            "tab": "Cycle"
+          },
+          "dwell_time": {
+            "type": "number",
+            "unit": "sec",
+            "default": 0,
+            "description": "Dwell at bottom",
+            "tab": "Cycle"
+          },
+          "chip_break_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0.5,
+            "description": "Chip break retract",
+            "tab": "Cycle"
+          }
         },
         "levels": {
-          "hole_depth": { "type": "number", "unit": "mm", "required": true, "description": "Hole depth from start", "tab": "Levels" },
-          "start_level": { "type": "number", "unit": "mm", "required": true, "description": "Drill start Z", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z for rapids", "tab": "Levels" },
-          "retract_plane": { "type": "number", "unit": "mm", "description": "R-plane for cycle", "tab": "Levels" },
-          "spot_diameter": { "type": "number", "unit": "mm", "description": "Spot drill diameter (if center drill)", "tab": "Cycle" },
-          "countersink_angle": { "type": "number", "unit": "deg", "default": 90, "description": "Countersink angle (if applicable)", "tab": "Cycle" },
-          "pilot_hole_size": { "type": "number", "unit": "mm", "description": "Pre-existing pilot hole diameter", "tab": "Cycle" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle"], "default": "through_spindle", "description": "Coolant delivery", "tab": "Cycle" }
+          "hole_depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Hole depth from start",
+            "tab": "Levels"
+          },
+          "start_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Drill start Z",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z for rapids",
+            "tab": "Levels"
+          },
+          "retract_plane": {
+            "type": "number",
+            "unit": "mm",
+            "description": "R-plane for cycle",
+            "tab": "Levels"
+          },
+          "spot_diameter": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Spot drill diameter (if center drill)",
+            "tab": "Cycle"
+          },
+          "countersink_angle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 90,
+            "description": "Countersink angle (if applicable)",
+            "tab": "Cycle"
+          },
+          "pilot_hole_size": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Pre-existing pilot hole diameter",
+            "tab": "Cycle"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle"
+            ],
+            "default": "through_spindle",
+            "description": "Coolant delivery",
+            "tab": "Cycle"
+          }
         }
       }
     },
@@ -192,34 +856,188 @@
       "display_name": "Thread Milling",
       "category": "threading",
       "description": "Helical thread milling for internal and external threads",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Thread"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Thread"
+      ],
       "parameter_count": 20,
       "parameters": {
         "geometry": {
-          "thread_position": { "type": "selection", "required": true, "description": "Thread center point", "tab": "Geometry" },
-          "thread_type": { "type": "enum", "values": ["internal", "external"], "default": "internal", "description": "Thread type", "tab": "Geometry" }
+          "thread_position": {
+            "type": "selection",
+            "required": true,
+            "description": "Thread center point",
+            "tab": "Geometry"
+          },
+          "thread_type": {
+            "type": "enum",
+            "values": [
+              "internal",
+              "external"
+            ],
+            "default": "internal",
+            "description": "Thread type",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Helical feed rate", "tab": "Technology" },
-          "entry_method": { "type": "enum", "values": ["radial", "helical", "ramp"], "default": "radial", "description": "Thread entry method", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Helical feed rate",
+            "tab": "Technology"
+          },
+          "entry_method": {
+            "type": "enum",
+            "values": [
+              "radial",
+              "helical",
+              "ramp"
+            ],
+            "default": "radial",
+            "description": "Thread entry method",
+            "tab": "Technology"
+          }
         },
         "thread": {
-          "thread_standard": { "type": "enum", "values": ["metric", "unc", "unf", "npt", "bsp"], "default": "metric", "description": "Thread standard", "tab": "Thread" },
-          "nominal_diameter": { "type": "number", "unit": "mm", "required": true, "description": "Thread nominal diameter", "tab": "Thread" },
-          "pitch": { "type": "number", "unit": "mm", "required": true, "description": "Thread pitch", "tab": "Thread" },
-          "thread_depth": { "type": "number", "unit": "mm", "required": true, "description": "Full thread depth", "tab": "Thread" },
-          "thread_direction": { "type": "enum", "values": ["right", "left"], "default": "right", "description": "Thread hand", "tab": "Thread" },
-          "passes": { "type": "integer", "default": 1, "description": "Number of helical passes", "tab": "Thread" },
-          "spring_passes": { "type": "integer", "default": 0, "description": "Additional spring passes", "tab": "Thread" },
-          "climb_or_conventional": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Milling direction", "tab": "Thread" },
-          "approach_radius": { "type": "number", "unit": "mm", "description": "Helical approach arc radius", "tab": "Thread" },
-          "thread_offset": { "type": "number", "unit": "mm", "default": 0, "description": "Thread depth offset for class fit", "tab": "Thread" },
-          "start_angle": { "type": "number", "unit": "deg", "default": 0, "description": "Helix start angle", "tab": "Thread" },
-          "step_in_factor": { "type": "number", "default": 1.0, "range": [0.1, 1.0], "description": "Per-pass radial in-feed factor", "tab": "Thread" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle"], "default": "flood", "description": "Coolant delivery mode", "tab": "Thread" },
-          "check_collisions": { "type": "boolean", "default": true, "description": "Check tool/holder vs workpiece", "tab": "Thread" },
-          "thread_class": { "type": "enum", "values": ["2B", "3B", "2A", "3A", "6H", "6g"], "default": "2B", "description": "Thread fit class", "tab": "Thread" }
+          "thread_standard": {
+            "type": "enum",
+            "values": [
+              "metric",
+              "unc",
+              "unf",
+              "npt",
+              "bsp"
+            ],
+            "default": "metric",
+            "description": "Thread standard",
+            "tab": "Thread"
+          },
+          "nominal_diameter": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Thread nominal diameter",
+            "tab": "Thread"
+          },
+          "pitch": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Thread pitch",
+            "tab": "Thread"
+          },
+          "thread_depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Full thread depth",
+            "tab": "Thread"
+          },
+          "thread_direction": {
+            "type": "enum",
+            "values": [
+              "right",
+              "left"
+            ],
+            "default": "right",
+            "description": "Thread hand",
+            "tab": "Thread"
+          },
+          "passes": {
+            "type": "integer",
+            "default": 1,
+            "description": "Number of helical passes",
+            "tab": "Thread"
+          },
+          "spring_passes": {
+            "type": "integer",
+            "default": 0,
+            "description": "Additional spring passes",
+            "tab": "Thread"
+          },
+          "climb_or_conventional": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Milling direction",
+            "tab": "Thread"
+          },
+          "approach_radius": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Helical approach arc radius",
+            "tab": "Thread"
+          },
+          "thread_offset": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Thread depth offset for class fit",
+            "tab": "Thread"
+          },
+          "start_angle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Helix start angle",
+            "tab": "Thread"
+          },
+          "step_in_factor": {
+            "type": "number",
+            "default": 1,
+            "range": [
+              0.1,
+              1
+            ],
+            "description": "Per-pass radial in-feed factor",
+            "tab": "Thread"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle"
+            ],
+            "default": "flood",
+            "description": "Coolant delivery mode",
+            "tab": "Thread"
+          },
+          "check_collisions": {
+            "type": "boolean",
+            "default": true,
+            "description": "Check tool/holder vs workpiece",
+            "tab": "Thread"
+          },
+          "thread_class": {
+            "type": "enum",
+            "values": [
+              "2B",
+              "3B",
+              "2A",
+              "3A",
+              "6H",
+              "6g"
+            ],
+            "default": "2B",
+            "description": "Thread fit class",
+            "tab": "Thread"
+          }
         }
       }
     },
@@ -227,30 +1045,136 @@
       "display_name": "Chamfer Milling",
       "category": "finishing",
       "description": "Edge chamfering along contours",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Chamfer"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Chamfer"
+      ],
       "parameter_count": 14,
       "parameters": {
         "geometry": {
-          "edge_chain": { "type": "selection", "required": true, "description": "Edge contour to chamfer", "tab": "Geometry" },
-          "offset_side": { "type": "enum", "values": ["left", "right", "on"], "default": "left", "description": "Tool offset relative to edge", "tab": "Geometry" }
+          "edge_chain": {
+            "type": "selection",
+            "required": true,
+            "description": "Edge contour to chamfer",
+            "tab": "Geometry"
+          },
+          "offset_side": {
+            "type": "enum",
+            "values": [
+              "left",
+              "right",
+              "on"
+            ],
+            "default": "left",
+            "description": "Tool offset relative to edge",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "Technology"
+          }
         },
         "chamfer": {
-          "chamfer_width": { "type": "number", "unit": "mm", "required": true, "description": "Chamfer width", "tab": "Chamfer" },
-          "chamfer_angle": { "type": "number", "unit": "deg", "default": 45, "description": "Chamfer angle", "tab": "Chamfer" },
-          "tip_offset": { "type": "number", "unit": "mm", "default": 0, "description": "Tool tip offset from edge", "tab": "Chamfer" }
+          "chamfer_width": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Chamfer width",
+            "tab": "Chamfer"
+          },
+          "chamfer_angle": {
+            "type": "number",
+            "unit": "deg",
+            "default": 45,
+            "description": "Chamfer angle",
+            "tab": "Chamfer"
+          },
+          "tip_offset": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Tool tip offset from edge",
+            "tab": "Chamfer"
+          }
         },
         "levels": {
-          "edge_level": { "type": "number", "unit": "mm", "required": true, "description": "Edge Z level", "tab": "Geometry" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Geometry" },
-          "chamfer_strategy": { "type": "enum", "values": ["one_pass", "multi_pass", "back_chamfer"], "default": "one_pass", "description": "Chamfer cutting strategy", "tab": "Chamfer" },
-          "multiple_passes": { "type": "integer", "default": 1, "description": "Number of chamfer passes", "tab": "Chamfer" },
-          "approach_type": { "type": "enum", "values": ["tangent", "perpendicular", "arc"], "default": "tangent", "description": "Approach motion", "tab": "Chamfer" },
-          "retract_type": { "type": "enum", "values": ["tangent", "vertical", "arc"], "default": "tangent", "description": "Retract motion", "tab": "Chamfer" },
-          "climb_or_conventional": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Cutting direction", "tab": "Chamfer" }
+          "edge_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Edge Z level",
+            "tab": "Geometry"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Geometry"
+          },
+          "chamfer_strategy": {
+            "type": "enum",
+            "values": [
+              "one_pass",
+              "multi_pass",
+              "back_chamfer"
+            ],
+            "default": "one_pass",
+            "description": "Chamfer cutting strategy",
+            "tab": "Chamfer"
+          },
+          "multiple_passes": {
+            "type": "integer",
+            "default": 1,
+            "description": "Number of chamfer passes",
+            "tab": "Chamfer"
+          },
+          "approach_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "perpendicular",
+              "arc"
+            ],
+            "default": "tangent",
+            "description": "Approach motion",
+            "tab": "Chamfer"
+          },
+          "retract_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "vertical",
+              "arc"
+            ],
+            "default": "tangent",
+            "description": "Retract motion",
+            "tab": "Chamfer"
+          },
+          "climb_or_conventional": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Cutting direction",
+            "tab": "Chamfer"
+          }
         }
       }
     },
@@ -258,26 +1182,111 @@
       "display_name": "T-Slot",
       "category": "roughing",
       "description": "T-slot cutting with pre-machined groove",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels"
+      ],
       "parameter_count": 12,
       "parameters": {
         "geometry": {
-          "slot_chain": { "type": "selection", "required": true, "description": "T-slot centerline", "tab": "Geometry" }
+          "slot_chain": {
+            "type": "selection",
+            "required": true,
+            "description": "T-slot centerline",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "Technology" },
-          "stepdown": { "type": "number", "unit": "mm", "required": true, "description": "Depth per pass", "tab": "Technology" },
-          "entry_method": { "type": "enum", "values": ["end_plunge", "side_entry"], "default": "end_plunge", "description": "Entry method", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "Technology"
+          },
+          "stepdown": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Depth per pass",
+            "tab": "Technology"
+          },
+          "entry_method": {
+            "type": "enum",
+            "values": [
+              "end_plunge",
+              "side_entry"
+            ],
+            "default": "end_plunge",
+            "description": "Entry method",
+            "tab": "Technology"
+          }
         },
         "levels": {
-          "neck_depth": { "type": "number", "unit": "mm", "required": true, "description": "Pre-cut groove depth", "tab": "Levels" },
-          "t_depth": { "type": "number", "unit": "mm", "required": true, "description": "T-undercut depth", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" },
-          "side_finish": { "type": "boolean", "default": false, "description": "Add side wall finish pass", "tab": "Levels" },
-          "floor_finish": { "type": "boolean", "default": false, "description": "Add floor finish pass", "tab": "Levels" },
-          "compensation_type": { "type": "enum", "values": ["computer", "control"], "default": "computer", "description": "Cutter compensation method", "tab": "Levels" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle"], "default": "flood", "description": "Coolant delivery mode", "tab": "Levels" }
+          "neck_depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Pre-cut groove depth",
+            "tab": "Levels"
+          },
+          "t_depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "T-undercut depth",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          },
+          "side_finish": {
+            "type": "boolean",
+            "default": false,
+            "description": "Add side wall finish pass",
+            "tab": "Levels"
+          },
+          "floor_finish": {
+            "type": "boolean",
+            "default": false,
+            "description": "Add floor finish pass",
+            "tab": "Levels"
+          },
+          "compensation_type": {
+            "type": "enum",
+            "values": [
+              "computer",
+              "control"
+            ],
+            "default": "computer",
+            "description": "Cutter compensation method",
+            "tab": "Levels"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle"
+            ],
+            "default": "flood",
+            "description": "Coolant delivery mode",
+            "tab": "Levels"
+          }
         }
       }
     },
@@ -285,30 +1294,120 @@
       "display_name": "Engrave",
       "category": "finishing",
       "description": "Text and logo engraving",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Text"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Text"
+      ],
       "parameter_count": 14,
       "parameters": {
         "geometry": {
-          "engrave_chains": { "type": "selection", "required": true, "description": "Engraving geometry", "tab": "Geometry" }
+          "engrave_chains": {
+            "type": "selection",
+            "required": true,
+            "description": "Engraving geometry",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "Technology" },
-          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Plunge feed", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "Technology"
+          },
+          "plunge_feed": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge feed",
+            "tab": "Technology"
+          }
         },
         "text": {
-          "engrave_depth": { "type": "number", "unit": "mm", "required": true, "description": "Engraving depth", "tab": "Text" },
-          "font": { "type": "string", "description": "Font name for text", "tab": "Text" },
-          "text_height": { "type": "number", "unit": "mm", "description": "Text character height", "tab": "Text" },
-          "text_content": { "type": "string", "description": "Text to engrave", "tab": "Text" }
+          "engrave_depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Engraving depth",
+            "tab": "Text"
+          },
+          "font": {
+            "type": "string",
+            "description": "Font name for text",
+            "tab": "Text"
+          },
+          "text_height": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Text character height",
+            "tab": "Text"
+          },
+          "text_content": {
+            "type": "string",
+            "description": "Text to engrave",
+            "tab": "Text"
+          }
         },
         "levels": {
-          "surface_level": { "type": "number", "unit": "mm", "required": true, "description": "Surface Z", "tab": "Geometry" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Geometry" },
-          "text_alignment": { "type": "enum", "values": ["left", "center", "right"], "default": "center", "description": "Text alignment within boundary", "tab": "Text" },
-          "text_rotation": { "type": "number", "unit": "deg", "default": 0, "description": "Text rotation angle", "tab": "Text" },
-          "text_spacing": { "type": "number", "unit": "mm", "default": 0, "description": "Inter-character spacing", "tab": "Text" },
-          "engrave_strategy": { "type": "enum", "values": ["centerline", "outline", "fill"], "default": "centerline", "description": "Engraving strategy", "tab": "Text" }
+          "surface_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Surface Z",
+            "tab": "Geometry"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Geometry"
+          },
+          "text_alignment": {
+            "type": "enum",
+            "values": [
+              "left",
+              "center",
+              "right"
+            ],
+            "default": "center",
+            "description": "Text alignment within boundary",
+            "tab": "Text"
+          },
+          "text_rotation": {
+            "type": "number",
+            "unit": "deg",
+            "default": 0,
+            "description": "Text rotation angle",
+            "tab": "Text"
+          },
+          "text_spacing": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Inter-character spacing",
+            "tab": "Text"
+          },
+          "engrave_strategy": {
+            "type": "enum",
+            "values": [
+              "centerline",
+              "outline",
+              "fill"
+            ],
+            "default": "centerline",
+            "description": "Engraving strategy",
+            "tab": "Text"
+          }
         }
       }
     },
@@ -316,40 +1415,223 @@
       "display_name": "iMachining 2D",
       "category": "roughing",
       "description": "SolidCAM proprietary adaptive clearing with constant chip load optimization",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels", "iMachining"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels",
+        "iMachining"
+      ],
       "parameter_count": 24,
       "parameters": {
         "geometry": {
-          "pocket_boundary": { "type": "selection", "required": true, "description": "Pocket boundary", "tab": "Geometry" },
-          "islands": { "type": "selection", "description": "Island boundaries", "tab": "Geometry" }
+          "pocket_boundary": {
+            "type": "selection",
+            "required": true,
+            "description": "Pocket boundary",
+            "tab": "Geometry"
+          },
+          "islands": {
+            "type": "selection",
+            "description": "Island boundaries",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "description": "Base spindle speed (auto-optimized)", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "description": "Base feed (auto-optimized)", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "description": "Base spindle speed (auto-optimized)",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Base feed (auto-optimized)",
+            "tab": "Technology"
+          }
         },
         "imachining": {
-          "imachining_level": { "type": "integer", "range": [1, 8], "default": 4, "description": "Aggressiveness level (1=conservative, 8=aggressive)", "tab": "iMachining" },
-          "material_hardness": { "type": "enum", "values": ["soft", "medium", "hard", "very_hard"], "default": "medium", "description": "Material hardness category", "tab": "iMachining" },
-          "machine_rigidity": { "type": "enum", "values": ["low", "medium", "high"], "default": "medium", "description": "Machine stiffness category", "tab": "iMachining" },
-          "tool_stickout": { "type": "number", "unit": "mm", "required": true, "description": "Tool stickout from holder", "tab": "iMachining" },
-          "optimal_chip_thickness": { "type": "number", "unit": "mm", "description": "Target chip thickness (auto)", "tab": "iMachining" },
-          "max_engagement": { "type": "number", "unit": "%", "range": [5, 100], "description": "Maximum radial engagement", "tab": "iMachining" },
-          "step_down_mode": { "type": "enum", "values": ["constant", "variable"], "default": "constant", "description": "Z-step strategy", "tab": "iMachining" },
-          "morphing_step": { "type": "boolean", "default": true, "description": "Enable morphing stepover", "tab": "iMachining" },
-          "thin_wall_mode": { "type": "boolean", "default": false, "description": "Thin wall protection", "tab": "iMachining" },
-          "rest_machining": { "type": "boolean", "default": false, "description": "Rest material from previous op", "tab": "iMachining" },
-          "chip_evacuation_mode": { "type": "enum", "values": ["air_blast", "flood", "through_tool", "mql"], "default": "through_tool", "description": "Chip evacuation strategy", "tab": "iMachining" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle"], "default": "through_spindle", "description": "Coolant delivery mode", "tab": "iMachining" },
-          "entry_strategy": { "type": "enum", "values": ["helical", "ramp", "pre_drill"], "default": "helical", "description": "Pocket entry strategy", "tab": "iMachining" },
-          "entry_position": { "type": "enum", "values": ["auto", "user_defined", "centroid"], "default": "auto", "description": "Entry point selection", "tab": "iMachining" },
-          "preferred_cut_direction": { "type": "enum", "values": ["climb", "conventional", "auto"], "default": "climb", "description": "Preferred cut direction", "tab": "iMachining" },
-          "adaptive_feed_factor": { "type": "number", "default": 1.0, "range": [0.5, 1.5], "description": "Feed adaptation multiplier", "tab": "iMachining" },
-          "mat_velocity_optimization": { "type": "boolean", "default": true, "description": "Enable material velocity optimization", "tab": "iMachining" }
+          "imachining_level": {
+            "type": "integer",
+            "range": [
+              1,
+              8
+            ],
+            "default": 4,
+            "description": "Aggressiveness level (1=conservative, 8=aggressive)",
+            "tab": "iMachining"
+          },
+          "material_hardness": {
+            "type": "enum",
+            "values": [
+              "soft",
+              "medium",
+              "hard",
+              "very_hard"
+            ],
+            "default": "medium",
+            "description": "Material hardness category",
+            "tab": "iMachining"
+          },
+          "machine_rigidity": {
+            "type": "enum",
+            "values": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "default": "medium",
+            "description": "Machine stiffness category",
+            "tab": "iMachining"
+          },
+          "tool_stickout": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Tool stickout from holder",
+            "tab": "iMachining"
+          },
+          "optimal_chip_thickness": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Target chip thickness (auto)",
+            "tab": "iMachining"
+          },
+          "max_engagement": {
+            "type": "number",
+            "unit": "%",
+            "range": [
+              5,
+              100
+            ],
+            "description": "Maximum radial engagement",
+            "tab": "iMachining"
+          },
+          "step_down_mode": {
+            "type": "enum",
+            "values": [
+              "constant",
+              "variable"
+            ],
+            "default": "constant",
+            "description": "Z-step strategy",
+            "tab": "iMachining"
+          },
+          "morphing_step": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable morphing stepover",
+            "tab": "iMachining"
+          },
+          "thin_wall_mode": {
+            "type": "boolean",
+            "default": false,
+            "description": "Thin wall protection",
+            "tab": "iMachining"
+          },
+          "rest_machining": {
+            "type": "boolean",
+            "default": false,
+            "description": "Rest material from previous op",
+            "tab": "iMachining"
+          },
+          "chip_evacuation_mode": {
+            "type": "enum",
+            "values": [
+              "air_blast",
+              "flood",
+              "through_tool",
+              "mql"
+            ],
+            "default": "through_tool",
+            "description": "Chip evacuation strategy",
+            "tab": "iMachining"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle"
+            ],
+            "default": "through_spindle",
+            "description": "Coolant delivery mode",
+            "tab": "iMachining"
+          },
+          "entry_strategy": {
+            "type": "enum",
+            "values": [
+              "helical",
+              "ramp",
+              "pre_drill"
+            ],
+            "default": "helical",
+            "description": "Pocket entry strategy",
+            "tab": "iMachining"
+          },
+          "entry_position": {
+            "type": "enum",
+            "values": [
+              "auto",
+              "user_defined",
+              "centroid"
+            ],
+            "default": "auto",
+            "description": "Entry point selection",
+            "tab": "iMachining"
+          },
+          "preferred_cut_direction": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional",
+              "auto"
+            ],
+            "default": "climb",
+            "description": "Preferred cut direction",
+            "tab": "iMachining"
+          },
+          "adaptive_feed_factor": {
+            "type": "number",
+            "default": 1,
+            "range": [
+              0.5,
+              1.5
+            ],
+            "description": "Feed adaptation multiplier",
+            "tab": "iMachining"
+          },
+          "mat_velocity_optimization": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable material velocity optimization",
+            "tab": "iMachining"
+          }
         },
         "levels": {
-          "upper_level": { "type": "number", "unit": "mm", "required": true, "description": "Start Z", "tab": "Levels" },
-          "lower_level": { "type": "number", "unit": "mm", "required": true, "description": "Target Z", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "upper_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Start Z",
+            "tab": "Levels"
+          },
+          "lower_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Target Z",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         }
       }
     },
@@ -357,32 +1639,152 @@
       "display_name": "Contour 3-Axis",
       "category": "finishing",
       "description": "3-axis contouring at varying Z levels",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Levels"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Levels"
+      ],
       "parameter_count": 16,
       "parameters": {
         "geometry": {
-          "contour_chain": { "type": "selection", "required": true, "description": "3D contour chain", "tab": "Geometry" },
-          "offset_side": { "type": "enum", "values": ["left", "right", "on"], "default": "left", "description": "Offset side", "tab": "Geometry" }
+          "contour_chain": {
+            "type": "selection",
+            "required": true,
+            "description": "3D contour chain",
+            "tab": "Geometry"
+          },
+          "offset_side": {
+            "type": "enum",
+            "values": [
+              "left",
+              "right",
+              "on"
+            ],
+            "default": "left",
+            "description": "Offset side",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Feed rate", "tab": "Technology" },
-          "plunge_feed": { "type": "number", "unit": "mm/min", "description": "Plunge feed", "tab": "Technology" },
-          "stock_to_leave": { "type": "number", "unit": "mm", "default": 0, "description": "Stock allowance", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Feed rate",
+            "tab": "Technology"
+          },
+          "plunge_feed": {
+            "type": "number",
+            "unit": "mm/min",
+            "description": "Plunge feed",
+            "tab": "Technology"
+          },
+          "stock_to_leave": {
+            "type": "number",
+            "unit": "mm",
+            "default": 0,
+            "description": "Stock allowance",
+            "tab": "Technology"
+          }
         },
         "levels": {
-          "contour_z_mode": { "type": "enum", "values": ["from_geometry", "constant", "variable"], "default": "from_geometry", "description": "Z level mode", "tab": "Levels" },
-          "constant_z": { "type": "number", "unit": "mm", "description": "Constant Z if selected", "tab": "Levels" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Levels" }
+          "contour_z_mode": {
+            "type": "enum",
+            "values": [
+              "from_geometry",
+              "constant",
+              "variable"
+            ],
+            "default": "from_geometry",
+            "description": "Z level mode",
+            "tab": "Levels"
+          },
+          "constant_z": {
+            "type": "number",
+            "unit": "mm",
+            "description": "Constant Z if selected",
+            "tab": "Levels"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Levels"
+          }
         },
         "link": {
-          "approach_type": { "type": "enum", "values": ["tangent", "perpendicular", "arc"], "default": "tangent", "description": "Approach motion", "tab": "Geometry" },
-          "retract_type": { "type": "enum", "values": ["tangent", "perpendicular", "vertical"], "default": "tangent", "description": "Retract motion", "tab": "Geometry" },
-          "approach_distance": { "type": "number", "unit": "mm", "default": 5, "description": "Approach length", "tab": "Geometry" },
-          "retract_distance": { "type": "number", "unit": "mm", "default": 5, "description": "Retract length", "tab": "Geometry" },
-          "climb_or_conventional": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Cutting direction", "tab": "Geometry" },
-          "compensation_type": { "type": "enum", "values": ["computer", "control", "wear"], "default": "computer", "description": "Cutter compensation method", "tab": "Geometry" },
-          "check_collisions": { "type": "boolean", "default": true, "description": "Check for tool/holder collisions", "tab": "Geometry" }
+          "approach_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "perpendicular",
+              "arc"
+            ],
+            "default": "tangent",
+            "description": "Approach motion",
+            "tab": "Geometry"
+          },
+          "retract_type": {
+            "type": "enum",
+            "values": [
+              "tangent",
+              "perpendicular",
+              "vertical"
+            ],
+            "default": "tangent",
+            "description": "Retract motion",
+            "tab": "Geometry"
+          },
+          "approach_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Approach length",
+            "tab": "Geometry"
+          },
+          "retract_distance": {
+            "type": "number",
+            "unit": "mm",
+            "default": 5,
+            "description": "Retract length",
+            "tab": "Geometry"
+          },
+          "climb_or_conventional": {
+            "type": "enum",
+            "values": [
+              "climb",
+              "conventional"
+            ],
+            "default": "climb",
+            "description": "Cutting direction",
+            "tab": "Geometry"
+          },
+          "compensation_type": {
+            "type": "enum",
+            "values": [
+              "computer",
+              "control",
+              "wear"
+            ],
+            "default": "computer",
+            "description": "Cutter compensation method",
+            "tab": "Geometry"
+          },
+          "check_collisions": {
+            "type": "boolean",
+            "default": true,
+            "description": "Check for tool/holder collisions",
+            "tab": "Geometry"
+          }
         }
       }
     },
@@ -390,28 +1792,113 @@
       "display_name": "Ream",
       "category": "holemaking",
       "description": "Precision hole reaming with dwell",
-      "dialog_tabs": ["Geometry", "Technology", "Tool", "Cycle"],
+      "dialog_tabs": [
+        "Geometry",
+        "Technology",
+        "Tool",
+        "Cycle"
+      ],
       "parameter_count": 12,
       "parameters": {
         "geometry": {
-          "hole_positions": { "type": "selection", "required": true, "description": "Hole centers", "tab": "Geometry" }
+          "hole_positions": {
+            "type": "selection",
+            "required": true,
+            "description": "Hole centers",
+            "tab": "Geometry"
+          }
         },
         "technology": {
-          "spindle_speed": { "type": "number", "unit": "rpm", "required": true, "description": "Spindle RPM", "tab": "Technology" },
-          "feed_rate": { "type": "number", "unit": "mm/min", "required": true, "description": "Reaming feed", "tab": "Technology" },
-          "retract_mode": { "type": "enum", "values": ["rapid", "feed"], "default": "feed", "description": "Retract at rapid or feed", "tab": "Technology" }
+          "spindle_speed": {
+            "type": "number",
+            "unit": "rpm",
+            "required": true,
+            "description": "Spindle RPM",
+            "tab": "Technology"
+          },
+          "feed_rate": {
+            "type": "number",
+            "unit": "mm/min",
+            "required": true,
+            "description": "Reaming feed",
+            "tab": "Technology"
+          },
+          "retract_mode": {
+            "type": "enum",
+            "values": [
+              "rapid",
+              "feed"
+            ],
+            "default": "feed",
+            "description": "Retract at rapid or feed",
+            "tab": "Technology"
+          }
         },
         "cycle": {
-          "dwell_time": { "type": "number", "unit": "sec", "default": 0.5, "description": "Dwell at bottom", "tab": "Cycle" },
-          "spindle_orient": { "type": "boolean", "default": false, "description": "Orient spindle before retract", "tab": "Cycle" }
+          "dwell_time": {
+            "type": "number",
+            "unit": "sec",
+            "default": 0.5,
+            "description": "Dwell at bottom",
+            "tab": "Cycle"
+          },
+          "spindle_orient": {
+            "type": "boolean",
+            "default": false,
+            "description": "Orient spindle before retract",
+            "tab": "Cycle"
+          }
         },
         "levels": {
-          "hole_depth": { "type": "number", "unit": "mm", "required": true, "description": "Ream depth", "tab": "Geometry" },
-          "start_level": { "type": "number", "unit": "mm", "required": true, "description": "Start Z", "tab": "Geometry" },
-          "clearance_plane": { "type": "number", "unit": "mm", "required": true, "description": "Safe Z", "tab": "Geometry" },
-          "finish_pass": { "type": "boolean", "default": false, "description": "Add additional finish pass", "tab": "Cycle" },
-          "coolant_mode": { "type": "enum", "values": ["off", "flood", "mist", "through_spindle"], "default": "flood", "description": "Coolant delivery mode", "tab": "Cycle" },
-          "compensation_type": { "type": "enum", "values": ["computer", "control"], "default": "computer", "description": "Cutter compensation method", "tab": "Cycle" }
+          "hole_depth": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Ream depth",
+            "tab": "Geometry"
+          },
+          "start_level": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Start Z",
+            "tab": "Geometry"
+          },
+          "clearance_plane": {
+            "type": "number",
+            "unit": "mm",
+            "required": true,
+            "description": "Safe Z",
+            "tab": "Geometry"
+          },
+          "finish_pass": {
+            "type": "boolean",
+            "default": false,
+            "description": "Add additional finish pass",
+            "tab": "Cycle"
+          },
+          "coolant_mode": {
+            "type": "enum",
+            "values": [
+              "off",
+              "flood",
+              "mist",
+              "through_spindle"
+            ],
+            "default": "flood",
+            "description": "Coolant delivery mode",
+            "tab": "Cycle"
+          },
+          "compensation_type": {
+            "type": "enum",
+            "values": [
+              "computer",
+              "control"
+            ],
+            "default": "computer",
+            "description": "Cutter compensation method",
+            "tab": "Cycle"
+          }
         }
       }
     }
@@ -419,28 +1906,73 @@
   "training_topics": [
     {
       "topic": "Profile vs Pocket Selection",
-      "key_concepts": ["open_vs_closed_contours", "offset_direction", "multi_pass_depths"],
-      "best_practices": ["Use Profile for open contours, Pocket for closed", "Match offset side to cut direction", "Consider tool radius in corner accessibility"]
+      "key_concepts": [
+        "open_vs_closed_contours",
+        "offset_direction",
+        "multi_pass_depths"
+      ],
+      "best_practices": [
+        "Use Profile for open contours, Pocket for closed",
+        "Match offset side to cut direction",
+        "Consider tool radius in corner accessibility"
+      ]
     },
     {
       "topic": "iMachining 2D Setup",
-      "key_concepts": ["aggressiveness_levels", "chip_load_optimization", "machine_rigidity", "morphing_stepover"],
-      "best_practices": ["Start at level 4 for unknown setups", "Match hardness to actual material", "Enable thin wall mode for delicate features", "Use rest machining for secondary tools"]
+      "key_concepts": [
+        "aggressiveness_levels",
+        "chip_load_optimization",
+        "machine_rigidity",
+        "morphing_stepover"
+      ],
+      "best_practices": [
+        "Start at level 4 for unknown setups",
+        "Match hardness to actual material",
+        "Enable thin wall mode for delicate features",
+        "Use rest machining for secondary tools"
+      ]
     },
     {
       "topic": "Drilling Cycle Selection",
-      "key_concepts": ["peck_vs_chip_break", "deep_hole_threshold", "dwell_usage"],
-      "best_practices": ["Use chip-break for depths < 3xD", "Use peck for depths > 3xD", "Add dwell for blind holes requiring flat bottom"]
+      "key_concepts": [
+        "peck_vs_chip_break",
+        "deep_hole_threshold",
+        "dwell_usage"
+      ],
+      "best_practices": [
+        "Use chip-break for depths < 3xD",
+        "Use peck for depths > 3xD",
+        "Add dwell for blind holes requiring flat bottom"
+      ]
     },
     {
       "topic": "Entry Methods",
-      "key_concepts": ["helix_vs_ramp_vs_plunge", "ramp_angle_limits", "helix_diameter_sizing"],
-      "best_practices": ["Prefer helix for pockets > 2x tool diameter", "Keep ramp angle under 5 degrees for hard materials", "Never plunge full diameter except spot/center drills"]
+      "key_concepts": [
+        "helix_vs_ramp_vs_plunge",
+        "ramp_angle_limits",
+        "helix_diameter_sizing"
+      ],
+      "best_practices": [
+        "Prefer helix for pockets > 2x tool diameter",
+        "Keep ramp angle under 5 degrees for hard materials",
+        "Never plunge full diameter except spot/center drills"
+      ]
     },
     {
       "topic": "Thread Milling Parameters",
-      "key_concepts": ["climb_vs_conventional_threading", "single_vs_multi_pass", "spring_passes"],
-      "best_practices": ["Use climb milling for most materials", "Add spring passes for tight tolerance threads", "Check minimum bore diameter vs tool clearance"]
+      "key_concepts": [
+        "climb_vs_conventional_threading",
+        "single_vs_multi_pass",
+        "spring_passes"
+      ],
+      "best_practices": [
+        "Use climb milling for most materials",
+        "Add spring passes for tight tolerance threads",
+        "Check minimum bore diameter vs tool clearance"
+      ]
     }
-  ]
+  ],
+  "milestone": "CAM-EXHAUST-MS0/U-CAM33",
+  "extraction_source": "SolidCAM 2024 training PDFs (per pre-existing extraction)",
+  "extraction_date": "2026-04-22"
 }
