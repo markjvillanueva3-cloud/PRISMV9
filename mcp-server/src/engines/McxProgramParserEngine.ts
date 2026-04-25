@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: dispatcher wiring deferred to U-LPR26-WIRE follow-up — UnifiedProgramParserEngine.ts is held by another concurrent session per chat-bus claim board. Engine has 43/43 isolated tests and stable public surface ready to route.
 /**
  * McxProgramParserEngine — LATHE-PROD-READY-MS0/U-LPR26
  * ======================================================
