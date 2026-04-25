@@ -246,7 +246,7 @@ export function dimensionalSignatureHash(payload: {
   holes: ReadonlyArray<Hole>;
   counts: Counts;
 }): string {
-  const sortedHoles = [...payload.holes]
+  const sortedHoles = [...(payload.holes ?? [])]
     .map((h) => ({
       radiusM: canon(h.radiusM),
       axis: h.axis ? canonVec(h.axis) : undefined,
@@ -400,12 +400,20 @@ export class DimensionalSignatureEngine {
       envelopeDeltaM: b.envelopeM - a.envelopeM,
       volumeDeltaM3: b.volumeBboxM3 - a.volumeBboxM3,
       surfaceAreaDeltaM2: b.surfaceAreaM2 - a.surfaceAreaM2,
-      holeCountDelta: b.holes.length - a.holes.length,
+      holeCountDelta: (b.holes?.length ?? 0) - (a.holes?.length ?? 0),
     };
   }
 
   validate(candidate: unknown): { ok: boolean; errors: string[] } {
-    const r = DimensionalSignatureSchema.safeParse(candidate);
+    const normalized =
+      candidate && typeof candidate === "object"
+        ? {
+            holes: [],
+            warnings: [],
+            ...(candidate as Record<string, unknown>),
+          }
+        : candidate;
+    const r = DimensionalSignatureSchema.safeParse(normalized);
     if (r.success) return { ok: true, errors: [] };
     return {
       ok: false,

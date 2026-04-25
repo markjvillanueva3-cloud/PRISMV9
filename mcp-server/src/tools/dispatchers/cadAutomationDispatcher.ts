@@ -138,6 +138,23 @@ const ACTIONS = [
   // U-CGT02 — F3DSQLiteParserEngine: native Fusion .f3d / .f3z parsing (ZIP+SQLite)
   "f3d_parse",
   "f3z_parse",
+  // U-CGT05 — DimensionalSignatureEngine: STEP → SI dimensional fingerprint
+  "dim_signature_extract",
+  "dim_signature_extract_text",
+  "dim_signature_compare",
+  "dim_signature_validate",
+  "dim_signature_recompute",
+  // U-CGT08 — GroundTruthRegistryEngine: indexed corpus query
+  "gt_registry_build_index",
+  "gt_registry_find_file_id",
+  "gt_registry_find_customer",
+  "gt_registry_find_machine",
+  "gt_registry_find_complexity",
+  "gt_registry_find_format",
+  "gt_registry_query",
+  "gt_registry_stats",
+  "gt_registry_dump",
+  "gt_registry_load",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -915,6 +932,161 @@ Actions: ${ACTIONS.join(", ")}.`,
               String(params["filePath"] ?? ""),
             );
             result = { count: arr.length, documents: arr };
+            break;
+          }
+          case "dim_signature_extract": {
+            const { dimensionalSignatureEngine } = await import(
+              "../../engines/DimensionalSignatureEngine.js"
+            );
+            result = await dimensionalSignatureEngine.extractFromStep(
+              String(params["filePath"] ?? ""),
+            );
+            break;
+          }
+          case "dim_signature_extract_text": {
+            const { dimensionalSignatureEngine } = await import(
+              "../../engines/DimensionalSignatureEngine.js"
+            );
+            result = dimensionalSignatureEngine.extractFromStepText(
+              String(params["stepText"] ?? ""),
+              String(params["sourceFile"] ?? ""),
+            );
+            break;
+          }
+          case "dim_signature_compare": {
+            const { dimensionalSignatureEngine } = await import(
+              "../../engines/DimensionalSignatureEngine.js"
+            );
+            try {
+              result = dimensionalSignatureEngine.compare(
+                params["a"] as Parameters<typeof dimensionalSignatureEngine.compare>[0],
+                params["b"] as Parameters<typeof dimensionalSignatureEngine.compare>[1],
+              );
+            } catch (err) {
+              result = { error: (err as Error).message ?? String(err) };
+            }
+            break;
+          }
+          case "dim_signature_validate": {
+            const { dimensionalSignatureEngine } = await import(
+              "../../engines/DimensionalSignatureEngine.js"
+            );
+            result = dimensionalSignatureEngine.validate(params["candidate"]);
+            break;
+          }
+          case "dim_signature_recompute": {
+            const { dimensionalSignatureEngine } = await import(
+              "../../engines/DimensionalSignatureEngine.js"
+            );
+            try {
+              const sig = dimensionalSignatureEngine.recomputeSignature(
+                params["signature"] as Parameters<typeof dimensionalSignatureEngine.recomputeSignature>[0],
+              );
+              result = { signature: sig };
+            } catch (err) {
+              result = { error: (err as Error).message ?? String(err) };
+            }
+            break;
+          }
+          case "gt_registry_build_index": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            const stats = groundTruthRegistryEngine.buildIndex(
+              String(params["outputRoot"] ?? ""),
+              { includeNonOk: params["includeNonOk"] === true },
+            );
+            result = { stats, total: groundTruthRegistryEngine.size() };
+            break;
+          }
+          case "gt_registry_find_file_id": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            result = groundTruthRegistryEngine.findByFileId(
+              String(params["fileId"] ?? ""),
+            );
+            break;
+          }
+          case "gt_registry_find_customer": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            result = groundTruthRegistryEngine.findByCustomer(
+              String(params["name"] ?? ""),
+              (params["options"] as Parameters<typeof groundTruthRegistryEngine.findByCustomer>[1]) ?? {},
+            );
+            break;
+          }
+          case "gt_registry_find_machine": {
+            const { groundTruthRegistryEngine, MACHINE_CATEGORIES } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            const cat = params["category"] as (typeof MACHINE_CATEGORIES)[number];
+            result = groundTruthRegistryEngine.findByMachineCategory(
+              cat,
+              (params["options"] as Parameters<typeof groundTruthRegistryEngine.findByMachineCategory>[1]) ?? {},
+            );
+            break;
+          }
+          case "gt_registry_find_complexity": {
+            const { groundTruthRegistryEngine, COMPLEXITY_TIERS } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            const tier = params["tier"] as (typeof COMPLEXITY_TIERS)[number];
+            result = groundTruthRegistryEngine.findByComplexity(
+              tier,
+              (params["options"] as Parameters<typeof groundTruthRegistryEngine.findByComplexity>[1]) ?? {},
+            );
+            break;
+          }
+          case "gt_registry_find_format": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            result = groundTruthRegistryEngine.findByFormat(
+              String(params["format"] ?? ""),
+              (params["options"] as Parameters<typeof groundTruthRegistryEngine.findByFormat>[1]) ?? {},
+            );
+            break;
+          }
+          case "gt_registry_query": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            result = groundTruthRegistryEngine.query(
+              (params["filter"] as Parameters<typeof groundTruthRegistryEngine.query>[0]) ?? {},
+              (params["options"] as Parameters<typeof groundTruthRegistryEngine.query>[1]) ?? {},
+            );
+            break;
+          }
+          case "gt_registry_stats": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            result = {
+              size: groundTruthRegistryEngine.size(),
+              stats: groundTruthRegistryEngine.getStats(),
+            };
+            break;
+          }
+          case "gt_registry_dump": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            await groundTruthRegistryEngine.dumpManifest(
+              String(params["filePath"] ?? ""),
+            );
+            result = { ok: true, filePath: String(params["filePath"] ?? "") };
+            break;
+          }
+          case "gt_registry_load": {
+            const { groundTruthRegistryEngine } = await import(
+              "../../engines/GroundTruthRegistryEngine.js"
+            );
+            result = await groundTruthRegistryEngine.loadManifest(
+              String(params["filePath"] ?? ""),
+            );
             break;
           }
           default:
