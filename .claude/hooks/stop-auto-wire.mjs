@@ -217,19 +217,40 @@ function main() {
 
   // Surface actionable warnings to the session output
   const msgs = [];
+  // When orphans pile up (e.g. a dedicated wiring chat is processing
+  // them), emit count-only to avoid spamming every Stop event.
+  // Set PRISM_UNWIRED_VERBOSE=1 to force the full list back on.
+  const VERBOSE_LIMIT = 5;
+  const verbose = process.env.PRISM_UNWIRED_VERBOSE === "1";
   if (orphans.engines.length > 0) {
-    msgs.push(
-      `⚠  ${orphans.engines.length} NEW engine(s) not wired to a dispatcher:\n` +
-        orphans.engines.map((p) => `     - ${p}`).join("\n") +
-        `\n   Wire via: src/tools/dispatchers/<dispatcher>.ts ACTIONS enum + case handler.`,
-    );
+    const showList = verbose || orphans.engines.length <= VERBOSE_LIMIT;
+    const header = `⚠  ${orphans.engines.length} NEW engine(s) not wired to a dispatcher`;
+    if (showList) {
+      msgs.push(
+        `${header}:\n` +
+          orphans.engines.map((p) => `     - ${p}`).join("\n") +
+          `\n   Wire via: src/tools/dispatchers/<dispatcher>.ts ACTIONS enum + case handler.`,
+      );
+    } else {
+      msgs.push(
+        `${header}. (List suppressed; set PRISM_UNWIRED_VERBOSE=1 to expand.)`,
+      );
+    }
   }
   if (orphans.hooks.length > 0) {
-    msgs.push(
-      `⚠  ${orphans.hooks.length} NEW hook(s) not referenced in H:/.claude/settings.json:\n` +
-        orphans.hooks.map((p) => `     - ${p}`).join("\n") +
-        `\n   Wire by adding to PreToolUse / PostToolUse / SessionStart / Stop / UserPromptSubmit / PreCompact.`,
-    );
+    const showList = verbose || orphans.hooks.length <= VERBOSE_LIMIT;
+    const header = `⚠  ${orphans.hooks.length} NEW hook(s) not referenced in H:/.claude/settings.json`;
+    if (showList) {
+      msgs.push(
+        `${header}:\n` +
+          orphans.hooks.map((p) => `     - ${p}`).join("\n") +
+          `\n   Wire by adding to PreToolUse / PostToolUse / SessionStart / Stop / UserPromptSubmit / PreCompact.`,
+      );
+    } else {
+      msgs.push(
+        `${header}. (List suppressed; set PRISM_UNWIRED_VERBOSE=1 to expand.)`,
+      );
+    }
   }
   if (activated.engines > 0 && orphans.engines.length === 0 && orphans.hooks.length === 0) {
     msgs.push(`✓ ${activated.engines} engine(s), ${activated.hooks} hook(s) all wired; inventory refresh queued.`);
