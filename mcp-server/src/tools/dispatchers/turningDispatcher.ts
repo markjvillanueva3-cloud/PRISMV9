@@ -45,6 +45,8 @@ const ACTIONS = [
   "lathe_chatter_analysis", "lathe_hard_turning", "lathe_thread_schedule",
   "lathe_drill_thrust", "lathe_parting_force", "lathe_beam_deflection",
   "lathe_chip_breaking", "lathe_peck_schedule", "lathe_bore_dwell",
+  // WIRE-MS0/U-WIRE06: HardTurning orphan engines
+  "hard_turn_decide", "hard_turn_optimize",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -313,6 +315,17 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_bore_dwell": {
             const { latheScienceHardeningEngine: lsh } = await import("../../engines/LatheScienceHardeningEngine.js");
             result = lsh.boreDwell(params.iso_group ?? "P");
+            break;
+          }
+          // WIRE-MS0/U-WIRE06: HardTurning orphan engines
+          case "hard_turn_decide": {
+            const { hardTurningDecisionEngine } = await import("../../engines/HardTurningDecisionEngine.js");
+            result = hardTurningDecisionEngine.decide(params as any);
+            break;
+          }
+          case "hard_turn_optimize": {
+            const { hardTurningCapstoneEngine } = await import("../../engines/HardTurningCapstoneEngine.js");
+            result = hardTurningCapstoneEngine.optimize(params as any);
             break;
           }
           default:

@@ -152,6 +152,67 @@ const part_off_force = z.object({
 }).passthrough();
 
 // ============================================================================
+// hard_turn_decide / hard_turn_optimize — WIRE-MS0/U-WIRE06
+// HardTurningDecisionEngine + HardTurningCapstoneEngine
+// Wires LATHE-PRO-MS5 orphans through prism_turning so CBN-vs-grind
+// decisions + the capstone (decision + grind-replacement + white-layer +
+// residual-stress) reach the MCP action surface.
+// ============================================================================
+
+const hardTurnFeature = z.enum(["od", "bore", "face", "thread", "groove"])
+  .describe("Feature type being finish-machined on the hardened part");
+
+const hard_turn_decide = z.object({
+  hardness_hrc: posNum.describe("Part hardness in HRC (>0); decide() rejects ≤0"),
+  target_ra_um: posNum.describe("Target surface finish Ra in micrometers (>0)"),
+  target_tolerance_mm: posNum.describe("Target tolerance in mm — tightest on the finish feature (>0)"),
+  feature: hardTurnFeature,
+  lot_size: posNum.describe("Lot size in parts (>0)"),
+  diameter_mm: posNum.describe("Part diameter in mm — affects rigidity"),
+  length_over_diameter: optPosNum.describe("L/D ratio if turning; >4 raises chatter risk"),
+  shop_has_grinder: z.boolean().optional()
+    .describe("True if shop has grinding capability for fallback"),
+  cbn_cost_per_edge_usd: optPosNum.describe("Cost per CBN edge in USD (default 15)"),
+  grind_cost_per_part_usd: optPosNum.describe("Amortized grind-wheel cost per part in USD (default 0.5)"),
+  setup_hours: optPosNum.describe("Programming + setup hours, both options (default 0.5)"),
+}).passthrough();
+
+const hard_turn_optimize = z.object({
+  hardness_hrc: posNum.describe("Part hardness in HRC (>0)"),
+  target_ra_um: posNum.describe("Target surface finish Ra (μm, >0)"),
+  target_tolerance_mm: posNum.describe("Target tolerance (mm, >0)"),
+  feature: hardTurnFeature,
+  lot_size: posNum.describe("Lot size in parts (>0)"),
+  diameter_mm: posNum.describe("Part diameter (mm)"),
+  length_over_diameter: optPosNum,
+  shop_has_grinder: z.boolean().optional(),
+  cbn_cost_per_edge_usd: optPosNum,
+  grind_cost_per_part_usd: optPosNum,
+  setup_hours: optPosNum,
+  grinding_baseline: z.object({
+    achieved_ra_um: posNum.describe("Currently achieved Ra in μm"),
+    achieved_tolerance_mm: posNum.describe("Currently achieved tolerance (mm)"),
+    stock_removal_mm: posNum.describe("Stock removed by grind (mm)"),
+    grind_cycle_sec: posNum.describe("Grind cycle time (sec)"),
+    grind_cost_per_part_usd: z.number().nonnegative()
+      .describe("Grind cost per part (USD)"),
+  }).passthrough().optional(),
+  residual_stress_requirement: z.enum(["tensile_required", "compressive_ok", "any"]).optional()
+    .describe("Required residual-stress state for the finished feature"),
+  concentricity_mm: optPosNum,
+  turret_precision_mm: optPosNum,
+  wall_thickness_mm: optPosNum,
+  cutting_speed_mmin: optPosNum.describe("Cutting speed in m/min — defaults to per-tool-material Vc"),
+  feed_per_rev_mm: optPosNum.describe("Feed per revolution in mm (default 0.08)"),
+  depth_of_cut_mm: optPosNum.describe("Axial depth of cut in mm (default 0.15)"),
+  tool_wear_VB_mm: optPosNum.describe("Flank wear VB in mm (default 0.1)"),
+  coolant: z.enum(["flood", "mist", "air", "dry", "cryo"]).optional()
+    .describe("Coolant strategy (default flood)"),
+  forced_tool_material: z.enum(["CBN", "ceramic", "carbide"]).optional()
+    .describe("Override the decision's tool material"),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -163,4 +224,6 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   bar_pull,
   thread_single_point,
   part_off_force,
+  hard_turn_decide,
+  hard_turn_optimize,
 };
