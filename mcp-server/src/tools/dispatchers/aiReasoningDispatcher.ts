@@ -107,6 +107,14 @@ async function getCognitive() {
   return _cognitive;
 }
 
+// WIRE-MS0/U-WIRE10 — XAI explainer singleton
+let _explainer: typeof import("../../engines/ReasoningExplainerEngine.js").reasoningExplainerEngine | null = null;
+
+async function getExplainer() {
+  if (!_explainer) { _explainer = (await import("../../engines/ReasoningExplainerEngine.js")).reasoningExplainerEngine; }
+  return _explainer;
+}
+
 /** Dispatcher definition for MCP registration */
 export const aiReasoningDispatcherDef = {
   name: "prism_ai",
@@ -505,6 +513,41 @@ export async function executeAIReasoningAction(
         result = {
           score: Number(params.score),
           depth: cognitive.classify(Number(params.score)),
+        };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // WIRE-MS0/U-WIRE10 — XAI explanations
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_explain": {
+        const explainer = await getExplainer();
+        result = explainer.explain({
+          question: String(params.question),
+          audience: params.audience as "machinist" | "engineer" | "manager" | "auditor" | undefined,
+          maxWords: params.maxWords as number | undefined,
+          context: (params.context ?? {}) as Parameters<typeof explainer.explain>[0]["context"],
+        });
+        break;
+      }
+      case "ai_explain_formula": {
+        const explainer = await getExplainer();
+        result = {
+          formula: String(params.formula),
+          audience: (params.audience as string | undefined) ?? "machinist",
+          explanation: explainer.explainFormula(
+            String(params.formula),
+            params.audience as "machinist" | "engineer" | "manager" | "auditor" | undefined,
+          ),
+        };
+        break;
+      }
+      case "ai_reading_level_label": {
+        const explainer = await getExplainer();
+        const grade = Number(params.grade);
+        result = {
+          grade,
+          label: explainer.getReadingLevelLabel(grade),
         };
         break;
       }

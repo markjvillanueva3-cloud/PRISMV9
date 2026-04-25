@@ -46,6 +46,10 @@ export const AI_REASONING_ACTIONS = [
   "ai_temporal_forecast",
   "ai_cognitive_allocate",
   "ai_cognitive_classify",
+  // WIRE-MS0/U-WIRE10: XAI — ReasoningExplainerEngine
+  "ai_explain",
+  "ai_explain_formula",
+  "ai_reading_level_label",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -390,6 +394,53 @@ const ai_cognitive_classify = z.object({
   score: z.number().finite().describe("Raw budget score (typically 0-12)"),
 }).passthrough();
 
+// ─────────────────────────────────────────────────────────────────────────
+// WIRE-MS0/U-WIRE10 — XAI explanations (ReasoningExplainerEngine)
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Audience tier — drives word limit + vocabulary level */
+const audienceEnum = z.enum(["machinist", "engineer", "manager", "auditor"]);
+
+/** Calculation context (formula + inputs + result + unit + source) */
+const calculationContextSchema = z.object({
+  formula: z.string().min(1).describe("Formula string (e.g. \"Fc = kc1.1 × ap × fz^(1-mc)\")"),
+  inputs: z.record(z.string(), z.union([z.number(), z.string()])).describe("Input values keyed by variable name"),
+  result: z.number().finite().describe("Computed result value"),
+  unit: z.string().describe("Unit of result (e.g. \"N\", \"m/min\")"),
+  source: z.string().describe("Source identifier — engine/handbook/tribal entry"),
+}).passthrough();
+
+/** Selection context (selected vs alternatives + scoring criteria) */
+const selectionContextSchema = z.object({
+  selected: z.string().min(1).describe("Selected option id/name"),
+  alternatives: z.array(z.string()).describe("Alternatives considered"),
+  criteria: z.record(z.string(), z.number()).describe("Per-alternative score map"),
+}).passthrough();
+
+/** Generate XAI explanation for a recommendation/calculation/selection/warning */
+const ai_explain = z.object({
+  question: z.string().min(1).describe("The question being answered (drives summary)"),
+  audience: audienceEnum.optional().describe("Audience tier (default machinist)"),
+  maxWords: z.number().int().positive().max(2000).optional()
+    .describe("Override default per-audience word limit"),
+  context: z.object({
+    recommendation: z.string().optional().describe("Recommendation string being explained"),
+    calculation: calculationContextSchema.optional(),
+    selection: selectionContextSchema.optional(),
+  }).passthrough().describe("Context bundle — at least one of recommendation/calculation/selection"),
+}).passthrough();
+
+/** Plain-language explanation of a known formula */
+const ai_explain_formula = z.object({
+  formula: z.string().min(1).describe("Formula string to look up + simplify"),
+  audience: audienceEnum.optional().describe("Audience tier (default machinist)"),
+}).passthrough();
+
+/** Map a Flesch-Kincaid grade level to a reading-difficulty label */
+const ai_reading_level_label = z.object({
+  grade: z.number().finite().describe("Reading grade level (≥0; typical 5-18)"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -423,4 +474,7 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_temporal_forecast,
   ai_cognitive_allocate,
   ai_cognitive_classify,
+  ai_explain,
+  ai_explain_formula,
+  ai_reading_level_label,
 };
