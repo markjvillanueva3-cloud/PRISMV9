@@ -1,0 +1,284 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PSAU-PPG-SFC",
+  "version": "1.0.0",
+  "title": "PSAU-PPG-SFC — Close the loop on Post Processor + Speed/Feed Calc",
+  "track": "PSAU",
+  "parent_roadmap": "PSAU-MASTER",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "in_progress",
+  "created_at": "2026-04-25T20:45:00.000Z",
+  "last_updated": "2026-04-25T20:45:00.000Z",
+  "total_units": 14,
+  "completed_units": 0,
+  "description": "Specialization of PSAU-LEARN's closing-the-loop pattern to PRISM's two highest-leverage recommendation surfaces: Post Processor Generator (PPG) and Speed/Feed Calculator (SFC). Today ~50 PPG/SFC engines exist (UltimateSpeedFeed, AutoSpeedFeed, PostProcessorDeepIntelligenceEngine, MasterPostProcessorUnifiedAGIEngine, LathePostProcessorAIEngine, etc.) but ZERO of them call OutcomeCaptureBus, InferenceLoRAGate, or ProvenanceEngine. They train models that never reach inference, emit recommendations without citations, and keep using hardcoded constants while LoRAs sit on disk. This envelope wires the existing surface to the U-LEARN spine.",
+  "rationale": "PSAU-LEARN delivered the 11 substrate engines (OutcomeCaptureBus, FeatureStore, ProvenanceEngine, JMDieProgramRAG, TribalRAG, LoRA MoE, AdapterHotSwap+InferenceLoRAGate, IQL, MaxEntIRL, SafetyShield, ContinualLoRA, ProtoMAML). PSAU-FORESIGHT delivered the planning + reliability spine. But the substrate isn't load-bearing until production recommendation engines route through it. PPG and SFC are the canonical loci because: (1) every quote, every G-code emission, every operator override touches one or both; (2) the existing engine surface is large enough that wiring delivers immediate compounding leverage; (3) the JM Die corpus (22,721 programs + run logs) is a perfect training signal for these two domains specifically.",
+  "leverage_existing": [
+    "outcomeCaptureBusEngine (U-LEARN-01)",
+    "featureStoreEngine + mlLineageEngine (U-LEARN-02)",
+    "jmDieProgramRAGEngine + tribalRAGEngine + reRankerEngine + provenanceEngine (U-LEARN-04)",
+    "inferenceLoRAGateEngine + AdapterHotSwap (U-LEARN-07)",
+    "iqlEngine + MaxEntIRL + SafetyShield (U-LEARN-08)",
+    "testTimeAdaptationEngine + ContinualLoRA + FederatedLoRA (U-LEARN-10)",
+    "protoMAMLFewShotEngine (U-LEARN-11)",
+    "Existing PPG surface: PostProcessorDeepIntelligenceEngine, MasterPostProcessorUnifiedAGIEngine, LathePostProcessorAIEngine, PostProcessorAutopilotEngine, PostProcessorGeneratorEngine, PostProcessorTrainerEngine (~25 engines)",
+    "Existing SFC surface: UltimateSpeedFeedEngine, AutoSpeedFeedEngine, AutoSpeedFeedCalculatorEngine, MachineAwareSpeedFeedEngine, SpeedFeedOrchestratorEngine, LatheSpeedFeedCalculatorFacadeEngine, LatheSpeedFeedDeepLearningAdvisorEngine, LatheSpeedFeedReasoningBridgeEngine, SFCCalculateEngine, SFCOptimizeEngine, SFCCompareEngine (~20 engines)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Operator on Okuma lathe (JM Die / ALCOA) accepts SFC's 320 SFM for D2 with TNMG carbide, then dials the override knob to 85% mid-cut after observing chatter. Run log captures actuals.",
+    "today": "Override is invisible to PRISM. Next /auto-speed-feed call for D2 + TNMG + Okuma returns 320 SFM again. PPG emits the same Okuma OSP block. Nothing got smarter.",
+    "should_be": "OutcomeCaptureBus.record({domain:'sfc', context:{material:'D2', tool:'TNMG-carbide', machine:'Okuma-LB45'}, recommended:{sfm:320}, actual:{sfm:272, override_factor:0.85}, lineage_id}) → outcomes/sfc.jsonl → ContinualLoRA threshold (30 events) → D2-Okuma-LB45 SFC adapter trained → ShadowMode 30-day → AdapterHotSwap → next SFC call invokes inferenceLoRAGate returning ~278 SFM with provenance {kc11_source:'P-group-1800', taylor_source:'D2-TNMG', adapter:'sfc-D2-Okuma-v3', residual:-44, citations:[{rag:'JMDIE/ALCOA/L-2845-D2.MIN', similarity:0.91}]} → PPG emits adapted feedrate in OSP → run log confirms bound → loop closed.",
+    "gap": "Steps 1, 3-5, 8-9 do not exist for PPG/SFC today. This envelope ships them."
+  },
+  "units": [
+    {
+      "id": "U-PPG-SFC-01",
+      "title": "SFCOutcomeCaptureWireEngine — record every SFC emission",
+      "description": "Wrap SFC singleton entry points (ultimateSpeedFeedEngine.calculate, autoSpeedFeedEngine.recommend, autoSpeedFeedCalculatorEngine.calculate, machineAwareSpeedFeedEngine.calculate, latheSpeedFeedCalculatorFacadeEngine.calculate, sfcCalculateEngine.calculate) with an outcome-capture decorator that calls outcomeCaptureBusEngine.recordOutcome({domain:'sfc', context, recommended, actual:null, source, lineage_id}). Operator overrides + first-article + tool-life events arrive later via separate write paths and correlate by lineage_id.",
+      "depends_on": [],
+      "files_created": [
+        "src/engines/SFCOutcomeCaptureWireEngine.ts",
+        "src/middleware/sfcOutcomeWire.ts",
+        "src/__tests__/engines/sfcOutcomeCaptureWireEngine.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/UltimateSpeedFeedEngine.ts",
+        "src/engines/AutoSpeedFeedEngine.ts",
+        "src/engines/AutoSpeedFeedCalculatorEngine.ts",
+        "src/engines/MachineAwareSpeedFeedEngine.ts",
+        "src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts",
+        "src/engines/SFCCalculateEngine.ts"
+      ],
+      "exit_criteria": "100% of SFC singleton entry points route through outcome wire; lineage_id present on every emission; jsonl append-only with fsync+rename; ≥5 representative tests covering happy path + missing context + adapter-resolution-failure + concurrent emit + lineage threading"
+    },
+    {
+      "id": "U-PPG-SFC-02",
+      "title": "PPGOutcomeCaptureWireEngine — record every PPG emission",
+      "description": "Same pattern for PPG entry points: postProcessorEngine, advancedPostProcessorEngine, lathePostProcessorEngine, lathePostProcessorAIEngine, masterPostProcessorEngine, masterPostProcessorUnifiedAGIEngine, postProcessorGeneratorEngine. Outcome shape: {domain:'ppg', context:{controller, machine_class, dialect, source_program}, generated:{block_count, modal_state, tool_changes}, lineage_id}. Run-log alarms + line-reject + scrap correlate by lineage_id.",
+      "depends_on": [],
+      "files_created": [
+        "src/engines/PPGOutcomeCaptureWireEngine.ts",
+        "src/middleware/ppgOutcomeWire.ts",
+        "src/__tests__/engines/ppgOutcomeCaptureWireEngine.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/PostProcessorEngine.ts",
+        "src/engines/AdvancedPostProcessorEngine.ts",
+        "src/engines/LathePostProcessorEngine.ts",
+        "src/engines/LathePostProcessorAIEngine.ts",
+        "src/engines/MasterPostProcessorEngine.ts",
+        "src/engines/MasterPostProcessorUnifiedAGIEngine.ts",
+        "src/engines/PostProcessorGeneratorEngine.ts"
+      ],
+      "exit_criteria": "100% of PPG singleton entry points emit outcome events; controller dialect tagged; ≥5 tests covering 5 controllers (Fanuc, Okuma, Siemens, Haas, Heidenhain); dialect-validator path emits too"
+    },
+    {
+      "id": "U-PPG-SFC-03",
+      "title": "SFCProvenanceWireEngine — citations on every SFC output",
+      "description": "Wrap SFC outputs with provenanceEngine.cite() returning {kc11_source:{group, value, ref}, taylor_source:{C, n, ref}, fps_source:'formula'|'rag'|'adapter'|'iql', adapter_id?, residual?, calibration_ts, citations:CitationSchema[]}. Hook unprovenanced-recommendation-guard.mjs blocks SFC dispatcher actions that emit without provenance. Replaces the today-default 'just return a number' contract.",
+      "depends_on": ["U-PPG-SFC-01"],
+      "files_created": [
+        "src/engines/SFCProvenanceWireEngine.ts",
+        "src/schemas/sfcProvenanceSchema.ts",
+        "scripts/hooks/sfc-provenance-guard.mjs",
+        "src/__tests__/engines/sfcProvenanceWireEngine.test.ts"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/calcDispatcher.ts (sfc actions)"
+      ],
+      "exit_criteria": "every SFC dispatcher action returns provenance schema; hook blocks any return shape lacking citations; ≥3 representative material+tool combos prove kc/taylor refs trace to constants.ts; 0 unprovenanced rejected at dispatcher boundary in test sweep"
+    },
+    {
+      "id": "U-PPG-SFC-04",
+      "title": "PPGProvenanceWireEngine — citations on every PPG block",
+      "description": "Every generated G-code block carries inline provenance comment + structured payload: {dialect_source:{controller, version, ref}, post_template:{id, tribal_tip_ids?}, run_log_evidence?:{program_id, similarity}, citations:CitationSchema[]}. Comment format machine-readable for downstream auditing; structured payload returned in dispatcher response next to the gcode string.",
+      "depends_on": ["U-PPG-SFC-02"],
+      "files_created": [
+        "src/engines/PPGProvenanceWireEngine.ts",
+        "src/schemas/ppgProvenanceSchema.ts",
+        "scripts/hooks/ppg-provenance-guard.mjs",
+        "src/__tests__/engines/ppgProvenanceWireEngine.test.ts"
+      ],
+      "exit_criteria": "every PPG dispatcher action returns gcode + provenance struct; ≥5 dialects (Fanuc, Okuma, Siemens, Haas, Heidenhain) prove citation traceability; hook blocks unprovenanced returns"
+    },
+    {
+      "id": "U-PPG-SFC-05",
+      "title": "SFCInferenceGateWireEngine — deliver SFC LoRAs",
+      "description": "Wrap UltimateSpeedFeedEngine + AutoSpeedFeedEngine + AutoSpeedFeedCalculatorEngine + MachineAwareSpeedFeedEngine + LatheSpeedFeedCalculatorFacadeEngine through inferenceLoRAGateEngine.apply({domain:'sfc', context, base}). Adapter resolution keyed on (material × tool_class × machine_id × op_type). Returns {adjusted, adapter_id, residual, confidence}. residualApplied + adapterUsed surfaces into provenance.",
+      "depends_on": ["U-PPG-SFC-03"],
+      "files_created": [
+        "src/engines/SFCInferenceGateWireEngine.ts",
+        "src/__tests__/engines/sfcInferenceGateWireEngine.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/UltimateSpeedFeedEngine.ts",
+        "src/engines/AutoSpeedFeedEngine.ts",
+        "src/engines/AutoSpeedFeedCalculatorEngine.ts",
+        "src/engines/MachineAwareSpeedFeedEngine.ts",
+        "src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts"
+      ],
+      "exit_criteria": "every SFC entry path goes through gate; adapter-hit-rate ≥ 30% on JM Die quote workload synthetic test; provenance.adapterUsed populated 100%; gate-miss falls back to formula gracefully"
+    },
+    {
+      "id": "U-PPG-SFC-06",
+      "title": "PPGInferenceGateWireEngine — deliver PPG LoRAs",
+      "description": "Same pattern for PPG. Adapter keyed on (controller × machine_class × dialect_family). LoRA delta applied to dialect-specific blocks (e.g., learned mod for Okuma OSP G-code chunking, learned Siemens cycle preference). Falls back to base post on gate-miss.",
+      "depends_on": ["U-PPG-SFC-04"],
+      "files_created": [
+        "src/engines/PPGInferenceGateWireEngine.ts",
+        "src/__tests__/engines/ppgInferenceGateWireEngine.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/LathePostProcessorEngine.ts",
+        "src/engines/LathePostProcessorAIEngine.ts",
+        "src/engines/MasterPostProcessorEngine.ts",
+        "src/engines/MasterPostProcessorUnifiedAGIEngine.ts",
+        "src/engines/PostProcessorGeneratorEngine.ts"
+      ],
+      "exit_criteria": "all PPG entry paths through gate; adapter-hit-rate measured + reported; provenance.adapterUsed populated; ≥3 controller × machine combos exercised in tests"
+    },
+    {
+      "id": "U-PPG-SFC-07",
+      "title": "SFCRAGWarmStartEngine — historical-prior retrieval",
+      "description": "Wire jmDieProgramRAGEngine into SFC. On new quote, fetch top-5 nearest historical {material × tool_class × machine × op_type} programs from JM Die corpus. Use as Bayesian prior (likelihood-weighted by similarity score) for SFC ranker (U-PPG-SFC-09). Retrieval citations recorded in provenance.",
+      "depends_on": ["U-PPG-SFC-03"],
+      "files_created": [
+        "src/engines/SFCRAGWarmStartEngine.ts",
+        "src/__tests__/engines/sfcRAGWarmStartEngine.test.ts"
+      ],
+      "exit_criteria": "top-5 retrieval in <200ms over 22k corpus; ≥90% of retrieval results have similarity > 0.5 on labeled test set of 30 queries; citations attach to provenance with program_id + similarity"
+    },
+    {
+      "id": "U-PPG-SFC-08",
+      "title": "PPGRAGDialectMatchEngine — nearest-prior post retrieval",
+      "description": "Index dialect catalog + 22k JM Die programs by controller fingerprint. On new (controller, machine, material) request, serve nearest-prior post template. Wires tribalRAGEngine for dialect-folklore tips (e.g., 'Okuma OSP requires explicit M9 before tool change on this machine vintage').",
+      "depends_on": ["U-PPG-SFC-04"],
+      "files_created": [
+        "src/engines/PPGRAGDialectMatchEngine.ts",
+        "src/__tests__/engines/ppgRAGDialectMatchEngine.test.ts"
+      ],
+      "exit_criteria": "controller-fingerprint index built from JMDie corpus; recall@5 > 0.8 on 50 labeled controller-match queries; tribal tip retrieval cites tip_id"
+    },
+    {
+      "id": "U-PPG-SFC-09",
+      "title": "SFCMultiHypothesisRankerEngine — calibrated ranked recommendations",
+      "description": "Bayesian update over candidate sources: {Kienzle prior, Taylor prior, formula, learned_residual via gate, RAG_prior via U-07, IRL_reward via iqlEngine}. Emit ranked sfm/fpt/doc with calibrated confidence (Brier-validated) + decomposed reward (cycle_time, tool_life, surface_finish, safety) using existing reward primitives. Replaces today's 'pick one source and return' contract.",
+      "depends_on": ["U-PPG-SFC-05", "U-PPG-SFC-07"],
+      "files_created": [
+        "src/engines/SFCMultiHypothesisRankerEngine.ts",
+        "src/__tests__/engines/sfcMultiHypothesisRankerEngine.test.ts"
+      ],
+      "exit_criteria": "ranker returns top-3 candidates with calibrated confidence intervals; Brier score < 0.15 on synthetic eval set; reward decomposition exposed; safety-shield rejection path verified"
+    },
+    {
+      "id": "U-PPG-SFC-10",
+      "title": "PPGDialectHypothesisRankerEngine — calibrated dialect ranking",
+      "description": "Rank candidate dialect translations by predicted alarm-rate / override-rate / first-article-pass-rate against historical run logs. Combines RAG retrieval (U-08), provenance source weights, and a base-vs-adapted contest. Returns top-3 with confidence + predicted-alarm-rate per candidate.",
+      "depends_on": ["U-PPG-SFC-06", "U-PPG-SFC-08"],
+      "files_created": [
+        "src/engines/PPGDialectHypothesisRankerEngine.ts",
+        "src/__tests__/engines/ppgDialectHypothesisRankerEngine.test.ts"
+      ],
+      "exit_criteria": "ranker returns top-3 dialect candidates with predicted alarm-rate per candidate; calibrated against held-out JMDie run-log alarms with Brier < 0.20"
+    },
+    {
+      "id": "U-PPG-SFC-11",
+      "title": "SFCDriftCanaryEngine — override-rate drift + canary promote",
+      "description": "Page-Hinkley over operator override rate per (material × tool × machine). On drift fire testTimeAdaptationEngine (BN+LoRA-A only). New SFC adapters ship behind ShadowMode (pending U-LEARN-06 ShadowModeEngine; if not yet shipped, inline a 30-day shadow buffer with logged-only outputs). Canary ramp 5% → 25% → 100% with circuit-breaker on drift.",
+      "depends_on": ["U-PPG-SFC-05"],
+      "files_created": [
+        "src/engines/SFCDriftCanaryEngine.ts",
+        "src/__tests__/engines/sfcDriftCanaryEngine.test.ts"
+      ],
+      "exit_criteria": "Page-Hinkley fires within ≤10 events of injected drift in test; TTA engages and stays bounded (BN+LoRA-A only); canary ramp gated on drift signal; circuit-breaker rolls back adapter on regression"
+    },
+    {
+      "id": "U-PPG-SFC-12",
+      "title": "PPGDriftCanaryEngine — alarm-rate drift + canary promote",
+      "description": "Page-Hinkley over alarm-rate / line-reject-rate per dialect version. Same canary + circuit-breaker pattern as U-11.",
+      "depends_on": ["U-PPG-SFC-06"],
+      "files_created": [
+        "src/engines/PPGDriftCanaryEngine.ts",
+        "src/__tests__/engines/ppgDriftCanaryEngine.test.ts"
+      ],
+      "exit_criteria": "drift detection on alarm-rate within ≤10 events; canary ramp gated; circuit-breaker rolls back dialect adapter on regression"
+    },
+    {
+      "id": "U-PPG-SFC-13",
+      "title": "SFCFewShotNewMaterialEngine — ProtoMAML inside quote",
+      "description": "Wire protoMAMLFewShotEngine into SFC for <10-sample new-material prediction during quote-to-ship. Today MillingMetaLearningEngine + MetaLearningOptimizerEngine are named 'meta' with no inner-loop — this unit gives them one. Cache adapted head per (customer × material) in adapter registry. <500ms 3-shot adaptation budget inside dispatcher path.",
+      "depends_on": ["U-PPG-SFC-09"],
+      "files_created": [
+        "src/engines/SFCFewShotNewMaterialEngine.ts",
+        "src/__tests__/engines/sfcFewShotNewMaterialEngine.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/MillingMetaLearningEngine.ts",
+        "src/engines/MetaLearningOptimizerEngine.ts"
+      ],
+      "exit_criteria": "3-shot adapted prediction in <500ms inside quote path; MAE on held-out new-customer material within 1.2x fully-trained baseline; cache hit on repeat (customer×material) <50ms"
+    },
+    {
+      "id": "U-PPG-SFC-14",
+      "title": "PPGSFCClosedLoopE2EEngine — the demo that proves it",
+      "description": "End-to-end orchestrator + integration test. Workflow: real JM Die job (ALCOA D2 part) → SFC recommends sfm/fpt with provenance → operator overrides → outcome captured → ContinualLoRA threshold met → adapter trained → ShadowMode 30-day simulated (compress to N events) → promote → next SFC call returns adapted value with provenance citing override history → PPG emits Okuma OSP G-code with adapted feedrate → run-log captures actuals → OutcomeTrace closes lineage. Single integration test runs the whole path against fixture JM DIE data.",
+      "depends_on": [
+        "U-PPG-SFC-01", "U-PPG-SFC-02",
+        "U-PPG-SFC-05", "U-PPG-SFC-06",
+        "U-PPG-SFC-07", "U-PPG-SFC-08",
+        "U-PPG-SFC-09", "U-PPG-SFC-10",
+        "U-PPG-SFC-11", "U-PPG-SFC-12",
+        "U-PPG-SFC-13"
+      ],
+      "files_created": [
+        "src/engines/PPGSFCClosedLoopOrchestratorEngine.ts",
+        "src/__tests__/integration/ppgSfcClosedLoopE2E.test.ts"
+      ],
+      "exit_criteria": "single test runs full loop on JMDie/ALCOA fixture; lineage_id threads through all 8 phases; adapter actually delivers a different recommendation post-train; Brier improvement > 0 on shadowed-vs-base comparison; provenance valid at every emit"
+    }
+  ],
+  "sessions": [
+    { "session_id": 1, "title": "Capture spine — SFC + PPG outcome wires", "units": ["U-PPG-SFC-01", "U-PPG-SFC-02"], "smart_config": {"role": "Integration Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%"} },
+    { "session_id": 2, "title": "Provenance — citations enforced", "units": ["U-PPG-SFC-03", "U-PPG-SFC-04"], "smart_config": {"role": "ML Systems + Audit Engineer", "model": "opus", "effort": "HIGH", "context_budget": "55%"} },
+    { "session_id": 3, "title": "Inference gate — LoRAs delivered", "units": ["U-PPG-SFC-05", "U-PPG-SFC-06"], "smart_config": {"role": "PEFT Specialist", "model": "opus", "effort": "MAX", "context_budget": "60%"} },
+    { "session_id": 4, "title": "RAG — historical priors", "units": ["U-PPG-SFC-07", "U-PPG-SFC-08"], "smart_config": {"role": "IR + RAG Engineer", "model": "opus", "effort": "HIGH", "context_budget": "55%"} },
+    { "session_id": 5, "title": "Ranker — calibrated multi-hypothesis", "units": ["U-PPG-SFC-09", "U-PPG-SFC-10"], "smart_config": {"role": "Bayesian Stats + ML", "model": "opus", "effort": "MAX", "context_budget": "60%"} },
+    { "session_id": 6, "title": "Drift + canary — safe promotion", "units": ["U-PPG-SFC-11", "U-PPG-SFC-12"], "smart_config": {"role": "ML Reliability Engineer", "model": "opus", "effort": "HIGH", "context_budget": "55%"} },
+    { "session_id": 7, "title": "Few-shot + closed-loop demo", "units": ["U-PPG-SFC-13", "U-PPG-SFC-14"], "smart_config": {"role": "Continual Learning + Integration", "model": "opus", "effort": "MAX", "context_budget": "65%"} }
+  ],
+  "critical_path_do_not_slip": [
+    "U-PPG-SFC-01/02 OutcomeCaptureWire — nothing downstream gets signal without these",
+    "U-PPG-SFC-05/06 InferenceGateWire — THE belt connecting trained LoRAs to live PPG/SFC output",
+    "U-PPG-SFC-14 ClosedLoopE2E — the demo that proves the loop closes"
+  ],
+  "closing_question_success_gate": {
+    "question": "When an operator overrides SFC on a JM Die ALCOA job, does the next call return an adapted answer with citations?",
+    "today_answer": "No. Override invisible. Next call identical. PPG emits identical OSP. No memory.",
+    "post_envelope_answer_required": "Yes — demonstrated by U-PPG-SFC-14 e2e: override captured → trained → shadow-gated → promoted → adapted SFC value returned with provenance citing override history and Brier improvement → PPG emits adapter-aware feedrate."
+  },
+  "success_criteria": [
+    "100% of SFC dispatcher actions emit outcomes + carry provenance",
+    "100% of PPG dispatcher actions emit outcomes + carry provenance",
+    "SFC adapter-hit-rate ≥ 30% on JM Die quote workload",
+    "PPG adapter-hit-rate ≥ 20% on JM Die emit workload (lower bar — dialect deltas are smaller)",
+    "ProtoMAML 3-shot prediction in <500ms inside quote-to-ship dispatcher",
+    "Brier score < 0.15 on SFC ranker calibration eval",
+    "Brier score < 0.20 on PPG dialect ranker alarm-prediction eval",
+    "U-PPG-SFC-14 closed-loop e2e test passes against JM DIE/ALCOA fixture",
+    "Omega ≥ 0.95 on post-envelope RGS scrutiny (shop_floor tier: G-code emission gates)"
+  ],
+  "feature_cascade": {
+    "available_to": ["every SFC + PPG dispatcher action", "every studio (lathe, mill, swiss, hyperMILL bridges)", "quote-to-ship pipeline (immediate adapter delivery)", "concurrent chats via existing CrossAgentLedger"],
+    "hook_enforcement": ["sfc-provenance-guard.mjs", "ppg-provenance-guard.mjs"]
+  },
+  "smart_config": {
+    "role": "Integration Engineer + ML Systems + PEFT Specialist + RAG Architect (4-role rotation across 7 sessions)",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "60%"
+  },
+  "sessions_p50": 14,
+  "sessions_p90": 20,
+  "rollback": "Per-unit git revert; each Wire engine ships behind feature flag (PRISM_PPG_SFC_OUTCOME_WIRE=1, PRISM_SFC_INFERENCE_GATE=1, etc.) for gradual rollout per surface",
+  "_role": "Specialization of PSAU-LEARN closing-the-loop pattern to PPG + SFC — the two highest-leverage recommendation surfaces in PRISM. Without this envelope the U-LEARN substrate has no production loadbearing on the surfaces operators touch most."
+}
