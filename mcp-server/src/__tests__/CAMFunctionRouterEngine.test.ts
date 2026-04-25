@@ -1,9 +1,12 @@
 /**
- * CAMFunctionRouterEngine tests — dedicated file per wiring hook requirement
+ * CAMFunctionRouterEngine tests — production surface (U-CAM71)
  * ===========================================================================
- * Companion to CAMCatalogLoaderEngine.test.ts. Exercises the router stub
- * surface directly so the Stop-hook's untested-engine check sees a 1:1 file
- * for CAMFunctionRouterEngine.
+ * Companion to CAMCatalogLoaderEngine.test.ts. Exercises the production router
+ * directly so the Stop-hook's untested-engine check sees a 1:1 file for
+ * CAMFunctionRouterEngine.
+ *
+ * Replaces the original stub-flag tests once the engine left stub status under
+ * U-CAM71 (synonym expansion + capability matrix + multi-feature scoring).
  */
 
 import { describe, it, expect } from "vitest";
@@ -29,13 +32,14 @@ describe("CAMFunctionRouterEngine — construction + default singleton", () => {
   });
 });
 
-describe("CAMFunctionRouterEngine — route() surface", () => {
-  it("returns a result marked stub:true", () => {
+describe("CAMFunctionRouterEngine — production surface", () => {
+  it("returns a result marked as production (stub:false, mode:production)", () => {
     const r = router.route({ intent: "pocket" });
-    expect(r.stub).toBe(true);
+    expect(r.stub).toBe(false);
+    expect(r.mode).toBe("production");
   });
 
-  it("returns a candidates array even when empty", () => {
+  it("returns a candidates array even when intent has no match", () => {
     const r = router.route({ intent: "totally-unmatched-gibberish-xyzzy" });
     expect(Array.isArray(r.candidates)).toBe(true);
   });
@@ -45,12 +49,15 @@ describe("CAMFunctionRouterEngine — route() surface", () => {
     expect(r.candidates.length).toBeLessThanOrEqual(5);
   });
 
-  it("sets fallback_used when no match found", () => {
+  it("sets fallback_used=true and confidence_label='none' when no match found", () => {
     const r = router.route({
       intent: "nonexistent-function-name-zzzz",
       target_cam: "mastercam",
     });
-    if (r.candidates.length === 0) expect(r.fallback_used).toBe(true);
+    if (r.candidates.length === 0) {
+      expect(r.fallback_used).toBe(true);
+      expect(r.confidence_label).toBe("none");
+    }
   });
 
   it("limits candidates to the requested CAM when target_cam is set", () => {
@@ -72,10 +79,11 @@ describe("CAMFunctionRouterEngine — route() surface", () => {
 
   it("returns confidence 0 for empty intent", () => {
     const r = router.route({ intent: "" });
-    expect(r.confidence).toBeGreaterThanOrEqual(0);
+    expect(r.confidence).toBe(0);
+    expect(r.confidence_label).toBe("none");
   });
 
-  it("confidence scores are in [0, 1]", () => {
+  it("confidence and per-candidate scores stay in [0, 1]", () => {
     const r = router.route({ intent: "operation parameters" });
     for (const c of r.candidates) {
       expect(c.score).toBeGreaterThan(0);
@@ -85,7 +93,7 @@ describe("CAMFunctionRouterEngine — route() surface", () => {
     expect(r.confidence).toBeLessThanOrEqual(1);
   });
 
-  it("matched_function is a string when any candidate exists", () => {
+  it("matched_function is a string when any candidate exists, null otherwise", () => {
     const r = router.route({ intent: "operation" });
     if (r.candidates.length > 0) {
       expect(typeof r.matched_function).toBe("string");
@@ -105,6 +113,77 @@ describe("CAMFunctionRouterEngine — route() surface", () => {
     const r = router.route({ intent: "operation parameters total" });
     for (let i = 1; i < r.candidates.length; i++) {
       expect(r.candidates[i - 1].score).toBeGreaterThanOrEqual(r.candidates[i].score);
+    }
+  });
+});
+
+describe("CAMFunctionRouterEngine — intent normalization + synonym expansion", () => {
+  it("normalizes intent (lowercase, drops stop-words and punctuation)", () => {
+    const r = router.route({ intent: "Pocket the Part!" });
+    expect(r.intent_normalized).toContain("pocket");
+    expect(r.intent_normalized).toContain("part");
+    expect(r.intent_normalized).not.toContain("the");
+    expect(r.intent_normalized.every((t) => t === t.toLowerCase())).toBe(true);
+  });
+
+  it("expands synonyms — 'rough' pulls in adaptive/clearing/hem/vortex", () => {
+    const r = router.route({ intent: "rough" });
+    const exp = new Set(r.expanded_terms);
+    expect(exp.has("rough")).toBe(true);
+    // At least one of the canonical synonyms must be present
+    const synFamilies = ["adaptive", "clearing", "hem", "vortex", "high-efficiency"];
+    expect(synFamilies.some((s) => exp.has(s))).toBe(true);
+  });
+
+  it("expansion is deduped and a superset of normalized tokens", () => {
+    const r = router.route({ intent: "5-axis roughing pocket" });
+    const norm = new Set(r.intent_normalized);
+    for (const n of norm) expect(r.expanded_terms).toContain(n);
+    const seen = new Set<string>();
+    for (const t of r.expanded_terms) {
+      expect(seen.has(t)).toBe(false);
+      seen.add(t);
+    }
+  });
+});
+
+describe("CAMFunctionRouterEngine — confidence labels", () => {
+  it("assigns 'none' when score is 0", () => {
+    const r = router.route({ intent: "" });
+    expect(r.confidence_label).toBe("none");
+  });
+
+  it("label is one of the four canonical values", () => {
+    const r = router.route({ intent: "operation" });
+    expect(["high", "medium", "low", "none"]).toContain(r.confidence_label);
+  });
+
+  it("label thresholds are monotonic with confidence score", () => {
+    const samples = [
+      router.route({ intent: "" }),
+      router.route({ intent: "operation" }),
+      router.route({ intent: "5-axis adaptive roughing pocket contour" }),
+    ];
+    for (const r of samples) {
+      const expected =
+        r.confidence === 0
+          ? "none"
+          : r.confidence >= 0.7
+          ? "high"
+          : r.confidence >= 0.4
+          ? "medium"
+          : "low";
+      expect(r.confidence_label).toBe(expected);
+    }
+  });
+});
+
+describe("CAMFunctionRouterEngine — capability bias", () => {
+  it("capability_bonus is included in score and within [0, 0.15]", () => {
+    const r = router.route({ intent: "5-axis", target_cam: "hypermill" });
+    for (const c of r.candidates) {
+      expect(c.capability_bonus).toBeGreaterThanOrEqual(0);
+      expect(c.capability_bonus).toBeLessThanOrEqual(0.15);
     }
   });
 });

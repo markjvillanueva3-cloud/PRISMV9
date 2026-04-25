@@ -104,10 +104,11 @@ describe("CAMCatalogLoaderEngine", () => {
   });
 });
 
-describe("CAMFunctionRouterEngine (stub)", () => {
-  it("returns a result marked stub", () => {
+describe("CAMFunctionRouterEngine (production — U-CAM71)", () => {
+  it("returns a production-mode result (stub:false)", () => {
     const r = camFunctionRouterEngine.route({ intent: "pocket" });
-    expect(r.stub).toBe(true);
+    expect(r.stub).toBe(false);
+    expect(r.mode).toBe("production");
     expect(r.candidates).toBeInstanceOf(Array);
   });
 
@@ -116,7 +117,7 @@ describe("CAMFunctionRouterEngine (stub)", () => {
       intent: "pocket",
       target_cam: "hypermill",
     });
-    expect(r.stub).toBe(true);
+    expect(r.stub).toBe(false);
     for (const c of r.candidates) expect(c.cam).toBe("hypermill");
   });
 
