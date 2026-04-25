@@ -67,3 +67,9 @@ export function validateActionParams(
   const errorMessage = result.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ");
   return { valid: false, success: false, error: result.error, errorMessage };
 }
+
+// Backward-compat alias (esbuild fix 2026-04-25)
+export function dispatcherResult<T>(result: T): { success: true; data: T } {
+  return { success: true, data: result };
+}
+

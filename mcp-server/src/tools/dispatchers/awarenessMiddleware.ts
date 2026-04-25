@@ -101,3 +101,22 @@ export function clearAwarenessCache(): void {
 export function awarenessCacheSize(): number {
   return cache.size;
 }
+
+// Backward-compat (esbuild fix 2026-04-25) — basic keyword extraction
+// from action + params for the awareness lookup pipeline.
+export function extractAwarenessKeywords(
+  action: string,
+  params: Record<string, unknown> | undefined,
+): string[] {
+  const out = new Set<string>();
+  if (action) for (const t of action.toLowerCase().split(/[^a-z0-9]+/)) if (t.length > 2) out.add(t);
+  if (params) {
+    for (const v of Object.values(params)) {
+      if (typeof v === "string") {
+        for (const t of v.toLowerCase().split(/[^a-z0-9]+/)) if (t.length > 2) out.add(t);
+      }
+    }
+  }
+  return [...out];
+}
+

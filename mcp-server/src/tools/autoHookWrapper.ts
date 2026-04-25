@@ -25,3 +25,21 @@ export function getReconState(): ReconState {
     lastCallTimestamp,
   };
 }
+
+// Backward-compat shims (esbuild fix 2026-04-25)
+export const AUTO_HOOK_CONFIG = {
+  calcTools: [] as readonly string[],
+  enabled: false,
+};
+type AnyHandler = (args: any) => any | Promise<any>;
+export function wrapWithUniversalHooks<T extends AnyHandler>(toolName: string, handler: T): T {
+  return handler;
+}
+export function wrapToolWithAutoHooks<T extends AnyHandler>(toolName: string, handler: T): T {
+  return handler;
+}
+let _dispatchCount = 0;
+export function getDispatchCount(): number { return _dispatchCount; }
+export function getHookHistory(): Array<{ tool: string; ts: number }> { return []; }
+export function registerAutoHookTools(_server: unknown): void { /* no-op */ }
+

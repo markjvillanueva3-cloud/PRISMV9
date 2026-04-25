@@ -222,3 +222,12 @@ export const JM_DIE_SOURCE_ROOTS = {
  * are added as machines are onboarded via `/machine-harden`.
  */
 export const JM_DIE_CONTROLLER_MAP: readonly MachineControllerPair[] = [] as const;
+
+// Backward-compat (esbuild fix 2026-04-25) — production seed list lives
+// in shop-config; this empty stub keeps callers compilable.
+export interface JMDieDevelopmentSeed {
+  domain: string;
+  priority: number;
+}
+export const JM_DIE_DEVELOPMENT_SEEDS: readonly JMDieDevelopmentSeed[] = [];
+

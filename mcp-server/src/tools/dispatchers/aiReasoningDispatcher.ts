@@ -581,3 +581,18 @@ export async function aiReasoningDispatcher(
 
 /** Export action list for registration */
 export { AI_REASONING_ACTIONS };
+
+// Backward-compat (esbuild fix 2026-04-25) — registers the prism_ai
+// tool on a server that exposes a .tool(name, desc, schema, handler) API.
+export function registerAIReasoningDispatcher(server: {
+  tool: (name: string, description: string, schema: unknown, handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>) => void;
+}): void {
+  const def = aiReasoningDispatcherDef;
+  server.tool(
+    def.name,
+    def.description,
+    def.inputSchema,
+    async (args) => aiReasoningDispatcher(args as { action: AIReasoningAction; params?: Record<string, unknown> }),
+  );
+}
+
