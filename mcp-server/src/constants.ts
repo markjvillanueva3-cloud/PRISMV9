@@ -168,3 +168,85 @@ export const MATERIAL_CATEGORIES = [
 ] as const;
 
 export type PrismPaths = typeof PATHS;
+
+// ============================================================================
+// REGISTRY TYPE COMPAT SHIMS
+// String-literal unions imported by src/types.ts and downstream registry types.
+// These are loose enough to accept incoming legacy data; tighten incrementally.
+// ============================================================================
+
+export type IsoMaterialGroup = "P" | "M" | "K" | "N" | "S" | "H" | "X";
+
+export type MaterialCategory = typeof MATERIAL_CATEGORIES[number];
+
+export type MaterialLayer = "core" | "extended" | "specialty" | "user" | "legacy";
+
+export type MachineType =
+  | "mill" | "lathe" | "mill_turn" | "swiss" | "vmc" | "hmc" | "vtl"
+  | "wire_edm" | "sinker_edm" | "grinder" | "waterjet" | "laser" | "router"
+  | "drill_press" | "saw" | "press" | "robot" | "additive" | "other";
+
+export type MachineLayer = "core" | "extended" | "user" | "legacy";
+
+export type ControllerFamily =
+  | "fanuc" | "siemens" | "haas" | "okuma" | "mitsubishi" | "mazak" | "heidenhain"
+  | "fagor" | "centroid" | "linuxcnc" | "grbl" | "mach3" | "mach4" | "pathpilot"
+  | "marlin" | "fluidnc" | "selca" | "nakamura" | "tsugami" | "sodick"
+  | "agie" | "makino" | "charmilles" | "other";
+
+export type AlarmSeverity = "info" | "warning" | "error" | "critical" | "fatal";
+
+export type AlarmCategory =
+  | "axis" | "spindle" | "coolant" | "tool_change" | "controller" | "power"
+  | "communication" | "memory" | "safety" | "limit" | "servo" | "lubrication"
+  | "hydraulic" | "pneumatic" | "operator" | "program" | "feedback" | "other";
+
+export type ToolType =
+  | "endmill" | "ballmill" | "facemill" | "drill" | "reamer" | "tap" | "thread_mill"
+  | "boring_bar" | "turning_insert" | "grooving_insert" | "threading_insert"
+  | "parting_tool" | "broach" | "countersink" | "counterbore" | "spot_drill"
+  | "chamfer_mill" | "lollipop_mill" | "form_tool" | "knurling_tool"
+  | "burnishing_tool" | "probe" | "wheel" | "dresser" | "edm_electrode"
+  | "wire_edm_electrode" | "laser_head" | "waterjet_head" | "other";
+
+export type ToolMaterial = "carbide" | "cermet" | "ceramic" | "cbn" | "pcd" | "hss" | "diamond";
+
+export type AgentTier = "tier-0" | "tier-1" | "tier-2" | "tier-3" | "specialist" | "advisor" | "supervisor";
+
+export type HookPattern = "pre" | "post" | "wrap" | "stream" | "cadence" | "error" | "validation" | "advisory";
+
+export type HookLevel = "info" | "warning" | "error" | "block" | "critical";
+
+export type ResponseFormat = "json" | "markdown" | "text" | "table" | "code" | "stream";
+
+export type OptimizationTarget =
+  | "cost" | "time" | "quality" | "tool_life" | "energy" | "throughput"
+  | "surface_finish" | "force" | "power" | "deflection" | "chatter" | "balanced";
+
+export type OperationType =
+  | "roughing" | "finishing" | "semi_finishing" | "facing" | "profiling" | "pocketing"
+  | "drilling" | "boring" | "reaming" | "tapping" | "thread_milling" | "turning"
+  | "grooving" | "parting" | "threading" | "knurling" | "chamfering"
+  | "deburring" | "engraving" | "polishing" | "grinding" | "honing" | "lapping"
+  | "wire_edm" | "sinker_edm" | "laser_cut" | "waterjet_cut" | "plasma_cut"
+  | "additive" | "probing" | "other";
+
+export type FormulaDomain =
+  | "cutting_force" | "tool_life" | "power" | "torque" | "deflection" | "thermal"
+  | "vibration" | "stability" | "surface_finish" | "wear" | "stress" | "strain"
+  | "fatigue" | "fracture" | "material" | "tribology" | "kinematic"
+  | "geometric" | "statistical" | "control" | "other";
+
+export type QualityComponent = "R" | "C" | "P" | "S" | "L";
+
+export type SwarmPattern =
+  | "hierarchical" | "mesh" | "ring" | "star" | "hybrid" | "adaptive"
+  | "consensus" | "leader_follower" | "peer_to_peer" | "broadcast";
+
+export type WorkflowType =
+  | "linear" | "branching" | "parallel" | "iterative" | "ralph" | "consensus"
+  | "supervised" | "autonomous" | "interactive" | "scheduled" | "event_driven";
+
+export type ScriptCategory =
+  | "build" | "test" | "deploy" | "extract" | "validate" | "report" | "migration"
+  | "fixture" | "tool" | "data" | "ai" | "ci" | "release" | "diagnostic" | "other";
