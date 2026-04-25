@@ -94,6 +94,19 @@ async function getBeliefState() {
   return _beliefState;
 }
 
+// WIRE-MS0/U-WIRE09 — temporal + cognitive budget singletons
+let _temporal: typeof import("../../engines/TemporalReasoningEngine.js").temporalReasoningEngine | null = null;
+let _cognitive: typeof import("../../engines/CognitiveBudgetAllocatorEngine.js").cognitiveBudgetAllocatorEngine | null = null;
+
+async function getTemporal() {
+  if (!_temporal) { _temporal = (await import("../../engines/TemporalReasoningEngine.js")).temporalReasoningEngine; }
+  return _temporal;
+}
+async function getCognitive() {
+  if (!_cognitive) { _cognitive = (await import("../../engines/CognitiveBudgetAllocatorEngine.js")).cognitiveBudgetAllocatorEngine; }
+  return _cognitive;
+}
+
 /** Dispatcher definition for MCP registration */
 export const aiReasoningDispatcherDef = {
   name: "prism_ai",
@@ -438,6 +451,60 @@ export async function executeAIReasoningAction(
         result = {
           id: String(params.id),
           entropy_bits: belief.entropy(String(params.id)),
+        };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // WIRE-MS0/U-WIRE09 — temporal projection + cognitive budget
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_temporal_record": {
+        const temporal = await getTemporal();
+        result = temporal.record(
+          String(params.series),
+          Number(params.value),
+          params.at as string | undefined,
+          params.note as string | undefined,
+        );
+        break;
+      }
+      case "ai_temporal_project": {
+        const temporal = await getTemporal();
+        const proj = temporal.project(
+          String(params.series),
+          (params.windowSize as number | undefined) ?? 10,
+        );
+        result = proj ?? { series: String(params.series), projection: null };
+        break;
+      }
+      case "ai_temporal_forecast": {
+        const temporal = await getTemporal();
+        result = temporal.forecast(
+          String(params.series),
+          Number(params.target),
+          (params.windowSize as number | undefined) ?? 10,
+          params.nowIso as string | undefined,
+        );
+        break;
+      }
+      case "ai_cognitive_allocate": {
+        const cognitive = await getCognitive();
+        result = cognitive.allocate({
+          kind: params.kind as "read" | "edit" | "create" | "refactor" | "review" | "analysis" | "chat",
+          riskLevel: params.riskLevel as "low" | "medium" | "high" | "critical" | undefined,
+          touchesCriticalFile: params.touchesCriticalFile as boolean | undefined,
+          expectedDependents: params.expectedDependents as number | undefined,
+          userUrgent: params.userUrgent as boolean | undefined,
+          hasPreviousFailure: params.hasPreviousFailure as boolean | undefined,
+          tokenEstimate: params.tokenEstimate as number | undefined,
+        });
+        break;
+      }
+      case "ai_cognitive_classify": {
+        const cognitive = await getCognitive();
+        result = {
+          score: Number(params.score),
+          depth: cognitive.classify(Number(params.score)),
         };
         break;
       }

@@ -40,6 +40,12 @@ export const AI_REASONING_ACTIONS = [
   "ai_belief_update",
   "ai_belief_topk",
   "ai_belief_entropy",
+  // WIRE-MS0/U-WIRE09: temporal projection + cognitive budget allocation
+  "ai_temporal_record",
+  "ai_temporal_project",
+  "ai_temporal_forecast",
+  "ai_cognitive_allocate",
+  "ai_cognitive_classify",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -326,6 +332,64 @@ const ai_belief_entropy = z.object({
   id: z.string().min(1).describe("Belief identifier"),
 }).passthrough();
 
+// ─────────────────────────────────────────────────────────────────────────
+// WIRE-MS0/U-WIRE09 — temporal projection + cognitive budget allocation
+// TemporalReasoningEngine + CognitiveBudgetAllocatorEngine
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Record a snapshot in a named time series */
+const ai_temporal_record = z.object({
+  series: z.string().min(1).describe("Series name — non-empty (e.g. \"psi_percent\", \"tool_wear_VB_mm\")"),
+  value: z.number().finite().describe("Numeric snapshot value (must be finite)"),
+  at: z.string().regex(/^\d{4}-\d{2}-\d{2}T/).optional()
+    .describe("ISO-8601 timestamp; defaults to now if omitted"),
+  note: z.string().optional().describe("Optional human-readable note attached to the snapshot"),
+}).passthrough();
+
+/** Linear-regression projection over the last `windowSize` snapshots (slope/day, R²) */
+const ai_temporal_project = z.object({
+  series: z.string().min(1).describe("Series name to project"),
+  windowSize: z.number().int().min(2).max(1000).default(10)
+    .describe("Number of recent snapshots to fit (default 10, min 2, capped 1000)"),
+}).passthrough();
+
+/** ETA forecast: when will the series reach `target` at the current slope? */
+const ai_temporal_forecast = z.object({
+  series: z.string().min(1).describe("Series name to forecast"),
+  target: z.number().finite().describe("Target value to reach"),
+  windowSize: z.number().int().min(2).max(1000).default(10)
+    .describe("Regression window size (default 10)"),
+  nowIso: z.string().regex(/^\d{4}-\d{2}-\d{2}T/).optional()
+    .describe("Override `now` for deterministic forecasts (ISO-8601)"),
+}).passthrough();
+
+/** WorkDescriptor.kind enum — what kind of work the request represents */
+const workKindEnum = z.enum([
+  "read", "edit", "create", "refactor", "review", "analysis", "chat",
+]);
+
+/** Allocate cognitive budget (depth + maxTokens + simulation/multi-agent gates) */
+const ai_cognitive_allocate = z.object({
+  kind: workKindEnum.describe("Work kind — drives base cost"),
+  riskLevel: z.enum(["low", "medium", "high", "critical"]).optional()
+    .describe("Optional risk level (default low → no boost)"),
+  touchesCriticalFile: z.boolean().optional()
+    .describe("True if the work touches a critical-classification file (+3 boost)"),
+  expectedDependents: z.number().int().nonnegative().optional()
+    .describe("Number of files/symbols expected to depend on this change"),
+  userUrgent: z.boolean().optional()
+    .describe("True if the user explicitly flagged this as urgent (-1 penalty)"),
+  hasPreviousFailure: z.boolean().optional()
+    .describe("True if prior attempts on this work failed (+1 boost)"),
+  tokenEstimate: z.number().nonnegative().finite().optional()
+    .describe("Caller estimate of needed tokens — floor only, depth tier sets the minimum"),
+}).passthrough();
+
+/** Classify a precomputed score into a depth tier */
+const ai_cognitive_classify = z.object({
+  score: z.number().finite().describe("Raw budget score (typically 0-12)"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -354,4 +418,9 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_belief_update,
   ai_belief_topk,
   ai_belief_entropy,
+  ai_temporal_record,
+  ai_temporal_project,
+  ai_temporal_forecast,
+  ai_cognitive_allocate,
+  ai_cognitive_classify,
 };
