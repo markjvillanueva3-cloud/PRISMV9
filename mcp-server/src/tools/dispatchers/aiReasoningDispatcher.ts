@@ -45,6 +45,24 @@ async function getMillAwareness() {
   return _millAwareness;
 }
 
+// Dev-loop AI engines (lazy)
+let _aiRouter: typeof import("../../engines/AISystemRouterEngine.js").aiSystemRouterEngine | null = null;
+let _aiAuto: typeof import("../../engines/AIAutoUtilizationEngine.js").aiAutoUtilizationEngine | null = null;
+let _aiExtract: typeof import("../../engines/AIExtractionReasonerEngine.js").aiExtractionReasoner | null = null;
+
+async function getAiRouter() {
+  if (!_aiRouter) { _aiRouter = (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterEngine; }
+  return _aiRouter;
+}
+async function getAiAuto() {
+  if (!_aiAuto) { _aiAuto = (await import("../../engines/AIAutoUtilizationEngine.js")).aiAutoUtilizationEngine; }
+  return _aiAuto;
+}
+async function getAiExtract() {
+  if (!_aiExtract) { _aiExtract = (await import("../../engines/AIExtractionReasonerEngine.js")).aiExtractionReasoner; }
+  return _aiExtract;
+}
+
 /** Dispatcher definition for MCP registration */
 export const aiReasoningDispatcherDef = {
   name: "prism_ai",
@@ -204,6 +222,35 @@ export async function executeAIReasoningAction(
           stock_to_leave: params.stock_to_leave,
           ...response,
         };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Dev-loop AI utilities (added 2026-04-25 per AI engine audit)
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_route_task": {
+        const router = await getAiRouter();
+        result = router.route(String(params.task ?? ""));
+        break;
+      }
+      case "ai_health_report": {
+        const router = await getAiRouter();
+        if (params.backend) {
+          result = router.probe(params.backend as never);
+        } else {
+          result = { backends: router.healthReport() };
+        }
+        break;
+      }
+      case "ai_recommend_capability": {
+        const auto = await getAiAuto();
+        const ctx = params.experience ? { experienceLevel: String(params.experience) as never } : undefined;
+        result = auto.analyze(String(params.input ?? ""), ctx as never);
+        break;
+      }
+      case "ai_classify_content": {
+        const reasoner = await getAiExtract();
+        result = await reasoner.classifyContent(params.content);
         break;
       }
 

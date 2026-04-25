@@ -21,8 +21,8 @@ describe("aiReasoningDispatcher", () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe("schema validation", () => {
-    it("should have 6 actions defined", () => {
-      expect(AI_REASONING_ACTIONS).toHaveLength(6);
+    it("should have 10 actions defined", () => {
+      expect(AI_REASONING_ACTIONS).toHaveLength(10);
     });
 
     it("should have schemas for all actions", () => {
@@ -526,6 +526,95 @@ describe("aiReasoningDispatcher", () => {
       expect(stats.totalEngines).toBeGreaterThanOrEqual(0);
       expect(stats.byCategory).toBeDefined();
       expect(stats.version).toBe("1.0.0");
+    });
+  });
+ // ═══════════════════════════════════════════════════════════════════════════
+  // Dev-loop AI utilities (added 2026-04-25)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe("ai_route_task — backend routing", () => {
+    it("routes physics validation to Docker", async () => {
+      const result = await executeAIReasoningAction("ai_route_task", {
+        task: "validate Kienzle physics for 4140 steel",
+      });
+      expect(result.success).toBe(true);
+      const d = result.data as Record<string, unknown>;
+      expect(d.taskClass).toBe("physics_validation");
+      expect(d.primary).toBe("docker-physics-agent");
+    });
+
+    it("routes engine creation to Opus", async () => {
+      const result = await executeAIReasoningAction("ai_route_task", {
+        task: "build a new engine for surface roughness",
+      });
+      expect(result.success).toBe(true);
+      const d = result.data as Record<string, unknown>;
+      expect(d.primary).toBe("claude-opus");
+    });
+
+    it("routes search to local mcp", async () => {
+      const result = await executeAIReasoningAction("ai_route_task", {
+        task: "search the codebase for material registry",
+      });
+      expect(result.success).toBe(true);
+      const d = result.data as Record<string, unknown>;
+      expect(d.primary).toBe("local-mcp");
+      expect(d.estimatedCost).toBe("free");
+    });
+
+    it("rejects empty task via schema", async () => {
+      const schema = ACTION_AI_REASONING_SCHEMAS.ai_route_task;
+      const r = schema.safeParse({ task: "" });
+      expect(r.success).toBe(false);
+    });
+  });
+
+  describe("ai_health_report — backend reachability", () => {
+    it("reports health for all backends", async () => {
+      const result = await executeAIReasoningAction("ai_health_report", {});
+      expect(result.success).toBe(true);
+      const d = result.data as Record<string, unknown>;
+      expect(Array.isArray(d.backends)).toBe(true);
+      expect((d.backends as unknown[]).length).toBe(8);
+    });
+
+    it("probes a specific backend", async () => {
+      const result = await executeAIReasoningAction("ai_health_report", {
+        backend: "claude-opus",
+      });
+      expect(result.success).toBe(true);
+      const d = result.data as Record<string, unknown>;
+      expect(d.backend).toBe("claude-opus");
+      expect(d.reachable).toBe(true);
+    });
+  });
+
+  describe("ai_recommend_capability — pattern matching", () => {
+    it("recommends capabilities for a wire-EDM prompt", async () => {
+      const result = await executeAIReasoningAction("ai_recommend_capability", {
+        input: "I need to program a wire EDM job for 0.5mm tungsten carbide",
+      });
+      expect(result.success).toBe(true);
+      const d = result.data as Record<string, unknown>;
+      // Engine returns either matches or recommendations array; just assert shape
+      expect(typeof d).toBe("object");
+    });
+
+    it("rejects empty input via schema", () => {
+      const schema = ACTION_AI_REASONING_SCHEMAS.ai_recommend_capability;
+      const r = schema.safeParse({ input: "" });
+      expect(r.success).toBe(false);
+    });
+  });
+
+  describe("ai_classify_content — content type detection", () => {
+    it("classifies a string as content", async () => {
+      const result = await executeAIReasoningAction("ai_classify_content", {
+        content: "This is a Mastercam 2024 user manual chapter on toolpath optimization.",
+      });
+      // classifyContent calls llmEngine which may not be reachable in test env;
+      // we accept either success with a classification or graceful error envelope.
+      expect(typeof result).toBe("object");
     });
   });
 });

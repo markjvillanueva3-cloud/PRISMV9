@@ -17,6 +17,11 @@ export const AI_REASONING_ACTIONS = [
   "ai_mill_scientific_analyze",
   "ai_mill_wisdom_query",
   "ai_mill_adaptive_strategy",
+  // Dev-loop AI utilities (proven-useful per AI engine audit 2026-04-25)
+  "ai_route_task",
+  "ai_health_report",
+  "ai_recommend_capability",
+  "ai_classify_content",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -153,6 +158,29 @@ const ai_mill_adaptive_strategy = z.object({
   include_provenance: z.boolean().optional().describe("Include strategy provenance"),
 }).passthrough();
 
+/** Route a dev task to optimal Claude/Ollama/Docker backend */
+const ai_route_task = z.object({
+  task: z.string().min(1).describe("Task description for backend routing"),
+}).passthrough();
+
+/** Probe reachability of all known AI backends */
+const ai_health_report = z.object({
+  backend: z.string().optional().describe("Specific backend to probe (omit for all)"),
+}).passthrough();
+
+/** Recommend PRISM capabilities matching a user prompt */
+const ai_recommend_capability = z.object({
+  input: z.string().min(1).describe("User prompt or task description"),
+  experience: z.enum(["novice","intermediate","expert"]).optional().describe("User experience level"),
+}).passthrough();
+
+
+/** Classify content type for downstream processing (PDF, video, code, etc.) */
+const ai_classify_content = z.object({
+  content: z.unknown().describe("Content to classify (text, file metadata, etc.)"),
+  hint: z.string().optional().describe("Optional content type hint"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -161,4 +189,8 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_mill_scientific_analyze,
   ai_mill_wisdom_query,
   ai_mill_adaptive_strategy,
+  ai_route_task,
+  ai_health_report,
+  ai_recommend_capability,
+  ai_classify_content,
 };
