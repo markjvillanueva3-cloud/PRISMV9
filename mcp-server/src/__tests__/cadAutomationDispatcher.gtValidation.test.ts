@@ -180,8 +180,11 @@ describe("cadAutomationDispatcher — U-CGT09 action surface", () => {
       fileId: "P1",
     })) as Record<string, unknown>;
     expect(out["quarantined"]).toBe(false);
-    expect((out["issues"] as unknown[]).length).toBe(0);
+    // responseSlimmer drops empty arrays mid-wire — issues:[] becomes undefined for clean bundles.
+    const issues = (out["issues"] ?? []) as unknown[];
+    expect(issues.length).toBe(0);
     expect(out["status"]).toBe("ok");
+    expect(out["fileId"]).toBe("P1");
   });
 
   it("gt_validate_bundle on a missing-bundle dir → bundle-json-missing", async () => {
