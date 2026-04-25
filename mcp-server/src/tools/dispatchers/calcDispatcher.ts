@@ -8466,6 +8466,43 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── PHYSICS-WIRE-MS0: wire 6 pre-existing orphan actions ──
+          case "tool_collision_query": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            const p = params as ValidatedParams;
+            if (p.tool_id && p.holder_id) {
+              result = toolCatalogEngine.collisionEnvelope({ tool_id: p.tool_id, holder_type: p.holder_type, holder_taper: p.holder_taper, stickout_mm: p.stickout_mm });
+            } else {
+              result = { tools: toolCatalogEngine.collisionDataBatch(p) };
+            }
+            break;
+          }
+          case "tool_find_optimal": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.recommend(params as ValidatedParams);
+            break;
+          }
+          case "physics_calibrate_submit": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.submit(params as ValidatedParams);
+            break;
+          }
+          case "physics_calibrate_predict": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.predict(params as ValidatedParams);
+            break;
+          }
+          case "physics_calibrate_state": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.getState();
+            break;
+          }
+          case "physics_calibrate_reset": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.reset(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
