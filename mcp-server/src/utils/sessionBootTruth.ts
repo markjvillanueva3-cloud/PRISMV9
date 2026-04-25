@@ -319,7 +319,7 @@ export function applySessionBootTruthfulness<T extends Record<string, any>>(
   const sharedRoadmap = summarizeRoadmapCollaborationState(readTextIfExists(sharedRoadmapPath), sharedRoadmapFreshness);
   const sharedTaskQueue = summarizeTaskQueue(readTextIfExists(sharedTaskQueuePath), sharedTaskQueueFreshness);
 
-  const next = { ...result } as T & Record<string, any>;
+  const next: Record<string, any> = { ...result };
   const existingInstanceId = typeof next.instance_id === "string" ? next.instance_id : "";
   if (!existingInstanceId || existingInstanceId.startsWith("claude-")) {
     next.instance_id = buildSessionBootInstanceId({
