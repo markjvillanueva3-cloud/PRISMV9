@@ -81,6 +81,19 @@ async function getMetalearn() {
   return _metalearn;
 }
 
+// WIRE-MS0/U-WIRE08 — PAC/VC bounds + belief-state tracking singletons
+let _statBounds: typeof import("../../engines/StatisticalLearningBoundsEngine.js").statisticalLearningBoundsEngine | null = null;
+let _beliefState: typeof import("../../engines/BeliefStateReasoningEngine.js").beliefStateReasoningEngine | null = null;
+
+async function getStatBounds() {
+  if (!_statBounds) { _statBounds = (await import("../../engines/StatisticalLearningBoundsEngine.js")).statisticalLearningBoundsEngine; }
+  return _statBounds;
+}
+async function getBeliefState() {
+  if (!_beliefState) { _beliefState = (await import("../../engines/BeliefStateReasoningEngine.js")).beliefStateReasoningEngine; }
+  return _beliefState;
+}
+
 /** Dispatcher definition for MCP registration */
 export const aiReasoningDispatcherDef = {
   name: "prism_ai",
@@ -353,6 +366,79 @@ export async function executeAIReasoningAction(
           (params.minAttempts as number | undefined) ?? 1,
         );
         result = rec ?? { scenario: String(params.scenario), recommendation: null };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // WIRE-MS0/U-WIRE08 — PAC/VC bounds + Bayesian belief
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_pac_sample_complexity": {
+        const bounds = await getStatBounds();
+        result = bounds.pacSampleComplexity({
+          hypothesisClassSize: Number(params.hypothesisClassSize),
+          epsilon: Number(params.epsilon),
+          delta: Number(params.delta),
+        });
+        break;
+      }
+      case "ai_vc_bound": {
+        const bounds = await getStatBounds();
+        result = bounds.vcBound({
+          vcDim: Number(params.vcDim),
+          n: Number(params.n),
+          delta: Number(params.delta),
+        });
+        break;
+      }
+      case "ai_rademacher_bound": {
+        const bounds = await getStatBounds();
+        result = bounds.rademacherBound({
+          empiricalRademacher: Number(params.empiricalRademacher),
+          n: Number(params.n),
+          delta: Number(params.delta),
+        });
+        break;
+      }
+      case "ai_pac_bayes_bound": {
+        const bounds = await getStatBounds();
+        result = bounds.pacBayesBound({
+          kl: Number(params.kl),
+          n: Number(params.n),
+          delta: Number(params.delta),
+        });
+        break;
+      }
+      case "ai_belief_set": {
+        const belief = await getBeliefState();
+        result = belief.set(
+          String(params.id),
+          params.distribution as Record<string, number>,
+          params.description as string | undefined,
+        );
+        break;
+      }
+      case "ai_belief_update": {
+        const belief = await getBeliefState();
+        result = belief.update(
+          String(params.id),
+          params.likelihood as Record<string, number>,
+        );
+        break;
+      }
+      case "ai_belief_topk": {
+        const belief = await getBeliefState();
+        result = {
+          id: String(params.id),
+          topK: belief.topK(String(params.id), (params.k as number | undefined) ?? 3),
+        };
+        break;
+      }
+      case "ai_belief_entropy": {
+        const belief = await getBeliefState();
+        result = {
+          id: String(params.id),
+          entropy_bits: belief.entropy(String(params.id)),
+        };
         break;
       }
 

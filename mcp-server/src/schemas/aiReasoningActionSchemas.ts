@@ -31,6 +31,15 @@ export const AI_REASONING_ACTIONS = [
   "ai_exception_stats",
   "ai_metalearn_record",
   "ai_metalearn_recommend",
+  // WIRE-MS0/U-WIRE08: PAC/VC/Rademacher/PAC-Bayes bounds + Bayesian belief
+  "ai_pac_sample_complexity",
+  "ai_vc_bound",
+  "ai_rademacher_bound",
+  "ai_pac_bayes_bound",
+  "ai_belief_set",
+  "ai_belief_update",
+  "ai_belief_topk",
+  "ai_belief_entropy",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -256,6 +265,67 @@ const ai_metalearn_recommend = z.object({
   minAttempts: z.number().int().positive().default(1).describe("Minimum attempts before a strategy is eligible (default 1)"),
 }).passthrough();
 
+// ─────────────────────────────────────────────────────────────────────────
+// WIRE-MS0/U-WIRE08 — PAC/VC/Rademacher/PAC-Bayes bounds + belief tracking
+// StatisticalLearningBoundsEngine + BeliefStateReasoningEngine
+// ─────────────────────────────────────────────────────────────────────────
+
+/** PAC sample complexity m ≥ (1/ε)·(ln|H| + ln(1/δ)) — Valiant 1984 */
+const ai_pac_sample_complexity = z.object({
+  hypothesisClassSize: z.number().min(1).describe("Hypothesis class size |H| (≥1)"),
+  epsilon: z.number().gt(0).lt(1).describe("Desired accuracy ε ∈ (0,1)"),
+  delta: z.number().gt(0).lt(1).describe("Confidence δ ∈ (0,1)"),
+}).passthrough();
+
+/** VC generalization bound √((d·ln(n/d) + ln(1/δ))/n) — Vapnik-Chervonenkis 1971 */
+const ai_vc_bound = z.object({
+  vcDim: z.number().nonnegative().describe("VC dimension d (≥0)"),
+  n: z.number().int().positive().describe("Sample size n (positive integer)"),
+  delta: z.number().gt(0).lt(1).describe("Confidence δ ∈ (0,1)"),
+}).passthrough();
+
+/** Rademacher bound 2·R̂_n + 3·√(ln(2/δ)/(2n)) — Bartlett & Mendelson 2002 */
+const ai_rademacher_bound = z.object({
+  empiricalRademacher: z.number().nonnegative().describe("Empirical Rademacher complexity R̂_n (≥0)"),
+  n: z.number().int().positive().describe("Sample size n (positive integer)"),
+  delta: z.number().gt(0).lt(1).describe("Confidence δ ∈ (0,1)"),
+}).passthrough();
+
+/** PAC-Bayes McAllester √((KL(Q‖P) + ln(n/δ)) / (2(n-1))) */
+const ai_pac_bayes_bound = z.object({
+  kl: z.number().nonnegative().describe("KL divergence KL(Q‖P) ≥ 0"),
+  n: z.number().int().min(2).describe("Sample size n (integer >1)"),
+  delta: z.number().gt(0).lt(1).describe("Confidence δ ∈ (0,1)"),
+}).passthrough();
+
+/** Distribution: state-name → non-negative weight (will be renormalised) */
+const distributionRecord = z.record(z.string(), z.number().nonnegative().finite())
+  .refine((d) => Object.keys(d).length >= 1, "distribution must contain at least one state");
+
+/** Set/replace a named belief distribution; engine renormalises to a probability simplex */
+const ai_belief_set = z.object({
+  id: z.string().min(1).describe("Belief identifier — non-empty"),
+  distribution: distributionRecord.describe("Distribution {state: weight}; renormalised to sum=1"),
+  description: z.string().optional().describe("Optional human-readable description"),
+}).passthrough();
+
+/** Bayesian update: posterior ∝ prior × likelihood, then renormalise */
+const ai_belief_update = z.object({
+  id: z.string().min(1).describe("Existing belief id (must exist)"),
+  likelihood: distributionRecord.describe("Likelihood vector {state: P(evidence|state)}"),
+}).passthrough();
+
+/** Top-K most probable states for a belief */
+const ai_belief_topk = z.object({
+  id: z.string().min(1).describe("Belief identifier"),
+  k: z.number().int().min(1).default(3).describe("Number of states to return (default 3)"),
+}).passthrough();
+
+/** Shannon entropy (bits) of a belief distribution */
+const ai_belief_entropy = z.object({
+  id: z.string().min(1).describe("Belief identifier"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -276,4 +346,12 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_exception_stats,
   ai_metalearn_record,
   ai_metalearn_recommend,
+  ai_pac_sample_complexity,
+  ai_vc_bound,
+  ai_rademacher_bound,
+  ai_pac_bayes_bound,
+  ai_belief_set,
+  ai_belief_update,
+  ai_belief_topk,
+  ai_belief_entropy,
 };
