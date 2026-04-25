@@ -42,6 +42,7 @@ export const ML_ACTIONS = [
   "min_batch_extract",
   "mcx_batch_extract",
   "lathe_infer_features",
+  "bue_onset_check",
   "program_parse_nc",
   "run_log_parse",
   "training_assemble",
@@ -195,6 +196,13 @@ export const ACTION_ML_SCHEMAS: Record<string, z.ZodType<unknown>> = {
       z_end: z.number().nullable().optional(),
     })).describe("Operation views from a parsed MIN program (subset of MINOperation)"),
   }).describe("Reverse-engineer turning features from MIN operations (LATHE-PROD-READY-MS0/U-LPR29)"),
+
+  bue_onset_check: z.object({
+    cutting_speed_m_per_min: z.number().describe("Tangential cutting speed v_c"),
+    iso_group: z.enum(["P","M","K","N","S","H"]).describe("ISO 513 workpiece group"),
+    tool_material: z.enum(["hss","uncoated_carbide","coated_carbide","cermet","ceramic","cbn","pcd"]).describe("Insert/tool material"),
+    rake_angle_deg: z.number().min(-30).max(30).default(0).describe("Effective rake; positive reduces BUE"),
+  }).describe("Predict built-up edge onset risk (LATHE-PROD-READY-MS0/U-LPR-BUE)"),
 
   program_parse_nc: z.object({
     text: z.string().describe("Standard G-code .NC program text"),

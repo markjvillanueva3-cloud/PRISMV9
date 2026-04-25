@@ -31,6 +31,7 @@ let _mcxParser: typeof import("../../engines/McxProgramParserEngine.js").mcxProg
 let _minBatch: typeof import("../../engines/MINBatchExtractorEngine.js").minBatchExtractorEngine | null = null;
 let _mcxBatch: typeof import("../../engines/McxBatchExtractorEngine.js").mcxBatchExtractorEngine | null = null;
 let _featureInfer: typeof import("../../engines/LatheProgramFeatureInferenceEngine.js").latheProgramFeatureInferenceEngine | null = null;
+let _bueOnset: typeof import("../../engines/BUEOnsetThresholdEngine.js").bueOnsetThresholdEngine | null = null;
 let _ncParser: typeof import("../../engines/NCFileParserEngine.js").ncFileParserEngine | null = null;
 let _runLogParser: typeof import("../../engines/OkumaRunLogParserEngine.js").okumaRunLogParserEngine | null = null;
 let _assembler: typeof import("../../engines/TrainingExampleAssemblerEngine.js").trainingExampleAssemblerEngine | null = null;
@@ -80,6 +81,8 @@ async function getEngine(name: string): Promise<unknown> {
       return _mcxBatch ??= (await import("../../engines/McxBatchExtractorEngine.js")).mcxBatchExtractorEngine;
     case "featureInfer":
       return _featureInfer ??= (await import("../../engines/LatheProgramFeatureInferenceEngine.js")).latheProgramFeatureInferenceEngine;
+    case "bueOnset":
+      return _bueOnset ??= (await import("../../engines/BUEOnsetThresholdEngine.js")).bueOnsetThresholdEngine;
     case "nc":
       return _ncParser ??= (await import("../../engines/NCFileParserEngine.js")).ncFileParserEngine;
     case "runLog":
@@ -295,6 +298,19 @@ export function registerMLDispatcher(server: unknown): void {
             const ops = (params.operations as Array<import("../../engines/LatheProgramFeatureInferenceEngine.js").InferenceOperationView>) ?? [];
             const inference = engine.inferFromOperations(ops);
             result = { success: true, inference };
+            break;
+          }
+
+          case "bue_onset_check": {
+            // U-LPR-BUE: built-up edge onset prediction.
+            const engine = await getEngine("bueOnset") as typeof import("../../engines/BUEOnsetThresholdEngine.js").bueOnsetThresholdEngine;
+            const r = engine.evaluate({
+              cutting_speed_m_per_min: params.cutting_speed_m_per_min as number,
+              iso_group: params.iso_group as import("../../engines/BUEOnsetThresholdEngine.js").IsoGroup,
+              tool_material: params.tool_material as import("../../engines/BUEOnsetThresholdEngine.js").ToolMaterial,
+              rake_angle_deg: (params.rake_angle_deg as number) ?? 0,
+            });
+            result = { success: true, bue: r };
             break;
           }
 
