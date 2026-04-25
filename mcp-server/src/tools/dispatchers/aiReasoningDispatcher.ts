@@ -63,6 +63,24 @@ async function getAiExtract() {
   return _aiExtract;
 }
 
+// WIRE-MS0/U-WIRE07 — dev-process reasoning + learning singletons
+let _causal: typeof import("../../engines/CausalReasoningEngine.js").causalReasoningEngine | null = null;
+let _exception: typeof import("../../engines/ExceptionLearningEngine.js").exceptionLearningEngine | null = null;
+let _metalearn: typeof import("../../engines/MetaLearningOptimizerEngine.js").metaLearningOptimizerEngine | null = null;
+
+async function getCausal() {
+  if (!_causal) { _causal = (await import("../../engines/CausalReasoningEngine.js")).causalReasoningEngine; }
+  return _causal;
+}
+async function getException() {
+  if (!_exception) { _exception = (await import("../../engines/ExceptionLearningEngine.js")).exceptionLearningEngine; }
+  return _exception;
+}
+async function getMetalearn() {
+  if (!_metalearn) { _metalearn = (await import("../../engines/MetaLearningOptimizerEngine.js")).metaLearningOptimizerEngine; }
+  return _metalearn;
+}
+
 /** Dispatcher definition for MCP registration */
 export const aiReasoningDispatcherDef = {
   name: "prism_ai",
@@ -81,11 +99,16 @@ export async function executeAIReasoningAction(
   const startTime = Date.now();
   log.info(`[prism_ai] Executing action: ${action}`);
 
-  // Validate params against schema
-  const schema = ACTION_AI_REASONING_SCHEMAS[action];
-  const validation = validateActionParams(action, params, schema);
+  // Validate params against per-action schema map.
+  // Note: validateActionParams takes the FULL map, not a single schema —
+  // pre-existing dispatcher had this miswired (single schema → passthrough).
+  const validation = validateActionParams(action, params, ACTION_AI_REASONING_SCHEMAS);
   if (!validation.valid) {
-    return dispatcherError(action, validation.error ?? "Validation failed");
+    return dispatcherError(
+      validation.errorMessage ?? "Validation failed",
+      action,
+      "prism_ai",
+    );
   }
 
   try {
@@ -254,9 +277,88 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // WIRE-MS0/U-WIRE07 — dev-process reasoning + learning
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_causal_add_edge": {
+        const causal = await getCausal();
+        result = causal.addEdge({
+          from: String(params.from),
+          to: String(params.to),
+          confidence: Number(params.confidence),
+          polarity: params.polarity as "positive" | "negative" | "unknown",
+          reason: params.reason as string | undefined,
+        });
+        break;
+      }
+      case "ai_causal_trace_impact": {
+        const causal = await getCausal();
+        result = causal.traceImpact(
+          String(params.source),
+          (params.maxHops as number | undefined) ?? 3,
+        );
+        break;
+      }
+      case "ai_causal_root_causes": {
+        const causal = await getCausal();
+        result = {
+          target: String(params.target),
+          maxHops: (params.maxHops as number | undefined) ?? 3,
+          rootCauses: causal.rootCauses(
+            String(params.target),
+            (params.maxHops as number | undefined) ?? 3,
+          ),
+        };
+        break;
+      }
+      case "ai_exception_handle": {
+        const exception = await getException();
+        result = exception.handleUnexpected({
+          type: params.type as "parameter_outlier" | "outcome_anomaly" | "process_deviation" | "measurement_spike",
+          description: String(params.description),
+          context: (params.context ?? {}) as Record<string, unknown>,
+          data: (params.data ?? {}) as Record<string, number | string>,
+          severity: params.severity as "info" | "warning" | "critical",
+        });
+        break;
+      }
+      case "ai_exception_record_outcome": {
+        const exception = await getException();
+        const learned = exception.recordOutcome(
+          String(params.eventId),
+          params.outcome as "success" | "failure" | "neutral",
+        );
+        result = learned ?? { error: `eventId not found: ${params.eventId}` };
+        break;
+      }
+      case "ai_exception_stats": {
+        const exception = await getException();
+        result = exception.getStatistics();
+        break;
+      }
+      case "ai_metalearn_record": {
+        const metalearn = await getMetalearn();
+        result = metalearn.record({
+          scenario: String(params.scenario),
+          strategy: String(params.strategy),
+          success: Boolean(params.success),
+          durationMs: params.durationMs as number | undefined,
+        });
+        break;
+      }
+      case "ai_metalearn_recommend": {
+        const metalearn = await getMetalearn();
+        const rec = metalearn.recommend(
+          String(params.scenario),
+          (params.minAttempts as number | undefined) ?? 1,
+        );
+        result = rec ?? { scenario: String(params.scenario), recommendation: null };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
-        return dispatcherError(action, `Unknown action: ${_exhaustive}`);
+        return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
       }
     }
 
@@ -270,7 +372,7 @@ export async function executeAIReasoningAction(
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     log.error(`[prism_ai] ${action} failed: ${message}`);
-    return dispatcherError(action, message);
+    return dispatcherError(message, action, "prism_ai");
   }
 }
 

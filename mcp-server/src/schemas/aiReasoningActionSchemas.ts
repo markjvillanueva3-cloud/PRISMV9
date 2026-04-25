@@ -22,6 +22,15 @@ export const AI_REASONING_ACTIONS = [
   "ai_health_report",
   "ai_recommend_capability",
   "ai_classify_content",
+  // WIRE-MS0/U-WIRE07: dev-process reasoning + learning orphans
+  "ai_causal_add_edge",
+  "ai_causal_trace_impact",
+  "ai_causal_root_causes",
+  "ai_exception_handle",
+  "ai_exception_record_outcome",
+  "ai_exception_stats",
+  "ai_metalearn_record",
+  "ai_metalearn_recommend",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -181,6 +190,72 @@ const ai_classify_content = z.object({
   hint: z.string().optional().describe("Optional content type hint"),
 }).passthrough();
 
+// ─────────────────────────────────────────────────────────────────────────
+// WIRE-MS0/U-WIRE07 — dev-process reasoning + learning orphans
+// CausalReasoningEngine + ExceptionLearningEngine + MetaLearningOptimizerEngine
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Polarity tri-state used by causal-edge sign tracking */
+const PolarityEnum = z.enum(["positive", "negative", "unknown"]);
+
+/** Add a causal edge (A → B) with confidence and polarity */
+const ai_causal_add_edge = z.object({
+  from: z.string().min(1).describe("Source node — non-empty string"),
+  to: z.string().min(1).describe("Target node — non-empty string (must differ from `from`)"),
+  confidence: z.number().min(0).max(1).describe("Edge confidence in [0,1]"),
+  polarity: PolarityEnum.describe("positive=same direction, negative=inverted, unknown=indeterminate"),
+  reason: z.string().optional().describe("Optional human-readable rationale"),
+}).passthrough();
+
+/** Trace forward impact from a source node (BFS, bounded hops) */
+const ai_causal_trace_impact = z.object({
+  source: z.string().min(1).describe("Source node to trace impact from"),
+  maxHops: z.number().int().positive().max(20).default(3).describe("Maximum hops to traverse (default 3, capped 20)"),
+}).passthrough();
+
+/** Find root-cause nodes (no incoming edges) reachable backward from a target */
+const ai_causal_root_causes = z.object({
+  target: z.string().min(1).describe("Target node whose root causes to find"),
+  maxHops: z.number().int().positive().max(20).default(3).describe("Maximum hops to traverse (default 3, capped 20)"),
+}).passthrough();
+
+/** Capture an unexpected event for learning instead of failing */
+const ai_exception_handle = z.object({
+  type: z.enum([
+    "parameter_outlier",
+    "outcome_anomaly",
+    "process_deviation",
+    "measurement_spike",
+  ]).describe("Exception category"),
+  description: z.string().min(1).describe("Human-readable description"),
+  context: z.record(z.string(), z.unknown()).describe("Free-form context key/value bag"),
+  data: z.record(z.string(), z.union([z.number(), z.string()])).describe("Numeric/string data payload (e.g. parameter, value)"),
+  severity: z.enum(["info", "warning", "critical"]).describe("Severity level — critical without prior similar success → shouldFail"),
+}).passthrough();
+
+/** Record outcome of a previously-handled exception, learning a tribal tip on success */
+const ai_exception_record_outcome = z.object({
+  eventId: z.string().min(1).describe("Event ID returned by ai_exception_handle (e.g. EX-7)"),
+  outcome: z.enum(["success", "failure", "neutral"]).describe("How the operation actually resolved"),
+}).passthrough();
+
+/** Get statistics about captured/learned exceptions */
+const ai_exception_stats = z.object({}).passthrough();
+
+/** Record outcome of a learning strategy attempt (scenario × strategy) */
+const ai_metalearn_record = z.object({
+  scenario: z.string().min(1).describe("Scenario id (e.g. 'pdf-extraction', 'cam-strategy-pick')"),
+  strategy: z.string().min(1).describe("Strategy id (e.g. 'transformer-extract', 'heuristic-rules')"),
+  success: z.boolean().describe("Did the strategy succeed?"),
+  durationMs: z.number().nonnegative().finite().optional().describe("Wall time in milliseconds"),
+}).passthrough();
+
+/** Recommend the best-performing strategy for a scenario (Wilson lower bound) */
+const ai_metalearn_recommend = z.object({
+  scenario: z.string().min(1).describe("Scenario id to recommend for"),
+  minAttempts: z.number().int().positive().default(1).describe("Minimum attempts before a strategy is eligible (default 1)"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -193,4 +268,12 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_health_report,
   ai_recommend_capability,
   ai_classify_content,
+  ai_causal_add_edge,
+  ai_causal_trace_impact,
+  ai_causal_root_causes,
+  ai_exception_handle,
+  ai_exception_record_outcome,
+  ai_exception_stats,
+  ai_metalearn_record,
+  ai_metalearn_recommend,
 };
