@@ -316,6 +316,10 @@ const ACTIONS = [
   "wedm_tip_learner_process", "wedm_tip_learner_stats", "wedm_tip_learner_approved",
   "wedm_autonomy_gate_status", "wedm_autonomy_gate_metrics",
   "wedm_tribal_runtime_stats", "wedm_tribal_runtime_select",
+  // NT-WIRE-MS0: 5 unwired non-traditional engines (9 actions)
+  "sinker_edm_electrode_plan", "sinker_edm_flush_recommend", "sinker_edm_wear_compensate",
+  "laser_lora_config", "laser_lora_state", "laser_lora_record",
+  "waterjet_lora_config", "waterjet_lora_state", "waterjet_lora_record",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1819,6 +1823,57 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_tribal_runtime_select": {
             const engine = await getEngine("tribalRuntime");
             result = engine.select(params ?? {});
+            break;
+          }
+
+          // ── NT-WIRE-MS0: 5 unwired non-traditional engines (9 actions) ──
+          case "sinker_edm_electrode_plan": {
+            const { sinkerEDMElectrodeGeometryEngine } = await import("../../engines/SinkerEDMElectrodeGeometryEngine.js");
+            result = sinkerEDMElectrodeGeometryEngine.plan(params as any);
+            break;
+          }
+          case "sinker_edm_flush_recommend": {
+            const { sinkerEDMFlushingAdvisorEngine } = await import("../../engines/SinkerEDMFlushingAdvisorEngine.js");
+            result = sinkerEDMFlushingAdvisorEngine.recommend(params as any);
+            break;
+          }
+          case "sinker_edm_wear_compensate": {
+            const { sinkerEDMWearCompensationEngine } = await import("../../engines/SinkerEDMWearCompensationEngine.js");
+            result = sinkerEDMWearCompensationEngine.plan(params as any);
+            break;
+          }
+          case "laser_lora_config": {
+            const { laserLoRACadenceEngine } = await import("../../engines/LaserLoRACadenceEngine.js");
+            const p = params as any;
+            if (p && Object.keys(p).length > 0) result = laserLoRACadenceEngine.setConfig(p);
+            else result = laserLoRACadenceEngine.getConfig();
+            break;
+          }
+          case "laser_lora_state": {
+            const { laserLoRACadenceEngine } = await import("../../engines/LaserLoRACadenceEngine.js");
+            result = laserLoRACadenceEngine.getState();
+            break;
+          }
+          case "laser_lora_record": {
+            const { laserLoRACadenceEngine } = await import("../../engines/LaserLoRACadenceEngine.js");
+            result = { total: laserLoRACadenceEngine.recordJobs((params as any).n) };
+            break;
+          }
+          case "waterjet_lora_config": {
+            const { waterjetLoRACadenceEngine } = await import("../../engines/WaterjetLoRACadenceEngine.js");
+            const p = params as any;
+            if (p && Object.keys(p).length > 0) result = waterjetLoRACadenceEngine.setConfig(p);
+            else result = waterjetLoRACadenceEngine.getConfig();
+            break;
+          }
+          case "waterjet_lora_state": {
+            const { waterjetLoRACadenceEngine } = await import("../../engines/WaterjetLoRACadenceEngine.js");
+            result = waterjetLoRACadenceEngine.getState();
+            break;
+          }
+          case "waterjet_lora_record": {
+            const { waterjetLoRACadenceEngine } = await import("../../engines/WaterjetLoRACadenceEngine.js");
+            result = { total: waterjetLoRACadenceEngine.recordJobs((params as any).n) };
             break;
           }
 
