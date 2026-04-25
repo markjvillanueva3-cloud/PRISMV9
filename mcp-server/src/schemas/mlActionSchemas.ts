@@ -41,6 +41,7 @@ export const ML_ACTIONS = [
   "program_parse_mcx",
   "min_batch_extract",
   "mcx_batch_extract",
+  "lathe_infer_features",
   "program_parse_nc",
   "run_log_parse",
   "training_assemble",
@@ -181,6 +182,19 @@ export const ACTION_ML_SCHEMAS: Record<string, z.ZodType<unknown>> = {
     max_bytes_per_file: z.number().int().positive().max(64 * 1024 * 1024).default(32 * 1024 * 1024).describe("Per-file byte cap; oversized files are skipped"),
     resume: z.boolean().default(true).describe("Skip files already in the checkpoint when true"),
   }).describe("Bounded-concurrency Mastercam-binary batch parser with checkpoint+resume (LATHE-PROD-READY-MS0/U-LPR28)"),
+
+  lathe_infer_features: z.object({
+    operations: z.array(z.object({
+      index: z.number().int().nonnegative(),
+      kind: z.string(),
+      tool_id: z.string().optional(),
+      canned_cycles: z.array(z.string()).optional(),
+      x_min: z.number().nullable().optional(),
+      x_max: z.number().nullable().optional(),
+      z_start: z.number().nullable().optional(),
+      z_end: z.number().nullable().optional(),
+    })).describe("Operation views from a parsed MIN program (subset of MINOperation)"),
+  }).describe("Reverse-engineer turning features from MIN operations (LATHE-PROD-READY-MS0/U-LPR29)"),
 
   program_parse_nc: z.object({
     text: z.string().describe("Standard G-code .NC program text"),

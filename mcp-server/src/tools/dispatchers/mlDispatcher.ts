@@ -30,6 +30,7 @@ let _minParser: typeof import("../../engines/MINFileParserEngine.js").minFilePar
 let _mcxParser: typeof import("../../engines/McxProgramParserEngine.js").mcxProgramParserEngine | null = null;
 let _minBatch: typeof import("../../engines/MINBatchExtractorEngine.js").minBatchExtractorEngine | null = null;
 let _mcxBatch: typeof import("../../engines/McxBatchExtractorEngine.js").mcxBatchExtractorEngine | null = null;
+let _featureInfer: typeof import("../../engines/LatheProgramFeatureInferenceEngine.js").latheProgramFeatureInferenceEngine | null = null;
 let _ncParser: typeof import("../../engines/NCFileParserEngine.js").ncFileParserEngine | null = null;
 let _runLogParser: typeof import("../../engines/OkumaRunLogParserEngine.js").okumaRunLogParserEngine | null = null;
 let _assembler: typeof import("../../engines/TrainingExampleAssemblerEngine.js").trainingExampleAssemblerEngine | null = null;
@@ -77,6 +78,8 @@ async function getEngine(name: string): Promise<unknown> {
       return _minBatch ??= (await import("../../engines/MINBatchExtractorEngine.js")).minBatchExtractorEngine;
     case "mcxBatch":
       return _mcxBatch ??= (await import("../../engines/McxBatchExtractorEngine.js")).mcxBatchExtractorEngine;
+    case "featureInfer":
+      return _featureInfer ??= (await import("../../engines/LatheProgramFeatureInferenceEngine.js")).latheProgramFeatureInferenceEngine;
     case "nc":
       return _ncParser ??= (await import("../../engines/NCFileParserEngine.js")).ncFileParserEngine;
     case "runLog":
@@ -283,6 +286,15 @@ export function registerMLDispatcher(server: unknown): void {
               resume: (params.resume as boolean) ?? true,
             });
             result = { success: true, batch };
+            break;
+          }
+
+          case "lathe_infer_features": {
+            // U-LPR29: reverse-engineer turning features from MIN operations.
+            const engine = await getEngine("featureInfer") as typeof import("../../engines/LatheProgramFeatureInferenceEngine.js").latheProgramFeatureInferenceEngine;
+            const ops = (params.operations as Array<import("../../engines/LatheProgramFeatureInferenceEngine.js").InferenceOperationView>) ?? [];
+            const inference = engine.inferFromOperations(ops);
+            result = { success: true, inference };
             break;
           }
 
