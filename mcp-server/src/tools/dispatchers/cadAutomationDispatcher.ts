@@ -127,6 +127,12 @@ const ACTIONS = [
   "step_validate",
   "step_pipeline_strategies",
   "step_pipeline_supported",
+  // U-CGT04 — GroundTruthFeatureTreeExtractor: canonical feature tree extraction across CAD formats
+  "feature_tree_extract",
+  "feature_tree_validate",
+  "feature_tree_recompute_signature",
+  "feature_tree_canonical_types",
+  "feature_tree_source_formats",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -814,6 +820,65 @@ Actions: ${ACTIONS.join(", ")}.`,
             );
             const exts = cadToSTEPPipelineEngine.listSupportedExtensions();
             result = { count: exts.length, extensions: exts };
+            break;
+          }
+          case "feature_tree_extract": {
+            // U-CGT04 — Extract canonical feature tree from a CAD file (mock or live).
+            const { groundTruthFeatureTreeExtractor } = await import(
+              "../../engines/GroundTruthFeatureTreeExtractor.js"
+            );
+            const filePath = String(params["filePath"] ?? "");
+            const formatHint = typeof params["formatHint"] === "string"
+              ? (params["formatHint"] as string)
+              : undefined;
+            try {
+              result = await groundTruthFeatureTreeExtractor.extract(
+                filePath,
+                formatHint as Parameters<typeof groundTruthFeatureTreeExtractor.extract>[1],
+              );
+            } catch (err) {
+              result = { error: (err as Error).message ?? String(err) };
+            }
+            break;
+          }
+          case "feature_tree_validate": {
+            // U-CGT04 — Validate a candidate tree against the canonical Zod schema.
+            const { groundTruthFeatureTreeExtractor } = await import(
+              "../../engines/GroundTruthFeatureTreeExtractor.js"
+            );
+            result = groundTruthFeatureTreeExtractor.validate(params["candidate"]);
+            break;
+          }
+          case "feature_tree_recompute_signature": {
+            // U-CGT04 — Recompute canonical signature for a tree (post-edit).
+            const { groundTruthFeatureTreeExtractor } = await import(
+              "../../engines/GroundTruthFeatureTreeExtractor.js"
+            );
+            try {
+              const signature = groundTruthFeatureTreeExtractor.recomputeSignature(
+                params["tree"] as Parameters<typeof groundTruthFeatureTreeExtractor.recomputeSignature>[0],
+              );
+              result = { signature };
+            } catch (err) {
+              result = { error: (err as Error).message ?? String(err) };
+            }
+            break;
+          }
+          case "feature_tree_canonical_types": {
+            // U-CGT04 — Read-only canonical feature-type vocabulary.
+            const { groundTruthFeatureTreeExtractor } = await import(
+              "../../engines/GroundTruthFeatureTreeExtractor.js"
+            );
+            const types = groundTruthFeatureTreeExtractor.listCanonicalTypes();
+            result = { count: types.length, types };
+            break;
+          }
+          case "feature_tree_source_formats": {
+            // U-CGT04 — Source format vocabulary (file extensions the extractor recognizes).
+            const { SOURCE_FORMATS } = await import(
+              "../../engines/GroundTruthFeatureTreeExtractor.js"
+            );
+            result = { count: SOURCE_FORMATS.length, formats: SOURCE_FORMATS };
             break;
           }
           default:

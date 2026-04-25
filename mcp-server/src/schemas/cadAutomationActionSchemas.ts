@@ -553,6 +553,29 @@ const step_pipeline_strategies = z
   .passthrough();
 
 const step_pipeline_supported = z.object({}).passthrough();
+
+// ─── Ground-truth feature tree (U-CGT04 / CAD-GROUND-TRUTH-MS0) ───────────
+
+const sourceFormatEnum = z.enum(["FCStd", "f3d", "f3z", "step", "sldprt", "sldasm", "ipt", "iam", "mcam", "mcx", "mcx-8", "hmc", "unknown"]);
+
+const feature_tree_extract = z
+  .object({
+    filePath: z.string().min(1),
+    formatHint: sourceFormatEnum.optional(),
+  })
+  .passthrough();
+
+const feature_tree_validate = z
+  .object({ candidate: z.unknown() })
+  .passthrough();
+
+const feature_tree_recompute_signature = z
+  .object({ tree: z.unknown() })
+  .passthrough();
+
+const feature_tree_canonical_types = z.object({}).passthrough();
+
+const feature_tree_source_formats = z.object({}).passthrough();
 // ─── Export map ──────────────────────────────────────────────────────────
 
 export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
@@ -586,4 +609,9 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   step_validate,
   step_pipeline_strategies,
   step_pipeline_supported,
+  feature_tree_extract,
+  feature_tree_validate,
+  feature_tree_recompute_signature,
+  feature_tree_canonical_types,
+  feature_tree_source_formats,
 };
