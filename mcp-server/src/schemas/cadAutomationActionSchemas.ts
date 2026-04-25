@@ -488,6 +488,71 @@ const airfoil_interpolate = z
   })
   .passthrough();
 
+
+// ─── Feature memory (U-CADC28 / CAD-COMPLETE-MS0) ────────────────────────
+
+const featureMemoryParamValue = z.union([z.number(), z.string(), z.boolean()]);
+
+const feature_memory_record = z
+  .object({
+    feature_type: z.string().min(1),
+    parameters: z.record(z.string(), featureMemoryParamValue),
+    outcome: z.enum(["success", "failure"]),
+    gen_time_ms: z.number().min(0).finite(),
+    error_pattern: z.string().min(1).max(256).optional(),
+    persist: z.boolean().optional(),
+  })
+  .passthrough();
+
+const feature_memory_query = z
+  .object({
+    feature_type: z.string().min(1),
+    parameters: z.record(z.string(), featureMemoryParamValue),
+    topK: z.number().int().min(1).max(100).optional(),
+    minSuccessRate: z.number().min(0).max(1).optional(),
+    minAttempts: z.number().int().min(0).optional(),
+    featureTypeFilter: z.string().min(1).optional(),
+  })
+  .passthrough();
+
+const feature_memory_lookup = z
+  .object({ id: z.string().min(1) })
+  .passthrough();
+
+const feature_memory_stats = z.object({}).passthrough();
+
+// ─── CAD→STEP pipeline (U-CGT03 / CAD-GROUND-TRUTH-MS0) ───────────────────
+
+const step_pipeline_batch_item = z.object({
+  filePath: z.string().min(1),
+  outputPath: z.string().min(1),
+});
+
+const step_pipeline_run = z
+  .object({
+    filePath: z.string().min(1),
+    outputPath: z.string().min(1),
+    requireOutputParent: z.boolean().optional(),
+    validate: z.boolean().optional(),
+  })
+  .passthrough();
+
+const step_pipeline_batch = z
+  .object({
+    items: z.array(step_pipeline_batch_item).min(1),
+    continueOnError: z.boolean().optional(),
+  })
+  .passthrough();
+
+const step_validate = z
+  .object({ stepFilePath: z.string().min(1) })
+  .passthrough();
+
+const step_pipeline_strategies = z
+  .object({ ext: z.string().min(1) })
+  .passthrough();
+
+const step_pipeline_supported = z.object({}).passthrough();
 // ─── Export map ──────────────────────────────────────────────────────────
 
 export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
@@ -512,4 +577,13 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   airfoil_query,
   airfoil_get,
   airfoil_interpolate,
+  feature_memory_record,
+  feature_memory_query,
+  feature_memory_lookup,
+  feature_memory_stats,
+  step_pipeline_run,
+  step_pipeline_batch,
+  step_validate,
+  step_pipeline_strategies,
+  step_pipeline_supported,
 };

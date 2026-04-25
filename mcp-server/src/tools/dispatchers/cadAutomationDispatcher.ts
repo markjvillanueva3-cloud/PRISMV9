@@ -116,6 +116,17 @@ const ACTIONS = [
   "airfoil_query",
   "airfoil_get",
   "airfoil_interpolate",
+  // U-CADC28 — CADFeatureMemoryEngine: persistent feature pattern memory + similarity search
+  "feature_memory_record",
+  "feature_memory_query",
+  "feature_memory_lookup",
+  "feature_memory_stats",
+  // U-CGT03 — CADToSTEPPipelineEngine: full CAD→STEP orchestration + AP214/AP242 validation
+  "step_pipeline_run",
+  "step_pipeline_batch",
+  "step_validate",
+  "step_pipeline_strategies",
+  "step_pipeline_supported",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -671,6 +682,138 @@ Actions: ${ACTIONS.join(", ")}.`,
               compatibility: cp.compatibility,
               boolean_ops_emitted: cp.booleanOpsEmitted,
             };
+            break;
+          }
+          case "feature_memory_record": {
+            const { cadFeatureMemoryEngine } = await import(
+              "../../engines/CADFeatureMemoryEngine.js"
+            );
+            const featureType = String(params["feature_type"] ?? "");
+            const parameters = (params["parameters"] ?? {}) as Record<string, number | string | boolean>;
+            const outcome = String(params["outcome"] ?? "") as "success" | "failure";
+            const genTimeMs = Number(params["gen_time_ms"] ?? 0);
+            const errorPattern = typeof params["error_pattern"] === "string" ? (params["error_pattern"] as string) : undefined;
+            const persistFlag = params["persist"] === undefined ? true : Boolean(params["persist"]);
+            const entry = await cadFeatureMemoryEngine.record({
+              feature_type: featureType,
+              parameters,
+              outcome,
+              gen_time_ms: genTimeMs,
+              error_pattern: errorPattern,
+            });
+            if (persistFlag) await cadFeatureMemoryEngine.persist();
+            result = {
+              id: entry.id,
+              feature_type: entry.feature_type,
+              total_attempts: entry.total_attempts,
+              success_count: entry.success_count,
+              failure_count: entry.failure_count,
+              success_rate: entry.success_rate,
+              avg_gen_time_ms: entry.avg_gen_time_ms,
+              error_patterns: entry.error_patterns,
+              created_at: entry.created_at,
+              last_used_at: entry.last_used_at,
+              persisted: persistFlag,
+            };
+            break;
+          }
+          case "feature_memory_query": {
+            const { cadFeatureMemoryEngine } = await import(
+              "../../engines/CADFeatureMemoryEngine.js"
+            );
+            const featureType = String(params["feature_type"] ?? "");
+            const parameters = (params["parameters"] ?? {}) as Record<string, number | string | boolean>;
+            const matches = await cadFeatureMemoryEngine.query(featureType, parameters, {
+              topK: typeof params["topK"] === "number" ? (params["topK"] as number) : undefined,
+              minSuccessRate: typeof params["minSuccessRate"] === "number" ? (params["minSuccessRate"] as number) : undefined,
+              minAttempts: typeof params["minAttempts"] === "number" ? (params["minAttempts"] as number) : undefined,
+              featureTypeFilter: typeof params["featureTypeFilter"] === "string" ? (params["featureTypeFilter"] as string) : undefined,
+            });
+            result = {
+              count: matches.length,
+              matches: matches.map((m) => ({
+                id: m.entry.id,
+                feature_type: m.entry.feature_type,
+                parameters: m.entry.parameters,
+                similarity: m.similarity,
+                success_rate: m.entry.success_rate,
+                total_attempts: m.entry.total_attempts,
+                avg_gen_time_ms: m.entry.avg_gen_time_ms,
+                error_patterns: m.entry.error_patterns,
+              })),
+            };
+            break;
+          }
+          case "feature_memory_lookup": {
+            const { cadFeatureMemoryEngine } = await import(
+              "../../engines/CADFeatureMemoryEngine.js"
+            );
+            const id = String(params["id"] ?? "");
+            const entry = await cadFeatureMemoryEngine.lookup(id);
+            result = { found: entry !== null, entry };
+            break;
+          }
+          case "feature_memory_stats": {
+            const { cadFeatureMemoryEngine } = await import(
+              "../../engines/CADFeatureMemoryEngine.js"
+            );
+            result = await cadFeatureMemoryEngine.stats();
+            break;
+          }
+          case "step_pipeline_run": {
+            const { cadToSTEPPipelineEngine } = await import(
+              "../../engines/CADToSTEPPipelineEngine.js"
+            );
+            result = await cadToSTEPPipelineEngine.runPipeline({
+              filePath: String(params["filePath"] ?? ""),
+              outputPath: String(params["outputPath"] ?? ""),
+              requireOutputParent: typeof params["requireOutputParent"] === "boolean" ? (params["requireOutputParent"] as boolean) : undefined,
+              validate: typeof params["validate"] === "boolean" ? (params["validate"] as boolean) : undefined,
+            });
+            break;
+          }
+          case "step_pipeline_batch": {
+            const { cadToSTEPPipelineEngine } = await import(
+              "../../engines/CADToSTEPPipelineEngine.js"
+            );
+            const rawItems = Array.isArray(params["items"]) ? (params["items"] as Array<{ filePath?: unknown; outputPath?: unknown }>) : [];
+            const items = rawItems.map((it) => ({
+              filePath: String(it?.filePath ?? ""),
+              outputPath: String(it?.outputPath ?? ""),
+            }));
+            result = await cadToSTEPPipelineEngine.runBatch({
+              items,
+              continueOnError: typeof params["continueOnError"] === "boolean" ? (params["continueOnError"] as boolean) : undefined,
+            });
+            break;
+          }
+          case "step_validate": {
+            const { cadToSTEPPipelineEngine } = await import(
+              "../../engines/CADToSTEPPipelineEngine.js"
+            );
+            result = cadToSTEPPipelineEngine.validateSTEP(String(params["stepFilePath"] ?? ""));
+            break;
+          }
+          case "step_pipeline_strategies": {
+            const { cadToSTEPPipelineEngine } = await import(
+              "../../engines/CADToSTEPPipelineEngine.js"
+            );
+            const ext = String(params["ext"] ?? "");
+            const supported = cadToSTEPPipelineEngine.listSupportedExtensions();
+            if (!(supported as readonly string[]).includes(ext)) {
+              result = { error: `Unsupported extension: ${ext}`, supportedExtensions: supported };
+            } else {
+              const chain = cadToSTEPPipelineEngine.selectStrategy(ext as (typeof supported)[number]);
+              result = { ext, strategies: chain };
+            }
+            break;
+          }
+          case "step_pipeline_supported": {
+            const { cadToSTEPPipelineEngine } = await import(
+              "../../engines/CADToSTEPPipelineEngine.js"
+            );
+            const exts = cadToSTEPPipelineEngine.listSupportedExtensions();
+            result = { count: exts.length, extensions: exts };
             break;
           }
           default:
