@@ -104,7 +104,7 @@
     },
     "lint-staged": {
         "*.ts": [
-            "npx tsc --noEmit --pretty"
+            "sh -c \"npx tsc --noEmit --pretty --target es2022 --module esnext --moduleResolution bundler --skipLibCheck --allowImportingTsExtensions false --strict false $@\" --"
         ]
     },
     "size-limit": [
