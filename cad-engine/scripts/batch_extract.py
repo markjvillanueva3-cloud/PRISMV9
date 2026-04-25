@@ -39,9 +39,10 @@ SKIP_PATHS = {
 }
 
 KEYWORDS = (
-    "hypermill", "inventorcam", "fusion", "fusion360",
+    "hypermill", "inventorcam", "inventorhsm", "fusion", "fusion360",
     "cam_manual", "cad_manual", "automation_center", "tool_builder",
     "synchronization_tool", "virtual_machining", "virtual_tool",
+    "sql_macro", "sql_tool_database",
     "cadcam_api", "py_cadcam",
     "solidcam", "edgecam", "mastercam", "esprit", "powermill",
 )
@@ -149,6 +150,8 @@ def derive_unit(path: str) -> str:
         return "U-CAM68"
     if "hypermill" in name:
         return "U-CAM69"
+    if "sql_macro" in name or "inventorhsm" in name:
+        return "U-CAM71"
     return "U-CAM-OTHER"
 
 
