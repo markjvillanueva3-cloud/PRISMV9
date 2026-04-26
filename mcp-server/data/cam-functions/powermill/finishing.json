@@ -1,0 +1,383 @@
+{
+  "schemaVersion": 1,
+  "system_id": "powermill",
+  "section_key": "finishing",
+  "version": "2024",
+  "extracted_from": "Autodesk PowerMill 2024 Reference Help (Finishing Strategies — Raster, 3D Offset, Steep and Shallow, Pencil, Constant Z, Corner, Surface, Pattern, Along-Corner, Between-Surfaces, Flowline, Swarf)",
+  "categories": [
+    "surface_driven",
+    "boundary_driven",
+    "corner_focused",
+    "specialized"
+  ],
+  "operations": {
+    "raster_finishing": {
+      "category": "surface_driven",
+      "display_name": "Raster Finishing",
+      "description": "Parallel passes across the surface in X/Y/user-defined direction. Classic 3D finish with scallop control via stepover.",
+      "parameter_count": 22,
+      "dialog_tabs": ["geometry", "tool", "limits", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false },
+          "contact_point": { "type": "enum", "values": ["tip", "centre", "side"], "default": "tip" }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 },
+          "ball_nose": { "type": "boolean", "default": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "thickness_mm": { "type": "number", "min": 0, "max": 2, "default": 0 }
+        },
+        "pattern": {
+          "angle_deg": { "type": "number", "min": 0, "max": 360, "default": 45 },
+          "direction": { "type": "enum", "values": ["one_way", "zig_zag"], "default": "zig_zag" },
+          "spiral": { "type": "boolean", "default": false },
+          "retract_between_passes": { "type": "boolean", "default": false }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "ramp", "vertical", "none"], "default": "arc" },
+          "lead_in_radius_mm": { "type": "number", "min": 0, "max": 50, "default": 2 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 },
+          "skim_distance_mm": { "type": "number", "min": 0, "max": 10, "default": 1 }
+        }
+      }
+    },
+    "offset_3d_finishing": {
+      "category": "surface_driven",
+      "display_name": "3D Offset Finishing",
+      "description": "Offset passes from surface geometry outward/inward. Natural tool engagement following curvature.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "tool", "limits", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "ball_nose": { "type": "boolean", "default": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "pattern": {
+          "direction": { "type": "enum", "values": ["outward", "inward"], "default": "outward" },
+          "start_point": { "type": "enum", "values": ["automatic", "user_defined"], "default": "automatic" },
+          "spiral": { "type": "boolean", "default": true }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical", "none"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "steep_shallow_finishing": {
+      "category": "surface_driven",
+      "display_name": "Steep and Shallow Finishing",
+      "description": "Hybrid strategy: constant-Z on steep regions, 3D offset/raster on shallow regions. Single operation covers full surface.",
+      "parameter_count": 28,
+      "dialog_tabs": ["geometry", "tool", "limits", "steep_shallow", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "ball_nose": { "type": "boolean", "default": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "stepdown_mm": { "type": "number", "min": 0.01, "max": 10, "default": 0.2 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "steep_shallow": {
+          "threshold_angle_deg": { "type": "number", "min": 30, "max": 75, "default": 45 },
+          "steep_strategy": { "type": "enum", "values": ["constant_z", "flowline"], "default": "constant_z" },
+          "shallow_strategy": { "type": "enum", "values": ["raster", "3d_offset", "spiral"], "default": "raster" },
+          "blend_overlap_mm": { "type": "number", "min": 0, "max": 10, "default": 1 },
+          "shallow_angle_deg": { "type": "number", "min": 0, "max": 180, "default": 45 }
+        },
+        "linking": {
+          "link_steep_shallow": { "type": "boolean", "default": true },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "constant_z_finishing": {
+      "category": "boundary_driven",
+      "display_name": "Constant Z Finishing",
+      "description": "Horizontal waterline passes at fixed Z increments. Optimal for steep walls — scallop height = stepdown.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "tool", "limits", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "stepdown_mm": { "type": "number", "min": 0.01, "max": 10, "default": 0.2 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "z_limits_min_mm": { "type": "number", "required": false },
+          "z_limits_max_mm": { "type": "number", "required": false }
+        },
+        "pattern": {
+          "direction": { "type": "enum", "values": ["climb", "conventional", "zig_zag"], "default": "climb" },
+          "start_from": { "type": "enum", "values": ["top", "bottom"], "default": "top" }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "ramp", "none"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "pencil_finishing": {
+      "category": "corner_focused",
+      "display_name": "Pencil Finishing",
+      "description": "Traces internal corners, fillets, and concave regions where ball mills leave residual. Small-diameter cutter cleans tight areas.",
+      "parameter_count": 16,
+      "dialog_tabs": ["geometry", "tool", "limits", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "reference_tool_dia_mm": { "type": "number", "required": true, "description": "Previous tool diameter — pencil cleans what it couldn't reach" }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "corner_radius_threshold_mm": { "type": "number", "min": 0.1, "max": 50, "default": 3 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "pattern": {
+          "passes": { "type": "number", "min": 1, "max": 10, "default": 1 },
+          "trace_direction": { "type": "enum", "values": ["both", "climb", "conventional"], "default": "both" }
+        },
+        "linking": {
+          "retract_between_corners": { "type": "boolean", "default": true },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "corner_finishing": {
+      "category": "corner_focused",
+      "display_name": "Corner Finishing",
+      "description": "Multi-pass corner cleanup with variable stepdown. More aggressive than pencil for larger filleted regions.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "corner_detect_radius_mm": { "type": "number", "min": 0.1, "max": 100, "default": 5 },
+          "stepdown_mm": { "type": "number", "min": 0.01, "max": 5, "default": 0.2 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "linking": {
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "surface_finishing": {
+      "category": "surface_driven",
+      "display_name": "Surface Finishing",
+      "description": "Direct surface-following toolpath. Tool contact point rides on surface — ideal for ruled/swept surfaces with predictable curvature.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "tool", "limits", "drive", "linking"],
+      "parameters": {
+        "geometry": {
+          "drive_surface": { "type": "geometry_ref", "required": true },
+          "check_surfaces": { "type": "geometry_ref[]", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "drive": {
+          "drive_method": { "type": "enum", "values": ["parametric", "iso_curve", "flowline"], "default": "parametric" },
+          "direction": { "type": "enum", "values": ["along_u", "along_v", "both"], "default": "along_u" }
+        },
+        "linking": {
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "pattern_finishing": {
+      "category": "specialized",
+      "display_name": "Pattern Finishing",
+      "description": "User-defined pattern projected onto surface. Custom toolpath shapes (spirals, stars, logos) for decorative or functional texturing.",
+      "parameter_count": 15,
+      "dialog_tabs": ["geometry", "tool", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "pattern_curve": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "pattern": {
+          "projection_direction": { "type": "enum", "values": ["z_axis", "surface_normal", "view"], "default": "z_axis" },
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "repeat_x": { "type": "number", "min": 1, "max": 100, "default": 1 },
+          "repeat_y": { "type": "number", "min": 1, "max": 100, "default": 1 }
+        },
+        "linking": {
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "flowline_finishing": {
+      "category": "specialized",
+      "display_name": "Flowline Finishing",
+      "description": "Toolpath follows surface flow direction (iso-parametric curves). Ideal for turbine blades, impellers, and freeform aerodynamic surfaces.",
+      "parameter_count": 19,
+      "dialog_tabs": ["geometry", "tool", "limits", "flow", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "ball_nose": { "type": "boolean", "default": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "flow": {
+          "flow_direction": { "type": "enum", "values": ["u", "v", "both"], "default": "u" },
+          "extend_to_boundary": { "type": "boolean", "default": true },
+          "morph_to_boundary": { "type": "boolean", "default": false }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "none"], "default": "arc" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "swarf_finishing": {
+      "category": "specialized",
+      "display_name": "Swarf Finishing",
+      "description": "Side-of-cutter finishing for ruled walls. Flank milling with constant wall contact — requires 5-axis capability.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "tool", "limits", "swarf", "linking"],
+      "parameters": {
+        "geometry": {
+          "drive_surface": { "type": "geometry_ref", "required": true },
+          "floor_surface": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "flute_length_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.5 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "swarf": {
+          "contact_type": { "type": "enum", "values": ["tangent", "point"], "default": "tangent" },
+          "lead_angle_deg": { "type": "number", "min": 0, "max": 15, "default": 0 },
+          "tilt_control": { "type": "enum", "values": ["automatic", "fixed", "relative_to_surface"], "default": "automatic" }
+        },
+        "linking": {
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 },
+          "5axis_linking": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "between_surfaces_finishing": {
+      "category": "specialized",
+      "display_name": "Between Surfaces Finishing",
+      "description": "Toolpath morphs between two drive surfaces. Blade machining, tapered channels, variable-wall finishing.",
+      "parameter_count": 17,
+      "dialog_tabs": ["geometry", "tool", "limits", "morph", "linking"],
+      "parameters": {
+        "geometry": {
+          "surface_1": { "type": "geometry_ref", "required": true },
+          "surface_2": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.3 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "morph": {
+          "layers": { "type": "number", "min": 1, "max": 100, "default": 10 },
+          "blend_type": { "type": "enum", "values": ["linear", "smooth"], "default": "smooth" }
+        },
+        "linking": {
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "along_corner_finishing": {
+      "category": "corner_focused",
+      "display_name": "Along Corner Finishing",
+      "description": "Traces the meeting line where two surfaces intersect. Single-pass edge-following for sharp transitions.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "surface_1": { "type": "geometry_ref", "required": true },
+          "surface_2": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "offset_mm": { "type": "number", "min": 0, "max": 10, "default": 0 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "linking": {
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    }
+  },
+  "total_operations": 12,
+  "total_parameters": 221
+}

@@ -267,6 +267,7 @@ let _nxcamTurningIndex: any;
 let _nxcamFBMIndex: any;
 let _nxcamUnifiedIndex: any;
 let _pmRoughingIndex: any;
+let _pmFinishingIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -589,6 +590,7 @@ async function getEngine(name: string): Promise<any> {
     case "nxcamFBMIndex": return _nxcamFBMIndex ??= (await import("../../engines/NXCAMFBMFunctionIndexEngine.js")).NXCAMFBMFunctionIndexEngine;
     case "nxcamUnifiedIndex": return _nxcamUnifiedIndex ??= (await import("../../engines/NXCAMFunctionIndexEngine.js")).NXCAMFunctionIndexEngine;
     case "pmRoughingIndex": return _pmRoughingIndex ??= (await import("../../engines/PowerMillRoughingFunctionIndexEngine.js")).PowerMillRoughingFunctionIndexEngine;
+    case "pmFinishingIndex": return _pmFinishingIndex ??= (await import("../../engines/PowerMillFinishingFunctionIndexEngine.js")).PowerMillFinishingFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1273,6 +1275,8 @@ export const ACTIONS = [
   "nxcam_fbm_index", "nxcam_fbm_summary", "nxcam_fbm_list_ops", "nxcam_fbm_get_op", "nxcam_fbm_by_category", "nxcam_fbm_find_param", "nxcam_fbm_recommend", "nxcam_fbm_classify_pocket_depth", "nxcam_fbm_smallest_fit_tool", "nxcam_fbm_match_rule", "nxcam_fbm_group_efficiency",
   "nxcam_index_manifest", "nxcam_index_section_list", "nxcam_index_section_stats", "nxcam_index_all_ops", "nxcam_index_find_op", "nxcam_index_find_param", "nxcam_index_category_universe", "nxcam_index_recommend", "nxcam_index_validate",
   "pm_roughing_index", "pm_roughing_summary", "pm_roughing_list_ops", "pm_roughing_get_op", "pm_roughing_by_category", "pm_roughing_find_param", "pm_roughing_recommend", "pm_roughing_vortex_check", "pm_roughing_rest_worthwhile", "pm_roughing_plunge_validate",
+  // PowerMillFinishingFunctionIndexEngine (9 actions — CAM-EXHAUST-MS0/U-CAM44)
+  "pm_finishing_list", "pm_finishing_get", "pm_finishing_recommend", "pm_finishing_scallop", "pm_finishing_steep_shallow", "pm_finishing_pencil_coverage", "pm_finishing_validate", "pm_finishing_categories", "pm_finishing_by_category",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -1596,6 +1600,9 @@ export const ACTIONS = [
   "cam_strategy_recommend_full",
   "cam_tool_library_create", "cam_tool_library_add", "cam_tool_library_search", "cam_tool_library_params", "cam_tool_library_export", "cam_tool_library_list",
   "cam_tool_get_by_number", "cam_tool_query", "cam_tool_select_for_op", "cam_tool_magazine", "cam_tool_find_replacement",
+  // CAM-EXHAUST-MS0: LoRA cadence engines (6 actions)
+  "milling_lora_predict", "milling_lora_train", "milling_lora_optimize",
+  "millturn_lora_predict", "millturn_lora_train", "millturn_lora_optimize",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -7687,6 +7694,62 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
+          // ── PowerMillFinishingFunctionIndexEngine (CAM-EXHAUST-MS0/U-CAM44) ──
+          case "pm_finishing_list": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, operations: eng.listOperations() };
+            break;
+          }
+          case "pm_finishing_get": {
+            const eng = await getEngine("pmFinishingIndex");
+            const op = eng.getOperation(params.operation_id);
+            if (!op) {
+              result = { success: false, error: `Operation '${params.operation_id}' not found` };
+            } else {
+              result = { success: true, operation: op };
+            }
+            break;
+          }
+          case "pm_finishing_recommend": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, recommendation: eng.recommendByFeature(params.intent) };
+            break;
+          }
+          case "pm_finishing_scallop": {
+            if (params.stepover_mm === undefined) {
+              result = { success: false, error: "stepover_mm is required" };
+              break;
+            }
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, scallop: eng.scallopHeightCalc(params.stepover_mm, params.ball_diameter_mm) };
+            break;
+          }
+          case "pm_finishing_steep_shallow": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, zone: eng.steepShallowThresholdCheck(params.angle_deg, params.threshold_deg) };
+            break;
+          }
+          case "pm_finishing_pencil_coverage": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, coverage: eng.pencilCoverageEstimate(params.reference_tool_dia_mm, params.pencil_tool_dia_mm, params.corner_radius_mm) };
+            break;
+          }
+          case "pm_finishing_validate": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, validation: eng.validateConsistency() };
+            break;
+          }
+          case "pm_finishing_categories": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, categories: eng.getCategories() };
+            break;
+          }
+          case "pm_finishing_by_category": {
+            const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, operations: eng.listByCategory(params.category) };
+            break;
+          }
+
           // ── E1122: CATIACodeGeneratorEngine ──────────────────────────────
           case "catia_code_generate": {
             const eng = await getEngine("catiaCodeGen");
@@ -12326,6 +12389,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
             const replacement = CAMToolGetEngine.findReplacement(params.tool_id, params.reason);
             result = { success: true, replacement };
+            break;
+          }
+          // CAM-EXHAUST-MS0: MillingLoRACadenceEngine (3 actions)
+          case "milling_lora_predict": {
+            const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
+            const trigger = millingLoRACadenceEngine.shouldTriggerRun();
+            result = { success: true, should_trigger: trigger.shouldTrigger, reason: trigger.reason, state: millingLoRACadenceEngine.getState() };
+            break;
+          }
+          case "milling_lora_train": {
+            const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
+            const p = params as { trigger_type?: "scheduled" | "data-drift" | "performance-drop" | "manual"; notes?: string };
+            const run = millingLoRACadenceEngine.startRun(p.trigger_type ?? "manual", p.notes);
+            result = { success: true, run_id: run.id, status: run.status, started_at: run.startedAt };
+            break;
+          }
+          case "milling_lora_optimize": {
+            const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
+            const p = params as { current_score: number; baseline_score: number };
+            const drift = millingLoRACadenceEngine.checkDrift(p.current_score, p.baseline_score);
+            result = { success: true, drift_detected: drift.driftDetected, drift_amount: drift.driftAmount, threshold: drift.threshold };
+            break;
+          }
+          // CAM-EXHAUST-MS0: MillTurnLoRACadenceEngine (3 actions)
+          case "millturn_lora_predict": {
+            const { millTurnLoRACadenceEngine } = await import("../../engines/MillTurnLoRACadenceEngine.js");
+            const trigger = millTurnLoRACadenceEngine.shouldTriggerRun();
+            result = { success: true, should_trigger: trigger.shouldTrigger, reason: trigger.reason, state: millTurnLoRACadenceEngine.getState() };
+            break;
+          }
+          case "millturn_lora_train": {
+            const { millTurnLoRACadenceEngine } = await import("../../engines/MillTurnLoRACadenceEngine.js");
+            const p = params as { trigger_type?: "scheduled" | "data-drift" | "performance-drop" | "manual"; notes?: string };
+            const run = millTurnLoRACadenceEngine.startRun(p.trigger_type ?? "manual", p.notes);
+            result = { success: true, run_id: run.id, status: run.status, started_at: run.startedAt };
+            break;
+          }
+          case "millturn_lora_optimize": {
+            const { millTurnLoRACadenceEngine } = await import("../../engines/MillTurnLoRACadenceEngine.js");
+            const p = params as { current_score: number; baseline_score: number };
+            const drift = millTurnLoRACadenceEngine.checkDrift(p.current_score, p.baseline_score);
+            result = { success: true, drift_detected: drift.driftDetected, drift_amount: drift.driftAmount, threshold: drift.threshold };
             break;
           }
 
