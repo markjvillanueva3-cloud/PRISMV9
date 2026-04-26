@@ -10,7 +10,7 @@
   "created_at": "2026-04-25T20:45:00.000Z",
   "last_updated": "2026-04-26T03:15:00.000Z",
   "total_units": 14,
-  "completed_units": 4,
+  "completed_units": 7,
   "shipped": [
     {
       "id": "U-PPG-SFC-01",
@@ -100,7 +100,8 @@
         "src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts",
         "src/engines/SFCCalculateEngine.ts"
       ],
-      "exit_criteria": "100% of SFC singleton entry points route through outcome wire; lineage_id present on every emission; jsonl append-only with fsync+rename; ≥5 representative tests covering happy path + missing context + adapter-resolution-failure + concurrent emit + lineage threading"
+      "exit_criteria": "100% of SFC singleton entry points route through outcome wire; lineage_id present on every emission; jsonl append-only with fsync+rename; ≥5 representative tests covering happy path + missing context + adapter-resolution-failure + concurrent emit + lineage threading",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-02",
@@ -121,7 +122,8 @@
         "src/engines/MasterPostProcessorUnifiedAGIEngine.ts",
         "src/engines/PostProcessorGeneratorEngine.ts"
       ],
-      "exit_criteria": "100% of PPG singleton entry points emit outcome events; controller dialect tagged; ≥5 tests covering 5 controllers (Fanuc, Okuma, Siemens, Haas, Heidenhain); dialect-validator path emits too"
+      "exit_criteria": "100% of PPG singleton entry points emit outcome events; controller dialect tagged; ≥5 tests covering 5 controllers (Fanuc, Okuma, Siemens, Haas, Heidenhain); dialect-validator path emits too",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-03",
@@ -139,7 +141,8 @@
       "files_modified": [
         "src/tools/dispatchers/calcDispatcher.ts (sfc actions)"
       ],
-      "exit_criteria": "every SFC dispatcher action returns provenance schema; hook blocks any return shape lacking citations; ≥3 representative material+tool combos prove kc/taylor refs trace to constants.ts; 0 unprovenanced rejected at dispatcher boundary in test sweep"
+      "exit_criteria": "every SFC dispatcher action returns provenance schema; hook blocks any return shape lacking citations; ≥3 representative material+tool combos prove kc/taylor refs trace to constants.ts; 0 unprovenanced rejected at dispatcher boundary in test sweep",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-04",
@@ -154,7 +157,8 @@
         "scripts/hooks/ppg-provenance-guard.mjs",
         "src/__tests__/engines/ppgProvenanceWireEngine.test.ts"
       ],
-      "exit_criteria": "every PPG dispatcher action returns gcode + provenance struct; ≥5 dialects (Fanuc, Okuma, Siemens, Haas, Heidenhain) prove citation traceability; hook blocks unprovenanced returns"
+      "exit_criteria": "every PPG dispatcher action returns gcode + provenance struct; ≥5 dialects (Fanuc, Okuma, Siemens, Haas, Heidenhain) prove citation traceability; hook blocks unprovenanced returns",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-05",
@@ -174,7 +178,8 @@
         "src/engines/MachineAwareSpeedFeedEngine.ts",
         "src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts"
       ],
-      "exit_criteria": "every SFC entry path goes through gate; adapter-hit-rate ≥ 30% on JM Die quote workload synthetic test; provenance.adapterUsed populated 100%; gate-miss falls back to formula gracefully"
+      "exit_criteria": "every SFC entry path goes through gate; adapter-hit-rate ≥ 30% on JM Die quote workload synthetic test; provenance.adapterUsed populated 100%; gate-miss falls back to formula gracefully",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-06",
@@ -194,7 +199,8 @@
         "src/engines/MasterPostProcessorUnifiedAGIEngine.ts",
         "src/engines/PostProcessorGeneratorEngine.ts"
       ],
-      "exit_criteria": "all PPG entry paths through gate; adapter-hit-rate measured + reported; provenance.adapterUsed populated; ≥3 controller × machine combos exercised in tests"
+      "exit_criteria": "all PPG entry paths through gate; adapter-hit-rate measured + reported; provenance.adapterUsed populated; ≥3 controller × machine combos exercised in tests",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-07",
@@ -207,7 +213,8 @@
         "src/engines/SFCRAGWarmStartEngine.ts",
         "src/__tests__/engines/sfcRAGWarmStartEngine.test.ts"
       ],
-      "exit_criteria": "top-5 retrieval in <200ms over 22k corpus; ≥90% of retrieval results have similarity > 0.5 on labeled test set of 30 queries; citations attach to provenance with program_id + similarity"
+      "exit_criteria": "top-5 retrieval in <200ms over 22k corpus; ≥90% of retrieval results have similarity > 0.5 on labeled test set of 30 queries; citations attach to provenance with program_id + similarity",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-08",
@@ -220,7 +227,8 @@
         "src/engines/PPGRAGDialectMatchEngine.ts",
         "src/__tests__/engines/ppgRAGDialectMatchEngine.test.ts"
       ],
-      "exit_criteria": "controller-fingerprint index built from JMDie corpus; recall@5 > 0.8 on 50 labeled controller-match queries; tribal tip retrieval cites tip_id"
+      "exit_criteria": "controller-fingerprint index built from JMDie corpus; recall@5 > 0.8 on 50 labeled controller-match queries; tribal tip retrieval cites tip_id",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-09",
@@ -234,7 +242,8 @@
         "src/engines/SFCMultiHypothesisRankerEngine.ts",
         "src/__tests__/engines/sfcMultiHypothesisRankerEngine.test.ts"
       ],
-      "exit_criteria": "ranker returns top-3 candidates with calibrated confidence intervals; Brier score < 0.15 on synthetic eval set; reward decomposition exposed; safety-shield rejection path verified"
+      "exit_criteria": "ranker returns top-3 candidates with calibrated confidence intervals; Brier score < 0.15 on synthetic eval set; reward decomposition exposed; safety-shield rejection path verified",
+      "status": "complete"
     },
     {
       "id": "U-PPG-SFC-10",
