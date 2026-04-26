@@ -446,6 +446,7 @@ export class JMDieProgramRAGEngine {
       metadata: {
         source_path: prog.source_path,
         customer: prog.customer,
+        material: prog.material,
         machine_type: prog.machine_type,
         controller: prog.controller,
         tool_count: prog.tool_count,
