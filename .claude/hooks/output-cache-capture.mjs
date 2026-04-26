@@ -49,7 +49,12 @@ function saveCache(cache) {
 async function main() {
   let input;
   try {
-    input = JSON.parse(await fs.promises.readFile('/dev/stdin', 'utf8'));
+    const _raw = readStdinSafe();
+    if (!_raw) {
+      console.log(JSON.stringify({ continue: true }));
+      return;
+    }
+    input = JSON.parse(_raw);
   } catch {
     console.log(JSON.stringify({ continue: true }));
     return;
