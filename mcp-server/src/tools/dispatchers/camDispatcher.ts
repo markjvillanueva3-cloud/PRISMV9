@@ -270,6 +270,7 @@ let _nxcamUnifiedIndex: any;
 let _pmRoughingIndex: any;
 let _pmFinishingIndex: any;
 let _pm5AxisIndex: any;
+let _pmUnifiedIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -594,6 +595,7 @@ async function getEngine(name: string): Promise<any> {
     case "pmRoughingIndex": return _pmRoughingIndex ??= (await import("../../engines/PowerMillRoughingFunctionIndexEngine.js")).PowerMillRoughingFunctionIndexEngine;
     case "pmFinishingIndex": return _pmFinishingIndex ??= (await import("../../engines/PowerMillFinishingFunctionIndexEngine.js")).PowerMillFinishingFunctionIndexEngine;
     case "pm5AxisIndex": return _pm5AxisIndex ??= (await import("../../engines/PowerMill5AxisFunctionIndexEngine.js")).PowerMill5AxisFunctionIndexEngine;
+    case "pmUnifiedIndex": return _pmUnifiedIndex ??= (await import("../../engines/PowerMillUnifiedFunctionIndexEngine.js")).PowerMillUnifiedFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1281,6 +1283,7 @@ export const ACTIONS = [
   // PowerMillFinishingFunctionIndexEngine (9 actions — CAM-EXHAUST-MS0/U-CAM44)
   "pm_finishing_list", "pm_finishing_get", "pm_finishing_recommend", "pm_finishing_scallop", "pm_finishing_steep_shallow", "pm_finishing_pencil_coverage", "pm_finishing_validate", "pm_finishing_categories", "pm_finishing_by_category",
   "pm_5axis_list", "pm_5axis_get", "pm_5axis_recommend", "pm_5axis_axis_limit", "pm_5axis_singularity", "pm_5axis_tool_reach", "pm_5axis_validate", "pm_5axis_categories", "pm_5axis_by_category",
+  "pm_unified_catalog", "pm_unified_list", "pm_unified_get", "pm_unified_search", "pm_unified_categories", "pm_unified_by_category", "pm_unified_recommend", "pm_unified_stats", "pm_unified_validate", "pm_unified_workflow",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7803,6 +7806,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "pm_5axis_by_category": {
             const eng = await getEngine("pm5AxisIndex");
             result = { success: true, operations: eng.listByCategory(params.category) };
+            break;
+          }
+
+          // ── PowerMillUnifiedFunctionIndexEngine (CAM-EXHAUST-MS0/U-CAM46) ──
+          case "pm_unified_catalog": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, catalog: eng.getUnifiedCatalog() };
+            break;
+          }
+          case "pm_unified_list": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, operations: eng.listAllOperations() };
+            break;
+          }
+          case "pm_unified_get": {
+            const eng = await getEngine("pmUnifiedIndex");
+            const op = eng.getOperation(params.operation_id);
+            if (!op) {
+              result = { success: false, error: `Operation '${params.operation_id}' not found` };
+            } else {
+              result = { success: true, operation: op };
+            }
+            break;
+          }
+          case "pm_unified_search": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, results: eng.searchOperations(params.query) };
+            break;
+          }
+          case "pm_unified_categories": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, categories: eng.listAllCategories() };
+            break;
+          }
+          case "pm_unified_by_category": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, operations: eng.listByCategory(params.category) };
+            break;
+          }
+          case "pm_unified_recommend": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, recommendation: eng.recommendByIntent(params.intent) };
+            break;
+          }
+          case "pm_unified_stats": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, stats: eng.getCatalogStats() };
+            break;
+          }
+          case "pm_unified_validate": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, validation: eng.validateAllCatalogs() };
+            break;
+          }
+          case "pm_unified_workflow": {
+            const eng = await getEngine("pmUnifiedIndex");
+            result = { success: true, workflow: eng.suggestWorkflow(params) };
             break;
           }
 
