@@ -8,6 +8,15 @@
 
 import * as fs from 'fs';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const STATE_DIR = 'H:/prism/state/compaction-survival';
 
 function getSessionId() {
@@ -61,7 +70,12 @@ function extractContent(tool, input, result) {
 async function main() {
   let input;
   try {
-    input = JSON.parse(await fs.promises.readFile('/dev/stdin', 'utf8'));
+    const raw = readStdinSafe();
+    if (!raw) {
+      console.log(JSON.stringify({ continue: true }));
+      return;
+    }
+    input = JSON.parse(raw);
   } catch {
     console.log(JSON.stringify({ continue: true }));
     return;
