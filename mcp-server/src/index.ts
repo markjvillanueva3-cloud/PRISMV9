@@ -115,7 +115,7 @@ import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligence
 import { registerAIReasoningDispatcher } from "./tools/dispatchers/aiReasoningDispatcher.js";
 
 // Agent — AGENT-MS1-5 unified agent surface (chat, memory, capabilities, context)
-import { registerAgentDispatcher } from "./tools/dispatchers/agentDispatcher.js";
+// import { registerAgentDispatcher } from "./tools/dispatchers/agentDispatcher.js"; // NOT ON THIS BRANCH
 
 // SYS-MS1: Product Dispatcher — 40 actions extracted from intelligence (Dispatcher #46)
 import { registerProductDispatcher } from "./tools/dispatchers/productDispatcher.js";
@@ -155,7 +155,7 @@ import { registerOperatingSystemDispatcher } from "./tools/dispatchers/operating
 import { registerMonitoringDispatcher } from "./tools/dispatchers/monitoringDispatcher.js";
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerResourceHarvesterDispatcher } from "./tools/dispatchers/resourceHarvesterDispatcher.js";
-import { registerResourceHarvestingDispatcher } from "./tools/dispatchers/resourceHarvestingDispatcher.js";
+// import { registerResourceHarvestingDispatcher } from "./tools/dispatchers/resourceHarvestingDispatcher.js"; // NOT ON THIS BRANCH
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
 
 // L3: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions (#40-#45)
@@ -204,7 +204,7 @@ import { registerFeasibilityDispatcher } from "./tools/dispatchers/feasibilityDi
 import { registerProvenPipelineDispatcher } from "./tools/dispatchers/provenPipelineDispatcher.js";
 
 // PP-DISPATCHER: Dedicated PostProcessor dispatcher — 50 actions
-import { registerPPDispatcher } from "./tools/dispatchers/ppDispatcher.js";
+// import { registerPPDispatcher } from "./tools/dispatchers/ppDispatcher.js"; // NOT ON THIS BRANCH
 
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
@@ -617,7 +617,7 @@ async function registerTools(): Promise<void> {
   registerAIReasoningDispatcher(server);
 
   // Agent — chat/memory/capabilities/context/self_awareness/stats (8 actions)
-  registerAgentDispatcher(server);
+  // registerAgentDispatcher(server); // NOT ON THIS BRANCH
 
   // SYS-MS1: Product Dispatcher — SFC, PPG, Shop, ACNC (40 actions)
   registerProductDispatcher(server);
@@ -642,7 +642,7 @@ async function registerTools(): Promise<void> {
   registerCamDispatcher(server);
 
   // PP-DISPATCHER: PostProcessor-specific operations — 50 actions (generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics)
-  registerPPDispatcher(server);
+  // registerPPDispatcher(server); // NOT ON THIS BRANCH
   registerQualityDispatcher(server);
   registerProcessControlDispatcher(server);
   registerSchedulingDispatcher(server);
@@ -653,7 +653,7 @@ async function registerTools(): Promise<void> {
   registerMonitoringDispatcher(server);
   registerAuthDispatcher(server);
   registerResourceHarvesterDispatcher(server);
-  registerResourceHarvestingDispatcher(server);   // RESOURCE-HARVEST-MS1: 8 actions (automated pipeline)
+  // registerResourceHarvestingDispatcher(server);   // RESOURCE-HARVEST-MS1: 8 actions (automated pipeline) // NOT ON THIS BRANCH
   registerExportDispatcher(server);
 
   // L3-P1: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions
