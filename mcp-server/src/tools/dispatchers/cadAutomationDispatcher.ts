@@ -95,6 +95,11 @@ const ACTIONS = [
   "cad_sniff_format",
   "cad_probe_validity",
   "cad_list_conversion_edges",
+  // CAD-UNIVERSAL-CONTROL-MS0/U-CUC09: feature classifier
+  "cad_classify_feature",
+  "cad_classify_batch",
+  "cad_group_by_family",
+  "cad_dominant_family",
   // U-CUIX-P0-19 â€” AI-control surface: route master-AI intent through
   // ICADCodeGenerator adapters (FreeCAD/Fusion360/Inventor/Mastercam today;
   // HyperCAD-S + SolidWorks land in P0-17/P0-18). Closes the "4 adapters
@@ -499,6 +504,59 @@ Actions: ${ACTIONS.join(", ")}.`,
               edges,
               count: edges.length,
               source: "cadFormatConversionMatrixEngine.listEdges",
+            };
+            break;
+          }
+          // â”€â”€ CAD-UNIVERSAL-CONTROL-MS0/U-CUC09: feature classifier â”€â”€
+          case "cad_classify_feature": {
+            const { CADFeatureClassifierEngine } = await import("../../engines/CADFeatureClassifierEngine.js");
+            const engine = new CADFeatureClassifierEngine();
+            const feature = params["feature"] as Parameters<typeof engine.classify>[0];
+            if (!feature) {
+              throw new Error("cad_classify_feature requires 'feature' object");
+            }
+            result = {
+              ...engine.classify(feature),
+              source: "CADFeatureClassifierEngine.classify",
+            };
+            break;
+          }
+          case "cad_classify_batch": {
+            const { CADFeatureClassifierEngine } = await import("../../engines/CADFeatureClassifierEngine.js");
+            const engine = new CADFeatureClassifierEngine();
+            const features = params["features"] as Parameters<typeof engine.classifyBatch>[0];
+            if (!Array.isArray(features)) {
+              throw new Error("cad_classify_batch requires 'features' array");
+            }
+            result = {
+              ...engine.classifyBatch(features),
+              source: "CADFeatureClassifierEngine.classifyBatch",
+            };
+            break;
+          }
+          case "cad_group_by_family": {
+            const { CADFeatureClassifierEngine } = await import("../../engines/CADFeatureClassifierEngine.js");
+            const engine = new CADFeatureClassifierEngine();
+            const classifications = params["classifications"] as Parameters<typeof engine.groupByFamily>[0];
+            if (!Array.isArray(classifications)) {
+              throw new Error("cad_group_by_family requires 'classifications' array");
+            }
+            result = {
+              groups: engine.groupByFamily(classifications),
+              source: "CADFeatureClassifierEngine.groupByFamily",
+            };
+            break;
+          }
+          case "cad_dominant_family": {
+            const { CADFeatureClassifierEngine } = await import("../../engines/CADFeatureClassifierEngine.js");
+            const engine = new CADFeatureClassifierEngine();
+            const classifications = params["classifications"] as Parameters<typeof engine.suggestDominantFamily>[0];
+            if (!Array.isArray(classifications)) {
+              throw new Error("cad_dominant_family requires 'classifications' array");
+            }
+            result = {
+              ...engine.suggestDominantFamily(classifications),
+              source: "CADFeatureClassifierEngine.suggestDominantFamily",
             };
             break;
           }
