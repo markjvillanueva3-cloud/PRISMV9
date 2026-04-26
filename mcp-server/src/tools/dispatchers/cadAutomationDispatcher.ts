@@ -268,6 +268,21 @@ const ACTIONS = [
   "cad_reasoning_why",
   "cad_reasoning_get",
   "cad_reasoning_list",
+  "cad_visual_diff_features",
+  "cad_visual_diff_hashes",
+  "cad_visual_diff_report",
+  "cad_learning_ingest",
+  "cad_learning_ingest_batch",
+  "cad_learning_patterns",
+  "cad_learning_recommend",
+  "cad_learning_stats",
+  "cad_learning_reset",
+  "cad_rag_filter",
+  "cad_rag_retrieve",
+  "cad_rag_format",
+  "cad_rag_rank",
+  "cad_rag_augment",
+  "cad_rag_stats",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2488,6 +2503,246 @@ Actions: ${ACTIONS.join(", ")}.`,
             const limit = (params["limit"] as number) ?? 10;
             const chains = cadReasoningChainEngine.listChains(limit);
             result = { chains, count: chains.length, source: "CADReasoningChainEngine.listChains" };
+            break;
+          }
+          case "cad_visual_diff_features": {
+            const { cadVisualDiffEngine } = await import("../../engines/CADVisualDiffEngine.js");
+            const before = params["before"] as Array<{
+              id: string;
+              featureType: string;
+              order: number;
+              parameters: Record<string, string | number | boolean>;
+            }>;
+            const after = params["after"] as Array<{
+              id: string;
+              featureType: string;
+              order: number;
+              parameters: Record<string, string | number | boolean>;
+            }>;
+            if (!before || !after) {
+              throw new Error("cad_visual_diff_features requires 'before' and 'after' feature arrays");
+            }
+            const diffs = cadVisualDiffEngine.diffFeatureTrees(before, after);
+            result = { diffs, count: diffs.length, source: "CADVisualDiffEngine.diffFeatureTrees" };
+            break;
+          }
+          case "cad_visual_diff_hashes": {
+            const { cadVisualDiffEngine } = await import("../../engines/CADVisualDiffEngine.js");
+            const hashA = params["hash_a"] as string;
+            const hashB = params["hash_b"] as string;
+            if (!hashA || !hashB) {
+              throw new Error("cad_visual_diff_hashes requires 'hash_a' and 'hash_b' hex strings");
+            }
+            const comparison = cadVisualDiffEngine.comparePerceptualHashes(hashA, hashB);
+            result = { ...comparison, source: "CADVisualDiffEngine.comparePerceptualHashes" };
+            break;
+          }
+          case "cad_visual_diff_report": {
+            const { cadVisualDiffEngine } = await import("../../engines/CADVisualDiffEngine.js");
+            const input = params["input"] as {
+              drawingNumber: string;
+              beforeRevision: string;
+              afterRevision: string;
+              beforeTree: Array<{
+                id: string;
+                featureType: string;
+                order: number;
+                parameters: Record<string, string | number | boolean>;
+              }>;
+              afterTree: Array<{
+                id: string;
+                featureType: string;
+                order: number;
+                parameters: Record<string, string | number | boolean>;
+              }>;
+              beforePerceptualHash?: string;
+              afterPerceptualHash?: string;
+            };
+            if (!input || !input.drawingNumber || !input.beforeTree || !input.afterTree) {
+              throw new Error("cad_visual_diff_report requires 'input' with drawingNumber, beforeTree, afterTree");
+            }
+            const report = cadVisualDiffEngine.buildReport(input);
+            result = { ...report, source: "CADVisualDiffEngine.buildReport" };
+            break;
+          }
+          case "cad_learning_ingest": {
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const outcome = params["outcome"] as {
+              testId: string;
+              originalPath: string;
+              status: "pass" | "fail" | "error";
+              partType?: string;
+              features?: string[];
+              generator?: string;
+              metrics?: Record<string, { passed: boolean; deviationPct?: number }>;
+              error?: string;
+            };
+            if (!outcome || !outcome.testId || !outcome.originalPath) {
+              throw new Error("cad_learning_ingest requires 'outcome' with testId, originalPath, status");
+            }
+            const ingestResult = cadTrialErrorLearningEngine.ingest(outcome);
+            result = { ...ingestResult, source: "CADTrialErrorLearningEngine.ingest" };
+            break;
+          }
+          case "cad_learning_ingest_batch": {
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const outcomes = params["outcomes"] as unknown[];
+            if (!outcomes || !Array.isArray(outcomes)) {
+              throw new Error("cad_learning_ingest_batch requires 'outcomes' array");
+            }
+            const batchResult = cadTrialErrorLearningEngine.ingestBatch(outcomes);
+            result = { ...batchResult, source: "CADTrialErrorLearningEngine.ingestBatch" };
+            break;
+          }
+          case "cad_learning_patterns": {
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const patterns = cadTrialErrorLearningEngine.extractPatterns();
+            result = { patterns, count: patterns.length, source: "CADTrialErrorLearningEngine.extractPatterns" };
+            break;
+          }
+          case "cad_learning_recommend": {
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const candidate = params["candidate"] as {
+              partType?: string;
+              features?: string[];
+              generator?: string;
+            } | undefined;
+            const recommendation = cadTrialErrorLearningEngine.recommendAdjustments(candidate ?? {});
+            result = { ...recommendation, source: "CADTrialErrorLearningEngine.recommendAdjustments" };
+            break;
+          }
+          case "cad_learning_stats": {
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const opts = {
+              since: params["since"] as string | undefined,
+              partType: params["part_type"] as string | undefined,
+            };
+            const stats = cadTrialErrorLearningEngine.getFailureStats(opts);
+            result = { ...stats, source: "CADTrialErrorLearningEngine.getFailureStats" };
+            break;
+          }
+          case "cad_learning_reset": {
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const eraseLedger = params["erase_ledger"] as boolean | undefined;
+            cadTrialErrorLearningEngine.reset({ eraseLedger: eraseLedger ?? false });
+            result = { reset: true, erasedLedger: eraseLedger ?? false, source: "CADTrialErrorLearningEngine.reset" };
+            break;
+          }
+          case "cad_rag_filter": {
+            const { cadRetrievalAugmentationEngine } = await import("../../engines/CADRetrievalAugmentationEngine.js");
+            const corpus = params["corpus"] as Array<{
+              id: string;
+              tokens: number[];
+              customer?: string;
+              machineCategory?: "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
+              features?: string[];
+            }>;
+            const filters = params["filters"] as {
+              customer?: string | string[];
+              machineCategory?: string | string[];
+              features?: string[];
+              excludeIds?: string[];
+            } | undefined;
+            if (!corpus || !Array.isArray(corpus)) {
+              throw new Error("cad_rag_filter requires 'corpus' array");
+            }
+            const filtered = cadRetrievalAugmentationEngine.filterCorpus(corpus, filters ?? {});
+            result = { filtered, count: filtered.length, source: "CADRetrievalAugmentationEngine.filterCorpus" };
+            break;
+          }
+          case "cad_rag_retrieve": {
+            const { cadRetrievalAugmentationEngine } = await import("../../engines/CADRetrievalAugmentationEngine.js");
+            const query = params["query"] as {
+              id: string;
+              tokens: number[];
+              customer?: string;
+              machineCategory?: "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
+              features?: string[];
+            };
+            const corpus = params["corpus"] as Array<{
+              id: string;
+              tokens: number[];
+              customer?: string;
+              machineCategory?: "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
+              features?: string[];
+            }>;
+            const backend = (params["backend"] as string) ?? "count_vectorizer";
+            const filters = params["filters"] as Record<string, unknown> | undefined;
+            const k = (params["k"] as number) ?? 5;
+            if (!query || !corpus) {
+              throw new Error("cad_rag_retrieve requires 'query' and 'corpus'");
+            }
+            const results = cadRetrievalAugmentationEngine.retrieve(query, corpus, backend as any, filters as any, k);
+            result = { results, count: results.length, source: "CADRetrievalAugmentationEngine.retrieve" };
+            break;
+          }
+          case "cad_rag_format": {
+            const { cadRetrievalAugmentationEngine } = await import("../../engines/CADRetrievalAugmentationEngine.js");
+            const ragResults = params["results"] as Array<{
+              id: string;
+              tokens: number[];
+              customer?: string;
+              machineCategory?: "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
+              features?: string[];
+              distance: number;
+              similarity: number;
+            }>;
+            const format = (params["format"] as string) ?? "json";
+            if (!ragResults || !Array.isArray(ragResults)) {
+              throw new Error("cad_rag_format requires 'results' array");
+            }
+            const formatted = cadRetrievalAugmentationEngine.formatExamples(ragResults, format as any);
+            result = { ...formatted, source: "CADRetrievalAugmentationEngine.formatExamples" };
+            break;
+          }
+          case "cad_rag_rank": {
+            const { cadRetrievalAugmentationEngine } = await import("../../engines/CADRetrievalAugmentationEngine.js");
+            const ragResults = params["results"] as Array<{
+              id: string;
+              tokens: number[];
+              features?: string[];
+              distance: number;
+              similarity: number;
+            }>;
+            const query = params["query"] as {
+              id: string;
+              tokens: number[];
+              features?: string[];
+            };
+            const featureWeight = (params["feature_weight"] as number) ?? 0.3;
+            if (!ragResults || !query) {
+              throw new Error("cad_rag_rank requires 'results' and 'query'");
+            }
+            const ranked = cadRetrievalAugmentationEngine.rankByRelevance(ragResults, query, featureWeight);
+            result = { ranked, count: ranked.length, source: "CADRetrievalAugmentationEngine.rankByRelevance" };
+            break;
+          }
+          case "cad_rag_augment": {
+            const { cadRetrievalAugmentationEngine } = await import("../../engines/CADRetrievalAugmentationEngine.js");
+            // Note: augment requires an async generator callback which is complex to wire
+            // This action returns a stub indicating the method signature
+            result = {
+              available: false,
+              message: "cad_rag_augment requires an async generator callback. Use cad_rag_retrieve + cad_rag_format for the retrieval portion.",
+              signature: "augment(query, corpus, backend, generator, filters?, k?, format?)",
+              source: "CADRetrievalAugmentationEngine.augment"
+            };
+            break;
+          }
+          case "cad_rag_stats": {
+            const { cadRetrievalAugmentationEngine } = await import("../../engines/CADRetrievalAugmentationEngine.js");
+            const corpus = params["corpus"] as Array<{
+              id: string;
+              tokens: number[];
+              customer?: string;
+              machineCategory?: "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
+            }>;
+            if (!corpus || !Array.isArray(corpus)) {
+              throw new Error("cad_rag_stats requires 'corpus' array");
+            }
+            const stats = cadRetrievalAugmentationEngine.getCorpusStats(corpus);
+            const customers = cadRetrievalAugmentationEngine.getCustomers(corpus);
+            result = { ...stats, customers, source: "CADRetrievalAugmentationEngine.getCorpusStats" };
             break;
           }
           default:

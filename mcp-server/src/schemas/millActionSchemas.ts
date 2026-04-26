@@ -871,4 +871,20 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_turn_orchestrate,
   mill_5axis_orchestrate,
   mill_multiaxis_orchestrate,
+
+  // Tribal knowledge (MillTribalKnowledgeEngine)
+  mill_tribal_query,
+  mill_tribal_get,
+  mill_tribal_add,
+  mill_tribal_stats,
+
+  // End-to-end orchestration (MillingEndToEndOrchestrationEngine)
+  mill_e2e_workflow,
+
+  // Reasoning trace ledger (MillingReasoningTraceLedgerEngine)
+  mill_trace_record,
+  mill_trace_query,
+
+  // Inference orchestration (MillingInferenceOrchestratorEngine)
+  mill_inference_run,
 };
