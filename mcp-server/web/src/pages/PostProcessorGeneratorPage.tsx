@@ -48,6 +48,7 @@ import { MaterialSearchPanel } from '../components/ppg/MaterialSearchPanel';
 import { ToolConfigCard, type ToolSelection } from '../components/ppg/ToolConfigCard';
 import { HolderSelectorPanel, type HolderSelection } from '../components/ppg/HolderSelectorPanel';
 import { GcodePreviewPanel } from '../components/ppg/GcodePreviewPanel';
+import { PhysicsDetailsPanel } from '../components/ppg/PhysicsDetailsPanel';
 import { MachineWorkspaceAuthorityCard } from '../features/machine-workspace/MachineWorkspaceAuthorityCard';
 import type { MachineWorkspaceContext } from '../features/machine-workspace/MachineWorkspaceState';
 import { useOperatingSystem } from '../features/operating-system/OperatingSystemProvider';
@@ -2871,6 +2872,28 @@ export function PostProcessorGeneratorPage() {
                       </div>
                     )}
                   </div>
+                )}
+
+                {/* Physics Analysis Panel (U-PPGW09) */}
+                {selectedMaterialId && sfPreview && (
+                  <PhysicsDetailsPanel
+                    kienzle={{
+                      kc1_1: selectedMaterialKc,
+                      mc: selectedMaterialMc,
+                      iso_group: selectedMaterialIso as "P" | "M" | "K" | "N" | "S" | "H",
+                      source: "MaterialSearchEngine v1.0",
+                    }}
+                    taylor={null}
+                    chatter={null}
+                    forces={{
+                      Fc_N: sfPreview.force_N,
+                      Fc_uncertainty_N: sfPreview.force_N * 0.1,
+                      power_kW: sfPreview.power_kW,
+                      torque_Nm: (sfPreview.power_kW * 1000) / (2 * Math.PI * sfPreview.rpm / 60),
+                      source: "SpeedFeedOrchestrator + KienzleForceEngine v1.0",
+                    }}
+                    showSources={true}
+                  />
                 )}
               </div>
             )}
