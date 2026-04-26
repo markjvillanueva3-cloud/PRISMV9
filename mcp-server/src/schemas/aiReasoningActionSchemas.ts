@@ -25,6 +25,10 @@ export const AI_REASONING_ACTIONS = [
   "pattern_query",
   "pattern_reinforce",
   "pattern_stats",
+  "sfc_drift_canary_check",
+  "ppg_drift_canary_check",
+  "sfc_fewshot_predict",
+  "ppg_sfc_closed_loop",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];

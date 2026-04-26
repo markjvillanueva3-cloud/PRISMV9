@@ -265,6 +265,42 @@ export async function executeAIReasoningAction(
         const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
         result = successPatternBankEngine.stats();
         break;
+
+      // ─────────────────────────────────────────────────────────────────────
+      // sfc_drift_canary_check — SFC drift detection
+      // ─────────────────────────────────────────────────────────────────────
+      case "sfc_drift_canary_check": {
+        const { sfcDriftCanaryEngine } = await import("../../engines/SFCDriftCanaryEngine.js");
+        result = sfcDriftCanaryEngine.checkDrift(params as any);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // ppg_drift_canary_check — PPG drift detection
+      // ─────────────────────────────────────────────────────────────────────
+      case "ppg_drift_canary_check": {
+        const { ppgDriftCanaryEngine } = await import("../../engines/PPGDriftCanaryEngine.js");
+        result = ppgDriftCanaryEngine.checkDrift(params as any);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // sfc_fewshot_predict — Few-shot material prediction
+      // ─────────────────────────────────────────────────────────────────────
+      case "sfc_fewshot_predict": {
+        const { sfcFewShotNewMaterialEngine } = await import("../../engines/SFCFewShotNewMaterialEngine.js");
+        result = await sfcFewShotNewMaterialEngine.predictForNewMaterial(params as any);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // ppg_sfc_closed_loop — E2E closed-loop orchestration
+      // ─────────────────────────────────────────────────────────────────────
+      case "ppg_sfc_closed_loop": {
+        const { ppgSFCClosedLoopOrchestratorEngine } = await import("../../engines/PPGSFCClosedLoopOrchestratorEngine.js");
+        result = await ppgSFCClosedLoopOrchestratorEngine.executeClosedLoop(params as any);
+        break;
+      }
       }
 
       default: {
