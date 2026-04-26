@@ -236,3 +236,16 @@ export async function aiReasoningDispatcher(
 
 /** Export action list for registration */
 export { AI_REASONING_ACTIONS };
+
+/** Register dispatcher with MCP server */
+export function registerAIReasoningDispatcher(server: { tool: Function }): void {
+  server.tool(
+    aiReasoningDispatcherDef.name,
+    aiReasoningDispatcherDef.description,
+    aiReasoningDispatcherDef.inputSchema.shape,
+    async ({ action, params = {} }: { action: AIReasoningAction; params?: Record<string, unknown> }) => {
+      const result = await executeAIReasoningAction(action, params);
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    }
+  );
+}
