@@ -781,5 +781,48 @@ export function createPpgRouter(callTool: CallToolFn): Router {
     }
   });
 
+  // ── Master Post Routes (PPG-WIRE-MS0) ────────────────────────────────
+  // Machine-specific master posts with JM Die tribal knowledge + AGI reasoning
+
+  // POST /ppg/master/hurco-v11 — JM Die VMX24 mill master post
+  router.post("/master/hurco-v11", async (req, res) => {
+    try {
+      const result = await callTool("prism_cam", "master_post_hurco_v11", req.body);
+      res.json({ ok: true, data: result });
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
+  // POST /ppg/master/okuma-b250 — JM Die LB250II-M lathe master post
+  router.post("/master/okuma-b250", async (req, res) => {
+    try {
+      const result = await callTool("prism_cam", "master_post_okuma_b250", req.body);
+      res.json({ ok: true, data: result });
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
+  // POST /ppg/master/mitsubishi-mv1200r — JM Die MV1200R wire EDM master post
+  router.post("/master/mitsubishi-mv1200r", async (req, res) => {
+    try {
+      const result = await callTool("prism_cam", "master_post_mitsubishi_mv1200r", req.body);
+      res.json({ ok: true, data: result });
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
+  // POST /ppg/master/auto — Auto-route to correct master post by machine_model
+  router.post("/master/auto", async (req, res) => {
+    try {
+      const result = await callTool("prism_cam", "master_post_by_machine", req.body);
+      res.json({ ok: true, data: result });
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
   return router;
 }
