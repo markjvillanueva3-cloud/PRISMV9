@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * H: Drive Audit Hook — SessionStart
@@ -9,10 +8,11 @@ import fs from "node:fs";
  *
  * Also checks if H:\.claude\ content is being shadowed by C: versions.
  */
-
-import { readdirSync, existsSync, statSync } from "node:fs";
+import fs from "node:fs";
 import { join, basename } from "node:path";
 import { homedir } from "node:os";
+
+
 
 function readStdinSafe() {
   try {

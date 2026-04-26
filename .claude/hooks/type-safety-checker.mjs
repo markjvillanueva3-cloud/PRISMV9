@@ -1,4 +1,6 @@
+#!/usr/bin/env node
 import fs from "node:fs";
+
 
 function readStdinSafe() {
   try {
@@ -8,7 +10,6 @@ function readStdinSafe() {
     return "";
   }
 }
-#!/usr/bin/env node
 // DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
 // Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
 process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
@@ -157,8 +158,8 @@ function checkContent(content, filePath) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

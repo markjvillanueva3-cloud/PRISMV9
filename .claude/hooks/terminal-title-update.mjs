@@ -67,7 +67,6 @@ function setTerminalTitle(title) {
 
 async function main() {
   const input = readStdinSafe();
-
   let payload;
   try {
     payload = JSON.parse(input);

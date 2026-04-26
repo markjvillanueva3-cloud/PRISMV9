@@ -159,7 +159,6 @@ function updateBayesianPosterior(posterior, toolName, predicted, actual) {
 
 async function main() {
   // Read stdin
-  let input = "";
   const input = readStdinSafe();
 
   let data;

@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * test-coverage-enforcer.mjs — PreToolUse hook for Write (new files)
@@ -9,9 +8,10 @@ import fs from "node:fs";
  * FIRES ON: PreToolUse (Write)
  * BLOCKING: never — adds reminders
  */
-
-import { existsSync } from 'node:fs';
+import fs from "node:fs";
 import { dirname, basename, join } from 'node:path';
+
+
 
 function readStdinSafe() {
   try {
@@ -95,8 +95,8 @@ function suggestTests(exports, fileName) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

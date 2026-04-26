@@ -1,4 +1,6 @@
+#!/usr/bin/env node
 import fs from "node:fs";
+
 
 function readStdinSafe() {
   try {
@@ -8,7 +10,6 @@ function readStdinSafe() {
     return "";
   }
 }
-#!/usr/bin/env node
 /**
  * anti-pattern-detector.mjs — PreToolUse hook for Edit/Write/MultiEdit
  *
@@ -178,8 +179,8 @@ function checkContent(content, filePath) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

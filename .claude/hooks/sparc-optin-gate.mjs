@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * UserPromptSubmit hook — SPARC opt-in gate.
@@ -19,9 +18,10 @@ import fs from "node:fs";
  * Exits 0 on non-match or flag-present; exits 2 with a block reason
  * on match-without-flag (UserPromptSubmit blocking contract).
  */
-
-import { existsSync, readFileSync } from "node:fs";
+import fs from "node:fs";
 import { resolve } from "node:path";
+
+
 
 function readStdinSafe() {
   try {
@@ -34,10 +34,8 @@ function readStdinSafe() {
 
 const FLAG = resolve("H:/prism/state/shared/SPARC_OPT_IN.flag");
 
-async function readStdin() {
-  let buf = "";
-  process.stdin.setEncoding("utf8");
-  const buf = readStdinSafe();return buf;
+function readStdin() {
+  return readStdinSafe();
 }
 
 function isSparcPrompt(text) {

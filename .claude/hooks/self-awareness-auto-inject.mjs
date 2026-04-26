@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * Self-Awareness Auto-Inject — UserPromptSubmit Hook
@@ -14,9 +13,10 @@ import fs from "node:fs";
  * - Material mentions → tribal knowledge
  * - Problem descriptions → feature recommendations
  */
-
-import { promises as fs } from 'node:fs';
+import fs from "node:fs";
 import path from 'node:path';
+
+
 
 function readStdinSafe() {
   try {
@@ -165,8 +165,8 @@ function detectTriggers(prompt) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

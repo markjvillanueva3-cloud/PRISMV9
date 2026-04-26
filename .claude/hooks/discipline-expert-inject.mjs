@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * discipline-expert-inject.mjs — UserPromptSubmit hook
@@ -23,10 +22,11 @@ import fs from "node:fs";
  * = 600 tokens on every prompt without limiting, which dominated session
  * context in long iterative builds.
  */
-
-import { readFileSync as _rateRead, writeFileSync as _rateWrite, existsSync as _rateExists, mkdirSync as _rateMkdir } from "node:fs";
+import fs from "node:fs";
 import { join as _rateJoin, dirname as _rateDirname } from "node:path";
 import _rateOs from "node:os";
+
+
 
 function readStdinSafe() {
   try {
@@ -963,8 +963,8 @@ function formatExpertise(discipline) {
 // ============================================================================
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

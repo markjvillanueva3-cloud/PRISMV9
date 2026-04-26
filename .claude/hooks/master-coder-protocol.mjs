@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * master-coder-protocol.mjs — UserPromptSubmit hook
@@ -10,8 +9,9 @@ import fs from "node:fs";
  * FIRES ON: UserPromptSubmit
  * BLOCKING: never — adds context only
  */
+import fs from "node:fs";
 
-import { readFileSync } from "node:fs";
+
 
 function readStdinSafe() {
   try {
@@ -150,8 +150,8 @@ function isCodingTask(prompt) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

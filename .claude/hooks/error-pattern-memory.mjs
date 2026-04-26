@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * error-pattern-memory.mjs — PostToolUse Hook (Bash, Edit, Write)
@@ -13,9 +12,10 @@ import fs from "node:fs";
  * FIRES ON: PostToolUse (Bash for errors, Edit/Write for fixes)
  * BLOCKING: never — adds context/warnings
  */
-
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import fs from "node:fs";
 import { dirname, basename } from 'node:path';
+
+
 
 function readStdinSafe() {
   try {
@@ -171,8 +171,8 @@ function generateFixKey(error) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

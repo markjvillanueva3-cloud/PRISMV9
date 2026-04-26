@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * import-verifier.mjs — PreToolUse hook for Edit/Write/MultiEdit
@@ -12,9 +11,10 @@ import fs from "node:fs";
  * FIRES ON: PreToolUse (Edit, Write, MultiEdit)
  * BLOCKING: WARN level (suggests fixes, doesn't hard block)
  */
-
-import { existsSync, readdirSync } from 'node:fs';
+import fs from "node:fs";
 import { dirname, join, resolve, extname, basename } from 'node:path';
+
+
 
 function readStdinSafe() {
   try {
@@ -245,8 +245,8 @@ function isCodeFile(filePath) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {

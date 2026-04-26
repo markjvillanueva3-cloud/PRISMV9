@@ -1,4 +1,6 @@
+#!/usr/bin/env node
 import fs from "node:fs";
+
 
 function readStdinSafe() {
   try {
@@ -8,7 +10,6 @@ function readStdinSafe() {
     return "";
   }
 }
-#!/usr/bin/env node
 /**
  * expert-role-inject.mjs — SessionStart hook
  *

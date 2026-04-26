@@ -1,5 +1,8 @@
-import fs from "node:fs";
 #!/usr/bin/env node
+import fs from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
 // DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
 // Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
 process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
@@ -19,9 +22,6 @@ process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
  * @version 1.0.0
  */
 
-import { readFileSync, existsSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 
 function readStdinSafe() {
   try {
@@ -187,7 +187,6 @@ function detectLatheContext(prompt) {
 // ============================================================================
 
 async function main() {
-  let input = "";
   const input = readStdinSafe();
 
   let hookData;

@@ -191,7 +191,6 @@ function checkAndClaim(resource) {
 }
 
 async function main() {
-  let input = "";
   const input = readStdinSafe();
 
   let data;

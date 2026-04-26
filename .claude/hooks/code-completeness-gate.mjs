@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * code-completeness-gate.mjs — PreToolUse hook for Edit/Write
@@ -15,8 +14,9 @@ import fs from "node:fs";
  * FIRES ON: PreToolUse (Edit, Write, MultiEdit)
  * BLOCKING: YES — returns deny on violations
  */
+import fs from "node:fs";
 
-import { readFileSync } from "node:fs";
+
 
 function readStdinSafe() {
   try {
@@ -175,8 +175,8 @@ function checkContent(content, filePath) {
 }
 
 async function main() {
-  let input = '';
-  const input = readStdinSafe();let payload;
+  const input = readStdinSafe();
+  let payload;
   try {
     payload = JSON.parse(input);
   } catch {
