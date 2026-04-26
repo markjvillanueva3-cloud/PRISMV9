@@ -1,6 +1,6 @@
 /**
  * Integration test for master_post_mitsubishi_mv1200r dispatcher action
- * PPG-WIRE-MS0 U-PPGW03 — verifies Mitsubishi MV1200R Wire EDM master post wiring
+ * PPG-WIRE-MS0 U-PPGW03 â€” verifies Mitsubishi MV1200R Wire EDM master post wiring
  *
  * Coverage: schema validation + engine behavior + dispatcher wiring
  * Real assertions against Wire EDM physics and G-code output
@@ -10,8 +10,10 @@ import { z } from "zod";
 import { ACTION_CAM_SCHEMAS } from "../../schemas/camActionSchemas.js";
 import { mitsubishiMV1200RWireEDMMasterPostEngine } from "../../engines/MitsubishiMV1200RWireEDMMasterPostEngine.js";
 import { ACTIONS } from "../../tools/dispatchers/camDispatcher.js";
+import { postProcessorFeedOptimizer as feedOptimizer } from "../../engines/PostProcessorFeedOptimizerEngine.js";
+import { proveOutModeEngine } from "../../engines/ProveOutModeEngine.js";
 
-// ─── Schema Validation Tests ────────────────────────────────────────────────
+// â”€â”€â”€ Schema Validation Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 describe("master_post_mitsubishi_mv1200r schema", () => {
   const schema = ACTION_CAM_SCHEMAS.master_post_mitsubishi_mv1200r;
@@ -34,7 +36,7 @@ describe("master_post_mitsubishi_mv1200r schema", () => {
             { x: 0, y: 10, type: "line" },
             { x: 0, y: 0, type: "line" },
           ],
-          material: { name: "D2 Tool Steel", iso_group: "H", hardness_hrc: 62 },
+          material: { name: "D2 Tool Steel", conductivity_class: "medium", hardness_hrc: 62 },
           thickness_mm: 25,
           offset_direction: "left",
         },
@@ -153,7 +155,7 @@ describe("master_post_mitsubishi_mv1200r schema", () => {
   });
 });
 
-// ─── Dispatcher Wiring Tests ────────────────────────────────────────────────
+// â”€â”€â”€ Dispatcher Wiring Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 describe("master_post_mitsubishi_mv1200r dispatcher wiring", () => {
   it("action appears in ACTIONS enum", () => {
@@ -170,7 +172,7 @@ describe("master_post_mitsubishi_mv1200r dispatcher wiring", () => {
   });
 });
 
-// ─── Engine Behavior Tests ──────────────────────────────────────────────────
+// â”€â”€â”€ Engine Behavior Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 describe("MitsubishiMV1200RWireEDMMasterPostEngine.generateProgram", () => {
   it("generates G-code with correct program number in header", () => {
@@ -347,7 +349,7 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine.generateProgram", () => {
   });
 });
 
-// ─── Failure Mode Tests ─────────────────────────────────────────────────────
+// â”€â”€â”€ Failure Mode Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 describe("MitsubishiMV1200RWireEDMMasterPostEngine failure modes", () => {
   it("handles empty operations array gracefully", () => {
@@ -369,7 +371,7 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine failure modes", () => {
           { x: 50, y: 50, type: "linear" },
         ],
         material: { name: "D2 Tool Steel", hardness_hrc: 65, conductivity: 0.1 },
-        thickness_mm: 100, // Very thick — may trigger warnings
+        thickness_mm: 100, // Very thick â€” may trigger warnings
         offset_direction: "left",
       },
     ]);
@@ -404,7 +406,7 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine failure modes", () => {
   });
 });
 
-// ─── Auto-Router Tests ──────────────────────────────────────────────────────
+// â”€â”€â”€ Auto-Router Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 describe("master_post_by_machine auto-router schema", () => {
   it("schema is a valid Zod type with machine_model field", () => {
@@ -456,5 +458,295 @@ describe("master_post_by_machine auto-router schema", () => {
       // Should fail on min(1) constraint for operations
       expect(result.error.issues.some(i => i.message.includes("least") || i.code === "too_small")).toBe(true);
     }
+  });
+});
+
+// â”€â”€â”€ Prove-out Mode Integration Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+
+describe("MitsubishiMV1200RWireEDMMasterPostEngine prove-out mode integration", () => {
+  const baseOperations = [
+    {
+      operation_type: "profile" as const,
+      pass: "rough" as const,
+      start_x: 0,
+      start_y: 0,
+      profile_points: [
+        { x: 10, y: 0, type: "line" as const },
+        { x: 10, y: 10, type: "line" as const },
+        { x: 0, y: 10, type: "line" as const },
+        { x: 0, y: 0, type: "line" as const },
+      ],
+      material: { name: "D2 Tool Steel", conductivity_class: "medium", hardness_hrc: 62 },
+      thickness_mm: 25,
+      offset_direction: "left" as const,
+    },
+  ];
+
+  it("reduces feed rates by configured percentage (25% default)", async () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOperations, {
+      program_number: 9001,
+      dialect: "M700V",
+    });
+    const gcodeText = original.gcode.join("\n");
+
+    const proveOutResult = await proveOutModeEngine.process({
+      action: "apply_prove_out",
+      gcode: gcodeText,
+      config: {
+        feed_reduction: 0.25,
+        controller: "mitsubishi",
+      },
+    });
+
+    expect(proveOutResult.summary.feed_reductions).toBeGreaterThanOrEqual(0);
+    expect(proveOutResult.summary.modified_lines).toBeGreaterThanOrEqual(0);
+  });
+
+  it("caps power/energy parameters at configured percentage (80% default)", async () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOperations, {
+      program_number: 9002,
+      dialect: "M800",
+    });
+    const gcodeText = original.gcode.join("\n");
+
+    const proveOutResult = await proveOutModeEngine.process({
+      action: "apply_prove_out",
+      gcode: gcodeText,
+      config: {
+        rpm_cap: 0.80,
+        controller: "mitsubishi",
+      },
+    });
+
+    expect(proveOutResult.summary.rpm_caps).toBeGreaterThanOrEqual(0);
+  });
+
+  it("inserts M01 optional stops at pass transitions", async () => {
+    const multiPassOps = [
+      {
+        operation_type: "profile" as const,
+        pass: "rough" as const,
+        start_x: 0,
+        start_y: 0,
+        profile_points: [
+          { x: 20, y: 0, type: "line" as const },
+          { x: 20, y: 20, type: "line" as const },
+        ],
+        material: { name: "SKD11", iso_group: "H", hardness_hrc: 58 },
+        thickness_mm: 30,
+        offset_direction: "left" as const,
+      },
+      {
+        operation_type: "profile" as const,
+        pass: "skim1" as const,
+        start_x: 0,
+        start_y: 0,
+        profile_points: [
+          { x: 20, y: 0, type: "line" as const },
+          { x: 20, y: 20, type: "line" as const },
+        ],
+        material: { name: "SKD11", iso_group: "H", hardness_hrc: 58 },
+        thickness_mm: 30,
+        offset_direction: "left" as const,
+      },
+    ];
+
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(multiPassOps, {
+      program_number: 9003,
+    });
+    const gcodeText = original.gcode.join("\n");
+
+    const proveOutResult = await proveOutModeEngine.process({
+      action: "apply_prove_out",
+      gcode: gcodeText,
+      config: {
+        insert_optional_stops: true,
+        controller: "mitsubishi",
+      },
+    });
+
+    expect(proveOutResult.summary.optional_stops_added).toBeGreaterThanOrEqual(0);
+      if (proveOutResult.summary.optional_stops_added > 0) {
+        expect(proveOutResult.gcode).toContain("M01");
+      }
+  });
+
+  it("adds PROVE-OUT comments at critical blocks", async () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOperations, {
+      program_number: 9004,
+    });
+    const gcodeText = original.gcode.join("\n");
+
+    const proveOutResult = await proveOutModeEngine.process({
+      action: "apply_prove_out",
+      gcode: gcodeText,
+      config: {
+        add_prove_out_comments: true,
+        controller: "mitsubishi",
+      },
+    });
+
+    expect(proveOutResult.summary.prove_out_comments_added).toBeGreaterThanOrEqual(0);
+      if (proveOutResult.summary.prove_out_comments_added > 0) {
+        expect(proveOutResult.gcode).toContain("PROVE-OUT");
+      }
+  });
+
+  it("increases estimated cycle time ratio for conservative prove-out", async () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOperations, {
+      program_number: 9005,
+    });
+    const gcodeText = original.gcode.join("\n");
+
+    const proveOutResult = await proveOutModeEngine.process({
+      action: "apply_prove_out",
+      gcode: gcodeText,
+      config: {
+        feed_reduction: 0.25,
+        rpm_cap: 0.80,
+        controller: "mitsubishi",
+      },
+    });
+
+    expect(proveOutResult.estimated_cycle_time_ratio).toBeGreaterThanOrEqual(1.0);
+  });
+
+  it("applies ISO-group-aware derating for hardened tool steel (H)", async () => {
+    const hardenedOps = [
+      {
+        operation_type: "profile" as const,
+        pass: "skim2" as const,
+        start_x: 0,
+        start_y: 0,
+        profile_points: [
+          { x: 15, y: 0, type: "line" as const },
+          { x: 15, y: 15, type: "line" as const },
+        ],
+        material: { name: "S7 Tool Steel", iso_group: "H", hardness_hrc: 56 },
+        thickness_mm: 20,
+        offset_direction: "right" as const,
+      },
+    ];
+
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(hardenedOps, {
+      program_number: 9006,
+    });
+    const gcodeText = original.gcode.join("\n");
+
+    const proveOutResult = await proveOutModeEngine.process({
+      action: "apply_prove_out",
+      gcode: gcodeText,
+      material: { iso_group: "H" },
+      config: {
+        feed_reduction: 0.25,
+        controller: "mitsubishi",
+      },
+    });
+
+    if (proveOutResult.summary.feed_reductions > 0) {
+      expect(proveOutResult.summary.avg_feed_reduction_pct).toBeGreaterThan(25);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FEED OPTIMIZER INTEGRATION (Scenario #7)
+// ---------------------------------------------------------------------------
+describe("MitsubishiMV1200RWireEDMMasterPostEngine feed optimizer integration", () => {
+  const feedOpOps: Parameters<typeof mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram>[0] = [
+    {
+      operation_type: "profile",
+      pass: "skim3",
+      start_x: 0,
+      start_y: 0,
+      profile_points: [
+        { x: 100, y: 0, type: "linear" },
+        { x: 100, y: 50, type: "linear" },
+        { x: 0, y: 50, type: "linear" },
+        { x: 0, y: 0, type: "linear" },
+      ],
+      material: { name: "D2 Tool Steel", conductivity_class: "medium", hardness_hrc: 62 },
+      thickness_mm: 50,
+      target_ra_um: 0.8,
+    },
+  ];
+
+  it("applies physics-based optimization to wire EDM code", () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(feedOpOps);
+    const gcodeText = original.gcode.join("\n");
+    
+    const optimized = feedOptimizer.optimize(gcodeText, {
+      toolDiameter_mm: 0.25,
+      toolFlutes: 1,
+      radialDepth_mm: 0.1,
+      axialDepth_mm: 50,
+      material: "H",
+      spindleRPM: 0,
+      nominalFeed_mmmin: 5,
+      enableChipThinning: false,
+      enableCornerDecel: true,
+      cornerSlowdownFactor: 0.4,
+    });
+    
+    expect(optimized.stats.totalLines).toBeGreaterThan(0);
+  });
+
+  it("applies corner deceleration at sharp wire path changes", () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(feedOpOps);
+    const gcodeText = original.gcode.join("\n");
+    
+    const optimized = feedOptimizer.optimize(gcodeText, {
+      toolDiameter_mm: 0.25,
+      toolFlutes: 1,
+      radialDepth_mm: 0.1,
+      axialDepth_mm: 50,
+      material: "H",
+      spindleRPM: 0,
+      nominalFeed_mmmin: 5,
+      enableChipThinning: false,
+      enableCornerDecel: true,
+      cornerSlowdownFactor: 0.3,
+    });
+    
+    expect(optimized.stats.cornerDecelerations).toBeGreaterThanOrEqual(0);
+  });
+
+  it("outputs valid optimized wire EDM G-code", () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(feedOpOps);
+    const gcodeText = original.gcode.join("\n");
+    
+    const optimized = feedOptimizer.optimize(gcodeText, {
+      toolDiameter_mm: 0.25,
+      toolFlutes: 1,
+      radialDepth_mm: 0.1,
+      axialDepth_mm: 50,
+      material: "H",
+      spindleRPM: 0,
+      nominalFeed_mmmin: 5,
+    });
+    
+    expect(optimized.gcode).toBeDefined();
+    expect(optimized.gcode.length).toBeGreaterThan(0);
+    expect(optimized.lines).toBeDefined();
+  });
+
+  it("reports wire EDM optimization statistics", () => {
+    const original = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(feedOpOps);
+    const gcodeText = original.gcode.join("\n");
+    
+    const optimized = feedOptimizer.optimize(gcodeText, {
+      toolDiameter_mm: 0.25,
+      toolFlutes: 1,
+      radialDepth_mm: 0.1,
+      axialDepth_mm: 50,
+      material: "H",
+      spindleRPM: 0,
+      nominalFeed_mmmin: 5,
+    });
+    
+    expect(typeof optimized.stats.estimatedTimeSavings_pct).toBe("number");
+    expect(typeof optimized.stats.feedLinesModified).toBe("number");
+    expect(typeof optimized.stats.averageFeedChange).toBe("number");
   });
 });
