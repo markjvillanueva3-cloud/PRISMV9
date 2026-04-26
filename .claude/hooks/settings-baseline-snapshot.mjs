@@ -33,18 +33,14 @@ function main() {
     // Output success for hook system
     console.log(JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: `Settings baseline saved: ${baselinePath}`,
+      systemMessage: `Settings baseline saved: ${baselinePath`,
       }
     }));
   } catch (err) {
     // Don't block session start on errors
     console.log(JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: `Settings baseline skipped: ${err.message}`,
+      systemMessage: `Settings baseline skipped: ${err.message`,
       }
     }));
   }

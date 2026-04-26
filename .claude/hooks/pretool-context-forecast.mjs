@@ -47,7 +47,7 @@ function readKnownTokens() {
     try {
       const d = JSON.parse(fs.readFileSync(p, "utf8"));
       const t = d.current_tokens ?? d.tokens ?? d.currentTokens ?? null;
-      if (typeof t === "number") return { tokens: t, window: d.window || d.window_tokens || 1_000_000 };
+      if (typeof t === "number") return { tokens: t, window: d.window || d.window_tokens || 200_000 };
     } catch { /* ignore */ }
   }
   return null;

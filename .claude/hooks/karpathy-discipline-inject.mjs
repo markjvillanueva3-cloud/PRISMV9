@@ -83,10 +83,7 @@ function main() {
   console.log(
     JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: body,
-      },
+      systemMessage: body,
     }),
   );
 }

@@ -85,7 +85,7 @@ async function main() {
     `Run \`/activate-local\` to bring it up, or ignore if not needed this session.`,
   ].join("\n");
 
-  process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: ctx } }));
+  process.stdout.write(JSON.stringify({ continue: true, systemMessage: ctx }));
 }
 
 main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));

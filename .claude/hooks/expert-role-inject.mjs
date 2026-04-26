@@ -32,10 +32,7 @@ async function main() {
   // Output the role reminder as additional context
   console.log(JSON.stringify({
     continue: true,
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: EXPERT_ROLE,
-      }
+      systemMessage: EXPERT_ROLE
     }));
 }
 

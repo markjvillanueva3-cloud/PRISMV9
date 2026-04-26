@@ -70,9 +70,7 @@ async function main() {
 
   logTelemetry({ injected: top.length, awareness, synthesizedAt });
 
-  console.log(JSON.stringify({  continue: true,  hookSpecificOutput: {
-      hookEventName: "SessionStart",
-      additionalContext: `[Phase 0.18 / Goal Inject] Top-${top.length} goals from prior session (synthesized ${synthesizedAt}${awarenessPart}):\n${lines}`,
+  console.log(JSON.stringify({  continue: true,  systemMessage: `[Phase 0.18 / Goal Inject] Top-${top.length goals from prior session (synthesized ${synthesizedAt}${awarenessPart}):\n${lines}`,
     },
   }));
 }

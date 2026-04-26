@@ -142,10 +142,7 @@ async function main() {
     const ctx = `📦 Pre-compression complete: ${result.fileCount} files · avg ratio ${result.avgRatio.toFixed(1)}:1`;
     process.stdout.write(JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "PreCompact",
-        additionalContext: ctx,
-      },
+      systemMessage: ctx,
     }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));

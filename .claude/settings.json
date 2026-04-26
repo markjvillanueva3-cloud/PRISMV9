@@ -304,6 +304,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_hook_unregistration.mjs",
             "timeout": 5000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-cleanup.mjs",
+            "timeout": 10000,
+            "continueOnError": true
           }
         ]
       }

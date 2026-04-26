@@ -410,7 +410,7 @@ JM DIE: ${JM_DIE.programs} programs, ${JM_DIE.customers} customers
 }
 
 async function main() {
-  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: generateActivation() } }));
+  console.log(JSON.stringify({ continue: true, systemMessage: generateActivation() }));
 }
 
 main().catch(() => process.exit(0));

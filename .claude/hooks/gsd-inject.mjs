@@ -114,8 +114,5 @@ parts.push('**Commands**: /pdf-learn, /video-learn, /forge-triple, /dedup, /wire
 
 console.log(JSON.stringify({
   continue: true,
-      hookSpecificOutput: {
-        hookEventName: "SessionStart",
-        additionalContext: parts.join('\n'),
-      }
+      systemMessage: parts.join('\n')
     }));

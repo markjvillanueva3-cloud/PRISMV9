@@ -352,7 +352,7 @@ MANDATORY RULES:
 4. ALWAYS suggest /forge-triple (not /forge-engine) for new capabilities
 `.trim();
 
-  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: activation } }));
+  console.log(JSON.stringify({ continue: true, systemMessage: activation }));
 }
 
 main().catch(() => process.exit(0));
