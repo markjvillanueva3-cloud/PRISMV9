@@ -27,7 +27,7 @@
 import { z } from "zod";
 import { JMDieProgramRAGEngine } from "./JMDieProgramRAGEngine.js";
 import type { RAGEvidence } from "../schemas/sfcProvenanceSchema.js";
-import type { Citation, RetrievalResult } from "../schemas/citationSchema.js";
+import { CitationSchema, type Citation, type RetrievalResult } from "../schemas/citationSchema.js";
 
 // ─── Input Schema ───────────────────────────────────────────────────────
 
@@ -39,8 +39,8 @@ export const SFCRAGWarmStartInputSchema = z.object({
   machine_id: z.string().optional().describe("Specific machine ID (e.g., 'Okuma-LB45')"),
   operation: z.string().optional().describe("Operation type (e.g., 'rough', 'finish', 'face', 'bore')"),
   customer: z.string().optional().describe("Customer name filter (e.g., 'ALCOA')"),
-  top_k: z.number().int().min(1).max(20).default(5).describe("Number of historical priors to retrieve"),
-  min_similarity: z.number().min(0).max(1).default(0.3).describe("Minimum similarity threshold"),
+  top_k: z.number().int().min(1).max(20).optional().default(5).describe("Number of historical priors to retrieve"),
+  min_similarity: z.number().min(0).max(1).optional().default(0.3).describe("Minimum similarity threshold"),
 }).describe("SFC RAG warm-start query input");
 export type SFCRAGWarmStartInput = z.infer<typeof SFCRAGWarmStartInputSchema>;
 
@@ -72,15 +72,7 @@ export const SFCRAGWarmStartOutputSchema = z.object({
     operation_match: z.boolean(),
     machine_match: z.boolean(),
   })).describe("RAG evidence for provenance attachment"),
-  citations: z.array(z.object({
-    source_type: z.literal("program"),
-    source_id: z.string(),
-    corpus: z.string(),
-    engine: z.string(),
-    excerpt: z.string().nullable(),
-    confidence: z.number(),
-    retrieval_score: z.number().nullable(),
-  })).describe("Citations for provenance"),
+  citations: z.array(CitationSchema).describe("Citations for provenance"),
   total_candidates: z.number().int().describe("Total programs searched"),
   search_time_ms: z.number().describe("Search latency in milliseconds"),
   index_version: z.string().nullable().describe("Index generation timestamp"),
