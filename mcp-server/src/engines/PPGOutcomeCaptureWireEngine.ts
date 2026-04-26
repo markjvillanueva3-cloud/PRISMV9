@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: Middleware engine called by PPG engines internally, not exposed via dispatcher
 /**
  * PPGOutcomeCaptureWireEngine — U-PPG-SFC-02
  * ===========================================

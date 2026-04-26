@@ -8,9 +8,9 @@
   "pillar": "P3-PPG-SFC-LEARNING-LOOP",
   "status": "in_progress",
   "created_at": "2026-04-25T20:45:00.000Z",
-  "last_updated": "2026-04-26T02:00:00.000Z",
+  "last_updated": "2026-04-26T03:15:00.000Z",
   "total_units": 14,
-  "completed_units": 2,
+  "completed_units": 3,
   "shipped": [
     {
       "id": "U-PPG-SFC-01",
@@ -42,6 +42,24 @@
         "Design invariants: never block caller, never throw, auto-generate lineage_id"
       ],
       "tests": "src/__tests__/engines/ppgOutcomeCaptureWireEngine.test.ts (28 tests, all green)"
+    },
+    {
+      "id": "U-PPG-SFC-03",
+      "title": "SFCProvenanceWireEngine - citations on every SFC output",
+      "shipped_at": "2026-04-26T03:15:00.000Z",
+      "commit_subject": "[MAIN] PSAU-PPG-SFC/U-PPG-SFC-03: SFCProvenanceWireEngine",
+      "summary": "Attach provenance citations to every SFC recommendation with kc11_source, taylor_source, fps_source, adapter info, RAG evidence, and audit hash for ITAR/AS9100 compliance.",
+      "key_features": [
+        "SFCProvenanceWireEngine.cite() wraps SFC outputs with full provenance",
+        "ISO group auto-resolution from material name via CANONICAL_MATERIAL_DB",
+        "Kienzle/Taylor source citation with ref to constants.ts",
+        "FPS source classification: formula, rag, adapter, iql, hybrid",
+        "SHA-256 audit hash (16-char) for tamper detection",
+        "validate() method for provenance integrity checking",
+        "summarize() method for human-readable output"
+      ],
+      "tests": "src/__tests__/engines/sfcProvenanceWireEngine.test.ts (33 tests, all green)",
+      "hook": "scripts/hooks/sfc-provenance-guard.mjs (27 tests, advisory mode default)"
     }
   ],
   "description": "Specialization of PSAU-LEARN's closing-the-loop pattern to PRISM's two highest-leverage recommendation surfaces: Post Processor Generator (PPG) and Speed/Feed Calculator (SFC). Today ~50 PPG/SFC engines exist (UltimateSpeedFeed, AutoSpeedFeed, PostProcessorDeepIntelligenceEngine, MasterPostProcessorUnifiedAGIEngine, LathePostProcessorAIEngine, etc.) but ZERO of them call OutcomeCaptureBus, InferenceLoRAGate, or ProvenanceEngine. They train models that never reach inference, emit recommendations without citations, and keep using hardcoded constants while LoRAs sit on disk. This envelope wires the existing surface to the U-LEARN spine.",
