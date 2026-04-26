@@ -112,7 +112,7 @@ function activeForeignClaims(sessionId) {
   const out = [];
   for (const f of listDirSafe(CLAIMS_DIR)) {
     const c = readJsonSafe(path.join(CLAIMS_DIR, f));
-    if (!c) continue;
+    if (!c || !c.path || !c.sessionId) continue; // Skip malformed claims
     if (c.sessionId === sessionId) continue;
     const expMs = Date.parse(c.expiresAt);
     if (Number.isFinite(expMs) && expMs < now) continue;
