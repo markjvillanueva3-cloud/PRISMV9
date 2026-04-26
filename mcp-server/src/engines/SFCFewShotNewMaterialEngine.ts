@@ -175,7 +175,8 @@ class SFCFewShotNewMaterialEngine {
       feature_dim: this.config.feature_dim,
       hidden_dim: this.config.hidden_dim,
       meta_lr: 0.001,
-      adaptation_threshold: 3,
+      use_proto_init: true,
+      regularization_lambda: 0.01,
     });
 
     this.initialized = true;
@@ -296,10 +297,11 @@ class SFCFewShotNewMaterialEngine {
       config_id: PROTOMAML_CONFIG_ID,
       customer_id: customer,
       material_class: material,
-      support_set: {
-        features: supportSet.features,
-        targets: supportSet.targets,
-      },
+      support_set: supportSet.features.map((feat, idx) => ({
+        features: feat,
+        target: supportSet.targets[idx],
+      })),
+      cache_adapted: true,
     });
 
     const adaptationTime = performance.now() - startTime;
@@ -314,8 +316,8 @@ class SFCFewShotNewMaterialEngine {
       config_id: PROTOMAML_CONFIG_ID,
       adapted_at: Date.now(),
       support_set_size: supportSamples.length,
-      inner_steps: result.inner_steps,
-      final_loss: result.final_loss,
+      inner_steps: result.inner_steps_executed,
+      final_loss: result.final_inner_loss,
       hit_count: 0,
       last_hit_at: Date.now(),
     });
@@ -324,12 +326,12 @@ class SFCFewShotNewMaterialEngine {
     this.evictOldEntries();
 
     return {
-      adapted: result.adapted,
+      adapted: result.cached, // cached means adaptation succeeded and was stored
       adapter_id: adapterId,
       adaptation_time_ms: Math.round(adaptationTime * 100) / 100,
       support_set_size: supportSamples.length,
-      inner_steps: result.inner_steps,
-      final_loss: Math.round(result.final_loss * 10000) / 10000,
+      inner_steps: result.inner_steps_executed,
+      final_loss: Math.round(result.final_inner_loss * 10000) / 10000,
       within_budget: adaptationTime < this.config.adaptation_budget_ms,
     };
   }
@@ -381,6 +383,7 @@ class SFCFewShotNewMaterialEngine {
       customer_id: customer,
       material_class: material,
       query_features: queryVector,
+      use_cached: true,
     });
 
     const predictionTime = performance.now() - predictionStart;
@@ -392,8 +395,8 @@ class SFCFewShotNewMaterialEngine {
       cacheEntry.last_hit_at = Date.now();
     }
 
-    // Denormalize prediction (0-1 back to 0-2000 SFM)
-    const predictedSfm = Math.round(result.prediction * 2000);
+    // Denormalize prediction (0-1 back to 0-2000 SFM), clamp to non-negative
+    const predictedSfm = Math.round(Math.max(0, result.predicted_value) * 2000);
 
     // Estimate feed from SFM (simplified relationship)
     const predictedFeed = Math.round((predictedSfm / 100) * 0.004 * 10000) / 10000;
@@ -405,7 +408,7 @@ class SFCFewShotNewMaterialEngine {
       predicted_sfm: predictedSfm,
       predicted_feed: predictedFeed,
       confidence: Math.round(result.confidence * 1000) / 1000,
-      adapted: result.used_adapted,
+      adapted: result.used_cached,
       cache_hit: cacheHit,
       adaptation_time_ms: Math.round(adaptationTime * 100) / 100,
       prediction_time_ms: Math.round(predictionTime * 100) / 100,
@@ -417,7 +420,7 @@ class SFCFewShotNewMaterialEngine {
         inner_steps: cacheEntry?.inner_steps ?? 0,
         final_loss: cacheEntry?.final_loss ?? 0,
         adapted_at: cacheEntry ? new Date(cacheEntry.adapted_at).toISOString() : "",
-        source: cacheHit ? "cached" : result.used_adapted ? "adapted" : "base_model",
+        source: cacheHit ? "cached" : result.used_cached ? "adapted" : "base_model",
         support_materials: [],
       },
     };
