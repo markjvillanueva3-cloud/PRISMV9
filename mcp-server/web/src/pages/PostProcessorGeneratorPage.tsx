@@ -1198,6 +1198,7 @@ export function PostProcessorGeneratorPage() {
   const [enabledFeatures, setEnabledFeatures] = useState<Set<string>>(new Set());
   const [controllerOverride, setControllerOverride] = useState('');
   const [proveOutEnabled, setProveOutEnabled] = useState(false);
+  const [confidenceWarning, setConfidenceWarning] = useState<'low' | 'medium' | null>(null);
   const [proveOutResult, setProveOutResult] = useState<{
     gcode: string;
     summary: {
@@ -1846,6 +1847,19 @@ export function PostProcessorGeneratorPage() {
       if (rf.subprograms) capIds.push('subprograms');
       if (capIds.length > 0) {
         setSelectedCapabilityIds((current) => uniqueStrings([...current, ...capIds]));
+      }
+
+      // PPG-WIRE-MS0 U-PPGW09: Auto-enable prove-out for low confidence fingerprints
+      // Confidence < 0.6: Auto-enable prove-out, show warning
+      // Confidence < 0.85: Recommend prove-out, show amber indicator
+      const confidence = result.confidence ?? 1.0;
+      if (confidence < 0.6) {
+        setProveOutEnabled(true);
+        setConfidenceWarning('low');
+      } else if (confidence < 0.85) {
+        setConfidenceWarning('medium');
+      } else {
+        setConfidenceWarning(null);
       }
     },
     [controllers],
@@ -3542,6 +3556,16 @@ export function PostProcessorGeneratorPage() {
                   />
                   <span className="text-sm font-medium text-slate-200">Enable prove-out mode</span>
                 </label>
+                {confidenceWarning === 'low' && (
+                  <span className="ml-2 rounded bg-red-500/20 px-2 py-0.5 text-xs text-red-400">
+                    ⚠ Low confidence — prove-out auto-enabled
+                  </span>
+                )}
+                {confidenceWarning === 'medium' && (
+                  <span className="ml-2 rounded bg-amber-500/20 px-2 py-0.5 text-xs text-amber-400">
+                    Recommend prove-out
+                  </span>
+                )}
                 <ActionButton
                   disabled={loadingAction || !generated}
                   onClick={() => {

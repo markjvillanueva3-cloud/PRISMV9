@@ -16,6 +16,8 @@
  * @module PostProcessorFeedOptimizerEngine
  */
 
+import { ChatterStabilityLobeEngine, type ChatterInput, type ChatterResult } from "./ChatterStabilityLobeEngine.js";
+import { bayesianToolLifeEngine, type PredictionResult } from "./BayesianToolLifeEngine.js";
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -38,6 +40,18 @@ export interface FeedOptimizerConfig {
   enablePlungeLimiting?: boolean;    // Default true
   enableStabilityCheck?: boolean;    // Default false (needs modal data)
   stabilityMaxDoc_mm?: number;       // From SLD analysis
+
+  // Chatter stability lobe analysis (ChatterStabilityLobeEngine integration)
+  enableChatterAnalysis?: boolean;   // Default false (needs machine FRF)
+  machine_id?: string;               // Machine registry ID for FRF lookup
+  toolOverhang_mm?: number;          // Tool overhang for stiffness calc
+  toolMaterial?: "carbide" | "hss" | "cermet";
+  upMilling?: boolean;               // Default false (climb milling)
+
+  // Bayesian tool life prediction (BayesianToolLifeEngine integration)
+  enableToolLifeCheck?: boolean;     // Default false
+  toolLifeTargetMin?: number;        // Target tool life in minutes
+  toolLifeRiskTolerance?: number;    // 0-1, lower = more conservative
 }
 
 export interface FeedOptimizedLine {
@@ -86,11 +100,16 @@ interface ParsedGCodeLine {
 // ---------------------------------------------------------------------------
 
 class PostProcessorFeedOptimizerEngineImpl {
+  private _cachedChatterResult: ChatterResult | null = null;
+  private _cachedToolLifeResult: PredictionResult | null = null;
 
   /**
    * Optimize feed rates in G-code program.
    */
   optimize(gcode: string, config: FeedOptimizerConfig): FeedOptimizeResult {
+    // Reset caches for new optimization run
+    this._cachedChatterResult = null;
+    this._cachedToolLifeResult = null;
     const lines = gcode.split("\n");
     const parsed = lines.map(l => this._parseLine(l));
     const results: FeedOptimizedLine[] = [];
@@ -182,11 +201,35 @@ class PostProcessorFeedOptimizerEngineImpl {
         }
       }
 
-      // 5. Stability check
+      // 5. Stability check (basic or SLD-based)
       if (config.enableStabilityCheck && config.stabilityMaxDoc_mm != null) {
         if (config.axialDepth_mm > config.stabilityMaxDoc_mm * 0.9) {
           adjustedFeed *= 0.7;
           reason += (reason ? " + " : "") + "stability(×0.70)";
+        }
+      }
+
+      // 6. Chatter stability lobe analysis (Altintas & Budak model)
+      if (config.enableChatterAnalysis) {
+        const chatterResult = this._cachedChatterResult ??= this.stabilityCheck(config);
+        if (chatterResult && chatterResult.max_stable_ap_mm > 0) {
+          if (config.axialDepth_mm > chatterResult.max_stable_ap_mm) {
+            const depthRatio = chatterResult.max_stable_ap_mm / config.axialDepth_mm;
+            const reduction = Math.max(0.5, depthRatio);
+            adjustedFeed *= reduction;
+            reason += (reason ? " + " : "") + `chatter(ap>${chatterResult.max_stable_ap_mm.toFixed(1)}→×${reduction.toFixed(2)})`;
+          }
+        }
+      }
+
+      // 7. Tool life derating (Bayesian prediction)
+      if (config.enableToolLifeCheck && config.toolLifeTargetMin) {
+        const toolLifeResult = this._cachedToolLifeResult ??= this.toolLifeCheck(config);
+        if (toolLifeResult && toolLifeResult.mean < config.toolLifeTargetMin) {
+          const lifeRatio = toolLifeResult.mean / config.toolLifeTargetMin;
+          const reduction = Math.max(0.6, Math.sqrt(lifeRatio));
+          adjustedFeed *= reduction;
+          reason += (reason ? " + " : "") + `toollife(${toolLifeResult.mean.toFixed(0)}min→×${reduction.toFixed(2)})`;
         }
       }
 
@@ -257,6 +300,62 @@ class PostProcessorFeedOptimizerEngineImpl {
       smallArcCount: result.stats.arcLimits,
       estimatedTimeSavings_pct: result.stats.estimatedTimeSavings_pct,
     };
+  }
+
+  /**
+   * Perform chatter stability analysis using ChatterStabilityLobeEngine.
+   * Returns stability lobes and optimal RPM/depth combinations.
+   */
+  stabilityCheck(config: FeedOptimizerConfig): ChatterResult | null {
+    if (!config.enableChatterAnalysis) return null;
+    if (!config.machine_id && !config.stabilityMaxDoc_mm) return null;
+
+    const chatterInput: ChatterInput = {
+      tool: {
+        diameter_mm: config.toolDiameter_mm,
+        flute_count: config.toolFlutes,
+        overhang_mm: config.toolOverhang_mm ?? config.toolDiameter_mm * 4,
+        material: config.toolMaterial ?? "carbide",
+      },
+      workpiece: {
+        iso_group: config.material,
+      },
+      machine: {
+        machine_id: config.machine_id,
+        max_rpm: config.spindleRPM * 1.2,
+        min_rpm: config.spindleRPM * 0.5,
+      },
+      cutting: {
+        radial_immersion_ratio: config.radialDepth_mm / config.toolDiameter_mm,
+        up_milling: config.upMilling ?? false,
+      },
+    };
+
+    try {
+      const engine = new ChatterStabilityLobeEngine();
+      const result = engine.compute(chatterInput);
+      return result.value; // AtomicValue wrapper → unwrap to ChatterResult
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Perform Bayesian tool life prediction using BayesianToolLifeEngine.
+   * Returns predicted tool life with confidence intervals.
+   */
+  toolLifeCheck(config: FeedOptimizerConfig): PredictionResult | null {
+    if (!config.enableToolLifeCheck) return null;
+
+    const chipLoad = config.nominalFeed_mmmin / (config.spindleRPM * config.toolFlutes);
+    const cuttingSpeed = (Math.PI * config.toolDiameter_mm * config.spindleRPM) / 1000;
+
+    try {
+      const predictor = bayesianToolLifeEngine.createPredictor();
+      return bayesianToolLifeEngine.predict(predictor, cuttingSpeed, chipLoad, config.axialDepth_mm);
+    } catch {
+      return null;
+    }
   }
 
   // -------------------------------------------------------------------------
