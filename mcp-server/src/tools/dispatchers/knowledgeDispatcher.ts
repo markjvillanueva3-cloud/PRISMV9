@@ -77,6 +77,9 @@ const LEARN_ACTIONS = [
 const OBSIDIAN_ACTIONS = [
   "obsidian_sync_pull", "obsidian_sync_push",
   "obsidian_sync_status", "obsidian_sync_config",
+  "obsidian_plugin_register", "obsidian_plugin_query",
+  "obsidian_plugin_subscribe", "obsidian_plugin_unsubscribe",
+  "obsidian_plugin_status",
 ] as const;
 
 const ACTIONS = [
@@ -289,6 +292,50 @@ export function registerKnowledgeDispatcher(server: any): void {
               enable_bidirectional: params.enable_bidirectional,
               conflict_strategy: params.conflict_strategy,
             });
+            break;
+          }
+          // ── OBSIDIAN-MS0: Plugin Bridge (U-OBS-BRIDGE02) ──
+          case "obsidian_plugin_register": {
+            const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
+            result = obsidianPluginBridgeEngine.register({
+              plugin_id: params.plugin_id,
+              plugin_name: params.plugin_name,
+              version: params.version,
+              vault_path: params.vault_path,
+              capabilities: params.capabilities,
+            });
+            break;
+          }
+          case "obsidian_plugin_query": {
+            const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
+            result = await obsidianPluginBridgeEngine.query({
+              api_key: params.api_key,
+              action: params.action,
+              params: params.query_params ?? params.params ?? {},
+              timeout_ms: params.timeout_ms,
+            });
+            break;
+          }
+          case "obsidian_plugin_subscribe": {
+            const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
+            result = obsidianPluginBridgeEngine.subscribe({
+              api_key: params.api_key,
+              event_types: params.event_types,
+              filter: params.filter,
+            });
+            break;
+          }
+          case "obsidian_plugin_unsubscribe": {
+            const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
+            result = obsidianPluginBridgeEngine.unsubscribe({
+              api_key: params.api_key,
+              subscription_id: params.subscription_id,
+            });
+            break;
+          }
+          case "obsidian_plugin_status": {
+            const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
+            result = obsidianPluginBridgeEngine.status(params.api_key);
             break;
           }
           // ── PRISM Academy ──────────────────────────────────
