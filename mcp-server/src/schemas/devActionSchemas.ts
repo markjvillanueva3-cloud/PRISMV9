@@ -222,4 +222,29 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   failure_cascade_chain: z.object({
     failureId: z.string().min(1).describe("Root failure mode id to trace cascade from"),
   }),
+
+  // OllamaHookBridgeEngine — local LLM for hooks (token-free suggestions)
+  ollama_hook_query: z.object({
+    prompt: z.string().min(1).max(10000).describe("Prompt to send to Ollama"),
+    hookType: z.enum(["grep_index", "mcp_route", "ai_feature", "code_explain", "pattern_match", "validation", "general"])
+      .optional().describe("Hook type for model selection (default: general)"),
+    timeoutMs: z.number().min(50).max(30000).optional().describe("Query timeout in ms (default: 500)"),
+    maxTokens: z.number().min(1).max(4096).optional().describe("Max tokens in response (default: 100)"),
+    systemPrompt: z.string().optional().describe("Override system prompt"),
+    temperature: z.number().min(0).max(1).optional().describe("Sampling temperature (default: 0.3)"),
+  }),
+
+  ollama_hook_status: z.object({}).optional().describe("Check Ollama availability and list installed models"),
+
+  ollama_hook_config: z.object({
+    baseUrl: z.string().url().optional().describe("Ollama API base URL (default: http://localhost:11434)"),
+    defaultModel: z.string().optional().describe("Default model for queries"),
+    timeoutMs: z.number().min(50).max(30000).optional().describe("Default timeout in ms"),
+    maxTokens: z.number().min(1).max(4096).optional().describe("Default max tokens"),
+    modelOverrides: z.record(
+      z.enum(["grep_index", "mcp_route", "ai_feature", "code_explain", "pattern_match", "validation", "general"]),
+      z.string()
+    ).optional().describe("Per-hook-type model overrides"),
+    verbose: z.boolean().optional().describe("Enable verbose logging"),
+  }).optional(),
 };
