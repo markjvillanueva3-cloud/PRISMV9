@@ -65,8 +65,15 @@ function registerSession(terminalName, family) {
   const ids = loadSessionIds();
   const key = terminalName || `terminal-${crypto.randomUUID().slice(0, 8)}`;
   if (!ids[key]) {
+    // CRITICAL: Don't double-prefix. If terminal already starts with "claude-",
+    // use it directly as the instance ID. This prevents collision between:
+    //   - HANDOFF-Claude-claude-9bccf61e.md (double-prefixed)
+    //   - HANDOFF-claude-9bccf61e.md (direct from stable-session-id.mjs)
+    const instanceId = key.startsWith("claude-") || key.startsWith("codex-")
+      ? key
+      : `${family}-${key}`;
     ids[key] = {
-      id: `${family}-${key}`,
+      id: instanceId,
       family,
       terminal: key,
       created_at: now(),
@@ -99,8 +106,15 @@ function sanitizeFilename(instance) {
   return instance.replace(/[^a-zA-Z0-9._@-]/g, "_").replace(/_+/g, "_");
 }
 
-function handoffPath(instance) {
-  return path.join(HANDOFFS_DIR, `HANDOFF-${sanitizeFilename(instance)}.md`);
+function sanitizeTopic(topic) {
+  if (!topic) return null;
+  return topic.replace(/[^a-zA-Z0-9-]/g, "-").replace(/-+/g, "-").slice(0, 20);
+}
+
+function handoffPath(instance, topic = null) {
+  const base = sanitizeFilename(instance);
+  const topicSuffix = sanitizeTopic(topic) ? `-${sanitizeTopic(topic)}` : "";
+  return path.join(HANDOFFS_DIR, `HANDOFF-${base}${topicSuffix}.md`);
 }
 
 function now() {
@@ -223,7 +237,7 @@ function addToQueue(item) {
 
 function cmdWrite(identity, args) {
   ensureDirs();
-  const filePath = handoffPath(identity.instance);
+  const filePath = handoffPath(identity.instance, args.topic);
 
   // Preserve any existing meaningful RESUME if the caller only passed a
   // placeholder (bare --resume flag → true, "unknown", "", etc.).

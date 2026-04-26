@@ -173,6 +173,41 @@ function getRoadmapSummary() {
   }
 }
 
+
+/**
+ * Extract a topic slug from recent git commits or CURRENT_POSITION.md.
+ * Used to name handoff files (e.g., HANDOFF-claude-xxx-cam-exhaust-ms0.md).
+ */
+function extractTopicSlug() {
+  // 1. Try extracting from most recent commit message scope
+  const recentCommit = runGit(["log", "--oneline", "-1", "--format=%s"]);
+  if (recentCommit) {
+    // Match [CAM-EXHAUST-MS0/...] or [MAIN] CAM-EXHAUST-MS0/...
+    const scopeMatch = recentCommit.match(/\[(?:MAIN\]\s*)?([A-Z][\w-]+-MS\d+)/i);
+    if (scopeMatch?.[1]) {
+      return scopeMatch[1].toLowerCase();
+    }
+    // Match standalone milestone at start: CAM-EXHAUST-MS0/U-...
+    const msMatch = recentCommit.match(/^([A-Z][\w-]+-MS\d+)/i);
+    if (msMatch?.[1]) {
+      return msMatch[1].toLowerCase();
+    }
+  }
+
+  // 2. Fall back to CURRENT_POSITION.md milestone
+  try {
+    const position = fs.readFileSync(POSITION_FILE, "utf-8");
+    const msMatch = position.match(/(?:Last\s+Milestone|Current|##)\s*:?\s*([A-Z][\w-]+-MS\d+)/i);
+    if (msMatch?.[1]) {
+      return msMatch[1].toLowerCase();
+    }
+  } catch {
+    // Position file unavailable
+  }
+
+  return null;
+}
+
 function generateSmartResume(identity) {
   const parts = [];
 
@@ -323,6 +358,9 @@ function main() {
     resumeSource = "generated";
   }
 
+  // Step 2.5: Extract topic slug for filename
+  const topic = extractTopicSlug();
+
   // Step 3: Write the handoff via per-agent-handoff.mjs
   const handoffScript = path.resolve("H:/prism/.claude/helpers/per-agent-handoff.mjs");
   const writeArgs = [
@@ -331,6 +369,7 @@ function main() {
     "--terminal", args.terminal || `auto-${process.ppid}`, // per-agent-handoff auto-registers the terminal on first use
     "--resume", resume,
     "--state", `Pre-compact snapshot (RESUME ${resumeSource})`,
+      ...(topic ? ["--topic", topic] : []),
   ];
 
   const result = spawnSync(process.execPath, writeArgs, {
