@@ -82,4 +82,4 @@ function main() {
   }
 }
 
-main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });
+try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }

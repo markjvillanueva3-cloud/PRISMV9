@@ -60,8 +60,7 @@ try {
 if (warnings.length > 0) {
   console.log(JSON.stringify({
     continue: true,
-    systemMessage: `⚠️ Pre-compact check:\n${warnings.map(w => `  - ${w`).join('\n')}\nHandoff will be auto-saved.`
-    }
+    systemMessage: `⚠️ Pre-compact check:\n${warnings.map(w => `  - ${w}`).join('\n')}\nHandoff will be auto-saved.`
   }));
 } else {
   console.log(JSON.stringify({ continue: true }));

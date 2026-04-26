@@ -59,8 +59,7 @@ async function main() {
   const inventory = readInventory();
   const compact = formatCompactInventory(inventory);
 
-  console.log(JSON.stringify({ continue: true, systemMessage: `**[Inventory]** ${compact
-Check MASTER_INDEX_COMPACT.md + DuplicationGuardEngine before creating.` } }));
+  console.log(JSON.stringify({ continue: true, systemMessage: `**[Inventory]** ${compact}\nCheck MASTER_INDEX_COMPACT.md + DuplicationGuardEngine before creating.` }));
 }
 
 main().catch(() => {

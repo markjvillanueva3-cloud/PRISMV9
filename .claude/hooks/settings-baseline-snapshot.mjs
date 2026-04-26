@@ -17,35 +17,25 @@ const BASELINE_DIR = "H:/prism/mcp-server/data/state";
 
 function main() {
   try {
-    // Read current settings
     const settings = JSON.parse(readFileSync(SETTINGS_PATH, "utf-8"));
-
-    // Create baseline filename with timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const baselinePath = `${BASELINE_DIR}/settings-baseline-${timestamp}.json`;
 
-    // Ensure directory exists
     mkdirSync(BASELINE_DIR, { recursive: true });
-
-    // Write baseline
     writeFileSync(baselinePath, JSON.stringify(settings, null, 2));
 
-    // Output success for hook system
     console.log(JSON.stringify({
       continue: true,
-      systemMessage: `Settings baseline saved: ${baselinePath`,
-      }
+      systemMessage: `Settings baseline saved: ${baselinePath}`
     }));
   } catch (err) {
-    // Don't block session start on errors
     console.log(JSON.stringify({
       continue: true,
-      systemMessage: `Settings baseline skipped: ${err.message`,
-      }
+      systemMessage: `Settings baseline skipped: ${err.message}`
     }));
   }
 
   exit(0);
 }
 
-main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });
+try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }

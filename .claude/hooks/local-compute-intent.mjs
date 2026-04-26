@@ -411,6 +411,24 @@ async function main() {
   const launch = autostartAllowed
     ? launchLocalCompute({ prompt, categories, hits, services, missing })
     : { status: "suggestion-only", reason: "prompt looks like configuration or discussion, not runtime local-compute work" };
+
+  // SILENT MODE (LOCAL-LLM-MS0): Only inject context if stack is DOWN AND intent is strong
+  // Weak intent (just infra_services) = log silently, don't pollute context
+  if (SILENT_MODE && !hasStrongIntent(categories)) {
+    logSilent({
+      action: "silent-skip",
+      categories,
+      missing,
+      reason: "weak-intent-silent-mode",
+      launch: launch.status
+    });
+    process.stdout.write(JSON.stringify({
+      continue: true,
+      _meta: { hook: "local-compute-intent", triggered: categories, missing, silentSkip: true },
+    }));
+    return;
+  }
+
   const actionLine = launch.status === "launching"
     ? `Auto-started PRISM local compute in the background (pid ${launch.pid}).`
     : launch.status === "dry-run"
@@ -431,6 +449,9 @@ async function main() {
     ``,
     `Skip autostart with \`[no-local]\`, \`[no-docker]\`, or \`PRISM_LOCAL_COMPUTE_AUTOSTART=0\`.`,
   ].join("\n");
+
+  // Log that we're injecting context (strong intent)
+  logSilent({ action: "inject-context", categories, missing, launch: launch.status });
 
   process.stdout.write(JSON.stringify({
     continue: true,

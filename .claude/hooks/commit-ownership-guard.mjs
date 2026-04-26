@@ -196,4 +196,4 @@ function main() {
   console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: msg, } }));
 }
 
-main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });
+try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }

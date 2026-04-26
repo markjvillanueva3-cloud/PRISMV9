@@ -280,7 +280,9 @@ function checkEngineTested(engineRelPath) {
 
 function checkDispatcherActionHandlers(dispatcherRelPath) {
   // For each action name in the file's ACTIONS enum, ensure a
-  // corresponding `case "name":` exists somewhere in the file.
+  // corresponding handler exists in the file. Supports two patterns:
+  //   1. switch/case: `case "action_name":`
+  //   2. lookup table: `action_name:` as key in ACTION_HANDLERS object
   const full = path.join(REPO_ROOT, dispatcherRelPath);
   if (!fs.existsSync(full)) return { missing: [] };
   const body = fs.readFileSync(full, "utf8");
@@ -302,8 +304,16 @@ function checkDispatcherActionHandlers(dispatcherRelPath) {
 
   const missing = [];
   for (const name of actionNames) {
+    // Pattern 1: switch/case handler
     const caseRe = new RegExp(`case\\s+["'\`]${name}["'\`]\\s*:`);
-    if (!caseRe.test(body)) missing.push(name);
+    // Pattern 2: ACTION_HANDLERS lookup table key (e.g., `action_name: handleFunc,`)
+    // Matches: action_name: handleXxx OR action_name: async ... OR action_name: (params) =>
+    const handlerRe = new RegExp(`\\b${name}\\s*:\\s*(handle[A-Z]|async\\s|\\()`);
+    // Pattern 3: Plain object key assignment (e.g., `action_name: handleActionName`)
+    const objKeyRe = new RegExp(`["'\`]?${name}["'\`]?\\s*:\\s*[a-zA-Z_]`);
+    if (!caseRe.test(body) && !handlerRe.test(body) && !objKeyRe.test(body)) {
+      missing.push(name);
+    }
   }
   return { missing };
 }

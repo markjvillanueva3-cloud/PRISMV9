@@ -59,4 +59,4 @@ function main() {
   process.stdout.write(`✓ Portable Python ${versionMatch[0]} → ${PYTHON_EXE}\n`);
 }
 
-main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });
+try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }

@@ -36,4 +36,4 @@ function main() {
   process.exit(0);
 }
 
-main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });
+try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }
