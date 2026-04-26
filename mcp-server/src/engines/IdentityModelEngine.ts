@@ -58,7 +58,7 @@ const IdentityRecordSchema = z.object({
   specializations: z.array(z.string()).default([]),
   boundaries: z.array(BoundaryConstraintSchema).default([]),
   invariants: z.array(InvariantSchema).default([]),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
 });
 
 export type AgentRole = z.infer<typeof AgentRoleSchema>;

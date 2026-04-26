@@ -872,7 +872,7 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
           // ─────────────────────────────────────────────────────────────────
           case "identity_register": {
             const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
-            const result = identityModelEngine.register(params);
+            const result = identityModelEngine.register(params as Parameters<typeof identityModelEngine.register>[0]);
             return ok({ registered: true, identity: result });
           }
 
