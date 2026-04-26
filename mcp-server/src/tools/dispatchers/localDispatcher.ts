@@ -36,6 +36,12 @@ import {
   AggregateHooksInputSchema,
   AwarenessInputSchema,
   CommitInputSchema,
+  // DeepSeek V4 hybrid backend schemas
+  ExecuteDeepseekInputSchema,
+  DeepseekHealthInputSchema,
+  BackendRouteInputSchema,
+  BackendConfigInputSchema,
+  RoutingStatsInputSchema,
 } from "../../schemas/localActionSchemas.js";
 
 // Build input schema map for validateActionParams
@@ -62,6 +68,8 @@ let _localLearning: typeof import("../../engines/LocalLearningEngine.js").localL
 let _hookAggregator: typeof import("../../engines/LocalHookAggregatorEngine.js").localHookAggregatorEngine | null = null;
 let _awarenessRouter: typeof import("../../engines/LocalAwarenessRouterEngine.js").localAwarenessRouterEngine | null = null;
 let _commitMessage: typeof import("../../engines/LocalCommitMessageEngine.js").localCommitMessageEngine | null = null;
+let _deepSeek: typeof import("../../engines/DeepSeekInferenceEngine.js").deepSeekInferenceEngine | null = null;
+let _backendRouter: typeof import("../../engines/BackendRouterEngine.js").backendRouterEngine | null = null;
 
 async function getEngine(name: string): Promise<unknown> {
   switch (name) {
@@ -77,6 +85,10 @@ async function getEngine(name: string): Promise<unknown> {
       return _awarenessRouter ??= (await import("../../engines/LocalAwarenessRouterEngine.js")).localAwarenessRouterEngine;
     case "commitMessage":
       return _commitMessage ??= (await import("../../engines/LocalCommitMessageEngine.js")).localCommitMessageEngine;
+    case "deepSeek":
+      return _deepSeek ??= (await import("../../engines/DeepSeekInferenceEngine.js")).deepSeekInferenceEngine;
+    case "backendRouter":
+      return _backendRouter ??= (await import("../../engines/BackendRouterEngine.js")).backendRouterEngine;
     default:
       throw new Error(`Unknown engine: ${name}`);
   }
@@ -377,6 +389,47 @@ export async function localDispatcher(
             ollamaUsed: result.ollamaUsed,
           },
         });
+      }
+
+      // DeepSeek V4 hybrid backend actions
+      case "execute_deepseek": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        const engine = await getEngine("deepSeek") as typeof import("../../engines/DeepSeekInferenceEngine.js").deepSeekInferenceEngine;
+        const result = await engine.generate(validated.data as Parameters<typeof engine.generate>[0]);
+        return slimResponse({ success: result.success, action: validAction, data: result, metadata: { latencyMs: result.latencyMs } });
+      }
+
+      case "deepseek_health": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        const engine = await getEngine("deepSeek") as typeof import("../../engines/DeepSeekInferenceEngine.js").deepSeekInferenceEngine;
+        const result = await engine.health(validated.data as Parameters<typeof engine.health>[0]);
+        return slimResponse({ success: true, action: validAction, data: result, metadata: { latencyMs: result.latencyMs } });
+      }
+
+      case "backend_route": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        const engine = await getEngine("backendRouter") as typeof import("../../engines/BackendRouterEngine.js").backendRouterEngine;
+        const result = engine.route(validated.data as Parameters<typeof engine.route>[0]);
+        return slimResponse({ success: true, action: validAction, data: result, metadata: { latencyMs: Date.now() - startTime } });
+      }
+
+      case "backend_config": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        const router = await getEngine("backendRouter") as typeof import("../../engines/BackendRouterEngine.js").backendRouterEngine;
+        const deepseek = await getEngine("deepSeek") as typeof import("../../engines/DeepSeekInferenceEngine.js").deepSeekInferenceEngine;
+        const p = validated.data as { action?: string; updates?: Record<string, unknown> };
+        if (p.action === "update" && p.updates) router.updateThresholds(p.updates);
+        return slimResponse({ success: true, action: validAction, data: { config: router.getThresholds(), deepseekConfigured: deepseek.isConfigured(), ollamaAvailable: true, updated: p.action === "update" }, metadata: { latencyMs: Date.now() - startTime } });
+      }
+
+      case "routing_stats": {
+        const engine = await getEngine("backendRouter") as typeof import("../../engines/BackendRouterEngine.js").backendRouterEngine;
+        const result = engine.getStats();
+        return slimResponse({ success: true, action: validAction, data: result, metadata: { latencyMs: Date.now() - startTime } });
       }
 
       default: {

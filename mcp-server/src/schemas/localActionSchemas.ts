@@ -27,6 +27,12 @@ export const LOCAL_ACTIONS = [
     "aggregate_hooks",
   "awareness_route",
   "suggest_commit",
+  // DeepSeek V4 hybrid backend actions (LOCAL-LLM-MS0 Phase 1)
+  "execute_deepseek",
+  "deepseek_health",
+  "backend_route",
+  "backend_config",
+  "routing_stats",
 ] as const;
 
 export type LocalAction = (typeof LOCAL_ACTIONS)[number];
@@ -263,6 +269,109 @@ export const AggregateHooksOutputSchema = z.object({
   latencyMs: z.number().describe("Aggregation time in milliseconds"),
 });
 
+// ============================================================================
+// DeepSeek V4 Hybrid Backend Schemas (LOCAL-LLM-MS0 Phase 1)
+// ============================================================================
+
+// execute_deepseek — Generate text using DeepSeek V4 API
+export const ExecuteDeepseekInputSchema = z.object({
+  prompt: z.string().min(1).describe("Prompt to send to DeepSeek"),
+  model: z.enum(["flash", "pro"]).default("flash").describe("Model: flash (free) or pro (paid)"),
+  systemPrompt: z.string().optional().describe("System prompt for context"),
+  temperature: z.number().min(0).max(2).default(0.3).describe("Sampling temperature"),
+  maxTokens: z.number().int().min(1).max(32768).default(4096).describe("Max output tokens"),
+  thinkingMode: z.boolean().default(false).describe("Enable thinking mode for complex reasoning"),
+});
+
+export const ExecuteDeepseekOutputSchema = z.object({
+  success: z.boolean(),
+  content: z.string().describe("Generated response"),
+  model: z.string().describe("Model used"),
+  usage: z.object({
+    promptTokens: z.number(),
+    completionTokens: z.number(),
+    totalTokens: z.number(),
+  }),
+  thinkingContent: z.string().optional().describe("Thinking output if enabled"),
+  latencyMs: z.number(),
+  cached: z.boolean().describe("Whether response was cached"),
+  error: z.string().optional(),
+});
+
+// deepseek_health — Check DeepSeek API health
+export const DeepseekHealthInputSchema = z.object({
+  checkModels: z.boolean().default(true).describe("Check model availability"),
+  checkQuota: z.boolean().default(true).describe("Check API quota remaining"),
+});
+
+export const DeepseekHealthOutputSchema = z.object({
+  healthy: z.boolean(),
+  apiReachable: z.boolean(),
+  apiKeyConfigured: z.boolean(),
+  models: z.array(z.object({
+    id: z.string(),
+    available: z.boolean(),
+    contextWindow: z.number(),
+  })).optional(),
+  latencyMs: z.number(),
+  error: z.string().optional(),
+});
+
+// backend_route — Route task to optimal backend
+export const BackendRouteInputSchema = z.object({
+  task: z.string().min(1).describe("Task description"),
+  contextLength: z.number().int().min(0).default(0).describe("Estimated context length in tokens"),
+  tags: z.array(z.string()).default([]).describe("Task tags (critical, agentic, code, etc.)"),
+  preferLocal: z.boolean().default(true).describe("Prefer local inference when possible"),
+  maxLatencyMs: z.number().int().optional().describe("Maximum acceptable latency"),
+});
+
+export const BackendRouteOutputSchema = z.object({
+  backend: z.enum(["qwen", "deepseek-flash", "deepseek-pro"]).describe("Recommended backend"),
+  reason: z.string().describe("Why this backend was selected"),
+  complexity: z.enum(["simple", "moderate", "complex", "critical"]).describe("Task complexity"),
+  estimatedLatencyMs: z.number(),
+  estimatedCost: z.number().describe("Cost in USD (0 for local/free)"),
+  confidence: z.number().min(0).max(1),
+  alternatives: z.array(z.object({
+    backend: z.enum(["qwen", "deepseek-flash", "deepseek-pro"]),
+    reason: z.string(),
+  })),
+});
+
+// backend_config — Get/update backend configuration
+export const BackendConfigInputSchema = z.object({
+  action: z.enum(["get", "update"]).default("get").describe("Get or update config"),
+  updates: z.object({
+    contextUpgradeTokens: z.number().int().optional(),
+    complexityUpgradeTags: z.array(z.string()).optional(),
+    criticalTags: z.array(z.string()).optional(),
+  }).optional().describe("Config updates (for action=update)"),
+});
+
+export const BackendConfigOutputSchema = z.object({
+  config: z.object({
+    contextUpgradeTokens: z.number(),
+    complexityUpgradeTags: z.array(z.string()),
+    criticalTags: z.array(z.string()),
+    maxLocalContextTokens: z.number(),
+  }),
+  deepseekConfigured: z.boolean(),
+  ollamaAvailable: z.boolean(),
+  updated: z.boolean().optional(),
+});
+
+// routing_stats — Get routing statistics
+export const RoutingStatsInputSchema = z.object({});
+
+export const RoutingStatsOutputSchema = z.object({
+  totalRoutes: z.number(),
+  byBackend: z.record(z.string(), z.number()),
+  successRates: z.record(z.string(), z.number()),
+  avgLatencies: z.record(z.string(), z.number()),
+  learnedPatterns: z.number(),
+});
+
 // Combined schema map for dispatcher
 export const ACTION_LOCAL_SCHEMAS = {
   validate_code: {
@@ -308,6 +417,27 @@ export const ACTION_LOCAL_SCHEMAS = {
   aggregate_hooks: {
     input: AggregateHooksInputSchema,
     output: AggregateHooksOutputSchema,
+  },
+  // DeepSeek V4 hybrid backend
+  execute_deepseek: {
+    input: ExecuteDeepseekInputSchema,
+    output: ExecuteDeepseekOutputSchema,
+  },
+  deepseek_health: {
+    input: DeepseekHealthInputSchema,
+    output: DeepseekHealthOutputSchema,
+  },
+  backend_route: {
+    input: BackendRouteInputSchema,
+    output: BackendRouteOutputSchema,
+  },
+  backend_config: {
+    input: BackendConfigInputSchema,
+    output: BackendConfigOutputSchema,
+  },
+  routing_stats: {
+    input: RoutingStatsInputSchema,
+    output: RoutingStatsOutputSchema,
   },
 } as const;
 
