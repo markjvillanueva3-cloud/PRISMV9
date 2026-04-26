@@ -27,4 +27,9 @@ export const VIBRATION_ACTION_SCHEMAS: ActionSchemaMap = {
   grinding_wheel_calculate: z.object({ wheel_type: optStr, grade: optStr, bond: optStr, material: optStr }).passthrough(),
   post_processor_generate: z.object({ controller_type: optStr, machine_type: optStr }).passthrough(),
   tap_drill_calculate: z.object({ thread_size: optStr, pitch_mm: optPosNum, thread_type: z.enum(["metric", "unified", "npt", "bsp"]).optional(), percent_thread: optNum }).passthrough(),
+
+  // Adaptive Feed Modulation - PRISM Forces Dynamic Feed Control
+  adaptive_feed_modulate: z.object({ engagement: z.object({ radialEngagement: z.number().min(0).max(1).optional(), engagementAngle: z.number().min(0).max(180).optional(), effectiveChipLoad: z.number().positive().optional() }).optional(), baseFeedrate: z.number().positive().optional(), toolId: optStr }).passthrough(),
+  adaptive_feed_update_tool: z.object({ toolId: z.string(), currentWearPercent: z.number().min(0).max(100).optional(), cuttingTimeMinutes: optNum }).passthrough(),
+  adaptive_feed_get_tool: z.object({ toolId: z.string() }).passthrough(),
 };

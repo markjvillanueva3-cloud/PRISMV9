@@ -17,6 +17,7 @@ let _vam: any, _dampening: any, _isolation: any, _fourier: any;
 let _wavelet: any, _chatter: any, _burr: any, _chipConveyor: any;
 let _cutterContact: any, _tribology: any, _surfFinish: any, _surfGrinding: any;
 let _centerlessGrinding: any, _grindingWheel: any, _postProc: any, _tapDrill: any;
+let _adaptiveFeed: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -36,6 +37,7 @@ async function getEngine(name: string): Promise<any> {
     case "grindingWheel": return _grindingWheel ??= (await import("../../engines/GrindingWheelEngine.js")).grindingWheelEngine;
     case "postProc": return _postProc ??= (await import("../../engines/PostProcessorGeneratorEngine.js")).postProcessorGeneratorEngine;
     case "tapDrill": return _tapDrill ??= (await import("../../engines/TapDrillEngine.js")).tapDrillEngine;
+    case "adaptiveFeed": return _adaptiveFeed ??= (await import("../../engines/AdaptiveFeedModulationEngine.js")).adaptiveFeedModulationEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -48,6 +50,7 @@ const ACTIONS = [
   "surface_finish_calculate", "surface_grinding_calculate",
   "centerless_grinding_calculate", "grinding_wheel_calculate",
   "post_processor_generate", "tap_drill_calculate",
+  "adaptive_feed_modulate", "adaptive_feed_update_tool", "adaptive_feed_get_tool",
 ] as const;
 
 export function registerVibrationPhysicsDispatcher(server: any): void {
@@ -90,6 +93,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           surface_finish_calculate: "surfFinish", surface_grinding_calculate: "surfGrinding",
           centerless_grinding_calculate: "centerlessGrinding", grinding_wheel_calculate: "grindingWheel",
           post_processor_generate: "postProc", tap_drill_calculate: "tapDrill",
+          adaptive_feed_modulate: "adaptiveFeed", adaptive_feed_update_tool: "adaptiveFeed",
+          adaptive_feed_get_tool: "adaptiveFeed",
         };
 
         const engineKey = engineMap[action];
@@ -103,6 +108,14 @@ Actions: ${ACTIONS.join(", ")}.`,
           result = eng.analyze?.(params) ?? eng.calculate?.(params) ?? { error: "FourierAnalysis method not found" };
         } else if (action === "wavelet_analysis") {
           result = eng.analyze?.(params) ?? eng.calculate?.(params) ?? { error: "WaveletAnalysis method not found" };
+        } else if (action === "adaptive_feed_modulate") {
+          const engagement = params.engagement ?? {};
+          result = eng.modulateFeed?.(engagement, params.baseFeedrate ?? 1000, params.toolId ?? "default", params.config);
+        } else if (action === "adaptive_feed_update_tool") {
+          eng.updateToolState?.({ toolId: params.toolId, currentWearPercent: params.currentWearPercent, cuttingTimeMinutes: params.cuttingTimeMinutes });
+          result = { success: true, toolId: params.toolId };
+        } else if (action === "adaptive_feed_get_tool") {
+          result = eng.getCumulativeToolState?.(params.toolId) ?? { error: "Tool not found" };
         } else {
           result = eng.calculate?.(params) ?? eng.compute?.(params) ?? { error: `${engineKey} method not found` };
         }
