@@ -412,9 +412,11 @@ export class OkumaB250LatheMasterPostEngine {
     const lines: string[] = [];
     const isOD = op.operation_type === "od_finish";
 
-    // Spindle start with CSS
+    // Spindle start with CSS or fixed RPM
     if (cfg.use_css && op.css_m_min) {
       lines.push(`G96 S${op.css_m_min} M03 (CSS FINISH)`);
+    } else if (op.spindle_rpm) {
+      lines.push(`G97 S${op.spindle_rpm} M03 (${op.spindle_rpm} RPM)`);
     }
 
     // Coolant

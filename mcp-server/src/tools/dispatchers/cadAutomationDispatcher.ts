@@ -402,6 +402,58 @@ const ACTIONS = [
   "cad_regression_analyzer_diff",
   "cad_regression_analyzer_trend",
   "cad_regression_analyzer_hotspots",
+  "cad_augment_geometry",
+  "cad_augment_batch",
+  "cad_augment_stats",
+  "cad_augment_reset_stats",
+  "cad_augment_configure",
+  "cad_augment_get_config",
+  "cad_physics_gate_validate",
+  "cad_physics_gate_validate_batch",
+  "cad_physics_gate_constants",
+  "cad_physics_gate_stats",
+  "cad_physics_gate_reset_stats",
+  "cad_replication_set_target",
+  "cad_replication_register_replica",
+  "cad_replication_register_shard",
+  "cad_replication_mark_replica_lost",
+  "cad_replication_mark_shard_lost",
+  "cad_replication_get",
+  "cad_replication_merge",
+  "cad_revision_get_record",
+  "cad_revision_list_by_drawing",
+  "cad_revision_get_current",
+  "cad_revision_create_draft",
+  "cad_revision_submit_for_review",
+  "cad_revision_revoke_to_draft",
+  "cad_revision_reject",
+  "cad_trainer_param_count",
+  "cad_trainer_update_on_batch",
+  "cad_trainer_score_sequence",
+  "cad_trainer_predict_next",
+  "cad_trainer_serialize_checkpoint",
+  "cad_trainer_load_checkpoint",
+  "cad_tenant_register",
+  "cad_tenant_get",
+  "cad_tenant_list_by_tenant",
+  "cad_tenant_list_all",
+  "cad_tenant_can_access",
+  "cad_tenant_sign_nda",
+  "cad_tenant_find_collisions",
+  "cad_checkpoint_validate",
+  "cad_checkpoint_create_cadence",
+  "cad_checkpoint_record_transition",
+  "cad_checkpoint_save",
+  "cad_checkpoint_load",
+  "cad_token_vocab_size",
+  "cad_token_vocab_version",
+  "cad_token_get_id",
+  "cad_token_get_name",
+  "cad_token_get_def",
+  "cad_token_list_names",
+  "cad_token_supported_formats",
+  "cad_corpus_scan_only",
+  "cad_corpus_orchestrate",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -4282,6 +4334,497 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const hotspotReport = await cadRegressionResultsAnalyzerEngine.hotspots(batchIds, threshold, minAppearances, stateDir);
             result = { hotspots: hotspotReport, source: "CADRegressionResultsAnalyzerEngine.hotspots" };
+            break;
+          }
+          case "cad_augment_geometry": {
+            const { cadGeometricAugmentationEngine } = await import("../../engines/CADGeometricAugmentationEngine.js");
+            const source = params["source"] as Parameters<typeof cadGeometricAugmentationEngine.augment>[0];
+            if (!source) {
+              throw new Error("cad_augment_geometry requires 'source' (CADGeometry)");
+            }
+            const augmented = cadGeometricAugmentationEngine.augment(source);
+            result = { augmented, count: augmented.length, source: "CADGeometricAugmentationEngine.augment" };
+            break;
+          }
+          case "cad_augment_batch": {
+            const { cadGeometricAugmentationEngine } = await import("../../engines/CADGeometricAugmentationEngine.js");
+            const sources = params["sources"] as Parameters<typeof cadGeometricAugmentationEngine.augmentBatch>[0];
+            if (!sources || !Array.isArray(sources)) {
+              throw new Error("cad_augment_batch requires 'sources' array (CADGeometry[])");
+            }
+            const batchResult = cadGeometricAugmentationEngine.augmentBatch(sources);
+            result = { ...batchResult, source: "CADGeometricAugmentationEngine.augmentBatch" };
+            break;
+          }
+          case "cad_augment_stats": {
+            const { cadGeometricAugmentationEngine } = await import("../../engines/CADGeometricAugmentationEngine.js");
+            const stats = cadGeometricAugmentationEngine.getStats();
+            result = { stats, source: "CADGeometricAugmentationEngine.getStats" };
+            break;
+          }
+          case "cad_augment_reset_stats": {
+            const { cadGeometricAugmentationEngine } = await import("../../engines/CADGeometricAugmentationEngine.js");
+            cadGeometricAugmentationEngine.resetStats();
+            result = { reset: true, source: "CADGeometricAugmentationEngine.resetStats" };
+            break;
+          }
+          case "cad_augment_configure": {
+            const { cadGeometricAugmentationEngine } = await import("../../engines/CADGeometricAugmentationEngine.js");
+            const config = params["config"] as Parameters<typeof cadGeometricAugmentationEngine.configure>[0];
+            if (!config) {
+              throw new Error("cad_augment_configure requires 'config'");
+            }
+            cadGeometricAugmentationEngine.configure(config);
+            result = { configured: true, source: "CADGeometricAugmentationEngine.configure" };
+            break;
+          }
+          case "cad_augment_get_config": {
+            const { cadGeometricAugmentationEngine } = await import("../../engines/CADGeometricAugmentationEngine.js");
+            const config = cadGeometricAugmentationEngine.getConfig();
+            result = { config, source: "CADGeometricAugmentationEngine.getConfig" };
+            break;
+          }
+          case "cad_physics_gate_validate": {
+            const { cadPhysicsConsistencyGateEngine } = await import("../../engines/CADPhysicsConsistencyGateEngine.js");
+            const input = params["input"] as Parameters<typeof cadPhysicsConsistencyGateEngine.validate>[0];
+            if (!input) {
+              throw new Error("cad_physics_gate_validate requires 'input' (PhysicsValidationInput)");
+            }
+            const gateResult = cadPhysicsConsistencyGateEngine.validate(input);
+            result = { ...gateResult, source: "CADPhysicsConsistencyGateEngine.validate" };
+            break;
+          }
+          case "cad_physics_gate_validate_batch": {
+            const { cadPhysicsConsistencyGateEngine } = await import("../../engines/CADPhysicsConsistencyGateEngine.js");
+            const input = params["input"] as Parameters<typeof cadPhysicsConsistencyGateEngine.validateBatch>[0];
+            if (!input) {
+              throw new Error("cad_physics_gate_validate_batch requires 'input' (BatchValidationInput)");
+            }
+            const batchResult = cadPhysicsConsistencyGateEngine.validateBatch(input);
+            result = { ...batchResult, source: "CADPhysicsConsistencyGateEngine.validateBatch" };
+            break;
+          }
+          case "cad_physics_gate_constants": {
+            const { cadPhysicsConsistencyGateEngine } = await import("../../engines/CADPhysicsConsistencyGateEngine.js");
+            const isoGroup = params["iso_group"] as Parameters<typeof cadPhysicsConsistencyGateEngine.getPhysicsConstants>[0];
+            if (!isoGroup) {
+              throw new Error("cad_physics_gate_constants requires 'iso_group'");
+            }
+            const constants = cadPhysicsConsistencyGateEngine.getPhysicsConstants(isoGroup);
+            result = { constants, source: "CADPhysicsConsistencyGateEngine.getPhysicsConstants" };
+            break;
+          }
+          case "cad_physics_gate_stats": {
+            const { cadPhysicsConsistencyGateEngine } = await import("../../engines/CADPhysicsConsistencyGateEngine.js");
+            const stats = cadPhysicsConsistencyGateEngine.getStats();
+            result = { stats, source: "CADPhysicsConsistencyGateEngine.getStats" };
+            break;
+          }
+          case "cad_physics_gate_reset_stats": {
+            const { cadPhysicsConsistencyGateEngine } = await import("../../engines/CADPhysicsConsistencyGateEngine.js");
+            cadPhysicsConsistencyGateEngine.resetStats();
+            result = { reset: true, source: "CADPhysicsConsistencyGateEngine.resetStats" };
+            break;
+          }
+          case "cad_replication_set_target": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const target = params["target"] as Parameters<typeof cadReplicationDurabilityEngine.setTarget>[0];
+            if (!target) {
+              throw new Error("cad_replication_set_target requires 'target'");
+            }
+            cadReplicationDurabilityEngine.setTarget(target);
+            result = { set: true, source: "CADReplicationDurabilityEngine.setTarget" };
+            break;
+          }
+          case "cad_replication_register_replica": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const tier = params["tier"] as string;
+            const region = params["region"] as string;
+            const sizeBytes = params["size_bytes"] as number;
+            if (!contentHash || !tier || !region || sizeBytes === undefined) {
+              throw new Error("cad_replication_register_replica requires 'content_hash', 'tier', 'region', 'size_bytes'");
+            }
+            const record = cadReplicationDurabilityEngine.registerReplica(contentHash, tier, region, sizeBytes);
+            result = { record, source: "CADReplicationDurabilityEngine.registerReplica" };
+            break;
+          }
+          case "cad_replication_register_shard": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const shardIndex = params["shard_index"] as number;
+            const totalShards = params["total_shards"] as number;
+            const region = params["region"] as string;
+            if (!contentHash || shardIndex === undefined || totalShards === undefined || !region) {
+              throw new Error("cad_replication_register_shard requires 'content_hash', 'shard_index', 'total_shards', 'region'");
+            }
+            const record = cadReplicationDurabilityEngine.registerShard(contentHash, shardIndex, totalShards, region);
+            result = { record, source: "CADReplicationDurabilityEngine.registerShard" };
+            break;
+          }
+          case "cad_replication_mark_replica_lost": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const tier = params["tier"] as string;
+            const region = params["region"] as string;
+            if (!contentHash || !tier || !region) {
+              throw new Error("cad_replication_mark_replica_lost requires 'content_hash', 'tier', 'region'");
+            }
+            const record = cadReplicationDurabilityEngine.markReplicaLost(contentHash, tier, region);
+            result = { record, source: "CADReplicationDurabilityEngine.markReplicaLost" };
+            break;
+          }
+          case "cad_replication_mark_shard_lost": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const shardIndex = params["shard_index"] as number;
+            if (!contentHash || shardIndex === undefined) {
+              throw new Error("cad_replication_mark_shard_lost requires 'content_hash', 'shard_index'");
+            }
+            const record = cadReplicationDurabilityEngine.markShardLost(contentHash, shardIndex);
+            result = { record, source: "CADReplicationDurabilityEngine.markShardLost" };
+            break;
+          }
+          case "cad_replication_get": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const contentHash = params["content_hash"] as string;
+            if (!contentHash) {
+              throw new Error("cad_replication_get requires 'content_hash'");
+            }
+            const record = cadReplicationDurabilityEngine.get(contentHash);
+            result = { record: record ?? null, found: !!record, source: "CADReplicationDurabilityEngine.get" };
+            break;
+          }
+          case "cad_replication_merge": {
+            const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
+            const remote = params["remote"] as Parameters<typeof cadReplicationDurabilityEngine.merge>[0];
+            if (!remote) {
+              throw new Error("cad_replication_merge requires 'remote' (ReplicationRecord)");
+            }
+            const merged = cadReplicationDurabilityEngine.merge(remote);
+            result = { merged, source: "CADReplicationDurabilityEngine.merge" };
+            break;
+          }
+          case "cad_revision_get_record": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            const revision = params["revision"] as string;
+            if (!drawingNumber || !revision) {
+              throw new Error("cad_revision_get_record requires 'drawing_number' and 'revision'");
+            }
+            const record = cadRevisionPromotionWorkflowEngine.getRecord(drawingNumber, revision);
+            result = { record: record ?? null, found: !!record, source: "CADRevisionPromotionWorkflowEngine.getRecord" };
+            break;
+          }
+          case "cad_revision_list_by_drawing": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            if (!drawingNumber) {
+              throw new Error("cad_revision_list_by_drawing requires 'drawing_number'");
+            }
+            const records = cadRevisionPromotionWorkflowEngine.listByDrawing(drawingNumber);
+            result = { records, count: records.length, source: "CADRevisionPromotionWorkflowEngine.listByDrawing" };
+            break;
+          }
+          case "cad_revision_get_current": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            if (!drawingNumber) {
+              throw new Error("cad_revision_get_current requires 'drawing_number'");
+            }
+            const current = cadRevisionPromotionWorkflowEngine.getCurrent(drawingNumber);
+            result = { current: current ?? null, found: !!current, source: "CADRevisionPromotionWorkflowEngine.getCurrent" };
+            break;
+          }
+          case "cad_revision_create_draft": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            const revision = params["revision"] as string;
+            const author = params["author"] as string;
+            const description = params["description"] as string | undefined;
+            if (!drawingNumber || !revision || !author) {
+              throw new Error("cad_revision_create_draft requires 'drawing_number', 'revision', 'author'");
+            }
+            const record = cadRevisionPromotionWorkflowEngine.createDraft(drawingNumber, revision, author, description);
+            result = { record, source: "CADRevisionPromotionWorkflowEngine.createDraft" };
+            break;
+          }
+          case "cad_revision_submit_for_review": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            const revision = params["revision"] as string;
+            const submitter = params["submitter"] as string;
+            if (!drawingNumber || !revision || !submitter) {
+              throw new Error("cad_revision_submit_for_review requires 'drawing_number', 'revision', 'submitter'");
+            }
+            const record = cadRevisionPromotionWorkflowEngine.submitForReview(drawingNumber, revision, submitter);
+            result = { record, source: "CADRevisionPromotionWorkflowEngine.submitForReview" };
+            break;
+          }
+          case "cad_revision_revoke_to_draft": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            const revision = params["revision"] as string;
+            const revoker = params["revoker"] as string;
+            const reason = params["reason"] as string | undefined;
+            if (!drawingNumber || !revision || !revoker) {
+              throw new Error("cad_revision_revoke_to_draft requires 'drawing_number', 'revision', 'revoker'");
+            }
+            const record = cadRevisionPromotionWorkflowEngine.revokeToDraft(drawingNumber, revision, revoker, reason);
+            result = { record, source: "CADRevisionPromotionWorkflowEngine.revokeToDraft" };
+            break;
+          }
+          case "cad_revision_reject": {
+            const { cadRevisionPromotionWorkflowEngine } = await import("../../engines/CADRevisionPromotionWorkflowEngine.js");
+            const drawingNumber = params["drawing_number"] as string;
+            const revision = params["revision"] as string;
+            const rejector = params["rejector"] as string;
+            const reason = params["reason"] as string;
+            if (!drawingNumber || !revision || !rejector || !reason) {
+              throw new Error("cad_revision_reject requires 'drawing_number', 'revision', 'rejector', 'reason'");
+            }
+            const record = cadRevisionPromotionWorkflowEngine.reject(drawingNumber, revision, rejector, reason);
+            result = { record, source: "CADRevisionPromotionWorkflowEngine.reject" };
+            break;
+          }
+          case "cad_trainer_param_count": {
+            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const count = cadSequenceTrainerEngine.getParamCount();
+            result = { paramCount: count, source: "CADSequenceTrainerEngine.getParamCount" };
+            break;
+          }
+          case "cad_trainer_update_on_batch": {
+            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const batch = params["batch"] as Parameters<typeof cadSequenceTrainerEngine.updateOnBatch>[0];
+            const lr = params["learning_rate"] as number;
+            if (!batch || lr === undefined) {
+              throw new Error("cad_trainer_update_on_batch requires 'batch' (TrainingBatch) and 'learning_rate'");
+            }
+            const update = cadSequenceTrainerEngine.updateOnBatch(batch, lr);
+            result = { ...update, source: "CADSequenceTrainerEngine.updateOnBatch" };
+            break;
+          }
+          case "cad_trainer_score_sequence": {
+            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const seq = params["sequence"] as Parameters<typeof cadSequenceTrainerEngine.scoreSequence>[0];
+            if (!seq) {
+              throw new Error("cad_trainer_score_sequence requires 'sequence' (TokenSeq)");
+            }
+            const score = cadSequenceTrainerEngine.scoreSequence(seq);
+            result = { score, source: "CADSequenceTrainerEngine.scoreSequence" };
+            break;
+          }
+          case "cad_trainer_predict_next": {
+            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const ctx = params["context"] as Parameters<typeof cadSequenceTrainerEngine.predictNext>[0];
+            if (!ctx) {
+              throw new Error("cad_trainer_predict_next requires 'context' (TokenSeq)");
+            }
+            const nextToken = cadSequenceTrainerEngine.predictNext(ctx);
+            result = { nextToken, source: "CADSequenceTrainerEngine.predictNext" };
+            break;
+          }
+          case "cad_trainer_serialize_checkpoint": {
+            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const checkpoint = cadSequenceTrainerEngine.serializeCheckpoint();
+            result = { checkpoint, source: "CADSequenceTrainerEngine.serializeCheckpoint" };
+            break;
+          }
+          case "cad_trainer_load_checkpoint": {
+            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const data = params["data"] as string;
+            if (!data) {
+              throw new Error("cad_trainer_load_checkpoint requires 'data' (checkpoint string)");
+            }
+            cadSequenceTrainerEngine.loadCheckpoint(data);
+            result = { loaded: true, source: "CADSequenceTrainerEngine.loadCheckpoint" };
+            break;
+          }
+          case "cad_tenant_register": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const input = params["input"] as Parameters<typeof cadTenantNamespaceEngine.register>[0];
+            if (!input) {
+              throw new Error("cad_tenant_register requires 'input' (registration object)");
+            }
+            const content = cadTenantNamespaceEngine.register(input);
+            result = { content, source: "CADTenantNamespaceEngine.register" };
+            break;
+          }
+          case "cad_tenant_get": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const tenantId = params["tenant_id"] as string;
+            const contentHash = params["content_hash"] as string;
+            if (!tenantId || !contentHash) {
+              throw new Error("cad_tenant_get requires 'tenant_id' and 'content_hash'");
+            }
+            const content = cadTenantNamespaceEngine.get(tenantId, contentHash);
+            result = { content: content ?? null, found: !!content, source: "CADTenantNamespaceEngine.get" };
+            break;
+          }
+          case "cad_tenant_list_by_tenant": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const tenantId = params["tenant_id"] as string;
+            if (!tenantId) {
+              throw new Error("cad_tenant_list_by_tenant requires 'tenant_id'");
+            }
+            const contents = cadTenantNamespaceEngine.listByTenant(tenantId);
+            result = { contents, count: contents.length, source: "CADTenantNamespaceEngine.listByTenant" };
+            break;
+          }
+          case "cad_tenant_list_all": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const contents = cadTenantNamespaceEngine.listAll();
+            result = { contents, count: contents.length, source: "CADTenantNamespaceEngine.listAll" };
+            break;
+          }
+          case "cad_tenant_can_access": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const tenantId = params["tenant_id"] as string;
+            const contentHash = params["content_hash"] as string;
+            const requestingTenant = params["requesting_tenant"] as string;
+            if (!tenantId || !contentHash || !requestingTenant) {
+              throw new Error("cad_tenant_can_access requires 'tenant_id', 'content_hash', 'requesting_tenant'");
+            }
+            const canAccess = cadTenantNamespaceEngine.canAccess(tenantId, contentHash, requestingTenant);
+            result = { canAccess, source: "CADTenantNamespaceEngine.canAccess" };
+            break;
+          }
+          case "cad_tenant_sign_nda": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const tenantId = params["tenant_id"] as string;
+            const contentHash = params["content_hash"] as string;
+            const signingTenant = params["signing_tenant"] as string;
+            if (!tenantId || !contentHash || !signingTenant) {
+              throw new Error("cad_tenant_sign_nda requires 'tenant_id', 'content_hash', 'signing_tenant'");
+            }
+            const content = cadTenantNamespaceEngine.signNDA(tenantId, contentHash, signingTenant);
+            result = { content, source: "CADTenantNamespaceEngine.signNDA" };
+            break;
+          }
+          case "cad_tenant_find_collisions": {
+            const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
+            const collisions = cadTenantNamespaceEngine.findCollisions();
+            result = { collisions, count: collisions.length, source: "CADTenantNamespaceEngine.findCollisions" };
+            break;
+          }
+          case "cad_checkpoint_validate": {
+            const { cadTestCheckpointEngine } = await import("../../engines/CADTestCheckpointEngine.js");
+            const input = params["input"];
+            const error = cadTestCheckpointEngine.validate(input);
+            result = { valid: error === null, error, source: "CADTestCheckpointEngine.validate" };
+            break;
+          }
+          case "cad_checkpoint_create_cadence": {
+            const { cadTestCheckpointEngine } = await import("../../engines/CADTestCheckpointEngine.js");
+            const opts = params["options"] as Parameters<typeof cadTestCheckpointEngine.createCadence>[0];
+            const state = cadTestCheckpointEngine.createCadence(opts);
+            result = { state, source: "CADTestCheckpointEngine.createCadence" };
+            break;
+          }
+          case "cad_checkpoint_record_transition": {
+            const { cadTestCheckpointEngine } = await import("../../engines/CADTestCheckpointEngine.js");
+            const state = params["state"] as Parameters<typeof cadTestCheckpointEngine.recordTransition>[0];
+            const nowMs = params["now_ms"] as number | undefined;
+            if (!state) {
+              throw new Error("cad_checkpoint_record_transition requires 'state' (CheckpointCadenceState)");
+            }
+            const shouldSave = cadTestCheckpointEngine.recordTransition(state, nowMs);
+            result = { shouldSave, state, source: "CADTestCheckpointEngine.recordTransition" };
+            break;
+          }
+          case "cad_checkpoint_save": {
+            const { cadTestCheckpointEngine } = await import("../../engines/CADTestCheckpointEngine.js");
+            const batch = params["batch"] as Parameters<typeof cadTestCheckpointEngine.save>[0];
+            const outputPath = params["output_path"] as string;
+            if (!batch || !outputPath) {
+              throw new Error("cad_checkpoint_save requires 'batch' (TestBatch) and 'output_path'");
+            }
+            await cadTestCheckpointEngine.save(batch, outputPath);
+            result = { saved: true, path: outputPath, source: "CADTestCheckpointEngine.save" };
+            break;
+          }
+          case "cad_checkpoint_load": {
+            const { cadTestCheckpointEngine } = await import("../../engines/CADTestCheckpointEngine.js");
+            const inputPath = params["input_path"] as string;
+            if (!inputPath) {
+              throw new Error("cad_checkpoint_load requires 'input_path'");
+            }
+            const batch = await cadTestCheckpointEngine.load(inputPath);
+            result = { batch: batch ?? null, found: !!batch, source: "CADTestCheckpointEngine.load" };
+            break;
+          }
+          case "cad_token_vocab_size": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const size = cadTokenRepresentationEngine.vocabularySize();
+            result = { size, source: "CADTokenRepresentationEngine.vocabularySize" };
+            break;
+          }
+          case "cad_token_vocab_version": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const version = cadTokenRepresentationEngine.vocabularyVersion();
+            result = { version, source: "CADTokenRepresentationEngine.vocabularyVersion" };
+            break;
+          }
+          case "cad_token_get_id": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const name = params["name"] as string;
+            if (!name) {
+              throw new Error("cad_token_get_id requires 'name'");
+            }
+            const id = cadTokenRepresentationEngine.getTokenId(name);
+            result = { id, source: "CADTokenRepresentationEngine.getTokenId" };
+            break;
+          }
+          case "cad_token_get_name": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const id = params["id"] as number;
+            if (id === undefined) {
+              throw new Error("cad_token_get_name requires 'id'");
+            }
+            const name = cadTokenRepresentationEngine.getTokenName(id);
+            result = { name: name ?? null, found: name !== null, source: "CADTokenRepresentationEngine.getTokenName" };
+            break;
+          }
+          case "cad_token_get_def": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const nameOrId = params["name_or_id"] as string | number;
+            if (nameOrId === undefined) {
+              throw new Error("cad_token_get_def requires 'name_or_id'");
+            }
+            const def = cadTokenRepresentationEngine.getTokenDef(nameOrId);
+            result = { def: def ?? null, found: !!def, source: "CADTokenRepresentationEngine.getTokenDef" };
+            break;
+          }
+          case "cad_token_list_names": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const names = cadTokenRepresentationEngine.listTokenNames();
+            result = { names, count: names.length, source: "CADTokenRepresentationEngine.listTokenNames" };
+            break;
+          }
+          case "cad_token_supported_formats": {
+            const { cadTokenRepresentationEngine } = await import("../../engines/CADTokenRepresentationEngine.js");
+            const formats = cadTokenRepresentationEngine.supportedFormats();
+            result = { formats, count: formats.length, source: "CADTokenRepresentationEngine.supportedFormats" };
+            break;
+          }
+          case "cad_corpus_scan_only": {
+            const { cadTrainingCorpusOrchestratorEngine } = await import("../../engines/CADTrainingCorpusOrchestratorEngine.js");
+            const config = params["config"] as Parameters<typeof cadTrainingCorpusOrchestratorEngine.scanOnly>[0];
+            if (!config || !config.rootPath) {
+              throw new Error("cad_corpus_scan_only requires 'config' with 'rootPath'");
+            }
+            const files = cadTrainingCorpusOrchestratorEngine.scanOnly(config);
+            result = { files, count: files.length, source: "CADTrainingCorpusOrchestratorEngine.scanOnly" };
+            break;
+          }
+          case "cad_corpus_orchestrate": {
+            const { cadTrainingCorpusOrchestratorEngine } = await import("../../engines/CADTrainingCorpusOrchestratorEngine.js");
+            const config = params["config"] as Parameters<typeof cadTrainingCorpusOrchestratorEngine.orchestrate>[0];
+            if (!config || !config.rootPath) {
+              throw new Error("cad_corpus_orchestrate requires 'config' with 'rootPath'");
+            }
+            const orchestrationResult = cadTrainingCorpusOrchestratorEngine.orchestrate(config);
+            result = { ...orchestrationResult, source: "CADTrainingCorpusOrchestratorEngine.orchestrate" };
             break;
           }
           default:
