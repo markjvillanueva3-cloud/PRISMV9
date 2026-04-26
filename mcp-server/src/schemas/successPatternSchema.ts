@@ -103,7 +103,7 @@ export const RecordPatternInputSchema = z.object({
   pattern_id: z.string().uuid().optional(),
 }).describe("Input for recording a success pattern");
 
-export type RecordPatternInput = z.infer<typeof RecordPatternInputSchema>;
+export type RecordPatternInput = z.input<typeof RecordPatternInputSchema>;
 
 /**
  * Input for querying patterns
@@ -117,7 +117,7 @@ export const QueryPatternInputSchema = z.object({
   limit: z.number().int().min(1).max(100).optional().default(10),
 }).describe("Query parameters for pattern search");
 
-export type QueryPatternInput = z.infer<typeof QueryPatternInputSchema>;
+export type QueryPatternInput = z.input<typeof QueryPatternInputSchema>;
 
 /**
  * Input for reinforcing an existing pattern
