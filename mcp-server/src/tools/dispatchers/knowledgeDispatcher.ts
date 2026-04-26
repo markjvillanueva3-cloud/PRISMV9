@@ -80,6 +80,8 @@ const OBSIDIAN_ACTIONS = [
   "obsidian_plugin_register", "obsidian_plugin_query",
   "obsidian_plugin_subscribe", "obsidian_plugin_unsubscribe",
   "obsidian_plugin_status",
+  "tribal_export_single", "tribal_export_bulk",
+  "tribal_export_config", "tribal_export_status",
 ] as const;
 
 const ACTIONS = [
@@ -336,6 +338,27 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "obsidian_plugin_status": {
             const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
             result = obsidianPluginBridgeEngine.status(params.api_key);
+            break;
+          }
+          // -- Tribal Tip Export ------------------------------
+          case "tribal_export_single": {
+            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.exportSingle(params);
+            break;
+          }
+          case "tribal_export_bulk": {
+            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.exportBulk(params);
+            break;
+          }
+          case "tribal_export_config": {
+            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.configure(params);
+            break;
+          }
+          case "tribal_export_status": {
+            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.status();
             break;
           }
           // ── PRISM Academy ──────────────────────────────────
