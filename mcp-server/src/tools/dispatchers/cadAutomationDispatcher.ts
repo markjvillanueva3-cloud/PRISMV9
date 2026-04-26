@@ -1868,9 +1868,9 @@ Actions: ${ACTIONS.join(", ")}.`,
               paths: (params["paths"] as string[]) || [],
               size: (params["size"] as number) || 0,
               customer: (params["customer"] as string) || "UNKNOWN",
-              source: (params["source"] as "import" | "local-scan" | "upload" | "migration") || "local-scan",
+              source: (params["source"] as "initial_scan" | "intake_queue" | "customer_upload" | "migration_import" | "manual") || "initial_scan",
               visibility: (params["visibility"] as "private" | "shared" | "public") || "private",
-              chunks: params["chunks"] as Array<{ offset: number; length: number; blake3: string }> | undefined,
+              chunks: params["chunks"] as Array<{ offset: number; size: number; blake3: string }> | undefined,
             });
             engine.persist();
             result = { entry, source: "CADContentAddressableStoreEngine.upsert" };
