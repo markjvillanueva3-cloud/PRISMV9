@@ -235,6 +235,9 @@ const ACTIONS = [
   "cad_drawing_fuzzy_find",
   "cad_drawing_get_family",
   "cad_drawing_index_size",
+  "cad_classify_run",
+  "cad_classify_one",
+  "cad_classify_format",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2100,6 +2103,40 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_drawing_index_size": {
             const { cadDrawingNumberNormalizerEngine } = await import("../../engines/CADDrawingNumberNormalizerEngine.js");
             result = { size: cadDrawingNumberNormalizerEngine.size, source: "CADDrawingNumberNormalizerEngine.size" };
+            break;
+          }
+          case "cad_classify_run": {
+            const { cadFileClassifierEngine } = await import("../../engines/CADFileClassifierEngine.js");
+            const { cadFileIndexerEngine } = await import("../../engines/CADFileIndexerEngine.js");
+            const indexPath = params["index_path"] as string | undefined;
+            const includeClassifications = (params["include_classifications"] as boolean) ?? true;
+            const index = cadFileIndexerEngine.load(indexPath);
+            if (!index) {
+              result = { success: false, error: "No index found. Run cad_index_scan first.", source: "CADFileClassifierEngine" };
+            } else {
+              const summary = cadFileClassifierEngine.classify(index.files, { includeClassifications });
+              result = { success: true, ...summary, source: "CADFileClassifierEngine.classify" };
+            }
+            break;
+          }
+          case "cad_classify_one": {
+            const { cadFileClassifierEngine } = await import("../../engines/CADFileClassifierEngine.js");
+            const format = params["format"] as string;
+            if (!format) {
+              throw new Error("cad_classify_one requires 'format' string (e.g. '.sldprt')");
+            }
+            const classification = cadFileClassifierEngine.classifyOne(format);
+            result = { ...classification, source: "CADFileClassifierEngine.classifyOne" };
+            break;
+          }
+          case "cad_classify_format": {
+            const { classifyFormat } = await import("../../engines/CADFileClassifierEngine.js");
+            const format = params["format"] as string;
+            if (!format) {
+              throw new Error("cad_classify_format requires 'format' string (e.g. '.step')");
+            }
+            const profile = classifyFormat(format);
+            result = { ...profile, source: "CADFileClassifierEngine.classifyFormat" };
             break;
           }
           default:
