@@ -17,6 +17,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 
 let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any, _partoff: any;
+let _cpkSurrogate: any, _insertLife: any, _offsetComp: any, _robustOpt: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "chuck": return _chuck ??= (await import("../../engines/ChuckJawForceEngine.js")).chuckJawForceEngine;
@@ -26,6 +27,10 @@ async function getEngine(name: string): Promise<any> {
     case "bar": return _bar ??= (await import("../../engines/BarPullerTimingEngine.js")).barPullerTimingEngine;
     case "thread": return _thread ??= (await import("../../engines/SinglePointThreadEngine.js")).singlePointThreadEngine;
     case "partoff": return _partoff ??= (await import("../../engines/PartOffForceEngine.js")).partOffForceEngine;
+    case "cpkSurrogate": return _cpkSurrogate ??= (await import("../../engines/TurningCpkSurrogateEngine.js")).turningCpkSurrogateEngine;
+    case "insertLife": return _insertLife ??= (await import("../../engines/TurningInsertLifeEngine.js")).turningInsertLifeEngine;
+    case "offsetComp": return _offsetComp ??= (await import("../../engines/TurningOffsetCompensationEngine.js")).turningOffsetCompensationEngine;
+    case "robustOpt": return _robustOpt ??= (await import("../../engines/TurningRobustOptimizerEngine.js")).turningRobustOptimizerEngine;
     default: throw new Error(`Unknown turning engine: ${name}`);
   }
 }
@@ -49,6 +54,10 @@ const ACTIONS = [
   "hard_turn_decide", "hard_turn_optimize",
   // LATHE-PRO-MS6: Bar stock cut planning
   "bar_stock_cut_plan",
+  // CAM-EXHAUST-MS0: Cpk/life/offset/optimizer engines
+  "turning_cpk_surrogate", "turning_insert_life",
+  "turning_offset_wear", "turning_offset_probe",
+  "turning_robust_optimize",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -333,6 +342,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "bar_stock_cut_plan": {
             const { barStockCutPlanEngine } = await import("../../engines/BarStockCutPlanEngine.js");
             result = barStockCutPlanEngine.plan(params as Parameters<typeof barStockCutPlanEngine.plan>[0]);
+            break;
+          }
+          case "turning_cpk_surrogate": {
+            const { turningCpkSurrogateEngine } = await import("../../engines/TurningCpkSurrogateEngine.js");
+            result = turningCpkSurrogateEngine.predict(params as Parameters<typeof turningCpkSurrogateEngine.predict>[0]);
+            break;
+          }
+          case "turning_insert_life": {
+            const { turningInsertLifeEngine } = await import("../../engines/TurningInsertLifeEngine.js");
+            result = turningInsertLifeEngine.predictLife(params as Parameters<typeof turningInsertLifeEngine.predictLife>[0]);
+            break;
+          }
+          case "turning_offset_wear": {
+            const { turningOffsetCompensationEngine } = await import("../../engines/TurningOffsetCompensationEngine.js");
+            result = turningOffsetCompensationEngine.wearToOffset(params as Parameters<typeof turningOffsetCompensationEngine.wearToOffset>[0]);
+            break;
+          }
+          case "turning_offset_probe": {
+            const { turningOffsetCompensationEngine } = await import("../../engines/TurningOffsetCompensationEngine.js");
+            result = turningOffsetCompensationEngine.generateProbingCycle(params as Parameters<typeof turningOffsetCompensationEngine.generateProbingCycle>[0]);
+            break;
+          }
+          case "turning_robust_optimize": {
+            const { turningRobustOptimizerEngine } = await import("../../engines/TurningRobustOptimizerEngine.js");
+            result = turningRobustOptimizerEngine.run(params as Parameters<typeof turningRobustOptimizerEngine.run>[0]);
             break;
           }
           default:
