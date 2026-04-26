@@ -12,8 +12,8 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { SuccessPatternBankEngine } from "../SuccessPatternBankEngine.js";
-import type { RecordPatternInput, QueryPatternInput } from "../../schemas/successPatternSchema.js";
+import { SuccessPatternBankEngine } from "../engines/SuccessPatternBankEngine.js";
+import type { RecordPatternInput, QueryPatternInput } from "../schemas/successPatternSchema.js";
 
 describe("SuccessPatternBankEngine", () => {
   let engine: SuccessPatternBankEngine;
