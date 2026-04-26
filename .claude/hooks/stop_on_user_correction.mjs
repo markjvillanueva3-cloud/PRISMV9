@@ -98,7 +98,7 @@ function block(reason) {
   console.log(JSON.stringify({ continue: false, stopReason: reason }));
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const input = parseInput();
 
   // Avoid infinite re-block loops

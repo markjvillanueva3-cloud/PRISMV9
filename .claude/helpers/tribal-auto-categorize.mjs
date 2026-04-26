@@ -115,7 +115,7 @@ function categorizeTip(tip) {
   return tip;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   try {
     if (!fs.existsSync(TIPS_PATH)) {
       process.stdout.write(JSON.stringify({ continue: true }));

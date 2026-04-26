@@ -82,7 +82,7 @@ function regenerateMarkdown(workboard) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const workboard = loadWorkboard();
   const now = Date.now();
   let purged = 0;

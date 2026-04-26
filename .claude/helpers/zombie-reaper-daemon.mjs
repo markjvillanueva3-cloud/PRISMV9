@@ -112,7 +112,7 @@ function pruneDeadSessions() {
   return pruned;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const locksReaped = reapOrphanedLocks();
   const claimsReaped = reapZombieClaims();
   const sessionsPruned = pruneDeadSessions();

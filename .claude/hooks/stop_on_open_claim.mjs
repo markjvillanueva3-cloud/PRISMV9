@@ -152,7 +152,7 @@ async function drainStdin() {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   await drainStdin();
 
   try {

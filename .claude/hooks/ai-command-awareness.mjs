@@ -320,7 +320,7 @@ function getCompactList() {
 }
 
 // Main
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const compactList = getCompactList();
   const totalCommands = Object.values(SLASH_COMMANDS)
     .reduce((sum, cat) => sum + Object.keys(cat.commands).length, 0);

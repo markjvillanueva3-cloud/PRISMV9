@@ -324,7 +324,7 @@ async function checkGeneratedRegistry() {
   );
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const checks = await Promise.all([
     checkRepoCanonical("repo_startup_canonical", FILES.repoStartup, ["H:/PRISM/state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md", "H:/PRISM/state/HANDOFF.md"], ["C:/PRISM"]),
     checkRepoCanonical("repo_forge_triple_canonical", FILES.repoForgeTriple, ["H:/PRISM/mcp-server/data/docs/MASTER_INDEX_COMPACT.md"], ["C:/PRISM"]),

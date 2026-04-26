@@ -1,7 +1,7 @@
 import process from "node:process";
 import { appendUniqueLine, cachePath } from "./hook-cache.mjs";
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const filePath = process.env.TOOL_INPUT_file_path ?? "";
   if (!filePath.trim()) {
     process.stdout.write(JSON.stringify({ continue: true }));

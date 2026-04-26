@@ -23,7 +23,7 @@ async function loadJSON(path) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Load current state
   const [quickRef, baseline] = await Promise.all([
     loadJSON(QUICK_REF),

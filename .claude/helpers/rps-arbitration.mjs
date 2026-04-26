@@ -109,7 +109,7 @@ function renderMarkdown(payload) {
   return `${lines.join("\n")}\n`;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const args = parseArgs(process.argv);
   const issue = String(args.issue ?? "").trim();
   const agentA = String(args["agent-a"] ?? "").trim();

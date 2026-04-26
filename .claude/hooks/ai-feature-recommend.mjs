@@ -45,7 +45,7 @@ function getRecommendations(keywords) {
   return [...engines].slice(0, 5);
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input;
   try {
     input = JSON.parse(await fs.promises.readFile('/dev/stdin', 'utf8'));

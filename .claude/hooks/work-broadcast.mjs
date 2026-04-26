@@ -124,7 +124,7 @@ function getOtherActiveWork(registry, mySessionId) {
   return others;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const sessionId = getSessionId();
   const registry = loadRegistry();
 

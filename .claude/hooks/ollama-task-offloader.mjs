@@ -1,9 +1,7 @@
 #!/usr/bin/env node
-// DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
-// Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
-process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
 /**
  * ollama-task-offloader.mjs — UserPromptSubmit hook
+ * RE-ENABLED: 2026-04-26 (LOCAL-LLM-MS0 U-LLMH01)
  *
  * Analyzes incoming prompts and suggests offloading simple tasks to Ollama:
  * - Code explanations → Ollama (free)
@@ -14,6 +12,11 @@ process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
  * FIRES ON: UserPromptSubmit
  * BLOCKING: never — advisory only
  * TOKEN SAVINGS: 80-95% for offloadable tasks
+ *
+ * RATE LIMITING (LOCAL-LLM-MS0):
+ * - Max 1 suggestion per 5 minutes per task category
+ * - Confidence threshold: >80% to inject context
+ * - Silent mode: logs to file, only injects when offload_score > 0.9
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -21,7 +24,11 @@ import { dirname } from "node:path";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 const STATS_PATH = "H:/prism/mcp-server/data/state/ollama-offload-stats.json";
+const RATE_LIMIT_PATH = "H:/prism/mcp-server/data/state/ollama-rate-limits.json";
 const TIMEOUT_MS = 2000;
+const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes per category
+const CONFIDENCE_THRESHOLD = 0.80;
+const INJECT_THRESHOLD = 0.90; // Only inject context above this score
 
 const OFFLOADABLE_PATTERNS = [
   { pattern: /explain\s+(this|the|what|how|why)/i, category: "explanation", savings: 0.90 },
@@ -54,6 +61,8 @@ function loadStats() {
     estimatedTokensSaved: 0,
     lastUpdated: null,
     byCategory: {},
+    silentSuggestions: 0, // Suggestions logged but not injected
+    injectedSuggestions: 0, // Suggestions actually injected into context
   };
 }
 
@@ -64,6 +73,37 @@ function saveStats(stats) {
     stats.lastUpdated = new Date().toISOString();
     writeFileSync(STATS_PATH, JSON.stringify(stats, null, 2));
   } catch { /* ignore */ }
+}
+
+function loadRateLimits() {
+  try {
+    if (existsSync(RATE_LIMIT_PATH)) {
+      return JSON.parse(readFileSync(RATE_LIMIT_PATH, "utf8"));
+    }
+  } catch { /* use defaults */ }
+  return { lastSuggestion: {} };
+}
+
+function saveRateLimits(limits) {
+  try {
+    const dir = dirname(RATE_LIMIT_PATH);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(RATE_LIMIT_PATH, JSON.stringify(limits, null, 2));
+  } catch { /* ignore */ }
+}
+
+function isRateLimited(category) {
+  const limits = loadRateLimits();
+  const lastTime = limits.lastSuggestion[category];
+  if (!lastTime) return false;
+  const elapsed = Date.now() - new Date(lastTime).getTime();
+  return elapsed < RATE_LIMIT_MS;
+}
+
+function recordSuggestion(category) {
+  const limits = loadRateLimits();
+  limits.lastSuggestion[category] = new Date().toISOString();
+  saveRateLimits(limits);
 }
 
 async function isOllamaAvailable() {
@@ -114,7 +154,7 @@ function selectBestModel(models) {
   return models[0] || null;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let payload;
   try {
     payload = JSON.parse(readFileSync(0, "utf-8"));
@@ -139,6 +179,22 @@ async function main().catch(() => { process.stdout.write(JSON.stringify({ contin
     return;
   }
 
+  // Rate limiting: max 1 suggestion per 5 minutes per category
+  if (isRateLimited(classification.category)) {
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    saveStats(stats);
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  // Confidence threshold: only proceed if savings > 80%
+  if (classification.savings < CONFIDENCE_THRESHOLD) {
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    saveStats(stats);
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
   const ollama = await isOllamaAvailable();
   if (!ollama.available) {
     console.log(JSON.stringify({ continue: true }));
@@ -149,9 +205,26 @@ async function main().catch(() => { process.stdout.write(JSON.stringify({ contin
   const estimatedTokens = Math.ceil(prompt.length / 4) * 2;
   const savedTokens = Math.round(estimatedTokens * classification.savings);
 
+  // Record the suggestion for rate limiting
+  recordSuggestion(classification.category);
+
+  // Update stats
   stats.offloaded++;
   stats.estimatedTokensSaved += savedTokens;
   stats.byCategory[classification.category] = (stats.byCategory[classification.category] || 0) + 1;
+
+  // Silent mode: only inject context if offload_score > 0.9
+  // Otherwise just log silently and continue
+  if (classification.savings < INJECT_THRESHOLD) {
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    saveStats(stats);
+    // Log to file but don't inject into context
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  // High-value suggestion: inject into context
+  stats.injectedSuggestions = (stats.injectedSuggestions || 0) + 1;
   saveStats(stats);
 
   const ctx = [

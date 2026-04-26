@@ -1009,7 +1009,7 @@ class LearningService {
 // CLI Interface
 // =============================================================================
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const command = process.argv[2] || 'help';
   const service = new LearningService();
 

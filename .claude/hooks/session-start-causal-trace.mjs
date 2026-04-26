@@ -169,7 +169,7 @@ function saveCausalGraph(graph) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const startTime = Date.now();
 
   // Load reasoning entries

@@ -79,7 +79,7 @@ export default async function testLegitimacy({ tool, input }) {
 
 export const metadata = { id: "test-legitimacy", phase: "1", tier: "5D", event: "PreToolWrite" };
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let raw = "";
   for await (const chunk of process.stdin) raw += chunk;
 

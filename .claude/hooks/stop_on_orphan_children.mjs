@@ -9,7 +9,7 @@ import path from "node:path";
 const AGENT_STATE_DIR = "H:/prism/state/shared";
 const AGENT_PATTERN = /^AGENT_.*_RUNNING\.json$/;
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

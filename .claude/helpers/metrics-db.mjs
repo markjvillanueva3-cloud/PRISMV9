@@ -443,7 +443,7 @@ function exportToJSON() {
 /**
  * Main entry point
  */
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const command = process.argv[2] || 'sync';
 
   await initDatabase();

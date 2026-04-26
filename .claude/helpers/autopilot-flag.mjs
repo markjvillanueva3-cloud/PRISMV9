@@ -18,7 +18,7 @@ import { cachePath, ensureCacheDir } from "./hook-cache.mjs";
 
 const FLAG_FILE = cachePath("autopilot-active");
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const [, , action, ...rest] = process.argv;
 
   switch (action) {

@@ -83,7 +83,7 @@ function isDeferredStub(report) {
   return false;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const killer = setTimeout(() => {
     console.log(JSON.stringify({ continue: true }));
     process.exit(0);

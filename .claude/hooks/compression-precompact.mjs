@@ -107,7 +107,7 @@ function writeCompressedSession(compressed) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const input = await readStdin();
   const prompt = (input.prompt || input.message || "").toLowerCase();
 

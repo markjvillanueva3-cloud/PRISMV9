@@ -73,7 +73,7 @@ function isBroadShell(command) {
   ].some((token) => lower.includes(token));
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const input = await readStdin();
   const toolName = input.tool_name || input.toolName || "";
   const toolInput = input.tool_input || input.input || {};

@@ -282,7 +282,7 @@ async function expand(input) {
 
 // ─── CLI ────────────────────────────────────────────
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const [, , command, ...args] = process.argv;
 
   switch (command) {

@@ -51,7 +51,7 @@ function printContext(additionalContext) {
   process.stdout.write(`${JSON.stringify(additionalContext ? { continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext } } : { continue: true })}`);
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const rawFilePath = process.env.TOOL_INPUT_file_path ?? "";
   const offset = process.env.TOOL_INPUT_offset ?? "";
   const limit = process.env.TOOL_INPUT_limit ?? "";

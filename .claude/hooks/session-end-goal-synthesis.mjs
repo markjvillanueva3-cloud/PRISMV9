@@ -169,7 +169,7 @@ function appendToHandoff(goals) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Load session data
   const predictions = loadPredictions();
   const causalGraph = loadCausalGraph();

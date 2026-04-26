@@ -1,8 +1,6 @@
-// DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
-// Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
-process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
 /**
  * local-compute-intent.mjs — UserPromptSubmit hook
+ * RE-ENABLED: 2026-04-26 (LOCAL-LLM-MS0 U-LLMH02)
  *
  * Detects prompts that would benefit from the local compute stack
  * (Ollama for local LLM inference / embeddings, Docker for service
@@ -11,6 +9,12 @@ process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
  * When intent is detected and the relevant stack is not already running,
  * this hook launches the canonical local-compute activator in the
  * background. It never blocks the prompt on Docker startup.
+ *
+ * SILENT MODE (LOCAL-LLM-MS0):
+ * - Only inject context when Docker/Ollama is DOWN AND user has strong
+ *   local-compute intent (embeddings, inference, batch jobs)
+ * - If stack is already running: silent no-op
+ * - If intent is weak (just mentions docker/compose): log but don't inject
  *
  * Reads stdin: { prompt, session_id, transcript_path, ... }
  * Writes stdout: { additionalContext?: string } | {}
@@ -33,13 +37,18 @@ const CACHE_DIR = `${REPO_ROOT}/.claude/cache`;
 const INTENT_CACHE = `${CACHE_DIR}/local-compute-intent-last.json`;
 const AUTOSTART_STATE = `${CACHE_DIR}/local-compute-autostart-last.json`;
 const AUTOSTART_LOCK = `${CACHE_DIR}/local-compute-autostart.lock`;
+const SILENT_LOG = `${CACHE_DIR}/local-compute-silent.jsonl`;
 const LOCK_TTL_MS = Number(process.env.PRISM_LOCAL_COMPUTE_LOCK_TTL_MS || 10 * 60 * 1000);
 const COOLDOWN_MS = Number(process.env.PRISM_LOCAL_COMPUTE_COOLDOWN_MS || 5 * 60 * 1000);
 const LAUNCH_TIMEOUT_MS = Number(process.env.PRISM_LOCAL_COMPUTE_DOCKER_TIMEOUT_MS || 120_000);
 const AUTO_START_ENABLED = process.env.PRISM_LOCAL_COMPUTE_AUTOSTART !== "0";
 const DRY_RUN = process.env.PRISM_LOCAL_COMPUTE_DRY_RUN === "1";
 const PULL_MODE = process.env.PRISM_LOCAL_COMPUTE_HOOK_PULL === "1";
+const SILENT_MODE = process.env.PRISM_LOCAL_COMPUTE_SILENT !== "0"; // Default: silent
 const DEFAULT_SERVICES = ["postgres", "prism-server", "prometheus", "ollama", "qdrant"];
+
+// Strong intent categories that warrant context injection (when stack is DOWN)
+const STRONG_INTENT = ["embeddings", "local_inference", "batch_jobs", "lora"];
 
 const TRIGGERS = {
   embeddings: [
@@ -101,6 +110,20 @@ function writeJson(filePath, value) {
   } catch {
     // Hook must never block prompts because cache/state writes failed.
   }
+}
+
+function logSilent(entry) {
+  try {
+    ensureDir(SILENT_LOG);
+    const { appendFileSync } = require("node:fs");
+    appendFileSync(SILENT_LOG, JSON.stringify({ ts: new Date().toISOString(), ...entry }) + "\n");
+  } catch {
+    // Silent logging is best-effort
+  }
+}
+
+function hasStrongIntent(categories) {
+  return categories.some(cat => STRONG_INTENT.includes(cat));
 }
 
 function matchTriggers(prompt) {
@@ -334,7 +357,7 @@ async function readStdin() {
   });
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input = null;
   try {
     const raw = await readStdin();

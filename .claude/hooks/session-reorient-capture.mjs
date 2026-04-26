@@ -149,7 +149,7 @@ function classify(toolName, toolInput, toolResult) {
   return null;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input;
   try {
     // Read from stdin fd=0 — portable across Windows/Linux unlike /dev/stdin

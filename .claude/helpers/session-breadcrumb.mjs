@@ -17,7 +17,7 @@ function runGit(args) {
   return (result.stdout ?? "").trim() || "unknown";
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const command = process.env.TOOL_INPUT_command ?? "";
   if (!command.includes("git commit")) {
     process.stdout.write(JSON.stringify({ continue: true }));

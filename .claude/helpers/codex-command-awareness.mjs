@@ -37,7 +37,7 @@ async function readJSONL(path, limit = 10) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const broadcast = await readJSON(PATHS.commandBroadcast);
   const recentChat = await readJSONL(PATHS.agentChat, 10);
   const activeWork = await readJSON(PATHS.activeWork);

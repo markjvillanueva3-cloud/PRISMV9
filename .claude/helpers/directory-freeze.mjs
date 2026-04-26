@@ -18,7 +18,7 @@ import path from "node:path";
 const FREEZE_CONFIG = path.join("H:", "prism", ".claude", "cache", "frozen-dirs.json");
 const filePath = process.env.TOOL_INPUT_file_path || "";
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   if (!filePath) return; // No file path — nothing to check
 
   // Fast path: if no freeze config exists, exit immediately

@@ -10,7 +10,7 @@ import os from "node:os";
 const MEMORY_DIR = path.join(os.homedir(), ".claude", "projects", "H--PRISM", "memory");
 const MEMORY_INDEX = path.join(MEMORY_DIR, "MEMORY.md");
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

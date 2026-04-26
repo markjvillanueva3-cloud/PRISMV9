@@ -190,7 +190,7 @@ function recallAgentMemories(prompt, limit = 3) {
 // MAIN
 // ============================================================================
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input;
   try {
     input = JSON.parse(readFileSync(0, 'utf-8'));

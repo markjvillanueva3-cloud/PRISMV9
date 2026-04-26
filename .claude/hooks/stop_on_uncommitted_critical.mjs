@@ -15,7 +15,7 @@ const CRITICAL_PATTERNS = [
   "src/engines/*Deflection*.ts"
 ];
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

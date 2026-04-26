@@ -95,7 +95,7 @@ function findParamHint(action) {
   return null;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const raw = await readStdin();
   let toolName, action, params;
   try {

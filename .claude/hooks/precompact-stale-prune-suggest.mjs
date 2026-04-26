@@ -53,7 +53,7 @@ function quickEstimate(state) {
   return { droppable, tokens };
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   try {
     if (!fs.existsSync(STATE_FILE)) {
       console.log(JSON.stringify({ continue: true }));

@@ -97,7 +97,7 @@ async function resolveFileCode(code) {
   return entry ? { path: entry.path, name: entry.name } : null;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const userMessage = process.env.USER_MESSAGE || process.env.PROMPT || "";
   if (!userMessage) {
     process.stdout.write(JSON.stringify({ continue: true }));

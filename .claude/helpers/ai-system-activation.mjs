@@ -113,7 +113,7 @@ const AI_SYSTEM_MANIFEST = {
   ],
 };
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Build the activation message
   const parts = [];
 

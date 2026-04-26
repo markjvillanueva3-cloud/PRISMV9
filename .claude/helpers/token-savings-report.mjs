@@ -46,7 +46,7 @@ function getRtkGain() {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const parts = [];
   parts.push("TOKEN-OPT SAVINGS REPORT");
   parts.push("========================\n");

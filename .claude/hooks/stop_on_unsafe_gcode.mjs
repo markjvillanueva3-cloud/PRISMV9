@@ -24,7 +24,7 @@ const DANGEROUS_PATTERNS = [
   { pattern: /M0?3[^0-9].*\nG0?[01]/im, desc: "Cut immediately after spindle start (no dwell)" },
 ];
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   await new Promise(r => {
     let d = "";
     process.stdin.on("data", c => d += c);

@@ -86,7 +86,7 @@ async function appendPattern(filePath, pattern) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Read session breadcrumbs — session-breadcrumb.mjs writes single JSON to helpers/
   const breadcrumbPath = path.join("H:", "prism", ".claude", "helpers", ".session-breadcrumb.json");
   // Also try the JSONL path in cache as fallback

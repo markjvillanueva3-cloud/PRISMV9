@@ -35,7 +35,7 @@ function terminalId() {
   return "unknown";
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   try {
     const raw = await readStdin();
     if (!raw) { process.exit(0); return; }

@@ -112,7 +112,7 @@ function computeTopK(nodes, k) {
   return ranked.slice(0, k);
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const killer = setTimeout(() => {
     console.log(JSON.stringify({ continue: true }));
     process.exit(0);

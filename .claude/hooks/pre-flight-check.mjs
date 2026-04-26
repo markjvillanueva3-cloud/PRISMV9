@@ -36,7 +36,7 @@ function checkGitState() {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const toolName = process.env.TOOL_NAME || '';
   const command = process.env.TOOL_INPUT_command || '';
 

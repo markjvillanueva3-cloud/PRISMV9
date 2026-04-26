@@ -49,7 +49,7 @@ function traceDependents(edges, startId, maxHops) {
   return [...visited];
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const t0 = Date.now();
   let input = "";
   for await (const chunk of process.stdin) input += chunk;

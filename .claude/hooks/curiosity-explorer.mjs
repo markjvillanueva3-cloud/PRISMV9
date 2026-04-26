@@ -188,7 +188,7 @@ function selectExplorationTarget(queue) {
   return queue.items[0];
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Load existing queue
   let queue = loadQueue();
 

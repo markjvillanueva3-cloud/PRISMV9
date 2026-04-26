@@ -241,7 +241,7 @@ function readStdin() {
 /**
  * Main entry point.
  */
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const args = process.argv.slice(2);
 
   // CLI: history report

@@ -5,7 +5,7 @@ import { cachePath, ensureCacheDir, readLines } from "./hook-cache.mjs";
 const SKILL_LOG = cachePath("skill-invocations");
 const SKILL_STATS_FILE = "H:\\prism\\.claude\\cache\\skill-session-stats.json";
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   await ensureCacheDir();
 
   const lines = await readLines(SKILL_LOG);

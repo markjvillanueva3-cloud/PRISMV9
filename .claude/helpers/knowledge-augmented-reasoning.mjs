@@ -210,7 +210,7 @@ async function loadTribalKnowledge(domains) {
   return null;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const stdinRaw = await readStdin();
   let prompt = "";
   try {

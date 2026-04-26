@@ -45,7 +45,7 @@ function renderMarkdown(entries) {
   return `${lines.join("\n")}\n`;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const identity = inferAgentIdentity();
   const subagentType = process.env.TOOL_INPUT_subagent_type?.trim() || "unknown";
   const success = String(process.env.TOOL_SUCCESS ?? "unknown").trim();

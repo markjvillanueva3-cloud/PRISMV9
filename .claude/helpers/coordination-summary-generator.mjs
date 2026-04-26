@@ -93,7 +93,7 @@ function writeSummary(summary) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const status = readFullStatus();
   const summary = generateSummary(status);
 

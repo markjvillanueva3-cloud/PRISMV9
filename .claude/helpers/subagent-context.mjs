@@ -1,7 +1,7 @@
 import { inferAgentIdentity } from "./agent-identity.mjs";
 import { buildSpawnedAgentAdditionalContext } from "../../scripts/agents/spawned-agent-context-lib.mjs";
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const subagentType = process.env.TOOL_INPUT_subagent_type?.trim() || "spawned";
   const identity = inferAgentIdentity();
   const additionalContext = await buildSpawnedAgentAdditionalContext({

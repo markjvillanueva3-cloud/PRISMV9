@@ -106,7 +106,7 @@ function getRelevantEngines(domains, mi) {
   return relevant.slice(0, 15).map(e => e.name);
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const raw = await readStdin();
   let prompt = "";
   try {

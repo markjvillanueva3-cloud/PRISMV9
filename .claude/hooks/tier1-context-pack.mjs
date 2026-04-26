@@ -243,7 +243,7 @@ function saveTier1State(pack) {
   }
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Assemble Tier-1 pack
   const pack = assembleTier1Pack();
 

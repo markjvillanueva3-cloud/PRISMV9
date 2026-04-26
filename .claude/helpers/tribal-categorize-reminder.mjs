@@ -9,7 +9,7 @@ import process from "node:process";
 
 const TRIBAL_KEYWORDS = /\b(tribal.?knowledge|shop.?knowledge|tribal.?tip|categoriz|auto.?tag|knowledge.?base|tribal_capture|tribal_add|tip.*capture|capture.*tip)\b/i;
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const userPrompt = process.env.USER_PROMPT || "";
 
   if (TRIBAL_KEYWORDS.test(userPrompt)) {

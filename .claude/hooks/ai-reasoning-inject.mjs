@@ -41,7 +41,7 @@ const COMMAND_TRIGGERS = [
   { pattern: /\b(speed|feed|sfm|ipm)\b/i, cmd: '/auto-speed-feed', purpose: 'Speed/feed calc' },
 ];
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const toolName = process.env.TOOL_NAME || '';
   const content = process.env.TOOL_INPUT_content || '';
   const prompt = process.env.TOOL_INPUT_prompt || '';

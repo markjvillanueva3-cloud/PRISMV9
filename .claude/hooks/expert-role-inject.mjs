@@ -24,7 +24,7 @@ For EVERY task, exhaustively analyze:
 
 Never settle for "good enough" — push for optimal solutions.`;
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Consume stdin (hook protocol)
   let input = "";
   for await (const chunk of process.stdin) input += chunk;

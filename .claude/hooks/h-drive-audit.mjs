@@ -71,7 +71,7 @@ function audit() {
   return { issues, migrations };
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Read stdin (hook protocol)
   let input = "";
   for await (const chunk of process.stdin) input += chunk;

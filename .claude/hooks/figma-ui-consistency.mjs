@@ -114,7 +114,7 @@ function generateFigmaContext(componentName, figmaState) {
 /**
  * Main hook handler
  */
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input;
   try {
     // /dev/stdin is POSIX-only. Read from fd 0 for cross-platform (Windows).

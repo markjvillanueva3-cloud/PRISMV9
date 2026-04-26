@@ -277,7 +277,7 @@ function generateSummary(dossier) {
   return parts.join(" | ");
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const startTime = Date.now();
 
   // Build comprehensive dossier

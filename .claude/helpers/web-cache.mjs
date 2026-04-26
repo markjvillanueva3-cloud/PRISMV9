@@ -9,7 +9,7 @@ function cacheFileForUrl(url) {
   return path.join(CACHE_DIR, "web", hash);
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const url = (process.env.TOOL_INPUT_url ?? "").trim();
   if (!url) {
     process.stdout.write(JSON.stringify({ continue: true }));

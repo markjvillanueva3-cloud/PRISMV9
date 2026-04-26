@@ -44,7 +44,7 @@ AUTO-INVOKE RULES:
 - "lathe/turning" → SUGGEST /lathe-studio
 `.trim();
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Always inject command awareness
   console.log(JSON.stringify({
     additionalContext: CRITICAL_COMMANDS

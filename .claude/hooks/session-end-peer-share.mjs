@@ -77,7 +77,7 @@ function buildInsight() {
 
 function fingerprint(obj) { return crypto.createHash("sha1").update(JSON.stringify(obj)).digest("hex").slice(0, 16); }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const insight = buildInsight();
   if (!insight || !insight.topGoal) { logTelemetry({ skipped: "no-insight" }); process.exit(0); }
 

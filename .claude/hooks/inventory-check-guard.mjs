@@ -40,7 +40,7 @@ function formatCompactInventory(inv) {
   return `PRISM: ${inv.engines || 0} engines | ${inv.dispatchers || 0} dispatchers | ${inv.actions || 0} actions | ${inv.algorithms || 0} algorithms | ${inv.hooks_registry || 0} hooks | ${inv.skills || 0} skills | ${inv.tests_passing || 0} tests`;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input;
   try {
     input = JSON.parse(await fs.promises.readFile('/dev/stdin', 'utf8'));

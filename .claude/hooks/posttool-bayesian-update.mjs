@@ -148,7 +148,7 @@ function updateBayesianPosterior(posterior, toolName, predicted, actual) {
   return posterior;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   // Read stdin
   let input = "";
   for await (const chunk of process.stdin) {

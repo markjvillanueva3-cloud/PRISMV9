@@ -24,7 +24,7 @@ async function readPosition() {
   return "unknown";
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const originalPrompt = process.env.TOOL_INPUT_prompt ?? "";
   if (!originalPrompt.trim()) {
     process.stdout.write(JSON.stringify({ continue: true }));

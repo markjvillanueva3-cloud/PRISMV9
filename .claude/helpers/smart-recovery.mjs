@@ -1,7 +1,7 @@
 import process from "node:process";
 import { cachePath, readLines } from "./hook-cache.mjs";
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const toolName = process.env.TOOL_NAME ?? "unknown";
   const toolError = process.env.TOOL_ERROR ?? "";
   const errorLines = await readLines(cachePath("error-log"));

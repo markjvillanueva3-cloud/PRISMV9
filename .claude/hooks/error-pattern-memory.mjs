@@ -160,7 +160,7 @@ function generateFixKey(error) {
   return `${error.type}:${error.code}:${error.message.slice(0, 50)}`;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   let input = '';
   for await (const chunk of process.stdin) input += chunk;
 

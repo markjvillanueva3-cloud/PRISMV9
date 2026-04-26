@@ -653,7 +653,7 @@ async function pollCommand(parsedArgs) {
   );
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const parsedArgs = parseArgs(process.argv.slice(2));
   const command = parsedArgs._[0] ?? "summary";
 

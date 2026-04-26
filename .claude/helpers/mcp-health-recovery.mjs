@@ -26,7 +26,7 @@ const MCP_FAILURE_PATTERNS = [
 
 const COUNTER_NAME = "mcp_consecutive_failures";
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const resultText = typeof TOOL_RESULT === "string" ? TOOL_RESULT : "";
 
   // Check if this looks like an MCP failure

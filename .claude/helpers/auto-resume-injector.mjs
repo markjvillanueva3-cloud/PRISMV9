@@ -58,7 +58,7 @@ function extractResume(handoff) {
   return null;
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const timestamp = new Date().toISOString();
 
   // 1. Reset session trackers (same as post-compact-enhanced.mjs)

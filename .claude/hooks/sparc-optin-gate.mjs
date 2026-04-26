@@ -37,7 +37,7 @@ function isSparcPrompt(text) {
   return t === "/sparc" || t.startsWith("/sparc ") || t.startsWith("/sparc\n");
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   try {
     const raw = await readStdin();
     if (!raw) { process.exit(0); return; }

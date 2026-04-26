@@ -76,7 +76,7 @@ function formatMessage(hits, filePath) {
   return lines.join("\n");
 }
 
-async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
+async function main() {
   const killer = setTimeout(() => {
     console.log(JSON.stringify({ continue: true }));
     process.exit(0);
