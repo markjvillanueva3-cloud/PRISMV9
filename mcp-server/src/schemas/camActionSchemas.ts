@@ -27,7 +27,7 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   lathe_masterpost_deep_explain: z.object({
     machineId: z.string().describe("Target machine ID"),
     operation: z.string().optional().describe("Operation type (turning, boring, threading, etc.)"),
-    constraints: z.record(z.unknown()).optional().describe("Additional constraints"),
+    constraints: z.record(z.string(), z.any()).optional().describe("Additional constraints"),
   }),
   lathe_masterpost_deep_causal: z.object({
     machineId: z.string().describe("Machine ID for causal inference"),
@@ -175,7 +175,7 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   /** Auto-route to correct master post engine by machine model */
   master_post_by_machine: z.object({
     machine_model: z.string().describe("Machine model identifier (e.g., 'HURCO_VMX24', 'OKUMA_LB250', 'MITSUBISHI_MV1200R')"),
-    operations: z.array(z.unknown()).min(1).describe("Operations array (schema validated by routed engine)"),
-    config: z.record(z.unknown()).optional().describe("Config object (schema validated by routed engine)"),
+    operations: z.array(z.any()).min(1).describe("Operations array (schema validated by routed engine)"),
+    config: z.record(z.string(), z.any()).optional().describe("Config object (schema validated by routed engine)"),
   }),
 };

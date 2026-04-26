@@ -77,8 +77,6 @@ async function getEngine(name: string): Promise<unknown> {
       return _awarenessRouter ??= (await import("../../engines/LocalAwarenessRouterEngine.js")).localAwarenessRouterEngine;
     case "commitMessage":
       return _commitMessage ??= (await import("../../engines/LocalCommitMessageEngine.js")).localCommitMessageEngine;
-    
-      return _hookAggregator ??= (await import("../../engines/LocalHookAggregatorEngine.js")).localHookAggregatorEngine;
     default:
       throw new Error(`Unknown engine: ${name}`);
   }
