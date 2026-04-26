@@ -23,19 +23,21 @@
  *   Skill: /wedm-program
  */
 
-import { readFileSync } from "fs";
+import * as fs from 'fs';
 
-// Read hook input from stdin
-let input = "";
-try {
-  input = readFileSync("/dev/stdin", "utf8");
-} catch {
-  process.exit(0); // No input = skip
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
 }
+
+const _raw = readStdinSafe();
+if (!_raw) { process.exit(0); }
 
 let data;
 try {
-  data = JSON.parse(input);
+  data = JSON.parse(_raw);
 } catch {
   process.exit(0);
 }

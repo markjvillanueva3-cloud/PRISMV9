@@ -9,7 +9,14 @@
  * ROI: Each intercepted search saves ~200-500 tokens of Grep/Glob output.
  * Over a session with 30-50 searches, that's 6K-25K tokens saved.
  */
-import { readFileSync } from 'fs';
+import * as fs from 'fs';
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
 
 const ROUTES_PATH = 'H:/prism/mcp-server/data/docs/PRISM_KEYWORD_ROUTES.json';
 const MASTER_INDEX_PATH = 'H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md';
@@ -21,7 +28,7 @@ let masterIndex = null;
 function loadRoutes() {
   if (routes) return routes;
   try {
-    const data = JSON.parse(readFileSync(ROUTES_PATH, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(ROUTES_PATH, 'utf-8'));
     routes = data.routes;
     return routes;
   } catch {
@@ -33,7 +40,7 @@ function loadRoutes() {
 function loadMasterIndex() {
   if (masterIndex) return masterIndex;
   try {
-    masterIndex = readFileSync(MASTER_INDEX_PATH, 'utf-8');
+    masterIndex = fs.readFileSync(MASTER_INDEX_PATH, 'utf-8');
     return masterIndex;
   } catch {
     return null;
@@ -92,15 +99,11 @@ function formatContext(matches, pattern) {
   return lines.join('\n');
 }
 
-// Windows-safe stdin read (ESM resolves /dev/stdin relative to import URL)
-function readStdin() {
-  try { return readFileSync('/dev/stdin', 'utf-8'); }
-  catch { return readFileSync(0, 'utf-8'); } // fd 0 = stdin
-}
-
 // Main
+const _raw = readStdinSafe();
+if (!_raw) { console.log(JSON.stringify({ continue: true })); process.exit(0); }
 try {
-  const input = JSON.parse(readStdin());
+  const input = JSON.parse(_raw);
   const pattern = getSearchPattern(input);
 
   if (!pattern || pattern.length < 3) {

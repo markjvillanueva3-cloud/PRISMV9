@@ -4,9 +4,17 @@
  * Warns when reading a file without offset/limit that is likely large.
  * Saves tokens by encouraging targeted reads instead of full-file dumps.
  */
-import { readFileSync, statSync } from 'fs';
+import * as fs from 'fs';
 
-let _raw; try { _raw = readFileSync('/dev/stdin', 'utf-8'); } catch { _raw = readFileSync(0, 'utf-8'); }
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
+const _raw = readStdinSafe();
+if (!_raw) { console.log(JSON.stringify({ continue: true })); process.exit(0); }
 const input = JSON.parse(_raw);
 
 const filePath = (input.tool_input?.file_path || '').replace(/\\/g, '/');
@@ -28,14 +36,14 @@ if (skipExtensions.some(ext => filePath.toLowerCase().endsWith(ext))) {
 // Check file size and line count
 try {
   const winPath = filePath.replace(/\//g, '\\');
-  const stats = statSync(winPath);
+  const stats = fs.statSync(winPath);
   const sizeKB = stats.size / 1024;
 
   // For text files, count actual lines
   let lineCount = 0;
   if (sizeKB < 500) { // Only count lines for files under 500KB
     try {
-      const content = readFileSync(winPath, 'utf-8');
+      const content = fs.readFileSync(winPath, 'utf-8');
       lineCount = content.split('\n').length;
     } catch {
       lineCount = Math.round(stats.size / 80); // fallback estimate

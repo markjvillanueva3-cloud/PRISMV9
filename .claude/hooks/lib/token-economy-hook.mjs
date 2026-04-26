@@ -5,15 +5,21 @@
  * Detects waste patterns (duplicate reads, broad searches, verbose output).
  * Logs to session state file for /token-economy skill to read.
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import * as fs from 'fs';
+const { writeFileSync, existsSync, mkdirSync } = fs;
 import { dirname } from 'path';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
 const STATE_PATH = 'H:/prism/state/token-economy-session.json';
-// Windows-safe stdin (ESM resolves /dev/stdin relative to import URL on Windows)
-let rawInput;
-try { rawInput = readFileSync('/dev/stdin', 'utf-8'); }
-catch { rawInput = readFileSync(0, 'utf-8'); }
-const input = JSON.parse(rawInput);
+const _raw = readStdinSafe();
+if (!_raw) { console.log(JSON.stringify({ continue: true })); process.exit(0); }
+const input = JSON.parse(_raw);
 
 // Extract tool info from PostToolUse hook input
 const toolName = input.tool_name || '';
@@ -35,7 +41,7 @@ const estimatedTokens = Math.ceil(outputLen / 4);
 
 // Load session state
 let state = { calls: [], categories: {}, waste_alerts: [], session_start: new Date().toISOString(), total_tokens: 0 };
-try { state = JSON.parse(readFileSync(STATE_PATH, 'utf-8')); } catch {}
+try { state = JSON.parse(fs.readFileSync(STATE_PATH, 'utf-8')); } catch {}
 
 // Record this call
 const call = {

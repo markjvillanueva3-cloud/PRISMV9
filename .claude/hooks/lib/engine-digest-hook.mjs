@@ -4,15 +4,17 @@
  * When reading an engine file, injects a 1-line summary from ENGINE_DIGEST.md
  * to help understand the engine's purpose before reading the full file.
  */
-import { readFileSync } from 'fs';
+import * as fs from 'fs';
 
-// Read stdin for tool input
-let _raw;
-try {
-  _raw = readFileSync('/dev/stdin', 'utf-8');
-} catch {
-  _raw = readFileSync(0, 'utf-8');
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
 }
+
+const _raw = readStdinSafe();
+if (!_raw) { console.log(JSON.stringify({ continue: true })); process.exit(0); }
 const input = JSON.parse(_raw);
 
 const filePath = (input.tool_input?.file_path || '').replace(/\\/g, '/');
@@ -41,7 +43,7 @@ const digestPaths = [
 let digest = null;
 for (const digestPath of digestPaths) {
   try {
-    const content = readFileSync(digestPath.replace(/\//g, '\\'), 'utf-8');
+    const content = fs.readFileSync(digestPath.replace(/\//g, '\\'), 'utf-8');
     // Look for pattern: - **EngineName**: description
     const pattern = new RegExp(`^- \\*\\*${fileName}\\*\\*:\\s*(.+)$`, 'm');
     const match = content.match(pattern);
