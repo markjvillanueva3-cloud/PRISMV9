@@ -85,6 +85,10 @@ const ACTIONS = [
   "dxf_write_polygons",
   // CAD-UNIVERSAL-CONTROL-MS0/U-CUC11 — pure-JS STL write (closes STL gap)
   "stl_write_polygons",
+  // CAD-UNIVERSAL-CONTROL-MS0/U-CUC07: IGES import
+  "iges_parse",
+  "iges_extract_geometry",
+  "iges_summary",
   // U-CUIX-P0-19 â€” AI-control surface: route master-AI intent through
   // ICADCodeGenerator adapters (FreeCAD/Fusion360/Inventor/Mastercam today;
   // HyperCAD-S + SolidWorks land in P0-17/P0-18). Closes the "4 adapters
@@ -373,6 +377,53 @@ Actions: ${ACTIONS.join(", ")}.`,
                 precision: params["precision"] as number | undefined,
               },
             );
+            break;
+          }
+          // â”€â”€ CAD-UNIVERSAL-CONTROL-MS0/U-CUC07: IGES import via IGESImportEngine â”€â”€
+          case "iges_parse": {
+            const { IGESImportEngine } = await import("../../engines/IGESImportEngine.js");
+            const engine = new IGESImportEngine();
+            const content = params["content"] as string;
+            if (typeof content !== "string" || content.length === 0) {
+              throw new Error("iges_parse requires non-empty 'content' string");
+            }
+            const parsed = engine.parseIGES({ content });
+            result = {
+              entity_count: parsed.entities.length,
+              entities: parsed.entities,
+              global: parsed.global,
+              summary: parsed.summary,
+              source: "IGESImportEngine.parseIGES",
+            };
+            break;
+          }
+          case "iges_extract_geometry": {
+            const { IGESImportEngine } = await import("../../engines/IGESImportEngine.js");
+            const engine = new IGESImportEngine();
+            const content = params["content"] as string;
+            if (typeof content !== "string" || content.length === 0) {
+              throw new Error("iges_extract_geometry requires non-empty 'content' string");
+            }
+            const filter = params["filter"] as { types?: string[] } | undefined;
+            const geometry = engine.extractGeometry({ content, filter });
+            result = {
+              ...geometry,
+              source: "IGESImportEngine.extractGeometry",
+            };
+            break;
+          }
+          case "iges_summary": {
+            const { IGESImportEngine } = await import("../../engines/IGESImportEngine.js");
+            const engine = new IGESImportEngine();
+            const content = params["content"] as string;
+            if (typeof content !== "string" || content.length === 0) {
+              throw new Error("iges_summary requires non-empty 'content' string");
+            }
+            const summary = engine.getSummary({ content });
+            result = {
+              ...summary,
+              source: "IGESImportEngine.getSummary",
+            };
             break;
           }
           // â”€â”€ U-CUIX-P0-19: AI-control surface via CADAdapterRegistry â”€â”€
