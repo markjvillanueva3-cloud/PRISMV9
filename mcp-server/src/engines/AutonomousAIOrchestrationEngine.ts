@@ -1184,7 +1184,7 @@ export async function autonomousAIOrchestrationDispatch(
       return autonomousAIOrchestration.selectFormulas(params.intent as string);
     case "ai_knowledge_plan":
       return autonomousAIOrchestration.planKnowledgeUtilization(
-        params as unknown as { intent: string; knowledgeSources?: string[] }
+        params as unknown as AutonomousTaskRequest
       );
     case "ai_query_mit":
       return autonomousAIOrchestration.queryMITCourses(params.topic as string);

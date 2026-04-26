@@ -383,7 +383,7 @@ export class DeepAIIntelligenceEngine {
 
     // Add rule-based suggestions
     if (awareness.relevantRules.length > 0) {
-      suggestions.push(`Apply playbook rule: ${awareness.relevantRules[0].title}`);
+      suggestions.push(`Apply playbook rule: ${awareness.relevantRules[0]}`);
     }
 
     // Add missing context suggestions
@@ -860,7 +860,7 @@ export class DeepAIIntelligenceEngine {
     plan.push(`1. Execute ${action}`);
 
     if (awareness.relatedCapabilities.length > 0) {
-      plan.push(`2. Consider related: ${awareness.relatedCapabilities[0].action}`);
+      plan.push(`2. Consider related: ${awareness.relatedCapabilities[0].actions[0]}`);
     }
 
     if (awareness.relevantKnowledge.length > 0) {

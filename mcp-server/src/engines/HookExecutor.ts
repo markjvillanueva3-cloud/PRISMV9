@@ -311,6 +311,13 @@ class HookExecutorEngine {
   private allHooks: Map<string, HookDefinition> = new Map();
 
   /**
+   * Initialize the hook executor (no-op, hooks are registered on demand)
+   */
+  async initialize(): Promise<void> {
+    // Hooks are registered dynamically, no initialization needed
+  }
+
+  /**
    * Register a hook
    */
   register(hook: HookDefinition): void {

@@ -7,7 +7,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import { BaseRegistry, type RegistryEntry } from "./base.js";
-import { PATHS, DATA_LAYERS, ISO_GROUPS, MATERIAL_CATEGORIES } from "../constants.js";
+import { PATHS, DATA_LAYERS, ISO_GROUPS, MATERIAL_CATEGORIES, type IsoMaterialGroup } from "../constants.js";
 import type { Material } from "../types.js";
 import { log } from "../utils/Logger.js";
 import { fileExists, readJsonFile, writeJsonFile, listDirectory } from "../utils/files.js";

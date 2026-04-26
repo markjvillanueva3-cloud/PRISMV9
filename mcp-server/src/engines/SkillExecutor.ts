@@ -826,6 +826,36 @@ export class SkillExecutor {
   }
 
   /**
+   * Execute a single skill
+   */
+  async executeSkill(
+    skillId: string,
+    options: { parameters?: Record<string, unknown>; context?: Record<string, unknown> } = {}
+  ): Promise<{ success: boolean; output: unknown; error?: string; execution_time_ms: number }> {
+    const startTime = Date.now();
+    const loadResult = await this.loadSkill(skillId);
+
+    if (!loadResult.success) {
+      return {
+        success: false,
+        output: null,
+        error: `Failed to load skill: ${skillId}`,
+        execution_time_ms: Date.now() - startTime,
+      };
+    }
+
+    return {
+      success: true,
+      output: {
+        content: loadResult.content,
+        metadata: loadResult.metadata,
+        parameters: options.parameters,
+      },
+      execution_time_ms: Date.now() - startTime,
+    };
+  }
+
+  /**
    * Execute a skill chain (load all skills in order)
    */
   async executeSkillChain(chain: SkillChain): Promise<{

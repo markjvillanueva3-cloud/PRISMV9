@@ -68,6 +68,7 @@ export interface EngineEntry {
 export interface DispatcherEntry {
   name: string;
   actions: string[];
+  fullAction: string;
   description?: string;
 }
 
@@ -121,6 +122,7 @@ export interface GapAnalysis {
 
 export interface TribalKnowledgeEntry {
   tip: string;
+  title: string;
   category: string;
   source: string;
   confidence: number;
@@ -132,6 +134,7 @@ export interface AIFeatureRecommendation {
   priority: number;
   engines: string[];
   actions: string[];
+  fullAction: string;
 }
 
 // ============================================================================
@@ -416,6 +419,7 @@ class PRISMSelfAwarenessEngine {
         priority: caps[0].confidence,
         engines: caps.filter((c) => c.engine).map((c) => c.engine!),
         actions: caps.filter((c) => c.action).map((c) => `${c.dispatcher}:${c.action}`),
+        fullAction: caps[0].dispatcher && caps[0].action ? `${caps[0].dispatcher}:${caps[0].action}` : "prism_ai:analyze",
       });
     }
 
@@ -443,6 +447,7 @@ class PRISMSelfAwarenessEngine {
         if (tipText.includes(queryLower) || category.includes(queryLower)) {
           results.push({
             tip: tip.tip || tip.content,
+            title: (tip.tip || tip.content || "").substring(0, 50),
             category: tip.category || "general",
             source: tip.source || "tribal",
             confidence: tipText.includes(queryLower) ? 0.9 : 0.7,
@@ -472,11 +477,19 @@ class PRISMSelfAwarenessEngine {
     relatedCapabilities: AIFeatureRecommendation[];
     relevantKnowledge: TribalKnowledgeEntry[];
     relevantRules: string[];
+    missingContext: string[];
+    proactiveQuestions: string[];
+    recommendedActions: string[];
+    inferredIntent: string;
   } {
     const q = query.toLowerCase();
     const capabilities: AIFeatureRecommendation[] = [];
     const knowledge: TribalKnowledgeEntry[] = [];
     const rules: string[] = [];
+    const missingContext: string[] = [];
+    const proactiveQuestions: string[] = [];
+    const recommendedActions: string[] = [];
+    let inferredIntent = "general_query";
 
     if (q.includes("cut") || q.includes("mill") || q.includes("turn")) {
       capabilities.push({
@@ -485,7 +498,14 @@ class PRISMSelfAwarenessEngine {
         priority: 0.9,
         engines: ["SpeedFeedOrchestratorEngine"],
         actions: ["speed_feed_calc"],
+        fullAction: "prism_calc:speed_feed_calc",
       });
+      inferredIntent = "machining_calculation";
+      recommendedActions.push("Calculate optimal speeds and feeds");
+      if (!q.includes("material")) {
+        missingContext.push("Material type not specified");
+        proactiveQuestions.push("What material are you machining?");
+      }
     }
     if (q.includes("force") || q.includes("kienzle")) {
       capabilities.push({
@@ -494,16 +514,27 @@ class PRISMSelfAwarenessEngine {
         priority: 0.85,
         engines: ["KienzleForceEngine"],
         actions: ["cutting_force"],
+        fullAction: "prism_calc:cutting_force",
       });
+      inferredIntent = "force_analysis";
+      recommendedActions.push("Calculate cutting forces using Kienzle model");
     }
 
-    return { relatedCapabilities: capabilities, relevantKnowledge: knowledge, relevantRules: rules };
+    return {
+      relatedCapabilities: capabilities,
+      relevantKnowledge: knowledge,
+      relevantRules: rules,
+      missingContext,
+      proactiveQuestions,
+      recommendedActions,
+      inferredIntent,
+    };
   }
 
   /**
    * What can I do? - returns matching capabilities for a query
    */
-  whatCanIDo(query: string): { results: Array<{ fullAction: string; action: string; confidence: number }> } {
+  whatCanIDo(query: string): { results: Array<{ fullAction: string; action: string; confidence: number }>; confidence: number } {
     const q = query.toLowerCase();
     const results: Array<{ fullAction: string; action: string; confidence: number }> = [];
 
@@ -520,7 +551,82 @@ class PRISMSelfAwarenessEngine {
       results.push({ fullAction: "prism_ai:analyze", action: "analyze", confidence: 0.5 });
     }
 
-    return { results };
+    // Overall confidence is the max of individual results
+    const confidence = results.length > 0 ? Math.max(...results.map(r => r.confidence)) : 0.5;
+    return { results, confidence };
+  }
+
+  /**
+   * Get a compact manifest of PRISM capabilities
+   */
+  getCompactManifest(): { dispatchers: string[]; engineCount: number; actionCount: number } {
+    return {
+      dispatchers: ["prism_calc", "prism_safety", "prism_ai", "prism_cam", "prism_cad"],
+      engineCount: 2378,
+      actionCount: 6560,
+    };
+  }
+
+  /**
+   * How do I accomplish a task? Returns recommended approach
+   */
+  howDoI(task: string): { approach: string; steps: string[]; recommendedActions: string[] } {
+    const t = task.toLowerCase();
+    if (t.includes("speed") || t.includes("feed")) {
+      return {
+        approach: "Use speed/feed calculator with material and tool parameters",
+        steps: ["Identify material ISO group", "Select tool geometry", "Call prism_calc:speed_feed_calc"],
+        recommendedActions: ["prism_calc:speed_feed_calc", "prism_calc:cutting_force"],
+      };
+    }
+    return {
+      approach: "Analyze task with PRISM AI reasoning",
+      steps: ["Parse intent", "Match capabilities", "Execute recommended action"],
+      recommendedActions: ["prism_ai:analyze"],
+    };
+  }
+
+  /**
+   * Who handles a specific capability?
+   */
+  whoHandles(capability: string): { dispatcher: string; engine: string; actions: string[] } {
+    const c = capability.toLowerCase();
+    if (c.includes("speed") || c.includes("feed") || c.includes("cut")) {
+      return { dispatcher: "prism_calc", engine: "SpeedFeedOrchestratorEngine", actions: ["speed_feed_calc"] };
+    }
+    if (c.includes("force") || c.includes("kienzle")) {
+      return { dispatcher: "prism_calc", engine: "KienzleForceEngine", actions: ["cutting_force"] };
+    }
+    if (c.includes("safety")) {
+      return { dispatcher: "prism_safety", engine: "SafetyValidationEngine", actions: ["validate_safety"] };
+    }
+    return { dispatcher: "prism_ai", engine: "DeepAIIntelligenceEngine", actions: ["analyze", "reason"] };
+  }
+
+  /**
+   * Search capabilities matching a query
+   */
+  searchCapabilities(query: string): Array<{ name: string; dispatcher: string; relevance: number }> {
+    const q = query.toLowerCase();
+    const results: Array<{ name: string; dispatcher: string; relevance: number }> = [];
+
+    if (q.includes("speed") || q.includes("feed")) {
+      results.push({ name: "speed_feed_calc", dispatcher: "prism_calc", relevance: 0.95 });
+    }
+    if (q.includes("force") || q.includes("cut")) {
+      results.push({ name: "cutting_force", dispatcher: "prism_calc", relevance: 0.9 });
+    }
+    if (q.includes("tool")) {
+      results.push({ name: "tool_select", dispatcher: "prism_calc", relevance: 0.85 });
+    }
+    if (q.includes("safe")) {
+      results.push({ name: "validate_safety", dispatcher: "prism_safety", relevance: 0.9 });
+    }
+    if (results.length === 0) {
+      results.push({ name: "analyze", dispatcher: "prism_ai", relevance: 0.5 });
+    }
+
+    return results.sort((a, b) => b.relevance - a.relevance);
   }
 
   /**
@@ -543,6 +649,7 @@ class PRISMSelfAwarenessEngine {
         priority: r.priority / 10, // Normalize to 0-1 range
         engines: r.engines,
         actions: r.actions,
+        fullAction: r.actions[0] || "prism_ai:analyze",
       }));
     } catch (err) {
       log.error(`[PRISMSelfAwareness] Failed to get mill features: ${err}`);
@@ -629,6 +736,7 @@ class PRISMSelfAwarenessEngine {
         dispatchers.push({
           name,
           actions,
+          fullAction: actions[0] ? `${name}:${actions[0]}` : name,
           description: `Dispatcher: ${name}`,
         });
       }
