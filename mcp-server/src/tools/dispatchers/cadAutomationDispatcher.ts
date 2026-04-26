@@ -2911,8 +2911,8 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
             const curve = params["curve"] as {
               degree: number;
-              controlPoints: Array<{ x: number; y: number; z: number; w?: number }>;
-              knots: number[];
+              control_points: Array<{ x: number; y: number; z: number; w: number }>;
+              knot_vector: number[]; is_periodic: boolean;
             };
             const t = params["t"] as number;
             if (!curve || t === undefined) {
@@ -2947,7 +2947,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
             const mesh = params["mesh"] as {
               vertices: Array<{ x: number; y: number; z: number }>;
-              triangles: Array<[number, number, number]>;
+              normals: Array<{ x: number; y: number; z: number }>; indices: number[]; triangle_count: number;
             };
             if (!mesh) {
               throw new Error("cad_kernel_mesh_volume requires 'mesh' with vertices and triangles");
@@ -2960,7 +2960,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
             const mesh = params["mesh"] as {
               vertices: Array<{ x: number; y: number; z: number }>;
-              triangles: Array<[number, number, number]>;
+              normals: Array<{ x: number; y: number; z: number }>; indices: number[]; triangle_count: number;
             };
             if (!mesh) {
               throw new Error("cad_kernel_mesh_area requires 'mesh' with vertices and triangles");
@@ -2987,7 +2987,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!contentHash || !userId || !role) {
               throw new Error("cad_access_grant requires 'content_hash', 'user_id', and 'role'");
             }
-            const policy = cadAccessControlRBACABACEngine.grant(contentHash, { userId, role, expiration });
+            const policy = cadAccessControlRBACABACEngine.grant(contentHash, { userId, roles: [role] as ("viewer" | "editor" | "owner" | "auditor")[], grantedBy: 'system', expiresAt: expiration });
             result = { policy, source: "CADAccessControlRBACABACEngine.grant" };
             break;
           }
@@ -3005,8 +3005,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_access_check": {
             const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
             const contentHash = params["content_hash"] as string;
-            const user = params["user"] as { id: string; roles: string[]; department?: string };
-            const action = params["action"] as "read" | "write" | "delete" | "share";
+            const user = params["user"] as { userId: string; countryCode: string; isUSPerson: boolean; roles: ("viewer" | "editor" | "owner" | "auditor")[]; investigative: boolean };
+            const action = params["action"] as "view" | "edit" | "delete" | "grant" | "checkout" | "checkin" | "audit_read" | "download" | "print";
             if (!contentHash || !user || !action) {
               throw new Error("cad_access_check requires 'content_hash', 'user', and 'action'");
             }
@@ -3017,7 +3017,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_access_checkout": {
             const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
             const contentHash = params["content_hash"] as string;
-            const user = params["user"] as { id: string; roles: string[]; department?: string };
+            const user = params["user"] as { userId: string; countryCode: string; isUSPerson: boolean; roles: ("viewer" | "editor" | "owner" | "auditor")[]; investigative: boolean };
             if (!contentHash || !user) {
               throw new Error("cad_access_checkout requires 'content_hash' and 'user'");
             }
@@ -3028,7 +3028,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_access_checkin": {
             const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
             const contentHash = params["content_hash"] as string;
-            const user = params["user"] as { id: string; roles: string[]; department?: string };
+            const user = params["user"] as { userId: string; countryCode: string; isUSPerson: boolean; roles: ("viewer" | "editor" | "owner" | "auditor")[]; investigative: boolean };
             if (!contentHash || !user) {
               throw new Error("cad_access_checkin requires 'content_hash' and 'user'");
             }
@@ -3054,7 +3054,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_thumb_get": {
             const { cadPreviewThumbnailCacheEngine } = await import("../../engines/CADPreviewThumbnailCacheEngine.js");
             const contentHash = params["content_hash"] as string;
-            const view = params["view"] as "front" | "top" | "iso" | "custom";
+            const view = params["view"] as "2d_drawing" | "hero_3d" | "iso_top" | "front" | "top" | "bottom" | "right" | "back" | "left";
             if (!contentHash || !view) {
               throw new Error("cad_thumb_get requires 'content_hash' and 'view'");
             }
@@ -3065,7 +3065,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_thumb_has": {
             const { cadPreviewThumbnailCacheEngine } = await import("../../engines/CADPreviewThumbnailCacheEngine.js");
             const contentHash = params["content_hash"] as string;
-            const view = params["view"] as "front" | "top" | "iso" | "custom";
+            const view = params["view"] as "2d_drawing" | "hero_3d" | "iso_top" | "front" | "top" | "bottom" | "right" | "back" | "left";
             if (!contentHash || !view) {
               throw new Error("cad_thumb_has requires 'content_hash' and 'view'");
             }
