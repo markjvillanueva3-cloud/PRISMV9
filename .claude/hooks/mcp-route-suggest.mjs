@@ -1,18 +1,31 @@
 #!/usr/bin/env node
-// DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
-// Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
-process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
 /**
  * mcp-route-suggest.mjs
  * ---------------------
  * Compact PreToolUse router that nudges PRISM work toward existing MCP, helper,
  * and audit-chain surfaces before broad shell churn expands token cost.
+ * Uses local Ollama for intelligent suggestions (zero Claude API tokens).
+ * Falls back to regex-based suggestions when Ollama unavailable.
  */
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const PRISM_ROOT = "H:/PRISM";
 const MCP_ROOT = "H:/PRISM/mcp-server";
 const AUDIT_CHAIN_CMD =
   "npx tsx H:/PRISM/mcp-server/scripts/run-dev-audit-chain.ts --edited-file <path>";
+
+// Lazy-load Ollama bridge (don't fail if missing)
+let queryOllama = null;
+try {
+  const bridge = await import('./lib/ollama-hook-bridge.mjs');
+  queryOllama = bridge.queryOllama;
+} catch {
+  // Ollama bridge not available — will use regex fallback
+}
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -73,19 +86,8 @@ function isBroadShell(command) {
   ].some((token) => lower.includes(token));
 }
 
-async function main() {
-  const input = await readStdin();
-  const toolName = input.tool_name || input.toolName || "";
-  const toolInput = input.tool_input || input.input || {};
+async function getRegexSuggestions(toolName, filePath, bashCommand) {
   const messages = [];
-
-  if (!["Bash", "Read", "Edit", "Write", "MultiEdit"].includes(toolName)) {
-    process.stdout.write(JSON.stringify({ continue: true }));
-    return;
-  }
-
-  const filePath = getFilePath(toolInput);
-  const bashCommand = getBashCommand(toolInput);
   const normalizedCommand = normalize(bashCommand);
 
   if (
@@ -110,6 +112,60 @@ async function main() {
     messages.push(
       "Doctrine/command surface: verify the command bridge and MCP directive before teaching a new manual workflow.",
     );
+  }
+
+  return messages;
+}
+
+async function getOllamaSuggestions(toolName, filePath, bashCommand) {
+  if (!queryOllama) return null;
+
+  // Only query Ollama for Bash commands that look like exploration
+  if (toolName !== "Bash" || !isBroadShell(bashCommand)) {
+    return null;
+  }
+
+  const prompt = `Task: User is running "${bashCommand}" in PRISM codebase.
+Available MCP dispatchers: prism_session (dispatcher_map_compact, action_search, tool_route_best), prism_dev (build, test_smoke, quality_dashboard), prism_calc (speed_feed, cutting_force).
+
+What's the best MCP action to use instead? Reply with just: dispatcher:action — reason (10 words max)`;
+
+  try {
+    const result = await queryOllama(prompt, {
+      hookType: 'mcp_route',
+      timeoutMs: 300,
+      maxTokens: 40,
+    });
+
+    if (result.success && result.response) {
+      return [`🤖 Suggested route: ${result.response}`];
+    }
+  } catch {
+    // Ollama failed — fall through to regex
+  }
+
+  return null;
+}
+
+async function main() {
+  const input = await readStdin();
+  const toolName = input.tool_name || input.toolName || "";
+  const toolInput = input.tool_input || input.input || {};
+
+  if (!["Bash", "Read", "Edit", "Write", "MultiEdit"].includes(toolName)) {
+    process.stdout.write(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  const filePath = getFilePath(toolInput);
+  const bashCommand = getBashCommand(toolInput);
+
+  // Try Ollama first for Bash commands
+  let messages = await getOllamaSuggestions(toolName, filePath, bashCommand);
+
+  // Fall back to regex-based suggestions
+  if (!messages || messages.length === 0) {
+    messages = await getRegexSuggestions(toolName, filePath, bashCommand);
   }
 
   if (messages.length === 0) {

@@ -1,16 +1,28 @@
 #!/usr/bin/env node
-// DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
-// Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
-process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
 /**
  * grep-index-first.mjs - PreToolUse Grep
  * Suggests checking MASTER_INDEX before expensive grep searches.
+ * Uses local Ollama for intelligent suggestions (zero Claude API tokens).
+ * Falls back to regex-based suggestions when Ollama unavailable.
+ *
  * Token savings: 50-80% on known patterns
  */
 
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import os from 'os';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Lazy-load Ollama bridge (don't fail if missing)
+let queryOllama = null;
+try {
+  const bridge = await import('./lib/ollama-hook-bridge.mjs');
+  queryOllama = bridge.queryOllama;
+} catch {
+  // Ollama bridge not available — will use regex fallback
+}
 
 const input = JSON.parse(readFileSync(0, 'utf8'));
 const { tool_name, tool_input } = input;
@@ -21,7 +33,6 @@ if (tool_name !== 'Grep') {
 }
 
 // Session-scoped rate limit: emit once per 60 seconds per distinct suggestion
-// so the advisory doesn't flood the chat on a research-heavy session.
 const RATE_DIR = join(os.tmpdir(), 'prism-hook-state');
 const RATE_FILE = join(RATE_DIR, 'grep-index-first.last.json');
 const RATE_WINDOW_MS = 60_000;
@@ -49,19 +60,6 @@ const indexFiles = [
   { path: 'mcp-server/data/state/cross-session-asset-registry.json', covers: ['asset', 'created', 'exists'] },
 ];
 
-// Check if pattern matches indexed content
-const patternLower = pattern.toLowerCase();
-const suggestions = [];
-
-for (const { path: indexPath, covers } of indexFiles) {
-  if (covers.some(keyword => patternLower.includes(keyword.toLowerCase()))) {
-    const fullPath = join(process.cwd(), indexPath);
-    if (existsSync(fullPath)) {
-      suggestions.push(`Check ${indexPath} (pre-indexed for: ${covers.join(', ')})`);
-    }
-  }
-}
-
 // Detect expensive search patterns
 const expensivePatterns = [
   { regex: /class\s+\w*Engine/, suggestion: 'Engine class search → check ENGINE_DIGEST.md first' },
@@ -70,18 +68,73 @@ const expensivePatterns = [
   { regex: /TODO|FIXME|HACK/, suggestion: 'TODO search → use `rtk grep TODO` for compact output' },
 ];
 
-for (const { regex, suggestion } of expensivePatterns) {
-  if (regex.test(pattern)) {
-    suggestions.push(suggestion);
+async function getRegexSuggestions() {
+  const suggestions = [];
+  const patternLower = pattern.toLowerCase();
+
+  for (const { path: indexPath, covers } of indexFiles) {
+    if (covers.some(keyword => patternLower.includes(keyword.toLowerCase()))) {
+      const fullPath = join(process.cwd(), indexPath);
+      if (existsSync(fullPath)) {
+        suggestions.push(`Check ${indexPath} (pre-indexed for: ${covers.join(', ')})`);
+      }
+    }
   }
+
+  for (const { regex, suggestion } of expensivePatterns) {
+    if (regex.test(pattern)) {
+      suggestions.push(suggestion);
+    }
+  }
+
+  // Check if searching from root without path restriction
+  if ((path === '.' || path === './' || !path) && !tool_input?.glob && !tool_input?.type) {
+    suggestions.push('Searching from root without glob/type filter - consider narrowing');
+  }
+
+  return suggestions;
 }
 
-// Check if searching from root without path restriction
-if ((path === '.' || path === './' || !path) && !tool_input?.glob && !tool_input?.type) {
-  suggestions.push('Searching from root without glob/type filter - consider narrowing');
+async function getOllamaSuggestions() {
+  if (!queryOllama) return null;
+
+  const prompt = `Search pattern: "${pattern}"
+Search path: "${path}"
+Available indexes: ENGINE_DIGEST.md (engines), DISPATCHER_DIGEST.md (actions), DIRECTORY_DIGEST.md (directories), PRISM_SHARED_INDEX_SURFACES.md (search indexes), PRISM-INVENTORY-LATEST.md (counts)
+
+Which index should be checked first? Reply with just the index name and why in 1 line.`;
+
+  try {
+    const result = await queryOllama(prompt, {
+      hookType: 'grep_index',
+      timeoutMs: 300, // Fast timeout for hooks
+      maxTokens: 50,
+    });
+
+    if (result.success && result.response) {
+      return [`🤖 ${result.response}`];
+    }
+  } catch {
+    // Ollama failed — fall through to regex
+  }
+
+  return null;
 }
 
-if (suggestions.length > 0) {
+async function main() {
+  // Try Ollama first (intelligent suggestions)
+  let suggestions = await getOllamaSuggestions();
+
+  // Fall back to regex-based suggestions
+  if (!suggestions || suggestions.length === 0) {
+    suggestions = await getRegexSuggestions();
+  }
+
+  if (suggestions.length === 0) {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
   // Rate limit — skip emitting if the same top suggestion fired recently
   const key = suggestions[0];
   const state = loadRate();
@@ -89,7 +142,7 @@ if (suggestions.length > 0) {
   const now = Date.now();
   if (now - last < RATE_WINDOW_MS) {
     console.log(JSON.stringify({ continue: true }));
-    process.exit(0);
+    return;
   }
   state[key] = now;
   // Prune old entries
@@ -105,6 +158,8 @@ if (suggestions.length > 0) {
   ].join('\n');
 
   console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: message } }));
-} else {
-  console.log(JSON.stringify({ continue: true }));
 }
+
+main().catch(() => {
+  console.log(JSON.stringify({ continue: true }));
+});

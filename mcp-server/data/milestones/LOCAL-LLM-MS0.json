@@ -45,7 +45,7 @@
     {
       "id": "U-OLLAMA-BRIDGE",
       "title": "OllamaHookBridgeEngine — Hook-to-Ollama Communication Layer",
-      "status": "not_started",
+      "status": "complete",
       "description": "Create bridge engine enabling hooks to call Ollama for intelligent suggestions. Handles connection pooling, timeout management, and fallback to no-op when Ollama unavailable. Used by context-injection hooks that need LLM intelligence.",
       "deliverables": [
         "src/engines/OllamaHookBridgeEngine.ts",
@@ -64,7 +64,7 @@
     {
       "id": "U-CONTEXT-HOOKS",
       "title": "Context Hook Migration — Ollama-Powered Suggestions",
-      "status": "not_started",
+      "status": "complete",
       "description": "Migrate 2 registered context-injection hooks (grep-index-first, mcp-route-suggest) to use OllamaHookBridge instead of consuming Claude API tokens. Hooks provide intelligent suggestions using local inference.",
       "deliverables": [
         "Update .claude/hooks/grep-index-first.mjs to use Ollama bridge",
