@@ -46,6 +46,8 @@ let _toolpath: any, _toolsel: any, _program: any, _validate: any;
 let _agi: any, _selfaware: any, _scientific: any, _kinematics: any;
 // P1-U09-L2-AGG: L2 aggregator orchestrators
 let _aiLearn: any, _millTurn: any, _fiveAxisAgg: any, _multiAxisAgg: any;
+// Unwired engine additions
+let _tribal: any, _e2e: any, _traceLedger: any, _inferenceOrch: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -112,6 +114,16 @@ async function getEngine(name: string): Promise<any> {
       return _fiveAxisAgg ??= (await import("../../engines/FiveAxisAggregatorEngine.js")).fiveAxisAggregatorEngine;
     case "multi_axis_agg":
       return _multiAxisAgg ??= (await import("../../engines/MultiAxisAggregatorEngine.js")).multiAxisAggregatorEngine;
+
+    // Unwired engine additions
+    case "tribal":
+      return _tribal ??= (await import("../../engines/MillTribalKnowledgeEngine.js")).millTribalKnowledgeEngine;
+    case "e2e":
+      return _e2e ??= (await import("../../engines/MillingEndToEndOrchestrationEngine.js")).millingEndToEndOrchestrationEngine;
+    case "trace_ledger":
+      return _traceLedger ??= (await import("../../engines/MillingReasoningTraceLedgerEngine.js")).millingReasoningTraceLedgerEngine;
+    case "inference_orch":
+      return _inferenceOrch ??= (await import("../../engines/MillingInferenceOrchestratorEngine.js")).millingInferenceOrchestratorEngine;
 
     default:
       throw new Error(`Unknown mill engine: ${name}`);
@@ -197,6 +209,22 @@ export const MILL_ACTIONS = [
   "mill_turn_orchestrate",
   "mill_5axis_orchestrate",
   "mill_multiaxis_orchestrate",
+
+  // Tribal knowledge (MillTribalKnowledgeEngine)
+  "mill_tribal_query",
+  "mill_tribal_get",
+  "mill_tribal_add",
+  "mill_tribal_stats",
+
+  // End-to-end orchestration (MillingEndToEndOrchestrationEngine)
+  "mill_e2e_workflow",
+
+  // Reasoning trace ledger (MillingReasoningTraceLedgerEngine)
+  "mill_trace_record",
+  "mill_trace_query",
+
+  // Inference orchestration (MillingInferenceOrchestratorEngine)
+  "mill_inference_run",
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -516,6 +544,63 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_multiaxis_orchestrate": {
             const engine = await getEngine("multi_axis_agg");
             result = await engine.orchestrate(params);
+            break;
+          }
+
+          // ============================================================
+          // TRIBAL KNOWLEDGE (MillTribalKnowledgeEngine)
+          // ============================================================
+          case "mill_tribal_query": {
+            const engine = await getEngine("tribal");
+            result = engine.query(params);
+            break;
+          }
+          case "mill_tribal_get": {
+            const engine = await getEngine("tribal");
+            result = engine.get(params.id);
+            break;
+          }
+          case "mill_tribal_add": {
+            const engine = await getEngine("tribal");
+            engine.add(params);
+            result = { success: true, id: params.id };
+            break;
+          }
+          case "mill_tribal_stats": {
+            const engine = await getEngine("tribal");
+            result = engine.getStats();
+            break;
+          }
+
+          // ============================================================
+          // END-TO-END ORCHESTRATION (MillingEndToEndOrchestrationEngine)
+          // ============================================================
+          case "mill_e2e_workflow": {
+            const engine = await getEngine("e2e");
+            result = await engine.executeWorkflow(params);
+            break;
+          }
+
+          // ============================================================
+          // REASONING TRACE LEDGER (MillingReasoningTraceLedgerEngine)
+          // ============================================================
+          case "mill_trace_record": {
+            const engine = await getEngine("trace_ledger");
+            result = await engine.recordTrace(params);
+            break;
+          }
+          case "mill_trace_query": {
+            const engine = await getEngine("trace_ledger");
+            result = engine.queryRecent(params.count ?? 20, params.filter);
+            break;
+          }
+
+          // ============================================================
+          // INFERENCE ORCHESTRATION (MillingInferenceOrchestratorEngine)
+          // ============================================================
+          case "mill_inference_run": {
+            const engine = await getEngine("inference_orch");
+            result = await engine.infer(params);
             break;
           }
 

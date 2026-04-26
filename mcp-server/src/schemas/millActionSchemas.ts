@@ -677,6 +677,115 @@ const mill_multiaxis_orchestrate = z
   })
   .passthrough();
 
+// ─── TRIBAL KNOWLEDGE (MillTribalKnowledgeEngine) ──────────────────────────
+
+const mill_tribal_query = z
+  .object({
+    category: z
+      .enum([
+        "speed_feed", "workholding", "coolant", "chatter", "tool_life",
+        "surface_finish", "setup", "thin_wall", "deep_pocket", "hardened_material",
+        "hsm", "finish_milling", "rough_milling", "face_milling", "chamfering",
+        "threading", "drilling_in_mill", "fixture", "post_processor", "safety",
+      ])
+      .optional()
+      .describe("Filter by tribal knowledge category."),
+    material: z.string().optional().describe("Filter by material keyword."),
+    machine: z.string().optional().describe("Filter by machine type."),
+    cam: z.string().optional().describe("Filter by CAM system."),
+    min_confidence: z.number().min(0).max(1).optional().describe("Minimum confidence threshold."),
+    keyword: z.string().optional().describe("Keyword search in rule/rationale."),
+  })
+  .passthrough();
+
+const mill_tribal_get = z
+  .object({
+    id: z.string().min(1).describe("Tribal tip ID to retrieve."),
+  })
+  .passthrough();
+
+const mill_tribal_add = z
+  .object({
+    id: z.string().min(1).describe("Unique tip ID."),
+    category: z.string().min(1).describe("Tip category."),
+    rule: z.string().min(1).describe("The tribal rule/tip."),
+    rationale: z.string().min(1).describe("Why this rule works."),
+    source: z.string().min(1).describe("Source of the knowledge."),
+    confidence: z.number().min(0).max(1).describe("Confidence score 0-1."),
+    machine_types: z.array(z.string()).optional(),
+    materials: z.array(z.string()).optional(),
+    cam_systems: z.array(z.string()).optional(),
+  })
+  .passthrough();
+
+const mill_tribal_stats = z.object({}).passthrough();
+
+// ─── END-TO-END ORCHESTRATION (MillingEndToEndOrchestrationEngine) ─────────
+
+const mill_e2e_workflow = z
+  .object({
+    part_number: z.string().min(1).describe("Part number."),
+    revision: z.string().min(1).describe("Part revision."),
+    part_name: z.string().min(1).describe("Part name."),
+    material: z.string().min(1).describe("Material specification."),
+    material_iso: isoMaterialGroup.describe("ISO material group."),
+    job_id: z.string().optional().describe("Optional job identifier."),
+    customer: z.string().optional().describe("Customer name."),
+    quantity: z.number().int().positive().optional().describe("Quantity to produce."),
+    due_date: z.string().optional().describe("Due date ISO string."),
+    machine_id: z.string().optional().describe("Target machine ID."),
+    priority: z.enum(["low", "normal", "high", "urgent"]).optional(),
+  })
+  .passthrough();
+
+// ─── REASONING TRACE LEDGER (MillingReasoningTraceLedgerEngine) ────────────
+
+const mill_trace_record = z
+  .object({
+    dispatcher: z.string().min(1).describe("Dispatcher that generated this trace."),
+    action: z.string().min(1).describe("Action invoked."),
+    keywords: z.array(z.string()).describe("Keywords for this trace."),
+    awareness_used: z.boolean().describe("Whether AI self-awareness was consulted."),
+    confidence: z.number().min(0).max(1).optional().describe("Confidence of the decision."),
+    engines_consulted: z.array(z.string()).optional(),
+    formulas_applied: z.array(z.string()).optional(),
+    reasoning_path: z.string().optional(),
+  })
+  .passthrough();
+
+const mill_trace_query = z
+  .object({
+    count: z.number().int().positive().optional().describe("Number of recent traces to return."),
+    filter: z.record(z.string(), z.unknown()).optional().describe("Filter criteria."),
+  })
+  .passthrough();
+
+// ─── INFERENCE ORCHESTRATION (MillingInferenceOrchestratorEngine) ──────────
+
+const mill_inference_run = z
+  .object({
+    targets: z
+      .array(z.enum(["cutting_force", "tool_wear", "surface_roughness", "cycle_time", "power", "chatter_risk"]))
+      .min(1)
+      .describe("Prediction targets."),
+    conditions: z
+      .object({
+        material: z.string().optional(),
+        material_iso: isoMaterialGroup.optional(),
+        tool_diameter_mm: z.number().positive().optional(),
+        depth_of_cut_mm: z.number().positive().optional(),
+        feed_per_tooth_mm: z.number().positive().optional(),
+        cutting_speed_mpm: z.number().positive().optional(),
+        radial_engagement_pct: z.number().min(0).max(100).optional(),
+      })
+      .passthrough()
+      .describe("Cutting conditions for inference."),
+    use_ensemble: z.boolean().optional().describe("Use ensemble of models."),
+    confidence_threshold: z.number().min(0).max(1).optional(),
+    timeout_ms: z.number().positive().optional(),
+  })
+  .passthrough();
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**

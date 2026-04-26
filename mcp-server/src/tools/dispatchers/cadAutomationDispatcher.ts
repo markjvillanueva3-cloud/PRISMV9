@@ -264,6 +264,10 @@ const ACTIONS = [
   "cad_search_stats",
   "cad_revision_detect",
   "cad_revision_group",
+  "cad_reasoning_generate",
+  "cad_reasoning_why",
+  "cad_reasoning_get",
+  "cad_reasoning_list",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2440,6 +2444,50 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const groups = cadRevisionDetectorEngine.group(filenames);
             result = { groups, count: groups.length, source: "CADRevisionDetectorEngine.group" };
+            break;
+          }
+          case "cad_reasoning_generate": {
+            const { cadReasoningChainEngine } = await import("../../engines/CADReasoningChainEngine.js");
+            const input = params["input"] as {
+              description: string;
+              constraints?: string[];
+              material?: string;
+              targetSystem?: string;
+              verbosity?: "minimal" | "standard" | "verbose";
+            };
+            if (!input || !input.description) {
+              throw new Error("cad_reasoning_generate requires 'input' with description");
+            }
+            const output = await cadReasoningChainEngine.generateWithReasoning(input);
+            result = { ...output, source: "CADReasoningChainEngine.generateWithReasoning" };
+            break;
+          }
+          case "cad_reasoning_why": {
+            const { cadReasoningChainEngine } = await import("../../engines/CADReasoningChainEngine.js");
+            const chainId = params["chain_id"] as string;
+            const query = params["query"] as string;
+            if (!chainId || !query) {
+              throw new Error("cad_reasoning_why requires 'chain_id' and 'query' strings");
+            }
+            const answer = cadReasoningChainEngine.queryWhy(chainId, query);
+            result = { ...answer, source: "CADReasoningChainEngine.queryWhy" };
+            break;
+          }
+          case "cad_reasoning_get": {
+            const { cadReasoningChainEngine } = await import("../../engines/CADReasoningChainEngine.js");
+            const chainId = params["chain_id"] as string;
+            if (!chainId) {
+              throw new Error("cad_reasoning_get requires 'chain_id' string");
+            }
+            const chain = cadReasoningChainEngine.getChain(chainId);
+            result = { chain, found: !!chain, source: "CADReasoningChainEngine.getChain" };
+            break;
+          }
+          case "cad_reasoning_list": {
+            const { cadReasoningChainEngine } = await import("../../engines/CADReasoningChainEngine.js");
+            const limit = (params["limit"] as number) ?? 10;
+            const chains = cadReasoningChainEngine.listChains(limit);
+            result = { chains, count: chains.length, source: "CADReasoningChainEngine.listChains" };
             break;
           }
           default:
