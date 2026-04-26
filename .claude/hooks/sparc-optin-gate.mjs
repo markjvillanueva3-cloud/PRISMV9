@@ -56,9 +56,9 @@ async function main() {
 
     // Prompt is /sparc — check opt-in flag.
     let optedIn = false;
-    if (existsSync(FLAG)) {
+    if (fs.existsSync(FLAG)) {
       try {
-        const doc = JSON.parse(readFileSync(FLAG, "utf8"));
+        const doc = JSON.parse(fs.readFileSync(FLAG, "utf8"));
         optedIn = !!doc.enabled;
       } catch { /* treat as not opted in */ }
     }

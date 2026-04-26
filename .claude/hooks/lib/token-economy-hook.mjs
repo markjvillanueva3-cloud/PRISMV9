@@ -18,7 +18,7 @@ const input = JSON.parse(rawInput);
 // Extract tool info from PostToolUse hook input
 const toolName = input.tool_name || '';
 const toolInput = input.tool_input || {};
-const toolOutput = input.tool_output || '';
+const toolOutput = input.tool_output || input.output || '';
 
 // Tool category classification (matches TokenEconomyEngine BUDGET_PROFILES)
 const TOOL_CATEGORIES = {
