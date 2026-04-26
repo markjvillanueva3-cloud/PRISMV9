@@ -104,7 +104,7 @@ import { ACTION_NXCAM_TURNING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcam
 import { ACTION_NXCAM_FBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFBMFunctionIndexActionSchemas.js";
 import { ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFunctionIndexActionSchemas.js";
 import { ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillRoughingFunctionIndexActionSchemas.js";
-import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
+import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS, ACTION_CAM_LORA_CADENCE_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -175,6 +175,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
+  ...ACTION_CAM_LORA_CADENCE_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -268,6 +269,7 @@ let _nxcamFBMIndex: any;
 let _nxcamUnifiedIndex: any;
 let _pmRoughingIndex: any;
 let _pmFinishingIndex: any;
+let _pm5AxisIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -591,6 +593,7 @@ async function getEngine(name: string): Promise<any> {
     case "nxcamUnifiedIndex": return _nxcamUnifiedIndex ??= (await import("../../engines/NXCAMFunctionIndexEngine.js")).NXCAMFunctionIndexEngine;
     case "pmRoughingIndex": return _pmRoughingIndex ??= (await import("../../engines/PowerMillRoughingFunctionIndexEngine.js")).PowerMillRoughingFunctionIndexEngine;
     case "pmFinishingIndex": return _pmFinishingIndex ??= (await import("../../engines/PowerMillFinishingFunctionIndexEngine.js")).PowerMillFinishingFunctionIndexEngine;
+    case "pm5AxisIndex": return _pm5AxisIndex ??= (await import("../../engines/PowerMill5AxisFunctionIndexEngine.js")).PowerMill5AxisFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1277,6 +1280,7 @@ export const ACTIONS = [
   "pm_roughing_index", "pm_roughing_summary", "pm_roughing_list_ops", "pm_roughing_get_op", "pm_roughing_by_category", "pm_roughing_find_param", "pm_roughing_recommend", "pm_roughing_vortex_check", "pm_roughing_rest_worthwhile", "pm_roughing_plunge_validate",
   // PowerMillFinishingFunctionIndexEngine (9 actions — CAM-EXHAUST-MS0/U-CAM44)
   "pm_finishing_list", "pm_finishing_get", "pm_finishing_recommend", "pm_finishing_scallop", "pm_finishing_steep_shallow", "pm_finishing_pencil_coverage", "pm_finishing_validate", "pm_finishing_categories", "pm_finishing_by_category",
+  "pm_5axis_list", "pm_5axis_get", "pm_5axis_recommend", "pm_5axis_axis_limit", "pm_5axis_singularity", "pm_5axis_tool_reach", "pm_5axis_validate", "pm_5axis_categories", "pm_5axis_by_category",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -7746,6 +7750,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "pm_finishing_by_category": {
             const eng = await getEngine("pmFinishingIndex");
+            result = { success: true, operations: eng.listByCategory(params.category) };
+            break;
+          }
+
+          // ── PowerMill5AxisFunctionIndexEngine (CAM-EXHAUST-MS0/U-CAM45) ──
+          case "pm_5axis_list": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, operations: eng.listOperations() };
+            break;
+          }
+          case "pm_5axis_get": {
+            const eng = await getEngine("pm5AxisIndex");
+            const op = eng.getOperation(params.operation_id);
+            if (!op) {
+              result = { success: false, error: `Operation '${params.operation_id}' not found` };
+            } else {
+              result = { success: true, operation: op };
+            }
+            break;
+          }
+          case "pm_5axis_recommend": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, recommendation: eng.recommendByFeature(params.intent) };
+            break;
+          }
+          case "pm_5axis_axis_limit": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, check: eng.axisLimitCheck(params.required_a, params.required_c, params.machine_a, params.machine_c) };
+            break;
+          }
+          case "pm_5axis_singularity": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, risk: eng.singularityRiskEstimate(params.j5_angle, params.wrist_alignment_angle, params.wrist_threshold, params.overhead_threshold) };
+            break;
+          }
+          case "pm_5axis_tool_reach": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, reach: eng.toolReachCheck(params.pocket_depth, params.min_clearance, params.tool_cutting_length, params.tool_shank_diameter, params.holder_diameter, params.narrowest_opening) };
+            break;
+          }
+          case "pm_5axis_validate": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, validation: eng.validateConsistency() };
+            break;
+          }
+          case "pm_5axis_categories": {
+            const eng = await getEngine("pm5AxisIndex");
+            result = { success: true, categories: eng.getCategories() };
+            break;
+          }
+          case "pm_5axis_by_category": {
+            const eng = await getEngine("pm5AxisIndex");
             result = { success: true, operations: eng.listByCategory(params.category) };
             break;
           }

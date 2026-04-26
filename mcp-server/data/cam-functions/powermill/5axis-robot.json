@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 1,
+  "system_id": "powermill",
+  "section_key": "5axis_robot",
+  "version": "2024",
+  "extracted_from": "Autodesk PowerMill 2024 Reference Help (5-Axis Strategies, Robot Machining Module, Blade/Hub/Port Finishing)",
+  "categories": [
+    "continuous_5axis",
+    "indexed_5axis",
+    "blade_hub_port",
+    "robot_machining"
+  ],
+  "total_operations": 14,
+  "total_parameters": 298,
+  "operations": {
+    "swarf_5axis": {
+      "category": "continuous_5axis",
+      "display_name": "5-Axis Swarf Machining",
+      "description": "Tool flank (side) tangent to ruled surfaces. Ideal for impeller vanes, blade sides, and ruled geometry.",
+      "parameter_count": 24,
+      "dialog_tabs": ["geometry", "tool", "axis_control", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "drive_surface": { "type": "geometry_ref", "required": true, "description": "Ruled surface to machine" },
+          "check_surfaces": { "type": "geometry_ref", "required": false, "description": "Collision check geometry" },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "cutting_diameter_mm": { "type": "number", "required": true },
+          "cutting_length_mm": { "type": "number", "required": true },
+          "flute_count": { "type": "integer", "min": 1, "max": 12, "default": 4 }
+        },
+        "axis_control": {
+          "lead_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0, "description": "Tilt in feed direction" },
+          "lean_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0, "description": "Tilt perpendicular to feed" },
+          "axis_limits_enabled": { "type": "boolean", "default": true },
+          "a_axis_min_deg": { "type": "number", "min": -180, "max": 0, "default": -30 },
+          "a_axis_max_deg": { "type": "number", "min": 0, "max": 180, "default": 30 },
+          "c_axis_min_deg": { "type": "number", "min": -360, "max": 0, "default": -180 },
+          "c_axis_max_deg": { "type": "number", "min": 0, "max": 360, "default": 180 }
+        },
+        "limits": {
+          "stepover_mm": { "type": "number", "min": 0.1, "max": 50, "default": 2 },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.02 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "linking": {
+          "approach_type": { "type": "enum", "values": ["vertical", "tangent", "arc"], "default": "tangent" },
+          "retract_type": { "type": "enum", "values": ["vertical", "tangent", "arc"], "default": "tangent" },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 500, "default": 50 }
+        }
+      }
+    },
+    "flowline_5axis": {
+      "category": "continuous_5axis",
+      "display_name": "5-Axis Flowline Machining",
+      "description": "Follows surface flow lines with continuous 5-axis tool orientation. Optimal for turbine blades and organic shapes.",
+      "parameter_count": 22,
+      "dialog_tabs": ["geometry", "tool", "axis_control", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "drive_surface": { "type": "geometry_ref", "required": true },
+          "guide_curve_1": { "type": "geometry_ref", "required": true, "description": "First flow boundary curve" },
+          "guide_curve_2": { "type": "geometry_ref", "required": true, "description": "Second flow boundary curve" }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "ball_diameter_mm": { "type": "number", "required": true },
+          "shank_diameter_mm": { "type": "number", "required": true }
+        },
+        "axis_control": {
+          "surface_normal_offset_deg": { "type": "number", "min": -90, "max": 90, "default": 0 },
+          "collision_avoidance": { "type": "boolean", "default": true },
+          "smooth_axis_motion": { "type": "boolean", "default": true },
+          "axis_smoothing_tolerance_deg": { "type": "number", "min": 0.1, "max": 10, "default": 1 }
+        },
+        "pattern": {
+          "direction": { "type": "enum", "values": ["along_flow", "across_flow"], "default": "along_flow" },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 20, "default": 0.5 }
+        },
+        "linking": {
+          "link_type": { "type": "enum", "values": ["safe_z", "skim", "along_surface"], "default": "skim" },
+          "skim_distance_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 }
+        }
+      }
+    },
+    "projection_5axis": {
+      "category": "continuous_5axis",
+      "display_name": "5-Axis Toolpath Projection",
+      "description": "Projects existing 3-axis toolpath onto surface with 5-axis orientation. Reuses proven patterns with added reach.",
+      "parameter_count": 18,
+      "dialog_tabs": ["source", "geometry", "axis_control", "linking"],
+      "parameters": {
+        "source": {
+          "source_toolpath": { "type": "toolpath_ref", "required": true },
+          "projection_mode": { "type": "enum", "values": ["normal", "along_axis", "radial"], "default": "normal" }
+        },
+        "geometry": {
+          "target_surface": { "type": "geometry_ref", "required": true },
+          "check_surfaces": { "type": "geometry_ref", "required": false }
+        },
+        "axis_control": {
+          "tool_axis_mode": { "type": "enum", "values": ["to_surface", "fixed", "from_point"], "default": "to_surface" },
+          "lead_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "lean_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 }
+        },
+        "linking": {
+          "approach_type": { "type": "enum", "values": ["vertical", "tangent"], "default": "tangent" }
+        }
+      }
+    },
+    "collision_avoidance_5axis": {
+      "category": "continuous_5axis",
+      "display_name": "Automatic Collision Avoidance",
+      "description": "Automatically tilts tool axis to avoid collisions with workpiece and fixtures.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "tool", "collision", "axis_limits"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "fixture": { "type": "geometry_ref", "required": false },
+          "clamp": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "holder_included": { "type": "boolean", "default": true },
+          "shank_clearance_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 }
+        },
+        "collision": {
+          "gouge_check": { "type": "boolean", "default": true },
+          "holder_collision_check": { "type": "boolean", "default": true },
+          "min_clearance_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "tilt_strategy": { "type": "enum", "values": ["minimal", "smooth", "aggressive"], "default": "smooth" }
+        },
+        "axis_limits": {
+          "a_axis_limit_deg": { "type": "number", "min": 0, "max": 90, "default": 45 },
+          "c_axis_limit_deg": { "type": "number", "min": 0, "max": 360, "default": 180 }
+        }
+      }
+    },
+    "indexed_5axis": {
+      "category": "indexed_5axis",
+      "display_name": "3+2 Indexed Machining",
+      "description": "Rotary axes locked at specific angles, then 3-axis machining. Maximum rigidity.",
+      "parameter_count": 16,
+      "dialog_tabs": ["geometry", "orientation", "toolpath"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "orientation": {
+          "a_angle_deg": { "type": "number", "min": -180, "max": 180, "default": 0 },
+          "c_angle_deg": { "type": "number", "min": -360, "max": 360, "default": 0 },
+          "workplane": { "type": "enum", "values": ["xy", "xz", "yz", "custom"], "default": "xy" }
+        },
+        "toolpath": {
+          "strategy_type": { "type": "enum", "values": ["roughing", "finishing", "drilling"], "default": "finishing" },
+          "inherit_from": { "type": "toolpath_ref", "required": false }
+        }
+      }
+    },
+    "rotary_machining": {
+      "category": "indexed_5axis",
+      "display_name": "4th Axis Rotary Machining",
+      "description": "Continuous rotation around 4th axis (A or B). For cylindrical wrapping.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "rotation", "pattern", "linking"],
+      "parameters": {
+        "geometry": {
+          "cylinder_surface": { "type": "geometry_ref", "required": true },
+          "rotation_axis": { "type": "enum", "values": ["A", "B", "custom"], "default": "A" }
+        },
+        "rotation": {
+          "wrap_angle_start_deg": { "type": "number", "min": -360, "max": 360, "default": 0 },
+          "wrap_angle_end_deg": { "type": "number", "min": -360, "max": 360, "default": 360 },
+          "rotation_direction": { "type": "enum", "values": ["cw", "ccw"], "default": "ccw" }
+        },
+        "pattern": {
+          "axial_stepover_mm": { "type": "number", "min": 0.1, "max": 50, "default": 1 },
+          "angular_stepover_deg": { "type": "number", "min": 0.1, "max": 30, "default": 5 }
+        },
+        "linking": {
+          "retract_type": { "type": "enum", "values": ["radial", "axial", "combined"], "default": "radial" }
+        }
+      }
+    },
+    "blade_finishing": {
+      "category": "blade_hub_port",
+      "display_name": "Blade Finishing",
+      "description": "Specialized finishing for turbine blades and blisks. Handles leading/trailing edges and pressure/suction surfaces.",
+      "parameter_count": 26,
+      "dialog_tabs": ["geometry", "blade_regions", "tool", "strategy", "linking"],
+      "parameters": {
+        "geometry": {
+          "blade_surface": { "type": "geometry_ref", "required": true },
+          "hub_surface": { "type": "geometry_ref", "required": true },
+          "shroud_surface": { "type": "geometry_ref", "required": false }
+        },
+        "blade_regions": {
+          "machine_pressure_side": { "type": "boolean", "default": true },
+          "machine_suction_side": { "type": "boolean", "default": true },
+          "machine_leading_edge": { "type": "boolean", "default": true },
+          "machine_trailing_edge": { "type": "boolean", "default": true },
+          "blend_regions": { "type": "boolean", "default": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "ball_diameter_mm": { "type": "number", "required": true },
+          "taper_angle_deg": { "type": "number", "min": 0, "max": 15, "default": 0 }
+        },
+        "strategy": {
+          "cut_pattern": { "type": "enum", "values": ["span_wise", "chord_wise", "iso_parametric"], "default": "span_wise" },
+          "stepover_mm": { "type": "number", "min": 0.02, "max": 5, "default": 0.2 }
+        },
+        "linking": {
+          "approach_type": { "type": "enum", "values": ["tangent", "normal", "direct"], "default": "tangent" }
+        }
+      }
+    },
+    "hub_finishing": {
+      "category": "blade_hub_port",
+      "display_name": "Hub Finishing",
+      "description": "Specialized finishing for impeller and blisk hub surfaces between blades.",
+      "parameter_count": 22,
+      "dialog_tabs": ["geometry", "tool", "pattern", "collision", "linking"],
+      "parameters": {
+        "geometry": {
+          "hub_surface": { "type": "geometry_ref", "required": true },
+          "blade_surfaces": { "type": "geometry_ref", "required": true, "description": "Blades as check surfaces" },
+          "splitter_surfaces": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "ball_diameter_mm": { "type": "number", "required": true },
+          "effective_reach_mm": { "type": "number", "required": true }
+        },
+        "pattern": {
+          "cut_direction": { "type": "enum", "values": ["radial", "spiral", "offset"], "default": "spiral" },
+          "stepover_mm": { "type": "number", "min": 0.02, "max": 5, "default": 0.3 }
+        },
+        "collision": {
+          "blade_clearance_mm": { "type": "number", "min": 0.1, "max": 5, "default": 0.5 },
+          "holder_check": { "type": "boolean", "default": true }
+        },
+        "linking": {
+          "retract_strategy": { "type": "enum", "values": ["radial", "axial", "safe_zone"], "default": "safe_zone" }
+        }
+      }
+    },
+    "port_machining": {
+      "category": "blade_hub_port",
+      "display_name": "Port Machining",
+      "description": "Specialized machining for cylindrical ports, intake/exhaust manifolds, and valve bodies.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "tool", "pattern", "axis_control"],
+      "parameters": {
+        "geometry": {
+          "port_surface": { "type": "geometry_ref", "required": true },
+          "port_axis": { "type": "vector_ref", "required": true },
+          "entry_face": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "ball_diameter_mm": { "type": "number", "required": true },
+          "max_reach_mm": { "type": "number", "required": true }
+        },
+        "pattern": {
+          "cut_pattern": { "type": "enum", "values": ["helical", "concentric", "longitudinal"], "default": "helical" },
+          "stepover_mm": { "type": "number", "min": 0.1, "max": 10, "default": 0.5 }
+        },
+        "axis_control": {
+          "tool_axis_mode": { "type": "enum", "values": ["to_center", "normal_to_surface", "fixed"], "default": "to_center" },
+          "max_tilt_deg": { "type": "number", "min": 0, "max": 90, "default": 45 }
+        }
+      }
+    },
+    "robot_milling": {
+      "category": "robot_machining",
+      "display_name": "Robot Milling",
+      "description": "Milling toolpaths for industrial robot arms. 6+ axis with external positioner support.",
+      "parameter_count": 28,
+      "dialog_tabs": ["robot", "toolpath", "kinematics", "singularity", "output"],
+      "parameters": {
+        "robot": {
+          "robot_model": { "type": "string", "required": true, "description": "Robot arm model ID" },
+          "tcp_offset_mm": { "type": "array", "items": "number", "length": 6, "description": "[X,Y,Z,A,B,C]" },
+          "base_frame": { "type": "frame_ref", "required": true }
+        },
+        "toolpath": {
+          "source_toolpath": { "type": "toolpath_ref", "required": true },
+          "tolerance_mm": { "type": "number", "min": 0.01, "max": 1, "default": 0.1 }
+        },
+        "kinematics": {
+          "configuration": { "type": "enum", "values": ["front", "back", "up", "down"], "default": "front" },
+          "wrist_config": { "type": "enum", "values": ["flip", "no_flip"], "default": "no_flip" },
+          "elbow_config": { "type": "enum", "values": ["up", "down"], "default": "up" }
+        },
+        "singularity": {
+          "avoid_singularities": { "type": "boolean", "default": true },
+          "wrist_singularity_zone_deg": { "type": "number", "min": 1, "max": 30, "default": 5 },
+          "overhead_singularity_zone_deg": { "type": "number", "min": 1, "max": 30, "default": 10 }
+        },
+        "output": {
+          "output_format": { "type": "enum", "values": ["RAPID", "KRL", "PDL2", "URScript", "custom"], "default": "RAPID" },
+          "external_axes": { "type": "integer", "min": 0, "max": 6, "default": 0 }
+        }
+      }
+    },
+    "robot_trimming": {
+      "category": "robot_machining",
+      "display_name": "Robot Trimming",
+      "description": "Trimming and deburring toolpaths for robot arms. Specialized for composites and plastics.",
+      "parameter_count": 22,
+      "dialog_tabs": ["robot", "trim_path", "tool", "process"],
+      "parameters": {
+        "robot": {
+          "robot_model": { "type": "string", "required": true },
+          "tcp_offset_mm": { "type": "array", "items": "number", "length": 6 }
+        },
+        "trim_path": {
+          "edge_curve": { "type": "geometry_ref", "required": true },
+          "surface_ref": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "router_diameter_mm": { "type": "number", "required": true },
+          "spindle_speed_rpm": { "type": "number", "min": 1000, "max": 60000, "default": 18000 }
+        },
+        "process": {
+          "feed_rate_mm_min": { "type": "number", "min": 100, "max": 10000, "default": 2000 },
+          "approach_distance_mm": { "type": "number", "min": 5, "max": 100, "default": 20 },
+          "retract_distance_mm": { "type": "number", "min": 5, "max": 100, "default": 20 }
+        }
+      }
+    },
+    "robot_welding": {
+      "category": "robot_machining",
+      "display_name": "Robot Welding",
+      "description": "Welding seam paths for robot arms. Supports MIG, TIG, and laser welding.",
+      "parameter_count": 24,
+      "dialog_tabs": ["robot", "weld_path", "process", "weave"],
+      "parameters": {
+        "robot": {
+          "robot_model": { "type": "string", "required": true },
+          "torch_angle_deg": { "type": "number", "min": 0, "max": 90, "default": 15 }
+        },
+        "weld_path": {
+          "seam_curve": { "type": "geometry_ref", "required": true },
+          "joint_type": { "type": "enum", "values": ["butt", "fillet", "lap", "edge"], "default": "butt" }
+        },
+        "process": {
+          "weld_type": { "type": "enum", "values": ["MIG", "TIG", "laser", "plasma"], "default": "MIG" },
+          "wire_feed_mm_min": { "type": "number", "min": 1000, "max": 20000, "default": 8000 },
+          "travel_speed_mm_min": { "type": "number", "min": 100, "max": 5000, "default": 500 }
+        },
+        "weave": {
+          "weave_enabled": { "type": "boolean", "default": false },
+          "weave_amplitude_mm": { "type": "number", "min": 0, "max": 10, "default": 2 },
+          "weave_frequency_hz": { "type": "number", "min": 0.5, "max": 10, "default": 2 }
+        }
+      }
+    },
+    "positioner_sync": {
+      "category": "robot_machining",
+      "display_name": "Positioner Synchronization",
+      "description": "Coordinates robot motion with external rotary positioners and linear rails.",
+      "parameter_count": 20,
+      "dialog_tabs": ["robot", "positioner", "sync", "limits"],
+      "parameters": {
+        "robot": {
+          "robot_model": { "type": "string", "required": true }
+        },
+        "positioner": {
+          "positioner_type": { "type": "enum", "values": ["rotary_1axis", "rotary_2axis", "linear_rail", "combined"], "default": "rotary_1axis" },
+          "rotation_axis": { "type": "enum", "values": ["A", "B", "C"], "default": "B" },
+          "rail_direction": { "type": "enum", "values": ["X", "Y", "Z"], "default": "X" }
+        },
+        "sync": {
+          "sync_mode": { "type": "enum", "values": ["coordinated", "master_slave", "independent"], "default": "coordinated" },
+          "workpiece_offset_mm": { "type": "array", "items": "number", "length": 3 }
+        },
+        "limits": {
+          "max_rotation_speed_deg_s": { "type": "number", "min": 1, "max": 180, "default": 30 },
+          "max_rail_speed_mm_s": { "type": "number", "min": 10, "max": 2000, "default": 500 }
+        }
+      }
+    },
+    "tool_axis_editing": {
+      "category": "continuous_5axis",
+      "display_name": "Tool Axis Editing",
+      "description": "Manual editing and smoothing of tool axis vectors along existing toolpath.",
+      "parameter_count": 18,
+      "dialog_tabs": ["source", "editing", "smoothing", "constraints"],
+      "parameters": {
+        "source": {
+          "source_toolpath": { "type": "toolpath_ref", "required": true }
+        },
+        "editing": {
+          "edit_mode": { "type": "enum", "values": ["point_by_point", "region", "global"], "default": "region" },
+          "interpolation": { "type": "enum", "values": ["linear", "spline", "constant"], "default": "spline" }
+        },
+        "smoothing": {
+          "smooth_axis_motion": { "type": "boolean", "default": true },
+          "max_angular_change_deg": { "type": "number", "min": 0.1, "max": 30, "default": 5 },
+          "lookahead_points": { "type": "integer", "min": 1, "max": 50, "default": 10 }
+        },
+        "constraints": {
+          "maintain_surface_contact": { "type": "boolean", "default": true },
+          "collision_check": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "intent_mapping": {
+    "ruled_surface_side_mill": "swarf_5axis",
+    "turbine_blade_5axis": "blade_finishing",
+    "impeller_hub": "hub_finishing",
+    "intake_port": "port_machining",
+    "organic_surface_flow": "flowline_5axis",
+    "reuse_3axis_5axis": "projection_5axis",
+    "avoid_collision_tilt": "collision_avoidance_5axis",
+    "fixed_angle_rigid": "indexed_5axis",
+    "cylindrical_wrap": "rotary_machining",
+    "robot_arm_mill": "robot_milling",
+    "robot_composite_trim": "robot_trimming",
+    "robot_weld_seam": "robot_welding",
+    "external_positioner": "positioner_sync",
+    "smooth_axis_vectors": "tool_axis_editing"
+  }
+}
