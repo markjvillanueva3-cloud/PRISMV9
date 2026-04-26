@@ -154,7 +154,9 @@ function main() {
   }
 
   // Dropped back below soft threshold? (post-compact) — clear dedup marker.
-  if (tokens < SOFT - 50_000) clearSoftFired();
+  if (tokens < SOFT) clearSoftFired();
+  // Also clear markers older than 30 minutes (stale from crashed sessions)
+  try { if (fs.existsSync(SOFT_FIRED)) { const st = fs.statSync(SOFT_FIRED); if ((Date.now() - st.mtimeMs) > 30 * 60 * 1000) clearSoftFired(); } } catch { /* ignore */ }
 
   const event = detectEvent(stdin);
   const precompactAlreadyArmed = precompactMarkerActive();
