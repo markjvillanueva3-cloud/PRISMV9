@@ -1,6 +1,6 @@
-// WIRE-EXEMPT: Middleware engine called by SFC engines internally, not exposed via dispatcher
+﻿// WIRE-EXEMPT: Middleware engine called by SFC engines internally, not exposed via dispatcher
 /**
- * SFCMultiHypothesisRankerEngine — U-PPG-SFC-09
+ * SFCMultiHypothesisRankerEngine â€” U-PPG-SFC-09
  * ==============================================
  *
  * Bayesian update over candidate sources: {Kienzle prior, Taylor prior, formula,
@@ -9,15 +9,15 @@
  * decomposed reward (cycle_time, tool_life, surface_finish, safety).
  *
  * Design invariants:
- *   1. MULTI-HYPOTHESIS. Never pick one source — rank all candidates.
+ *   1. MULTI-HYPOTHESIS. Never pick one source â€” rank all candidates.
  *   2. CALIBRATED. Confidence intervals Brier-validated < 0.15.
  *   3. DECOMPOSED. Reward broken into cycle_time, tool_life, surface_finish, safety.
  *   4. SAFE. Safety-shield rejection path for unsafe recommendations.
  *
  * Bayesian combination:
- *   P(θ|D) ∝ P(D|θ) × P(θ)
- *   - P(θ): Prior from RAG historical programs + physics constants
- *   - P(D|θ): Likelihood from IQL reward model
+ *   P(Î¸|D) âˆ P(D|Î¸) Ã— P(Î¸)
+ *   - P(Î¸): Prior from RAG historical programs + physics constants
+ *   - P(D|Î¸): Likelihood from IQL reward model
  *   - Posterior: Combined ranking score
  *
  * Integration points:
@@ -35,7 +35,7 @@ import { SFCRAGWarmStartEngine, type SFCHistoricalPrior } from "./SFCRAGWarmStar
 import { CitationSchema, type Citation } from "../schemas/citationSchema.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
 
-// ─── Constants ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const ENGINE_NAME = "SFCMultiHypothesisRankerEngine";
 const ENGINE_VERSION = "1.0.0";
@@ -43,7 +43,7 @@ const ENGINE_VERSION = "1.0.0";
 /** Brier score threshold for calibration validation */
 const BRIER_TARGET = 0.15;
 
-/** Safety margin threshold — reject if safety score below this */
+/** Safety margin threshold â€” reject if safety score below this */
 const SAFETY_REJECTION_THRESHOLD = 0.3;
 
 /** Default top-K for ranking */
@@ -57,7 +57,7 @@ const REWARD_WEIGHTS = {
   safety: 0.15,
 } as const;
 
-// ─── Input Schema ───────────────────────────────────────────────────────
+// â”€â”€â”€ Input Schema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const HypothesisSourceSchema = z.enum([
   "kienzle_prior",   // Physics formula using Kienzle constants
@@ -83,7 +83,7 @@ export const CandidateHypothesisSchema = z.object({
   feed_rate: z.number().positive().optional().describe("Feed rate (mm/min)"),
 
   // Source confidence
-  source_confidence: z.number().min(0).max(1).optional().default(0.5)
+  source_confidence: z.number().min(0).max(1).default(0.5)
     .describe("Confidence from the source engine"),
 
   // Optional reward components (pre-computed by source)
@@ -127,7 +127,7 @@ export const SFCMultiHypothesisRankerInputSchema = z.object({
 }).describe("Multi-hypothesis ranker input");
 export type SFCMultiHypothesisRankerInput = z.infer<typeof SFCMultiHypothesisRankerInputSchema>;
 
-// ─── Output Schema ──────────────────────────────────────────────────────
+// â”€â”€â”€ Output Schema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const RewardDecompositionSchema = z.object({
   cycle_time: z.number().min(0).max(1).describe("Cycle time reward (higher = faster)"),
@@ -202,7 +202,7 @@ export const SFCMultiHypothesisRankerOutputSchema = z.object({
 }).describe("Multi-hypothesis ranker output");
 export type SFCMultiHypothesisRankerOutput = z.infer<typeof SFCMultiHypothesisRankerOutputSchema>;
 
-// ─── Engine Implementation ──────────────────────────────────────────────
+// â”€â”€â”€ Engine Implementation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export class SFCMultiHypothesisRankerEngine {
   /**
@@ -331,7 +331,7 @@ export class SFCMultiHypothesisRankerEngine {
       });
     }
 
-    // Compute Brier score (placeholder — requires validation data)
+    // Compute Brier score (placeholder â€” requires validation data)
     const brierScore = this.estimateBrierScore(rankedCandidates);
     const calibrationStatus = brierScore === null ? "unknown" :
       brierScore < BRIER_TARGET ? "calibrated" : "uncalibrated";
@@ -369,7 +369,7 @@ export class SFCMultiHypothesisRankerEngine {
     ragPriors: SFCHistoricalPrior[],
     kienzlePrior: { kc1_1: number; mc: number },
     taylorPrior: { C: number; n: number },
-    rewardWeights: typeof REWARD_WEIGHTS,
+    rewardWeights: { cycle_time: number; tool_life: number; surface_finish: number; safety: number },
     useSafetyShield: boolean
   ): {
     source: HypothesisSource;
@@ -400,7 +400,7 @@ export class SFCMultiHypothesisRankerEngine {
     // Likelihood score = reward (simulating IQL model output)
     const likelihoodScore = reward.weighted_total;
 
-    // Bayesian posterior: P(θ|D) ∝ P(D|θ) × P(θ)
+    // Bayesian posterior: P(Î¸|D) âˆ P(D|Î¸) Ã— P(Î¸)
     // Normalize via softmax approximation
     const posteriorScore = priorScore * likelihoodScore;
 
@@ -443,7 +443,7 @@ export class SFCMultiHypothesisRankerEngine {
    */
   private static computeRewardDecomposition(
     candidate: CandidateHypothesis,
-    weights: typeof REWARD_WEIGHTS
+    weights: { cycle_time: number; tool_life: number; surface_finish: number; safety: number }
   ): RewardDecomposition {
     // Use pre-computed rewards if available, else estimate from values
     const cycleTime = candidate.reward_cycle_time ??
@@ -479,14 +479,14 @@ export class SFCMultiHypothesisRankerEngine {
    * Higher MRR = faster cycle = higher reward.
    */
   private static estimateCycleTimeReward(candidate: CandidateHypothesis): number {
-    // Proxy: MRR ∝ feed_rate × doc × woc
+    // Proxy: MRR âˆ feed_rate Ã— doc Ã— woc
     const feedRate = candidate.feed_rate ?? (candidate.fpt * 4 * 2000); // Estimate from fpt
     const doc = candidate.doc;
     const woc = candidate.woc ?? candidate.doc; // Default to doc if woc not given
 
-    const mrr = feedRate * doc * woc / 1000; // cm³/min
+    const mrr = feedRate * doc * woc / 1000; // cmÂ³/min
 
-    // Normalize: MRR of 50 cm³/min = 0.5 reward, 100 = 1.0
+    // Normalize: MRR of 50 cmÂ³/min = 0.5 reward, 100 = 1.0
     return Math.min(1, mrr / 100);
   }
 
@@ -619,7 +619,7 @@ export class SFCMultiHypothesisRankerEngine {
 
   /**
    * Estimate Brier score from ranked candidates.
-   * Requires validation data — returns null if unavailable.
+   * Requires validation data â€” returns null if unavailable.
    */
   private static estimateBrierScore(candidates: RankedCandidate[]): number | null {
     // For now, estimate from confidence distribution
@@ -706,6 +706,6 @@ export class SFCMultiHypothesisRankerEngine {
   }
 }
 
-// ─── Singleton Export ───────────────────────────────────────────────────
+// â”€â”€â”€ Singleton Export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const sfcMultiHypothesisRankerEngine = SFCMultiHypothesisRankerEngine;
