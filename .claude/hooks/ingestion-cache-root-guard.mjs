@@ -54,6 +54,8 @@ const EXCLUDED_PATHS = [
   /src\/engines\//,
   /src\/__tests__\//,
   /scripts\//,
+  /data\/milestones\//,  // Milestone envelopes may reference ingestion engines
+  /roadmap-index\.json$/,  // Roadmap index references milestones
   /\.md$/,
   /\.ts$/,
   /\.mjs$/,
