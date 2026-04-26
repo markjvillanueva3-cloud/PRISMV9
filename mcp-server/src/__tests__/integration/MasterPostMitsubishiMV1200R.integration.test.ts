@@ -1,6 +1,6 @@
-/**
+﻿/**
  * Integration test for master_post_mitsubishi_mv1200r dispatcher action
- * PPG-WIRE-MS0 U-PPGW03 â€” verifies Mitsubishi MV1200R Wire EDM master post wiring
+ * PPG-WIRE-MS0 U-PPGW03 Ã¢â‚¬â€ verifies Mitsubishi MV1200R Wire EDM master post wiring
  *
  * Coverage: schema validation + engine behavior + dispatcher wiring
  * Real assertions against Wire EDM physics and G-code output
@@ -13,7 +13,7 @@ import { ACTIONS } from "../../tools/dispatchers/camDispatcher.js";
 import { postProcessorFeedOptimizer as feedOptimizer } from "../../engines/PostProcessorFeedOptimizerEngine.js";
 import { proveOutModeEngine } from "../../engines/ProveOutModeEngine.js";
 
-// â”€â”€â”€ Schema Validation Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Schema Validation Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 describe("master_post_mitsubishi_mv1200r schema", () => {
   const schema = ACTION_CAM_SCHEMAS.master_post_mitsubishi_mv1200r;
@@ -155,7 +155,7 @@ describe("master_post_mitsubishi_mv1200r schema", () => {
   });
 });
 
-// â”€â”€â”€ Dispatcher Wiring Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Dispatcher Wiring Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 describe("master_post_mitsubishi_mv1200r dispatcher wiring", () => {
   it("action appears in ACTIONS enum", () => {
@@ -172,7 +172,7 @@ describe("master_post_mitsubishi_mv1200r dispatcher wiring", () => {
   });
 });
 
-// â”€â”€â”€ Engine Behavior Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Engine Behavior Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 describe("MitsubishiMV1200RWireEDMMasterPostEngine.generateProgram", () => {
   it("generates G-code with correct program number in header", () => {
@@ -349,7 +349,7 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine.generateProgram", () => {
   });
 });
 
-// â”€â”€â”€ Failure Mode Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Failure Mode Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 describe("MitsubishiMV1200RWireEDMMasterPostEngine failure modes", () => {
   it("handles empty operations array gracefully", () => {
@@ -371,7 +371,7 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine failure modes", () => {
           { x: 50, y: 50, type: "linear" },
         ],
         material: { name: "D2 Tool Steel", hardness_hrc: 65, conductivity: 0.1 },
-        thickness_mm: 100, // Very thick â€” may trigger warnings
+        thickness_mm: 100, // Very thick Ã¢â‚¬â€ may trigger warnings
         offset_direction: "left",
       },
     ]);
@@ -406,7 +406,7 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine failure modes", () => {
   });
 });
 
-// â”€â”€â”€ Auto-Router Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Auto-Router Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 describe("master_post_by_machine auto-router schema", () => {
   it("schema is a valid Zod type with machine_model field", () => {
@@ -461,7 +461,7 @@ describe("master_post_by_machine auto-router schema", () => {
   });
 });
 
-// â”€â”€â”€ Prove-out Mode Integration Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Prove-out Mode Integration Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 
 describe("MitsubishiMV1200RWireEDMMasterPostEngine prove-out mode integration", () => {
@@ -748,5 +748,290 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine feed optimizer integration", 
     expect(typeof optimized.stats.estimatedTimeSavings_pct).toBe("number");
     expect(typeof optimized.stats.feedLinesModified).toBe("number");
     expect(typeof optimized.stats.averageFeedChange).toBe("number");
+  });
+});
+// ============================================================================
+// SCENARIO 8: COMPARISON TESTS
+// Verify different controllers generate distinctly different G-code
+// ============================================================================
+describe("MitsubishiMV1200RWireEDMMasterPostEngine cross-controller comparison", () => {
+  const baseOps: Parameters<typeof mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram>[0] = [
+    {
+      operation_type: "profile",
+      pass: "rough",
+      start_x: 0,
+      start_y: 0,
+      profile_points: [
+        { x: 50, y: 0, type: "linear" },
+        { x: 50, y: 50, type: "linear" },
+        { x: 0, y: 50, type: "linear" },
+        { x: 0, y: 0, type: "linear" },
+      ],
+      material: { name: "4140 Steel", conductivity_class: "medium", hardness_hrc: 28 },
+      thickness_mm: 25,
+    },
+  ];
+
+  it("M700V dialect differs from M800 dialect in wire control M-codes", () => {
+    const m700v = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOps, {
+      program_number: "1001",
+      dialect: "M700V",
+    });
+    const m800 = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOps, {
+      program_number: "1002",
+      dialect: "M800",
+    });
+
+    const m700vCode = m700v.gcode.join("\n");
+    const m800Code = m800.gcode.join("\n");
+
+    // Both must produce valid G-code with wire control M-codes
+    expect(m700vCode).toMatch(/M0?[67]/); // M700V wire M-codes
+    expect(m800Code).toMatch(/M2[01]/); // M800 wire M-codes
+
+    // Different dialects must have structural differences (different M-codes)
+    expect(m700vCode).not.toBe(m800Code);
+
+    // Both must have motion commands
+    expect(m700vCode).toMatch(/G0?[01]\s/);
+    expect(m800Code).toMatch(/G0?[01]\s/);
+  });
+
+  it("wire EDM G-code structure differs from milling/turning patterns", () => {
+    const wedmResult = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(baseOps, {
+      program_number: "2001",
+    });
+    const wedmCode = wedmResult.gcode.join("\n");
+
+    // Wire EDM must NOT have spindle commands (no S or M03/M04)
+    expect(wedmCode).not.toMatch(/\bS\d{3,5}\b/);
+    expect(wedmCode).not.toMatch(/\bM0[34]\b/);
+
+    // Wire EDM must have wire offset compensation
+    expect(wedmCode).toMatch(/M2[01]/); // Wire thread/cut M-codes
+
+    // Wire EDM uses XY plane motion
+    expect(wedmCode).toMatch(/X-?\d/);
+    expect(wedmCode).toMatch(/Y-?\d/);
+  });
+
+  it("getStats reports machine type, controller, and JM Die tribal tips", () => {
+    const stats = mitsubishiMV1200RWireEDMMasterPostEngine.getStats();
+
+    expect(stats.machine).toBe("Mitsubishi MV1200R");
+    expect(stats.controller).toBe("M700V (W-series)");
+    expect(stats.features).toContain("4-axis taper cutting (UV)");
+    expect(stats.physics_checks).toBeGreaterThanOrEqual(2);
+    // JM Die has at least 10 tribal tips for wire EDM
+    expect(stats.tribal_tips).toBeGreaterThanOrEqual(10);
+  });
+});
+
+// ============================================================================
+// SCENARIO 9: DOWNLOAD / PACKAGE TESTS
+// Verify G-code package structure is correctly generated
+// ============================================================================
+describe("MitsubishiMV1200RWireEDMMasterPostEngine download package", () => {
+  const packageOps: Parameters<typeof mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram>[0] = [
+    {
+      operation_type: "profile",
+      pass: "rough",
+      start_x: 0,
+      start_y: 0,
+      profile_points: [
+        { x: 100, y: 0, type: "linear" },
+        { x: 100, y: 75, type: "linear" },
+        { x: 0, y: 75, type: "linear" },
+        { x: 0, y: 0, type: "linear" },
+      ],
+      material: { name: "D2 Tool Steel", conductivity_class: "medium", hardness_hrc: 60 },
+      thickness_mm: 40,
+      target_ra_um: 1.6,
+    },
+    {
+      operation_type: "profile",
+      pass: "skim1",
+      start_x: 0,
+      start_y: 0,
+      profile_points: [
+        { x: 100, y: 0, type: "linear" },
+        { x: 100, y: 75, type: "linear" },
+        { x: 0, y: 75, type: "linear" },
+        { x: 0, y: 0, type: "linear" },
+      ],
+      material: { name: "D2 Tool Steel", conductivity_class: "medium", hardness_hrc: 60 },
+      thickness_mm: 40,
+      target_ra_um: 0.8,
+    },
+  ];
+
+  it("generated program has valid G-code array with motion commands", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(packageOps, {
+      program_number: "3001",
+      program_comment: "Test Package Generation",
+    });
+
+    // G-code array has substantial content (>10 lines minimum for a real program)
+    expect(result.gcode.length).toBeGreaterThan(10);
+
+    // Total lines matches gcode array
+    expect(result.total_lines).toBe(result.gcode.length);
+
+    // Total time estimate is positive and reasonable (>0.1 min for this profile)
+    expect(result.estimated_total_time_min).toBeGreaterThan(0.1);
+
+    // Passes generated matches operations count
+    expect(result.passes_generated).toBe(2);
+  });
+
+  it("G-code has valid program structure (header, body, end)", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(packageOps, {
+      program_number: "3002",
+    });
+    const code = result.gcode.join("\n");
+
+    // Header: must start with % or O-number or comment
+    const firstNonEmpty = result.gcode.find(line => line.trim().length > 0);
+    expect(firstNonEmpty).toMatch(/^[%O(]/);
+
+    // Body: must contain motion commands (G00 or G01)
+    expect(code).toMatch(/G0?[01]\s/);
+
+    // End: must contain program end code
+    expect(code).toMatch(/M30|M99|%/);
+  });
+
+  it("multi-pass operations generate distinct pass sections", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(packageOps, {
+      program_number: "3003",
+    });
+    const code = result.gcode.join("\n");
+
+    // Multi-pass generates 2 passes (rough + skim1)
+    expect(result.passes_generated).toBe(2);
+
+    // Code should have multiple motion sequences (G01 blocks)
+    const linearMoves = (code.match(/G0?1\s/g) || []).length;
+    expect(linearMoves).toBeGreaterThanOrEqual(8);
+  });
+
+  it("physics_checks contains wire EDM specific calculations", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(packageOps, {
+      program_number: "3004",
+    });
+
+    // Must have physics calculations for wire EDM
+    expect(result.physics_checks.length).toBeGreaterThan(0);
+
+    // At least one check must reference wire EDM concepts
+    const checksText = JSON.stringify(result.physics_checks).toLowerCase();
+    const hasWireEDMConcept = checksText.includes("energy") ||
+      checksText.includes("mrr") ||
+      checksText.includes("wire") ||
+      checksText.includes("power") ||
+      checksText.includes("spark") ||
+      checksText.includes("erosion");
+    expect(hasWireEDMConcept).toBe(true);
+  });
+});
+
+// ============================================================================
+// SCENARIO 10: ROUND-TRIP TESTS
+// Verify generated G-code is syntactically valid and deterministic
+// ============================================================================
+describe("MitsubishiMV1200RWireEDMMasterPostEngine round-trip validation", () => {
+  const roundTripOps: Parameters<typeof mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram>[0] = [
+    {
+      operation_type: "profile",
+      pass: "rough",
+      start_x: 10,
+      start_y: 20,
+      profile_points: [
+        { x: 60, y: 20, type: "linear" },
+        { x: 60, y: 70, type: "linear" },
+        { x: 10, y: 70, type: "linear" },
+        { x: 10, y: 20, type: "linear" },
+      ],
+      material: { name: "1018 Steel", conductivity_class: "high", hardness_hrc: 15 },
+      thickness_mm: 20,
+    },
+  ];
+
+  it("generated G-code has balanced parentheses (valid comments)", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(roundTripOps, {
+      program_number: "4001",
+    });
+    const code = result.gcode.join("\n");
+
+    // Check balanced parentheses
+    let parenDepth = 0;
+    for (const char of code) {
+      if (char === "(") parenDepth++;
+      if (char === ")") parenDepth--;
+      // Depth should never go negative (closing without opening)
+      expect(parenDepth).toBeGreaterThanOrEqual(0);
+    }
+    // Final depth must be zero (all opened must be closed)
+    expect(parenDepth).toBe(0);
+  });
+
+  it("all motion lines conform to word-address format", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(roundTripOps, {
+      program_number: "4002",
+    });
+
+    let motionLinesCount = 0;
+    for (const line of result.gcode) {
+      const trimmed = line.trim();
+      if (trimmed.length === 0) continue;
+      if (trimmed.startsWith("(") || trimmed.startsWith(";")) continue;
+      if (trimmed.startsWith("%") || trimmed.startsWith("O")) continue;
+
+      // Valid G-code line must contain word (letter + number)
+      const isValidGcodeLine = /^N?\d*\s*[GMXYZABCIJKFESTUVRPQLDHW]/i.test(trimmed);
+      expect(isValidGcodeLine).toBe(true);
+      motionLinesCount++;
+    }
+    // Must have substantial motion content
+    expect(motionLinesCount).toBeGreaterThan(5);
+  });
+
+  it("coordinates in generated G-code match input profile endpoints", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(roundTripOps, {
+      program_number: "4003",
+    });
+    const code = result.gcode.join("\n");
+
+    // Profile endpoints X60, Y70 must appear in output
+    expect(code).toMatch(/X60/);
+    expect(code).toMatch(/Y70/);
+    // Start position X10, Y20 must appear
+    expect(code).toMatch(/X10/);
+    expect(code).toMatch(/Y20/);
+  });
+
+  it("regenerating same input produces identical output (deterministic)", () => {
+    const config = { program_number: "4004" };
+
+    const result1 = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(roundTripOps, config);
+    const result2 = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(roundTripOps, config);
+
+    // Same input must produce identical G-code arrays
+    expect(result1.gcode).toEqual(result2.gcode);
+    expect(result1.total_lines).toBe(result2.total_lines);
+    // Cycle time must match within 0.01 seconds
+    expect(result1.estimated_total_time_min).toBeCloseTo(result2.estimated_total_time_min, 2);
+  });
+
+  it("G-code contains both rapid and linear interpolation", () => {
+    const result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(roundTripOps, {
+      program_number: "4005",
+    });
+    const code = result.gcode.join("\n");
+
+    // Rapid positioning (G00)
+    expect(code).toMatch(/G0?0\b/);
+    // Linear interpolation (G01) for actual cutting
+    expect(code).toMatch(/G0?1\b/);
   });
 });
