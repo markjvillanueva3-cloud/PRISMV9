@@ -1562,8 +1562,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           // ── CAD-UNIVERSAL-CONTROL-MS0/U-CUC10: CAD knowledge graph via CADKnowledgeGraphEngine ──
           case "cad_graph_build": {
-            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
-            const engine = new CADKnowledgeGraphEngine();
+            const { cadKnowledgeGraphEngine: engine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const operations = params["operations"] as Array<Record<string, unknown>>;
             if (!Array.isArray(operations) || operations.length === 0) {
               throw new Error("cad_graph_build requires non-empty 'operations' array");
@@ -1579,8 +1578,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "cad_graph_detect_cycles": {
-            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
-            const engine = new CADKnowledgeGraphEngine();
+            const { cadKnowledgeGraphEngine: engine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
             if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
               throw new Error("cad_graph_detect_cycles requires 'graph' with nodes and edges arrays");
@@ -1593,8 +1591,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "cad_graph_find_orphans": {
-            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
-            const engine = new CADKnowledgeGraphEngine();
+            const { cadKnowledgeGraphEngine: engine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
             if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
               throw new Error("cad_graph_find_orphans requires 'graph' with nodes and edges arrays");
@@ -1607,8 +1604,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "cad_graph_ancestors": {
-            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
-            const engine = new CADKnowledgeGraphEngine();
+            const { cadKnowledgeGraphEngine: engine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
             const nodeId = params["node_id"] as string;
             if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
@@ -1627,8 +1623,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "cad_graph_descendants": {
-            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
-            const engine = new CADKnowledgeGraphEngine();
+            const { cadKnowledgeGraphEngine: engine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
             const nodeId = params["node_id"] as string;
             if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
@@ -1647,8 +1642,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "cad_graph_to_jsonld": {
-            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
-            const engine = new CADKnowledgeGraphEngine();
+            const { cadKnowledgeGraphEngine: engine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
             if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
               throw new Error("cad_graph_to_jsonld requires 'graph' with nodes and edges arrays");
@@ -1694,7 +1688,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             const ref = engine.addReference({
               parentId,
               childId,
-              quantity: (params["quantity"] as number) || 1,
+              instanceName: params["instance_name"] as string | undefined,
               childContentHash: params["child_content_hash"] as string | undefined,
             });
             engine.persist();
@@ -1863,13 +1857,21 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!contentHash) {
               throw new Error("cad_cas_upsert requires 'content_hash' string");
             }
+            const absolutePath = params["path"] as string;
+            const format = params["format"] as string || ".unknown";
+            const sizeBytes = (params["size_bytes"] as number) || 0;
+            if (!absolutePath) {
+              throw new Error("cad_cas_upsert requires 'path' string (absolute file path)");
+            }
             const entry = engine.upsert({
               contentHash,
-              paths: (params["paths"] as string[]) || [],
-              size: (params["size"] as number) || 0,
-              customer: (params["customer"] as string) || "UNKNOWN",
+              absolutePath,
+              format,
+              sizeBytes,
               source: (params["source"] as "initial_scan" | "intake_queue" | "customer_upload" | "migration_import" | "manual") || "initial_scan",
+              customer: (params["customer"] as string) || "UNKNOWN",
               visibility: (params["visibility"] as "private" | "shared" | "public") || "private",
+              tags: (params["tags"] as string[]) || [],
               chunks: params["chunks"] as Array<{ offset: number; size: number; blake3: string }> | undefined,
             });
             engine.persist();
