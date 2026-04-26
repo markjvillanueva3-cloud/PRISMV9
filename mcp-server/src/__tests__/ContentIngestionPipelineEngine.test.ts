@@ -94,6 +94,31 @@ describe("ContentIngestionPipelineEngine", () => {
     });
   });
 
+
+  describe("getStats — consistency", () => {
+    it("returns consistent structure on repeated calls", () => {
+      const stats1 = contentIngestionPipelineEngine.getStats();
+      const stats2 = contentIngestionPipelineEngine.getStats();
+
+      expect(Object.keys(stats1).sort()).toEqual(Object.keys(stats2).sort());
+      expect(stats1.total_ingested).toBe(stats2.total_ingested);
+      expect(stats1.total_sources).toBe(stats2.total_sources);
+    });
+
+    it("total_ingested is sum of all source counts", () => {
+      const stats = contentIngestionPipelineEngine.getStats();
+      const sourceSum = Object.values(stats.sources).reduce((a, b) => a + b, 0);
+
+      expect(stats.total_ingested).toBeGreaterThanOrEqual(sourceSum);
+    });
+
+    it("total_sources matches number of source keys", () => {
+      const stats = contentIngestionPipelineEngine.getStats();
+      const sourceKeyCount = Object.keys(stats.sources).length;
+
+      expect(stats.total_sources).toBe(sourceKeyCount);
+    });
+  });
   // NOTE: Tests for actual ingestion are skipped due to bug in
   // KnowledgeDeduplicationEngine receiving undefined text.
   // Bug location: ContentIngestionPipelineEngine.ts:192
