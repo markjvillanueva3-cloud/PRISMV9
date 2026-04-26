@@ -1,7 +1,6 @@
 /**
  * PRISM MCP Server - Intelligence Dispatcher (Dispatcher #32)
  *
- * // WIRE-EXEMPT: ai_feature_* actions pending next session
  * Core intelligence: ~50 actions for compound manufacturing intelligence.
  * 200+ actions deprecated — forwarded to focused sub-dispatchers (SYS-MS1):
  *   prism_product (40), prism_machine_live (40), prism_integration (42),

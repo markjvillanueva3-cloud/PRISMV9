@@ -69,7 +69,7 @@ export class AISystemRouterEngine {
     if (/(physics|kienzle|taylor|johnson[- ]cook|stress|deflection|chatter)/.test(t)) {
       return "physics_validation";
     }
-    if (/(build|create|new) (engine|dispatcher|hook)/.test(t)) {
+    if (/(build|create|new)\b.*\b(engine|dispatcher|hook)/.test(t)) {
       return "engine_building";
     }
     if (/(ml|neural|inference|predict|classif)/.test(t)) {

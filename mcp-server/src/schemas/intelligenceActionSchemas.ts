@@ -1,6 +1,5 @@
 /**
  * Intelligence Dispatcher Action Schemas
- * // WIRE-EXEMPT: ai_feature_* actions wiring deferred - context limit
  * =======================================
  * Per-action Zod schemas for all 49 core prism_intelligence actions.
  * Validated AFTER normalizeParams(), BEFORE engine dispatch.
