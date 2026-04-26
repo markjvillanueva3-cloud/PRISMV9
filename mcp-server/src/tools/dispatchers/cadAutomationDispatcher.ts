@@ -231,6 +231,10 @@ const ACTIONS = [
   "cad_index_scan",
   "cad_index_load",
   "cad_index_status",
+  "cad_drawing_parse",
+  "cad_drawing_fuzzy_find",
+  "cad_drawing_get_family",
+  "cad_drawing_index_size",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2060,6 +2064,42 @@ Actions: ${ACTIONS.join(", ")}.`,
                 source: "CADFileIndexerEngine.status",
               };
             }
+            break;
+          }
+          case "cad_drawing_parse": {
+            const { cadDrawingNumberNormalizerEngine } = await import("../../engines/CADDrawingNumberNormalizerEngine.js");
+            const rawNumber = params["raw"] as string;
+            if (!rawNumber) {
+              throw new Error("cad_drawing_parse requires 'raw' string");
+            }
+            const parsed = cadDrawingNumberNormalizerEngine.parse(rawNumber);
+            result = { ...parsed, source: "CADDrawingNumberNormalizerEngine.parse" };
+            break;
+          }
+          case "cad_drawing_fuzzy_find": {
+            const { cadDrawingNumberNormalizerEngine } = await import("../../engines/CADDrawingNumberNormalizerEngine.js");
+            const rawNumber = params["raw"] as string;
+            const maxDistance = (params["max_distance"] as number) || 2;
+            if (!rawNumber) {
+              throw new Error("cad_drawing_fuzzy_find requires 'raw' string");
+            }
+            const matches = cadDrawingNumberNormalizerEngine.fuzzyFind(rawNumber, maxDistance);
+            result = { matches, count: matches.length, source: "CADDrawingNumberNormalizerEngine.fuzzyFind" };
+            break;
+          }
+          case "cad_drawing_get_family": {
+            const { cadDrawingNumberNormalizerEngine } = await import("../../engines/CADDrawingNumberNormalizerEngine.js");
+            const familyKey = params["family_key"] as string;
+            if (!familyKey) {
+              throw new Error("cad_drawing_get_family requires 'family_key' string");
+            }
+            const family = cadDrawingNumberNormalizerEngine.getFamily(familyKey);
+            result = { family: family || null, found: !!family, source: "CADDrawingNumberNormalizerEngine.getFamily" };
+            break;
+          }
+          case "cad_drawing_index_size": {
+            const { cadDrawingNumberNormalizerEngine } = await import("../../engines/CADDrawingNumberNormalizerEngine.js");
+            result = { size: cadDrawingNumberNormalizerEngine.size, source: "CADDrawingNumberNormalizerEngine.size" };
             break;
           }
           default:
