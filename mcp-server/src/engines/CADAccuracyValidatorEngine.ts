@@ -361,35 +361,31 @@ class CADAccuracyValidatorEngine implements BaseEngine {
       score -= 0.1;
     }
 
-    // Check fillet radii
-    const filletMatch = code.match(/\.fillet\(\s*([\d.]+)/g);
-    if (filletMatch) {
-      for (const m of filletMatch) {
-        const radiusStr = m.match(/[\d.]+/);
-        if (radiusStr) {
-          const radius = parseFloat(radiusStr[0]);
-          if (radius < 0.3) {
-            warnings.push(`Fillet radius ${radius}mm is very small (< 0.3mm)`);
-            score -= 0.05;
-          } else {
-            details.push(`Fillet radius ${radius}mm ✓`);
-          }
+    // Check fillet radii (use matchAll to get capture groups)
+    const filletRadii: number[] = [];
+    const filletMatches = code.matchAll(/\.fillet\(\s*([\d.]+)/g);
+    for (const m of filletMatches) {
+      if (m[1]) {
+        const radius = parseFloat(m[1]);
+        filletRadii.push(radius);
+        if (radius < 0.3) {
+          warnings.push(`Fillet radius ${radius}mm is very small (< 0.3mm)`);
+          score -= 0.05;
+        } else {
+          details.push(`Fillet radius ${radius}mm ✓`);
         }
       }
     }
 
-    // Check chamfer sizes
-    const chamferMatch = code.match(/\.chamfer\(\s*([\d.]+)/g);
-    if (chamferMatch) {
-      for (const m of chamferMatch) {
-        const sizeStr = m.match(/[\d.]+/);
-        if (sizeStr) {
-          const size = parseFloat(sizeStr[0]);
-          if (size < 0.2) {
-            warnings.push(`Chamfer ${size}mm is very small`);
-          } else {
-            details.push(`Chamfer ${size}mm ✓`);
-          }
+    // Check chamfer sizes (use matchAll to get capture groups)
+    const chamferMatches = code.matchAll(/\.chamfer\(\s*([\d.]+)/g);
+    for (const m of chamferMatches) {
+      if (m[1]) {
+        const size = parseFloat(m[1]);
+        if (size < 0.2) {
+          warnings.push(`Chamfer ${size}mm is very small`);
+        } else {
+          details.push(`Chamfer ${size}mm ✓`);
         }
       }
     }
@@ -421,10 +417,7 @@ class CADAccuracyValidatorEngine implements BaseEngine {
       if (isTool) {
         details.push(`Tool steel detected (${material}) — stricter DFM applied`);
         // Tool steels need larger radii
-        if (filletMatch && filletMatch.some(m => {
-          const r = m.match(/[\d.]+/);
-          return r && parseFloat(r[0]) < 0.5;
-        })) {
+        if (filletRadii.some(r => r < 0.5)) {
           warnings.push("Tool steel requires minimum 0.5mm fillet radii");
           score -= 0.05;
         }
