@@ -1,6 +1,6 @@
-/**
- * prism_turning — Turning-Specific Dispatcher
- * *** SAFETY CRITICAL *** — clamping forces affect workpiece ejection risk
+﻿/**
+ * prism_turning â€” Turning-Specific Dispatcher
+ * *** SAFETY CRITICAL *** â€” clamping forces affect workpiece ejection risk
  *
  * 6 actions: chuck_force, tailstock, steady_rest, live_tool, bar_pull, thread_single_point
  *
@@ -47,6 +47,8 @@ const ACTIONS = [
   "lathe_chip_breaking", "lathe_peck_schedule", "lathe_bore_dwell",
   // WIRE-MS0/U-WIRE06: HardTurning orphan engines
   "hard_turn_decide", "hard_turn_optimize",
+  // LATHE-PRO-MS6: Bar stock cut planning
+  "bar_stock_cut_plan",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -56,21 +58,21 @@ const ACTIONS = [
 export function registerTurningDispatcher(server: any): void {
   server.tool(
     "prism_turning",
-    `Turning-specific dispatcher — SAFETY CRITICAL. Chuck jaw force, tailstock, steady rest, live tooling, bar puller, single-point threading.
+    `Turning-specific dispatcher â€” SAFETY CRITICAL. Chuck jaw force, tailstock, steady rest, live tooling, bar puller, single-point threading.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
       log.info(`[prism_turning] Action: ${action}`);
       let result: any;
       try {
-        // H1-MS2: Auto-normalize snake_case → camelCase params
+        // H1-MS2: Auto-normalize snake_case â†’ camelCase params
         let params = rawParams;
         try {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
 
-        // Zod schema validation — SAFETY CRITICAL
+        // Zod schema validation â€” SAFETY CRITICAL
         const validation = validateActionParams(action, params, TURNING_ACTION_SCHEMAS);
         if (!validation.valid) {
           return dispatcherError(
@@ -80,7 +82,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           );
         }
 
-        // PRE-CALCULATION SAFETY HOOKS — blocks unsafe turning params
+        // PRE-CALCULATION SAFETY HOOKS â€” blocks unsafe turning params
         const hookCtx = {
           operation: action,
           target: { type: "calculation" as const, id: action, data: params },
@@ -328,6 +330,11 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = hardTurningCapstoneEngine.optimize(params as any);
             break;
           }
+          case "bar_stock_cut_plan": {
+            const { barStockCutPlanEngine } = await import("../../engines/BarStockCutPlanEngine.js");
+            result = barStockCutPlanEngine.plan(params as Parameters<typeof barStockCutPlanEngine.plan>[0]);
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -351,7 +358,7 @@ Actions: ${ACTIONS.join(", ")}.`,
               (result as any).postprocessor_applied = true;
             }
           } catch {
-            // PostProcessor is non-blocking — fallback to original G-code
+            // PostProcessor is non-blocking â€” fallback to original G-code
           }
         }
         // POST-CALCULATION HOOKS

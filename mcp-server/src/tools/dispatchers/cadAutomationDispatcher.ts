@@ -1,5 +1,5 @@
-/**
- * prism_cad_automation — CAD Automation Dispatcher
+﻿/**
+ * prism_cad_automation â€” CAD Automation Dispatcher
  *
  * Wires the unified CADAutomationRouter (U-CAUT10) into the MCP action surface
  * so skills, agents, and external clients can drive CAD automation through a
@@ -8,23 +8,23 @@
  *
  * Action surface:
  *   Routing / discovery
- *     - route                        — resolve a filePath to { bridge, ext }
- *     - list_supported_extensions    — enumerate all 12 covered extensions
- *     - supports_extension           — case-insensitive supports check
+ *     - route                        â€” resolve a filePath to { bridge, ext }
+ *     - list_supported_extensions    â€” enumerate all 12 covered extensions
+ *     - supports_extension           â€” case-insensitive supports check
  *   Lifecycle
- *     - open                         — open a CAD session by filePath
- *     - close                        — tear down a CAD session
+ *     - open                         â€” open a CAD session by filePath
+ *     - close                        â€” tear down a CAD session
  *   Data access (requires prior open)
- *     - get_geometry                 — normalized entity counts
- *     - get_operation_tree           — normalized op count + cycle palette
- *     - get_toolpaths                — flat list of normalized ops
- *     - export_step                  — emit STEP AP242 to outputPath
+ *     - get_geometry                 â€” normalized entity counts
+ *     - get_operation_tree           â€” normalized op count + cycle palette
+ *     - get_toolpaths                â€” flat list of normalized ops
+ *     - export_step                  â€” emit STEP AP242 to outputPath
  *   Mock-layer passthrough (no open required)
  *     - mock_geometry / mock_operation_tree / mock_toolpaths
  *     - mock_fingerprint / mock_all_fingerprints
  *
  * Design notes:
- *   - No per-bridge actions — callers never pick the bridge manually. The
+ *   - No per-bridge actions â€” callers never pick the bridge manually. The
  *     router inspects the extension and picks the right one.
  *   - In PRISM_CAD_MOCK=1 mode the router short-circuits open/close/export to
  *     no-ops and serves geometry/ops/toolpaths from CADAutomationMockLayer.
@@ -80,10 +80,12 @@ const ACTIONS = [
   "mock_toolpaths",
   "mock_fingerprint",
   "mock_all_fingerprints",
-  // CAD-INPUT-MS0 — universal DXF parse + write (closes 1,445-file gap)
+  // CAD-INPUT-MS0 â€” universal DXF parse + write (closes 1,445-file gap)
   "dxf_parse",
   "dxf_write_polygons",
-  // U-CUIX-P0-19 — AI-control surface: route master-AI intent through
+  // CAD-UNIVERSAL-CONTROL-MS0/U-CUC11 — pure-JS STL write (closes STL gap)
+  "stl_write_polygons",
+  // U-CUIX-P0-19 â€” AI-control surface: route master-AI intent through
   // ICADCodeGenerator adapters (FreeCAD/Fusion360/Inventor/Mastercam today;
   // HyperCAD-S + SolidWorks land in P0-17/P0-18). Closes the "4 adapters
   // with 557 tests but zero dispatcher wiring" orphan flagged by CAD-UIX-MS0
@@ -93,17 +95,17 @@ const ACTIONS = [
   "build_script",
   "execute_script",
   "validate_script",
-  // U-CUIX-P0-20 — CADOperationPlanner intent → CADOperation[] surface
+  // U-CUIX-P0-20 â€” CADOperationPlanner intent â†’ CADOperation[] surface
   "plan_ops",
-  // U-CUIX-P0-21 — ComplexPartPlanner: multi-body + multi-configuration
+  // U-CUIX-P0-21 â€” ComplexPartPlanner: multi-body + multi-configuration
   "plan_complex_part",
-  // U-CUIX-P0-22 — AssemblyPlanner: components + mates + BOM + drawings
+  // U-CUIX-P0-22 â€” AssemblyPlanner: components + mates + BOM + drawings
   "plan_assembly",
-  // U-CADC-AI01 — MasterCADControlBrain: full orchestration facade
+  // U-CADC-AI01 â€” MasterCADControlBrain: full orchestration facade
   "orchestrate_intent",
-  // U-CADC-AI02 — CADIntentDecomposer: NL → structured intent
+  // U-CADC-AI02 â€” CADIntentDecomposer: NL â†’ structured intent
   "decompose_intent",
-  // U-CADC-AI04 — CADAIStateMachine: observable FSM for multi-step flows
+  // U-CADC-AI04 â€” CADAIStateMachine: observable FSM for multi-step flows
   "fsm_open",
   "fsm_close",
   "fsm_dispatch",
@@ -111,40 +113,40 @@ const ACTIONS = [
   "fsm_log",
   "fsm_list",
   "fsm_allowed_events",
-  // U-CADC13 — BladeProfileLibrary: NACA 4/5-digit airfoil generation
+  // U-CADC13 â€” BladeProfileLibrary: NACA 4/5-digit airfoil generation
   "airfoil_list",
   "airfoil_query",
   "airfoil_get",
   "airfoil_interpolate",
-  // U-CADC28 — CADFeatureMemoryEngine: persistent feature pattern memory + similarity search
+  // U-CADC28 â€” CADFeatureMemoryEngine: persistent feature pattern memory + similarity search
   "feature_memory_record",
   "feature_memory_query",
   "feature_memory_lookup",
   "feature_memory_stats",
-  // U-CGT03 — CADToSTEPPipelineEngine: full CAD→STEP orchestration + AP214/AP242 validation
+  // U-CGT03 â€” CADToSTEPPipelineEngine: full CADâ†’STEP orchestration + AP214/AP242 validation
   "step_pipeline_run",
   "step_pipeline_batch",
   "step_validate",
   "step_pipeline_strategies",
   "step_pipeline_supported",
-  // U-CGT04 — GroundTruthFeatureTreeExtractor: canonical feature tree extraction across CAD formats
+  // U-CGT04 â€” GroundTruthFeatureTreeExtractor: canonical feature tree extraction across CAD formats
   "feature_tree_extract",
   "feature_tree_validate",
   "feature_tree_recompute_signature",
   "feature_tree_canonical_types",
   "feature_tree_source_formats",
-  // U-CGT01 — FCStdNativeParserEngine: native FreeCAD .FCStd parsing (ZIP+XML)
+  // U-CGT01 â€” FCStdNativeParserEngine: native FreeCAD .FCStd parsing (ZIP+XML)
   "fcstd_parse",
-  // U-CGT02 — F3DSQLiteParserEngine: native Fusion .f3d / .f3z parsing (ZIP+SQLite)
+  // U-CGT02 â€” F3DSQLiteParserEngine: native Fusion .f3d / .f3z parsing (ZIP+SQLite)
   "f3d_parse",
   "f3z_parse",
-  // U-CGT05 — DimensionalSignatureEngine: STEP → SI dimensional fingerprint
+  // U-CGT05 â€” DimensionalSignatureEngine: STEP â†’ SI dimensional fingerprint
   "dim_signature_extract",
   "dim_signature_extract_text",
   "dim_signature_compare",
   "dim_signature_validate",
   "dim_signature_recompute",
-  // U-CGT08 — GroundTruthRegistryEngine: indexed corpus query
+  // U-CGT08 â€” GroundTruthRegistryEngine: indexed corpus query
   "gt_registry_build_index",
   "gt_registry_find_file_id",
   "gt_registry_find_customer",
@@ -155,25 +157,25 @@ const ACTIONS = [
   "gt_registry_stats",
   "gt_registry_dump",
   "gt_registry_load",
-  // U-CGT09 — GroundTruthValidationEngine: corpus integrity gate + quarantine
+  // U-CGT09 â€” GroundTruthValidationEngine: corpus integrity gate + quarantine
   "gt_validate_bundle",
   "gt_validate_corpus",
   "gt_export_quarantine",
   "gt_validate_report",
   "gt_list_issue_codes",
-  // U-CADC01..U-CADC04 — UniversalCADIndexEngine: master CAD-file registry
+  // U-CADC01..U-CADC04 â€” UniversalCADIndexEngine: master CAD-file registry
   "universal_cad_index",
   "universal_cad_load",
   "universal_cad_coverage",
   "universal_cad_has_coverage",
   "universal_cad_target_formats",
   "universal_cad_root_paths",
-  // U-CGT06 — CADScreenshotCapturer: 6 canonical views via OCCT (mock fallback)
+  // U-CGT06 â€” CADScreenshotCapturer: 6 canonical views via OCCT (mock fallback)
   "screenshot_capture_views",
   "screenshot_list_views",
   "screenshot_validate",
   "screenshot_recompute_signature",
-  // U-CGT07 — GroundTruthBatchExtractor: 4-stage pipeline across 20K corpus
+  // U-CGT07 â€” GroundTruthBatchExtractor: 4-stage pipeline across 20K corpus
   "batch_extract",
   "batch_coverage_report",
   "batch_validate",
@@ -194,7 +196,7 @@ async function resolveExtFromParams(params: Record<string, unknown>): Promise<st
 export function registerCadAutomationDispatcher(server: any): void {
   server.tool(
     "prism_cad_automation",
-    `CAD automation router — unified access to SolidWorks/Inventor/FreeCAD/Mastercam/Fusion 360/hyperMILL via a single action surface. Supported formats: .sldprt .sldasm .ipt .iam .FCStd .FCStd1 .mcam .mcx .mcx-8 .f3d .f3z .hmc.
+    `CAD automation router â€” unified access to SolidWorks/Inventor/FreeCAD/Mastercam/Fusion 360/hyperMILL via a single action surface. Supported formats: .sldprt .sldasm .ipt .iam .FCStd .FCStd1 .mcam .mcx .mcx-8 .f3d .f3z .hmc.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({
@@ -212,7 +214,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams) as Record<string, unknown>;
         } catch {
-          /* normalizer unavailable — proceed with raw params */
+          /* normalizer unavailable â€” proceed with raw params */
         }
 
         const validation = validateActionParams(action, params, CAD_AUTOMATION_ACTION_SCHEMAS);
@@ -331,7 +333,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "dxf_parse": {
-            // CAD-INPUT-MS0 — parse DXF content into Polygon2D[] via DXFParserEngine.
+            // CAD-INPUT-MS0 â€” parse DXF content into Polygon2D[] via DXFParserEngine.
             const { dxfParserEngine } = await import("../../engines/DXFParserEngine.js");
             const content = params["content"] as string;
             if (typeof content !== "string" || content.length === 0) {
@@ -346,7 +348,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "dxf_write_polygons": {
-            // CAD-INPUT-MS0 — write Polygon2D[] to DXF R12 ASCII.
+            // CAD-INPUT-MS0 â€” write Polygon2D[] to DXF R12 ASCII.
             const { dxfWriterEngine } = await import("../../engines/DxfWriterEngine.js");
             result = dxfWriterEngine.writePolygonsToDxf(
               params["polygons"] as Parameters<typeof dxfWriterEngine.writePolygonsToDxf>[0],
@@ -359,7 +361,21 @@ Actions: ${ACTIONS.join(", ")}.`,
             );
             break;
           }
-          // ── U-CUIX-P0-19: AI-control surface via CADAdapterRegistry ──
+          case "stl_write_polygons": {
+            // CAD-UNIVERSAL-CONTROL-MS0/U-CUC11 — write Polygon2D[] to STL (ASCII or binary).
+            const { stlWriterEngine } = await import("../../engines/StlWriterEngine.js");
+            result = stlWriterEngine.writePolygonsToStl(
+              params["polygons"] as Parameters<typeof stlWriterEngine.writePolygonsToStl>[0],
+              {
+                thickness: params["thickness"] as number | undefined,
+                format: params["format"] as "ascii" | "binary" | undefined,
+                solidName: params["solid_name"] as string | undefined,
+                precision: params["precision"] as number | undefined,
+              },
+            );
+            break;
+          }
+          // â”€â”€ U-CUIX-P0-19: AI-control surface via CADAdapterRegistry â”€â”€
           case "list_systems": {
             const { listAllCADSystems } = await import(
               "../../engines/CADAdapterRegistry.js"
@@ -421,7 +437,7 @@ Actions: ${ACTIONS.join(", ")}.`,
               operations as Parameters<typeof adapter.buildScript>[0],
               context as Parameters<typeof adapter.buildScript>[1],
             );
-            // Serialize Map → [key, value][] so the script crosses the MCP wire cleanly.
+            // Serialize Map â†’ [key, value][] so the script crosses the MCP wire cleanly.
             const parametersArr = Array.from(script.parameters.entries());
             result = {
               cad_system: script.cadSystem,
@@ -482,7 +498,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "plan_ops": {
-            // U-CUIX-P0-20 — structured intent → CADOperation[] via planner.
+            // U-CUIX-P0-20 â€” structured intent â†’ CADOperation[] via planner.
             const { cadOperationPlannerEngine } = await import(
               "../../engines/CADOperationPlannerEngine.js"
             );
@@ -501,7 +517,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "orchestrate_intent": {
-            // U-CADC-AI01 — full chain: intent → select_cad → plan → build → (execute) → validate
+            // U-CADC-AI01 â€” full chain: intent â†’ select_cad â†’ plan â†’ build â†’ (execute) â†’ validate
             const { masterCADControlBrainEngine } = await import(
               "../../engines/MasterCADControlBrainEngine.js"
             );
@@ -529,7 +545,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "plan_assembly": {
-            // U-CUIX-P0-22 — components + mates + BOM + drawings → plan.
+            // U-CUIX-P0-22 â€” components + mates + BOM + drawings â†’ plan.
             const { assemblyPlannerEngine } = await import(
               "../../engines/AssemblyPlannerEngine.js"
             );
@@ -685,7 +701,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "decompose_intent": {
-            // U-CADC-AI02 — parse NL into structured CAD intent for AI01.
+            // U-CADC-AI02 â€” parse NL into structured CAD intent for AI01.
             const { cadIntentDecomposerEngine } = await import(
               "../../engines/CADIntentDecomposerEngine.js"
             );
@@ -712,7 +728,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "plan_complex_part": {
-            // U-CUIX-P0-21 — multi-body + multi-config ComplexPartIntent → plan.
+            // U-CUIX-P0-21 â€” multi-body + multi-config ComplexPartIntent â†’ plan.
             const { complexPartPlannerEngine } = await import(
               "../../engines/ComplexPartPlannerEngine.js"
             );
@@ -867,7 +883,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "feature_tree_extract": {
-            // U-CGT04 — Extract canonical feature tree from a CAD file (mock or live).
+            // U-CGT04 â€” Extract canonical feature tree from a CAD file (mock or live).
             const { groundTruthFeatureTreeExtractor } = await import(
               "../../engines/GroundTruthFeatureTreeExtractor.js"
             );
@@ -886,7 +902,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "feature_tree_validate": {
-            // U-CGT04 — Validate a candidate tree against the canonical Zod schema.
+            // U-CGT04 â€” Validate a candidate tree against the canonical Zod schema.
             const { groundTruthFeatureTreeExtractor } = await import(
               "../../engines/GroundTruthFeatureTreeExtractor.js"
             );
@@ -894,7 +910,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "feature_tree_recompute_signature": {
-            // U-CGT04 — Recompute canonical signature for a tree (post-edit).
+            // U-CGT04 â€” Recompute canonical signature for a tree (post-edit).
             const { groundTruthFeatureTreeExtractor } = await import(
               "../../engines/GroundTruthFeatureTreeExtractor.js"
             );
@@ -909,7 +925,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "feature_tree_canonical_types": {
-            // U-CGT04 — Read-only canonical feature-type vocabulary.
+            // U-CGT04 â€” Read-only canonical feature-type vocabulary.
             const { groundTruthFeatureTreeExtractor } = await import(
               "../../engines/GroundTruthFeatureTreeExtractor.js"
             );
@@ -918,7 +934,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "feature_tree_source_formats": {
-            // U-CGT04 — Source format vocabulary (file extensions the extractor recognizes).
+            // U-CGT04 â€” Source format vocabulary (file extensions the extractor recognizes).
             const { SOURCE_FORMATS } = await import(
               "../../engines/GroundTruthFeatureTreeExtractor.js"
             );
@@ -926,7 +942,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "fcstd_parse": {
-            // U-CGT01 — FreeCAD native .FCStd parser (no FreeCAD installation needed).
+            // U-CGT01 â€” FreeCAD native .FCStd parser (no FreeCAD installation needed).
             const { fcStdNativeParserEngine } = await import(
               "../../engines/FCStdNativeParserEngine.js"
             );
@@ -936,7 +952,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "f3d_parse": {
-            // U-CGT02 — Fusion 360 native .f3d parser (ZIP+SQLite, no Fusion install).
+            // U-CGT02 â€” Fusion 360 native .f3d parser (ZIP+SQLite, no Fusion install).
             const { f3dSqliteParserEngine } = await import(
               "../../engines/F3DSQLiteParserEngine.js"
             );
@@ -946,7 +962,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "f3z_parse": {
-            // U-CGT02 — Fusion 360 .f3z multi-document archive (returns array).
+            // U-CGT02 â€” Fusion 360 .f3z multi-document archive (returns array).
             const { f3dSqliteParserEngine } = await import(
               "../../engines/F3DSQLiteParserEngine.js"
             );
@@ -1178,7 +1194,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "universal_cad_index": {
-            // U-CADC01 — Run full corpus scan; persist master-index.json by default.
+            // U-CADC01 â€” Run full corpus scan; persist master-index.json by default.
             const { universalCADIndexEngine } = await import(
               "../../engines/UniversalCADIndexEngine.js"
             );
@@ -1249,7 +1265,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = { count: UNIVERSAL_ROOT_PATHS.length, paths: UNIVERSAL_ROOT_PATHS };
             break;
           }
-          // U-CGT06 — CADScreenshotCapturer wiring
+          // U-CGT06 â€” CADScreenshotCapturer wiring
           case "screenshot_capture_views": {
             const { cadScreenshotCapturer } = await import(
               "../../engines/CADScreenshotCapturer.js"
@@ -1291,7 +1307,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             };
             break;
           }
-          // U-CGT07 — GroundTruthBatchExtractor wiring
+          // U-CGT07 â€” GroundTruthBatchExtractor wiring
           case "batch_extract": {
             const { groundTruthBatchExtractor } = await import(
               "../../engines/GroundTruthBatchExtractor.js"
