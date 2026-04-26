@@ -10,7 +10,7 @@
   "created_at": "2026-04-25T20:45:00.000Z",
   "last_updated": "2026-04-26T03:15:00.000Z",
   "total_units": 14,
-  "completed_units": 3,
+  "completed_units": 4,
   "shipped": [
     {
       "id": "U-PPG-SFC-01",
@@ -459,5 +459,22 @@
   "sessions_p50": 14,
   "sessions_p90": 20,
   "rollback": "Per-unit git revert; each Wire engine ships behind feature flag (PRISM_PPG_SFC_OUTCOME_WIRE=1, PRISM_SFC_INFERENCE_GATE=1, etc.) for gradual rollout per surface",
-  "_role": "Specialization of PSAU-LEARN closing-the-loop pattern to PPG + SFC — the two highest-leverage recommendation surfaces in PRISM. Without this envelope the U-LEARN substrate has no production loadbearing on the surfaces operators touch most."
+  "_role": "Specialization of PSAU-LEARN closing-the-loop pattern to PPG + SFC — the two highest-leverage recommendation surfaces in PRISM. Without this envelope the U-LEARN substrate has no production loadbearing on the surfaces operators touch most.",
+  "units_shipped": [
+    {
+      "id": "U-PPG-SFC-04",
+      "name": "PPGProvenanceWireEngine",
+      "completed": "2026-04-26",
+      "key_features": [
+        "Citation attachment for all PPG/G-code outputs",
+        "14 controller dialect support with alias normalization",
+        "RAG evidence and tribal tip provenance",
+        "SHA-256 audit hash for ITAR/AS9100",
+        "Inline provenance comments in G-code",
+        "G-code analysis for metrics extraction"
+      ],
+      "tests": 47,
+      "hook": "ppg-provenance-guard.mjs (34 tests)"
+    }
+  ]
 }
