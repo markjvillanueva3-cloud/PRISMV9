@@ -343,6 +343,35 @@ const ACTIONS = [
   "cad_crash_history",
   "cad_crash_policy_get",
   "cad_crash_policy_set",
+  "cad_failure_triage",
+  "cad_failure_group",
+  "cad_fs_registry_upsert",
+  "cad_fs_registry_get",
+  "cad_fs_registry_list",
+  "cad_fs_registry_remove",
+  "cad_fs_reconcile",
+  "cad_fs_aging_plan",
+  "cad_fs_aging_apply",
+  "cad_fs_cost_tenant",
+  "cad_install_probe",
+  "cad_install_cached",
+  "cad_install_invalidate",
+  "cad_license_server_add",
+  "cad_license_server_list",
+  "cad_license_server_check",
+  "cad_license_features_refresh",
+  "cad_license_features_list",
+  "cad_license_utilization",
+  "cad_license_users_active",
+  "cad_license_contention_record",
+  "cad_license_contention_history",
+  "cad_license_alerts",
+  "cad_license_alert_ack",
+  "cad_license_health_summary",
+  "cad_param_predict",
+  "cad_param_model_info",
+  "cad_param_train",
+  "cad_param_evaluate",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -3507,6 +3536,366 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             engine.setPolicy(sessionId, policy);
             result = { updated: true, source: "CADCrashRecoveryEngine.setPolicy" };
+            break;
+          }
+          case "cad_failure_triage": {
+            const { cadFailureTriageEngine } = await import("../../engines/CADFailureTriageEngine.js");
+            const failure = params["failure"] as Parameters<typeof cadFailureTriageEngine.triage>[0];
+            if (!failure) {
+              throw new Error("cad_failure_triage requires 'failure' (FailurePayload)");
+            }
+            const triageResult = cadFailureTriageEngine.triage(failure);
+            result = { result: triageResult, source: "CADFailureTriageEngine.triage" };
+            break;
+          }
+          case "cad_failure_group": {
+            const { cadFailureTriageEngine } = await import("../../engines/CADFailureTriageEngine.js");
+            const rawResults = params["results"];
+            if (!rawResults || !Array.isArray(rawResults)) {
+              throw new Error("cad_failure_group requires 'results' array (TriageResult[])");
+            }
+            const groups = cadFailureTriageEngine.group(rawResults as Parameters<typeof cadFailureTriageEngine.group>[0]);
+            result = { groups, count: groups.length, source: "CADFailureTriageEngine.group" };
+            break;
+          }
+          case "cad_fs_registry_upsert": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const entry = params["entry"] as Parameters<typeof cadFilesystemReconciliationEngine.upsertRegistryEntry>[0];
+            if (!entry) {
+              throw new Error("cad_fs_registry_upsert requires 'entry' (RegistryEntry)");
+            }
+            const upserted = cadFilesystemReconciliationEngine.upsertRegistryEntry(entry);
+            result = { entry: upserted, source: "CADFilesystemReconciliationEngine.upsertRegistryEntry" };
+            break;
+          }
+          case "cad_fs_registry_get": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const contentHash = params["content_hash"] as string;
+            if (!contentHash) {
+              throw new Error("cad_fs_registry_get requires 'content_hash'");
+            }
+            const entry = cadFilesystemReconciliationEngine.getRegistryEntry(contentHash);
+            result = { entry: entry ?? null, found: !!entry, source: "CADFilesystemReconciliationEngine.getRegistryEntry" };
+            break;
+          }
+          case "cad_fs_registry_list": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const entries = cadFilesystemReconciliationEngine.allEntries();
+            result = { entries, count: entries.length, source: "CADFilesystemReconciliationEngine.allEntries" };
+            break;
+          }
+          case "cad_fs_registry_remove": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const contentHash = params["content_hash"] as string;
+            if (!contentHash) {
+              throw new Error("cad_fs_registry_remove requires 'content_hash'");
+            }
+            const removed = cadFilesystemReconciliationEngine.removeRegistryEntry(contentHash);
+            result = { removed, source: "CADFilesystemReconciliationEngine.removeRegistryEntry" };
+            break;
+          }
+          case "cad_fs_reconcile": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const disk = params["disk"] as Parameters<typeof cadFilesystemReconciliationEngine.reconcile>[0];
+            if (!disk || !Array.isArray(disk)) {
+              throw new Error("cad_fs_reconcile requires 'disk' array (DiskEntry[])");
+            }
+            const report = cadFilesystemReconciliationEngine.reconcile(disk);
+            result = { report, source: "CADFilesystemReconciliationEngine.reconcile" };
+            break;
+          }
+          case "cad_fs_aging_plan": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const now = params["now"] as string | undefined;
+            const transitions = cadFilesystemReconciliationEngine.planAging(now);
+            result = { transitions, count: transitions.length, source: "CADFilesystemReconciliationEngine.planAging" };
+            break;
+          }
+          case "cad_fs_aging_apply": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const transition = params["transition"] as Parameters<typeof cadFilesystemReconciliationEngine.applyTransition>[0];
+            if (!transition) {
+              throw new Error("cad_fs_aging_apply requires 'transition' (AgingTransition)");
+            }
+            const entry = cadFilesystemReconciliationEngine.applyTransition(transition);
+            result = { entry, source: "CADFilesystemReconciliationEngine.applyTransition" };
+            break;
+          }
+          case "cad_fs_cost_tenant": {
+            const { cadFilesystemReconciliationEngine } = await import("../../engines/CADFilesystemReconciliationEngine.js");
+            const tenantId = params["tenant_id"] as string;
+            const periodStart = params["period_start"] as string;
+            const periodEnd = params["period_end"] as string;
+            if (!tenantId || !periodStart || !periodEnd) {
+              throw new Error("cad_fs_cost_tenant requires 'tenant_id', 'period_start', 'period_end'");
+            }
+            const ledger = cadFilesystemReconciliationEngine.costForTenant(tenantId, periodStart, periodEnd);
+            result = { ledger, source: "CADFilesystemReconciliationEngine.costForTenant" };
+            break;
+          }
+          case "cad_install_probe": {
+            const { cadInstallationProbeEngine } = await import("../../engines/CADInstallationProbeEngine.js");
+            const forceRefresh = params["force_refresh"] as boolean | undefined;
+            const probeResult = await cadInstallationProbeEngine.probe(forceRefresh);
+            result = { probe: probeResult, source: "CADInstallationProbeEngine.probe" };
+            break;
+          }
+          case "cad_install_cached": {
+            const { cadInstallationProbeEngine } = await import("../../engines/CADInstallationProbeEngine.js");
+            const cached = cadInstallationProbeEngine.getCached();
+            result = { cached: cached ?? null, hasCached: !!cached, source: "CADInstallationProbeEngine.getCached" };
+            break;
+          }
+          case "cad_install_invalidate": {
+            const { cadInstallationProbeEngine } = await import("../../engines/CADInstallationProbeEngine.js");
+            cadInstallationProbeEngine.invalidateCache();
+            result = { invalidated: true, source: "CADInstallationProbeEngine.invalidateCache" };
+            break;
+          }
+          case "cad_license_server_add": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const serverId = params["server_id"] as string;
+            const serverType = params["server_type"] as "FlexLM" | "RLM" | "DSLS" | "Sentinel" | "CodeMeter" | "LUM" | "Native";
+            const host = params["host"] as string;
+            const port = params["port"] as number;
+            if (!serverId || !serverType || !host || !port) {
+              throw new Error("cad_license_server_add requires 'server_id', 'server_type', 'host', 'port'");
+            }
+            engine.addServer(serverId, serverType, host, port);
+            result = { added: true, serverId, source: "CADLicenseHealthEngine.addServer" };
+            break;
+          }
+          case "cad_license_server_list": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const servers = engine.listServers();
+            result = { servers, count: servers.length, source: "CADLicenseHealthEngine.listServers" };
+            break;
+          }
+          case "cad_license_server_check": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const serverId = params["server_id"] as string;
+            if (!serverId) {
+              throw new Error("cad_license_server_check requires 'server_id'");
+            }
+            const server = engine.checkServer(serverId);
+            result = { server: server ?? null, online: server?.isOnline ?? false, source: "CADLicenseHealthEngine.checkServer" };
+            break;
+          }
+          case "cad_license_features_refresh": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const serverId = params["server_id"] as string;
+            if (!serverId) {
+              throw new Error("cad_license_features_refresh requires 'server_id'");
+            }
+            const features = engine.refreshFeatures(serverId);
+            result = { features, count: features.length, source: "CADLicenseHealthEngine.refreshFeatures" };
+            break;
+          }
+          case "cad_license_features_list": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const serverId = params["server_id"] as string | undefined;
+            const features = engine.listFeatures(serverId);
+            result = { features, count: features.length, source: "CADLicenseHealthEngine.listFeatures" };
+            break;
+          }
+          case "cad_license_utilization": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const serverId = params["server_id"] as string;
+            const featureId = params["feature_id"] as string;
+            if (!serverId || !featureId) {
+              throw new Error("cad_license_utilization requires 'server_id' and 'feature_id'");
+            }
+            const utilization = engine.getFeatureUtilization(serverId, featureId);
+            result = { utilization, source: "CADLicenseHealthEngine.getFeatureUtilization" };
+            break;
+          }
+          case "cad_license_users_active": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const serverId = params["server_id"] as string;
+            const featureId = params["feature_id"] as string | undefined;
+            if (!serverId) {
+              throw new Error("cad_license_users_active requires 'server_id'");
+            }
+            const users = engine.getActiveUsers(serverId, featureId);
+            result = { users, count: users.length, source: "CADLicenseHealthEngine.getActiveUsers" };
+            break;
+          }
+          case "cad_license_contention_record": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const featureId = params["feature_id"] as string;
+            const userId = params["user_id"] as string;
+            const queueDepth = params["queue_depth"] as number;
+            const waitTimeMs = params["wait_time_ms"] as number;
+            if (!featureId || !userId || queueDepth === undefined || waitTimeMs === undefined) {
+              throw new Error("cad_license_contention_record requires 'feature_id', 'user_id', 'queue_depth', 'wait_time_ms'");
+            }
+            const event = engine.recordContention(featureId, userId, queueDepth, waitTimeMs);
+            result = { event, source: "CADLicenseHealthEngine.recordContention" };
+            break;
+          }
+          case "cad_license_contention_history": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const featureId = params["feature_id"] as string | undefined;
+            const limit = params["limit"] as number | undefined;
+            const events = engine.getContentionHistory({ featureId, limit });
+            result = { events, count: events.length, source: "CADLicenseHealthEngine.getContentionHistory" };
+            break;
+          }
+          case "cad_license_alerts": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const acknowledged = params["acknowledged"] as boolean | undefined;
+            const severity = params["severity"] as string | undefined;
+            const alerts = engine.getAlerts({ acknowledged, severity });
+            result = { alerts, count: alerts.length, source: "CADLicenseHealthEngine.getAlerts" };
+            break;
+          }
+          case "cad_license_alert_ack": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const alertId = params["alert_id"] as string;
+            if (!alertId) {
+              throw new Error("cad_license_alert_ack requires 'alert_id'");
+            }
+            const acked = engine.acknowledgeAlert(alertId);
+            result = { acknowledged: acked, source: "CADLicenseHealthEngine.acknowledgeAlert" };
+            break;
+          }
+          case "cad_license_health_summary": {
+            const { CADLicenseHealthEngine } = await import("../../engines/CADLicenseHealthEngine.js");
+            const noopTransport = {
+              queryServer: () => null,
+              getFeatures: () => [],
+              getUsers: () => [],
+              borrowLicense: () => false,
+              returnLicense: () => false,
+            };
+            const engine = new CADLicenseHealthEngine({ transport: noopTransport });
+            const summary = engine.getHealthSummary();
+            result = { summary, source: "CADLicenseHealthEngine.getHealthSummary" };
+            break;
+          }
+          case "cad_param_predict": {
+            const { cadParameterPredictorEngine } = await import("../../engines/CADParameterPredictorEngine.js");
+            const geometry = params["geometry"] as Parameters<typeof cadParameterPredictorEngine.predict>[0];
+            if (!geometry) {
+              throw new Error("cad_param_predict requires 'geometry' (TargetGeometry)");
+            }
+            const prediction = cadParameterPredictorEngine.predict(geometry);
+            result = { prediction, source: "CADParameterPredictorEngine.predict" };
+            break;
+          }
+          case "cad_param_model_info": {
+            const { cadParameterPredictorEngine } = await import("../../engines/CADParameterPredictorEngine.js");
+            const info = cadParameterPredictorEngine.getModelInfo();
+            result = { info, source: "CADParameterPredictorEngine.getModelInfo" };
+            break;
+          }
+          case "cad_param_train": {
+            const { cadParameterPredictorEngine } = await import("../../engines/CADParameterPredictorEngine.js");
+            const samples = params["samples"] as Parameters<typeof cadParameterPredictorEngine.train>[0];
+            const corpusName = params["corpus_name"] as string | undefined;
+            if (!samples || !Array.isArray(samples)) {
+              throw new Error("cad_param_train requires 'samples' array (TrainingSample[])");
+            }
+            const trainResult = cadParameterPredictorEngine.train(samples, { corpusName });
+            result = { result: trainResult, source: "CADParameterPredictorEngine.train" };
+            break;
+          }
+          case "cad_param_evaluate": {
+            const { cadParameterPredictorEngine } = await import("../../engines/CADParameterPredictorEngine.js");
+            const samples = params["samples"] as Parameters<typeof cadParameterPredictorEngine.evaluate>[0];
+            if (!samples || !Array.isArray(samples)) {
+              throw new Error("cad_param_evaluate requires 'samples' array (TrainingSample[])");
+            }
+            const report = cadParameterPredictorEngine.evaluate(samples);
+            result = { report, source: "CADParameterPredictorEngine.evaluate" };
             break;
           }
           default:
