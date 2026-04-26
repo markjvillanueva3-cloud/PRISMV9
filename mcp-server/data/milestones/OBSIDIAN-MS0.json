@@ -1,0 +1,119 @@
+{
+  "id": "OBSIDIAN-MS0",
+  "title": "Obsidian Knowledge Bridge — Bidirectional Sync, Plugin Bridge, and Shop Floor Note Integration",
+  "track": "OBSIDIAN",
+  "status": "ready",
+  "version": "1.0.0",
+  "created_at": "2026-04-26",
+  "priority": "HIGH",
+  "description": "Bidirectional integration between PRISM manufacturing intelligence and Obsidian knowledge management. Syncs tribal tips, shop floor notes, and structured knowledge between systems. Provides plugin API bridge for live Obsidian workspace integration.",
+  "goals": [
+    "Enable bidirectional sync between PRISM knowledge base and Obsidian vaults",
+    "Create Obsidian plugin bridge for real-time PRISM queries from within Obsidian",
+    "Export tribal tips to Obsidian-compatible markdown with proper linking",
+    "Ingest shop floor notes captured in Obsidian back into PRISM knowledge graph"
+  ],
+  "total_units": 4,
+  "schemaVersion": 2,
+  "target_omega": 1,
+  "leverages": [
+    "TribalKnowledgeEngine",
+    "ContentIngestionPipelineEngine",
+    "TribalRAGEngine",
+    "KnowledgeGraphEngine"
+  ],
+  "dispatcher_target": "prism_knowledge",
+  "units": [
+    {
+      "id": "U-OBS-SYNC01",
+      "title": "ObsidianVaultSyncEngine — Bidirectional Knowledge Sync",
+      "status": "not_started",
+      "description": "Engine for bidirectional synchronization between PRISM's knowledge base and Obsidian vaults. Handles conflict resolution, incremental sync, and metadata mapping. Supports multiple vault configurations per user.",
+      "deliverables": [
+        "src/engines/ObsidianVaultSyncEngine.ts",
+        "src/__tests__/ObsidianVaultSyncEngine.test.ts",
+        "Wire 4 actions to prism_knowledge: obsidian_sync_pull, obsidian_sync_push, obsidian_sync_status, obsidian_sync_config"
+      ],
+      "dependencies": [],
+      "estimated_effort": "2 sessions",
+      "acceptance_criteria": [
+        "Pull changes from Obsidian vault into PRISM knowledge entries",
+        "Push PRISM knowledge updates to Obsidian markdown files",
+        "Detect and report sync conflicts with resolution options",
+        "Track sync state with checksums to enable incremental sync",
+        "Tests cover: empty vault, conflict scenarios, large file handling, link preservation"
+      ]
+    },
+    {
+      "id": "U-OBS-BRIDGE02",
+      "title": "ObsidianPluginBridge — Plugin API Integration",
+      "status": "not_started",
+      "description": "Bridge engine enabling Obsidian plugins to query PRISM MCP actions directly. Provides HTTP/WebSocket endpoints for plugin communication. Handles authentication and rate limiting for multi-user scenarios.",
+      "deliverables": [
+        "src/engines/ObsidianPluginBridge.ts",
+        "src/__tests__/ObsidianPluginBridge.test.ts",
+        "Wire 5 actions to prism_knowledge: obsidian_plugin_register, obsidian_plugin_query, obsidian_plugin_subscribe, obsidian_plugin_unsubscribe, obsidian_plugin_status"
+      ],
+      "dependencies": ["U-OBS-SYNC01"],
+      "estimated_effort": "2 sessions",
+      "acceptance_criteria": [
+        "Register Obsidian plugin instances with API keys",
+        "Execute PRISM MCP queries from plugin context",
+        "Subscribe to knowledge update events for live sync",
+        "Rate limit and authenticate plugin requests",
+        "Tests cover: auth flow, query execution, event subscription, error handling"
+      ]
+    },
+    {
+      "id": "U-OBS-TRIBAL03",
+      "title": "TribalTipExportEngine — Tribal Knowledge to Obsidian",
+      "status": "not_started",
+      "description": "Exports PRISM tribal tips to Obsidian-compatible markdown with proper wiki-links, frontmatter, and tag structure. Maintains bidirectional link integrity. Supports bulk export and incremental updates.",
+      "deliverables": [
+        "src/engines/TribalTipExportEngine.ts",
+        "src/__tests__/TribalTipExportEngine.test.ts",
+        "Wire 4 actions to prism_knowledge: tribal_export_single, tribal_export_bulk, tribal_export_config, tribal_export_status"
+      ],
+      "dependencies": ["U-OBS-SYNC01"],
+      "estimated_effort": "1 session",
+      "acceptance_criteria": [
+        "Export single tribal tip to Obsidian markdown with frontmatter",
+        "Bulk export with wiki-link generation between related tips",
+        "Configure export templates and tag mappings",
+        "Track export state for incremental updates",
+        "Tests cover: frontmatter generation, wiki-link syntax, tag mapping, bulk performance"
+      ]
+    },
+    {
+      "id": "U-OBS-SHOP04",
+      "title": "ShopFloorNoteIngestionEngine — Obsidian Notes to PRISM",
+      "status": "not_started",
+      "description": "Ingests shop floor notes captured in Obsidian into PRISM's knowledge graph. Parses markdown structure, extracts entities (machines, materials, operations), and creates knowledge entries with proper relationships.",
+      "deliverables": [
+        "src/engines/ShopFloorNoteIngestionEngine.ts",
+        "src/__tests__/ShopFloorNoteIngestionEngine.test.ts",
+        "Wire 5 actions to prism_knowledge: shop_note_ingest, shop_note_parse, shop_note_batch, shop_note_validate, shop_note_status"
+      ],
+      "dependencies": ["U-OBS-SYNC01"],
+      "estimated_effort": "2 sessions",
+      "acceptance_criteria": [
+        "Parse Obsidian markdown notes with structured headers",
+        "Extract machine, material, and operation entities via NER",
+        "Create knowledge graph entries with relationships",
+        "Validate extracted entities against PRISM registries",
+        "Tests cover: entity extraction, relationship creation, validation failures, batch ingestion"
+      ]
+    }
+  ],
+  "integration_notes": {
+    "dispatcher": "prism_knowledge",
+    "action_prefix": "obsidian_*, tribal_export_*, shop_note_*",
+    "schema_file": "src/schemas/knowledgeActionSchemas.ts",
+    "existing_engines_to_leverage": [
+      "TribalKnowledgeEngine — existing tribal tip storage and retrieval",
+      "ContentIngestionPipelineEngine — existing ingestion infrastructure",
+      "TribalRAGEngine — existing RAG for tribal knowledge queries",
+      "KnowledgeGraphEngine — existing KG for entity relationships"
+    ]
+  }
+}
