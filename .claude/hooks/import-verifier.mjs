@@ -80,7 +80,7 @@ function checkRelativeImport(importPath, sourceFile) {
 
   for (const ext of EXTENSIONS_TO_TRY) {
     const targetPath = targetBase + ext;
-    if (existsSync(targetPath)) {
+    if (fs.existsSync(targetPath)) {
       return { exists: true, resolvedPath: targetPath };
     }
   }
@@ -100,10 +100,10 @@ function findNearMatches(targetBase, sourceDir) {
   const targetDir = dirname(targetBase);
 
   try {
-    if (!existsSync(targetDir)) {
+    if (!fs.existsSync(targetDir)) {
       const parentDir = dirname(targetDir);
-      if (existsSync(parentDir)) {
-        const entries = readdirSync(parentDir, { withFileTypes: true });
+      if (fs.existsSync(parentDir)) {
+        const entries = fs.readdirSync(parentDir, { withFileTypes: true });
         const dirs = entries.filter(e => e.isDirectory()).map(e => e.name);
         const targetDirName = basename(targetDir).toLowerCase();
 
@@ -116,7 +116,7 @@ function findNearMatches(targetBase, sourceDir) {
       return suggestions;
     }
 
-    const entries = readdirSync(targetDir, { withFileTypes: true });
+    const entries = fs.readdirSync(targetDir, { withFileTypes: true });
     const files = entries.filter(e => e.isFile()).map(e => e.name);
 
     for (const file of files) {

@@ -33,8 +33,8 @@ const MAX_HOTSPOTS = 20;
 
 function loadMemory() {
   try {
-    if (existsSync(ERROR_PATH)) {
-      return JSON.parse(readFileSync(ERROR_PATH, 'utf8'));
+    if (fs.existsSync(ERROR_PATH)) {
+      return JSON.parse(fs.readFileSync(ERROR_PATH, 'utf8'));
     }
   } catch { /* use defaults */ }
   return {
@@ -50,8 +50,8 @@ function loadMemory() {
 function saveMemory(data) {
   try {
     const dir = dirname(ERROR_PATH);
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(ERROR_PATH, JSON.stringify(data, null, 2));
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(ERROR_PATH, JSON.stringify(data, null, 2));
   } catch { /* ignore */ }
 }
 
