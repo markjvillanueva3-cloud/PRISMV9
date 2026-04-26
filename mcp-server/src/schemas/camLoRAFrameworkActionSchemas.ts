@@ -154,3 +154,27 @@ export const ACTION_CAM_LORA_FRAMEWORK_SCHEMAS = {
 } as const;
 
 export type CAMLoRAFrameworkAction = keyof typeof ACTION_CAM_LORA_FRAMEWORK_SCHEMAS;
+
+// ─── CAM-EXHAUST-MS0: LoRACadence schemas ───────────────────────────
+
+const lora_cadence_predict = z.object({}).passthrough();
+const lora_cadence_train = z.object({
+  trigger_type: z.enum(["scheduled", "data-drift", "performance-drop", "manual"]).default("manual"),
+  notes: z.string().optional(),
+}).passthrough();
+const lora_cadence_optimize = z.object({
+  current_score: z.number().min(0).max(100),
+  baseline_score: z.number().min(0).max(100),
+}).passthrough();
+
+export const ACTION_CAM_LORA_CADENCE_SCHEMAS = {
+  milling_lora_predict: lora_cadence_predict,
+  milling_lora_train: lora_cadence_train,
+  milling_lora_optimize: lora_cadence_optimize,
+  millturn_lora_predict: lora_cadence_predict,
+  millturn_lora_train: lora_cadence_train,
+  millturn_lora_optimize: lora_cadence_optimize,
+  grinding_lora_predict: lora_cadence_predict,
+  grinding_lora_train: lora_cadence_train,
+  grinding_lora_optimize: lora_cadence_optimize,
+} as const;

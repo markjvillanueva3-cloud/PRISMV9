@@ -265,6 +265,7 @@ export async function executeAIReasoningAction(
         const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
         result = successPatternBankEngine.stats();
         break;
+      }
 
       // ─────────────────────────────────────────────────────────────────────
       // sfc_drift_canary_check — SFC drift detection
@@ -300,7 +301,6 @@ export async function executeAIReasoningAction(
         const { ppgSFCClosedLoopOrchestratorEngine } = await import("../../engines/PPGSFCClosedLoopOrchestratorEngine.js");
         result = await ppgSFCClosedLoopOrchestratorEngine.executeClosedLoop(params as any);
         break;
-      }
       }
 
       default: {
