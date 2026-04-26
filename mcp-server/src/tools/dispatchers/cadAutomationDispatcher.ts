@@ -228,6 +228,9 @@ const ACTIONS = [
   "cad_cas_delete",
   "cad_cas_rebuild_meta",
   "cad_cas_list",
+  "cad_index_scan",
+  "cad_index_load",
+  "cad_index_status",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -1983,6 +1986,80 @@ Actions: ${ACTIONS.join(", ")}.`,
             const registry = engine.load();
             const entries = Object.values(registry.entries);
             result = { entries, count: entries.length, source: "CADContentAddressableStoreEngine.list" };
+            break;
+          }
+          case "cad_index_scan": {
+            const { cadFileIndexerEngine } = await import("../../engines/CADFileIndexerEngine.js");
+            const rootPaths = params["root_paths"] as string[] | undefined;
+            const batchSize = (params["batch_size"] as number) || 500;
+            const maxDepth = (params["max_depth"] as number) || 20;
+            const outputPath = params["output_path"] as string | undefined;
+            const index = await cadFileIndexerEngine.index({
+              rootPaths,
+              batchSize,
+              maxDepth,
+              outputPath,
+            });
+            result = {
+              totalFiles: index.files.length,
+              schemaVersion: index.schemaVersion,
+              generatedAt: index.generatedAt,
+              diff: index.lastDiff,
+              source: "CADFileIndexerEngine.index",
+            };
+            break;
+          }
+          case "cad_index_load": {
+            const { cadFileIndexerEngine } = await import("../../engines/CADFileIndexerEngine.js");
+            const outputPath = params["output_path"] as string | undefined;
+            const index = cadFileIndexerEngine.load(outputPath);
+            if (!index) {
+              result = { found: false, source: "CADFileIndexerEngine.load" };
+            } else {
+              result = {
+                found: true,
+                totalFiles: index.files.length,
+                schemaVersion: index.schemaVersion,
+                generatedAt: index.generatedAt,
+                source: "CADFileIndexerEngine.load",
+              };
+            }
+            break;
+          }
+          case "cad_index_status": {
+            const { cadFileIndexerEngine } = await import("../../engines/CADFileIndexerEngine.js");
+            const outputPath = params["output_path"] as string | undefined;
+            const index = cadFileIndexerEngine.load(outputPath);
+            if (!index) {
+              result = {
+                indexed: false,
+                totalFiles: 0,
+                lastUpdated: null,
+                source: "CADFileIndexerEngine.status",
+              };
+            } else {
+              // Group by machine category
+              const byCategory: Record<string, number> = {};
+              const byFormat: Record<string, number> = {};
+              const byCustomer: Record<string, number> = {};
+              for (const e of index.files) {
+                byCategory[e.machineCategory] = (byCategory[e.machineCategory] || 0) + 1;
+                byFormat[e.format] = (byFormat[e.format] || 0) + 1;
+                byCustomer[e.customer] = (byCustomer[e.customer] || 0) + 1;
+              }
+              result = {
+                indexed: true,
+                totalFiles: index.files.length,
+                lastUpdated: index.generatedAt,
+                byCategory,
+                byFormat,
+                topCustomers: Object.entries(byCustomer)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 10)
+                  .map(([name, count]) => ({ name, count })),
+                source: "CADFileIndexerEngine.status",
+              };
+            }
             break;
           }
           default:
