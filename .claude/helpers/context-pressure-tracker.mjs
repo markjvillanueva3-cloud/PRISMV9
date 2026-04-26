@@ -4,10 +4,10 @@ import { cachePath, ensureCacheDir } from "./hook-cache.mjs";
 
 const TRACKER_FILE = cachePath("context-pressure");
 
-// Token-aligned thresholds (Opus 4.7 drift zone ~400k; 3.5 char/token avg)
-// Paired with auto-compact-gate.mjs: soft 300k tokens, hard 450k tokens
-const WARN_THRESHOLD = 1_050_000;   // ~300k tokens — soft trigger
-const CRITICAL_THRESHOLD = 1_575_000; // ~450k tokens — hard cap
+// Token-aligned thresholds (Opus 4.5 200K context; 3.5 char/token avg)
+// Paired with auto-compact-gate.mjs: soft 160k tokens, hard 190k tokens
+const WARN_THRESHOLD = 560_000;   // ~160k tokens — soft trigger
+const CRITICAL_THRESHOLD = 665_000; // ~190k tokens — hard cap
 const MIN_OUTPUT_SIZE = 100;     // Ignore tiny outputs (noise)
 
 async function readTracker() {

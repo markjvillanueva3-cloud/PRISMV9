@@ -24,17 +24,13 @@ const PATHS = {
   autopilotFlag: cachePath("autopilot-active"),
 };
 
-// Token thresholds for Opus 4.7 1M context.
+// Token thresholds for Opus 4.5 200K context.
 //
-// Prior values (300K/450K) were tuned for 200K-context Sonnet and forced
-// compaction at ~45% of the usable window — compressing and discarding
-// state the 1M window would have kept. That's a regression, not a safety.
-//
-// New values target the real danger zone: ~90% of window. Below that,
-// Opus 4.7 operates fine across the full 1M. Override via env if needed:
+// Soft trigger at ~80% of window, hard cap at ~95%.
+// Override via env if needed:
 //   PRISM_COMPACT_SOFT_TOKENS, PRISM_COMPACT_HARD_TOKENS
-const SOFT_TOKENS = Number(process.env.PRISM_COMPACT_SOFT_TOKENS || 800_000);
-const HARD_TOKENS = Number(process.env.PRISM_COMPACT_HARD_TOKENS || 950_000);
+const SOFT_TOKENS = Number(process.env.PRISM_COMPACT_SOFT_TOKENS || 160_000);
+const HARD_TOKENS = Number(process.env.PRISM_COMPACT_HARD_TOKENS || 190_000);
 
 // Byte fallbacks (~3.5 chars/token for mixed code/prose)
 const SOFT_BYTES = SOFT_TOKENS * 3.5;
@@ -143,7 +139,7 @@ async function main() {
       decision: "block",
       reason: [
         `CONTEXT HARD CAP: ~${totalK}k tokens (source: ${source}, limit: ${HARD_TOKENS / 1000}k).`,
-        "Approaching Opus 4.7 1M context ceiling. DO NOT STOP.",
+        "Approaching Opus 4.5 200K context ceiling. DO NOT STOP.",
         "1. Write HANDOFF.md with ## RESUME describing next concrete step.",
         "2. Run /compact immediately.",
         "3. PostCompact restores via compaction-survival.mjs.",
@@ -168,7 +164,7 @@ async function main() {
       // Stop contract has no "allow" — advise via Stop's additionalContext and continue
       emit({
         continue: true,
-        hookSpecificOutput: { hookEventName: "Stop", additionalContext: reason },
+        systemMessage: reason,
       });
     }
     return;

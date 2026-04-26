@@ -98,10 +98,7 @@ async function main() {
     saveCache(cache);
     console.log(JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "Stop",
-        additionalContext: `Output cache: captured ${newBlocks} new reusable blocks`,
-      }
+      systemMessage: `Output cache: captured ${newBlocks} new reusable blocks`
     }));
   } else {
     console.log(JSON.stringify({ continue: true }));

@@ -144,6 +144,9 @@ const FIXES = [
   },
 ];
 
+// Events that do NOT support hookSpecificOutput — use systemMessage instead
+const NON_HSO_EVENTS = new Set(["Stop", "SessionStart", "PreCompact"]);
+
 function applyFixes(name, src) {
   let out = src;
   const applied = [];
@@ -152,11 +155,21 @@ function applyFixes(name, src) {
     if (f.id === "top_level_additional_context") {
       out = out.replace(f.pattern, (_m, ctx) => {
         const event = primaryEvent(name);
+        // Stop/SessionStart/PreCompact: use systemMessage, not hookSpecificOutput
+        if (NON_HSO_EVENTS.has(event)) {
+          return `JSON.stringify({ continue: true, systemMessage: ${ctx} })`;
+        }
         return `JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "${event}", additionalContext: ${ctx} } })`;
       });
     } else if (f.id === "inline_additional_context" || f.id === "multiline_top_hso_with_context") {
       out = out.replace(f.pattern, (_m, ctx) => {
         const event = primaryEvent(name);
+        // Stop/SessionStart/PreCompact: use systemMessage, not hookSpecificOutput
+        if (NON_HSO_EVENTS.has(event)) {
+          return f.id === "inline_additional_context"
+            ? `{ continue: true, systemMessage: ${ctx} }`
+            : `JSON.stringify({ continue: true, systemMessage: ${ctx} })`;
+        }
         if (f.id === "inline_additional_context") {
           return `{ continue: true, hookSpecificOutput: { hookEventName: "${event}", additionalContext: ${ctx} } }`;
         }

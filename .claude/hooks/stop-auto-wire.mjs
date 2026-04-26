@@ -260,10 +260,7 @@ function main() {
     process.stdout.write(
       JSON.stringify({
         continue: true,
-        hookSpecificOutput: {
-          hookEventName: "Stop",
-          additionalContext: msgs.join("\n\n"),
-        },
+        systemMessage: msgs.join("\n\n"),
       }),
     );
     return;

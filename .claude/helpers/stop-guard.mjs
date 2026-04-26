@@ -93,15 +93,13 @@ async function main() {
     return;
   }
 
-  // Stop event: emit {continue:true} with hookSpecificOutput for any context.
+  // Stop event: emit {continue:true} with systemMessage for any context.
   // `decision:"allow"` is not in the Stop contract — schema-invalid, silently dropped.
+  // NOTE: hookSpecificOutput is NOT valid for Stop events — use systemMessage instead.
   process.stdout.write(
     JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "Stop",
-        additionalContext: reasons.join(" "),
-      },
+      systemMessage: reasons.join(" "),
     }),
   );
 }

@@ -148,10 +148,7 @@ async function main() {
       : `All ${tips.length} tribal tips already categorized`;
     process.stdout.write(JSON.stringify({
       continue: true,
-      hookSpecificOutput: {
-        hookEventName: "Stop",
-        additionalContext: msg,
-      },
+      systemMessage: msg,
     }));
   } catch (err) {
     // Fail silently — never block stop on auto-categorize error

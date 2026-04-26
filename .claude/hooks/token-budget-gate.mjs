@@ -20,9 +20,9 @@ import * as fs from "fs";
 
 const SESSION_MEMORY = "H:/prism/state/SESSION_MEMORY.json";
 const CHECKPOINT_STATE = "H:/prism/mcp-server/data/state/CHECKPOINT_TRACKER.json";
-// Opus 4.7 [1m] = 1,000,000 token context window.
+// Opus 4.5 = 200,000 token context window.
 // Override via env PRISM_MAX_CONTEXT_TOKENS for future model swaps.
-const MAX_CONTEXT_TOKENS = Number(process.env.PRISM_MAX_CONTEXT_TOKENS) || 1_000_000;
+const MAX_CONTEXT_TOKENS = Number(process.env.PRISM_MAX_CONTEXT_TOKENS) || 200_000;
 const AVG_TOKENS_PER_MESSAGE = 600;
 const AVG_TOKENS_PER_EDIT = 400;
 

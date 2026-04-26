@@ -306,11 +306,8 @@ if (goalStack.goals?.[0]?.turns > 2) {
 if (contextParts.length > 0) {
   console.log(JSON.stringify({
     continue: true,
-      hookSpecificOutput: {
-        hookEventName: "Stop",
-        additionalContext: contextParts.join("\n\n"),
-      }
-    }));
+    systemMessage: contextParts.join("\n\n"),
+  }));
 } else {
   console.log(JSON.stringify({ continue: true }));
 }
