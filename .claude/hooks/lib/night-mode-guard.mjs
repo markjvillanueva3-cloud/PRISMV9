@@ -1,4 +1,3 @@
-import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * night-mode-guard.mjs — PreToolUse hook for night mode enforcement
@@ -6,24 +5,29 @@ import fs from "node:fs";
  * Checks if operations are allowed during night mode.
  * Blocks high-risk work like physics engines, safety-critical changes.
  */
-
-import { promises as fs } from "node:fs";
-import os from "node:os";
+import * as fs from 'fs';
 import path from "node:path";
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
 
 const CACHE_DIR = "H:\\prism\\.claude\\cache";
 const FLAG_FILE = path.join(CACHE_DIR, "night-mode-active.json");
 
-async function readJson(filePath) {
+function readJson(filePath) {
   try {
-    return JSON.parse(await fs.readFile(filePath, "utf8"));
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch {
     return null;
   }
 }
 
-async function writeJson(filePath, data) {
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+function writeJson(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
 function checkBlocked(state, filePath, content) {
@@ -69,9 +73,9 @@ function emit(permissionDecision, reason) {
   console.log(JSON.stringify(out));
 }
 
-async function main() {
-  let input = "";
+function main() {
   const input = readStdinSafe();
+  if (!input) { emit("allow"); return; }
 
   try {
     const hookInput = JSON.parse(input);
@@ -84,7 +88,7 @@ async function main() {
     }
 
     // Check if night mode is active
-    const state = await readJson(FLAG_FILE);
+    const state = readJson(FLAG_FILE);
     if (!state?.active) {
       emit("allow");
       return;
@@ -107,7 +111,7 @@ async function main() {
     if (blockReason) {
       state.stats = state.stats || { tasks_completed: 0, tasks_blocked: 0 };
       state.stats.tasks_blocked++;
-      await writeJson(FLAG_FILE, state);
+      writeJson(FLAG_FILE, state);
       emit("deny", blockReason);
       return;
     }
@@ -115,7 +119,7 @@ async function main() {
     // Allowed
     state.stats = state.stats || { tasks_completed: 0, tasks_blocked: 0 };
     state.stats.tasks_completed++;
-    await writeJson(FLAG_FILE, state);
+    writeJson(FLAG_FILE, state);
 
     emit("allow");
   } catch {
