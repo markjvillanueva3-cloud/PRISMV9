@@ -190,4 +190,50 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     claimTtlMs: z.number().optional(),
     presenceTtlMs: z.number().optional(),
   }).optional(),
+
+  // Context Priority — intelligent injection prioritization (U-CTXPRI01)
+  priority_classify_task: z.object({
+    prompt: z.string().describe("User prompt to classify"),
+  }),
+
+  priority_plan_injections: z.object({
+    prompt: z.string().describe("User prompt to plan injections for"),
+    items: z.array(z.object({
+      id: z.string(),
+      category: z.enum(["core", "domain", "reference", "procedural"]),
+      tokens: z.number(),
+      relevanceScore: z.number(),
+      content: z.string(),
+      lastInjectedTurn: z.number().optional(),
+      decayFactor: z.number(),
+    })).describe("Available context items"),
+    tokenBudget: z.number().optional().describe("Token budget (default 10000)"),
+  }),
+
+  priority_compute_relevance: z.object({
+    item: z.object({
+      id: z.string(),
+      category: z.enum(["core", "domain", "reference", "procedural"]),
+      tokens: z.number(),
+      relevanceScore: z.number(),
+      content: z.string(),
+      lastInjectedTurn: z.number().optional(),
+      decayFactor: z.number(),
+    }).describe("Context item to score"),
+    classification: z.object({
+      primaryDomain: z.string(),
+      secondaryDomains: z.array(z.string()),
+      taskType: z.enum(["build", "debug", "analyze", "explore", "optimize", "wire", "test", "other"]),
+      urgency: z.enum(["immediate", "standard", "background"]),
+      complexity: z.enum(["simple", "moderate", "complex"]),
+    }).describe("Task classification"),
+  }),
+
+  priority_stats: z.object({}).optional(),
+
+  priority_reset: z.object({}).optional(),
+
 };
+
+// Context Priority — intelligent injection prioritization (U-CTXPRI01)
+// Added to ACTION_CONTEXT_SCHEMAS above via sed insertion

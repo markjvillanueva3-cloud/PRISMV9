@@ -70,6 +70,12 @@ const ACTIONS = [
   "release_file",
   "presence",
   "prune",
+  // Context Priority — intelligent injection prioritization (U-CTXPRI01)
+  "priority_classify_task",
+  "priority_plan_injections",
+  "priority_compute_relevance",
+  "priority_stats",
+  "priority_reset",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -981,6 +987,41 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               presenceTtlMs: params.presenceTtlMs,
             });
             return ok({ pruned: true, ...stats });
+          }
+
+          // Context Priority — intelligent injection prioritization (U-CTXPRI01)
+          case "priority_classify_task": {
+            const { contextPriorityEngine } = await import("../../engines/ContextPriorityEngine.js");
+            const classification = contextPriorityEngine.classifyTask(params.prompt || "");
+            return ok({ classification });
+          }
+
+          case "priority_plan_injections": {
+            const { contextPriorityEngine } = await import("../../engines/ContextPriorityEngine.js");
+            const plan = contextPriorityEngine.planInjections(
+              params.prompt || "",
+              params.items || [],
+              params.tokenBudget || 10000
+            );
+            return ok({ plan });
+          }
+
+          case "priority_compute_relevance": {
+            const { contextPriorityEngine } = await import("../../engines/ContextPriorityEngine.js");
+            const score = contextPriorityEngine.computeRelevance(params.item, params.classification);
+            return ok({ score });
+          }
+
+          case "priority_stats": {
+            const { contextPriorityEngine } = await import("../../engines/ContextPriorityEngine.js");
+            const stats = contextPriorityEngine.stats();
+            return ok({ stats });
+          }
+
+          case "priority_reset": {
+            const { contextPriorityEngine } = await import("../../engines/ContextPriorityEngine.js");
+            contextPriorityEngine.resetHistory();
+            return ok({ reset: true });
           }
 
           default:
