@@ -884,9 +884,9 @@ const obsidian_sync_config = z.object({
 const shop_note_ingest = z.object({
   file_path: z.string().optional().describe("Path to Obsidian markdown file"),
   content: z.string().optional().describe("Raw markdown content (alternative to file_path)"),
-  source: z.string().default("obsidian").describe("Source identifier"),
-  validate_entities: z.boolean().default(true).describe("Validate extracted entities against PRISM registries"),
-  create_relationships: z.boolean().default(true).describe("Create relationships in knowledge graph"),
+  source: z.string().optional().describe("Source identifier"),
+  validate_entities: z.boolean().optional().describe("Validate extracted entities against PRISM registries"),
+  create_relationships: z.boolean().optional().describe("Create relationships in knowledge graph"),
 }).refine(
   (d) => d.file_path !== undefined || d.content !== undefined,
   { message: "Either file_path or content required" }
@@ -895,8 +895,8 @@ const shop_note_ingest = z.object({
 const shop_note_parse = z.object({
   file_path: z.string().optional().describe("Path to Obsidian markdown file"),
   content: z.string().optional().describe("Raw markdown content"),
-  extract_frontmatter: z.boolean().default(true).describe("Extract YAML frontmatter"),
-  extract_entities: z.boolean().default(true).describe("Extract manufacturing entities"),
+  extract_frontmatter: z.boolean().optional().describe("Extract YAML frontmatter"),
+  extract_entities: z.boolean().optional().describe("Extract manufacturing entities"),
 }).refine(
   (d) => d.file_path !== undefined || d.content !== undefined,
   { message: "Either file_path or content required" }
@@ -910,10 +910,10 @@ const shop_note_batch = z.object({
     filename: z.string().optional(),
     source: z.string().optional(),
   })).optional().describe("Array of note objects with content"),
-  source: z.string().default("obsidian_batch"),
-  validate_entities: z.boolean().default(true),
-  create_relationships: z.boolean().default(true),
-  incremental: z.boolean().default(true).describe("Skip already-ingested notes by checksum"),
+  source: z.string().optional(),
+  validate_entities: z.boolean().optional(),
+  create_relationships: z.boolean().optional(),
+  incremental: z.boolean().optional().describe("Skip already-ingested notes by checksum"),
 }).refine(
   (d) => d.directory !== undefined || d.files !== undefined || d.notes !== undefined,
   { message: "Either directory, files, or notes required" }
@@ -923,13 +923,13 @@ const shop_note_validate = z.object({
   entities: z.array(z.object({
     type: z.enum(["machine", "material", "operation", "tool", "controller"]),
     value: z.string(),
-    confidence: z.number().min(0).max(1).default(1),
+    confidence: z.number().min(0).max(1).optional(),
   })).describe("Entities to validate against PRISM registries"),
-  strict: z.boolean().default(false).describe("Require 100% match for validity"),
+  strict: z.boolean().optional().describe("Require 100% match for validity"),
 });
 
 const shop_note_status = z.object({
-  detailed: z.boolean().default(false).describe("Include detailed statistics"),
+  detailed: z.boolean().optional().describe("Include detailed statistics"),
 });
 export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   search,
