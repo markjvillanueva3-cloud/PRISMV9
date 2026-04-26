@@ -1583,6 +1583,17 @@ export const ACTIONS = [
   "cam_feature_recognize",
   // MILL-MASTER/P1-U06 — CAM AGI Master Orchestrator (3 actions)
   "cam_agi_route", "cam_compare_systems", "cam_ensemble",
+  // CAM-EXHAUST-MS0 WIRING — 12 engines, 35 actions
+  "cam_analyze_toolpath",
+  "cam_deep_query", "cam_deep_similar", "cam_deep_cross_map", "cam_deep_systems",
+  "cam_export", "cam_export_get", "cam_export_systems",
+  "cam_exhaustion_plan_next", "cam_exhaustion_coverage", "cam_exhaustion_audit", "cam_exhaustion_in_scope",
+  "cam_kernel_parse_dxf", "cam_kernel_parse_svg", "cam_kernel_interpret_nl", "cam_kernel_diff_gcode",
+  "cam_kernel_validate", "cam_kernel_list_schemas", "cam_kernel_dfm_analyze",
+  "cam_sdk_optimize_sf", "cam_sdk_check_safety", "cam_sdk_suggest_tool", "cam_sdk_get_tip", "cam_sdk_batch",
+  "cam_strategy_recommend_full",
+  "cam_tool_library_create", "cam_tool_library_add", "cam_tool_library_search", "cam_tool_library_params", "cam_tool_library_export", "cam_tool_library_list",
+  "cam_tool_get_by_number", "cam_tool_query", "cam_tool_select_for_op", "cam_tool_magazine", "cam_tool_find_replacement",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -11905,6 +11916,236 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               include_reasoning_chain: true,
             });
             result = { success: true, ensemble: ensembleResult };
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // CAM-EXHAUST-MS0 WIRING — 12 engines, 35 actions
+          // ═══════════════════════════════════════════════════════════════════
+
+          case "cam_analyze_toolpath": {
+            const { CAMAnalyzeEngine } = await import("../../engines/CAMAnalyzeEngine.js");
+            const analysis = CAMAnalyzeEngine.analyze(params);
+            result = { success: true, analysis };
+            break;
+          }
+
+          case "cam_deep_query": {
+            const { camDeepLearningEngine } = await import("../../engines/CAMDeepLearningEngine.js");
+            const response = camDeepLearningEngine.processQuery(params.query, params.context);
+            result = { success: true, response };
+            break;
+          }
+          case "cam_deep_similar": {
+            const { camDeepLearningEngine } = await import("../../engines/CAMDeepLearningEngine.js");
+            const strategies = camDeepLearningEngine.findSimilarStrategies(params.strategy, params.topK ?? 5);
+            result = { success: true, strategies };
+            break;
+          }
+          case "cam_deep_cross_map": {
+            const { camDeepLearningEngine } = await import("../../engines/CAMDeepLearningEngine.js");
+            const mapping = camDeepLearningEngine.getCrossCAMMapping(params.source_cam, params.target_cam);
+            result = { success: true, mapping };
+            break;
+          }
+          case "cam_deep_systems": {
+            const { camDeepLearningEngine } = await import("../../engines/CAMDeepLearningEngine.js");
+            const systems = camDeepLearningEngine.getSupportedCAMSystems();
+            result = { success: true, systems };
+            break;
+          }
+
+          case "cam_export": {
+            const { CAMExportEngine } = await import("../../engines/CAMExportEngine.js");
+            const exported = CAMExportEngine.export(params);
+            result = { success: true, exported };
+            break;
+          }
+          case "cam_export_get": {
+            const { CAMExportEngine } = await import("../../engines/CAMExportEngine.js");
+            const exportData = CAMExportEngine.getExport(params.export_id);
+            result = { success: true, export: exportData };
+            break;
+          }
+          case "cam_export_systems": {
+            const { CAMExportEngine } = await import("../../engines/CAMExportEngine.js");
+            const systems = CAMExportEngine.listSupportedSystems();
+            result = { success: true, systems };
+            break;
+          }
+
+          case "cam_exhaustion_plan_next": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            const plan = camInputExhaustionPlannerEngine.planNext(params);
+            result = { success: true, plan };
+            break;
+          }
+          case "cam_exhaustion_coverage": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            const coverage = camInputExhaustionPlannerEngine.getCoverageReport();
+            result = { success: true, coverage };
+            break;
+          }
+          case "cam_exhaustion_audit": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            const audit = camInputExhaustionPlannerEngine.auditCam(params.cam_system);
+            result = { success: true, audit };
+            break;
+          }
+          case "cam_exhaustion_in_scope": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            const cams = camInputExhaustionPlannerEngine.getInScopeCams();
+            result = { success: true, cams };
+            break;
+          }
+
+          case "cam_kernel_parse_dxf": {
+            const { camKernelExtensionEngine } = await import("../../engines/CAMKernelExtensionEngine.js");
+            const parsed = camKernelExtensionEngine.parseDXF(params.dxf_content);
+            result = { success: true, parsed };
+            break;
+          }
+          case "cam_kernel_parse_svg": {
+            const { camKernelExtensionEngine } = await import("../../engines/CAMKernelExtensionEngine.js");
+            const parsed = camKernelExtensionEngine.parseSVG(params.svg_content);
+            result = { success: true, parsed };
+            break;
+          }
+          case "cam_kernel_interpret_nl": {
+            const { camKernelExtensionEngine } = await import("../../engines/CAMKernelExtensionEngine.js");
+            const interpreted = camKernelExtensionEngine.interpretNLCommand(params.command);
+            result = { success: true, interpreted };
+            break;
+          }
+          case "cam_kernel_diff_gcode": {
+            const { camKernelExtensionEngine } = await import("../../engines/CAMKernelExtensionEngine.js");
+            const diff = camKernelExtensionEngine.diffGCode(params.gcode_a, params.gcode_b);
+            result = { success: true, diff };
+            break;
+          }
+
+          case "cam_kernel_validate": {
+            const { camKernelValidationEngine } = await import("../../engines/CAMKernelValidationEngine.js");
+            const validation = camKernelValidationEngine.validateCAMInput(params);
+            result = { success: true, validation };
+            break;
+          }
+          case "cam_kernel_list_schemas": {
+            const { camKernelValidationEngine } = await import("../../engines/CAMKernelValidationEngine.js");
+            const schemas = camKernelValidationEngine.listSchemas();
+            result = { success: true, schemas };
+            break;
+          }
+          case "cam_kernel_dfm_analyze": {
+            const { camKernelValidationEngine } = await import("../../engines/CAMKernelValidationEngine.js");
+            const dfm = camKernelValidationEngine.analyzeDFM(params);
+            result = { success: true, dfm };
+            break;
+          }
+
+          case "cam_sdk_optimize_sf": {
+            const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
+            const optimized = camPluginSDKEngine.optimizeSF(params);
+            result = { success: true, optimized };
+            break;
+          }
+          case "cam_sdk_check_safety": {
+            const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
+            const safety = camPluginSDKEngine.checkSafety(params);
+            result = { success: true, safety };
+            break;
+          }
+          case "cam_sdk_suggest_tool": {
+            const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
+            const suggestion = camPluginSDKEngine.suggestTool(params);
+            result = { success: true, suggestion };
+            break;
+          }
+          case "cam_sdk_get_tip": {
+            const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
+            const tip = camPluginSDKEngine.getTip(params.operation, params.material);
+            result = { success: true, tip };
+            break;
+          }
+          case "cam_sdk_batch": {
+            const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
+            const batchResult = camPluginSDKEngine.batch(params.operations);
+            result = { success: true, batch: batchResult };
+            break;
+          }
+
+          case "cam_strategy_recommend_full": {
+            const { camStrategyRecommenderEngine } = await import("../../engines/CAMStrategyRecommenderEngine.js");
+            const recommendation = camStrategyRecommenderEngine.recommend(params);
+            result = { success: true, recommendation };
+            break;
+          }
+
+          case "cam_tool_library_create": {
+            const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
+            const library = CAMToolLibraryEngine.createLibrary(params.name, params.description);
+            result = { success: true, library };
+            break;
+          }
+          case "cam_tool_library_add": {
+            const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
+            const added = CAMToolLibraryEngine.addToolToLibrary(params.library_id, params.tool);
+            result = { success: true, added };
+            break;
+          }
+          case "cam_tool_library_search": {
+            const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
+            const tools = CAMToolLibraryEngine.searchTools(params.query, params.filters);
+            result = { success: true, tools };
+            break;
+          }
+          case "cam_tool_library_params": {
+            const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
+            const paramResult = CAMToolLibraryEngine.getToolParameters(params.tool_id, params.operation);
+            result = { success: true, parameters: paramResult };
+            break;
+          }
+          case "cam_tool_library_export": {
+            const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
+            const exported = CAMToolLibraryEngine.exportLibrary(params.library_id, params.format);
+            result = { success: true, exported };
+            break;
+          }
+          case "cam_tool_library_list": {
+            const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
+            const libraries = CAMToolLibraryEngine.listLibraries();
+            result = { success: true, libraries };
+            break;
+          }
+
+          case "cam_tool_get_by_number": {
+            const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
+            const tool = CAMToolGetEngine.getByNumber(params.tool_number, params.library_id);
+            result = { success: true, tool };
+            break;
+          }
+          case "cam_tool_query": {
+            const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
+            const tools = CAMToolGetEngine.query(params);
+            result = { success: true, tools };
+            break;
+          }
+          case "cam_tool_select_for_op": {
+            const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
+            const selection = CAMToolGetEngine.selectForOperation(params);
+            result = { success: true, selection };
+            break;
+          }
+          case "cam_tool_magazine": {
+            const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
+            const magazine = CAMToolGetEngine.getMagazine(params.machine_id);
+            result = { success: true, magazine };
+            break;
+          }
+          case "cam_tool_find_replacement": {
+            const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
+            const replacement = CAMToolGetEngine.findReplacement(params.tool_id, params.reason);
+            result = { success: true, replacement };
             break;
           }
 

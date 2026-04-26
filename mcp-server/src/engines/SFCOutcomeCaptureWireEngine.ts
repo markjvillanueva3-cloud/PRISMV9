@@ -1,6 +1,10 @@
+// WIRE-EXEMPT: Middleware engine — routes SFC events to OutcomeCaptureBus, not intended for dispatcher exposure
 /**
  * SFCOutcomeCaptureWireEngine — U-PPG-SFC-01
  * ===========================================
+ *
+ * @WIRE-EXEMPT Middleware engine — routes SFC events to OutcomeCaptureBus,
+ * not intended for direct dispatcher exposure.
  *
  * Thin instrumentation layer that routes every SFC (Speed/Feed Calculator)
  * recommendation through the U-LEARN-01 OutcomeCaptureBus so the learning

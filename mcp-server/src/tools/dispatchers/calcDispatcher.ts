@@ -1000,6 +1000,8 @@ const ACTIONS = [
   "goal_stability_observe", "goal_stability_analyze",
   "session_stability_report", "session_stability_lyapunov",
   "tribal_playbook_validate", "tribal_playbook_ranges", "tribal_playbook_guidance",
+  // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
+  "sfc_calculate", "sfc_feed_for_target",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -8542,6 +8544,19 @@ export function registerCalcDispatcher(server: any): void {
             const p = params as ValidatedParams;
             banditParameterOptimizerEngine.updateReward(p.armId, p.reward, p.context);
             result = { updated: true };
+            break;
+          }
+
+          // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
+          case "sfc_calculate": {
+            const { SFCCalculateEngine } = await import("../../engines/SFCCalculateEngine.js");
+            result = SFCCalculateEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "sfc_feed_for_target": {
+            const { SFCCalculateEngine } = await import("../../engines/SFCCalculateEngine.js");
+            const p = params as ValidatedParams;
+            result = { feed: SFCCalculateEngine.calculateFeedForTarget(p.targetRa, p.operation, p.toolNoseRadius, p.toolDiameter) };
             break;
           }
 
