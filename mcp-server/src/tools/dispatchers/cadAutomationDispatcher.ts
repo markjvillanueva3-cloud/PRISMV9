@@ -372,6 +372,36 @@ const ACTIONS = [
   "cad_param_model_info",
   "cad_param_train",
   "cad_param_evaluate",
+  "cad_audit_record",
+  "cad_audit_query",
+  "cad_audit_verify",
+  "cad_audit_chain_info",
+  "cad_audit_export",
+  "cad_audit_clear",
+  "cad_mtls_cert_add",
+  "cad_mtls_cert_list",
+  "cad_mtls_cert_validate",
+  "cad_mtls_binary_verify",
+  "cad_mtls_connection_validate",
+  "cad_mtls_events",
+  "cad_mtls_config",
+  "cad_regen_test",
+  "cad_regen_batch",
+  "cad_regen_compare",
+  "cad_regen_thresholds_get",
+  "cad_regen_thresholds_set",
+  "cad_regression_dashboard_snapshot",
+  "cad_regression_dashboard_list",
+  "cad_regression_run",
+  "cad_regression_load",
+  "cad_regression_report_snapshot",
+  "cad_regression_report_diff",
+  "cad_regression_report_trend",
+  "cad_regression_report_hotspots",
+  "cad_regression_report_summary",
+  "cad_regression_analyzer_diff",
+  "cad_regression_analyzer_trend",
+  "cad_regression_analyzer_hotspots",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -3896,6 +3926,362 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const report = cadParameterPredictorEngine.evaluate(samples);
             result = { report, source: "CADParameterPredictorEngine.evaluate" };
+            break;
+          }
+          case "cad_audit_record": {
+            const { CADPluginTamperAuditLogEngine } = await import("../../engines/CADPluginTamperAuditLogEngine.js");
+            const engine = new CADPluginTamperAuditLogEngine();
+            const sessionId = params["session_id"] as string;
+            const userId = params["user_id"] as string;
+            const command = params["command"] as string;
+            const args = params["args"] as Record<string, unknown> ?? {};
+            const resultStatus = params["result"] as "success" | "failure" | "error";
+            const durationMs = params["duration_ms"] as number;
+            const metadata = params["metadata"] as Record<string, unknown> | undefined;
+            if (!sessionId || !userId || !command || !resultStatus || durationMs === undefined) {
+              throw new Error("cad_audit_record requires 'session_id', 'user_id', 'command', 'result', 'duration_ms'");
+            }
+            const entry = engine.recordCommand(sessionId, userId, command, args, resultStatus, durationMs, metadata);
+            result = { entry, source: "CADPluginTamperAuditLogEngine.recordCommand" };
+            break;
+          }
+          case "cad_audit_query": {
+            const { CADPluginTamperAuditLogEngine } = await import("../../engines/CADPluginTamperAuditLogEngine.js");
+            const engine = new CADPluginTamperAuditLogEngine();
+            const opts = {
+              sessionId: params["session_id"] as string | undefined,
+              userId: params["user_id"] as string | undefined,
+              command: params["command"] as string | undefined,
+              result: params["result"] as "success" | "failure" | "error" | undefined,
+              startTime: params["start_time"] as string | undefined,
+              endTime: params["end_time"] as string | undefined,
+              limit: params["limit"] as number | undefined,
+              offset: params["offset"] as number | undefined,
+            };
+            const entries = engine.queryEntries(opts);
+            result = { entries, count: entries.length, source: "CADPluginTamperAuditLogEngine.queryEntries" };
+            break;
+          }
+          case "cad_audit_verify": {
+            const { CADPluginTamperAuditLogEngine } = await import("../../engines/CADPluginTamperAuditLogEngine.js");
+            const engine = new CADPluginTamperAuditLogEngine();
+            const startIndex = params["start_index"] as number | undefined;
+            const endIndex = params["end_index"] as number | undefined;
+            const report = engine.verifyChainIntegrity(startIndex, endIndex);
+            result = { report, source: "CADPluginTamperAuditLogEngine.verifyChainIntegrity" };
+            break;
+          }
+          case "cad_audit_chain_info": {
+            const { CADPluginTamperAuditLogEngine } = await import("../../engines/CADPluginTamperAuditLogEngine.js");
+            const engine = new CADPluginTamperAuditLogEngine();
+            const info = engine.getChainInfo();
+            result = { info, source: "CADPluginTamperAuditLogEngine.getChainInfo" };
+            break;
+          }
+          case "cad_audit_export": {
+            const { CADPluginTamperAuditLogEngine } = await import("../../engines/CADPluginTamperAuditLogEngine.js");
+            const engine = new CADPluginTamperAuditLogEngine();
+            const format = params["format"] as "json" | "csv" | "jsonl";
+            const startIndex = params["start_index"] as number | undefined;
+            const endIndex = params["end_index"] as number | undefined;
+            if (!format) {
+              throw new Error("cad_audit_export requires 'format' (json|csv|jsonl)");
+            }
+            const exported = engine.exportLog(format, { startIndex, endIndex });
+            result = { exported, source: "CADPluginTamperAuditLogEngine.exportLog" };
+            break;
+          }
+          case "cad_audit_clear": {
+            const { CADPluginTamperAuditLogEngine } = await import("../../engines/CADPluginTamperAuditLogEngine.js");
+            const engine = new CADPluginTamperAuditLogEngine();
+            const clearedCount = engine.clearLog();
+            result = { cleared: clearedCount, source: "CADPluginTamperAuditLogEngine.clearLog" };
+            break;
+          }
+          case "cad_mtls_cert_add": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: () => ({ filePath: "", fileHash: "", hashAlgorithm: "SHA256" as const, signature: "", signerCertFingerprint: "", timestamp: new Date().toISOString(), isValid: false }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const cert = params["certificate"] as Parameters<typeof engine.addCertificate>[0];
+            if (!cert) {
+              throw new Error("cad_mtls_cert_add requires 'certificate' (Certificate)");
+            }
+            engine.addCertificate(cert);
+            result = { added: true, fingerprint: cert.fingerprint, source: "CADPluginMTLSSecurityEngine.addCertificate" };
+            break;
+          }
+          case "cad_mtls_cert_list": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: () => ({ filePath: "", fileHash: "", hashAlgorithm: "SHA256" as const, signature: "", signerCertFingerprint: "", timestamp: new Date().toISOString(), isValid: false }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const certs = engine.listCertificates();
+            result = { certificates: certs, count: certs.length, source: "CADPluginMTLSSecurityEngine.listCertificates" };
+            break;
+          }
+          case "cad_mtls_cert_validate": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: () => ({ filePath: "", fileHash: "", hashAlgorithm: "SHA256" as const, signature: "", signerCertFingerprint: "", timestamp: new Date().toISOString(), isValid: false }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const fingerprint = params["fingerprint"] as string;
+            if (!fingerprint) {
+              throw new Error("cad_mtls_cert_validate requires 'fingerprint'");
+            }
+            const validation = engine.validateCertificate(fingerprint);
+            result = { validation, source: "CADPluginMTLSSecurityEngine.validateCertificate" };
+            break;
+          }
+          case "cad_mtls_binary_verify": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: (fp: string, eh?: string) => ({ filePath: fp, fileHash: eh ?? "mock", hashAlgorithm: "SHA256" as const, signature: "mocksig", signerCertFingerprint: "mockcert", timestamp: new Date().toISOString(), isValid: true }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const filePath = params["file_path"] as string;
+            const expectedHash = params["expected_hash"] as string | undefined;
+            if (!filePath) {
+              throw new Error("cad_mtls_binary_verify requires 'file_path'");
+            }
+            const sig = engine.verifyBinary(filePath, expectedHash);
+            result = { signature: sig, source: "CADPluginMTLSSecurityEngine.verifyBinary" };
+            break;
+          }
+          case "cad_mtls_connection_validate": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: () => ({ filePath: "", fileHash: "", hashAlgorithm: "SHA256" as const, signature: "", signerCertFingerprint: "", timestamp: new Date().toISOString(), isValid: false }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const clientCertFingerprint = params["client_cert_fingerprint"] as string;
+            if (!clientCertFingerprint) {
+              throw new Error("cad_mtls_connection_validate requires 'client_cert_fingerprint'");
+            }
+            const validation = engine.validateConnection(clientCertFingerprint);
+            result = { validation, source: "CADPluginMTLSSecurityEngine.validateConnection" };
+            break;
+          }
+          case "cad_mtls_events": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: () => ({ filePath: "", fileHash: "", hashAlgorithm: "SHA256" as const, signature: "", signerCertFingerprint: "", timestamp: new Date().toISOString(), isValid: false }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const opts = {
+              type: params["type"] as string | undefined,
+              severity: params["severity"] as string | undefined,
+              limit: params["limit"] as number | undefined,
+            };
+            const events = engine.getSecurityEvents(opts);
+            result = { events, count: events.length, source: "CADPluginMTLSSecurityEngine.getSecurityEvents" };
+            break;
+          }
+          case "cad_mtls_config": {
+            const { CADPluginMTLSSecurityEngine } = await import("../../engines/CADPluginMTLSSecurityEngine.js");
+            const noopTransport = {
+              loadCertificate: () => null,
+              verifyCertificateChain: () => ({ chainId: "", certificates: [], rootFingerprint: "", isComplete: false, isValid: false }),
+              verifyBinarySignature: () => ({ filePath: "", fileHash: "", hashAlgorithm: "SHA256" as const, signature: "", signerCertFingerprint: "", timestamp: new Date().toISOString(), isValid: false }),
+              checkRevocation: () => false,
+            };
+            const engine = new CADPluginMTLSSecurityEngine({ transport: noopTransport });
+            const config = engine.getConfig();
+            result = { config, source: "CADPluginMTLSSecurityEngine.getConfig" };
+            break;
+          }
+          case "cad_regen_test": {
+            const { cadRegenerationTestEngine } = await import("../../engines/CADRegenerationTestEngine.js");
+            const originalPath = params["original_path"] as string;
+            const thresholds = params["thresholds"] as Parameters<typeof cadRegenerationTestEngine.test>[0]["thresholds"];
+            if (!originalPath) {
+              throw new Error("cad_regen_test requires 'original_path'");
+            }
+            const testResult = await cadRegenerationTestEngine.test({ originalPath, thresholds });
+            result = { result: testResult, source: "CADRegenerationTestEngine.test" };
+            break;
+          }
+          case "cad_regen_batch": {
+            const { cadRegenerationTestEngine } = await import("../../engines/CADRegenerationTestEngine.js");
+            const paths = params["paths"] as string[];
+            const thresholds = params["thresholds"] as Parameters<typeof cadRegenerationTestEngine.batch>[0]["thresholds"];
+            const stopOnFirstFail = params["stop_on_first_fail"] as boolean | undefined;
+            if (!paths || !Array.isArray(paths)) {
+              throw new Error("cad_regen_batch requires 'paths' array");
+            }
+            const batchResult = await cadRegenerationTestEngine.batch({ paths, thresholds, stopOnFirstFail });
+            result = { result: batchResult, source: "CADRegenerationTestEngine.batch" };
+            break;
+          }
+          case "cad_regen_compare": {
+            const { cadRegenerationTestEngine } = await import("../../engines/CADRegenerationTestEngine.js");
+            const original = params["original"] as Parameters<typeof cadRegenerationTestEngine.compare>[0];
+            const generated = params["generated"] as Parameters<typeof cadRegenerationTestEngine.compare>[1];
+            const thresholds = params["thresholds"] as Parameters<typeof cadRegenerationTestEngine.compare>[2];
+            if (!original || !generated) {
+              throw new Error("cad_regen_compare requires 'original' and 'generated' (CADGeometry)");
+            }
+            const comparison = cadRegenerationTestEngine.compare(original, generated, thresholds);
+            result = { comparison, source: "CADRegenerationTestEngine.compare" };
+            break;
+          }
+          case "cad_regen_thresholds_get": {
+            const { cadRegenerationTestEngine } = await import("../../engines/CADRegenerationTestEngine.js");
+            const thresholds = cadRegenerationTestEngine.getThresholds();
+            result = { thresholds, source: "CADRegenerationTestEngine.getThresholds" };
+            break;
+          }
+          case "cad_regen_thresholds_set": {
+            const { cadRegenerationTestEngine } = await import("../../engines/CADRegenerationTestEngine.js");
+            const thresholds = params["thresholds"] as Parameters<typeof cadRegenerationTestEngine.setThresholds>[0];
+            if (!thresholds) {
+              throw new Error("cad_regen_thresholds_set requires 'thresholds'");
+            }
+            const updated = cadRegenerationTestEngine.setThresholds(thresholds);
+            result = { thresholds: updated, source: "CADRegenerationTestEngine.setThresholds" };
+            break;
+          }
+          case "cad_regression_dashboard_snapshot": {
+            const { cadRegressionDashboardEngine } = await import("../../engines/CADRegressionDashboardEngine.js");
+            const batchId = params["batch_id"] as string;
+            const stateDir = params["state_dir"] as string | undefined;
+            const windowMinutes = params["window_minutes"] as number | undefined;
+            const recentLimit = params["recent_limit"] as number | undefined;
+            if (!batchId) {
+              throw new Error("cad_regression_dashboard_snapshot requires 'batch_id'");
+            }
+            const snapshot = await cadRegressionDashboardEngine.snapshot(batchId, stateDir, windowMinutes, recentLimit);
+            result = { snapshot, source: "CADRegressionDashboardEngine.snapshot" };
+            break;
+          }
+          case "cad_regression_dashboard_list": {
+            const { cadRegressionDashboardEngine } = await import("../../engines/CADRegressionDashboardEngine.js");
+            const stateDir = params["state_dir"] as string | undefined;
+            const batches = await cadRegressionDashboardEngine.listBatches(stateDir);
+            result = { batches, count: batches.length, source: "CADRegressionDashboardEngine.listBatches" };
+            break;
+          }
+          case "cad_regression_run": {
+            result = { error: "cad_regression_run requires runtime TestRunner - use loadState or call engine directly", source: "CADRegressionTestOrchestratorEngine" };
+            break;
+          }
+          case "cad_regression_load": {
+            const { cadRegressionTestOrchestratorEngine } = await import("../../engines/CADRegressionTestOrchestratorEngine.js");
+            const statePath = params["state_path"] as string;
+            if (!statePath) {
+              throw new Error("cad_regression_load requires 'state_path'");
+            }
+            const batch = await cadRegressionTestOrchestratorEngine.loadState(statePath);
+            result = { batch: batch ?? null, found: !!batch, source: "CADRegressionTestOrchestratorEngine.loadState" };
+            break;
+          }
+          case "cad_regression_report_snapshot": {
+            const { renderSnapshot } = await import("../../engines/CADRegressionReportGeneratorEngine.js");
+            const snapshot = params["snapshot"] as Parameters<typeof renderSnapshot>[0];
+            if (!snapshot) {
+              throw new Error("cad_regression_report_snapshot requires 'snapshot' (DashboardSnapshot)");
+            }
+            const markdown = renderSnapshot(snapshot);
+            result = { markdown, source: "CADRegressionReportGeneratorEngine.renderSnapshot" };
+            break;
+          }
+          case "cad_regression_report_diff": {
+            const { renderDiff } = await import("../../engines/CADRegressionReportGeneratorEngine.js");
+            const diff = params["diff"] as Parameters<typeof renderDiff>[0];
+            const rowLimit = params["row_limit"] as number | undefined;
+            if (!diff) {
+              throw new Error("cad_regression_report_diff requires 'diff' (DiffReport)");
+            }
+            const markdown = renderDiff(diff, rowLimit);
+            result = { markdown, source: "CADRegressionReportGeneratorEngine.renderDiff" };
+            break;
+          }
+          case "cad_regression_report_trend": {
+            const { renderTrend } = await import("../../engines/CADRegressionReportGeneratorEngine.js");
+            const trend = params["trend"] as Parameters<typeof renderTrend>[0];
+            if (!trend) {
+              throw new Error("cad_regression_report_trend requires 'trend' (TrendReport)");
+            }
+            const markdown = renderTrend(trend);
+            result = { markdown, source: "CADRegressionReportGeneratorEngine.renderTrend" };
+            break;
+          }
+          case "cad_regression_report_hotspots": {
+            const { renderHotspots } = await import("../../engines/CADRegressionReportGeneratorEngine.js");
+            const hotspots = params["hotspots"] as Parameters<typeof renderHotspots>[0];
+            if (!hotspots) {
+              throw new Error("cad_regression_report_hotspots requires 'hotspots' (HotspotReport)");
+            }
+            const markdown = renderHotspots(hotspots);
+            result = { markdown, source: "CADRegressionReportGeneratorEngine.renderHotspots" };
+            break;
+          }
+          case "cad_regression_report_summary": {
+            const { renderSummary } = await import("../../engines/CADRegressionReportGeneratorEngine.js");
+            const snapshot = params["snapshot"] as Parameters<typeof renderSummary>[0]["snapshot"];
+            const diff = params["diff"] as Parameters<typeof renderSummary>[0]["diff"];
+            const trend = params["trend"] as Parameters<typeof renderSummary>[0]["trend"];
+            const hotspots = params["hotspots"] as Parameters<typeof renderSummary>[0]["hotspots"];
+            const rowLimit = params["row_limit"] as number | undefined;
+            const markdown = renderSummary({ snapshot, diff, trend, hotspots, rowLimit });
+            result = { markdown, source: "CADRegressionReportGeneratorEngine.renderSummary" };
+            break;
+          }
+          case "cad_regression_analyzer_diff": {
+            const { cadRegressionResultsAnalyzerEngine } = await import("../../engines/CADRegressionResultsAnalyzerEngine.js");
+            const baseBatchId = params["base_batch_id"] as string;
+            const candidateBatchId = params["candidate_batch_id"] as string;
+            const stateDir = params["state_dir"] as string | undefined;
+            if (!baseBatchId || !candidateBatchId) {
+              throw new Error("cad_regression_analyzer_diff requires 'base_batch_id' and 'candidate_batch_id'");
+            }
+            const diffReport = await cadRegressionResultsAnalyzerEngine.diff(baseBatchId, candidateBatchId, stateDir);
+            result = { diff: diffReport, source: "CADRegressionResultsAnalyzerEngine.diff" };
+            break;
+          }
+          case "cad_regression_analyzer_trend": {
+            const { cadRegressionResultsAnalyzerEngine } = await import("../../engines/CADRegressionResultsAnalyzerEngine.js");
+            const batchIds = params["batch_ids"] as string[];
+            const stateDir = params["state_dir"] as string | undefined;
+            if (!batchIds || !Array.isArray(batchIds) || batchIds.length === 0) {
+              throw new Error("cad_regression_analyzer_trend requires 'batch_ids' array (non-empty)");
+            }
+            const trendReport = await cadRegressionResultsAnalyzerEngine.trend(batchIds, stateDir);
+            result = { trend: trendReport, source: "CADRegressionResultsAnalyzerEngine.trend" };
+            break;
+          }
+          case "cad_regression_analyzer_hotspots": {
+            const { cadRegressionResultsAnalyzerEngine } = await import("../../engines/CADRegressionResultsAnalyzerEngine.js");
+            const batchIds = params["batch_ids"] as string[];
+            const threshold = params["threshold"] as number | undefined;
+            const minAppearances = params["min_appearances"] as number | undefined;
+            const stateDir = params["state_dir"] as string | undefined;
+            if (!batchIds || !Array.isArray(batchIds) || batchIds.length === 0) {
+              throw new Error("cad_regression_analyzer_hotspots requires 'batch_ids' array (non-empty)");
+            }
+            const hotspotReport = await cadRegressionResultsAnalyzerEngine.hotspots(batchIds, threshold, minAppearances, stateDir);
+            result = { hotspots: hotspotReport, source: "CADRegressionResultsAnalyzerEngine.hotspots" };
             break;
           }
           default:
