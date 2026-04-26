@@ -77,8 +77,7 @@ function runScript(scriptPath, quiet = true) {
 }
 
 async function main() {
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
 
   const tracker = readTracker();
   const files = tracker.files || [];

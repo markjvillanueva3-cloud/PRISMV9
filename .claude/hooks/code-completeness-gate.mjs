@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * code-completeness-gate.mjs — PreToolUse hook for Edit/Write
@@ -166,9 +167,7 @@ function checkContent(content, filePath) {
 
 async function main() {
   let input = '';
-  for await (const chunk of process.stdin) input += chunk;
-
-  let payload;
+  const input = readStdinSafe();let payload;
   try {
     payload = JSON.parse(input);
   } catch {

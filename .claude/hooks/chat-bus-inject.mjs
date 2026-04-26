@@ -182,8 +182,7 @@ function formatBrief({ messages, claims, peers, sessionId }) {
 }
 
 async function main() {
-  let raw = "";
-  for await (const chunk of process.stdin) raw += chunk;
+  const raw = readStdinSafe();
 
   let payload;
   try {

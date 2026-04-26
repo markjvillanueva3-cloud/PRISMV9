@@ -355,4 +355,4 @@ MANDATORY RULES:
   console.log(JSON.stringify({ continue: true, systemMessage: activation }));
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => { console.log(JSON.stringify({ continue: true })); });

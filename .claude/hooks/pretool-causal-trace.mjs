@@ -51,8 +51,7 @@ function traceDependents(edges, startId, maxHops) {
 
 async function main() {
   const t0 = Date.now();
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
   let data;
   try { data = JSON.parse(input); } catch { process.exit(0); }
 
@@ -85,4 +84,6 @@ async function main() {
   }));
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => {
+  console.log(JSON.stringify({ continue: true }));
+});

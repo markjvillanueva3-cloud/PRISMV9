@@ -56,8 +56,7 @@ function appendObservation(obs) {
 }
 
 async function main() {
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
   let data = null;
   try { data = JSON.parse(input); } catch { /* proceed with empty */ }
 
@@ -78,4 +77,6 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => {
+  console.log(JSON.stringify({ continue: true }));
+});

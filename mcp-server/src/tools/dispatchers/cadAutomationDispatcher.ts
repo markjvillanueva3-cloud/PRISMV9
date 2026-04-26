@@ -238,6 +238,14 @@ const ACTIONS = [
   "cad_classify_run",
   "cad_classify_one",
   "cad_classify_format",
+  "cad_taxonomy_get",
+  "cad_taxonomy_list",
+  "cad_taxonomy_aerospace",
+  "cad_taxonomy_by_category",
+  "cad_taxonomy_by_system",
+  "cad_taxonomy_search",
+  "cad_taxonomy_compatibility",
+  "cad_taxonomy_stats",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2137,6 +2145,75 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const profile = classifyFormat(format);
             result = { ...profile, source: "CADFileClassifierEngine.classifyFormat" };
+            break;
+          }
+          case "cad_taxonomy_get": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const operationId = params["operation_id"] as string;
+            if (!operationId) {
+              throw new Error("cad_taxonomy_get requires 'operation_id' string");
+            }
+            const op = cadOperationTaxonomyEngine.getOperation(operationId);
+            result = { operation: op, found: !!op, source: "CADOperationTaxonomyEngine.getOperation" };
+            break;
+          }
+          case "cad_taxonomy_list": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const operations = cadOperationTaxonomyEngine.getAllOperations();
+            result = { operations, count: operations.length, source: "CADOperationTaxonomyEngine.getAllOperations" };
+            break;
+          }
+          case "cad_taxonomy_aerospace": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const operations = cadOperationTaxonomyEngine.getAerospaceOperations();
+            result = { operations, count: operations.length, source: "CADOperationTaxonomyEngine.getAerospaceOperations" };
+            break;
+          }
+          case "cad_taxonomy_by_category": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const category = params["category"] as string;
+            if (!category) {
+              throw new Error("cad_taxonomy_by_category requires 'category' string");
+            }
+            const operations = cadOperationTaxonomyEngine.getByCategory(category as Parameters<typeof cadOperationTaxonomyEngine.getByCategory>[0]);
+            result = { operations, count: operations.length, category, source: "CADOperationTaxonomyEngine.getByCategory" };
+            break;
+          }
+          case "cad_taxonomy_by_system": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const system = params["system"] as string;
+            if (!system) {
+              throw new Error("cad_taxonomy_by_system requires 'system' string (e.g. 'fusion360', 'solidworks')");
+            }
+            const operations = cadOperationTaxonomyEngine.getBySupportedSystem(system as Parameters<typeof cadOperationTaxonomyEngine.getBySupportedSystem>[0]);
+            result = { operations, count: operations.length, system, source: "CADOperationTaxonomyEngine.getBySupportedSystem" };
+            break;
+          }
+          case "cad_taxonomy_search": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const query = params["query"] as string;
+            if (!query) {
+              throw new Error("cad_taxonomy_search requires 'query' string");
+            }
+            const results = cadOperationTaxonomyEngine.search(query);
+            result = { results, count: results.length, query, source: "CADOperationTaxonomyEngine.search" };
+            break;
+          }
+          case "cad_taxonomy_compatibility": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const operationId = params["operation_id"] as string;
+            const system = params["system"] as string;
+            if (!operationId || !system) {
+              throw new Error("cad_taxonomy_compatibility requires 'operation_id' and 'system' strings");
+            }
+            const report = cadOperationTaxonomyEngine.checkCompatibility(operationId, system as Parameters<typeof cadOperationTaxonomyEngine.checkCompatibility>[1]);
+            result = { ...report, source: "CADOperationTaxonomyEngine.checkCompatibility" };
+            break;
+          }
+          case "cad_taxonomy_stats": {
+            const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
+            const stats = cadOperationTaxonomyEngine.getStats();
+            result = { ...stats, source: "CADOperationTaxonomyEngine.getStats" };
             break;
           }
           default:

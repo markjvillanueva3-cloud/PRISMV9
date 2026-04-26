@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * import-verifier.mjs — PreToolUse hook for Edit/Write/MultiEdit
@@ -236,9 +237,7 @@ function isCodeFile(filePath) {
 
 async function main() {
   let input = '';
-  for await (const chunk of process.stdin) input += chunk;
-
-  let payload;
+  const input = readStdinSafe();let payload;
   try {
     payload = JSON.parse(input);
   } catch {

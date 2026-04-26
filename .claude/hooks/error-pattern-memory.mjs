@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * error-pattern-memory.mjs — PostToolUse Hook (Bash, Edit, Write)
@@ -162,9 +163,7 @@ function generateFixKey(error) {
 
 async function main() {
   let input = '';
-  for await (const chunk of process.stdin) input += chunk;
-
-  let payload;
+  const input = readStdinSafe();let payload;
   try {
     payload = JSON.parse(input);
   } catch {

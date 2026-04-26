@@ -110,8 +110,7 @@ export default async function physicsCanonicalConstantsGuard({ tool, input }) {
 }
 
 async function main() {
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
 
   try {
     const data = JSON.parse(input);

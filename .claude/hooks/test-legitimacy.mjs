@@ -1,3 +1,4 @@
+import fs from "node:fs";
 /**
  * test-legitimacy.mjs — Phase 1 Tier 5D Workflow Hook
  * Blocks placeholder tests with no real assertions.
@@ -80,8 +81,7 @@ export default async function testLegitimacy({ tool, input }) {
 export const metadata = { id: "test-legitimacy", phase: "1", tier: "5D", event: "PreToolWrite" };
 
 async function main() {
-  let raw = "";
-  for await (const chunk of process.stdin) raw += chunk;
+  const raw = readStdinSafe();
 
   let payload;
   try {

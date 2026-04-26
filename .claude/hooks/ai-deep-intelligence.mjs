@@ -413,4 +413,4 @@ async function main() {
   console.log(JSON.stringify({ continue: true, systemMessage: generateActivation() }));
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => { console.log(JSON.stringify({ continue: true })); });

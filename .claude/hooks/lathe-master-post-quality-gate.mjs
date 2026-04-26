@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 // DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
 // Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
@@ -178,9 +179,7 @@ function detectLatheContext(prompt) {
 
 async function main() {
   let input = "";
-  for await (const chunk of process.stdin) {
-    input += chunk;
-  }
+  const input = readStdinSafe();
 
   let hookData;
   try {

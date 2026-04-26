@@ -57,8 +57,7 @@ function setTerminalTitle(title) {
 }
 
 async function main() {
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
 
   let payload;
   try {

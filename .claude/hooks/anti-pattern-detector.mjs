@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * anti-pattern-detector.mjs — PreToolUse hook for Edit/Write/MultiEdit
@@ -169,9 +170,7 @@ function checkContent(content, filePath) {
 
 async function main() {
   let input = '';
-  for await (const chunk of process.stdin) input += chunk;
-
-  let payload;
+  const input = readStdinSafe();let payload;
   try {
     payload = JSON.parse(input);
   } catch {

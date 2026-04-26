@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * discipline-expert-inject.mjs — UserPromptSubmit hook
@@ -954,9 +955,7 @@ function formatExpertise(discipline) {
 
 async function main() {
   let input = '';
-  for await (const chunk of process.stdin) input += chunk;
-
-  let payload;
+  const input = readStdinSafe();let payload;
   try {
     payload = JSON.parse(input);
   } catch {

@@ -183,9 +183,7 @@ function checkAndClaim(resource) {
 
 async function main() {
   let input = "";
-  for await (const chunk of process.stdin) {
-    input += chunk;
-  }
+  const input = readStdinSafe();
 
   let data;
   try {
@@ -216,4 +214,6 @@ async function main() {
   }
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => {
+  console.log(JSON.stringify({ continue: true }));
+});

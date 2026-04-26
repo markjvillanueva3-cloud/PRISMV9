@@ -144,4 +144,4 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => { console.log(JSON.stringify({ continue: true })); });

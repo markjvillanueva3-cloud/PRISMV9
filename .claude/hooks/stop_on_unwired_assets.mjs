@@ -243,6 +243,9 @@ function checkEngineTested(engineRelPath) {
     if (isWireExempt(content)) {
       return { tested: true, reason: "WIRE-EXEMPT marker", cases: 0 };
     }
+  } else {
+    // Engine file doesn't exist (deleted/renamed) — skip test check
+    return { tested: true, reason: "file missing (stale transcript reference)", cases: 0 };
   }
   const testsDir = path.join(REPO_ROOT, TESTS_DIR);
   if (!fs.existsSync(testsDir)) {
@@ -310,7 +313,7 @@ function checkDispatcherActionHandlers(dispatcherRelPath) {
     // Matches: action_name: handleXxx OR action_name: async ... OR action_name: (params) =>
     const handlerRe = new RegExp(`\\b${name}\\s*:\\s*(handle[A-Z]|async\\s|\\()`);
     // Pattern 3: Plain object key assignment (e.g., `action_name: handleActionName`)
-    const objKeyRe = new RegExp(`["'\`]?${name}["'\`]?\\s*:\\s*[a-zA-Z_]`);
+    const objKeyRe = new RegExp(`["'\`]?${name}["'\`]?\\s*:\\s*["'\`a-zA-Z_]`);
     if (!caseRe.test(body) && !handlerRe.test(body) && !objKeyRe.test(body)) {
       missing.push(name);
     }

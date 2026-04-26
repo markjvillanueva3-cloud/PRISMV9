@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * expert-role-inject.mjs — SessionStart hook
@@ -26,8 +27,7 @@ Never settle for "good enough" — push for optimal solutions.`;
 
 async function main() {
   // Consume stdin (hook protocol)
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
 
   // Output the role reminder as additional context
   console.log(JSON.stringify({
@@ -36,4 +36,6 @@ async function main() {
     }));
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => {
+  console.log(JSON.stringify({ continue: true }));
+});

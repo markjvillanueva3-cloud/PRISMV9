@@ -76,8 +76,7 @@ function logTelemetry(ev) {
 }
 
 async function main() {
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
   try { JSON.parse(input); } catch { process.exit(0); }
 
   const counter = loadCounter();
@@ -101,4 +100,6 @@ async function main() {
   }));
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => {
+  console.log(JSON.stringify({ continue: true }));
+});

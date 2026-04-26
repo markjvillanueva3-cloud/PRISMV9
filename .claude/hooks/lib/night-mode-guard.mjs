@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * night-mode-guard.mjs — PreToolUse hook for night mode enforcement
@@ -70,9 +71,7 @@ function emit(permissionDecision, reason) {
 
 async function main() {
   let input = "";
-  for await (const chunk of process.stdin) {
-    input += chunk;
-  }
+  const input = readStdinSafe();
 
   try {
     const hookInput = JSON.parse(input);

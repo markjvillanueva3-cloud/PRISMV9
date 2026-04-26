@@ -179,8 +179,7 @@ export default async function jmDieProvenanceGuard({ tool, input, result }) {
 }
 
 async function main() {
-  let input = "";
-  for await (const chunk of process.stdin) input += chunk;
+  const input = readStdinSafe();
 
   try {
     const data = JSON.parse(input);

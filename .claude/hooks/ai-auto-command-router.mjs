@@ -110,4 +110,4 @@ To use, type the command or ask me to run it. The AI system can auto-invoke thes
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+main().catch(() => { console.log(JSON.stringify({ continue: true })); });

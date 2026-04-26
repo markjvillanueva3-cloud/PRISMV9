@@ -142,18 +142,19 @@ function readRoadmapClaims(sessionIds) {
     }));
 }
 
-async function drainStdin() {
+function drainStdin() {
+  // Drain hook input synchronously - async iteration can hang indefinitely
   try {
-    for await (const _ of process.stdin) {
-      // Drain hook input so Claude/Codex can pipe JSON without strict schema.
+    if (!process.stdin.isTTY) {
+      fs.readFileSync(0, "utf-8");
     }
   } catch {
-    // ignore
+    // ignore - stdin may be empty or closed
   }
 }
 
 async function main() {
-  await drainStdin();
+  drainStdin();
 
   try {
     const sessionIds = currentSessionIds();

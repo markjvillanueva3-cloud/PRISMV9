@@ -1,3 +1,4 @@
+import fs from "node:fs";
 #!/usr/bin/env node
 /**
  * UserPromptSubmit hook — SPARC opt-in gate.
@@ -27,8 +28,7 @@ const FLAG = resolve("H:/prism/state/shared/SPARC_OPT_IN.flag");
 async function readStdin() {
   let buf = "";
   process.stdin.setEncoding("utf8");
-  for await (const chunk of process.stdin) buf += chunk;
-  return buf;
+  const buf = readStdinSafe();return buf;
 }
 
 function isSparcPrompt(text) {
