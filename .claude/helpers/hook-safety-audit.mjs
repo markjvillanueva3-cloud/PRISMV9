@@ -21,9 +21,10 @@ function auditFile(filePath, fileName) {
   const fileIssues = [];
 
   // Issue 1: async main() without .catch()
+  // Only flag if there's an async main() definition but no main().catch() call anywhere
   if (/async\s+function\s+main\s*\(/.test(content)) {
-    // Check if main() is called with .catch()
-    if (/\bmain\s*\(\s*\)(?!\s*\.catch)/.test(content)) {
+    // Check if main().catch() exists (the call, not the definition)
+    if (!/main\s*\(\s*\)\s*\.catch/.test(content)) {
       fileIssues.push({
         type: "NO_CATCH",
         severity: "high",
