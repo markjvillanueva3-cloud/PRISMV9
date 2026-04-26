@@ -851,6 +851,34 @@ const workflow_search = z.object({
 
 const workflow_stats = z.object({}).passthrough();
 
+
+// ── OBSIDIAN-MS0: Obsidian Vault Sync Actions ──
+const obsidian_sync_pull = z.object({
+  vault_path: z.string().describe("Absolute path to Obsidian vault"),
+  sync_folder: z.string().optional().describe("Subfolder to sync from (default: 'PRISM')"),
+  incremental: z.boolean().optional().describe("Only sync changed files (default: true)"),
+  dry_run: z.boolean().optional().describe("Preview without making changes (default: false)"),
+}).passthrough();
+
+const obsidian_sync_push = z.object({
+  vault_path: z.string().describe("Absolute path to Obsidian vault"),
+  sync_folder: z.string().optional().describe("Subfolder for PRISM notes (default: 'PRISM')"),
+  tip_ids: z.array(z.string()).optional().describe("Specific tip IDs to push (all if omitted)"),
+  incremental: z.boolean().optional().describe("Only push changed tips (default: true)"),
+  dry_run: z.boolean().optional().describe("Preview without making changes (default: false)"),
+}).passthrough();
+
+const obsidian_sync_status = z.object({
+  vault_path: z.string().optional().describe("Path to Obsidian vault (uses configured if omitted)"),
+}).passthrough();
+
+const obsidian_sync_config = z.object({
+  vault_path: z.string().optional().describe("Absolute path to Obsidian vault"),
+  sync_folder: z.string().optional().describe("Folder within vault for PRISM notes (default: 'PRISM')"),
+  enable_bidirectional: z.boolean().optional().describe("Enable two-way sync (default: true)"),
+  conflict_strategy: z.enum(["prism_wins", "obsidian_wins", "manual", "newest"]).optional()
+    .describe("How to resolve conflicts (default: 'newest')"),
+}).passthrough();
 export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   search,
   cross_query,
@@ -966,4 +994,9 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   workflow_order_of_ops,
   workflow_search,
   workflow_stats,
+  // OBSIDIAN-MS0: Obsidian Vault Sync
+  obsidian_sync_pull,
+  obsidian_sync_push,
+  obsidian_sync_status,
+  obsidian_sync_config,
 };

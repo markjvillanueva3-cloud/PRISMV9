@@ -194,6 +194,13 @@ const ACTIONS = [
   "batch_extract",
   "batch_coverage_report",
   "batch_validate",
+  // CAD-UNIVERSAL-CONTROL-MS0/U-CUC10: CAD knowledge graph
+  "cad_graph_build",
+  "cad_graph_detect_cycles",
+  "cad_graph_find_orphans",
+  "cad_graph_ancestors",
+  "cad_graph_descendants",
+  "cad_graph_to_jsonld",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -1524,6 +1531,106 @@ Actions: ${ACTIONS.join(", ")}.`,
               "../../engines/GroundTruthBatchExtractor.js"
             );
             result = groundTruthBatchExtractor.validate(params["candidate"]);
+            break;
+          }
+          // ── CAD-UNIVERSAL-CONTROL-MS0/U-CUC10: CAD knowledge graph via CADKnowledgeGraphEngine ──
+          case "cad_graph_build": {
+            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const engine = new CADKnowledgeGraphEngine();
+            const operations = params["operations"] as Array<Record<string, unknown>>;
+            if (!Array.isArray(operations) || operations.length === 0) {
+              throw new Error("cad_graph_build requires non-empty 'operations' array");
+            }
+            const graph = engine.build(operations as Parameters<typeof engine.build>[0]);
+            result = {
+              node_count: graph.nodes.length,
+              edge_count: graph.edges.length,
+              nodes: graph.nodes,
+              edges: graph.edges,
+              source: "CADKnowledgeGraphEngine.build",
+            };
+            break;
+          }
+          case "cad_graph_detect_cycles": {
+            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const engine = new CADKnowledgeGraphEngine();
+            const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
+            if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+              throw new Error("cad_graph_detect_cycles requires 'graph' with nodes and edges arrays");
+            }
+            const report = engine.detectCycles(graph as Parameters<typeof engine.detectCycles>[0]);
+            result = {
+              ...report,
+              source: "CADKnowledgeGraphEngine.detectCycles",
+            };
+            break;
+          }
+          case "cad_graph_find_orphans": {
+            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const engine = new CADKnowledgeGraphEngine();
+            const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
+            if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+              throw new Error("cad_graph_find_orphans requires 'graph' with nodes and edges arrays");
+            }
+            const report = engine.findOrphans(graph as Parameters<typeof engine.findOrphans>[0]);
+            result = {
+              ...report,
+              source: "CADKnowledgeGraphEngine.findOrphans",
+            };
+            break;
+          }
+          case "cad_graph_ancestors": {
+            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const engine = new CADKnowledgeGraphEngine();
+            const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
+            const nodeId = params["node_id"] as string;
+            if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+              throw new Error("cad_graph_ancestors requires 'graph' with nodes and edges arrays");
+            }
+            if (typeof nodeId !== "string" || nodeId.length === 0) {
+              throw new Error("cad_graph_ancestors requires non-empty 'node_id' string");
+            }
+            const ancestors = engine.ancestors(graph as Parameters<typeof engine.ancestors>[0], nodeId);
+            result = {
+              node_id: nodeId,
+              ancestors,
+              count: ancestors.length,
+              source: "CADKnowledgeGraphEngine.ancestors",
+            };
+            break;
+          }
+          case "cad_graph_descendants": {
+            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const engine = new CADKnowledgeGraphEngine();
+            const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
+            const nodeId = params["node_id"] as string;
+            if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+              throw new Error("cad_graph_descendants requires 'graph' with nodes and edges arrays");
+            }
+            if (typeof nodeId !== "string" || nodeId.length === 0) {
+              throw new Error("cad_graph_descendants requires non-empty 'node_id' string");
+            }
+            const descendants = engine.descendants(graph as Parameters<typeof engine.descendants>[0], nodeId);
+            result = {
+              node_id: nodeId,
+              descendants,
+              count: descendants.length,
+              source: "CADKnowledgeGraphEngine.descendants",
+            };
+            break;
+          }
+          case "cad_graph_to_jsonld": {
+            const { CADKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const engine = new CADKnowledgeGraphEngine();
+            const graph = params["graph"] as { nodes: unknown[]; edges: unknown[] };
+            if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+              throw new Error("cad_graph_to_jsonld requires 'graph' with nodes and edges arrays");
+            }
+            const jsonld = engine.toJsonLd(graph as Parameters<typeof engine.toJsonLd>[0]);
+            result = {
+              ...jsonld,
+              source: "CADKnowledgeGraphEngine.toJsonLd",
+            };
             break;
           }
           default:

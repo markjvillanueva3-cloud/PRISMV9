@@ -74,6 +74,11 @@ const LEARN_ACTIONS = [
   "learn_fleet_feedback", "learn_fleet_summary",
 ] as const;
 
+const OBSIDIAN_ACTIONS = [
+  "obsidian_sync_pull", "obsidian_sync_push",
+  "obsidian_sync_status", "obsidian_sync_config",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
@@ -84,6 +89,7 @@ const ACTIONS = [
   ...INSTRUCTOR_ACTIONS,
   ...COURSE_BUILDER_ACTIONS,
   ...LEARN_ACTIONS,
+  ...OBSIDIAN_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
@@ -246,6 +252,43 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "tribal_stats": {
             const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
             result = tribalKnowledgeEngine.stats();
+            break;
+          }
+          // ── OBSIDIAN-MS0: Obsidian Vault Sync ──
+          case "obsidian_sync_pull": {
+            const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
+            result = await obsidianVaultSyncEngine.pull({
+              vault_path: params.vault_path || "",
+              sync_folder: params.sync_folder,
+              incremental: params.incremental ?? true,
+              dry_run: params.dry_run ?? false,
+            });
+            break;
+          }
+          case "obsidian_sync_push": {
+            const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
+            result = await obsidianVaultSyncEngine.push({
+              vault_path: params.vault_path || "",
+              sync_folder: params.sync_folder ?? "PRISM",
+              tip_ids: params.tip_ids,
+              incremental: params.incremental ?? true,
+              dry_run: params.dry_run ?? false,
+            });
+            break;
+          }
+          case "obsidian_sync_status": {
+            const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
+            result = obsidianVaultSyncEngine.status(params.vault_path);
+            break;
+          }
+          case "obsidian_sync_config": {
+            const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
+            result = obsidianVaultSyncEngine.configure({
+              vault_path: params.vault_path,
+              sync_folder: params.sync_folder,
+              enable_bidirectional: params.enable_bidirectional,
+              conflict_strategy: params.conflict_strategy,
+            });
             break;
           }
           // ── PRISM Academy ──────────────────────────────────
