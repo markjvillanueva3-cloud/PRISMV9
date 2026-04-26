@@ -1108,6 +1108,8 @@ export const ACTIONS = [
   "motion_axis_decompose", "motion_feed_effectiveness", "motion_optimize_feed",
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
+  // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0
+  "master_post_okuma_b250",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -5098,6 +5100,57 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = masterPostProcessorEngine.process(
               (params as any).segments || [],
               params as any
+            );
+            break;
+          }
+
+          // ============================================================================
+          // MASTER POST ENGINES (JM Die canonical posts) - PPG-WIRE-MS0
+          // ============================================================================
+
+          case "master_post_okuma_b250": {
+            const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
+            const p = params as {
+              operations: Array<{
+                operation_type: string;
+                tool_number: number;
+                tool_orientation: number;
+                insert_radius_mm: number;
+                tool_description?: string;
+                material_iso: string;
+                spindle_rpm?: number;
+                css_m_min?: number;
+                css_max_rpm?: number;
+                feed_mm_rev: number;
+                depth_of_cut_mm: number;
+                start_x: number;
+                start_z: number;
+                end_x: number;
+                end_z: number;
+                thread_pitch_mm?: number;
+                thread_depth_mm?: number;
+                thread_passes?: number;
+                groove_width_mm?: number;
+                coolant?: "flood" | "off";
+              }>;
+              config?: {
+                program_number?: number;
+                program_comment?: string;
+                units?: "metric" | "inch";
+                work_offset?: number;
+                safe_z_mm?: number;
+                chuck_pressure?: "high" | "medium" | "low";
+                use_css?: boolean;
+                css_max_rpm?: number;
+                sub_spindle_enabled?: boolean;
+                live_tooling_enabled?: boolean;
+                c_axis_enabled?: boolean;
+                tailstock_position_mm?: number;
+              };
+            };
+            result = okumaB250LatheMasterPostEngine.generateProgram(
+              p.operations as any,
+              p.config
             );
             break;
           }
