@@ -246,6 +246,10 @@ const ACTIONS = [
   "cad_taxonomy_search",
   "cad_taxonomy_compatibility",
   "cad_taxonomy_stats",
+  "cad_geometry_compare",
+  "cad_geometry_extract",
+  "cad_geometry_thresholds_get",
+  "cad_geometry_thresholds_set",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2214,6 +2218,44 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { cadOperationTaxonomyEngine } = await import("../../engines/CADOperationTaxonomyEngine.js");
             const stats = cadOperationTaxonomyEngine.getStats();
             result = { ...stats, source: "CADOperationTaxonomyEngine.getStats" };
+            break;
+          }
+          case "cad_geometry_compare": {
+            const { cadGeometryComparisonEngine } = await import("../../engines/CADGeometryComparisonEngine.js");
+            const originalPath = params["original_path"] as string;
+            const generatedPath = params["generated_path"] as string;
+            const thresholds = params["thresholds"] as Record<string, number> | undefined;
+            if (!originalPath || !generatedPath) {
+              throw new Error("cad_geometry_compare requires 'original_path' and 'generated_path' strings");
+            }
+            const comparison = cadGeometryComparisonEngine.compare(originalPath, generatedPath, thresholds);
+            result = { ...comparison, source: "CADGeometryComparisonEngine.compare" };
+            break;
+          }
+          case "cad_geometry_extract": {
+            const { cadGeometryComparisonEngine } = await import("../../engines/CADGeometryComparisonEngine.js");
+            const filePath = params["file_path"] as string;
+            if (!filePath) {
+              throw new Error("cad_geometry_extract requires 'file_path' string");
+            }
+            const metrics = cadGeometryComparisonEngine.extractMetrics(filePath);
+            result = { ...metrics, source: "CADGeometryComparisonEngine.extractMetrics" };
+            break;
+          }
+          case "cad_geometry_thresholds_get": {
+            const { cadGeometryComparisonEngine } = await import("../../engines/CADGeometryComparisonEngine.js");
+            const thresholds = cadGeometryComparisonEngine.getThresholds();
+            result = { thresholds, source: "CADGeometryComparisonEngine.getThresholds" };
+            break;
+          }
+          case "cad_geometry_thresholds_set": {
+            const { cadGeometryComparisonEngine } = await import("../../engines/CADGeometryComparisonEngine.js");
+            const thresholds = params["thresholds"] as Record<string, number>;
+            if (!thresholds || typeof thresholds !== "object") {
+              throw new Error("cad_geometry_thresholds_set requires 'thresholds' object");
+            }
+            const updated = cadGeometryComparisonEngine.setThresholds(thresholds);
+            result = { thresholds: updated, source: "CADGeometryComparisonEngine.setThresholds" };
             break;
           }
           default:
