@@ -97,7 +97,7 @@ function checkClaudeMemory() {
 // MAIN
 // ============================================================================
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const [qdrant, ollama] = await Promise.all([checkQdrant(), checkOllama()]);
   const agentMem = checkAgentMemory();
   const claudeMem = checkClaudeMemory();

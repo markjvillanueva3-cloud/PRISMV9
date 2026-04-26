@@ -41,7 +41,7 @@ function git(args, opts = {}) {
 
 function isOk(r) { return typeof r === "string"; }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   log("Git Repository Repair Tool");
   log("==========================");
 

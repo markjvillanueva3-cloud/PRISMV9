@@ -45,7 +45,7 @@ function feedbackWritten(sessionStartMs) {
   } catch { return false; }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = parseInput();
   if (input.stop_hook_active === true) return pass("already-blocked");
 

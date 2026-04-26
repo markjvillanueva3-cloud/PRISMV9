@@ -334,7 +334,7 @@ async function readStdin() {
   });
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input = null;
   try {
     const raw = await readStdin();

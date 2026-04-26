@@ -40,4 +40,4 @@ function main() {
   process.exit(0);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

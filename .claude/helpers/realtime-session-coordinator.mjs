@@ -113,7 +113,7 @@ function extractWorkFromChat(chatEntries) {
   };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const promptRaw = process.env.TOOL_INPUT_prompt || process.env.PROMPT || "";
   const isSessionStart = process.argv.includes("--session-start");
 

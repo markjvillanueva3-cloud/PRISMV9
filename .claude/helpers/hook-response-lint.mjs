@@ -176,4 +176,4 @@ function main() {
   process.exit(errCount > 0 ? 1 : 0);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

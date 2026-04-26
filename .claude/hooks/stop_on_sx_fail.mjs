@@ -9,7 +9,7 @@ import path from "node:path";
 const SAFETY_REPORT = "H:/prism/mcp-server/data/state/SAFETY_SCORE_INDEX.json";
 const THRESHOLD = 0.70;
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

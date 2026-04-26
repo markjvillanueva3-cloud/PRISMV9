@@ -143,4 +143,4 @@ function main() {
   info(`  Status: ✓ junction created, Claude Desktop safe to launch.`);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

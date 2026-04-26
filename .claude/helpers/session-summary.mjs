@@ -37,7 +37,7 @@ async function readPhase() {
   return "unknown";
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const timestamp = new Date().toISOString();
   const [phase, filesRead, toolCalls, errorCount, agentCount] = await Promise.all([
     readPhase(),

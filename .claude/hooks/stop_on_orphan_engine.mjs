@@ -8,7 +8,7 @@ import path from "node:path";
 
 const ORPHAN_REPORT = "H:/prism/mcp-server/data/state/orphan-report.json";
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

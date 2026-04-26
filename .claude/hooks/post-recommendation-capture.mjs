@@ -169,7 +169,7 @@ function emit(obj) {
   process.stdout.write(JSON.stringify(obj));
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const raw = await readStdin();
   if (!raw.trim()) { emit({ continue: true }); return; }
 

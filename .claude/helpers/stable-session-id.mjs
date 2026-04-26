@@ -331,4 +331,4 @@ function main() {
   console.log(sessionId);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

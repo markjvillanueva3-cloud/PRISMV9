@@ -41,7 +41,7 @@ async function readJson(p) {
   try { return JSON.parse(await fs.readFile(p, "utf8")); } catch { return null; }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const cache = await readJson(INTENT_CACHE);
   if (!cache || !cache.timestamp) {
     process.stdout.write(JSON.stringify({ continue: true }));

@@ -542,7 +542,7 @@ async function readStdin() {
   });
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const stdinRaw = await readStdin();
   let prompt = "";
   try {

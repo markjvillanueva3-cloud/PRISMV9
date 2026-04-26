@@ -579,7 +579,7 @@ async function generateMasterIndex(engineCount, dispatcherCount, actionCount) {
 
 // ─── Main ────────────────────────────────────────────────────────
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const start = Date.now();
   info("Regenerating all digest files...");
 

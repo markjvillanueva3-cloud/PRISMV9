@@ -41,7 +41,7 @@ function collectOutputLength() {
   return total;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const outputLen = collectOutputLength();
 
   if (outputLen < MIN_OUTPUT_SIZE) {

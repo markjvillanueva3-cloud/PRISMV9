@@ -61,7 +61,7 @@ function runGenerator(scriptName) {
   });
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const tasks = [];
   if (await isStale(SVI_OUT, SVI_STALE_MS)) tasks.push(runGenerator("generate-svi-target-breakdown.mjs"));
   if (await isStale(USER_OUT, USER_STALE_MS)) tasks.push(runGenerator("generate-user-model-snapshot.mjs"));

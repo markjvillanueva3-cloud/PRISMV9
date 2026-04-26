@@ -136,7 +136,7 @@ export default async function ingestionCacheRootGuard({ tool, input, result }) {
   };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input = "";
   for await (const chunk of process.stdin) input += chunk;
 
@@ -160,4 +160,4 @@ async function main() {
   }
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

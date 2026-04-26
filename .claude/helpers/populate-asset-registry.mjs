@@ -151,4 +151,4 @@ function main() {
 Written to: ${REGISTRY_PATH}`);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

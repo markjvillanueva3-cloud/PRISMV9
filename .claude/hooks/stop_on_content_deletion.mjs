@@ -130,7 +130,7 @@ function checkEditTool(input) {
   return { block: false, reason: null };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Only run on Edit/Write tools
   if (!['Edit', 'Write'].includes(TOOL_NAME)) {
     process.exit(0);

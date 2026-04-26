@@ -157,7 +157,7 @@ function calculateBudgetAllocation(phase, tokensUsed) {
   };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Load current state
   let state = loadBudgetState();
 

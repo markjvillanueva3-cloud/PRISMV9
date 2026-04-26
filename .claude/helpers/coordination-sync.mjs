@@ -307,7 +307,7 @@ async function runTaskQueueCompactSync(identity) {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Consume stdin (hook protocol requires reading it even if unused)
   const chunks = [];
   for await (const chunk of process.stdin) {

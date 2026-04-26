@@ -72,4 +72,4 @@ function main() {
   process.stdout.write(`✓ portable node ${r.trim()} @ H:\\Tools\\nodejs\n`);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

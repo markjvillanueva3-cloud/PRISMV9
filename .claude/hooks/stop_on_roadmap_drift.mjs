@@ -8,7 +8,7 @@ import fs from "node:fs";
 const POSITION_FILE = "H:/prism/state/CURRENT_POSITION.md";
 const ROADMAP_INDEX = "H:/prism/mcp-server/data/roadmap-index.json";
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

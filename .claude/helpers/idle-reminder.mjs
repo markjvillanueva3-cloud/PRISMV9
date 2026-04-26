@@ -39,7 +39,7 @@ async function readPosition() {
   return "unknown";
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const [position, history] = await Promise.all([
     readPosition(),
     readLines(cachePath("tool-history")),

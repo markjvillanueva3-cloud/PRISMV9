@@ -188,7 +188,7 @@ function setupPythonJunction() {
   return true;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   console.log("\n" + "=".repeat(60));
   console.log("  PRISM Portable Tools Installer");
   console.log("  H: drive setup for cross-PC portability");

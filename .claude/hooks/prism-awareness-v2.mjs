@@ -260,7 +260,7 @@ function buildInjection(data, intent) {
 // -----------------------------------------------------------------------
 // Main
 // -----------------------------------------------------------------------
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = await readStdin();
   // Detect event type from input or default to SessionStart (how it's wired)
   const eventType = input.event || input.eventType || input.hookType || "SessionStart";

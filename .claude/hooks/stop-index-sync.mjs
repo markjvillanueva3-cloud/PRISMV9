@@ -76,7 +76,7 @@ function runScript(scriptPath, quiet = true) {
   child.unref();
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input = "";
   for await (const chunk of process.stdin) input += chunk;
 
@@ -114,4 +114,4 @@ async function main() {
   process.exit(0);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

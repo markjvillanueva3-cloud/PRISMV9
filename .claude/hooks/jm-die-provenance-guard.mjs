@@ -178,7 +178,7 @@ export default async function jmDieProvenanceGuard({ tool, input, result }) {
   return { continue: true };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input = "";
   for await (const chunk of process.stdin) input += chunk;
 
@@ -202,4 +202,4 @@ async function main() {
   }
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

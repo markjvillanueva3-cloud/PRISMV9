@@ -44,7 +44,7 @@ async function removeIfExists(filePath) {
   }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const cmd = process.env.TOOL_INPUT_command ?? "";
   const success = (process.env.TOOL_SUCCESS ?? "false") === "true";
   if (!success || !cmd.trim()) {

@@ -29,7 +29,7 @@ async function writeJSON(path, data) {
   } catch { return false; }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const sessionId = process.env.CLAUDE_SESSION_ID || `session-${Date.now()}`;
   const now = new Date().toISOString();
 

@@ -223,7 +223,7 @@ function isCodeFile(filePath) {
   return CODE_EXTENSIONS.some(ext => filePath?.endsWith(ext));
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input = '';
   for await (const chunk of process.stdin) input += chunk;
 

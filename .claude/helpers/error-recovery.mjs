@@ -10,7 +10,7 @@ function basenameSafe(target) {
   }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolName = process.env.TOOL_NAME ?? "unknown";
   const toolInput =
     process.env.TOOL_INPUT_command ??

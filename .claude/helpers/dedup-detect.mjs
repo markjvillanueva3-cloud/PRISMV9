@@ -98,4 +98,4 @@ function main() {
   // No creation/extraction detected
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

@@ -201,4 +201,4 @@ function main() {
   info(`  Status: ✓ all junctions in place${dryRun ? " (dry run — no changes made)" : ""}`);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

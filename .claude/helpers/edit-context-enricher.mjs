@@ -184,7 +184,7 @@ function findTestFile(engineName) {
   return patterns[0];
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const raw = await readStdin();
   const filePath = extractFilePath(raw);
 
@@ -266,4 +266,4 @@ async function main() {
   process.exit(0);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

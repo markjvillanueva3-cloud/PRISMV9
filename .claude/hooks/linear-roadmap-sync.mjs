@@ -115,7 +115,7 @@ function generateLinearContext(roadmap, linearState) {
 /**
  * Main hook handler
  */
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const event = process.env.HOOK_EVENT || 'SessionStart';
 
   if (event === 'SessionStart') {

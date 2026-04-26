@@ -212,4 +212,4 @@ function main() {
   console.log(JSON.stringify(output));
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

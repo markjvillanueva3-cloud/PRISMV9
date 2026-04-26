@@ -229,7 +229,7 @@ async function check(operation = "", target = "") {
   return { allowed: true };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const [,, action, ...args] = process.argv;
 
   switch (action) {

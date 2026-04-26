@@ -134,7 +134,7 @@ function generateSupabaseContext(syncState) {
 /**
  * Main hook handler
  */
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const event = process.env.HOOK_EVENT || 'SessionStart';
   const syncState = loadSyncState();
 

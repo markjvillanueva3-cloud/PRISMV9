@@ -80,7 +80,7 @@ function getSessionId() {
          `session-${Date.now()}`;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const sessionStart = getSessionStartTime();
   const sessionId = getSessionId();
 

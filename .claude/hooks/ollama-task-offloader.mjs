@@ -114,7 +114,7 @@ function selectBestModel(models) {
   return models[0] || null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let payload;
   try {
     payload = JSON.parse(readFileSync(0, "utf-8"));

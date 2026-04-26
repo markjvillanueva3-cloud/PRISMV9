@@ -17,7 +17,7 @@ const THRESHOLDS = [50, 75, 100];
 // next threshold (or the >100 every-25 reminder below).
 const SAMPLE_RATE = 10;
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Each hook invocation is a separate process — always increment on disk.
   // The hook runs async:true so disk I/O doesn't block the user.
   const count = await increment("tool_calls_session");

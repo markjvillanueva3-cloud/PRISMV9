@@ -18,7 +18,7 @@ function readSummary() {
   }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const summary = readSummary();
 
   if (!summary) {

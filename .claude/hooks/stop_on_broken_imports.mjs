@@ -18,7 +18,7 @@ import { execSync } from "node:child_process";
 const MCP_ROOT = "H:/prism/mcp-server";
 const MAX_FILES = 50; // Limit for performance
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Read stdin (hook input)
   await new Promise(r => {
     let d = "";

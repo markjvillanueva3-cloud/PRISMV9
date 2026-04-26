@@ -34,7 +34,7 @@ function formatTimeAgo(isoString) {
   return `${Math.round(ms / 3600000)}h`;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const status = await readStatus();
   if (!status) {
     console.log(JSON.stringify({ continue: true }));

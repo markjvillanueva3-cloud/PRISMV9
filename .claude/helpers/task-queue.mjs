@@ -1009,7 +1009,7 @@ async function cmdCompactSync(identity) {
 
 // --- Main ---
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const args = parseArgs(process.argv.slice(2));
   const command = args._[0] || "list";
 

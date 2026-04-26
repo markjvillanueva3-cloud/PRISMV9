@@ -10,7 +10,7 @@ import { execSync } from "node:child_process";
 const REGISTRY = "H:/prism/mcp-server/data/state/cross-session-asset-registry.json";
 const ENGINES_DIR = "H:/prism/mcp-server/src/engines";
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = JSON.parse(await new Promise(r => {
     let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
   }));

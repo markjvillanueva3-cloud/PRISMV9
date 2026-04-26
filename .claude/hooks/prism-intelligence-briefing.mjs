@@ -51,7 +51,7 @@ async function getAIStats() {
   return stats || {};
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const [counts, aiStats] = await Promise.all([
     getInventoryCounts(),
     getAIStats()

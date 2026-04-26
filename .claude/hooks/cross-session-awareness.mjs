@@ -149,7 +149,7 @@ function getRecentChatMessages() {
   }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Rate limit checks
   if (!shouldCheck()) {
     process.exit(0);

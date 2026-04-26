@@ -119,7 +119,7 @@ function findDispatcherTest(dispatcherName) {
   return null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const raw = await readStdin();
   let filePath;
   try {
@@ -198,4 +198,4 @@ async function main() {
   process.exit(0);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

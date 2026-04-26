@@ -46,7 +46,7 @@ function saveCache(cache) {
   fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input;
   try {
     input = JSON.parse(await fs.promises.readFile('/dev/stdin', 'utf8'));

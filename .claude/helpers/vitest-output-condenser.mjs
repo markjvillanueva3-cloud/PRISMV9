@@ -148,4 +148,4 @@ function main() {
   process.stdout.write(JSON.stringify({ continue: true }));
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

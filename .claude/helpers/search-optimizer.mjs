@@ -195,7 +195,7 @@ function getPatternHint(pattern) {
 
 // ─── Main ────────────────────────────────────────────────────────
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolInput = stdinInput.tool_input || {};
   const pattern = (toolInput.pattern || process.env.TOOL_INPUT_pattern || "").trim();
   const toolPath = normalizePath(toolInput.path || process.env.TOOL_INPUT_path || "");

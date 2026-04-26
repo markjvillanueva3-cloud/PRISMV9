@@ -109,7 +109,7 @@ function releaseLock() {
   } catch {}
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Check if already running
   if (await isOllamaRunning()) {
     console.log(JSON.stringify({ continue: true, systemMessage: "Ollama already running [ready]"

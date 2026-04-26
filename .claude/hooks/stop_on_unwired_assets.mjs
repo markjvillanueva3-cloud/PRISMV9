@@ -322,7 +322,7 @@ function checkNewHookRegistered(hookRelPath) {
 // ----------------------------------------------------------------
 // Main
 // ----------------------------------------------------------------
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const hookInput = await readStdin();
 
   // Escape hatch

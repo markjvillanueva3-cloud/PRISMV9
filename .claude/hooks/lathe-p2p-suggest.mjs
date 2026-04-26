@@ -73,7 +73,7 @@ function scoreLatheP2PIntent(prompt) {
   return { score, reasons };
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = await readStdin();
   const prompt = input.prompt || input.message || "";
 

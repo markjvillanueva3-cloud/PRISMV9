@@ -185,7 +185,7 @@ function generateGuidance(state, budget) {
   return parts.length > 0 ? parts.join(" | ") : null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolName = process.env.TOOL_NAME || "";
   const command = process.env.TOOL_INPUT_command || "";
   const filePath = process.env.TOOL_INPUT_file_path || "";

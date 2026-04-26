@@ -35,7 +35,7 @@ function saveDecisionLog(log) {
   } catch { /* ignore */ }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input;
   try {
     input = JSON.parse(readFileSync(0, 'utf-8'));

@@ -115,7 +115,7 @@ function levenshtein(s1, s2) {
   return costs[s2.length];
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   // Check if file already exists (editing vs creating)
   if (await exists(filePath)) {
     // Editing existing file — allow

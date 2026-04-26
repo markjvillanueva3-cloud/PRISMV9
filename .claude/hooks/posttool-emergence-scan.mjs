@@ -75,7 +75,7 @@ function logTelemetry(ev) {
   } catch { /* ignore */ }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input = "";
   for await (const chunk of process.stdin) input += chunk;
   try { JSON.parse(input); } catch { process.exit(0); }

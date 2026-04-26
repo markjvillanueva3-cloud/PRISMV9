@@ -188,7 +188,7 @@ function formatBlockReason(conflict, toolName, targetPath) {
   ].join("\n");
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let raw = "";
   for await (const chunk of process.stdin) raw += chunk;
 

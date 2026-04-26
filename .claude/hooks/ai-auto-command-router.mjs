@@ -82,7 +82,7 @@ function findMatchingCommands(input) {
   return matches.sort((a, b) => a.priority - b.priority);
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const userPrompt = process.env.USER_PROMPT || '';
 
   if (!userPrompt || userPrompt.startsWith('/')) {

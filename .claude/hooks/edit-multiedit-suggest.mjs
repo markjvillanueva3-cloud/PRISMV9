@@ -61,7 +61,7 @@ function saveState(state) {
   } catch {}
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input;
   try {
     input = JSON.parse(await fs.promises.readFile("/dev/stdin", "utf8"));

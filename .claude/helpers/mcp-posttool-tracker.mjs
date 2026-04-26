@@ -85,7 +85,7 @@ function getFollowUp(action) {
   return null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolName = process.env.TOOL_NAME || "";
   const action = process.env.TOOL_INPUT_action || "";
 

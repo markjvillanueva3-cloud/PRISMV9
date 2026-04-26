@@ -40,7 +40,7 @@ function logTelemetry(event) {
   } catch { /* ignore */ }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const awareness = awarenessScore();
   const goalsDoc = loadJsonSafe(GOALS_FILE);
 

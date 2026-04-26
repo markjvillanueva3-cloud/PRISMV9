@@ -86,7 +86,7 @@ function detectHeavySkill(prompt) {
   return null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = await readStdin();
   const prompt = input.prompt || input.message || "";
 

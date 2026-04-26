@@ -79,7 +79,7 @@ function buildDigest(errors, reverts) {
   return lines;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = parseInput();
   const start = sessionStartMs(input.transcript_path);
 

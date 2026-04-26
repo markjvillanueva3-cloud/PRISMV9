@@ -40,7 +40,7 @@ async function readHealthCheck() {
   } catch { return null; }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const [engineCount, dispatcherCount, health] = await Promise.all([
     countEngines(),
     countDispatchers(),

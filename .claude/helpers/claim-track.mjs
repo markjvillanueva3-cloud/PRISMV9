@@ -69,4 +69,4 @@ function main() {
   console.log(`Instance: ${identity.instance}`);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

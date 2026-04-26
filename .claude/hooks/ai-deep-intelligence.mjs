@@ -409,7 +409,7 @@ JM DIE: ${JM_DIE.programs} programs, ${JM_DIE.customers} customers
 `.trim();
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   console.log(JSON.stringify({ continue: true, systemMessage: generateActivation() }));
 }
 

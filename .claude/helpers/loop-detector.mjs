@@ -10,7 +10,7 @@ try {
   if (stdin) stdinInput = JSON.parse(stdin);
 } catch { /* No stdin - fall back to env vars */ }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolInput = stdinInput.tool_input || {};
   const toolName = stdinInput.tool_name || process.env.TOOL_NAME || "unknown";
   const inputSig = [

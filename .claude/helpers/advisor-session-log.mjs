@@ -5,7 +5,7 @@ import { cachePath, ensureCacheDir, readLines } from "./hook-cache.mjs";
 const ADVISOR_LOG = cachePath("advisor-recommendations");
 const ADVISOR_STATS_FILE = "H:\\prism\\.claude\\cache\\advisor-session-stats.json";
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   await ensureCacheDir();
 
   const lines = await readLines(ADVISOR_LOG);

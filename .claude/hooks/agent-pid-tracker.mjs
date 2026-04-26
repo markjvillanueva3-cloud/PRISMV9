@@ -85,7 +85,7 @@ function getRecentNodeProcesses() {
   }
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolName = stdinInput.tool_name || process.env.TOOL_NAME || "";
 
   // Only track Agent tool calls

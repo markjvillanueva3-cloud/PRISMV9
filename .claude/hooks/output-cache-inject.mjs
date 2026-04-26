@@ -19,7 +19,7 @@ function loadCache() {
   return null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const cache = loadCache();
 
   if (!cache || Object.keys(cache.blocks || {}).length === 0) {

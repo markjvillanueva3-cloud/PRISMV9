@@ -101,7 +101,7 @@ async function updateTribalIndex(extraction) {
   return index;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const toolName = process.env.TOOL_NAME || '';
   const filePath = process.env.TOOL_INPUT_file_path || '';
   const content = process.env.TOOL_INPUT_content || '';

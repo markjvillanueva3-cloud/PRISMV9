@@ -35,4 +35,4 @@ function main() {
   }
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

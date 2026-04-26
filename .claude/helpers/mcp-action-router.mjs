@@ -128,7 +128,7 @@ function findSimilarActions(action, dispActions, maxResults = 5) {
   return scored.slice(0, maxResults).map((x) => x.action);
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const raw = await readStdin();
   const { toolName, action } = extractToolInfo(raw);
 
@@ -196,4 +196,4 @@ async function main() {
   process.exit(0);
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

@@ -97,7 +97,7 @@ async function readStdin() {
   });
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   try { JSON.parse(await readStdin()); } catch { /* tolerate missing stdin */ }
 
   const violations = scanUserClaudeDirs();

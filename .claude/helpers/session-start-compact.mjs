@@ -67,7 +67,7 @@ function getMemoryState(lineCount) {
   return "LEAN";
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const [memoryText, watchStatus, commandRegistry, indexRegistry, workboard, chatEntries, coordinationStatus, roadmapState] = await Promise.all([
     readText(FILES.memory),
     readJson(FILES.watchStatus),

@@ -46,4 +46,4 @@ function main() {
   writeAtomicSync(CLAIMS_FILE, JSON.stringify(data, null, 2) + "\n");
 }
 
-main();
+main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); });

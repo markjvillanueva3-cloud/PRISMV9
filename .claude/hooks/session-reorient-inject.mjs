@@ -53,7 +53,7 @@ const DRIFT_WINDOW = 10;
 const DRIFT_THRESHOLD = 0.7;
 const MAX_BRIEF_TOKENS = 800;  // cap injection size
 
-// loadState/saveState are per-chat — defined inline in main() after SESSION_ID
+// loadState/saveState are per-chat — defined inline in main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) after SESSION_ID
 // resolution, so each chat has its own reorientation-<sid>.json file.
 
 function detectDrift(state) {
@@ -157,7 +157,7 @@ function buildBrief(state, trigger) {
   return lines.join("\n");
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   let input;
   try {
     // Read from stdin fd=0 — portable across Windows/Linux unlike /dev/stdin

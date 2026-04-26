@@ -89,7 +89,7 @@ function check(params, action) {
   return null;
 }
 
-async function main() {
+async function main().catch(() => { process.stdout.write(JSON.stringify({ continue: true })); }) {
   const input = await readStdin();
   const toolName = input.tool_name ?? input.toolName ?? "";
   if (toolName !== "prism_business" && toolName !== "mcp__prism__prism_business") {
