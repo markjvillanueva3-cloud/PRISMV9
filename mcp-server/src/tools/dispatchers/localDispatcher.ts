@@ -32,6 +32,7 @@ import {
   TrajectoryStepInputSchema,
   TrajectoryEndInputSchema,
   LearningStatsInputSchema,
+  EnforceRulesInputSchema,
 } from "../../schemas/localActionSchemas.js";
 
 // Build input schema map for validateActionParams
@@ -45,6 +46,7 @@ const INPUT_SCHEMAS: Record<string, import("zod").ZodTypeAny> = {
   trajectory_step: TrajectoryStepInputSchema,
   trajectory_end: TrajectoryEndInputSchema,
   learning_stats: LearningStatsInputSchema,
+  enforce_rules: EnforceRulesInputSchema,
 };
 
 // Lazy-loaded engine references
@@ -279,6 +281,26 @@ export async function localDispatcher(
           action: validAction,
           data: stats,
           metadata: { latencyMs: Date.now() - startTime },
+        });
+      }
+
+      case "enforce_rules": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) {
+          return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        }
+
+        const engine = await getEngine("localValidation") as typeof import("../../engines/LocalValidationEngine.js").localValidationEngine;
+        const result = await engine.enforceRules(validated.data as Parameters<typeof engine.enforceRules>[0]);
+
+        return slimResponse({
+          success: true,
+          action: validAction,
+          data: result,
+          metadata: {
+            latencyMs: result.latencyMs,
+            ollamaUsed: result.ollamaUsed,
+          },
         });
       }
 

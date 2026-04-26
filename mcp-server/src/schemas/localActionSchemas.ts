@@ -23,6 +23,7 @@ export const LOCAL_ACTIONS = [
   "trajectory_step",
   "trajectory_end",
   "learning_stats",
+  "enforce_rules",
 ] as const;
 
 export type LocalAction = (typeof LOCAL_ACTIONS)[number];
@@ -201,6 +202,29 @@ export const LearningStatsOutputSchema = z.object({
   lastUpdated: z.string().describe("Last update timestamp"),
 });
 
+// enforce_rules — Validate code against CLAUDE.md rules via Qwen
+export const EnforceRulesInputSchema = z.object({
+  code: z.string().min(1).describe("Code to validate against CLAUDE.md rules"),
+  claudeMdPath: z.string().optional().describe("Path to CLAUDE.md (default: auto-detect)"),
+  strictness: z.enum(["lenient", "standard", "strict"]).default("standard")
+    .describe("Strictness level (lenient=warnings, standard=default, strict=all)"),
+});
+
+export const EnforceRulesOutputSchema = z.object({
+  passed: z.boolean().describe("True if no violations found"),
+  violations: z.array(z.object({
+    rule: z.string().describe("Rule name from CLAUDE.md"),
+    severity: z.enum(["error", "warning", "info"]).describe("Violation severity"),
+    line: z.number().optional().describe("Line number"),
+    message: z.string().describe("Violation description"),
+    suggestion: z.string().optional().describe("How to fix"),
+    ruleSource: z.string().optional().describe("Section in CLAUDE.md"),
+  })).describe("List of rule violations"),
+  rulesChecked: z.number().describe("Number of rules evaluated"),
+  ollamaUsed: z.boolean().describe("Whether Ollama was used for validation"),
+  latencyMs: z.number().describe("Validation time in milliseconds"),
+});
+
 // Combined schema map for dispatcher
 export const ACTION_LOCAL_SCHEMAS = {
   validate_code: {
@@ -238,5 +262,9 @@ export const ACTION_LOCAL_SCHEMAS = {
   learning_stats: {
     input: LearningStatsInputSchema,
     output: LearningStatsOutputSchema,
+  },
+  enforce_rules: {
+    input: EnforceRulesInputSchema,
+    output: EnforceRulesOutputSchema,
   },
 } as const;
