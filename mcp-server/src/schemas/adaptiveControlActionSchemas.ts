@@ -136,6 +136,81 @@ const digital_twin_query = z.object({
   algorithm: z.string(),
 }).passthrough();
 
+
+// ============================================================================
+// calibration_kienzle — AdaptiveCalibrationEngine.bayesianKienzleUpdate
+// ============================================================================
+
+const calibration_kienzle = z.object({
+  kc11Prior: z.number().positive().describe("Prior estimate for kc1.1"),
+  kc11PriorStdDev: z.number().positive().describe("Prior standard deviation for kc1.1"),
+  mcPrior: z.number().describe("Prior estimate for mc exponent"),
+  mcPriorStdDev: z.number().positive().describe("Prior standard deviation for mc"),
+  measurements: z.array(z.object({
+    force_N: z.number().describe("Measured cutting force in Newtons"),
+    chipThickness_mm: z.number().positive().describe("Uncut chip thickness"),
+    chipWidth_mm: z.number().positive().describe("Chip width"),
+  })).describe("Force measurements"),
+  measurementStdDev: z.number().positive().describe("Measurement noise standard deviation"),
+}).passthrough();
+
+// ============================================================================
+// calibration_taylor — AdaptiveCalibrationEngine.taylorCoefficientTracker
+// ============================================================================
+
+const calibration_taylor = z.object({
+  priorC: z.number().positive().describe("Prior Taylor C coefficient"),
+  priorN: z.number().positive().describe("Prior Taylor n exponent"),
+  observations: z.array(z.object({
+    speed_mpm: z.number().positive().describe("Cutting speed m/min"),
+    toolLife_min: z.number().positive().describe("Observed tool life minutes"),
+  })).describe("Tool life observations"),
+  processNoise: z.number().positive().optional().describe("Process noise"),
+  measurementNoise: z.number().positive().optional().describe("Measurement noise"),
+}).passthrough();
+
+// ============================================================================
+// calibration_surface_bias — AdaptiveCalibrationEngine.surfaceFinishBiasCorrector
+// ============================================================================
+
+const calibration_surface_bias = z.object({
+  predictions: z.array(z.number()).describe("Predicted Ra values"),
+  actuals: z.array(z.number()).describe("Actual measured Ra values"),
+  nBootstrap: z.number().int().positive().optional().describe("Bootstrap iterations"),
+}).passthrough();
+
+// ============================================================================
+// calibration_drift — AdaptiveCalibrationEngine.processDriftCompensator
+// ============================================================================
+
+const calibration_drift = z.object({
+  target: z.number().describe("Target process value"),
+  observations: z.array(z.number()).describe("Process observations over time"),
+  threshold: z.number().positive().optional().describe("CUSUM threshold"),
+}).passthrough();
+
+// ============================================================================
+// calibration_thermal — AdaptiveCalibrationEngine.thermalModelCalibrator
+// ============================================================================
+
+const calibration_thermal = z.object({
+  times: z.array(z.number()).describe("Time points in seconds"),
+  temperatures: z.array(z.number()).describe("Temperature measurements"),
+  ambientTemp: z.number().optional().describe("Ambient temperature"),
+  learningRate: z.number().positive().optional().describe("Gradient descent learning rate"),
+  maxIterations: z.number().int().positive().optional().describe("Max iterations"),
+}).passthrough();
+
+// ============================================================================
+// calibration_model_select — AdaptiveCalibrationEngine.modelSelector
+// ============================================================================
+
+const calibration_model_select = z.object({
+  xData: z.array(z.number()).describe("Independent variable data"),
+  yData: z.array(z.number()).describe("Dependent variable data"),
+  candidates: z.array(z.string()).optional().describe("Model names to compare"),
+}).passthrough();
+
 // ============================================================================
 // EXPORT MAP
 // ============================================================================
@@ -153,4 +228,10 @@ export const ADAPTIVE_CONTROL_ACTION_SCHEMAS: ActionSchemaMap = {
   tool_life_replacement,
   digital_twin_sync,
   digital_twin_query,
+  calibration_kienzle,
+  calibration_taylor,
+  calibration_surface_bias,
+  calibration_drift,
+  calibration_thermal,
+  calibration_model_select,
 };

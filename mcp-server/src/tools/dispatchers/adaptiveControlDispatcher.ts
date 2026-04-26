@@ -17,7 +17,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ADAPTIVE_CONTROL_ACTION_SCHEMAS } from "../../schemas/adaptiveControlActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _afc: any, _asc: any, _bay: any, _tla: any, _dts: any;
+let _afc: any, _asc: any, _bay: any, _tla: any, _dts: any, _acal: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "afc": return _afc ??= (await import("../../engines/AdaptiveFeedControlEngine.js")).adaptiveFeedControlEngine;
@@ -25,6 +25,7 @@ async function getEngine(name: string): Promise<any> {
     case "bay": return _bay ??= (await import("../../engines/BayesianAdaptiveEngine.js")).bayesianAdaptiveEngine;
     case "tla": return _tla ??= (await import("../../engines/ToolLifeAdaptiveEngine.js")).toolLifeAdaptiveEngine;
     case "dts": return _dts ??= (await import("../../engines/DigitalTwinSyncEngine.js")).digitalTwinSyncEngine;
+    case "acal": return _acal ??= (await import("../../engines/AdaptiveCalibrationEngine.js")).adaptiveCalibrationEngine;
     default: throw new Error(`Unknown adaptive control engine: ${name}`);
   }
 }
@@ -35,6 +36,8 @@ const ACTIONS = [
   "bayesian_calibrate", "bayesian_predict_force",
   "tool_life_predict", "tool_life_weibull", "tool_life_replacement",
   "digital_twin_sync", "digital_twin_query",
+  "calibration_kienzle", "calibration_taylor", "calibration_surface_bias",
+  "calibration_drift", "calibration_thermal", "calibration_model_select",
 ] as const;
 
 /** Registers adaptive control dispatcher.
@@ -146,6 +149,35 @@ Params vary by action — pass relevant fields in params object.`,
           case "digital_twin_query": {
             const eng = await getEngine("dts");
             result = eng.queryForAlgorithm(params.state || {}, params.algorithm);
+            break;
+          }          case "calibration_kienzle": {
+            const eng = await getEngine("acal");
+            result = eng.bayesianKienzleUpdate(params);
+            break;
+          }
+          case "calibration_taylor": {
+            const eng = await getEngine("acal");
+            result = eng.taylorCoefficientTracker(params);
+            break;
+          }
+          case "calibration_surface_bias": {
+            const eng = await getEngine("acal");
+            result = eng.surfaceFinishBiasCorrector(params);
+            break;
+          }
+          case "calibration_drift": {
+            const eng = await getEngine("acal");
+            result = eng.processDriftCompensator(params);
+            break;
+          }
+          case "calibration_thermal": {
+            const eng = await getEngine("acal");
+            result = eng.thermalModelCalibrator(params);
+            break;
+          }
+          case "calibration_model_select": {
+            const eng = await getEngine("acal");
+            result = eng.modelSelector(params);
             break;
           }
           default:
