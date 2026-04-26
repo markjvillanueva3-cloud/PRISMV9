@@ -283,6 +283,14 @@ const ACTIONS = [
   "cad_rag_rank",
   "cad_rag_augment",
   "cad_rag_stats",
+  "cad_pipeline_run",
+  "cad_pipeline_validate",
+  "cad_pipeline_status",
+  "cad_embed",
+  "cad_embed_batch",
+  "cad_embed_build_index",
+  "cad_embed_search",
+  "cad_embed_cache_clear",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2743,6 +2751,89 @@ Actions: ${ACTIONS.join(", ")}.`,
             const stats = cadRetrievalAugmentationEngine.getCorpusStats(corpus);
             const customers = cadRetrievalAugmentationEngine.getCustomers(corpus);
             result = { ...stats, customers, source: "CADRetrievalAugmentationEngine.getCorpusStats" };
+            break;
+          }
+          case "cad_pipeline_run": {
+            const { cadTrainingPipelineOrchestratorEngine } = await import("../../engines/CADTrainingPipelineOrchestratorEngine.js");
+            const config = params["config"] as {
+              rootPath: string;
+              outputDir?: string;
+              maxFiles?: number;
+              excludePatterns?: string[];
+              indexType?: "flat" | "vptree";
+              validateSamples?: number;
+              skipValidation?: boolean;
+            };
+            if (!config || !config.rootPath) {
+              throw new Error("cad_pipeline_run requires 'config' with rootPath");
+            }
+            const pipelineResult = cadTrainingPipelineOrchestratorEngine.run(config);
+            result = { ...pipelineResult, source: "CADTrainingPipelineOrchestratorEngine.run" };
+            break;
+          }
+          case "cad_pipeline_validate": {
+            const { cadTrainingPipelineOrchestratorEngine } = await import("../../engines/CADTrainingPipelineOrchestratorEngine.js");
+            const sampleSize = (params["sample_size"] as number) ?? 10;
+            const validation = cadTrainingPipelineOrchestratorEngine.validateIndex(sampleSize);
+            result = { ...validation, source: "CADTrainingPipelineOrchestratorEngine.validateIndex" };
+            break;
+          }
+          case "cad_pipeline_status": {
+            const { cadTrainingPipelineOrchestratorEngine } = await import("../../engines/CADTrainingPipelineOrchestratorEngine.js");
+            const info = cadTrainingPipelineOrchestratorEngine.getInfo();
+            const capabilities = cadTrainingPipelineOrchestratorEngine.getCapabilities();
+            result = { info, capabilities, source: "CADTrainingPipelineOrchestratorEngine.getInfo" };
+            break;
+          }
+          case "cad_embed": {
+            const { cadFeatureEmbeddingEngine } = await import("../../engines/CADFeatureEmbeddingEngine.js");
+            // Note: embed requires an EmbeddingBackend which is complex to wire via JSON
+            // Return signature info - use cad_embed_build_index for full pipeline
+            result = {
+              available: false,
+              message: "cad_embed requires an EmbeddingBackend instance. Use CADEmbeddingIndexOrchestratorEngine for the full pipeline.",
+              signature: "embed(tokens: number[], backend: EmbeddingBackend, config?: EmbedConfig)",
+              cacheStats: cadFeatureEmbeddingEngine.cacheStats(),
+              source: "CADFeatureEmbeddingEngine.embed"
+            };
+            break;
+          }
+          case "cad_embed_batch": {
+            const { cadFeatureEmbeddingEngine } = await import("../../engines/CADFeatureEmbeddingEngine.js");
+            result = {
+              available: false,
+              message: "cad_embed_batch requires an EmbeddingBackend instance. Use CADEmbeddingIndexOrchestratorEngine for the full pipeline.",
+              signature: "embedBatch(corpus: number[][], backend: EmbeddingBackend, config?: EmbedConfig)",
+              cacheStats: cadFeatureEmbeddingEngine.cacheStats(),
+              source: "CADFeatureEmbeddingEngine.embedBatch"
+            };
+            break;
+          }
+          case "cad_embed_build_index": {
+            const { cadFeatureEmbeddingEngine } = await import("../../engines/CADFeatureEmbeddingEngine.js");
+            // Building index requires pre-computed embeddings
+            result = {
+              available: false,
+              message: "cad_embed_build_index requires pre-computed IndexedEmbedding[]. Use CADEmbeddingIndexOrchestratorEngine.ingest() for the full pipeline.",
+              signature: "buildIndex(embeddings: IndexedEmbedding[], type: 'flat' | 'vptree', metric: SimilarityMetric)",
+              source: "CADFeatureEmbeddingEngine.buildIndex"
+            };
+            break;
+          }
+          case "cad_embed_search": {
+            const { cadFeatureEmbeddingEngine } = await import("../../engines/CADFeatureEmbeddingEngine.js");
+            result = {
+              available: false,
+              message: "cad_embed_search requires an embedding query and index. Use CADEmbeddingIndexOrchestratorEngine.query() for text-based search.",
+              signature: "search(query: Embedding, index: SimilarityIndex, k: number, metric: SimilarityMetric)",
+              source: "CADFeatureEmbeddingEngine.search"
+            };
+            break;
+          }
+          case "cad_embed_cache_clear": {
+            const { cadFeatureEmbeddingEngine } = await import("../../engines/CADFeatureEmbeddingEngine.js");
+            const cleared = cadFeatureEmbeddingEngine.clearCache();
+            result = { ...cleared, source: "CADFeatureEmbeddingEngine.clearCache" };
             break;
           }
           default:
