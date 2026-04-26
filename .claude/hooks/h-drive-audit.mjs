@@ -30,10 +30,10 @@ const hClaudeDir = "H:\\.claude";
 
 function scanDir(dir) {
   try {
-    if (!existsSync(dir)) return [];
-    const stat = statSync(dir);
+    if (!fs.existsSync(dir)) return [];
+    const stat = fs.statSync(dir);
     if (!stat.isDirectory()) return [];
-    return readdirSync(dir).filter(f => !f.startsWith("."));
+    return fs.readdirSync(dir).filter(f => !f.startsWith("."));
   } catch {
     return [];
   }

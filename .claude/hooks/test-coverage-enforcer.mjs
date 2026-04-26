@@ -121,7 +121,7 @@ async function main() {
   }
 
   const testPaths = getTestPaths(filePath);
-  const hasTest = testPaths.some(p => existsSync(p));
+  const hasTest = testPaths.some(p => fs.existsSync(p));
 
   if (hasTest) {
     console.log(JSON.stringify({ continue: true }));
