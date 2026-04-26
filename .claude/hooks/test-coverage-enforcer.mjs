@@ -13,6 +13,15 @@ import fs from "node:fs";
 import { existsSync } from 'node:fs';
 import { dirname, basename, join } from 'node:path';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const CODE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs'];
 const TEST_PATTERNS = ['.test.', '.spec.', '__tests__'];
 

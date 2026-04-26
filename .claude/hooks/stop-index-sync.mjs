@@ -15,6 +15,15 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const REPO_ROOT = "H:/prism";
 const TRACKER_DIR = "H:/prism/.claude/cache/session-writes";
 const SCRIPTS = {

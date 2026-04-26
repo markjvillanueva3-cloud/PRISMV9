@@ -13,6 +13,15 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const AGENT_CHAT = process.env.PRISM_AGENT_CHAT || "H:/prism/state/shared/AGENT_CHAT.md";
 const CLAIMS_FILE = process.env.PRISM_WORK_CLAIMS_FILE || "H:/prism/state/shared/WORK_CLAIMS.json";
 const CLAIM_EXPIRY_MS = Number(process.env.PRISM_WORK_CLAIM_TTL_MS || 2 * 60 * 60 * 1000);

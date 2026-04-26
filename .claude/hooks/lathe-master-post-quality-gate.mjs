@@ -23,6 +23,15 @@ import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ============================================================================

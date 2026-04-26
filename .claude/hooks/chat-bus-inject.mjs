@@ -18,6 +18,15 @@ import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import os from "node:os";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const CHAT_BUS_ROOT = "H:/prism/state/shared/chat-bus";
 const MESSAGES_DIR = path.join(CHAT_BUS_ROOT, "messages");
 const CLAIMS_DIR = path.join(CHAT_BUS_ROOT, "claims");
@@ -112,7 +121,7 @@ function activeForeignClaims(sessionId) {
   const out = [];
   for (const f of listDirSafe(CLAIMS_DIR)) {
     const c = readJsonSafe(path.join(CLAIMS_DIR, f));
-    if (!c || !c.path || !c.sessionId) continue; // Skip malformed claims
+    if (!c || !c.path || !c.sessionId) continue;
     if (c.sessionId === sessionId) continue;
     const expMs = Date.parse(c.expiresAt);
     if (Number.isFinite(expMs) && expMs < now) continue;
@@ -197,7 +206,6 @@ async function main() {
   const sessionId = resolveSessionId(payload.session_id || payload.sessionId);
   const pcName = os.hostname();
 
-  // Always heartbeat — even if nothing to inject, peers need to know we're alive.
   heartbeatSelf(sessionId, pcName);
 
   const messages = readUnreadMessages(sessionId);

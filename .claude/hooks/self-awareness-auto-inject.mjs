@@ -18,6 +18,15 @@ import fs from "node:fs";
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const MCP_SERVER = 'H:/prism/mcp-server';
 const JM_DIE_ROOT = 'H:/PRISM/JM DIE';
 

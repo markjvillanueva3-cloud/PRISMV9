@@ -1,4 +1,13 @@
 import fs from "node:fs";
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
 #!/usr/bin/env node
 // DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
 // Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs

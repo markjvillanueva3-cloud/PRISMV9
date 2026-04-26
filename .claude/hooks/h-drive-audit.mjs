@@ -14,6 +14,15 @@ import { readdirSync, existsSync, statSync } from "node:fs";
 import { join, basename } from "node:path";
 import { homedir } from "node:os";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const USER_AUTHORED_DIRS = ["commands", "agents", "hooks", "skills", "rules", "plans"];
 
 const cClaudeDir = join(homedir(), ".claude");

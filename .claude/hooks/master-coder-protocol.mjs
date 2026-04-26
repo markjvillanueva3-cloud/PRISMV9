@@ -13,6 +13,15 @@ import fs from "node:fs";
 
 import { readFileSync } from "node:fs";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 // Keywords that indicate a coding task (vs pure conversation)
 const CODING_TRIGGERS = [
   // Creation

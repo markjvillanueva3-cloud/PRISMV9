@@ -14,6 +14,15 @@
 import * as fs from "fs";
 import * as path from "path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const COUNTER_FILE = "H:/prism/mcp-server/data/state/CURIOSITY_TICK_COUNTER.json";
 const QUEUE_LEDGER = "H:/prism/mcp-server/data/state/CURIOSITY_QUEUE.jsonl";
 const ENGINES_DIR = "H:/prism/mcp-server/src/engines";

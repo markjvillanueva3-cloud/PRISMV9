@@ -21,6 +21,15 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const ALLOWED_INGESTION_ROOTS = [
   "mcp-server/data/ingestion_cache",
   "data/ingestion_cache",

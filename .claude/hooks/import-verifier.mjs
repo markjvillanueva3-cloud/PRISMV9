@@ -16,6 +16,15 @@ import fs from "node:fs";
 import { existsSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve, extname, basename } from 'node:path';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const COMMON_TYPOS = {
   'reat': 'react',
   'recat': 'react',

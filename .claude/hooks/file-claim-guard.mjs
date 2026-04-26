@@ -20,6 +20,15 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import os from "node:os";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const CHAT_BUS_ROOT = "H:/prism/state/shared/chat-bus";
 const CLAIMS_DIR = path.join(CHAT_BUS_ROOT, "claims");
 const MESSAGES_DIR = path.join(CHAT_BUS_ROOT, "messages");

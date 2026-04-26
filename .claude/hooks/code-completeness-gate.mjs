@@ -18,6 +18,15 @@ import fs from "node:fs";
 
 import { readFileSync } from "node:fs";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 // Patterns that indicate incomplete code
 const BLOCKERS = [
   {

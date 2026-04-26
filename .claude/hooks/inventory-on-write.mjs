@@ -16,6 +16,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CACHE_DIR = "H:/prism/.claude/cache";
 const THROTTLE_FILE = path.join(CACHE_DIR, "inventory-write-last.txt");

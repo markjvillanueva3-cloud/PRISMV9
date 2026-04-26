@@ -12,6 +12,15 @@
 import * as fs from "fs";
 import * as path from "path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const PREDICTIONS_FILE = "H:/prism/mcp-server/data/state/WORLD_SIM_PREDICTIONS.jsonl";
 const POSTERIOR_FILE = "H:/prism/mcp-server/data/state/WORLD_SIM_CALIBRATION.json";
 const MAX_PREDICTION_AGE_MS = 30000; // 30 seconds

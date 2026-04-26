@@ -12,6 +12,15 @@
 
 import * as fs from "fs";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const CAUSAL_GRAPH_FILE = "H:/prism/mcp-server/data/state/CAUSAL_GRAPH.json";
 const TELEMETRY = `${process.env.USERPROFILE || process.env.HOME}/.prism/telemetry/phase-018-causal-trace.jsonl`;
 const MAX_HOPS = 3;

@@ -23,6 +23,15 @@ import fs from "node:fs";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const FLAG = resolve("H:/prism/state/shared/SPARC_OPT_IN.flag");
 
 async function readStdin() {

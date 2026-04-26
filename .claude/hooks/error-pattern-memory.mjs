@@ -17,6 +17,15 @@ import fs from "node:fs";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, basename } from 'node:path';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const ERROR_PATH = 'H:/prism/mcp-server/data/state/error-memory.json';
 const MAX_ERRORS = 100;
 const MAX_FIXES = 50;

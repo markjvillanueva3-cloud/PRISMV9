@@ -1,4 +1,13 @@
 import fs from "node:fs";
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
 #!/usr/bin/env node
 /**
  * anti-pattern-detector.mjs — PreToolUse hook for Edit/Write/MultiEdit

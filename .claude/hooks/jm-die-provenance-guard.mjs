@@ -22,6 +22,15 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const INGESTION_CACHE_REL = "mcp-server/data/ingestion_cache";
 const AUDIT_LOG_PATH = "H:/prism/mcp-server/data/state/jm_die_provenance_audit.ndjson";
 

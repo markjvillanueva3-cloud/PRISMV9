@@ -11,6 +11,15 @@
 import fs from "node:fs";
 import path from "node:path";
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 const SESSION_ID_FILE = "H:/prism/.claude/cache/stable-session-id.txt";
 const MAX_TITLE_LEN = 60;
 

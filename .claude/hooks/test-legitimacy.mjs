@@ -6,6 +6,15 @@ import fs from "node:fs";
 
 import * as path from "path";
 import { fileURLToPath } from "node:url";
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
 import {
   detectCriticalDomainViolation,
   detectSyntheticGeneration,

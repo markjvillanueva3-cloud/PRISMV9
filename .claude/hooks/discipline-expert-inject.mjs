@@ -27,6 +27,15 @@ import fs from "node:fs";
 import { readFileSync as _rateRead, writeFileSync as _rateWrite, existsSync as _rateExists, mkdirSync as _rateMkdir } from "node:fs";
 import { join as _rateJoin, dirname as _rateDirname } from "node:path";
 import _rateOs from "node:os";
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
 const _RATE_WINDOW_MS = 5 * 60 * 1000;
 const _RATE_FILE = _rateJoin(_rateOs.tmpdir(), "prism-hook-state", "discipline-expert-inject.last.json");
 function _loadRate() { try { return JSON.parse(_rateRead(_RATE_FILE, "utf8")); } catch { return {}; } }
