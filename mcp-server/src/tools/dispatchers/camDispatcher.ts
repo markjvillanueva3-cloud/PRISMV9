@@ -1109,7 +1109,7 @@ export const ACTIONS = [
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
   // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0
-  "master_post_okuma_b250", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
+  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -5107,6 +5107,43 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           // ============================================================================
           // MASTER POST ENGINES (JM Die canonical posts) - PPG-WIRE-MS0
           // ============================================================================
+
+          case "master_post_hurco_v11": {
+            const { hurcoV11MillMasterPostEngine } = await import("../../engines/HurcoV11MillMasterPostEngine.js");
+            const p = params as {
+              operations: Array<{
+                operation_type: string;
+                tool_number: number;
+                tool_diameter_mm: number;
+                tool_flutes: number;
+                tool_description?: string;
+                material_iso: string;
+                spindle_rpm: number;
+                feed_mm_min: number;
+                axial_depth_mm: number;
+                radial_depth_mm?: number;
+                coolant?: "flood" | "mist" | "tsc" | "off";
+                coordinates: Array<{ x: number; y: number; z: number; type: string }>;
+                arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+              }>;
+              config?: {
+                program_number?: number;
+                program_comment?: string;
+                use_conversational?: boolean;
+                use_ultimotion?: boolean;
+                coolant_mode?: "flood" | "mist" | "tsc" | "off";
+                work_offset?: number;
+                units?: "metric" | "inch";
+                safe_z_mm?: number;
+                tool_change_position?: { x: number; y: number; z: number };
+              };
+            };
+            result = hurcoV11MillMasterPostEngine.generateProgram(
+              p.operations as any,
+              p.config
+            );
+            break;
+          }
 
           case "master_post_okuma_b250": {
             const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
