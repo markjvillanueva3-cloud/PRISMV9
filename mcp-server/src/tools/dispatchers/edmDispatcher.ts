@@ -34,10 +34,11 @@ import { WEDM_WIRE_TENSION_OPT_SCHEMAS } from "../../schemas/wedmWireTensionOptS
 import { WEDM_WEIBULL_SCHEMAS } from "../../schemas/wedmWeibullSchemas.js";
 import { WEDM_DL_CORE_SCHEMAS } from "../../schemas/wedmDLCoreSchemas.js";
 import { WEDM_RECAST_ML_SCHEMAS } from "../../schemas/wedmRecastMLSchemas.js";
+import { WEDM_HAZ_SCHEMAS } from "../../schemas/wedmHAZSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 // Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS, ...WEDM_RECAST_ML_SCHEMAS };
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS, ...WEDM_RECAST_ML_SCHEMAS, ...WEDM_HAZ_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -75,6 +76,7 @@ let _raPred: any, _breakPred: any, _recastPred: any;
 let _lattice: any, _gat: any, _neighbor: any;
 let _tribalTipLearner: any, _autonomyGate: any, _tribalRuntime: any;
 let _recastML: any;
+let _hazEngine: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -133,6 +135,7 @@ async function getEngine(name: string): Promise<any> {
     case "autonomyGate": return _autonomyGate ??= (await import("../../engines/WEDMAutonomySubstrateGateEngine.js")).wedmAutonomySubstrateGateEngine;
     case "tribalRuntime": return _tribalRuntime ??= (await import("../../engines/WEDMTribalRuntimeEngine.js")).wedmTribalRuntimeEngine;
     case "recastML": return _recastML ??= (await import("../../engines/WEDMRecastLayerMLEngine.js")).wedmRecastLayerMLEngine;
+    case "hazEngine": return _hazEngine ??= (await import("../../engines/WEDMHeatAffectedZoneEngine.js")).wedmHeatAffectedZoneEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -325,6 +328,8 @@ const ACTIONS = [
   "waterjet_lora_config", "waterjet_lora_state", "waterjet_lora_record",
   // WEDM-NEXT-MS0 U-WN06: Recast Layer ML
   "wedm_recast_ml_predict", "wedm_recast_ml_train", "wedm_recast_ml_add_sample", "wedm_recast_ml_stats", "wedm_recast_ml_reset",
+  // WEDM-NEXT-MS0 U-WN07: Heat Affected Zone
+  "wedm_haz_predict", "wedm_haz_stock_allowance", "wedm_haz_compare",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1856,6 +1861,22 @@ Actions: ${ACTIONS.join(", ")}.`,
             const engine = await getEngine("recastML");
             engine.reset();
             result = { success: true, message: "Recast ML model reset" };
+            break;
+          }
+          // WEDM-NEXT-MS0 U-WN07: Heat Affected Zone
+          case "wedm_haz_predict": {
+            const engine = await getEngine("hazEngine");
+            result = engine.predict(params as any);
+            break;
+          }
+          case "wedm_haz_stock_allowance": {
+            const engine = await getEngine("hazEngine");
+            result = engine.recommendStockAllowance(params as any);
+            break;
+          }
+          case "wedm_haz_compare": {
+            const engine = await getEngine("hazEngine");
+            result = engine.compareParameters((params as any).inputs);
             break;
           }
 
