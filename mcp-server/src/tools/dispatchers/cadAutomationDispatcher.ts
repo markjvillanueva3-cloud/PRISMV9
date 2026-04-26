@@ -89,6 +89,12 @@ const ACTIONS = [
   "iges_parse",
   "iges_extract_geometry",
   "iges_summary",
+  // CAD-UNIVERSAL-CONTROL-MS0/U-CUC08: format conversion matrix
+  "cad_classify_conversion",
+  "cad_best_path",
+  "cad_sniff_format",
+  "cad_probe_validity",
+  "cad_list_conversion_edges",
   // U-CUIX-P0-19 â€” AI-control surface: route master-AI intent through
   // ICADCodeGenerator adapters (FreeCAD/Fusion360/Inventor/Mastercam today;
   // HyperCAD-S + SolidWorks land in P0-17/P0-18). Closes the "4 adapters
@@ -423,6 +429,76 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = {
               ...summary,
               source: "IGESImportEngine.getSummary",
+            };
+            break;
+          }
+          // â”€â”€ CAD-UNIVERSAL-CONTROL-MS0/U-CUC08: CAD format conversion matrix â”€â”€
+          case "cad_classify_conversion": {
+            const { cadFormatConversionMatrixEngine } = await import("../../engines/CADFormatConversionMatrixEngine.js");
+            const from = params["from"] as string;
+            const to = params["to"] as string;
+            if (!from || !to) {
+              throw new Error("cad_classify_conversion requires 'from' and 'to' format strings");
+            }
+            result = {
+              ...cadFormatConversionMatrixEngine.classifyConversion(from, to),
+              source: "cadFormatConversionMatrixEngine.classifyConversion",
+            };
+            break;
+          }
+          case "cad_best_path": {
+            const { cadFormatConversionMatrixEngine } = await import("../../engines/CADFormatConversionMatrixEngine.js");
+            const from = params["from"] as string;
+            const to = params["to"] as string;
+            if (!from || !to) {
+              throw new Error("cad_best_path requires 'from' and 'to' format strings");
+            }
+            const pathResult = cadFormatConversionMatrixEngine.bestPath(from, to);
+            result = pathResult
+              ? { ...pathResult, source: "cadFormatConversionMatrixEngine.bestPath" }
+              : { path: null, compositeScore: 0, source: "cadFormatConversionMatrixEngine.bestPath" };
+            break;
+          }
+          case "cad_sniff_format": {
+            const { cadFormatConversionMatrixEngine } = await import("../../engines/CADFormatConversionMatrixEngine.js");
+            const hex = params["hex"] as string | undefined;
+            const bytes = params["bytes"] as number[] | undefined;
+            if (!hex && !bytes) {
+              throw new Error("cad_sniff_format requires 'hex' string or 'bytes' array");
+            }
+            const input = hex ?? new Uint8Array(bytes!);
+            const format = cadFormatConversionMatrixEngine.sniffFormat(input);
+            result = {
+              format: format ?? null,
+              source: "cadFormatConversionMatrixEngine.sniffFormat",
+            };
+            break;
+          }
+          case "cad_probe_validity": {
+            const { cadFormatConversionMatrixEngine } = await import("../../engines/CADFormatConversionMatrixEngine.js");
+            const filename = params["filename"] as string;
+            const hex = params["hex"] as string | undefined;
+            const bytes = params["bytes"] as number[] | undefined;
+            if (!filename) {
+              throw new Error("cad_probe_validity requires 'filename'");
+            }
+            if (!hex && !bytes) {
+              throw new Error("cad_probe_validity requires 'hex' string or 'bytes' array");
+            }
+            const input = hex ?? new Uint8Array(bytes!);
+            result = {
+              ...cadFormatConversionMatrixEngine.probeValidity(filename, input),
+              source: "cadFormatConversionMatrixEngine.probeValidity",
+            };
+            break;
+          }
+          case "cad_list_conversion_edges": {
+            const { cadFormatConversionMatrixEngine } = await import("../../engines/CADFormatConversionMatrixEngine.js");
+            const edges = cadFormatConversionMatrixEngine.listEdges();
+            result = {
+              edges,
+              count: edges.length,
+              source: "cadFormatConversionMatrixEngine.listEdges",
             };
             break;
           }
