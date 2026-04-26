@@ -28,7 +28,7 @@ import { log } from "../utils/Logger.js";
 /** Vault configuration schema */
 export const VaultConfigSchema = z.object({
   vault_path: z.string().describe("Absolute path to Obsidian vault"),
-  sync_folder: z.string().default("PRISM").describe("Folder within vault for PRISM notes"),
+  sync_folder: z.string().optional().default("PRISM").describe("Folder within vault for PRISM notes"),
   enable_bidirectional: z.boolean().default(true).describe("Enable two-way sync"),
   conflict_strategy: z.enum(["prism_wins", "obsidian_wins", "manual", "newest"]).default("newest"),
   include_patterns: z.array(z.string()).default(["**/*.md"]).describe("Glob patterns to include"),
@@ -47,8 +47,8 @@ export type VaultConfig = z.infer<typeof VaultConfigSchema>;
 export const PullParamsSchema = z.object({
   vault_path: z.string().describe("Path to Obsidian vault"),
   sync_folder: z.string().optional().describe("Subfolder to sync from"),
-  incremental: z.boolean().default(true).describe("Only sync changed files"),
-  dry_run: z.boolean().default(false).describe("Preview without making changes"),
+  incremental: z.boolean().optional().default(true).describe("Only sync changed files"),
+  dry_run: z.boolean().optional().default(false).describe("Preview without making changes"),
 });
 
 export type PullParams = z.infer<typeof PullParamsSchema>;
@@ -56,10 +56,10 @@ export type PullParams = z.infer<typeof PullParamsSchema>;
 /** Push parameters */
 export const PushParamsSchema = z.object({
   vault_path: z.string().describe("Path to Obsidian vault"),
-  sync_folder: z.string().default("PRISM").describe("Subfolder for PRISM notes"),
+  sync_folder: z.string().optional().default("PRISM").describe("Subfolder for PRISM notes"),
   tip_ids: z.array(z.string()).optional().describe("Specific tip IDs to push (all if omitted)"),
-  incremental: z.boolean().default(true).describe("Only push changed tips"),
-  dry_run: z.boolean().default(false).describe("Preview without making changes"),
+  incremental: z.boolean().optional().default(true).describe("Only push changed tips"),
+  dry_run: z.boolean().optional().default(false).describe("Preview without making changes"),
 });
 
 export type PushParams = z.infer<typeof PushParamsSchema>;
@@ -788,7 +788,7 @@ export class ObsidianVaultSyncEngine {
       const results = tribalKnowledgeEngine.search({ query: tipId, limit: 1 });
 
       if (results && results.length > 0) {
-        return results[0] as Record<string, unknown>;
+        return results[0] as unknown as Record<string, unknown>;
       }
     } catch {
       // Engine not available
@@ -808,7 +808,7 @@ export class ObsidianVaultSyncEngine {
         for (const id of tipIds) {
           const results = tribalKnowledgeEngine.search({ query: id, limit: 1 });
           if (results && results.length > 0) {
-            tips.push(results[0] as Record<string, unknown>);
+            tips.push(results[0] as unknown as Record<string, unknown>);
           }
         }
         return tips;
@@ -816,7 +816,7 @@ export class ObsidianVaultSyncEngine {
 
       // Get all tips (limited to recent/important ones)
       const results = tribalKnowledgeEngine.search({ query: "*", limit: 100 });
-      return (results || []) as Array<Record<string, unknown>>;
+      return (results || []) as unknown as Array<Record<string, unknown>>;
     } catch {
       return [];
     }
