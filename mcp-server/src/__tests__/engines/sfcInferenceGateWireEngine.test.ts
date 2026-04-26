@@ -161,7 +161,7 @@ describe("SFCInferenceGateWireEngine", () => {
       expect(mockGate.apply).toHaveBeenCalledWith(
         expect.objectContaining({
           engine_name: "TestEngine",
-          domain: "sfc",
+          domain: "speed_feed",
           context: expect.objectContaining({
             material: "Titanium Ti-6Al-4V",
             operation: "finishing",
@@ -242,7 +242,7 @@ describe("SFCInferenceGateWireEngine", () => {
         material: "Steel",
       });
 
-      const cuttingSpeed = result.cutting_speed as { value: number; adapted: boolean };
+      const cuttingSpeed = result.cutting_speed as unknown as { value: number; adapted: boolean };
       expect(cuttingSpeed.value).toBe(210);
       expect(cuttingSpeed.adapted).toBe(true);
     });

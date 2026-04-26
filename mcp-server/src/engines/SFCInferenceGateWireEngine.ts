@@ -70,7 +70,7 @@ export class SFCInferenceGateWireEngine {
     // Call the inference gate
     const gateResult = this.gate.apply({
       engine_name: input.engine ?? "SFCEngine",
-      domain: "sfc",
+      domain: "speed_feed",
       context: matchContext,
       baseline,
       lineage_id: input.lineage_id,
@@ -116,7 +116,12 @@ export class SFCInferenceGateWireEngine {
     });
 
     // Merge adapted values back
-    const result = this.mergeAdaptedValues(sfcResult, gateOutput.adapted);
+    // Filter to only defined numeric values
+    const adaptedNumbers: Record<string, number> = {};
+    for (const [k, v] of Object.entries(gateOutput.adapted)) {
+      if (typeof v === "number") adaptedNumbers[k] = v;
+    }
+    const result = this.mergeAdaptedValues(sfcResult, adaptedNumbers);
 
     return { result, gateOutput };
   }
