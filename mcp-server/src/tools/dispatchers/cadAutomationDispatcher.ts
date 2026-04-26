@@ -313,7 +313,36 @@ const ACTIONS = [
   "cad_thumb_has",
   "cad_thumb_list",
   "cad_thumb_invalidate",
-  "cad_drawing_knowledge_calc",
+  "cad_thumb_invalidate",
+  "cad_artifact_write",
+  "cad_artifact_list",
+  "cad_artifact_prune",
+  "cad_bundle_register",
+  "cad_bundle_get",
+  "cad_bundle_list",
+  "cad_bundle_diff",
+  "cad_bundle_search",
+  "cad_bundle_retrain_list",
+  "cad_bundle_retrain_drain",
+  "cad_bundle_key_create",
+  "cad_bundle_key_get",
+  "cad_bundle_sign",
+  "cad_bundle_verify",
+  "cad_corpus_classify",
+  "cad_corpus_ingest",
+  "cad_corpus_dedup",
+  "cad_corpus_stats",
+  "cad_corpus_jsonl",
+  "cad_crash_session_list",
+  "cad_crash_session_get",
+  "cad_crash_health_check",
+  "cad_crash_checkpoint_create",
+  "cad_crash_checkpoint_get",
+  "cad_crash_checkpoint_list",
+  "cad_crash_journal_get",
+  "cad_crash_history",
+  "cad_crash_policy_get",
+  "cad_crash_policy_set",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -3102,6 +3131,382 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const calcResult = cadDrawingKnowledgeEngine.calculate(action, calcParams ?? {});
             result = { result: calcResult, source: "CADDrawingKnowledgeEngine.calculate" };
+            break;
+          }
+          case "cad_artifact_write": {
+            const { CADArtifactStorageEngine } = await import("../../engines/CADArtifactStorageEngine.js");
+            const engine = new CADArtifactStorageEngine();
+            const batchId = params["batch_id"] as string;
+            const fileId = params["file_id"] as string;
+            const kind = params["kind"] as "expected_step" | "actual_step" | "diff_png" | "error_log";
+            const data = params["data"] as string;
+            if (!batchId || !fileId || !kind || data === undefined) {
+              throw new Error("cad_artifact_write requires 'batch_id', 'file_id', 'kind', 'data'");
+            }
+            const record = await engine.write(batchId, fileId, kind, data);
+            result = { record, source: "CADArtifactStorageEngine.write" };
+            break;
+          }
+          case "cad_artifact_list": {
+            const { CADArtifactStorageEngine } = await import("../../engines/CADArtifactStorageEngine.js");
+            const engine = new CADArtifactStorageEngine();
+            const batchId = params["batch_id"] as string;
+            if (!batchId) {
+              throw new Error("cad_artifact_list requires 'batch_id'");
+            }
+            const manifest = await engine.listBatch(batchId);
+            result = { manifest, source: "CADArtifactStorageEngine.listBatch" };
+            break;
+          }
+          case "cad_artifact_prune": {
+            const { CADArtifactStorageEngine } = await import("../../engines/CADArtifactStorageEngine.js");
+            const engine = new CADArtifactStorageEngine();
+            const maxBatches = params["max_batches"] as number | undefined;
+            const report = await engine.pruneRetention(maxBatches);
+            result = { report, source: "CADArtifactStorageEngine.pruneRetention" };
+            break;
+          }
+          case "cad_bundle_register": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const bundle = params["bundle"] as { bundleId: string; operations: unknown[] };
+            if (!bundle || !bundle.bundleId) {
+              throw new Error("cad_bundle_register requires 'bundle' with 'bundleId'");
+            }
+            const registered = engine.registerBundle(bundle as Parameters<typeof engine.registerBundle>[0]);
+            result = { bundle: registered, source: "CADBundleReplayCompareEngine.registerBundle" };
+            break;
+          }
+          case "cad_bundle_get": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const bundleId = params["bundle_id"] as string;
+            if (!bundleId) {
+              throw new Error("cad_bundle_get requires 'bundle_id'");
+            }
+            const bundle = engine.getBundle(bundleId);
+            result = { bundle: bundle ?? null, found: !!bundle, source: "CADBundleReplayCompareEngine.getBundle" };
+            break;
+          }
+          case "cad_bundle_list": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const bundles = engine.listBundles();
+            result = { bundles, count: bundles.length, source: "CADBundleReplayCompareEngine.listBundles" };
+            break;
+          }
+          case "cad_bundle_diff": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const leftId = params["left_bundle_id"] as string;
+            const rightId = params["right_bundle_id"] as string;
+            if (!leftId || !rightId) {
+              throw new Error("cad_bundle_diff requires 'left_bundle_id' and 'right_bundle_id'");
+            }
+            const diff = engine.diff(leftId, rightId);
+            result = { diff, source: "CADBundleReplayCompareEngine.diff" };
+            break;
+          }
+          case "cad_bundle_search": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const kinds = params["kinds"] as string[] | undefined;
+            const paramEquals = params["param_equals"] as Record<string, unknown> | undefined;
+            const limit = params["limit"] as number | undefined;
+            const hits = engine.search({ kinds: kinds as Parameters<typeof engine.search>[0]["kinds"], paramEquals: paramEquals as Parameters<typeof engine.search>[0]["paramEquals"], limit });
+            result = { hits, count: hits.length, source: "CADBundleReplayCompareEngine.search" };
+            break;
+          }
+          case "cad_bundle_retrain_list": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const entries = engine.retrainEntries();
+            result = { entries, count: entries.length, source: "CADBundleReplayCompareEngine.retrainEntries" };
+            break;
+          }
+          case "cad_bundle_retrain_drain": {
+            const { CADBundleReplayCompareEngine } = await import("../../engines/CADBundleReplayCompareEngine.js");
+            const engine = new CADBundleReplayCompareEngine();
+            const entries = engine.drainRetrainQueue();
+            result = { entries, count: entries.length, source: "CADBundleReplayCompareEngine.drainRetrainQueue" };
+            break;
+          }
+          case "cad_bundle_key_create": {
+            const { CADBundleSigningVersioningEngine } = await import("../../engines/CADBundleSigningVersioningEngine.js");
+            const engine = new CADBundleSigningVersioningEngine();
+            const keyId = params["key_id"] as string;
+            const alg = params["alg"] as "ed25519" | "ed25519-hmac" | undefined;
+            const issuer = params["issuer"] as string | undefined;
+            const seedHex = params["seed_hex"] as string | undefined;
+            if (!keyId) {
+              throw new Error("cad_bundle_key_create requires 'key_id'");
+            }
+            const key = engine.createKey({ keyId, alg, issuer, seedHex });
+            result = { key, source: "CADBundleSigningVersioningEngine.createKey" };
+            break;
+          }
+          case "cad_bundle_key_get": {
+            const { CADBundleSigningVersioningEngine } = await import("../../engines/CADBundleSigningVersioningEngine.js");
+            const engine = new CADBundleSigningVersioningEngine();
+            const keyId = params["key_id"] as string;
+            if (!keyId) {
+              throw new Error("cad_bundle_key_get requires 'key_id'");
+            }
+            const key = engine.publicKey(keyId);
+            result = { key: key ?? null, found: !!key, source: "CADBundleSigningVersioningEngine.publicKey" };
+            break;
+          }
+          case "cad_bundle_sign": {
+            const { CADBundleSigningVersioningEngine } = await import("../../engines/CADBundleSigningVersioningEngine.js");
+            const engine = new CADBundleSigningVersioningEngine();
+            const bundleId = params["bundle_id"] as string;
+            const bundleDigestSha256 = params["bundle_digest_sha256"] as string;
+            const version = params["version"] as string;
+            const keyId = params["key_id"] as string;
+            const predicate = params["predicate"] as { predicateType: string; builder: string; buildType: string; metadata?: Record<string, string> };
+            const bump = params["bump"] as "major" | "minor" | "patch" | undefined;
+            if (!bundleId || !bundleDigestSha256 || !version || !keyId || !predicate) {
+              throw new Error("cad_bundle_sign requires 'bundle_id', 'bundle_digest_sha256', 'version', 'key_id', 'predicate'");
+            }
+            const signature = engine.sign({ bundleId, bundleDigestSha256, version, keyId, predicate, bump });
+            result = { signature, source: "CADBundleSigningVersioningEngine.sign" };
+            break;
+          }
+          case "cad_bundle_verify": {
+            const { CADBundleSigningVersioningEngine } = await import("../../engines/CADBundleSigningVersioningEngine.js");
+            const engine = new CADBundleSigningVersioningEngine();
+            const sig = params["signature"] as Parameters<typeof engine.verify>[0];
+            const expectedDigest = params["expected_digest"] as string | undefined;
+            if (!sig) {
+              throw new Error("cad_bundle_verify requires 'signature'");
+            }
+            const verifyResult = engine.verify(sig, expectedDigest);
+            result = { result: verifyResult, source: "CADBundleSigningVersioningEngine.verify" };
+            break;
+          }
+          case "cad_corpus_classify": {
+            const { cadCorpusIngesterEngine } = await import("../../engines/CADCorpusIngesterEngine.js");
+            const path = params["path"] as string;
+            const bytes = params["bytes"] as number;
+            if (!path || bytes === undefined) {
+              throw new Error("cad_corpus_classify requires 'path' and 'bytes'");
+            }
+            const entry = cadCorpusIngesterEngine.classify(path, bytes);
+            result = { entry: entry ?? null, classified: !!entry, source: "CADCorpusIngesterEngine.classify" };
+            break;
+          }
+          case "cad_corpus_ingest": {
+            const { cadCorpusIngesterEngine } = await import("../../engines/CADCorpusIngesterEngine.js");
+            const rawEntries = params["entries"];
+            if (!rawEntries || !Array.isArray(rawEntries)) {
+              throw new Error("cad_corpus_ingest requires 'entries' array");
+            }
+            const ingestResult = cadCorpusIngesterEngine.ingest(rawEntries as Parameters<typeof cadCorpusIngesterEngine.ingest>[0]);
+            result = { ...ingestResult, source: "CADCorpusIngesterEngine.ingest" };
+            break;
+          }
+          case "cad_corpus_dedup": {
+            const { cadCorpusIngesterEngine } = await import("../../engines/CADCorpusIngesterEngine.js");
+            const rawEntries = params["entries"];
+            if (!rawEntries || !Array.isArray(rawEntries)) {
+              throw new Error("cad_corpus_dedup requires 'entries' array");
+            }
+            const deduped = cadCorpusIngesterEngine.dedup(rawEntries as Parameters<typeof cadCorpusIngesterEngine.dedup>[0]);
+            result = { entries: deduped, removed: rawEntries.length - deduped.length, source: "CADCorpusIngesterEngine.dedup" };
+            break;
+          }
+          case "cad_corpus_stats": {
+            const { cadCorpusIngesterEngine } = await import("../../engines/CADCorpusIngesterEngine.js");
+            const rawEntries = params["entries"];
+            if (!rawEntries || !Array.isArray(rawEntries)) {
+              throw new Error("cad_corpus_stats requires 'entries' array");
+            }
+            const stats = cadCorpusIngesterEngine.stats(rawEntries as Parameters<typeof cadCorpusIngesterEngine.stats>[0]);
+            result = { stats, source: "CADCorpusIngesterEngine.stats" };
+            break;
+          }
+          case "cad_corpus_jsonl": {
+            const { cadCorpusIngesterEngine } = await import("../../engines/CADCorpusIngesterEngine.js");
+            const rawEntries = params["entries"];
+            if (!rawEntries || !Array.isArray(rawEntries)) {
+              throw new Error("cad_corpus_jsonl requires 'entries' array");
+            }
+            const jsonl = cadCorpusIngesterEngine.toJsonl(rawEntries as Parameters<typeof cadCorpusIngesterEngine.toJsonl>[0]);
+            result = { jsonl, lines: rawEntries.length, source: "CADCorpusIngesterEngine.toJsonl" };
+            break;
+          }
+          case "cad_crash_session_list": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessions = engine.listSessions();
+            result = { sessions, count: sessions.length, source: "CADCrashRecoveryEngine.listSessions" };
+            break;
+          }
+          case "cad_crash_session_get": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string;
+            if (!sessionId) {
+              throw new Error("cad_crash_session_get requires 'session_id'");
+            }
+            const session = engine.getSession(sessionId);
+            result = { session: session ?? null, found: !!session, source: "CADCrashRecoveryEngine.getSession" };
+            break;
+          }
+          case "cad_crash_health_check": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string;
+            if (!sessionId) {
+              throw new Error("cad_crash_health_check requires 'session_id'");
+            }
+            const health = engine.checkHealth(sessionId);
+            result = { health: health ?? null, healthy: !!health, source: "CADCrashRecoveryEngine.checkHealth" };
+            break;
+          }
+          case "cad_crash_checkpoint_create": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string;
+            const stateHash = params["state_hash"] as string | undefined;
+            const metadata = params["metadata"] as Record<string, unknown> | undefined;
+            if (!sessionId) {
+              throw new Error("cad_crash_checkpoint_create requires 'session_id'");
+            }
+            const checkpoint = engine.createCheckpoint(sessionId, { stateHash, metadata });
+            result = { checkpoint: checkpoint ?? null, created: !!checkpoint, source: "CADCrashRecoveryEngine.createCheckpoint" };
+            break;
+          }
+          case "cad_crash_checkpoint_get": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const checkpointId = params["checkpoint_id"] as string;
+            if (!checkpointId) {
+              throw new Error("cad_crash_checkpoint_get requires 'checkpoint_id'");
+            }
+            const checkpoint = engine.getCheckpoint(checkpointId);
+            result = { checkpoint: checkpoint ?? null, found: !!checkpoint, source: "CADCrashRecoveryEngine.getCheckpoint" };
+            break;
+          }
+          case "cad_crash_checkpoint_list": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string | undefined;
+            const checkpoints = engine.listCheckpoints(sessionId);
+            result = { checkpoints, count: checkpoints.length, source: "CADCrashRecoveryEngine.listCheckpoints" };
+            break;
+          }
+          case "cad_crash_journal_get": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string;
+            if (!sessionId) {
+              throw new Error("cad_crash_journal_get requires 'session_id'");
+            }
+            const journal = engine.getJournal(sessionId);
+            result = { journal, count: journal.length, source: "CADCrashRecoveryEngine.getJournal" };
+            break;
+          }
+          case "cad_crash_history": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string | undefined;
+            const limit = params["limit"] as number | undefined;
+            const events = engine.getCrashHistory({ sessionId, limit });
+            result = { events, count: events.length, source: "CADCrashRecoveryEngine.getCrashHistory" };
+            break;
+          }
+          case "cad_crash_policy_get": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string;
+            if (!sessionId) {
+              throw new Error("cad_crash_policy_get requires 'session_id'");
+            }
+            const policy = engine.getPolicy(sessionId);
+            result = { policy, source: "CADCrashRecoveryEngine.getPolicy" };
+            break;
+          }
+          case "cad_crash_policy_set": {
+            const { CADCrashRecoveryEngine } = await import("../../engines/CADCrashRecoveryEngine.js");
+            const noopTransport = {
+              getProcessHealth: () => null,
+              restartApp: () => ({ processId: 0, success: false }),
+              attachToProcess: () => false,
+              executeCommand: () => false,
+              loadDocument: () => false,
+            };
+            const engine = new CADCrashRecoveryEngine({ transport: noopTransport });
+            const sessionId = params["session_id"] as string;
+            const policy = params["policy"] as Record<string, unknown>;
+            if (!sessionId || !policy) {
+              throw new Error("cad_crash_policy_set requires 'session_id' and 'policy'");
+            }
+            engine.setPolicy(sessionId, policy);
+            result = { updated: true, source: "CADCrashRecoveryEngine.setPolicy" };
             break;
           }
           default:
