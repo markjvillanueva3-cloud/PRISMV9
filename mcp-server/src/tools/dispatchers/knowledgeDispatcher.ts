@@ -84,6 +84,11 @@ const OBSIDIAN_ACTIONS = [
   "tribal_export_config", "tribal_export_status",
 ] as const;
 
+const SHOP_NOTE_ACTIONS = [
+  "shop_note_ingest", "shop_note_parse", "shop_note_batch",
+  "shop_note_validate", "shop_note_status",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
@@ -95,6 +100,7 @@ const ACTIONS = [
   ...COURSE_BUILDER_ACTIONS,
   ...LEARN_ACTIONS,
   ...OBSIDIAN_ACTIONS,
+  ...SHOP_NOTE_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
@@ -359,6 +365,37 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "tribal_export_status": {
             const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
             result = tribalTipExportEngine.status();
+            break;
+          }
+          // ── Shop Floor Note Ingestion (OBSIDIAN-MS0) ─────────
+          case "shop_note_ingest": {
+            const { ShopFloorNoteIngestionEngine } = await import("../../engines/ShopFloorNoteIngestionEngine.js");
+            const engine = new ShopFloorNoteIngestionEngine();
+            result = await engine.ingest(params as any);
+            break;
+          }
+          case "shop_note_parse": {
+            const { ShopFloorNoteIngestionEngine } = await import("../../engines/ShopFloorNoteIngestionEngine.js");
+            const engine = new ShopFloorNoteIngestionEngine();
+            result = engine.parse(params as any);
+            break;
+          }
+          case "shop_note_batch": {
+            const { ShopFloorNoteIngestionEngine } = await import("../../engines/ShopFloorNoteIngestionEngine.js");
+            const engine = new ShopFloorNoteIngestionEngine();
+            result = await engine.batch(params as any);
+            break;
+          }
+          case "shop_note_validate": {
+            const { ShopFloorNoteIngestionEngine } = await import("../../engines/ShopFloorNoteIngestionEngine.js");
+            const engine = new ShopFloorNoteIngestionEngine();
+            result = engine.validate(params as any);
+            break;
+          }
+          case "shop_note_status": {
+            const { ShopFloorNoteIngestionEngine } = await import("../../engines/ShopFloorNoteIngestionEngine.js");
+            const engine = new ShopFloorNoteIngestionEngine();
+            result = engine.status();
             break;
           }
           // ── PRISM Academy ──────────────────────────────────

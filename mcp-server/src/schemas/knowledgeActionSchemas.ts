@@ -879,6 +879,58 @@ const obsidian_sync_config = z.object({
   conflict_strategy: z.enum(["prism_wins", "obsidian_wins", "manual", "newest"]).optional()
     .describe("How to resolve conflicts (default: 'newest')"),
 }).passthrough();
+
+// OBSIDIAN-MS0: Shop Floor Note Ingestion
+const shop_note_ingest = z.object({
+  file_path: z.string().optional().describe("Path to Obsidian markdown file"),
+  content: z.string().optional().describe("Raw markdown content (alternative to file_path)"),
+  source: z.string().default("obsidian").describe("Source identifier"),
+  validate_entities: z.boolean().default(true).describe("Validate extracted entities against PRISM registries"),
+  create_relationships: z.boolean().default(true).describe("Create relationships in knowledge graph"),
+}).refine(
+  (d) => d.file_path !== undefined || d.content !== undefined,
+  { message: "Either file_path or content required" }
+);
+
+const shop_note_parse = z.object({
+  file_path: z.string().optional().describe("Path to Obsidian markdown file"),
+  content: z.string().optional().describe("Raw markdown content"),
+  extract_frontmatter: z.boolean().default(true).describe("Extract YAML frontmatter"),
+  extract_entities: z.boolean().default(true).describe("Extract manufacturing entities"),
+}).refine(
+  (d) => d.file_path !== undefined || d.content !== undefined,
+  { message: "Either file_path or content required" }
+);
+
+const shop_note_batch = z.object({
+  directory: z.string().optional().describe("Directory containing markdown files"),
+  files: z.array(z.string()).optional().describe("List of file paths"),
+  notes: z.array(z.object({
+    content: z.string(),
+    filename: z.string().optional(),
+    source: z.string().optional(),
+  })).optional().describe("Array of note objects with content"),
+  source: z.string().default("obsidian_batch"),
+  validate_entities: z.boolean().default(true),
+  create_relationships: z.boolean().default(true),
+  incremental: z.boolean().default(true).describe("Skip already-ingested notes by checksum"),
+}).refine(
+  (d) => d.directory !== undefined || d.files !== undefined || d.notes !== undefined,
+  { message: "Either directory, files, or notes required" }
+);
+
+const shop_note_validate = z.object({
+  entities: z.array(z.object({
+    type: z.enum(["machine", "material", "operation", "tool", "controller"]),
+    value: z.string(),
+    confidence: z.number().min(0).max(1).default(1),
+  })).describe("Entities to validate against PRISM registries"),
+  strict: z.boolean().default(false).describe("Require 100% match for validity"),
+});
+
+const shop_note_status = z.object({
+  detailed: z.boolean().default(false).describe("Include detailed statistics"),
+});
 export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   search,
   cross_query,
@@ -999,4 +1051,10 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   obsidian_sync_push,
   obsidian_sync_status,
   obsidian_sync_config,
+  // OBSIDIAN-MS0: Shop Floor Note Ingestion
+  shop_note_ingest,
+  shop_note_parse,
+  shop_note_batch,
+  shop_note_validate,
+  shop_note_status,
 };
