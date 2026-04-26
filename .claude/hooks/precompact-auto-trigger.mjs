@@ -24,8 +24,8 @@
  *   (bytes / 3.5) when transcript unavailable.
  *
  * Thresholds (configurable via env):
- *   PRECOMPACT_SOFT_TOKENS  (default 160_000) — soft inject
- *   PRECOMPACT_HARD_TOKENS  (default 180_000) — hard block (buffer for
+ *   PRECOMPACT_SOFT_TOKENS  (default 175_000) — soft inject
+ *   PRECOMPACT_HARD_TOKENS  (default 185_000) — hard block (buffer for
  *                                                pre-compact + compact chain)
  *
  * Dedup:
@@ -46,8 +46,8 @@ const PENDING_MARKER_DIR = CACHE_DIR; // precompact-pending-<sid>.marker lives h
 //   HARD 180K — last-chance block BEFORE native autocompact at 190K, so
 //                 /precompact has room to write the handoff in the 50K
 //                 buffer between HARD and native autocompact.
-const SOFT = Number(process.env.PRECOMPACT_SOFT_TOKENS || 160_000);
-const HARD = Number(process.env.PRECOMPACT_HARD_TOKENS || 180_000);
+const SOFT = Number(process.env.PRECOMPACT_SOFT_TOKENS || 175_000);
+const HARD = Number(process.env.PRECOMPACT_HARD_TOKENS || 185_000);
 const CHARS_PER_TOKEN = 3.5;
 
 function readStdinSync() {
