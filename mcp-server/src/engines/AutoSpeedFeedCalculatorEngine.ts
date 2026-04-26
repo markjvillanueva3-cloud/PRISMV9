@@ -21,6 +21,7 @@
 
 import { rpmFromVc, predictedRa } from "../physics/constants.js";
 import { log } from "../utils/Logger.js";
+import { captureSFC } from "../middleware/sfcOutcomeWire.js";
 
 // ============================================================================
 // TYPES
@@ -208,7 +209,7 @@ export class AutoSpeedFeedCalculatorEngine {
 
     log.info(`[AutoSpeedFeedCalculator] Calculated ${results.length} operations, ${clampedCount} clamped, ${scaledCount} feed-scaled`);
 
-    return {
+    const result: AutoSFResult = {
       operations: results,
       stats: {
         total_operations: results.length,
@@ -219,6 +220,19 @@ export class AutoSpeedFeedCalculatorEngine {
       },
       all_okuma_lines: allLines,
     };
+
+    // U-PPG-SFC-01: emit recommendation onto OutcomeCaptureBus.
+    captureSFC({
+      engine: "AutoSpeedFeedCalculatorEngine",
+      action: "calculate",
+      context: {
+        operation: input.operations[0]?.operation,
+        material: input.operations[0]?.material_group,
+      },
+      recommended: result,
+    });
+
+    return result;
   }
 
   /**

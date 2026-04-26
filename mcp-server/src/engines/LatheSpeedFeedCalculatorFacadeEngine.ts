@@ -32,6 +32,7 @@
  */
 
 import { z } from "zod";
+import { captureSFC } from "../middleware/sfcOutcomeWire.js";
 import {
   CANONICAL_MATERIAL_DB,
   CANONICAL_KIENZLE,
@@ -747,7 +748,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
     if (warnings.length > 0) confidence -= 0.05 * warnings.length;
     confidence = Math.max(0.3, Math.min(1.0, confidence));
 
-    return {
+    const result: LatheSpeedFeedResult = {
       success: true,
       recommendation,
       band,
@@ -769,6 +770,20 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       predicted_force_N: forceResult.force_N,
       predicted_power_kw: powerResult.power_kw,
     };
+
+    // U-PPG-SFC-01: emit recommendation onto OutcomeCaptureBus.
+    captureSFC({
+      engine: "LatheSpeedFeedCalculatorFacadeEngine",
+      action: "calculate",
+      context: {
+        material: resolved.props.name,
+        operation: operation?.type,
+      },
+      recommended: result,
+      confidence: result.confidence,
+    });
+
+    return result;
   }
 
   /**

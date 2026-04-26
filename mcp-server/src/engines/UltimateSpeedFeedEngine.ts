@@ -28,6 +28,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { captureSFC } from "../middleware/sfcOutcomeWire.js";
 import {
   CANONICAL_MATERIAL_DB,
   CANONICAL_KIENZLE,
@@ -2683,6 +2684,18 @@ export class UltimateSpeedFeedEngine {
       confidence_overall: roundSig(overallConf, 2),
       formulas_used: formulas,
     };
+
+    captureSFC({
+      engine: "UltimateSpeedFeedEngine",
+      action: "calculate",
+      context: {
+        material: result.resolved.material,
+        operation: result.resolved.operation,
+        tool_id: result.resolved.tool_material,
+      },
+      recommended: result,
+      confidence: result.confidence_overall,
+    });
 
     return result;
   }

@@ -8,9 +8,28 @@
   "pillar": "P3-PPG-SFC-LEARNING-LOOP",
   "status": "in_progress",
   "created_at": "2026-04-25T20:45:00.000Z",
-  "last_updated": "2026-04-25T20:45:00.000Z",
+  "last_updated": "2026-04-25T19:51:00.000Z",
   "total_units": 14,
-  "completed_units": 0,
+  "completed_units": 1,
+  "shipped": [
+    {
+      "id": "U-PPG-SFC-01",
+      "title": "SFCOutcomeCaptureWireEngine — record every SFC emission",
+      "shipped_at": "2026-04-25T19:51:00.000Z",
+      "commit_subject": "[MAIN] PSAU-PPG-SFC/U-PPG-SFC-01: SFCOutcomeCaptureWireEngine",
+      "wired_engines": [
+        "UltimateSpeedFeedEngine.calculate",
+        "AutoSpeedFeedCalculatorEngine.calculate",
+        "MachineAwareSpeedFeedEngine.constrain",
+        "LatheSpeedFeedCalculatorFacadeEngine.calculate",
+        "SFCCalculateEngine.calculate"
+      ],
+      "deferred_to_u_ppg_sfc_02": [
+        "AutoSpeedFeedEngine.optimize (G-code emission, PPG domain)"
+      ],
+      "tests": "src/__tests__/engines/sfcOutcomeCaptureWireEngine.test.ts (16 tests, all green)"
+    }
+  ],
   "description": "Specialization of PSAU-LEARN's closing-the-loop pattern to PRISM's two highest-leverage recommendation surfaces: Post Processor Generator (PPG) and Speed/Feed Calculator (SFC). Today ~50 PPG/SFC engines exist (UltimateSpeedFeed, AutoSpeedFeed, PostProcessorDeepIntelligenceEngine, MasterPostProcessorUnifiedAGIEngine, LathePostProcessorAIEngine, etc.) but ZERO of them call OutcomeCaptureBus, InferenceLoRAGate, or ProvenanceEngine. They train models that never reach inference, emit recommendations without citations, and keep using hardcoded constants while LoRAs sit on disk. This envelope wires the existing surface to the U-LEARN spine.",
   "rationale": "PSAU-LEARN delivered the 11 substrate engines (OutcomeCaptureBus, FeatureStore, ProvenanceEngine, JMDieProgramRAG, TribalRAG, LoRA MoE, AdapterHotSwap+InferenceLoRAGate, IQL, MaxEntIRL, SafetyShield, ContinualLoRA, ProtoMAML). PSAU-FORESIGHT delivered the planning + reliability spine. But the substrate isn't load-bearing until production recommendation engines route through it. PPG and SFC are the canonical loci because: (1) every quote, every G-code emission, every operator override touches one or both; (2) the existing engine surface is large enough that wiring delivers immediate compounding leverage; (3) the JM Die corpus (22,721 programs + run logs) is a perfect training signal for these two domains specifically.",
   "leverage_existing": [
