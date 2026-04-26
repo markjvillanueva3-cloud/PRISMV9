@@ -291,6 +291,11 @@ const ACTIONS = [
   "cad_embed_build_index",
   "cad_embed_search",
   "cad_embed_cache_clear",
+  "cad_index_ingest",
+  "cad_index_query",
+  "cad_index_similar",
+  "cad_index_stats_orch",
+  "cad_index_clear",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2834,6 +2839,54 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { cadFeatureEmbeddingEngine } = await import("../../engines/CADFeatureEmbeddingEngine.js");
             const cleared = cadFeatureEmbeddingEngine.clearCache();
             result = { ...cleared, source: "CADFeatureEmbeddingEngine.clearCache" };
+            break;
+          }
+          case "cad_index_ingest": {
+            const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
+            const corpusPath = params["corpus_path"] as string;
+            const config = params["config"] as { indexType?: "flat" | "vptree"; metric?: string; maxEntries?: number } | undefined;
+            if (!corpusPath) {
+              throw new Error("cad_index_ingest requires 'corpus_path' string");
+            }
+            const ingestResult = cadEmbeddingIndexOrchestratorEngine.ingest(corpusPath, config);
+            result = { ...ingestResult, source: "CADEmbeddingIndexOrchestratorEngine.ingest" };
+            break;
+          }
+          case "cad_index_query": {
+            const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
+            const query = params["query"] as string;
+            const k = (params["k"] as number) ?? 10;
+            const extensions = params["extensions"] as string[] | undefined;
+            const minBytes = params["min_bytes"] as number | undefined;
+            const maxBytes = params["max_bytes"] as number | undefined;
+            if (!query) {
+              throw new Error("cad_index_query requires 'query' string");
+            }
+            const results = cadEmbeddingIndexOrchestratorEngine.query({ query, k, extensions, minBytes, maxBytes });
+            result = { results, count: results.length, source: "CADEmbeddingIndexOrchestratorEngine.query" };
+            break;
+          }
+          case "cad_index_similar": {
+            const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
+            const sourcePath = params["source_path"] as string;
+            const k = (params["k"] as number) ?? 5;
+            if (!sourcePath) {
+              throw new Error("cad_index_similar requires 'source_path' string");
+            }
+            const similar = cadEmbeddingIndexOrchestratorEngine.findSimilar(sourcePath, k);
+            result = { similar, count: similar.length, source: "CADEmbeddingIndexOrchestratorEngine.findSimilar" };
+            break;
+          }
+          case "cad_index_stats_orch": {
+            const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
+            const stats = cadEmbeddingIndexOrchestratorEngine.stats();
+            result = { ...stats, source: "CADEmbeddingIndexOrchestratorEngine.stats" };
+            break;
+          }
+          case "cad_index_clear": {
+            const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
+            cadEmbeddingIndexOrchestratorEngine.clear();
+            result = { cleared: true, source: "CADEmbeddingIndexOrchestratorEngine.clear" };
             break;
           }
           default:
