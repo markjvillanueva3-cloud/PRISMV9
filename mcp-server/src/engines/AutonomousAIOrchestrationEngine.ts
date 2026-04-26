@@ -1171,7 +1171,7 @@ export async function autonomousAIOrchestrationDispatch(
   switch (action) {
     case "ai_orchestrate_autonomous":
       return autonomousAIOrchestration.executeAutonomously(
-        params as Parameters<typeof autonomousAIOrchestration.executeAutonomously>[0]
+        params as unknown as AutonomousTaskRequest
       );
     case "ai_select_skills":
       return autonomousAIOrchestration.selectSkillChain(
@@ -1184,7 +1184,7 @@ export async function autonomousAIOrchestrationDispatch(
       return autonomousAIOrchestration.selectFormulas(params.intent as string);
     case "ai_knowledge_plan":
       return autonomousAIOrchestration.planKnowledgeUtilization(
-        params as Parameters<typeof autonomousAIOrchestration.planKnowledgeUtilization>[0]
+        params as unknown as { intent: string; knowledgeSources?: string[] }
       );
     case "ai_query_mit":
       return autonomousAIOrchestration.queryMITCourses(params.topic as string);
@@ -1192,7 +1192,7 @@ export async function autonomousAIOrchestrationDispatch(
       return autonomousAIOrchestration.queryVendorCatalogs(params.query as string);
     case "ai_generate_gsd":
       return autonomousAIOrchestration.generateGSD(
-        params as Parameters<typeof autonomousAIOrchestration.generateGSD>[0]
+        params as unknown as GSDRequest
       );
     case "ai_orchestration_history":
       return autonomousAIOrchestration.getExecutionHistory();

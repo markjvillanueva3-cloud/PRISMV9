@@ -466,6 +466,64 @@ class PRISMSelfAwarenessEngine {
   }
 
   /**
+   * Proactive reasoning about a query - gathers capabilities, knowledge, and rules
+   */
+  proactiveReason(query: string): {
+    relatedCapabilities: AIFeatureRecommendation[];
+    relevantKnowledge: TribalKnowledgeEntry[];
+    relevantRules: string[];
+  } {
+    const q = query.toLowerCase();
+    const capabilities: AIFeatureRecommendation[] = [];
+    const knowledge: TribalKnowledgeEntry[] = [];
+    const rules: string[] = [];
+
+    if (q.includes("cut") || q.includes("mill") || q.includes("turn")) {
+      capabilities.push({
+        feature: "SpeedFeedCalculator",
+        reason: "Cutting operation detected",
+        priority: 0.9,
+        engines: ["SpeedFeedOrchestratorEngine"],
+        actions: ["speed_feed_calc"],
+      });
+    }
+    if (q.includes("force") || q.includes("kienzle")) {
+      capabilities.push({
+        feature: "ForceCalculation",
+        reason: "Force analysis requested",
+        priority: 0.85,
+        engines: ["KienzleForceEngine"],
+        actions: ["cutting_force"],
+      });
+    }
+
+    return { relatedCapabilities: capabilities, relevantKnowledge: knowledge, relevantRules: rules };
+  }
+
+  /**
+   * What can I do? - returns matching capabilities for a query
+   */
+  whatCanIDo(query: string): { results: Array<{ fullAction: string; action: string; confidence: number }> } {
+    const q = query.toLowerCase();
+    const results: Array<{ fullAction: string; action: string; confidence: number }> = [];
+
+    if (q.includes("speed") || q.includes("feed")) {
+      results.push({ fullAction: "prism_calc:speed_feed_calc", action: "speed_feed_calc", confidence: 0.9 });
+    }
+    if (q.includes("force") || q.includes("cut")) {
+      results.push({ fullAction: "prism_calc:cutting_force", action: "cutting_force", confidence: 0.85 });
+    }
+    if (q.includes("tool") || q.includes("select")) {
+      results.push({ fullAction: "prism_calc:tool_select", action: "tool_select", confidence: 0.8 });
+    }
+    if (results.length === 0) {
+      results.push({ fullAction: "prism_ai:analyze", action: "analyze", confidence: 0.5 });
+    }
+
+    return { results };
+  }
+
+  /**
    * Recommend milling-specific AI features for a task
    * Delegates to MillAISelfAwarenessIntegrationEngine for domain expertise
    * @param task - The milling task to analyze

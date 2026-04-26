@@ -961,7 +961,7 @@ export class MachineRegistry extends BaseRegistry<Machine> {
               : machine.name
                 ? machine.name.replace(/[\s\/]+/g, '_').toUpperCase()
                 : `${layer}-${path.basename(file.name, '.json')}-${i}`);
-          const existing = this.get(id) as Record<string, unknown> | undefined;
+          const existing = this.get(id) as unknown as Record<string, unknown> | undefined;
           const normalizedMachine = { ...machine, id, layer };
           const mergedMachine = existing
             ? mergeMachineRegistryEntry(existing, normalizedMachine)

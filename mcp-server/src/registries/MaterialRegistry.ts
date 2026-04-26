@@ -148,7 +148,7 @@ export class MaterialRegistry extends BaseRegistry<Material> {
           if (id) {
             this.entries.set(id, {
               id,
-              data: { ...material, material_id: id, iso_group: material.iso_group || group.charAt(0) },
+              data: { ...material, material_id: id, iso_group: (material.iso_group || group.charAt(0)) as IsoMaterialGroup },
               metadata: { created: timestamp, updated: timestamp, version: 1, source: group }
             });
             this.layerCaches.get(DATA_LAYERS.CORE)?.set(id, material);

@@ -109,7 +109,7 @@ function _computePhysicsStep(material: string, operation: string, volumeToRemove
   } catch {
     // Fallback: canonical material DB (ISO-group-aware via resolveMaterial)
     const mat = resolveMaterial(material);
-    const vc = isFinish ? mat.vc_base_finishing : mat.vc_base_roughing;
+    const vc = isFinish ? mat.taylor_C * 0.3 : mat.taylor_C * 0.5;  // Derive from Taylor C constant
     const rpm = Math.round((vc * 1000) / (Math.PI * toolDia));
     const fz = toolDia * (isFinish ? 0.01 : 0.02);
     const feedMmMin = Math.round(fz * flutes * rpm);
