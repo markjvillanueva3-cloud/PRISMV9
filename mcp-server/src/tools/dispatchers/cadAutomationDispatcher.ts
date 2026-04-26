@@ -262,6 +262,8 @@ const ACTIONS = [
   "cad_search_remove",
   "cad_search_clear",
   "cad_search_stats",
+  "cad_revision_detect",
+  "cad_revision_group",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2418,6 +2420,26 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_search_stats": {
             const { cadSearchUniversalEngine } = await import("../../engines/CADSearchUniversalEngine.js");
             result = { size: cadSearchUniversalEngine.size, source: "CADSearchUniversalEngine.stats" };
+            break;
+          }
+          case "cad_revision_detect": {
+            const { cadRevisionDetectorEngine } = await import("../../engines/CADRevisionDetectorEngine.js");
+            const filename = params["filename"] as string;
+            if (!filename) {
+              throw new Error("cad_revision_detect requires 'filename' string");
+            }
+            const tag = cadRevisionDetectorEngine.detect(filename);
+            result = { ...tag, source: "CADRevisionDetectorEngine.detect" };
+            break;
+          }
+          case "cad_revision_group": {
+            const { cadRevisionDetectorEngine } = await import("../../engines/CADRevisionDetectorEngine.js");
+            const filenames = params["filenames"] as string[];
+            if (!filenames || !Array.isArray(filenames)) {
+              throw new Error("cad_revision_group requires 'filenames' string array");
+            }
+            const groups = cadRevisionDetectorEngine.group(filenames);
+            result = { groups, count: groups.length, source: "CADRevisionDetectorEngine.group" };
             break;
           }
           default:
