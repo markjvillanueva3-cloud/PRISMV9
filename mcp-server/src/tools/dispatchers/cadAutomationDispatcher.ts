@@ -296,6 +296,24 @@ const ACTIONS = [
   "cad_index_similar",
   "cad_index_stats_orch",
   "cad_index_clear",
+  "cad_kernel_eval_nurbs",
+  "cad_kernel_compute_aabb",
+  "cad_kernel_ray_intersect",
+  "cad_kernel_mesh_volume",
+  "cad_kernel_mesh_area",
+  "cad_kernel_generate_box",
+  "cad_access_grant",
+  "cad_access_revoke",
+  "cad_access_check",
+  "cad_access_checkout",
+  "cad_access_checkin",
+  "cad_access_audit",
+  "cad_feature_extract",
+  "cad_thumb_get",
+  "cad_thumb_has",
+  "cad_thumb_list",
+  "cad_thumb_invalidate",
+  "cad_drawing_knowledge_calc",
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -2887,6 +2905,203 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
             cadEmbeddingIndexOrchestratorEngine.clear();
             result = { cleared: true, source: "CADEmbeddingIndexOrchestratorEngine.clear" };
+            break;
+          }
+          case "cad_kernel_eval_nurbs": {
+            const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
+            const curve = params["curve"] as {
+              degree: number;
+              controlPoints: Array<{ x: number; y: number; z: number; w?: number }>;
+              knots: number[];
+            };
+            const t = params["t"] as number;
+            if (!curve || t === undefined) {
+              throw new Error("cad_kernel_eval_nurbs requires 'curve' and 't' parameter");
+            }
+            const point = cadKernelEngine.evaluateNURBSCurve(curve, t);
+            result = { point, source: "CADKernelEngine.evaluateNURBSCurve" };
+            break;
+          }
+          case "cad_kernel_compute_aabb": {
+            const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
+            const points = params["points"] as Array<{ x: number; y: number; z: number }>;
+            if (!points || !Array.isArray(points)) {
+              throw new Error("cad_kernel_compute_aabb requires 'points' array");
+            }
+            const aabb = cadKernelEngine.computeAABB(points);
+            result = { aabb, source: "CADKernelEngine.computeAABB" };
+            break;
+          }
+          case "cad_kernel_ray_intersect": {
+            const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
+            const ray = params["ray"] as { origin: { x: number; y: number; z: number }; direction: { x: number; y: number; z: number } };
+            const aabb = params["aabb"] as { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
+            if (!ray || !aabb) {
+              throw new Error("cad_kernel_ray_intersect requires 'ray' and 'aabb' objects");
+            }
+            const intersection = cadKernelEngine.rayAABBIntersect(ray, aabb);
+            result = { ...intersection, source: "CADKernelEngine.rayAABBIntersect" };
+            break;
+          }
+          case "cad_kernel_mesh_volume": {
+            const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
+            const mesh = params["mesh"] as {
+              vertices: Array<{ x: number; y: number; z: number }>;
+              triangles: Array<[number, number, number]>;
+            };
+            if (!mesh) {
+              throw new Error("cad_kernel_mesh_volume requires 'mesh' with vertices and triangles");
+            }
+            const volume = cadKernelEngine.meshVolume(mesh);
+            result = { volume, source: "CADKernelEngine.meshVolume" };
+            break;
+          }
+          case "cad_kernel_mesh_area": {
+            const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
+            const mesh = params["mesh"] as {
+              vertices: Array<{ x: number; y: number; z: number }>;
+              triangles: Array<[number, number, number]>;
+            };
+            if (!mesh) {
+              throw new Error("cad_kernel_mesh_area requires 'mesh' with vertices and triangles");
+            }
+            const area = cadKernelEngine.meshSurfaceArea(mesh);
+            result = { area, source: "CADKernelEngine.meshSurfaceArea" };
+            break;
+          }
+          case "cad_kernel_generate_box": {
+            const { cadKernelEngine } = await import("../../engines/CADKernelEngine.js");
+            const width = (params["width"] as number) ?? 1;
+            const height = (params["height"] as number) ?? 1;
+            const depth = (params["depth"] as number) ?? 1;
+            const mesh = cadKernelEngine.generateBox(width, height, depth);
+            result = { mesh, source: "CADKernelEngine.generateBox" };
+            break;
+          }
+          case "cad_access_grant": {
+            const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const userId = params["user_id"] as string;
+            const role = params["role"] as string;
+            const expiration = params["expiration"] as string | undefined;
+            if (!contentHash || !userId || !role) {
+              throw new Error("cad_access_grant requires 'content_hash', 'user_id', and 'role'");
+            }
+            const policy = cadAccessControlRBACABACEngine.grant(contentHash, { userId, role, expiration });
+            result = { policy, source: "CADAccessControlRBACABACEngine.grant" };
+            break;
+          }
+          case "cad_access_revoke": {
+            const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const userId = params["user_id"] as string;
+            if (!contentHash || !userId) {
+              throw new Error("cad_access_revoke requires 'content_hash' and 'user_id'");
+            }
+            const policy = cadAccessControlRBACABACEngine.revoke(contentHash, userId);
+            result = { policy, source: "CADAccessControlRBACABACEngine.revoke" };
+            break;
+          }
+          case "cad_access_check": {
+            const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const user = params["user"] as { id: string; roles: string[]; department?: string };
+            const action = params["action"] as "read" | "write" | "delete" | "share";
+            if (!contentHash || !user || !action) {
+              throw new Error("cad_access_check requires 'content_hash', 'user', and 'action'");
+            }
+            const decision = cadAccessControlRBACABACEngine.check(contentHash, user, action);
+            result = { ...decision, source: "CADAccessControlRBACABACEngine.check" };
+            break;
+          }
+          case "cad_access_checkout": {
+            const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const user = params["user"] as { id: string; roles: string[]; department?: string };
+            if (!contentHash || !user) {
+              throw new Error("cad_access_checkout requires 'content_hash' and 'user'");
+            }
+            const decision = cadAccessControlRBACABACEngine.checkout(contentHash, user);
+            result = { ...decision, source: "CADAccessControlRBACABACEngine.checkout" };
+            break;
+          }
+          case "cad_access_checkin": {
+            const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const user = params["user"] as { id: string; roles: string[]; department?: string };
+            if (!contentHash || !user) {
+              throw new Error("cad_access_checkin requires 'content_hash' and 'user'");
+            }
+            const decision = cadAccessControlRBACABACEngine.checkin(contentHash, user);
+            result = { ...decision, source: "CADAccessControlRBACABACEngine.checkin" };
+            break;
+          }
+          case "cad_access_audit": {
+            const { cadAccessControlRBACABACEngine } = await import("../../engines/CADAccessControlRBACABACEngine.js");
+            const contentHash = params["content_hash"] as string | undefined;
+            const userId = params["user_id"] as string | undefined;
+            const events = cadAccessControlRBACABACEngine.auditEvents(contentHash, userId);
+            result = { events, count: events.length, source: "CADAccessControlRBACABACEngine.auditEvents" };
+            break;
+          }
+          case "cad_feature_extract": {
+            const { cadFeatureRecognitionEngine } = await import("../../engines/CADFeatureRecognitionEngine.js");
+            const geometry = params["geometry"];
+            const extracted = cadFeatureRecognitionEngine.extractFeatures(geometry);
+            result = { ...extracted, source: "CADFeatureRecognitionEngine.extractFeatures" };
+            break;
+          }
+          case "cad_thumb_get": {
+            const { cadPreviewThumbnailCacheEngine } = await import("../../engines/CADPreviewThumbnailCacheEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const view = params["view"] as "front" | "top" | "iso" | "custom";
+            if (!contentHash || !view) {
+              throw new Error("cad_thumb_get requires 'content_hash' and 'view'");
+            }
+            const entry = cadPreviewThumbnailCacheEngine.get(contentHash, view);
+            result = { entry: entry ?? null, found: !!entry, source: "CADPreviewThumbnailCacheEngine.get" };
+            break;
+          }
+          case "cad_thumb_has": {
+            const { cadPreviewThumbnailCacheEngine } = await import("../../engines/CADPreviewThumbnailCacheEngine.js");
+            const contentHash = params["content_hash"] as string;
+            const view = params["view"] as "front" | "top" | "iso" | "custom";
+            if (!contentHash || !view) {
+              throw new Error("cad_thumb_has requires 'content_hash' and 'view'");
+            }
+            const exists = cadPreviewThumbnailCacheEngine.has(contentHash, view);
+            result = { exists, source: "CADPreviewThumbnailCacheEngine.has" };
+            break;
+          }
+          case "cad_thumb_list": {
+            const { cadPreviewThumbnailCacheEngine } = await import("../../engines/CADPreviewThumbnailCacheEngine.js");
+            const contentHash = params["content_hash"] as string;
+            if (!contentHash) {
+              throw new Error("cad_thumb_list requires 'content_hash'");
+            }
+            const entries = cadPreviewThumbnailCacheEngine.listByHash(contentHash);
+            result = { entries, count: entries.length, source: "CADPreviewThumbnailCacheEngine.listByHash" };
+            break;
+          }
+          case "cad_thumb_invalidate": {
+            const { cadPreviewThumbnailCacheEngine } = await import("../../engines/CADPreviewThumbnailCacheEngine.js");
+            const contentHash = params["content_hash"] as string;
+            if (!contentHash) {
+              throw new Error("cad_thumb_invalidate requires 'content_hash'");
+            }
+            const removed = cadPreviewThumbnailCacheEngine.invalidateHash(contentHash);
+            result = { removed, source: "CADPreviewThumbnailCacheEngine.invalidateHash" };
+            break;
+          }
+          case "cad_drawing_knowledge_calc": {
+            const { cadDrawingKnowledgeEngine } = await import("../../engines/CADDrawingKnowledgeEngine.js");
+            const action = params["calc_action"] as string;
+            const calcParams = params["calc_params"] as Record<string, unknown>;
+            if (!action) {
+              throw new Error("cad_drawing_knowledge_calc requires 'calc_action' string");
+            }
+            const calcResult = cadDrawingKnowledgeEngine.calculate(action, calcParams ?? {});
+            result = { result: calcResult, source: "CADDrawingKnowledgeEngine.calculate" };
             break;
           }
           default:
