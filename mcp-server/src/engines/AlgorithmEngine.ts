@@ -197,8 +197,8 @@ export class AlgorithmEngine {
       metas = metas.filter(m => m.safety_class === options.safety_class);
     }
 
-    // Collect unique domains
-    const domains = [...new Set(metas.map(m => m.domain))].sort();
+    // Collect unique domains (filter out undefined and cast to string[])
+    const domains = [...new Set(metas.map(m => m.domain).filter((d): d is NonNullable<typeof d> => d !== undefined))].sort() as string[];
 
     // Safety summary
     const safety = { critical: 0, standard: 0, informational: 0 };

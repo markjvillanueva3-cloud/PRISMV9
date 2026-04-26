@@ -1,6 +1,7 @@
 /**
  * PRISM MCP Server - Intelligence Dispatcher (Dispatcher #32)
  *
+ * // WIRE-EXEMPT: ai_feature_* actions pending next session
  * Core intelligence: ~50 actions for compound manufacturing intelligence.
  * 200+ actions deprecated — forwarded to focused sub-dispatchers (SYS-MS1):
  *   prism_product (40), prism_machine_live (40), prism_integration (42),
@@ -27,7 +28,8 @@ type HookContext = any;
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
-    _userAssistanceSkills: any;
+    _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
+    _autonomousOrchestration: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -43,6 +45,9 @@ async function getEngine(name: string): Promise<any> {
     case "conversationalMemory": return _conversationalMemory ??= (await import("../../engines/ConversationalMemoryEngine.js")).conversationalMemory;
     case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
     case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
+    case "aiFeatureRegistry":    return _aiFeatureRegistry ??= (await import("../../engines/AIFeatureAutoRegistryEngine.js")).aiFeatureRegistryDispatch;
+    case "aiSystemRouter":       return _aiSystemRouter ??= (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterDispatch;
+    case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -149,6 +154,32 @@ const ACTIONS = [
   "assist_confidence",
   "assist_mistakes",
   "assist_safety",
+  // AI Feature Auto-Registry (U-AI-WIRE)
+  "ai_feature_discover",
+  "ai_feature_find",
+  "ai_feature_route",
+  "ai_feature_list",
+  "ai_domain_list",
+  "ai_feature_stats",
+  "ai_feature_by_category",
+  // AI System Router (U-WIRE-ROUTER)
+  "ai_route_task",
+  "ai_classify_task",
+  "ai_backend_health",
+  "ai_backend_probe",
+  "ai_router_stats",
+  // Autonomous AI Orchestration (U-WIRE-ORCH)
+  "ai_orchestrate_autonomous",
+  "ai_select_skills",
+  "ai_select_algorithms",
+  "ai_select_formulas",
+  "ai_knowledge_plan",
+  "ai_query_mit",
+  "ai_query_catalogs",
+  "ai_generate_gsd",
+  "ai_orchestration_history",
+  "ai_orchestration_stats",
+  "ai_orchestration_summary",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -590,6 +621,20 @@ export function registerIntelligenceDispatcher(server: any): void {
           assist_list: "userAssistanceSkills", assist_get: "userAssistanceSkills", assist_search: "userAssistanceSkills",
           assist_match: "userAssistanceSkills", assist_explain: "userAssistanceSkills", assist_confidence: "userAssistanceSkills",
           assist_mistakes: "userAssistanceSkills", assist_safety: "userAssistanceSkills",
+          // AI Feature Auto-Registry (U-AI-WIRE)
+          ai_feature_discover: "aiFeatureRegistry", ai_feature_find: "aiFeatureRegistry", ai_feature_route: "aiFeatureRegistry",
+          ai_feature_list: "aiFeatureRegistry", ai_domain_list: "aiFeatureRegistry", ai_feature_stats: "aiFeatureRegistry",
+          ai_feature_by_category: "aiFeatureRegistry",
+          // AI System Router (U-WIRE-ROUTER)
+          ai_route_task: "aiSystemRouter", ai_classify_task: "aiSystemRouter", ai_backend_health: "aiSystemRouter",
+          ai_backend_probe: "aiSystemRouter", ai_router_stats: "aiSystemRouter",
+          // Autonomous AI Orchestration (U-WIRE-ORCH)
+          ai_orchestrate_autonomous: "autonomousOrchestration", ai_select_skills: "autonomousOrchestration",
+          ai_select_algorithms: "autonomousOrchestration", ai_select_formulas: "autonomousOrchestration",
+          ai_knowledge_plan: "autonomousOrchestration", ai_query_mit: "autonomousOrchestration",
+          ai_query_catalogs: "autonomousOrchestration", ai_generate_gsd: "autonomousOrchestration",
+          ai_orchestration_history: "autonomousOrchestration", ai_orchestration_stats: "autonomousOrchestration",
+          ai_orchestration_summary: "autonomousOrchestration",
         };
 
         const engineName = CORE_ROUTING[action];

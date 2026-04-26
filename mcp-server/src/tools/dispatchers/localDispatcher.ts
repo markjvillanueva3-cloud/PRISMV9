@@ -33,6 +33,9 @@ import {
   TrajectoryEndInputSchema,
   LearningStatsInputSchema,
   EnforceRulesInputSchema,
+  AggregateHooksInputSchema,
+  AwarenessInputSchema,
+  CommitInputSchema,
 } from "../../schemas/localActionSchemas.js";
 
 // Build input schema map for validateActionParams
@@ -47,12 +50,18 @@ const INPUT_SCHEMAS: Record<string, import("zod").ZodTypeAny> = {
   trajectory_end: TrajectoryEndInputSchema,
   learning_stats: LearningStatsInputSchema,
   enforce_rules: EnforceRulesInputSchema,
+  aggregate_hooks: AggregateHooksInputSchema,
+  awareness_route: AwarenessInputSchema,
+  suggest_commit: CommitInputSchema,
 };
 
 // Lazy-loaded engine references
 let _localValidation: typeof import("../../engines/LocalValidationEngine.js").localValidationEngine | null = null;
 let _offloader: typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine | null = null;
 let _localLearning: typeof import("../../engines/LocalLearningEngine.js").localLearningEngine | null = null;
+let _hookAggregator: typeof import("../../engines/LocalHookAggregatorEngine.js").localHookAggregatorEngine | null = null;
+let _awarenessRouter: typeof import("../../engines/LocalAwarenessRouterEngine.js").localAwarenessRouterEngine | null = null;
+let _commitMessage: typeof import("../../engines/LocalCommitMessageEngine.js").localCommitMessageEngine | null = null;
 
 async function getEngine(name: string): Promise<unknown> {
   switch (name) {
@@ -62,6 +71,14 @@ async function getEngine(name: string): Promise<unknown> {
       return _offloader ??= (await import("../../engines/OllamaTaskOffloaderEngine.js")).ollamaTaskOffloaderEngine;
     case "localLearning":
       return _localLearning ??= (await import("../../engines/LocalLearningEngine.js")).localLearningEngine;
+    case "hookAggregator":
+      return _hookAggregator ??= (await import("../../engines/LocalHookAggregatorEngine.js")).localHookAggregatorEngine;
+    case "awarenessRouter":
+      return _awarenessRouter ??= (await import("../../engines/LocalAwarenessRouterEngine.js")).localAwarenessRouterEngine;
+    case "commitMessage":
+      return _commitMessage ??= (await import("../../engines/LocalCommitMessageEngine.js")).localCommitMessageEngine;
+    
+      return _hookAggregator ??= (await import("../../engines/LocalHookAggregatorEngine.js")).localHookAggregatorEngine;
     default:
       throw new Error(`Unknown engine: ${name}`);
   }
@@ -292,6 +309,66 @@ export async function localDispatcher(
 
         const engine = await getEngine("localValidation") as typeof import("../../engines/LocalValidationEngine.js").localValidationEngine;
         const result = await engine.enforceRules(validated.data as Parameters<typeof engine.enforceRules>[0]);
+
+        return slimResponse({
+          success: true,
+          action: validAction,
+          data: result,
+          metadata: {
+            latencyMs: result.latencyMs,
+            ollamaUsed: result.ollamaUsed,
+          },
+        });
+      }
+
+      case "aggregate_hooks": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) {
+          return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        }
+
+        const engine = await getEngine("hookAggregator") as typeof import("../../engines/LocalHookAggregatorEngine.js").localHookAggregatorEngine;
+        const result = await engine.aggregate(validated.data as Parameters<typeof engine.aggregate>[0]);
+
+        return slimResponse({
+          success: true,
+          action: validAction,
+          data: result,
+          metadata: {
+            latencyMs: result.latencyMs,
+            ollamaUsed: result.ollamaUsed,
+          },
+        });
+      }
+
+      case "awareness_route": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) {
+          return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        }
+
+        const engine = await getEngine("awarenessRouter") as typeof import("../../engines/LocalAwarenessRouterEngine.js").localAwarenessRouterEngine;
+        const result = await engine.brief(validated.data as Parameters<typeof engine.brief>[0]);
+
+        return slimResponse({
+          success: true,
+          action: validAction,
+          data: result,
+          metadata: {
+            latencyMs: result.latencyMs,
+            ollamaUsed: result.ollamaUsed,
+          },
+        });
+      }
+
+      case "suggest_commit": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) {
+          return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        }
+
+        const engine = await getEngine("commitMessage") as typeof import("../../engines/LocalCommitMessageEngine.js").localCommitMessageEngine;
+        const result = await engine.suggest(validated.data as Parameters<typeof engine.suggest>[0]);
 
         return slimResponse({
           success: true,

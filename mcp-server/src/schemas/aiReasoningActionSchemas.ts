@@ -8,6 +8,10 @@
  */
 
 import { z } from "zod";
+import {
+  TaskCategory,
+  ConfidenceLevel,
+} from "./successPatternSchema.js";
 
 /** Supported actions for prism_ai dispatcher */
 export const AI_REASONING_ACTIONS = [
@@ -17,6 +21,10 @@ export const AI_REASONING_ACTIONS = [
   "ai_mill_scientific_analyze",
   "ai_mill_wisdom_query",
   "ai_mill_adaptive_strategy",
+  "pattern_record",
+  "pattern_query",
+  "pattern_reinforce",
+  "pattern_stats",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -153,6 +161,46 @@ const ai_mill_adaptive_strategy = z.object({
   include_provenance: z.boolean().optional().describe("Include strategy provenance"),
 }).passthrough();
 
+// ============================================================================
+// SUCCESS PATTERN BANK SCHEMAS (AI Augmentation Learning Loop)
+// ============================================================================
+
+/** Record a success pattern */
+const pattern_record = z.object({
+  task_category: TaskCategory.describe("Category of task"),
+  task_description: z.string().max(500).describe("Brief task description"),
+  task_keywords: z.array(z.string()).min(1).max(10).describe("Keywords for similarity search"),
+  approach_summary: z.string().max(1000).describe("Summary of successful approach"),
+  mcp_actions_used: z.array(z.string()).max(20).optional().describe("MCP actions that contributed"),
+  tools_used: z.array(z.string()).max(20).optional().describe("Tools that contributed"),
+  engines_invoked: z.array(z.string()).max(20).optional().describe("Engines that were called"),
+  confidence: ConfidenceLevel.optional().describe("Confidence level"),
+  domain: z.string().max(50).optional().describe("Domain context (mill, lathe, wedm)"),
+  constraints: z.array(z.string()).max(10).optional().describe("Constraints that applied"),
+  lineage_id: z.string().optional().describe("Links to original session/task"),
+  pattern_id: z.string().uuid().optional().describe("Custom pattern ID"),
+}).passthrough();
+
+/** Query patterns */
+const pattern_query = z.object({
+  task_category: TaskCategory.optional().describe("Filter by task category"),
+  keywords: z.array(z.string()).max(10).optional().describe("Keywords to match"),
+  domain: z.string().max(50).optional().describe("Filter by domain"),
+  min_confidence: ConfidenceLevel.optional().describe("Minimum confidence level"),
+  min_success_count: z.number().int().min(1).optional().describe("Minimum success count"),
+  limit: z.number().int().min(1).max(100).optional().describe("Max results (default 10)"),
+}).passthrough();
+
+/** Reinforce a pattern (record success/failure) */
+const pattern_reinforce = z.object({
+  pattern_id: z.string().uuid().describe("Pattern ID to reinforce"),
+  success: z.boolean().describe("Whether pattern succeeded this time"),
+  note: z.string().max(200).optional().describe("Optional note"),
+}).passthrough();
+
+/** Get pattern bank statistics */
+const pattern_stats = z.object({}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -161,4 +209,8 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_mill_scientific_analyze,
   ai_mill_wisdom_query,
   ai_mill_adaptive_strategy,
+  pattern_record,
+  pattern_query,
+  pattern_reinforce,
+  pattern_stats,
 };

@@ -1109,7 +1109,7 @@ export const ACTIONS = [
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
   // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0
-  "master_post_okuma_b250",
+  "master_post_okuma_b250", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -5152,6 +5152,96 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               p.operations as any,
               p.config
             );
+            break;
+          }
+          case "master_post_mitsubishi_mv1200r": {
+            const { mitsubishiMV1200RWireEDMMasterPostEngine } = await import("../../engines/MitsubishiMV1200RWireEDMMasterPostEngine.js");
+            const p = params as {
+              operations: Array<{
+                operation_type: "profile" | "taper" | "no_core" | "open_path" | "start_hole";
+                pass: "rough" | "skim1" | "skim2" | "skim3" | "skim4";
+                start_x: number;
+                start_y: number;
+                profile_points: Array<{ x: number; y: number; u?: number; v?: number; type: "line" | "arc_cw" | "arc_ccw"; r?: number; i?: number; j?: number }>;
+                material: { name: string; iso_group?: string; hardness_hrc?: number; conductivity_relative?: number };
+                thickness_mm: number;
+                wire?: { diameter_mm?: number; tension_g?: number; speed_mmin?: number };
+                power_setting?: string;
+                on_time_us?: number;
+                off_time_us?: number;
+                servo_voltage_v?: number;
+                flushing_pressure?: "low" | "medium" | "high" | "auto";
+                taper_angle_deg?: number;
+                taper_height_mm?: number;
+                land_height_mm?: number;
+                offset_direction: "left" | "right" | "center";
+                offset_override_mm?: number;
+              }>;
+              config?: {
+                program_number?: number;
+                program_comment?: string;
+                units?: "metric" | "inch";
+                submerged?: boolean;
+                auto_wire_thread?: boolean;
+                wire_diameter_mm?: number;
+                e_pack_base?: string;
+                corner_control?: boolean;
+                backup_on_break_mm?: number;
+                dialect?: "M700V" | "M800";
+                set_work_origin?: boolean;
+                adaptive_control?: boolean;
+              };
+            };
+            // Map schema types to engine types
+            const ops = p.operations.map(op => ({
+              ...op,
+              profile_points: op.profile_points.map(pt => ({
+                ...pt,
+                type: pt.type === "line" ? "linear" : pt.type,
+              })) as any,
+              material: {
+                name: op.material.name,
+                hardness_hrc: op.material.hardness_hrc ?? 60,
+                conductivity: op.material.conductivity_relative ?? 0.1,
+              },
+              flushing_pressure: op.flushing_pressure === "low" ? 3 : op.flushing_pressure === "medium" ? 8 : op.flushing_pressure === "high" ? 12 : undefined,
+              power_setting: op.power_setting ? parseInt(op.power_setting.replace(/[^0-9]/g, ""), 10) : undefined,
+            }));
+            result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+              ops as any,
+              p.config
+            );
+            break;
+          }
+          case "master_post_by_machine": {
+            const model = (params.machine_model as string ?? "").toUpperCase();
+            if (model.includes("OKUMA") || model.includes("LB250")) {
+              const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
+              result = okumaB250LatheMasterPostEngine.generateProgram(
+                (params as any).operations,
+                (params as any).config
+              );
+            } else if (model.includes("MITSUBISHI") || model.includes("MV1200")) {
+              const { mitsubishiMV1200RWireEDMMasterPostEngine } = await import("../../engines/MitsubishiMV1200RWireEDMMasterPostEngine.js");
+              const ops = ((params as any).operations ?? []).map((op: any) => ({
+                ...op,
+                profile_points: (op.profile_points ?? []).map((pt: any) => ({
+                  ...pt,
+                  type: pt.type === "line" ? "linear" : pt.type,
+                })),
+                material: {
+                  name: op.material?.name ?? "unknown",
+                  hardness_hrc: op.material?.hardness_hrc ?? 60,
+                  conductivity: op.material?.conductivity_relative ?? 0.1,
+                },
+              }));
+              result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+                ops as any,
+                (params as any).config
+              );
+            } else {
+              result = { success: false, error: `Unknown machine model: ${params.machine_model}. Supported: OKUMA_LB250, MITSUBISHI_MV1200R` };
+            }
             break;
           }
           case "cnc_simulate": {

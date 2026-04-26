@@ -1246,3 +1246,7 @@ export class AdaptiveCalibrationEngine {
     };
   }
 }
+
+// ─── Singleton Export ────────────────────────────────────────────────
+
+export const adaptiveCalibrationEngine = new AdaptiveCalibrationEngine();

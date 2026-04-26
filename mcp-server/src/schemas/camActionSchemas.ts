@@ -115,4 +115,67 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
       tailstock_position_mm: z.number().optional().describe("Tailstock engagement position"),
     }).optional().describe("Post processor configuration"),
   }),
+
+  /** Mitsubishi MV1200R Wire EDM master post — JM Die canonical wire EDM post with M700V/M800 */
+  master_post_mitsubishi_mv1200r: z.object({
+    operations: z.array(z.object({
+      operation_type: z.enum(["profile", "taper", "no_core", "open_path", "start_hole"]).describe("Wire EDM operation type"),
+      pass: z.enum(["rough", "skim1", "skim2", "skim3", "skim4"]).describe("Cutting pass (rough first, then skim passes)"),
+      start_x: z.number().describe("Wire start X position (mm)"),
+      start_y: z.number().describe("Wire start Y position (mm)"),
+      profile_points: z.array(z.object({
+        x: z.number().describe("X coordinate"),
+        y: z.number().describe("Y coordinate"),
+        u: z.number().optional().describe("U taper offset (for taper cuts)"),
+        v: z.number().optional().describe("V taper offset (for taper cuts)"),
+        type: z.enum(["line", "arc_cw", "arc_ccw"]).describe("Move type"),
+        r: z.number().optional().describe("Arc radius (for arc moves)"),
+        i: z.number().optional().describe("Arc center I offset"),
+        j: z.number().optional().describe("Arc center J offset"),
+      })).min(1).describe("Profile geometry points"),
+      material: z.object({
+        name: z.string().describe("Material name (e.g., 'D2 Tool Steel')"),
+        iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO material group"),
+        hardness_hrc: z.number().optional().describe("Hardness in HRC"),
+        conductivity_relative: z.number().optional().describe("Electrical conductivity relative to copper (0-1)"),
+      }).describe("Workpiece material"),
+      thickness_mm: z.number().positive().describe("Part thickness in mm"),
+      wire: z.object({
+        diameter_mm: z.number().positive().optional().describe("Wire diameter (default: 0.25mm brass)"),
+        tension_g: z.number().positive().optional().describe("Wire tension in grams"),
+        speed_mmin: z.number().positive().optional().describe("Wire feed speed m/min"),
+      }).optional().describe("Wire parameters"),
+      power_setting: z.string().optional().describe("E-pack power condition (E1-E20)"),
+      on_time_us: z.number().positive().optional().describe("Spark on-time microseconds"),
+      off_time_us: z.number().positive().optional().describe("Spark off-time microseconds"),
+      servo_voltage_v: z.number().optional().describe("Servo reference voltage"),
+      flushing_pressure: z.enum(["low", "medium", "high", "auto"]).optional().describe("Flushing pressure"),
+      taper_angle_deg: z.number().optional().describe("Taper angle in degrees (for taper cuts)"),
+      taper_height_mm: z.number().positive().optional().describe("Taper height from bottom"),
+      land_height_mm: z.number().positive().optional().describe("Straight land height at top"),
+      offset_direction: z.enum(["left", "right", "center"]).describe("Offset compensation direction"),
+      offset_override_mm: z.number().optional().describe("Manual offset override (uses physics calc if omitted)"),
+    })).min(1).describe("Array of wire EDM operations to post-process"),
+    config: z.object({
+      program_number: z.number().int().min(1).max(9999).optional().describe("O-number (default: 1)"),
+      program_comment: z.string().optional().describe("Program header comment"),
+      units: z.enum(["metric", "inch"]).optional().describe("Output units (default: metric)"),
+      submerged: z.boolean().optional().describe("Submerged cutting mode (default: true)"),
+      auto_wire_thread: z.boolean().optional().describe("Enable automatic wire threading"),
+      wire_diameter_mm: z.number().positive().optional().describe("Default wire diameter for all ops"),
+      e_pack_base: z.string().optional().describe("Base E-pack condition number"),
+      corner_control: z.boolean().optional().describe("Enable corner slowdown (default: true)"),
+      backup_on_break_mm: z.number().optional().describe("Backup distance on wire break"),
+      dialect: z.enum(["M700V", "M800"]).optional().describe("Controller dialect (default: M800)"),
+      set_work_origin: z.boolean().optional().describe("Output G92 work origin block"),
+      adaptive_control: z.boolean().optional().describe("Enable adaptive spark control"),
+    }).optional().describe("Wire EDM post processor configuration"),
+  }),
+
+  /** Auto-route to correct master post engine by machine model */
+  master_post_by_machine: z.object({
+    machine_model: z.string().describe("Machine model identifier (e.g., 'HURCO_VMX24', 'OKUMA_LB250', 'MITSUBISHI_MV1200R')"),
+    operations: z.array(z.unknown()).min(1).describe("Operations array (schema validated by routed engine)"),
+    config: z.record(z.unknown()).optional().describe("Config object (schema validated by routed engine)"),
+  }),
 };

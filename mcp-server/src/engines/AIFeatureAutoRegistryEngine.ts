@@ -347,7 +347,8 @@ export class AIFeatureAutoRegistryEngine {
     const timestamp = new Date().toISOString();
 
     // Get AI feature index from self-awareness
-    const aiFeatures = prismSelfAwarenessEngine.searchAIFeatures("");
+    const manifest = await prismSelfAwarenessEngine.getManifest();
+    const aiFeatures = manifest.engines.map((e) => ({ name: e.name, description: e.description ?? "", capabilities: e.capabilities ?? [] }));
 
     for (const feature of aiFeatures) {
       // Generate engineFile from feature name
@@ -654,3 +655,36 @@ Auto-ingest: Enabled — new AI engines automatically registered`;
 
 // Export singleton
 export const aiFeatureAutoRegistry = new AIFeatureAutoRegistryEngine();
+
+/**
+ * Dispatcher function for MCP action routing (U-AI-WIRE)
+ * Maps action names to AIFeatureAutoRegistryEngine methods
+ */
+export async function aiFeatureRegistryDispatch(
+  action: string,
+  params: Record<string, unknown>
+): Promise<unknown> {
+  switch (action) {
+    case "ai_feature_discover":
+      return aiFeatureAutoRegistry.discoverFeatures();
+    case "ai_feature_find":
+      return aiFeatureAutoRegistry.findBestFeature(
+        params.query as string,
+        params.domain as string | undefined
+      );
+    case "ai_feature_route":
+      return aiFeatureAutoRegistry.routeQuery(params.query as string);
+    case "ai_feature_list":
+      return aiFeatureAutoRegistry.getAllFeatures();
+    case "ai_domain_list":
+      return aiFeatureAutoRegistry.getAllDomains();
+    case "ai_feature_stats":
+      return aiFeatureAutoRegistry.getStats();
+    case "ai_feature_by_category":
+      return aiFeatureAutoRegistry.getFeaturesByCategory(
+        params.category as AICategory
+      );
+    default:
+      throw new Error(`Unknown AI feature action: ${action}`);
+  }
+}

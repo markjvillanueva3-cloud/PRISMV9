@@ -242,3 +242,27 @@ export class AISystemRouterEngine {
 }
 
 export const aiSystemRouterEngine = new AISystemRouterEngine();
+
+/**
+ * Dispatcher function for intelligenceDispatcher wiring.
+ * Routes AI system router actions to the singleton engine.
+ */
+export async function aiSystemRouterDispatch(
+  action: string,
+  params: Record<string, unknown>
+): Promise<unknown> {
+  switch (action) {
+    case "ai_route_task":
+      return aiSystemRouterEngine.route(params.task as string);
+    case "ai_classify_task":
+      return aiSystemRouterEngine.classify(params.task as string);
+    case "ai_backend_health":
+      return aiSystemRouterEngine.healthReport();
+    case "ai_backend_probe":
+      return aiSystemRouterEngine.probe(params.backend as AIBackend);
+    case "ai_router_stats":
+      return aiSystemRouterEngine.getStats();
+    default:
+      throw new Error(`Unknown AI router action: ${action}`);
+  }
+}

@@ -1159,3 +1159,48 @@ GSD: Auto-generate engines, schemas, dispatchers, tests`;
 
 // Export singleton
 export const autonomousAIOrchestration = new AutonomousAIOrchestrationEngine();
+
+/**
+ * Dispatcher function for intelligenceDispatcher wiring.
+ * Routes autonomous AI orchestration actions to the singleton engine.
+ */
+export async function autonomousAIOrchestrationDispatch(
+  action: string,
+  params: Record<string, unknown>
+): Promise<unknown> {
+  switch (action) {
+    case "ai_orchestrate_autonomous":
+      return autonomousAIOrchestration.executeAutonomously(
+        params as Parameters<typeof autonomousAIOrchestration.executeAutonomously>[0]
+      );
+    case "ai_select_skills":
+      return autonomousAIOrchestration.selectSkillChain(
+        params.intent as string,
+        params.reasoning
+      );
+    case "ai_select_algorithms":
+      return autonomousAIOrchestration.selectAlgorithms(params.intent as string);
+    case "ai_select_formulas":
+      return autonomousAIOrchestration.selectFormulas(params.intent as string);
+    case "ai_knowledge_plan":
+      return autonomousAIOrchestration.planKnowledgeUtilization(
+        params as Parameters<typeof autonomousAIOrchestration.planKnowledgeUtilization>[0]
+      );
+    case "ai_query_mit":
+      return autonomousAIOrchestration.queryMITCourses(params.topic as string);
+    case "ai_query_catalogs":
+      return autonomousAIOrchestration.queryVendorCatalogs(params.query as string);
+    case "ai_generate_gsd":
+      return autonomousAIOrchestration.generateGSD(
+        params as Parameters<typeof autonomousAIOrchestration.generateGSD>[0]
+      );
+    case "ai_orchestration_history":
+      return autonomousAIOrchestration.getExecutionHistory();
+    case "ai_orchestration_stats":
+      return autonomousAIOrchestration.getLearningStats();
+    case "ai_orchestration_summary":
+      return autonomousAIOrchestration.getSummary();
+    default:
+      throw new Error(`Unknown autonomous AI action: ${action}`);
+  }
+}

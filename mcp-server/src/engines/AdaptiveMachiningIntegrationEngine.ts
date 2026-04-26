@@ -561,7 +561,7 @@ class AdaptiveMachiningIntegrationEngine {
       failureRisks,
       environmentalRisks,
       operationRecommendations: recommendations,
-      proceedRecommendation,
+      proceedRecommendation: proceedRecommendation === "proceed_with_caution" ? "caution" : proceedRecommendation === "modify_parameters" ? "delay" : proceedRecommendation,
     };
   }
 
@@ -665,7 +665,7 @@ class AdaptiveMachiningIntegrationEngine {
       qualityPrediction: {
         predictedRa: raEvaluation.percentile * 3.2, // rough estimate
         predictedDimensionalError: dimEvaluation.percentile * 0.05,
-        confidence: (raEvaluation.sampleSize > 10 && dimEvaluation.sampleSize > 10) ? 0.8 : 0.5,
+        confidence: (raEvaluation.confidence + dimEvaluation.confidence) / 2,
       },
       toolWearUpdate: {
         currentWear: 25,

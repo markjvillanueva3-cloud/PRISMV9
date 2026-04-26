@@ -207,6 +207,66 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // pattern_record — Record a success pattern
+      // ─────────────────────────────────────────────────────────────────────
+      case "pattern_record": {
+        const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
+        result = successPatternBankEngine.record({
+          task_category: params.task_category as string,
+          task_description: params.task_description as string,
+          task_keywords: params.task_keywords as string[],
+          approach_summary: params.approach_summary as string,
+          mcp_actions_used: params.mcp_actions_used as string[] | undefined,
+          tools_used: params.tools_used as string[] | undefined,
+          engines_invoked: params.engines_invoked as string[] | undefined,
+          confidence: params.confidence as "high" | "medium" | "low" | undefined,
+          domain: params.domain as string | undefined,
+          constraints: params.constraints as string[] | undefined,
+          lineage_id: params.lineage_id as string | undefined,
+          pattern_id: params.pattern_id as string | undefined,
+        });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // pattern_query — Query patterns
+      // ─────────────────────────────────────────────────────────────────────
+      case "pattern_query": {
+        const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
+        result = successPatternBankEngine.query({
+          task_category: params.task_category as string | undefined,
+          keywords: params.keywords as string[] | undefined,
+          domain: params.domain as string | undefined,
+          min_confidence: params.min_confidence as "high" | "medium" | "low" | undefined,
+          min_success_count: params.min_success_count as number | undefined,
+          limit: params.limit as number | undefined,
+        });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // pattern_reinforce — Reinforce a pattern (success/failure)
+      // ─────────────────────────────────────────────────────────────────────
+      case "pattern_reinforce": {
+        const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
+        result = successPatternBankEngine.reinforce({
+          pattern_id: params.pattern_id as string,
+          success: params.success as boolean,
+          note: params.note as string | undefined,
+        });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // pattern_stats — Get pattern bank statistics
+      // ─────────────────────────────────────────────────────────────────────
+      case "pattern_stats": {
+        const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
+        result = successPatternBankEngine.stats();
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

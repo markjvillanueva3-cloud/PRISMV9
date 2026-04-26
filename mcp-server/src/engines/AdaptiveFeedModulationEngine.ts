@@ -158,7 +158,7 @@ class AdaptiveFeedModulationEngine {
     // 5. Query contextual boundary limits
     const boundaryContext = {
       tool: { type: "endmill", condition: 100 - (this.toolStates.get(toolId)?.currentWearPercent || 0) },
-      operation: { engagement: engagement.radialEngagement * 100 },
+      operation: { type: "milling", engagement: engagement.radialEngagement * 100 },
     };
     const feedBound = contextualBoundaryEngine.calculateBoundary("feed_rate", boundaryContext);
 

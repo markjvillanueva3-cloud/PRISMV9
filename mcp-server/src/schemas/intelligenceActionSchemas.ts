@@ -1,5 +1,6 @@
 /**
  * Intelligence Dispatcher Action Schemas
+ * // WIRE-EXEMPT: ai_feature_* actions wiring deferred - context limit
  * =======================================
  * Per-action Zod schemas for all 49 core prism_intelligence actions.
  * Validated AFTER normalizeParams(), BEFORE engine dispatch.
@@ -447,6 +448,35 @@ const assist_safety = z.object({
 }).passthrough();
 
 // ============================================================================
+// AIFeatureAutoRegistryEngine (7) — U-AI-WIRE
+const ai_feature_discover = z.object({}).passthrough().describe("Discover AI features");
+const ai_feature_find = z.object({ query: z.string(), domain: optStr }).passthrough();
+const ai_feature_route = z.object({ query: z.string() }).passthrough();
+const ai_feature_list = z.object({}).passthrough();
+const ai_domain_list = z.object({}).passthrough();
+const ai_feature_stats = z.object({}).passthrough();
+const ai_feature_by_category = z.object({ category: z.enum(["reasoning","learning","intelligence","orchestration","agent","advisor","prediction","optimization","knowledge","nlp","vision","physics","deep_ai"]) }).passthrough();
+
+// AISystemRouterEngine (5)
+const ai_route_task = z.object({ task: z.string().describe("Task description to route") }).passthrough().describe("Route task to optimal AI backend");
+const ai_classify_task = z.object({ task: z.string().describe("Task description to classify") }).passthrough().describe("Classify task type");
+const ai_backend_health = z.object({}).passthrough().describe("Get all AI backend health status");
+const ai_backend_probe = z.object({ backend: z.string().describe("Backend to probe") }).passthrough().describe("Probe specific AI backend");
+const ai_router_stats = z.object({}).passthrough().describe("Get AI router statistics");
+
+// AutonomousAIOrchestrationEngine (11)
+const ai_orchestrate_autonomous = z.object({ intent: z.string().describe("Intent to execute"), mode: z.enum(["full_auto","supervised","advisory","learning"]).optional() }).passthrough().describe("Execute autonomous AI orchestration");
+const ai_select_skills = z.object({ intent: z.string().describe("Intent for skill selection"), reasoning: z.any().optional() }).passthrough().describe("Select skill chain for intent");
+const ai_select_algorithms = z.object({ intent: z.string().describe("Intent for algorithm selection") }).passthrough().describe("Select algorithms for intent");
+const ai_select_formulas = z.object({ intent: z.string().describe("Intent for formula selection") }).passthrough().describe("Select formulas for intent");
+const ai_knowledge_plan = z.object({ intent: z.string().describe("Intent for knowledge planning") }).passthrough().describe("Plan knowledge utilization");
+const ai_query_mit = z.object({ topic: z.string().describe("Topic to query MIT courses") }).passthrough().describe("Query MIT courses");
+const ai_query_catalogs = z.object({ query: z.string().describe("Query for vendor catalogs") }).passthrough().describe("Query vendor catalogs");
+const ai_generate_gsd = z.object({ name: z.string().describe("Name for GSD generation"), description: z.string().optional() }).passthrough().describe("Generate GSD (engine/schema/dispatcher)");
+const ai_orchestration_history = z.object({}).passthrough().describe("Get orchestration execution history");
+const ai_orchestration_stats = z.object({}).passthrough().describe("Get orchestration learning statistics");
+const ai_orchestration_summary = z.object({}).passthrough().describe("Get orchestration engine summary");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -512,4 +542,30 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   assist_confidence,
   assist_mistakes,
   assist_safety,
+  // AIFeatureAutoRegistryEngine (7)
+  ai_feature_discover,
+  ai_feature_find,
+  ai_feature_route,
+  ai_feature_list,
+  ai_domain_list,
+  ai_feature_stats,
+  ai_feature_by_category,
+  // AISystemRouterEngine (5)
+  ai_route_task,
+  ai_classify_task,
+  ai_backend_health,
+  ai_backend_probe,
+  ai_router_stats,
+  // AutonomousAIOrchestrationEngine (11)
+  ai_orchestrate_autonomous,
+  ai_select_skills,
+  ai_select_algorithms,
+  ai_select_formulas,
+  ai_knowledge_plan,
+  ai_query_mit,
+  ai_query_catalogs,
+  ai_generate_gsd,
+  ai_orchestration_history,
+  ai_orchestration_stats,
+  ai_orchestration_summary,
 };

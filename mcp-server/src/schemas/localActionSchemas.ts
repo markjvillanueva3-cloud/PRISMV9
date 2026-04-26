@@ -24,6 +24,9 @@ export const LOCAL_ACTIONS = [
   "trajectory_end",
   "learning_stats",
   "enforce_rules",
+    "aggregate_hooks",
+  "awareness_route",
+  "suggest_commit",
 ] as const;
 
 export type LocalAction = (typeof LOCAL_ACTIONS)[number];
@@ -225,6 +228,41 @@ export const EnforceRulesOutputSchema = z.object({
   latencyMs: z.number().describe("Validation time in milliseconds"),
 });
 
+// aggregate_hooks — Aggregate disabled hook checks via Qwen
+export const AggregateHooksInputSchema = z.object({
+  code: z.string().min(1).describe("Code to check with aggregated hooks"),
+  filePath: z.string().optional().describe("Optional file path for context"),
+  hookTypes: z.array(z.enum([
+    "naming",
+    "types",
+    "complexity",
+    "magic",
+    "async",
+    "performance",
+    "returns",
+    "api",
+    "all",
+  ])).default(["all"]).describe("Hook types to run (default: all)"),
+  maxIssues: z.number().int().min(1).max(20).default(5)
+    .describe("Maximum issues to return (default: 5)"),
+});
+
+export const AggregateHooksOutputSchema = z.object({
+  passed: z.boolean().describe("True if no errors found"),
+  issues: z.array(z.object({
+    hookType: z.string().describe("Hook type that found this issue"),
+    severity: z.enum(["error", "warning", "info"]).describe("Issue severity"),
+    line: z.number().optional().describe("Line number"),
+    message: z.string().describe("Issue description"),
+    suggestion: z.string().optional().describe("Fix suggestion"),
+  })).describe("List of aggregated issues"),
+  summary: z.string().describe("One-line summary of issues"),
+  hooksChecked: z.array(z.string()).describe("Hook types that were checked"),
+  issueCount: z.number().describe("Total issues found (may exceed maxIssues)"),
+  ollamaUsed: z.boolean().describe("Whether Ollama enhanced analysis"),
+  latencyMs: z.number().describe("Aggregation time in milliseconds"),
+});
+
 // Combined schema map for dispatcher
 export const ACTION_LOCAL_SCHEMAS = {
   validate_code: {
@@ -267,4 +305,12 @@ export const ACTION_LOCAL_SCHEMAS = {
     input: EnforceRulesInputSchema,
     output: EnforceRulesOutputSchema,
   },
+  aggregate_hooks: {
+    input: AggregateHooksInputSchema,
+    output: AggregateHooksOutputSchema,
+  },
 } as const;
+
+// Re-export schemas from engines for dispatcher use
+export { AwarenessInputSchema } from "../engines/LocalAwarenessRouterEngine.js";
+export { CommitInputSchema } from "../engines/LocalCommitMessageEngine.js";
