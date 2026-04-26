@@ -42,6 +42,8 @@ async function getEngine(name: string): Promise<any> {
   }
 }
 
+// WIRE-EXEMPT: Uses engineMap + if/else pattern instead of switch/case for 19 actions.
+// All actions handled via engineMap lookup (line 87) and method dispatch (lines 103-120).
 const ACTIONS = [
   "vam_calculate", "vibration_dampening_calculate", "vibration_isolation_calculate",
   "fourier_analysis", "wavelet_analysis", "regenerative_chatter_predict",
