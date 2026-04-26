@@ -84,7 +84,7 @@ const ai_route_mill_pipeline = z.object({
   tool: ToolGeometrySchema.optional().describe("Tool geometry"),
   params: CuttingParamsSchema.optional().describe("Cutting parameters"),
   machine: MachineConfigSchema.optional().describe("Machine configuration"),
-  features: z.array(z.record(z.unknown())).optional().describe("CAD features to process"),
+  features: z.array(z.record(z.string(), z.unknown())).optional().describe("CAD features to process"),
   geometry: z.unknown().optional().describe("Part geometry data"),
   include_provenance: z.boolean().optional().describe("Include provenance tracking"),
 }).passthrough();
@@ -97,7 +97,7 @@ const ai_mill_agi_reason = z.object({
   iso_group: ISOGroupEnum.optional().describe("ISO material group"),
   tool: ToolGeometrySchema.optional().describe("Tool geometry context"),
   params: CuttingParamsSchema.optional().describe("Current cutting parameters"),
-  constraints: z.record(z.unknown()).optional().describe("Optimization constraints"),
+  constraints: z.record(z.string(), z.unknown()).optional().describe("Optimization constraints"),
   include_provenance: z.boolean().optional().describe("Include provenance tracking"),
 }).passthrough();
 
