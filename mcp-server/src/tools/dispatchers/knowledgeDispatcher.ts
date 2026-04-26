@@ -342,18 +342,18 @@ export function registerKnowledgeDispatcher(server: any): void {
           }
           // -- Tribal Tip Export ------------------------------
           case "tribal_export_single": {
-            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
-            result = tribalTipExportEngine.exportSingle(params);
+            const { tribalTipExportEngine, ExportSingleSchema } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.exportSingle(ExportSingleSchema.parse(params));
             break;
           }
           case "tribal_export_bulk": {
-            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
-            result = tribalTipExportEngine.exportBulk(params);
+            const { tribalTipExportEngine, ExportBulkSchema } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.exportBulk(ExportBulkSchema.parse(params));
             break;
           }
           case "tribal_export_config": {
-            const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
-            result = tribalTipExportEngine.configure(params);
+            const { tribalTipExportEngine, ExportConfigSchema } = await import("../../engines/TribalTipExportEngine.js");
+            result = tribalTipExportEngine.configure(ExportConfigSchema.parse(params));
             break;
           }
           case "tribal_export_status": {

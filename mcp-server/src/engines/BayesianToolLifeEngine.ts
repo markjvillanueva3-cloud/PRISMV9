@@ -13,6 +13,7 @@
  *
  * @module BayesianToolLifeEngine
  */
+import { CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -79,7 +80,7 @@ class BayesianToolLifeEngineImpl {
         y_train: [],
         K_inv: null,
       },
-      taylor: { C: 400, n: 0.25, m: 0.15, p: 0.10 },
+      taylor: { C: CANONICAL_TAYLOR.P.C, n: CANONICAL_TAYLOR.P.n, m: 0.15, p: 0.10 },
       observations: [],
     };
   }
