@@ -3,9 +3,22 @@
  * context-chain-hook.mjs — PreCompact
  * Estimates context pressure and recommends critical facts to preserve.
  */
-import { readFileSync } from 'fs';
+import * as fs from 'fs';
 
-let _raw; try { _raw = readFileSync('/dev/stdin', 'utf-8'); } catch { _raw = readFileSync(0, 'utf-8'); }
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
+const _raw = readStdinSafe();
+if (!_raw) {
+  console.log(JSON.stringify({ continue: true }));
+  process.exit(0);
+}
 const input = JSON.parse(_raw);
 
 // Estimate tokens from conversation length (rough heuristic)

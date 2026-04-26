@@ -4,10 +4,24 @@
  * Calls BuildGuardChainEngine.trackEdit() to track edits and suggest tests.
  * After 3 edits: suggest tests. After 5: require. After 12: block without review.
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import * as fs from 'fs';
+const { writeFileSync, mkdirSync, existsSync } = fs;
+
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
+}
 
 const TRACKER_PATH = 'H:/prism/state/build-guard-tracker.json';
-let _raw; try { _raw = readFileSync('/dev/stdin', 'utf-8'); } catch { _raw = readFileSync(0, 'utf-8'); }
+const _raw = readStdinSafe();
+if (!_raw) {
+  console.log(JSON.stringify({ continue: true }));
+  process.exit(0);
+}
 const input = JSON.parse(_raw);
 
 const filePath = (input.tool_input?.file_path || '').replace(/\\/g, '/');

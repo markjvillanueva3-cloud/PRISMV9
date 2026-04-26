@@ -5,10 +5,19 @@
  * succession — suggests using direct tools (Read/Grep/Glob) which are
  * cheaper and faster for simple lookups.
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import * as fs from 'fs';
+const { writeFileSync, existsSync, mkdirSync } = fs;
 import { dirname } from 'path';
 
-let _raw; try { _raw = readFileSync('/dev/stdin', 'utf-8'); } catch { _raw = readFileSync(0, 'utf-8'); }
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
+const _raw = readStdinSafe();
+if (!_raw) { console.log(JSON.stringify({ continue: true })); process.exit(0); }
 const input = JSON.parse(_raw);
 
 const TRACKER_PATH = 'H:/prism/state/agent-spawn-tracker.json';

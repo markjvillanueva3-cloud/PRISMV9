@@ -5,9 +5,17 @@
  * cat/head/tail → Read, grep/rg → Grep, find/ls → Glob, echo > → Write
  * Saves tokens by using structured tool output instead of raw bash.
  */
-import { readFileSync } from 'fs';
+import * as fs from 'fs';
 
-let _raw; try { _raw = readFileSync('/dev/stdin', 'utf-8'); } catch { _raw = readFileSync(0, 'utf-8'); }
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
+const _raw = readStdinSafe();
+if (!_raw) { console.log(JSON.stringify({ continue: true })); process.exit(0); }
 const input = JSON.parse(_raw);
 
 const cmd = (input.tool_input?.command || '').trim();
