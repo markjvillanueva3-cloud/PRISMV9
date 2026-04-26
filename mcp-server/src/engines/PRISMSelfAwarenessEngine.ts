@@ -538,7 +538,7 @@ class PRISMSelfAwarenessEngine {
         });
       }
     } catch (err) {
-      log("error", `Failed to load engines: ${err}`);
+      log.error(`Failed to load engines: ${err}`);
     }
 
     return engines;
@@ -575,7 +575,7 @@ class PRISMSelfAwarenessEngine {
         });
       }
     } catch (err) {
-      log("error", `Failed to load dispatchers: ${err}`);
+      log.error(`Failed to load dispatchers: ${err}`);
     }
 
     return dispatchers;
@@ -618,7 +618,7 @@ class PRISMSelfAwarenessEngine {
           });
         }
       } catch (err) {
-        log("error", `Failed to load hooks from ${root.dir}: ${err}`);
+        log.error(`Failed to load hooks from ${root.dir}: ${err}`);
       }
     }
 
@@ -659,7 +659,7 @@ class PRISMSelfAwarenessEngine {
           });
         }
       } catch (err) {
-        log("error", `Failed to load skills from ${root.dir}: ${err}`);
+        log.error(`Failed to load skills from ${root.dir}: ${err}`);
       }
     }
 

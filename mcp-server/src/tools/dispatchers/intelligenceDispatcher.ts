@@ -12,7 +12,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
-import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { slimResponse, getCurrentPressurePct } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_INTELLIGENCE_SCHEMAS } from "../../schemas/intelligenceActionSchemas.js";
 import { registryManager } from "../../registries/manager.js";
@@ -663,14 +663,12 @@ export function registerIntelligenceDispatcher(server: any): void {
         // Apply context-pressure-aware slimming
         const pressure = getCurrentPressurePct();
         if (pressure > 50) {
-          const slimLevel = getSlimLevel(pressure);
           const keyValues = intelligenceExtractKeyValues(action, result);
           return {
             content: [{
               type: "text" as const,
               text: JSON.stringify(slimResponse(
-                { action, ...result, _keyValues: keyValues },
-                slimLevel
+                { action, ...result, _keyValues: keyValues }
               )),
             }],
           };

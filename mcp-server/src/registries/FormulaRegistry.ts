@@ -7,7 +7,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import { BaseRegistry } from "./base.js";
-import { PATHS, FORMULA_DOMAINS, DATA_LAYERS } from "../constants.js";
+import { PATHS, DATA_LAYERS } from "../constants.js";
 import { log } from "../utils/Logger.js";
 import { fileExists, readJsonFile, writeJsonFile, listDirectory } from "../utils/files.js";
 import { safeFormulaEval } from "../utils/safeMathEval.js";

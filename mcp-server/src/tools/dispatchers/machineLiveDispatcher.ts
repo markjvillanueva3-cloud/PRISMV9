@@ -16,7 +16,7 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
-import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { slimResponse, getCurrentPressurePct } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { MACHINE_LIVE_ACTION_SCHEMAS } from "../../schemas/machineLiveActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
@@ -338,7 +338,7 @@ export function registerMachineLiveDispatcher(server: any): void {
             default: result = { error: `Unknown MQTT action: ${action}` };
           }
         } else if ((RTMI_ACTIONS as readonly string[]).includes(action)) {
-          const { realTimeMachineIntelligenceEngine } = await import("../../engines/index.js");
+          const { realTimeMachineIntelligenceEngine } = await import("../../engines/RealTimeMachineIntelligenceEngine.js");
           result = realTimeMachineIntelligenceEngine.calculate(action, params);
         } else if ((KIOSK_ACTIONS as readonly string[]).includes(action)) {
           const { kioskModeEngine } = await import("../../engines/KioskModeEngine.js");
@@ -373,8 +373,7 @@ export function registerMachineLiveDispatcher(server: any): void {
           const keyValues = machineLiveExtractKeyValues(action, result);
           return {
             content: [{ type: "text" as const, text: JSON.stringify(slimResponse(
-              { action, ...result, _keyValues: keyValues },
-              getSlimLevel(pressure)
+              { action, ...result, _keyValues: keyValues }
             )) }],
           };
         }
