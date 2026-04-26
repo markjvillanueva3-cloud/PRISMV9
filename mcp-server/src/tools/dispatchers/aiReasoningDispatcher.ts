@@ -51,7 +51,7 @@ export const aiReasoningDispatcherDef = {
   description: "AI reasoning dispatcher — routes AGI, scientific, wisdom, and adaptive strategy requests through MillMasterOrchestratorFacadeEngine.",
   inputSchema: z.object({
     action: z.enum(AI_REASONING_ACTIONS).describe("AI reasoning action to execute"),
-    params: z.record(z.unknown()).optional().describe("Action-specific parameters"),
+    params: z.record(z.string(), z.unknown()).optional().describe("Action-specific parameters"),
   }),
 };
 
@@ -67,7 +67,7 @@ export async function executeAIReasoningAction(
   const schema = ACTION_AI_REASONING_SCHEMAS[action];
   const validation = validateActionParams(action, params, schema);
   if (!validation.valid) {
-    return dispatcherError(action, validation.error ?? "Validation failed");
+    return dispatcherError(validation.error ?? "Validation failed", action, "prism_ai");
   }
 
   try {
@@ -209,7 +209,7 @@ export async function executeAIReasoningAction(
 
       default: {
         const _exhaustive: never = action;
-        return dispatcherError(action, `Unknown action: ${_exhaustive}`);
+        return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
       }
     }
 
@@ -217,13 +217,13 @@ export async function executeAIReasoningAction(
     log.info(`[prism_ai] ${action} completed in ${duration}ms`);
 
     // Slim response
-    const slimmed = slimResponse(result, "L3");
+    const slimmed = slimResponse(result);
 
     return { success: true, data: slimmed };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     log.error(`[prism_ai] ${action} failed: ${message}`);
-    return dispatcherError(action, message);
+    return dispatcherError(message, action, "prism_ai");
   }
 }
 
