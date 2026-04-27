@@ -183,6 +183,8 @@ export interface MachiningContext {
     flutes?: number;
     material: string;
     coating?: string;
+    stickout_mm?: number;
+    length_mm?: number;
   };
   geometry: {
     stock_dimensions_mm: [number, number, number];
@@ -196,6 +198,15 @@ export interface MachiningContext {
     max_force_n?: number;
     target_surface_finish_um?: number;
     tool_life_min?: number;
+    coolant_type?: "dry" | "flood" | "mql" | "cryogenic";
+  };
+  cutting_conditions?: {
+    axial_depth_mm?: number;
+    radial_depth_mm?: number;
+    feed_per_tooth_mm?: number;
+    feed_per_rev_mm?: number;
+    cutting_speed_m_min?: number;
+    stepover_mm?: number;
   };
   preferences?: {
     optimization_target: "mrr" | "surface" | "tool_life" | "balanced";
@@ -660,7 +671,7 @@ class MachiningIntelligenceOrchestratorEngine {
 
     // Calculate cutting speed from material database
     const materialData = CANONICAL_MATERIAL_DB[context.material.name] || CANONICAL_MATERIAL_DB["Steel_4140"];
-    const Vc = context.cutting_conditions?.cutting_speed_m_min || materialData?.recommended_Vc || 150;
+    const Vc = context.cutting_conditions?.cutting_speed_m_min || (materialData as { recommended_Vc?: number } | undefined)?.recommended_Vc || 150;
 
     // Calculate spindle RPM
     const D = context.tool.diameter_mm;
@@ -767,10 +778,10 @@ class MachiningIntelligenceOrchestratorEngine {
       result,
       reasoning_trace: [
         `Kienzle: Fc = ${kienzle.kc1_1} × ${ap.toFixed(2)} × ${fz}^${(1-kienzle.mc).toFixed(2)} = ${Fc.toFixed(1)}N`,
-        `Assembly deflection: ${totalDeflection.toFixed(2)}µm (${deflectionValue.section_deflections?.length || 0} sections)`,
+        `Assembly deflection: ${totalDeflection.toFixed(2)}µm (${(deflectionValue as { section_deflections?: unknown[] }).section_deflections?.length || 0} sections)`,
         `Holder dynamics: fn=${holderDynamics.natural_freq_Hz.toFixed(0)}Hz, ζ=${holderDynamics.damping_ratio.toFixed(3)}, k=${holderDynamics.static_stiffness_N_per_um.toFixed(1)}N/µm`,
         `Runout: chip load variation ±${(runoutAnalysis.chip_load_variation.value * 100).toFixed(1)}%, tool life factor ${runoutAnalysis.tool_life_factor.value.toFixed(2)}`,
-        `Chatter SLD: ${sldResult.lobes.length} lobes, ${sldResult.stablePockets.length} stable pockets, current: ${stabilityCheck.stable ? "STABLE" : "UNSTABLE"} (margin ${stabilityCheck.marginPercent.toFixed(0)}%)`,
+        `Chatter SLD: ${sldResult.lobes.length} lobes, ${sldResult.stablePockets.all.length} stable pockets, current: ${stabilityCheck.stable ? "STABLE" : "UNSTABLE"} (margin ${stabilityCheck.marginPercent.toFixed(0)}%)`,
       ],
       execution_time_ms: Date.now() - startTime,
     };
@@ -1195,16 +1206,16 @@ class MachiningIntelligenceOrchestratorEngine {
     const controller = controllerMap[context.machine_type] || "fanuc";
 
     // Determine operations for post processor
-    const operations = [context.operation_type];
+    const operations: string[] = [context.operation_type];
     if (context.operation_type === "roughing") {
       operations.push("adaptive_clearing");
     }
 
     // Call MasterPostProcessorAGIOrchestrationEngine
     try {
-      const postResult = await masterPostProcessorAGIOrchestrationEngine.generateAGIPost({
+      const postResult = await masterPostProcessorAGIOrchestrationEngine.generateAGIPost(({
         controller,
-        machineType: context.machine_type,
+        machineType: context.machine_type as "lathe" | "mill" | "5axis" | "turn-mill" | "wire-edm" | "sinker-edm",
         operations,
         material: context.material.name,
         materialISO: context.material.iso_group,
@@ -1219,7 +1230,7 @@ class MachiningIntelligenceOrchestratorEngine {
         rapidZ: 5,
         workOffset: "G54",
         optimizationLevel: context.preferences?.optimization_target === "mrr" ? "aggressive" : "balanced",
-      });
+      }) as unknown as Parameters<typeof masterPostProcessorAGIOrchestrationEngine.generateAGIPost>[0]);
 
       const gcodeLines = postResult.gcode.length;
       const hsmEnabled = postResult.gcode.some((line: string) =>
@@ -1227,12 +1238,12 @@ class MachiningIntelligenceOrchestratorEngine {
       );
 
       reasoningChain.push(`[POST-PROC] Generated ${gcodeLines} lines for ${controller}`);
-      reasoningChain.push(`[POST-PROC] HSM: ${hsmEnabled ? "enabled" : "standard"}, quality: ${(postResult.qualityMetrics?.overall || 0.85).toFixed(2)}`);
+      reasoningChain.push(`[POST-PROC] HSM: ${hsmEnabled ? "enabled" : "standard"}, quality: ${(postResult.qualityMetrics?.overallScore || 0.85).toFixed(2)}`);
 
       return {
         subsystem: "reasoning", // Using reasoning as post-proc is not in enum
         engine_name: "MasterPostProcessorAGIOrchestrationEngine",
-        confidence: postResult.qualityMetrics?.overall || 0.88,
+        confidence: postResult.qualityMetrics?.overallScore || 0.88,
         result: {
           gcode_lines: gcodeLines,
           controller_dialect: controller,
@@ -1401,7 +1412,7 @@ class MachiningIntelligenceOrchestratorEngine {
           return tags.includes(context.machine_type) || tags.includes(context.material.iso_group);
         })
         .slice(0, 5)
-        .map(a => (a as { id: string }).id);
+        .map(a => (a as unknown as { id: string }).id);
       if (loraAdapters.length > 0) {
         reasoningChain.push(`[DL] LoRA adapters available: ${loraAdapters.join(", ")}`);
       }
@@ -2675,7 +2686,7 @@ class MachiningIntelligenceOrchestratorEngine {
     }
 
     // Refresh manifest
-    const manifest = prismSelfAwarenessEngine.getCompactManifest();
+    const manifest = JSON.stringify(prismSelfAwarenessEngine.getCompactManifest());
     const checksum = this.computeManifestChecksum(manifest);
 
     this.manifestCache = { manifest, checksum, timestamp: now };
@@ -2707,7 +2718,7 @@ class MachiningIntelligenceOrchestratorEngine {
    * @returns Best matching capability with confidence, or null if no match
    */
   howDoI(task: string): CapabilityMatch | null {
-    return prismSelfAwarenessEngine.howDoI(task);
+    return prismSelfAwarenessEngine.howDoI(task) as unknown as CapabilityMatch | null;
   }
 
   /**
@@ -2718,7 +2729,7 @@ class MachiningIntelligenceOrchestratorEngine {
    * @returns Array of matching engines with relevance scores
    */
   whoHandles(domain: string): EngineMatch[] {
-    return prismSelfAwarenessEngine.whoHandles(domain);
+    return prismSelfAwarenessEngine.whoHandles(domain) as unknown as EngineMatch[];
   }
 
   /**
@@ -2738,7 +2749,7 @@ class MachiningIntelligenceOrchestratorEngine {
    * @returns Array of matching capabilities with confidence scores
    */
   searchCapabilities(query: string): CapabilityMatch[] {
-    return prismSelfAwarenessEngine.searchCapabilities(query);
+    return prismSelfAwarenessEngine.searchCapabilities(query) as unknown as CapabilityMatch[];
   }
 
   /**
@@ -2827,7 +2838,7 @@ class MachiningIntelligenceOrchestratorEngine {
     confidence: number;
     sample_size: number;
   } | null {
-    return jmDieRecipeRetrieverEngine.getRecommendedParameters(material, operation, machineType);
+    return jmDieRecipeRetrieverEngine.getRecommendedParameters(material, operation, machineType) as { cutting_speed_m_min: number; feed_mm_rev: number; depth_of_cut_mm: number; confidence: number; sample_size: number; } | null;
   }
 
   /**
@@ -3110,7 +3121,7 @@ class MachiningIntelligenceOrchestratorEngine {
     correction: string,
     context: { domain?: string; reason?: string }
   ): void {
-    proactiveAI.learnFromCorrection(originalSuggestion, correction, context);
+    (proactiveAI.learnFromCorrection as unknown as (a: string, b: string, c: { domain?: string; reason?: string }) => void)(originalSuggestion, correction, context);
   }
 
   /**
