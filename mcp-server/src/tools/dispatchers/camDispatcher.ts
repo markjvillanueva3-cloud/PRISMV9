@@ -1666,6 +1666,12 @@ export const ACTIONS = [
     "creo_function_index_find_parameter", "creo_function_index_search_parameters",
     "creo_function_index_get_operations_by_category", "creo_function_index_get_summary",
     "creo_function_index_get_mill_turn_operations", "creo_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-22 — PartMaker (Autodesk Swiss) Function Index
+    "partmaker_function_index_get", "partmaker_function_index_list_sections",
+    "partmaker_function_index_get_section", "partmaker_function_index_list_operations",
+    "partmaker_function_index_find_parameter", "partmaker_function_index_search_parameters",
+    "partmaker_function_index_get_operations_by_category", "partmaker_function_index_get_summary",
+    "partmaker_function_index_get_swiss_turning_operations", "partmaker_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12981,6 +12987,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...CreoFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-22 — PartMaker (Autodesk Swiss) Function Index (10 actions)
+          case "partmaker_function_index_get": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            result = { success: true, index: PartMakerFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "partmaker_function_index_list_sections": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            result = { success: true, sections: PartMakerFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "partmaker_function_index_get_section": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: PartMakerFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "partmaker_function_index_list_operations": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            result = { success: true, operations: PartMakerFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "partmaker_function_index_find_parameter": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: PartMakerFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "partmaker_function_index_search_parameters": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: PartMakerFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "partmaker_function_index_get_operations_by_category": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: PartMakerFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "partmaker_function_index_get_summary": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            result = { success: true, ...PartMakerFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "partmaker_function_index_get_swiss_turning_operations": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            result = { success: true, operations: PartMakerFunctionIndexEngine.getSwissTurningOperations() };
+            break;
+          }
+          case "partmaker_function_index_get_operation": {
+            const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...PartMakerFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

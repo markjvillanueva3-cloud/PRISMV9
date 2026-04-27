@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "partmaker",
+  "section_key": "mill_turn",
+  "extraction_source": "Autodesk PartMaker MillTurnCAM Reference / Swiss live-tool training",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-22",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["cross_milling", "polar_milling", "off_center_drill", "c_axis_groove"]
+  },
+  "operations": {
+    "cross_milling": {
+      "display_name": "Cross Milling (Live Tool)",
+      "category": "cross_milling",
+      "description": "Live-tool cross milling with C-axis index. PartMaker handles C-Y kinematics for off-center features without G12.1 polar mode.",
+      "dialog_tabs": ["Geometry", "Tool", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "geometry": {
+          "feature_type": { "type": "enum", "values": ["flat_OD", "slot_axial", "hex_external", "wrench_flat"], "default": "wrench_flat", "tab": "Geometry", "required": true },
+          "feature_diameter_mm": { "type": "number", "unit": "mm", "default": 10.0, "tab": "Geometry" },
+          "feature_axial_position_mm": { "type": "number", "unit": "mm", "default": 5.0, "description": "Z position from collet face", "tab": "Geometry" },
+          "feature_count": { "type": "integer", "default": 6, "description": "For hex flats / slots around C", "tab": "Geometry" }
+        },
+        "tool": {
+          "live_tool_dia_mm": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Tool" },
+          "live_tool_rpm": { "type": "number", "unit": "rpm", "default": 8000, "tab": "Tool" },
+          "tool_post": { "type": "enum", "values": ["rotary_turret", "back_turret", "cross_slide"], "default": "rotary_turret", "tab": "Tool" },
+          "tool_orientation": { "type": "enum", "values": ["radial", "axial", "angled_45"], "default": "radial", "tab": "Tool" }
+        },
+        "cut": {
+          "axial_doc_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cut" },
+          "feed_per_tooth_mm": { "type": "number", "unit": "mm_per_tooth", "default": 0.04, "tab": "Cut" },
+          "stepover_mm": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Cut" },
+          "spring_pass": { "type": "boolean", "default": false, "tab": "Cut" }
+        },
+        "output": {
+          "use_C_Y_kinematics": { "type": "boolean", "default": true, "description": "PartMaker computes C-Y motion — no G12.1 polar required", "tab": "Output" },
+          "main_spindle_brake_M19": { "type": "boolean", "default": true, "description": "Main spindle locks via M19 + C-axis engage", "tab": "Output" },
+          "verify_chuck_clearance": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "polar_milling": {
+      "display_name": "Polar Milling (G12.1)",
+      "category": "polar_milling",
+      "description": "G12.1/G13.1 polar interpolation for arbitrary 2D shapes machined with C-axis. PartMaker outputs polar in/out automatically.",
+      "dialog_tabs": ["Geometry", "Pattern", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "geometry": {
+          "polar_geometry_ref": { "type": "selection", "tab": "Geometry", "required": true, "description": "2D sketch for polar interp" },
+          "feature_dia_mm": { "type": "number", "unit": "mm", "default": 20.0, "tab": "Geometry" },
+          "axial_depth_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Geometry" },
+          "feature_origin_offset_mm": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Geometry" }
+        },
+        "pattern": {
+          "pattern_type": { "type": "enum", "values": ["single", "polar_array", "linear_array"], "default": "single", "tab": "Pattern" },
+          "pattern_count": { "type": "integer", "default": 1, "tab": "Pattern" },
+          "pattern_angle_step_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Pattern" },
+          "centerline_clearance_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Min radial offset to avoid C-axis singularity", "tab": "Pattern" }
+        },
+        "cut": {
+          "live_tool_dia_mm": { "type": "number", "unit": "mm", "default": 6.0, "tab": "Cut" },
+          "live_tool_rpm": { "type": "number", "unit": "rpm", "default": 7000, "tab": "Cut" },
+          "feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 600, "tab": "Cut" },
+          "step_depth_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cut" }
+        },
+        "output": {
+          "polar_in_code": { "type": "string", "default": "G12.1", "tab": "Output" },
+          "polar_out_code": { "type": "string", "default": "G13.1", "tab": "Output" },
+          "warn_on_singularity": { "type": "boolean", "default": true, "description": "Block if path within 0.5mm of C-axis center", "tab": "Output" }
+        }
+      }
+    },
+    "off_center_drill": {
+      "display_name": "Off-Center Drilling",
+      "category": "off_center_drill",
+      "description": "Y-axis driven drilling at off-center positions on the part — radial holes from rotary or back turret.",
+      "dialog_tabs": ["Hole", "Cycle", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "hole_dia_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Hole", "required": true },
+          "hole_depth_mm": { "type": "number", "unit": "mm", "default": 8.0, "tab": "Hole" },
+          "x_offset_mm": { "type": "number", "unit": "mm", "default": 4.0, "description": "Radial offset from C-axis center", "tab": "Hole" },
+          "y_offset_mm": { "type": "number", "unit": "mm", "default": 0.0, "description": "Cross-feed offset", "tab": "Hole" }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G81", "G83_peck", "G73_high_speed_peck", "G82_dwell"], "default": "G83_peck", "tab": "Cycle" },
+          "peck_increment_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "drill_rpm": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Cycle" },
+          "drill_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.05, "tab": "Cycle" }
+        },
+        "strategy": {
+          "c_axis_index_first": { "type": "boolean", "default": true, "description": "Index C, lock, then drill", "tab": "Strategy" },
+          "use_y_axis_offset": { "type": "boolean", "default": true, "description": "Required for off-center holes — saves C-axis indexing", "tab": "Strategy" },
+          "rapid_to_clearance": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "output": {
+          "spindle_orient_M19": { "type": "boolean", "default": true, "tab": "Output" },
+          "use_back_turret": { "type": "boolean", "default": false, "description": "Off-center via back turret for back-side ops", "tab": "Output" },
+          "verify_no_collision_with_guide_bushing": { "type": "boolean", "default": true, "tab": "Output" },
+          "tool_post": { "type": "enum", "values": ["rotary_turret", "back_turret", "gang_slide"], "default": "rotary_turret", "tab": "Output" }
+        }
+      }
+    },
+    "c_axis_groove": {
+      "display_name": "C-Axis Groove (Cam Profile)",
+      "category": "c_axis_groove",
+      "description": "Cam-profile groove cut around C-axis — for trigger cams, lock cams, ratchet teeth. Variable-depth axial groove.",
+      "dialog_tabs": ["Profile", "Sweep", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "profile": {
+          "profile_curve_ref": { "type": "selection", "tab": "Profile", "required": true, "description": "Theta-vs-Z curve table" },
+          "groove_width_mm": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Profile" },
+          "min_depth_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Profile" },
+          "max_depth_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Profile" }
+        },
+        "sweep": {
+          "sweep_total_deg": { "type": "number", "unit": "deg", "default": 360.0, "tab": "Sweep" },
+          "step_angle_deg": { "type": "number", "unit": "deg", "default": 0.5, "description": "C-axis discretisation step", "tab": "Sweep" },
+          "z_min_mm": { "type": "number", "unit": "mm", "default": -10.0, "tab": "Sweep" },
+          "z_max_mm": { "type": "number", "unit": "mm", "default": 10.0, "tab": "Sweep" }
+        },
+        "cut": {
+          "live_tool_dia_mm": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Cut" },
+          "live_tool_rpm": { "type": "number", "unit": "rpm", "default": 8000, "tab": "Cut" },
+          "feed_per_tooth_mm": { "type": "number", "unit": "mm_per_tooth", "default": 0.03, "tab": "Cut" },
+          "doc_per_pass_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Multi-pass for deep cam grooves", "tab": "Cut" }
+        },
+        "output": {
+          "synchronise_C_with_Z": { "type": "boolean", "default": true, "description": "C-Z linked motion for spiral cam grooves", "tab": "Output" },
+          "use_high_resolution_C": { "type": "boolean", "default": true, "description": "10000 step/rev encoder enables 0.036° resolution", "tab": "Output" },
+          "warn_if_axial_clash": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "C-Y Kinematics vs Polar",
+      "key_concepts": ["C-Y avoids singularity at center", "Polar G12.1 simpler for full circles", "Y-axis required for off-center"],
+      "best_practices": ["Use C-Y for asymmetric features", "Use polar G12.1 for closed circles", "Always verify chuck clearance"]
+    }
+  ]
+}
