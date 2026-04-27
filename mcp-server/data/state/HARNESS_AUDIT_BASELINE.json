@@ -1,0 +1,133 @@
+{
+  "_doc": "Suppressed harness-audit findings — known false-positives or accepted risks.",
+  "_format": "Each entry: { rule, file, reason, reviewed_by, reviewed_at }",
+  "_review_cadence": "Every PR touching .claude/hooks/ should re-run /harness-security-audit and update this file if a new pattern is added.",
+  "suppressed": [
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-auto-router.mjs",
+      "reason": "execSync calls local Ollama via curl. Body is single-quote-escaped via body.replace(/'/g, ...) — local-only, not network-exposed. Reviewed 2026-04-27.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-context-aggregator.mjs",
+      "reason": "Same pattern as ollama-auto-router — local Ollama curl with escaped body.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-obsidian-rag.mjs",
+      "reason": "Local Ollama curl pattern. Same defensive escape.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-prism-intelligence.mjs",
+      "reason": "Local Ollama curl pattern.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-route-recommender.mjs",
+      "reason": "Local Ollama curl pattern.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-session-continuity.mjs",
+      "reason": "Local Ollama curl pattern.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-terminal-watcher.mjs",
+      "reason": "Local Ollama curl pattern.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/ollama-unified-semantic-router.mjs",
+      "reason": "Local Ollama curl pattern.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/anti-pattern-detector.mjs",
+      "reason": "Engine intentionally contains 'eval(' as STRING in regex pattern list to detect that pattern in user code. Not actual eval call.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/prism-http-autostart.mjs",
+      "reason": "execSync curl health-check against fixed localhost:11434 URL. Template var is HEALTH_URL constant, not user input.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/node-process-janitor.mjs",
+      "reason": "execSync runs ps/pkill/wmic with hardcoded args + fixed PID query. No user input flows into shell command construction.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-003",
+      "file": ".claude/hooks/discipline-expert-inject.mjs",
+      "reason": "1033 lines because it contains 18 discipline directive strings inline. Refactor candidate (extract to data/discipline-knowledge.json) — TODO logged but accepted as-is.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/roadmap-checkpoint.mjs",
+      "reason": "execSync invokes local helper with process.execPath (Node binary) + fixed path. No user input.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/rtk-path-ensure.mjs",
+      "reason": "execSync mkdir -p with directory path from internal config. No user input.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/stop-obsidian-memory-extract.mjs",
+      "reason": "execSync with internal command construction. Local-only Stop hook.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/stop_on_broken_imports.mjs",
+      "reason": "execSync with internal command construction.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/stop_on_unwired_assets.mjs",
+      "reason": "execSync 'git -C REPO_ROOT args' with REPO_ROOT constant + fixed git args. No user input.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    },
+    {
+      "rule": "HK-001",
+      "file": ".claude/hooks/test-100-percent-gate.mjs",
+      "reason": "execSync runs vitest with NPX_BIN constant. No user input flows into command construction.",
+      "reviewed_by": "claude-2a125756",
+      "reviewed_at": "2026-04-27"
+    }
+  ]
+}

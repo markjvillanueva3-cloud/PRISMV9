@@ -110,6 +110,7 @@ const SAFETY_CRITICAL_HOOKS = new Set([
 ]);
 
 const LARGE_HOOK_LINES = 800;
+const BASELINE_REL = "mcp-server/data/state/HARNESS_AUDIT_BASELINE.json";
 
 // ============================================================================
 // ENGINE
@@ -160,9 +161,10 @@ export class HarnessSecurityAuditEngine {
       filesScanned += r.filesScanned;
     }
 
+    const baselined = this.suppressBaselined(allFindings);
     const filtered = includeInfo
-      ? allFindings
-      : allFindings.filter((f) => f.severity !== "info");
+      ? baselined
+      : baselined.filter((f) => f.severity !== "info");
     const summary = this.summarize(filtered);
 
     const severityRank: Record<Severity, number> = { critical: 3, high: 2, medium: 1, info: 0 };
@@ -442,6 +444,31 @@ export class HarnessSecurityAuditEngine {
   // ==========================================================================
   // HELPERS
   // ==========================================================================
+
+  /**
+   * Load baseline of known-suppressed findings.
+   * File: mcp-server/data/state/HARNESS_AUDIT_BASELINE.json (gitignored).
+   * Schema: { suppressed: [{ rule, file, reason }] }
+   */
+  private loadBaseline(): Set<string> {
+    const p = path.join(this.projectRoot, BASELINE_REL);
+    if (!fs.existsSync(p)) return new Set();
+    try {
+      const data = JSON.parse(fs.readFileSync(p, "utf-8")) as { suppressed?: Array<{ rule: string; file: string }> };
+      return new Set((data.suppressed ?? []).map((e) => `${e.rule}|${e.file}`));
+    } catch {
+      return new Set();
+    }
+  }
+
+  /**
+   * Apply baseline suppression: drop findings whose (rule, file) tuple is in baseline.
+   */
+  private suppressBaselined(findings: Finding[]): Finding[] {
+    const baseline = this.loadBaseline();
+    if (baseline.size === 0) return findings;
+    return findings.filter((f) => !baseline.has(`${f.rule}|${f.file}`));
+  }
 
   private summarize(findings: Finding[]): Record<Severity, number> {
     const out: Record<Severity, number> = { critical: 0, high: 0, medium: 0, info: 0 };

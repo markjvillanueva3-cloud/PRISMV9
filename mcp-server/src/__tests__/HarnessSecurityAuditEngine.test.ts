@@ -246,6 +246,52 @@ describe("HarnessSecurityAuditEngine — claude_md rules", () => {
   });
 });
 
+describe("HarnessSecurityAuditEngine — baseline suppression", () => {
+  it("suppresses findings matching the baseline file", () => {
+    // Write a baseline file that suppresses HK-003 on fat.mjs
+    const baselineDir = path.join(tmpRoot, "mcp-server", "data", "state");
+    fs.mkdirSync(baselineDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(baselineDir, "HARNESS_AUDIT_BASELINE.json"),
+      JSON.stringify({
+        suppressed: [{ rule: "HK-003", file: ".claude/hooks/fat.mjs", reason: "intentionally large" }],
+      }),
+    );
+    const engine = new HarnessSecurityAuditEngine(tmpRoot);
+    const result = engine.audit({ scope: "hooks" });
+    const hk003 = result.findings.filter((f) => f.rule === "HK-003" && f.file.endsWith("fat.mjs"));
+    expect(hk003).toEqual([]);
+    // Cleanup so other tests aren't affected
+    fs.rmSync(path.join(baselineDir, "HARNESS_AUDIT_BASELINE.json"));
+  });
+
+  it("does not suppress findings not in baseline", () => {
+    const baselineDir = path.join(tmpRoot, "mcp-server", "data", "state");
+    fs.mkdirSync(baselineDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(baselineDir, "HARNESS_AUDIT_BASELINE.json"),
+      JSON.stringify({
+        suppressed: [{ rule: "HK-003", file: ".claude/hooks/different.mjs", reason: "x" }],
+      }),
+    );
+    const engine = new HarnessSecurityAuditEngine(tmpRoot);
+    const result = engine.audit({ scope: "hooks" });
+    const hk003 = result.findings.filter((f) => f.rule === "HK-003");
+    expect(hk003.length).toBe(1);
+    fs.rmSync(path.join(baselineDir, "HARNESS_AUDIT_BASELINE.json"));
+  });
+
+  it("invalid baseline JSON is treated as empty (no crash)", () => {
+    const baselineDir = path.join(tmpRoot, "mcp-server", "data", "state");
+    fs.mkdirSync(baselineDir, { recursive: true });
+    fs.writeFileSync(path.join(baselineDir, "HARNESS_AUDIT_BASELINE.json"), "{ invalid json");
+    const engine = new HarnessSecurityAuditEngine(tmpRoot);
+    const result = engine.audit({ scope: "hooks" });
+    expect(result.findings.length).toBeGreaterThan(0);
+    fs.rmSync(path.join(baselineDir, "HARNESS_AUDIT_BASELINE.json"));
+  });
+});
+
 describe("HarnessSecurityAuditEngine — exit codes", () => {
   it("exit_code is 2 when critical findings present", () => {
     const engine = new HarnessSecurityAuditEngine(tmpRoot);
