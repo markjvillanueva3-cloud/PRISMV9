@@ -291,6 +291,29 @@ H:/prism/
 ├── .claude/hooks/inventory-refresh.mjs # session-start hook
 └── mcp-server/data/state/BASELINE_INVENTORY.json  # registry counts
 \`\`\`
+
+---
+
+## Wiki Capability (KNOWLEDGE-WIKI-MS0)
+
+PRISM ships a Karpathy-style compounding markdown wiki at \`H:/prism/knowledge/wiki/\`.
+Query \`wiki/index.md\` BEFORE re-deriving from digests. Full protocol in \`H:/prism/WIKI_SCHEMA.md\`.
+
+| Layer | Count | Files |
+|-------|-------|-------|
+| Engines | 8 | \`Wiki{Pattern,Coding,Error,SelfAwareness,Ingest,Lint,Index,Log}*Engine.ts\` |
+| Dispatcher | 1 | \`prism_wiki\` (\`src/tools/dispatchers/wikiDispatcher.ts\`) |
+| Actions | 11 | wiki_ingest_run, wiki_ingest_finalize, wiki_lint, wiki_harvest_patterns, wiki_harvest_tribal, wiki_harvest_lessons, wiki_sync_self_awareness, wiki_index_read, wiki_index_upsert, wiki_log_append, wiki_log_read |
+| Slash commands | 8 | \`/wiki-{ingest,query,lint,morning,sync,harvest,page,bootstrap}\` |
+| Hooks | 4 | wiki-query-first (UserPromptSubmit), wiki-auto-ingest-suggest (UserPromptSubmit), wiki-log-on-commit (PostToolUse[Bash]), wiki-lint-periodic (Stop) |
+| Cron | 1 | \`wiki-harvest-h-drive\` (daily; cron-templates.json) |
+
+**Engines (8):** WikiPatternHarvesterEngine, WikiCodingTribalEngine, WikiErrorLearningBridgeEngine,
+WikiSelfAwarenessSyncEngine, WikiIngestRouterEngine, WikiLintEngine, WikiIndexMaintainerEngine,
+WikiLogAppenderEngine.
+
+**Token-economy split:** Ollama owns ≥70% of wiki maintenance (summarize, lint, embed, cross-ref).
+Claude owns synthesis, contradiction resolution, and schema evolution.
 `;
 }
 

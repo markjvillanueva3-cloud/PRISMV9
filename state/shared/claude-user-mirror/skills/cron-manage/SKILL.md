@@ -32,7 +32,7 @@ Format as a compact table.
 Available templates (by priority):
 - **P0**: build-health (1h), test-regression (6h)
 - **P1**: dispatcher-sync (12h), schema-drift (12h), vulnerability (weekly)
-- **P2**: memory-cleanup (weekly), catalog-freshness (daily), dead-code (weekly), doc-coverage (weekly), hook-efficiency (weekly), automation-roi (monthly)
+- **P2**: memory-cleanup (weekly), catalog-freshness (daily), dead-code (weekly), doc-coverage (weekly), hook-efficiency (weekly), automation-roi (monthly), wiki-harvest-h-drive (daily)
 
 ### delete <cron-id>
 Use CronDelete with the specified cron job ID. Confirm deletion.

@@ -76,6 +76,13 @@
       "interval": "@monthly",
       "prompt": "Generate monthly automation report: Count hook fires from telemetry, estimate tokens saved by dedup/redirect hooks, count auto-fixed issues vs manual warnings, calculate cron job success rates. Produce summary with estimated token savings. Save to cron-results.jsonl.",
       "priority": "P2"
+    },
+    {
+      "id": "wiki-harvest-h-drive",
+      "name": "Wiki Harvest (H: drive memories + tribal + engines)",
+      "interval": "@daily",
+      "prompt": "Run the wiki harvester: cd H:/prism-knowledge-wiki && node mcp-server/scripts/wiki-harvest-h-drive.mjs 2>&1 | tail -20. The harvester is idempotent (sha1 manifest at knowledge/wiki/.harvest-manifest.json — unchanged sources are skipped). Token-economy floor: Ollama must own >=80% of summary/cross-ref work; if Ollama is unreachable AND the run would log >=1 contradiction, the script aborts. Report: harvested-new count, skipped-unchanged count, ollamaTokens vs claudeTokens ratio, any contradictions written to knowledge/wiki/.contradictions.jsonl. Save to cron-results.jsonl as JSON line {timestamp, cron: wiki-harvest-h-drive, status: pass|fail, details: ...}.",
+      "priority": "P2"
     }
   ]
 }
