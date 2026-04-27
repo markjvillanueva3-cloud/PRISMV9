@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "system_id": "sprutcam",
+  "section_key": "robot",
+  "extraction_source": "SprutCAM Robot 17 Reference / SprutCAM Tech robotics docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-18",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 64,
+    "categories": ["robot_milling", "robot_path", "robot_calibration", "robot_simulation"]
+  },
+  "operations": {
+    "robot_milling": {
+      "display_name": "Robot Milling",
+      "category": "robot_milling",
+      "description": "SprutCAM Robot's flagship — 6-axis arm milling for composites, foam, weld prep, deburring. Supports KUKA, ABB, Fanuc, Yaskawa, UR.",
+      "dialog_tabs": ["Robot", "Process", "Strategy", "Output"],
+      "parameter_count": 18,
+      "parameters": {
+        "robot": {
+          "manufacturer": { "type": "enum", "values": ["KUKA", "ABB", "Fanuc", "Yaskawa", "Universal_Robots", "Stäubli", "Kawasaki", "DENSO"], "default": "KUKA", "tab": "Robot", "required": true },
+          "model": { "type": "string", "tab": "Robot" },
+          "payloadKg": { "type": "number", "unit": "kg", "tab": "Robot" },
+          "reachMm": { "type": "number", "unit": "mm", "tab": "Robot" },
+          "externalAxes": { "type": "integer", "default": 0, "range": [0, 6], "tab": "Robot" },
+          "tcpFrame": { "type": "selection", "tab": "Robot" }
+        },
+        "process": {
+          "processType": { "type": "enum", "values": ["composite_trim", "foam_carving", "weld_prep", "deburring", "polishing", "general_milling"], "default": "general_milling", "tab": "Process", "required": true },
+          "spindleType": { "type": "enum", "values": ["electric", "pneumatic", "hydraulic"], "default": "electric", "tab": "Process" },
+          "spindleRPM": { "type": "number", "unit": "rpm", "default": 18000, "tab": "Process" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 1500, "tab": "Process" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["scallop", "parallel", "spiral", "morph"], "default": "scallop", "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "maxStepoverDeviation": { "type": "number", "unit": "mm", "default": 0.5, "description": "Tolerate variable stepover near reach limits", "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.05, "description": "Robot tolerance is looser than CNC", "tab": "Strategy" }
+        },
+        "output": {
+          "postProcessor": { "type": "enum", "values": ["KRL", "RAPID", "Karel", "JBI", "URScript"], "default": "KRL", "tab": "Output" },
+          "checkSingularity": { "type": "boolean", "default": true, "tab": "Output" },
+          "checkReach": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnConfigChange": { "type": "boolean", "default": true, "description": "Robot configuration switch (elbow up/down) mid-cut breaks paths", "tab": "Output" }
+        }
+      }
+    },
+    "robot_path": {
+      "display_name": "Robot Path Generation",
+      "category": "robot_path",
+      "description": "Generate generic robot paths from CAD curves/surfaces. Pick-and-place, painting, dispensing, welding paths.",
+      "dialog_tabs": ["Drive", "Tool", "Motion", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "drive": {
+          "drivingCurve": { "type": "selection", "tab": "Drive", "required": true },
+          "drivingSurface": { "type": "selection", "tab": "Drive" },
+          "approachOffset": { "type": "number", "unit": "mm", "default": 50, "tab": "Drive" },
+          "retractOffset": { "type": "number", "unit": "mm", "default": 50, "tab": "Drive" }
+        },
+        "tool": {
+          "tcp": { "type": "selection", "tab": "Tool", "required": true },
+          "toolOrientation": { "type": "enum", "values": ["normalToSurface", "fixedFrame", "tangentToCurve"], "default": "normalToSurface", "tab": "Tool" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Tool" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Tool" }
+        },
+        "motion": {
+          "motionType": { "type": "enum", "values": ["LIN", "PTP", "CIRC", "spline"], "default": "LIN", "tab": "Motion" },
+          "blendingRadius": { "type": "number", "unit": "mm", "default": 5, "description": "C_VEL approximation radius", "tab": "Motion" },
+          "speedTCP": { "type": "number", "unit": "mm_per_s", "default": 100, "tab": "Motion" },
+          "accelTCP": { "type": "number", "unit": "mm_per_s2", "default": 500, "tab": "Motion" }
+        },
+        "output": {
+          "postProcessor": { "type": "enum", "values": ["KRL", "RAPID", "Karel", "JBI", "URScript"], "default": "KRL", "tab": "Output" },
+          "exportFrames": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "robot_calibration": {
+      "display_name": "Robot Calibration",
+      "category": "robot_calibration",
+      "description": "TCP and base-frame calibration. 3-point and 4-point methods. Compensation for arm flex.",
+      "dialog_tabs": ["Method", "Probes", "Compensation", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "method": {
+          "calibrationType": { "type": "enum", "values": ["TCP_4point", "TCP_5point", "base_3point", "tool_orientation", "kinematic"], "default": "TCP_4point", "tab": "Method", "required": true },
+          "probeMode": { "type": "enum", "values": ["touchProbe", "vision", "manual_jog"], "default": "touchProbe", "tab": "Method" },
+          "expectedAccuracyMm": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Method" }
+        },
+        "probes": {
+          "probeCount": { "type": "integer", "default": 4, "range": [3, 12], "tab": "Probes" },
+          "probeApproachSpeed": { "type": "number", "unit": "mm_per_s", "default": 5, "tab": "Probes" },
+          "probeFeedSpeed": { "type": "number", "unit": "mm_per_s", "default": 1, "tab": "Probes" },
+          "retryCount": { "type": "integer", "default": 3, "tab": "Probes" }
+        },
+        "compensation": {
+          "armFlexComp": { "type": "boolean", "default": true, "description": "Compensate for arm bending under load", "tab": "Compensation" },
+          "thermalComp": { "type": "boolean", "default": false, "tab": "Compensation" },
+          "backlashComp": { "type": "boolean", "default": true, "tab": "Compensation" },
+          "iterativeRefine": { "type": "boolean", "default": true, "description": "Re-probe after first calibration to refine", "tab": "Compensation" }
+        },
+        "output": {
+          "writeCalibrationReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportTransformMatrix": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfPoorAccuracy": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnFailure": { "type": "boolean", "default": false, "tab": "Output" },
+          "saveToRobot": { "type": "boolean", "default": false, "description": "Push results directly to robot controller", "tab": "Output" }
+        }
+      }
+    },
+    "robot_simulation": {
+      "display_name": "Robot Simulation",
+      "category": "robot_simulation",
+      "description": "Full kinematic simulation with collision detection, singularity check, and reach validation. Generates per-joint timeline.",
+      "dialog_tabs": ["Scope", "Checks", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "scope": {
+          "simulationMode": { "type": "enum", "values": ["full", "fast_check", "joint_only", "reach_only"], "default": "full", "tab": "Scope" },
+          "timeStepMs": { "type": "number", "unit": "ms", "default": 50, "range": [1, 1000], "tab": "Scope" },
+          "speedScale": { "type": "number", "default": 1.0, "range": [0.1, 100], "tab": "Scope" },
+          "checkExternalAxes": { "type": "boolean", "default": true, "tab": "Scope" }
+        },
+        "checks": {
+          "checkCollision": { "type": "boolean", "default": true, "tab": "Checks" },
+          "collisionPadding": { "type": "number", "unit": "mm", "default": 5, "tab": "Checks" },
+          "checkSingularity": { "type": "boolean", "default": true, "tab": "Checks" },
+          "singularityThreshold": { "type": "number", "default": 0.05, "description": "Jacobian determinant threshold", "tab": "Checks" },
+          "checkJointLimits": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkVelocityLimits": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkAccelLimits": { "type": "boolean", "default": true, "tab": "Checks" }
+        },
+        "output": {
+          "exportVideo": { "type": "boolean", "default": false, "tab": "Output" },
+          "videoFormat": { "type": "enum", "values": ["mp4", "avi", "webm"], "default": "mp4", "tab": "Output" },
+          "exportJointPlot": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "SprutCAM Robot discipline",
+      "key_concepts": ["TCP 4-point vs 5-point calibration", "robot configuration switch detection", "polar singularity in 6-axis arms"],
+      "best_practices": [
+        "TCP 4-point calibration is sufficient for most milling; 5-point adds tilt accuracy for swarf/composites",
+        "Robot config switch (elbow up to elbow down) mid-cut produces large jumps — SprutCAM warnOnConfigChange catches it",
+        "Wrist singularity (axis 4 and 6 alignment) is unavoidable in some 5-axis paths — use checkSingularity to flag and re-orient"
+      ]
+    }
+  ]
+}

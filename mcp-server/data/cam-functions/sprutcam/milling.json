@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "sprutcam",
+  "section_key": "milling",
+  "extraction_source": "SprutCAM 17 Reference / SprutCAM Tech training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-18",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["pocket_2_5d", "surface_3d", "multi_axis_5x", "drilling"]
+  },
+  "operations": {
+    "pocket_2_5d": {
+      "display_name": "Pocket 2.5D",
+      "category": "pocket_2_5d",
+      "description": "SprutCAM 2.5-axis pocket clearing. Supports island recognition, ramp-down, and high-speed corner smoothing.",
+      "dialog_tabs": ["Geometry", "Tool", "Parameters", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "islands": { "type": "selection", "tab": "Geometry" }
+        },
+        "parameters": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 70, "range": [10, 95], "tab": "Parameters" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Parameters", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Parameters" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 3.0, "range": [0.5, 45], "tab": "Parameters" },
+          "rampType": { "type": "enum", "values": ["plunge", "ramp", "helix", "preDrill"], "default": "helix", "tab": "Parameters" },
+          "cornerSmoothing": { "type": "boolean", "default": true, "description": "High-speed corner blend", "tab": "Parameters" }
+        },
+        "output": {
+          "approach": { "type": "enum", "values": ["climb", "conventional", "alternating"], "default": "climb", "tab": "Output" },
+          "linkType": { "type": "enum", "values": ["smartLink", "rapid", "feedRate"], "default": "smartLink", "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Output" },
+          "minimizeRetracts": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "surface_3d": {
+      "display_name": "Surface 3D",
+      "category": "surface_3d",
+      "description": "3-axis surface finishing: scallop, projection, flow, parallel, radial, spiral. Supports rest machining from prior tool.",
+      "dialog_tabs": ["Surface", "Strategy", "Tool", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "checkSurface": { "type": "selection", "tab": "Surface" },
+          "boundary": { "type": "selection", "tab": "Surface" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Surface" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["scallop", "projection", "flowLines", "parallel", "radial", "spiral", "morph"], "default": "scallop", "tab": "Strategy", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "range": [0.0001, 0.1], "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "patternAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Strategy" },
+          "restMachining": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "previousToolDiameter": { "type": "number", "unit": "mm", "tab": "Strategy" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Output" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Output" },
+          "smoothingFactor": { "type": "number", "default": 0.5, "range": [0, 1], "tab": "Output" },
+          "linkSmooth": { "type": "boolean", "default": true, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped", "constant"], "default": "smooth", "tab": "Output" }
+        }
+      }
+    },
+    "multi_axis_5x": {
+      "display_name": "Multi-Axis 5X",
+      "category": "multi_axis_5x",
+      "description": "5-axis simultaneous milling: tilt-drive, port machining, swarf cutting, impeller blade. Supports 4 tool-axis modes.",
+      "dialog_tabs": ["Drive", "ToolAxis", "Strategy", "Limits"],
+      "parameter_count": 16,
+      "parameters": {
+        "drive": {
+          "drivingSurface": { "type": "selection", "tab": "Drive", "required": true },
+          "edgeCurve": { "type": "selection", "tab": "Drive" },
+          "checkSurfaces": { "type": "selection", "tab": "Drive" }
+        },
+        "toolAxis": {
+          "axisMode": { "type": "enum", "values": ["normalToSurface", "throughCurve", "tiltedFromCurve", "tiltedFromAxis", "swarf"], "default": "normalToSurface", "tab": "ToolAxis", "required": true },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 5.0, "range": [-30, 30], "tab": "ToolAxis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 10.0, "range": [-45, 45], "tab": "ToolAxis" },
+          "smoothingMethod": { "type": "enum", "values": ["none", "linear", "spline"], "default": "spline", "tab": "ToolAxis" }
+        },
+        "strategy": {
+          "stepover": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Strategy" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" }
+        },
+        "limits": {
+          "rotaryAxisALimits": { "type": "string", "default": "[-110, 110]", "tab": "Limits" },
+          "rotaryAxisCLimits": { "type": "string", "default": "[-360, 360]", "tab": "Limits" },
+          "checkCollision": { "type": "boolean", "default": true, "tab": "Limits" },
+          "warnOnSingularity": { "type": "boolean", "default": true, "tab": "Limits" }
+        }
+      }
+    },
+    "drilling": {
+      "display_name": "Drilling",
+      "category": "drilling",
+      "description": "Drilling cycle generation. Supports peck, deep peck, tap, ream, bore, back-bore. 5-axis tilt for angled holes.",
+      "dialog_tabs": ["Holes", "Cycle", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "holes": {
+          "holeFeatures": { "type": "selection", "tab": "Holes", "required": true },
+          "filterByDiameter": { "type": "boolean", "default": false, "tab": "Holes" },
+          "minDiameter": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Holes" },
+          "maxDiameter": { "type": "number", "unit": "mm", "default": 30, "tab": "Holes" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83_peck", "G73_chip", "G84_tap", "G85_ream", "G86_bore", "G87_backBore", "longForm"], "default": "G83_peck", "tab": "Cycle" },
+          "depth": { "type": "number", "unit": "mm", "tab": "Cycle", "required": true },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "dwell": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractClearance": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" }
+        },
+        "strategy": {
+          "sequencing": { "type": "enum", "values": ["asPicked", "shortestPath", "byColumn", "byRow"], "default": "shortestPath", "tab": "Strategy" },
+          "feedReductionDeep": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportCycleStats": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnOnExcessDepth": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "SprutCAM milling discipline",
+      "key_concepts": ["scallop vs projection finishing", "5-axis tool-axis mode selection", "rest machining from prior tool"],
+      "best_practices": [
+        "Use scallop pattern for organic surfaces with constant scallop height; use projection for engraving onto curved faces",
+        "5-axis 'normalToSurface' is safe for ports/cores; 'swarf' is required for ruled side-walls (impeller blades)",
+        "Rest machining requires the prior tool diameter — SprutCAM auto-detects from operation history if available"
+      ]
+    }
+  ]
+}

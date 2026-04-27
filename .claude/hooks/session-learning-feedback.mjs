@@ -223,9 +223,13 @@ async function main() {
     summary.push(`${event.error_fix_pairs.length} error→fix pairs captured`);
   }
 
-  // Output for Stop hook
+  // Output for Stop hook — must use top-level systemMessage. The Stop event
+  // is not in the harness hookSpecificOutput allow-list, and a bare
+  // additionalContext key at top level is rejected with "unknown top-level
+  // key" so the learning summary is silently dropped.
   console.log(JSON.stringify({
-    additionalContext: summary.length > 0
+    continue: true,
+    systemMessage: summary.length > 0
       ? `Session learning captured: ${summary.join("; ")}.`
       : "Session learning: no significant patterns detected.",
   }));

@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "system_id": "sprutcam",
+  "section_key": "mill_turn",
+  "extraction_source": "SprutCAM 17 Mill-Turn Reference / training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-18",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["sync_milling", "c_axis_polar", "sub_spindle", "multi_channel"]
+  },
+  "operations": {
+    "sync_milling": {
+      "display_name": "Synchronized Mill-Turn",
+      "category": "sync_milling",
+      "description": "Mill-turn with synchronized C-axis and live tooling. Supports milling-while-turning (G115/G116). Used on flats, slots, and cross-holes during turning.",
+      "dialog_tabs": ["Sync", "Tool", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "sync": {
+          "syncMode": { "type": "enum", "values": ["G115", "G116", "M-code", "auto"], "default": "auto", "tab": "Sync", "required": true },
+          "leadingAxis": { "type": "enum", "values": ["spindle", "C", "X", "Z"], "default": "C", "tab": "Sync" },
+          "phaseLockTolerance": { "type": "number", "unit": "deg", "default": 0.05, "tab": "Sync" },
+          "spindleClampMode": { "type": "enum", "values": ["clamped", "indexed", "controlled"], "default": "controlled", "tab": "Sync" }
+        },
+        "tool": {
+          "liveTool": { "type": "selection", "tab": "Tool", "required": true },
+          "toolOrientation": { "type": "enum", "values": ["radial", "axial", "angled"], "default": "radial", "tab": "Tool" },
+          "rotationDirection": { "type": "enum", "values": ["M03", "M04"], "default": "M03", "tab": "Tool" },
+          "rpmLimit": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Tool" }
+        },
+        "strategy": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "feedRate": { "type": "number", "unit": "mm_per_min", "default": 200, "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" }
+        },
+        "output": {
+          "writeWaitMarkers": { "type": "boolean", "default": true, "description": "Insert M01/wait between channels", "tab": "Output" },
+          "validateBarrierFile": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnRPMMismatch": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSyncReport": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "c_axis_polar": {
+      "display_name": "C-Axis Polar Milling",
+      "category": "c_axis_polar",
+      "description": "Polar (G12.1/G13.1) milling for face-end work — slots, cams, contours on workpiece face. Uses spindle as C-axis.",
+      "dialog_tabs": ["Polar", "Tool", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "polar": {
+          "polarMode": { "type": "enum", "values": ["G12.1", "G7.1", "M-code"], "default": "G12.1", "tab": "Polar", "required": true },
+          "centerZ": { "type": "number", "unit": "mm", "tab": "Polar", "required": true },
+          "innerRadius": { "type": "number", "unit": "mm", "default": 0, "tab": "Polar" },
+          "outerRadius": { "type": "number", "unit": "mm", "tab": "Polar", "required": true },
+          "depth": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Polar" }
+        },
+        "tool": {
+          "liveTool": { "type": "selection", "tab": "Tool", "required": true },
+          "toolOrientation": { "type": "enum", "values": ["axial"], "default": "axial", "tab": "Tool" },
+          "rpmLimit": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Tool" }
+        },
+        "strategy": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 50, "tab": "Strategy" },
+          "feedAtCenter": { "type": "number", "unit": "mm_per_min", "default": 100, "description": "Reduced feed near center to avoid spindle overload", "tab": "Strategy" },
+          "feedAtOuter": { "type": "number", "unit": "mm_per_min", "default": 250, "tab": "Strategy" },
+          "feedAdaptive": { "type": "boolean", "default": true, "description": "Scale feed by radius automatically", "tab": "Strategy" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnIfPolarRPMHigh": { "type": "boolean", "default": true, "description": "Polar near center demands very high spindle RPM", "tab": "Output" }
+        }
+      }
+    },
+    "sub_spindle_handoff": {
+      "display_name": "Sub-Spindle Handoff",
+      "category": "sub_spindle",
+      "description": "Part transfer from main to sub-spindle. Supports synchronized clamp, parting, retract, and re-grab. Used on lights-out cells.",
+      "dialog_tabs": ["Handoff", "Sync", "Verify", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "handoff": {
+          "subSpindleApproach": { "type": "number", "unit": "mm", "default": 100, "tab": "Handoff" },
+          "subSpindleClampForce": { "type": "number", "unit": "kN", "default": 20, "tab": "Handoff" },
+          "transferRPM": { "type": "number", "unit": "rpm", "default": 0, "description": "0 = stationary transfer", "tab": "Handoff" },
+          "partingTool": { "type": "selection", "tab": "Handoff", "required": true },
+          "partingFeed": { "type": "number", "unit": "mm_per_rev", "default": 0.1, "tab": "Handoff" }
+        },
+        "sync": {
+          "syncMode": { "type": "enum", "values": ["spindleSync", "clampSync", "manual"], "default": "spindleSync", "tab": "Sync" },
+          "lockTolerance": { "type": "number", "unit": "deg", "default": 0.1, "tab": "Sync" },
+          "dwellAfterClamp": { "type": "number", "unit": "s", "default": 0.5, "tab": "Sync" },
+          "verifyClamp": { "type": "boolean", "default": true, "tab": "Sync" }
+        },
+        "verify": {
+          "checkPartLength": { "type": "boolean", "default": true, "tab": "Verify" },
+          "expectedPartLength": { "type": "number", "unit": "mm", "tab": "Verify" },
+          "lengthTolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Verify" },
+          "alarmOnMissing": { "type": "boolean", "default": true, "tab": "Verify" }
+        },
+        "output": {
+          "writeHandoffSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportCycleStats": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnOnTransferRPM": { "type": "boolean", "default": true, "description": "Spinning transfer requires verified collet", "tab": "Output" }
+        }
+      }
+    },
+    "multi_channel": {
+      "display_name": "Multi-Channel Coordination",
+      "category": "multi_channel",
+      "description": "Multi-channel program partitioning for $1/$2/$3 channels. Inserts WAIT markers and channel-sync codes (M-codes vary by controller).",
+      "dialog_tabs": ["Channels", "Sync", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "channels": {
+          "channelCount": { "type": "integer", "default": 2, "range": [1, 4], "tab": "Channels", "required": true },
+          "channel1Name": { "type": "string", "default": "$1", "tab": "Channels" },
+          "channel2Name": { "type": "string", "default": "$2", "tab": "Channels" },
+          "channel3Name": { "type": "string", "default": "$3", "tab": "Channels" },
+          "channel4Name": { "type": "string", "default": "$4", "tab": "Channels" }
+        },
+        "sync": {
+          "controllerDialect": { "type": "enum", "values": ["fanuc", "siemens", "mitsubishi", "okuma", "mazak"], "default": "fanuc", "tab": "Sync", "required": true },
+          "waitMarker": { "type": "string", "default": "M-code", "description": "M50/M70 family for Fanuc, $WAIT for Siemens", "tab": "Sync" },
+          "syncMethod": { "type": "enum", "values": ["WAIT", "QUEUE", "BARRIER"], "default": "WAIT", "tab": "Sync" },
+          "verifyBarrier": { "type": "boolean", "default": true, "tab": "Sync" }
+        },
+        "output": {
+          "splitProgramFiles": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportTimingReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeChannelMap": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnDeadlock": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "SprutCAM mill-turn discipline",
+      "key_concepts": ["G115/G116 sync vs M-code sync", "polar feed scaling at center", "WAIT marker positioning"],
+      "best_practices": [
+        "Polar milling near the spindle center demands feed scaling — SprutCAM auto-adjusts via feedAdaptive",
+        "Sub-spindle stationary handoff (transferRPM=0) is safest; spinning handoff needs verified collet pressure",
+        "Multi-channel WAIT markers must be paired — unmatched WAIT causes deadlock; SprutCAM warnDeadlock catches it"
+      ]
+    }
+  ]
+}
