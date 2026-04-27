@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "system_id": "edgecam",
+  "section_key": "drilling",
+  "extraction_source": "Edgecam 2024 R1 Hole-making Reference / Vero/Hexagon public documentation",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-09",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 56,
+    "categories": ["holemaking"]
+  },
+  "operations": {
+    "drill": {
+      "display_name": "Drill",
+      "category": "holemaking",
+      "description": "Standard G81 drilling cycle. Single-rapid in, dwell at bottom optional, rapid retract. Suited to depth ≤ 3×D in stable material.",
+      "dialog_tabs": ["Tool", "Holes", "Cycle"],
+      "parameter_count": 9,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "description": "Hole features or points", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "literal", "value": "G81", "tab": "Cycle" },
+          "clearance": { "type": "number", "unit": "mm", "default": 5, "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2, "tab": "Cycle" },
+          "dwell": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "feedRetract": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "tipBreakthrough": { "type": "number", "unit": "mm", "default": 1.5, "description": "Extra depth to clear drill point", "tab": "Cycle" }
+        }
+      }
+    },
+    "peck_drill": {
+      "display_name": "Peck Drill",
+      "category": "holemaking",
+      "description": "G83 deep-hole drilling. Full retract to clear chips between pecks. Suited to depth 3-10×D.",
+      "dialog_tabs": ["Tool", "Holes", "Cycle"],
+      "parameter_count": 11,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "literal", "value": "G83", "tab": "Cycle" },
+          "firstPeck": { "type": "number", "unit": "mm", "default": 4, "range": [0.5, 50], "tab": "Cycle" },
+          "subsequentPeck": { "type": "number", "unit": "mm", "default": 3, "tab": "Cycle" },
+          "peckReduction": { "type": "number", "unit": "percent", "default": 10, "range": [0, 50], "tab": "Cycle" },
+          "minPeck": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 1, "description": "Distance above prev peck on each return", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.2, "tab": "Cycle" },
+          "fullRetract": { "type": "boolean", "default": true, "description": "True = G83 full retract; false = G73 high-speed peck", "tab": "Cycle" }
+        }
+      }
+    },
+    "deep_hole": {
+      "display_name": "Gun Drill / Deep Hole",
+      "category": "holemaking",
+      "description": "Specialized cycle for gun drills and BTA drills. Strong through-coolant requirements, axial straightness check, low feed at start until full engagement.",
+      "dialog_tabs": ["Tool", "Holes", "Cycle", "Coolant"],
+      "parameter_count": 12,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "depthRatio": { "type": "number", "default": 20, "description": "L/D ratio — flag if > 50", "tab": "Holes" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G83", "long_form", "macro"], "default": "long_form", "tab": "Cycle" },
+          "pilotDepth": { "type": "number", "unit": "mm", "default": 3, "description": "Slow-feed entry to establish hole", "tab": "Cycle" },
+          "pilotFeedFactor": { "type": "number", "default": 0.3, "range": [0.1, 1], "description": "Feed multiplier during pilot", "tab": "Cycle" },
+          "fullSpeedAt": { "type": "number", "unit": "mm", "description": "Distance below top to ramp to full speed", "tab": "Cycle" }
+        },
+        "coolant": {
+          "coolantType": { "type": "enum", "values": ["TSC", "external", "MQL_high_pressure"], "default": "TSC", "description": "Through-spindle coolant required", "tab": "Coolant", "required": true },
+          "minimumPressure": { "type": "number", "unit": "bar", "default": 70, "range": [20, 350], "description": "Min coolant pressure (TSC)", "tab": "Coolant" },
+          "minimumFlow": { "type": "number", "unit": "lpm", "default": 30, "tab": "Coolant" }
+        }
+      }
+    },
+    "tap": {
+      "display_name": "Tap (Rigid)",
+      "category": "holemaking",
+      "description": "G84 rigid tap cycle. Spindle-feed sync to thread pitch. Floating chuck not used. Validates pitch matches programmed F = N × pitch.",
+      "dialog_tabs": ["Tool", "Holes", "Thread", "Cycle"],
+      "parameter_count": 10,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "thread": {
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "rigidTap": { "type": "boolean", "default": true, "description": "G84 rigid sync", "tab": "Thread" },
+          "spindleReverseDwell": { "type": "number", "unit": "s", "default": 0, "tab": "Thread" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G84", "G74"], "default": "G84", "description": "G84 right-hand, G74 left-hand", "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 5, "description": "Tap entry distance — needs accel room", "tab": "Cycle" },
+          "retractFeedFactor": { "type": "number", "default": 1.0, "range": [0.5, 2], "description": "Retract feed multiplier (some controls allow > 1 for time savings)", "tab": "Cycle" },
+          "peckTap": { "type": "boolean", "default": false, "description": "Peck-tap for blind deep holes", "tab": "Cycle" }
+        }
+      }
+    },
+    "ream": {
+      "display_name": "Ream",
+      "category": "holemaking",
+      "description": "G85 reaming cycle. Feed in, feed out (no rapid retract). Designed for reamers and finish bores. Floating holder optional.",
+      "dialog_tabs": ["Tool", "Holes", "Cycle"],
+      "parameter_count": 9,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G85", "G89"], "default": "G85", "description": "G85 feed-out, G89 feed-out with dwell", "tab": "Cycle" },
+          "clearance": { "type": "number", "unit": "mm", "default": 5, "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2, "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractFeedFactor": { "type": "number", "default": 1.0, "range": [0.5, 2], "description": "Retract feed multiplier", "tab": "Cycle" },
+          "spindleStopAtBottom": { "type": "boolean", "default": false, "description": "M19 oriented stop before retract (for boring)", "tab": "Cycle" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Cycle selection by L/D ratio",
+      "key_concepts": ["G81 short", "G83 medium", "long-form gun drill", "TSC pressure"],
+      "best_practices": [
+        "L/D ≤ 3 → G81 with bottom dwell ≥ 0.2 s",
+        "3 < L/D ≤ 10 → G83 peck with 0.5-1 mm retract",
+        "L/D > 10 → gun drill long-form with TSC ≥ 70 bar",
+        "Always tipBreakthrough ≥ 1.5 × tan(point_angle/2) × diameter"
+      ]
+    }
+  ]
+}

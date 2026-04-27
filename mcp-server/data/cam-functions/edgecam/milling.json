@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "system_id": "edgecam",
+  "section_key": "milling",
+  "extraction_source": "Edgecam 2024 R1 Reference / Vero/Hexagon public documentation",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-09",
+  "summary": {
+    "total_operations": 6,
+    "total_parameters": 96,
+    "categories": ["roughing", "finishing", "profiling", "high_efficiency"]
+  },
+  "operations": {
+    "rough_profile": {
+      "display_name": "Rough Profile",
+      "category": "roughing",
+      "description": "Conventional roughing pass that follows a 2D contour with parallel offsets. Removes bulk material to a defined Z step before the next slice. Supports rest-area logic when a previous tool size is supplied.",
+      "dialog_tabs": ["Tool", "Profile", "Levels", "Stepover", "Lead", "Strategy"],
+      "parameter_count": 16,
+      "parameters": {
+        "profile": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "range": [0, 10], "description": "Radial stock to leave on profile", "tab": "Profile" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "range": [0, 10], "description": "Stock to leave on floor", "tab": "Profile" },
+          "side": { "type": "enum", "values": ["left", "right"], "default": "right", "description": "Cutter compensation side", "tab": "Profile" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "description": "Top Z of cut", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "description": "Bottom Z of cut", "tab": "Levels", "required": true },
+          "clearance": { "type": "number", "unit": "mm", "default": 25, "description": "Safe rapid plane", "tab": "Levels" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2.0, "description": "Switch from rapid to feed", "tab": "Levels" }
+        },
+        "stepover": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "range": [0.05, 50], "description": "Axial stepdown per pass", "tab": "Stepover", "required": true },
+          "radialStep": { "type": "number", "unit": "mm", "default": 4.0, "range": [0.1, 100], "description": "Radial stepover", "tab": "Stepover" },
+          "passes": { "type": "integer", "default": 1, "range": [1, 50], "description": "Number of radial passes", "tab": "Stepover" }
+        },
+        "lead": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Lead" },
+          "leadInAngle": { "type": "number", "unit": "deg", "default": 90, "range": [0, 180], "tab": "Lead" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Cut direction relative to feature", "tab": "Strategy" },
+          "restMachining": { "type": "boolean", "default": false, "description": "Rest area cleanup", "tab": "Strategy" },
+          "previousToolDia": { "type": "number", "unit": "mm", "description": "Diameter of previous tool for rest calc", "tab": "Strategy" }
+        }
+      }
+    },
+    "rough_pocket": {
+      "display_name": "Rough Pocket",
+      "category": "roughing",
+      "description": "Pocket clearing with selectable strategy: offset, parallel zig-zag, spiral or hybrid. Handles open/closed boundaries and arbitrary islands. Supports plunge, ramp and helical entry.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Stepover", "Entry", "Strategy"],
+      "parameter_count": 17,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "range": [0, 10], "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "range": [0, 10], "tab": "Boundary" },
+          "islandSelection": { "type": "selection", "description": "Island contours to avoid", "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "clearance": { "type": "number", "unit": "mm", "default": 25, "tab": "Levels" }
+        },
+        "stepover": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "range": [0.05, 50], "tab": "Stepover", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "range": [5, 95], "description": "Radial as % of tool diameter", "tab": "Stepover" }
+        },
+        "entry": {
+          "entryMethod": { "type": "enum", "values": ["plunge", "ramp", "helix", "predrill"], "default": "helix", "tab": "Entry" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 5, "range": [0.5, 30], "tab": "Entry" },
+          "helixDiameter": { "type": "number", "unit": "percent", "default": 60, "range": [10, 100], "tab": "Entry" },
+          "predrillTool": { "type": "tool_reference", "description": "Pre-drilled hole locator", "tab": "Entry" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["offset", "parallel", "spiral", "hybrid"], "default": "offset", "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 0.5, "description": "Corner smoothing on offset paths", "tab": "Strategy" },
+          "orderByDepth": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "minPocketRadius": { "type": "number", "unit": "mm", "description": "Skip features below this radius", "tab": "Strategy" }
+        }
+      }
+    },
+    "waveform_rough": {
+      "display_name": "Waveform Roughing",
+      "category": "high_efficiency",
+      "description": "Edgecam's flagship constant-engagement roughing strategy. Maintains constant cutter engagement (TEA) by morphing trochoidal arcs through narrow regions and full slotting. Targets DOC up to 2-3x diameter with reduced WOC, extending tool life and reducing cycle time.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Engagement", "Smoothing", "Strategy"],
+      "parameter_count": 18,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 8.0, "range": [0.1, 200], "description": "Aggressive DOC up to 2-3x diameter", "tab": "Levels" }
+        },
+        "engagement": {
+          "tea": { "type": "number", "unit": "deg", "default": 30, "range": [5, 90], "description": "Tool Engagement Angle target — Sandvik HSM rule of thumb 25-40°", "tab": "Engagement", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 8, "range": [3, 25], "description": "Radial as % of diameter", "tab": "Engagement" },
+          "trochoidalAmplitude": { "type": "number", "unit": "mm", "description": "Override morph arc width", "tab": "Engagement" }
+        },
+        "smoothing": {
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "description": "Path corner radius minimum", "tab": "Smoothing" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Smoothing" },
+          "feedRateBoost": { "type": "boolean", "default": true, "description": "Boost feed in low-engagement air zones", "tab": "Smoothing" },
+          "boostFeedFactor": { "type": "number", "default": 2.0, "range": [1.0, 5.0], "tab": "Smoothing" }
+        },
+        "strategy": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Strategy" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "range": [0.5, 10], "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Strategy" },
+          "restMachining": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "finish_profile": {
+      "display_name": "Finish Profile",
+      "category": "finishing",
+      "description": "Finishing pass on a 2D profile. Single-pass or multi-spring with progressive stock removal. Supports cutter compensation G41/G42 output, lead-in/out arcs and overlap.",
+      "dialog_tabs": ["Tool", "Profile", "Levels", "Lead", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-2, 2], "description": "Stock to leave (negative = overcut)", "tab": "Profile" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" },
+          "side": { "type": "enum", "values": ["left", "right", "center"], "default": "right", "tab": "Profile" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "clearance": { "type": "number", "unit": "mm", "default": 25, "tab": "Levels" }
+        },
+        "lead": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "tangent", "tab": "Lead" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Lead" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Lead" },
+          "overlap": { "type": "number", "unit": "mm", "default": 0.5, "description": "Overlap at start/end to avoid witness mark", "tab": "Lead" }
+        },
+        "strategy": {
+          "compensationOutput": { "type": "enum", "values": ["computer", "control", "wear"], "default": "computer", "description": "G40/G41/G42 emission", "tab": "Strategy" },
+          "springPasses": { "type": "integer", "default": 1, "range": [1, 5], "description": "Repeat for spring-back compensation", "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "passOrder": { "type": "enum", "values": ["depth_first", "feature_first"], "default": "depth_first", "tab": "Strategy" }
+        }
+      }
+    },
+    "finish_pocket": {
+      "display_name": "Finish Pocket",
+      "category": "finishing",
+      "description": "Final finish pass for pocket walls and floor. Separate radial and axial finishing or combined. Designed to complement Rough Pocket / Waveform Roughing.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Strategy"],
+      "parameter_count": 12,
+      "parameters": {
+        "boundary": {
+          "wallStockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-1, 1], "tab": "Boundary" },
+          "floorStockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-1, 1], "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.5, "description": "Wall finish stepdown", "tab": "Levels" }
+        },
+        "strategy": {
+          "wallFinish": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "floorFinish": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "wallStepover": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Strategy" },
+          "floorStepover": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" }
+        }
+      }
+    },
+    "face_mill": {
+      "display_name": "Face Mill",
+      "category": "roughing",
+      "description": "Surface-area face milling for stock prep. Supports zig-zag, one-way, spiral patterns and selectable lead-in/out for tipped or insert face mills.",
+      "dialog_tabs": ["Tool", "Region", "Levels", "Strategy"],
+      "parameter_count": 13,
+      "parameters": {
+        "region": {
+          "boundary": { "type": "selection", "description": "Region to face", "tab": "Region", "required": true },
+          "extension": { "type": "number", "unit": "mm", "default": 5, "description": "Extend cut beyond stock edge", "tab": "Region" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Region" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels" },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Levels" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zigzag", "oneway", "spiral"], "default": "zigzag", "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 75, "range": [10, 100], "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "leadOutDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "approachAngle": { "type": "number", "unit": "deg", "default": 0, "range": [0, 90], "description": "Approach ramp angle", "tab": "Strategy" },
+          "tiltedFace": { "type": "boolean", "default": false, "description": "Allow non-horizontal face plane", "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Waveform Roughing fundamentals",
+      "key_concepts": ["constant tool engagement angle", "trochoidal morphing", "deep DOC + small WOC", "feed boost in air"],
+      "best_practices": [
+        "Set TEA to 25-40° for steel, 15-25° for titanium, up to 60° for aluminum",
+        "Use 8-12% stepover of diameter as a starting point",
+        "Use 2-3x DOC of diameter to fully load the flutes",
+        "Always enable feed boost in air to recover linking time"
+      ]
+    },
+    {
+      "topic": "Profile vs Pocket selection",
+      "key_concepts": ["open boundary", "closed boundary", "island avoidance", "predrill vs helix"],
+      "best_practices": [
+        "Use Rough Profile for open contours (sidewalls)",
+        "Use Rough Pocket for closed boundaries and island avoidance",
+        "Predrill if helix angle exceeds tool's capability"
+      ]
+    }
+  ]
+}

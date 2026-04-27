@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "system_id": "edgecam",
+  "section_key": "turning",
+  "extraction_source": "Edgecam 2024 R1 Turning Reference / Vero/Hexagon public documentation",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-09",
+  "summary": {
+    "total_operations": 6,
+    "total_parameters": 84,
+    "categories": ["roughing", "finishing", "grooving", "threading", "parting"]
+  },
+  "operations": {
+    "rough_turn": {
+      "display_name": "Rough Turn",
+      "category": "roughing",
+      "description": "OD/ID turning with multi-pass roughing. Selectable axial (Z), radial (X) or contour-parallel direction. Supports patterning around shoulders, undercuts and radial features.",
+      "dialog_tabs": ["Tool", "Profile", "Stepover", "Strategy", "Cycle"],
+      "parameter_count": 16,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "minDiameter": { "type": "number", "unit": "mm", "tab": "Profile" },
+          "maxDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Profile" },
+          "axialStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "stepover": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 2.0, "range": [0.1, 20], "description": "Radial DOC per pass", "tab": "Stepover", "required": true },
+          "passes": { "type": "integer", "default": 0, "description": "0 = auto from DOC", "tab": "Stepover" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["axial", "radial", "contour"], "default": "axial", "tab": "Strategy" },
+          "approachMode": { "type": "enum", "values": ["plunge", "ramp", "skim"], "default": "skim", "tab": "Strategy" },
+          "retractMode": { "type": "enum", "values": ["clearance", "stock", "shortest"], "default": "clearance", "tab": "Strategy" },
+          "patternRecognition": { "type": "boolean", "default": true, "description": "Group similar features for repeat patterns", "tab": "Strategy" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G71", "G72", "G73", "long_form"], "default": "G71", "description": "Canned cycle output", "tab": "Cycle" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "description": "Apply nose radius compensation", "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": true, "description": "G99 feed/rev vs G98 feed/min", "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": false, "description": "Constant surface speed (G96)", "tab": "Cycle" }
+        }
+      }
+    },
+    "finish_turn": {
+      "display_name": "Finish Turn",
+      "category": "finishing",
+      "description": "Single-pass finishing of a turned profile. Honors profile chamfers, fillets, undercuts. Outputs G70 or long-form passes with optional spring pass and constant surface speed.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy", "Cycle"],
+      "parameter_count": 12,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["right_to_left", "left_to_right"], "default": "right_to_left", "tab": "Strategy" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "leadOutDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "springPass": { "type": "boolean", "default": false, "description": "Repeat at zero stock for size control", "tab": "Strategy" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G70", "long_form"], "default": "G70", "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": true, "description": "Constant surface speed (G96)", "tab": "Cycle" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 5000, "description": "G50 max RPM clamp", "tab": "Cycle" }
+        }
+      }
+    },
+    "groove": {
+      "display_name": "Grooving",
+      "category": "grooving",
+      "description": "Plunge grooving with optional peck and chip-clear. Supports rectangular, V, full-radius and form grooves. Multi-pass for deep grooves with side stock control.",
+      "dialog_tabs": ["Tool", "Profile", "Stepover", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "centerZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "outerDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "rootDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "width": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "leftSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rightSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rootStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "stepover": {
+          "plungeOverlap": { "type": "number", "unit": "percent", "default": 80, "range": [10, 100], "description": "Tool overlap on adjacent plunges", "tab": "Stepover" },
+          "depthIncrement": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Stepover" }
+        },
+        "strategy": {
+          "peck": { "type": "boolean", "default": true, "description": "Withdraw between plunges for chip clear", "tab": "Strategy" },
+          "peckRetract": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "dwellAtRoot": { "type": "number", "unit": "s", "default": 0.2, "description": "Pause to break chip", "tab": "Strategy" },
+          "groovePattern": { "type": "enum", "values": ["plunge", "step", "spiral"], "default": "step", "tab": "Strategy" },
+          "finishPass": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "thread": {
+      "display_name": "Single-Point Thread",
+      "category": "threading",
+      "description": "G76/G33 single-point threading with multi-pass infeed scheduling. Supports radial, modified-flank, alternating-flank infeed and full-flank profile (form turn).",
+      "dialog_tabs": ["Tool", "Thread", "Passes", "Cycle"],
+      "parameter_count": 15,
+      "parameters": {
+        "thread": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "threadDepth": { "type": "number", "unit": "mm", "description": "Total radial cut depth — auto from pitch if blank", "tab": "Thread" },
+          "starts": { "type": "integer", "default": 1, "range": [1, 8], "description": "Number of starts (multi-start threads)", "tab": "Thread" },
+          "internal": { "type": "boolean", "default": false, "tab": "Thread" }
+        },
+        "passes": {
+          "infeedType": { "type": "enum", "values": ["radial", "modified_flank", "alternating", "full_flank"], "default": "modified_flank", "tab": "Passes" },
+          "infeedAngle": { "type": "number", "unit": "deg", "default": 29.5, "range": [0, 30], "tab": "Passes" },
+          "firstCutDepth": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Passes" },
+          "minCutDepth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Passes" },
+          "passes": { "type": "integer", "default": 0, "description": "0 = auto by constant chip area", "tab": "Passes" },
+          "springPasses": { "type": "integer", "default": 1, "range": [0, 5], "tab": "Passes" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G76", "G33", "G92", "long_form"], "default": "G76", "tab": "Cycle" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 3, "description": "Acceleration distance before thread", "tab": "Cycle" }
+        }
+      }
+    },
+    "drill_axial": {
+      "display_name": "Axial Drill / Bore",
+      "category": "roughing",
+      "description": "Axial (Z-axis) drilling, peck, deep-hole drilling on a turning center. Supports G81/G83/G87 cycle output and chip-clear behavior.",
+      "dialog_tabs": ["Tool", "Hole", "Cycle"],
+      "parameter_count": 11,
+      "parameters": {
+        "hole": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Hole", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Hole", "required": true },
+          "diameter": { "type": "number", "unit": "mm", "tab": "Hole", "required": true },
+          "atCenter": { "type": "boolean", "default": true, "description": "Hole on spindle axis", "tab": "Hole" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83", "G87"], "default": "G83", "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 3, "range": [0.1, 100], "tab": "Cycle" },
+          "peckReduction": { "type": "number", "unit": "percent", "default": 0, "range": [0, 50], "description": "Reduce peck on each step (Q reduction)", "tab": "Cycle" },
+          "minPeck": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 1, "description": "Retract for chip clear (G83)", "tab": "Cycle" },
+          "feedRetract": { "type": "boolean", "default": false, "description": "Use feed instead of rapid for retract", "tab": "Cycle" }
+        }
+      }
+    },
+    "part_off": {
+      "display_name": "Cut Off / Part Off",
+      "category": "parting",
+      "description": "Part-off operation with optional chamfer/back-chamfer, peck schedule and dwell. Validates against parting blade pull-out and lateral force budget.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 9,
+      "parameters": {
+        "profile": {
+          "atZ": { "type": "number", "unit": "mm", "description": "Z position of cut", "tab": "Profile", "required": true },
+          "outerDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "innerDiameter": { "type": "number", "unit": "mm", "default": 0, "description": "0 = full part-off", "tab": "Profile" },
+          "chamferSize": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" }
+        },
+        "strategy": {
+          "peck": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 2, "tab": "Strategy" },
+          "dwellAtCenter": { "type": "number", "unit": "s", "default": 0.5, "description": "Pause before retract to ensure clean separation", "tab": "Strategy" },
+          "feedReduction": { "type": "number", "unit": "percent", "default": 50, "range": [10, 100], "description": "Reduce feed near center for chip control", "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": false, "description": "Disable G96 below safety RPM near center", "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Threading infeed strategy",
+      "key_concepts": ["radial vs modified flank", "constant chip area", "29.5° infeed angle", "spring pass purpose"],
+      "best_practices": [
+        "Use modified-flank 29.5° infeed for steel — distributes load on one flank",
+        "Use radial infeed for fine pitch (< 0.5 mm) and brittle materials",
+        "Schedule passes by constant chip area — first pass deepest",
+        "Always include 1-2 spring passes for size and finish"
+      ]
+    }
+  ]
+}

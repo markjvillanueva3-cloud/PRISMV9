@@ -1588,6 +1588,12 @@ export const ACTIONS = [
   "inventor_hsm_function_index_find_parameter", "inventor_hsm_function_index_search_parameters",
   "inventor_hsm_function_index_get_operations_by_category", "inventor_hsm_function_index_get_summary",
   "inventor_hsm_function_index_get_hsm_operations", "inventor_hsm_function_index_get_25d_operations",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-09 — Edgecam Function Index
+    "edgecam_function_index_get", "edgecam_function_index_list_sections",
+    "edgecam_function_index_get_section", "edgecam_function_index_list_operations",
+    "edgecam_function_index_find_parameter", "edgecam_function_index_search_parameters",
+    "edgecam_function_index_get_operations_by_category", "edgecam_function_index_get_summary",
+    "edgecam_function_index_get_waveform_operations", "edgecam_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12161,6 +12167,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "inventor_hsm_function_index_get_25d_operations": {
             const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
             result = { success: true, operations: InventorHSMFunctionIndexEngine.get25DOperations() };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-09 — Edgecam Function Index (10 actions)
+          case "edgecam_function_index_get": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            result = { success: true, index: EdgecamFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "edgecam_function_index_list_sections": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            result = { success: true, sections: EdgecamFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "edgecam_function_index_get_section": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: EdgecamFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "edgecam_function_index_list_operations": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            result = { success: true, operations: EdgecamFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "edgecam_function_index_find_parameter": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: EdgecamFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "edgecam_function_index_search_parameters": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: EdgecamFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "edgecam_function_index_get_operations_by_category": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: EdgecamFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "edgecam_function_index_get_summary": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            result = { success: true, ...EdgecamFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "edgecam_function_index_get_waveform_operations": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            result = { success: true, operations: EdgecamFunctionIndexEngine.getWaveformOperations() };
+            break;
+          }
+          case "edgecam_function_index_get_operation": {
+            const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...EdgecamFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
