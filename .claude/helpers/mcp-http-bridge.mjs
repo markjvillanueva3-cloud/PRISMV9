@@ -204,10 +204,24 @@ async function handleStdioMessage(line) {
     return;
   }
 
-  // Handle JSON-RPC request
-  if (request.method) {
-    const response = await queueRequest(request);
-    // Send response back via stdout
+  // Handle JSON-RPC request or notification.
+  // Spec: a notification has no id field; server returns nothing, client
+  // expects nothing. Echoing a synthetic response back to Claude for a
+  // notification corrupts its initialization state.
+  if (!request.method) return;
+  const isNotification = request.id === undefined || request.id === null;
+  if (isNotification) {
+    queueRequest(request).catch((err) => {
+      log("debug", "Notification forwarded (response suppressed)", {
+        method: request.method,
+        info: err && err.message ? err.message : String(err),
+      });
+    });
+    return;
+  }
+  const response = await queueRequest(request);
+  // Some daemons may return null for malformed input; guard the stdout write.
+  if (response !== null && response !== undefined) {
     process.stdout.write(JSON.stringify(response) + "\n");
   }
 }
