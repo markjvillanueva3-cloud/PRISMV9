@@ -43,6 +43,8 @@ const MINIMAL_ALLOWLIST = new Set([
   "dedup-auto-invoke",
   "always-build-guard",
   "enforce-handoff-topic",
+  // Universal review enforcement — must fire for every chat
+  "scrutinize-before-stop",
 ]);
 
 function getProfile() {

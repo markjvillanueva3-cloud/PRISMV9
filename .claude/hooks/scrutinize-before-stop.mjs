@@ -1,22 +1,35 @@
 #!/usr/bin/env node
 /**
- * scrutinize-before-stop — Stop hook.
+ * scrutinize-before-stop — Stop hook (UNIVERSAL ENFORCEMENT).
  *
  * Forces both self-review and a parallel reviewer-agent scrutiny before the
  * agent is allowed to finish a task that produced code/file changes.
  *
- * FIRES ON: Stop
+ * FIRES ON: Stop, for EVERY chat working in this repo. Wired in project
+ *           settings.json (NOT user/global) with continueOnError:false so a
+ *           hook crash also blocks the stop.
  * BLOCKING: yes (decision: block) — but with hard escape after MAX_BLOCKS_PER_SESSION.
+ *
+ * UNIVERSAL: this hook is in MINIMAL_ALLOWLIST (.claude/helpers/hook-profile.mjs)
+ *            and ignores PRISM_HOOK_PROFILE — even minimal profile cannot disable it.
+ *            Other chats discover the rule via .claude/settings.json on session start.
+ *
+ * AUTO-CLEANUP: this hook process is one-shot — node exits as soon as it emits
+ *               its JSON response. The reviewer-agent dispatched by the calling
+ *               chat is also one-shot via Claude Code's Agent tool (each
+ *               Agent({...}) call spawns, runs, returns final message, then
+ *               terminates — no daemon, no persistent process). The mark CLI
+ *               (.claude/scripts/scrutiny-mark.mjs) is also one-shot.
  *
  * Block protocol:
  *   1. Detect "did this session produce changes?" via `git status --porcelain`
- *      (any tracked or untracked diff = yes)
+ *      (any tracked or untracked diff = yes, after filtering known noise files)
  *   2. If yes AND session not cleared in scrutiny ledger AND block count < ceiling:
  *      emit decision:"block" with instructions: dispatch a parallel reviewer
- *      agent (subagent_type=reviewer or code-review-swarm), do self-review of
- *      the diff, then call /scrutinize-mark to record completion before retry.
- *   3. After ceiling reached, allow Stop with a warning so the chat doesn't
- *      infinite-loop on stuck sessions.
+ *      agent (subagent_type=reviewer), do self-review of the diff, then call
+ *      .claude/scripts/scrutiny-mark.mjs to record completion before retry.
+ *   3. After ceiling reached (3 attempts), allow Stop with a warning so the chat
+ *      doesn't infinite-loop on stuck sessions.
  *
  * Adopted from `everything-claude-code` review-before-merge cadence (MIT, 2026-04-27).
  */

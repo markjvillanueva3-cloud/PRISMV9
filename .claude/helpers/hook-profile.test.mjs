@@ -42,6 +42,11 @@ describe("shouldSkipHook — profile semantics", () => {
     expect(shouldSkipHook("test-legitimacy")).toBe(false);
   });
 
+  it("minimal profile — scrutinize-before-stop ALWAYS fires (universal review enforcement)", () => {
+    process.env.PRISM_HOOK_PROFILE = "minimal";
+    expect(shouldSkipHook("scrutinize-before-stop")).toBe(false);
+  });
+
   it("minimal profile — non-allowlisted advisory hook is skipped", () => {
     process.env.PRISM_HOOK_PROFILE = "minimal";
     expect(shouldSkipHook("some-advisory-hook")).toBe(true);
