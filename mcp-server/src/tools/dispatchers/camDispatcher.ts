@@ -1600,6 +1600,12 @@ export const ACTIONS = [
     "esprit_function_index_find_parameter", "esprit_function_index_search_parameters",
     "esprit_function_index_get_operations_by_category", "esprit_function_index_get_summary",
     "esprit_function_index_get_profit_operations", "esprit_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-11 — GibbsCAM Function Index
+    "gibbscam_function_index_get", "gibbscam_function_index_list_sections",
+    "gibbscam_function_index_get_section", "gibbscam_function_index_list_operations",
+    "gibbscam_function_index_find_parameter", "gibbscam_function_index_search_parameters",
+    "gibbscam_function_index_get_operations_by_category", "gibbscam_function_index_get_summary",
+    "gibbscam_function_index_get_volumill_operations", "gibbscam_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12287,6 +12293,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...EspritFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-11 — GibbsCAM Function Index (10 actions)
+          case "gibbscam_function_index_get": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            result = { success: true, index: GibbsCAMFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "gibbscam_function_index_list_sections": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            result = { success: true, sections: GibbsCAMFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "gibbscam_function_index_get_section": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: GibbsCAMFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "gibbscam_function_index_list_operations": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            result = { success: true, operations: GibbsCAMFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "gibbscam_function_index_find_parameter": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: GibbsCAMFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "gibbscam_function_index_search_parameters": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: GibbsCAMFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "gibbscam_function_index_get_operations_by_category": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: GibbsCAMFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "gibbscam_function_index_get_summary": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            result = { success: true, ...GibbsCAMFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "gibbscam_function_index_get_volumill_operations": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            result = { success: true, operations: GibbsCAMFunctionIndexEngine.getVoluMillOperations() };
+            break;
+          }
+          case "gibbscam_function_index_get_operation": {
+            const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...GibbsCAMFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

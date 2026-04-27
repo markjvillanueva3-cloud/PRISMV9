@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "system_id": "gibbscam",
+  "section_key": "turning",
+  "extraction_source": "GibbsCAM 14 Turning Reference / 3D Systems / Hexagon Cimatron public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-11",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 70,
+    "categories": ["roughing", "finishing", "grooving", "threading", "drilling"]
+  },
+  "operations": {
+    "rough_turn": {
+      "display_name": "Rough Turn",
+      "category": "roughing",
+      "description": "GibbsCAM rough turning. Multi-pass with axial or radial direction. Pattern recognition handles shoulders, undercuts, and complex profiles. Output as canned cycle (G71/G72/G73) or long-form.",
+      "dialog_tabs": ["Tool", "Profile", "Stepover", "Cycle"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "maxDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Profile" },
+          "axialStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "stepover": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 2.0, "range": [0.1, 20], "tab": "Stepover", "required": true },
+          "passes": { "type": "integer", "default": 0, "description": "0 = auto from DOC", "tab": "Stepover" },
+          "direction": { "type": "enum", "values": ["axial", "radial", "contour"], "default": "axial", "tab": "Stepover" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G71", "G72", "G73", "long_form"], "default": "G71", "tab": "Cycle" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "retractMode": { "type": "enum", "values": ["clearance", "stock", "shortest"], "default": "clearance", "tab": "Cycle" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": true, "description": "G96 constant surface speed", "tab": "Cycle" }
+        }
+      }
+    },
+    "finish_turn": {
+      "display_name": "Finish Turn",
+      "category": "finishing",
+      "description": "G70 finish turning. Honors chamfers, fillets, undercuts. Optional spring pass and tip radius compensation.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 11,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["right_to_left", "left_to_right"], "default": "right_to_left", "tab": "Strategy" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "leadOutDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "springPass": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "cycleType": { "type": "enum", "values": ["G70", "long_form"], "default": "G70", "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 5000, "tab": "Strategy" }
+        }
+      }
+    },
+    "groove": {
+      "display_name": "Groove",
+      "category": "grooving",
+      "description": "Plunge grooving with optional peck and side-cleanup. Rectangular, V, full-radius, form grooves. Side stock and root dwell for chip break.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "profile": {
+          "centerZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "outerDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "rootDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "width": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "leftSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rightSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rootStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "strategy": {
+          "plungeOverlap": { "type": "number", "unit": "percent", "default": 80, "range": [10, 100], "tab": "Strategy" },
+          "depthIncrement": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "peck": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "peckRetract": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "dwellAtRoot": { "type": "number", "unit": "s", "default": 0.2, "tab": "Strategy" },
+          "groovePattern": { "type": "enum", "values": ["plunge", "step", "spiral"], "default": "step", "tab": "Strategy" },
+          "finishPass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "thread_turn": {
+      "display_name": "Thread Turn",
+      "category": "threading",
+      "description": "G76 / G33 single-point threading. Multi-pass infeed (radial, modified-flank, alternating, full-flank). Multi-start support and lead-in distance.",
+      "dialog_tabs": ["Tool", "Thread", "Passes"],
+      "parameter_count": 14,
+      "parameters": {
+        "thread": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "starts": { "type": "integer", "default": 1, "range": [1, 8], "tab": "Thread" },
+          "internal": { "type": "boolean", "default": false, "tab": "Thread" }
+        },
+        "passes": {
+          "infeedType": { "type": "enum", "values": ["radial", "modified_flank", "alternating", "full_flank"], "default": "modified_flank", "tab": "Passes" },
+          "infeedAngle": { "type": "number", "unit": "deg", "default": 29.5, "range": [0, 30], "tab": "Passes" },
+          "firstCutDepth": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Passes" },
+          "minCutDepth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Passes" },
+          "passes": { "type": "integer", "default": 0, "tab": "Passes" },
+          "springPasses": { "type": "integer", "default": 1, "range": [0, 5], "tab": "Passes" },
+          "cycleType": { "type": "enum", "values": ["G76", "G33", "G92", "long_form"], "default": "G76", "tab": "Passes" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 3, "tab": "Passes" }
+        }
+      }
+    },
+    "axial_drill": {
+      "display_name": "Axial Drill",
+      "category": "drilling",
+      "description": "Axial (Z-axis) drilling, peck, deep-hole on a turning center. G81/G83/G87 cycle output, peck reduction, dwell at bottom.",
+      "dialog_tabs": ["Tool", "Hole", "Cycle"],
+      "parameter_count": 11,
+      "parameters": {
+        "hole": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Hole", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Hole", "required": true },
+          "diameter": { "type": "number", "unit": "mm", "tab": "Hole", "required": true },
+          "atCenter": { "type": "boolean", "default": true, "tab": "Hole" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83", "G87"], "default": "G83", "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 3, "range": [0.1, 100], "tab": "Cycle" },
+          "peckReduction": { "type": "number", "unit": "percent", "default": 0, "range": [0, 50], "tab": "Cycle" },
+          "minPeck": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "feedRetract": { "type": "boolean", "default": false, "tab": "Cycle" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "GibbsCAM turning conventions",
+      "key_concepts": ["Z+ toward chuck", "X is diametric", "G96 vs G97", "tip radius compensation"],
+      "best_practices": [
+        "GibbsCAM uses Z+ toward the chuck (positive Z = closer to spindle)",
+        "Always toggle G96 → G97 below 100 RPM threshold to avoid runaway near center",
+        "Enable tip-radius compensation for finish; rough cuts can run without"
+      ]
+    }
+  ]
+}

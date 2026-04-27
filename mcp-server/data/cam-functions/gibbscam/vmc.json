@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "system_id": "gibbscam",
+  "section_key": "vmc",
+  "extraction_source": "GibbsCAM 14 Virtual Machining Center Reference / 3D Systems / Hexagon Cimatron public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-11",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["vmc", "machine_simulation", "collision_check", "post_validation"]
+  },
+  "operations": {
+    "vmc_kinematic_setup": {
+      "display_name": "VMC Kinematic Setup",
+      "category": "vmc",
+      "description": "Configure the Virtual Machining Center machine kinematic chain — table, head, rotary axes, axis limits, home positions. Drives all subsequent simulation, collision checking, post-processing.",
+      "dialog_tabs": ["Machine", "Axes", "Limits", "Home"],
+      "parameter_count": 16,
+      "parameters": {
+        "machine": {
+          "machineFile": { "type": "string", "description": "Path to .vmc machine definition", "tab": "Machine", "required": true },
+          "kinematicConfig": { "type": "enum", "values": ["table_table", "head_table", "head_head"], "default": "table_table", "tab": "Machine" },
+          "rotaryConvention": { "type": "enum", "values": ["A_first", "B_first", "C_first"], "default": "A_first", "description": "Rotation order matters for 5-axis IK", "tab": "Machine" }
+        },
+        "axes": {
+          "linearAxes": { "type": "array", "description": "Linear axis names (X, Y, Z, U, V, W)", "tab": "Axes" },
+          "rotaryAxes": { "type": "array", "description": "Rotary axis names (A, B, C)", "tab": "Axes" },
+          "spindles": { "type": "integer", "default": 1, "range": [1, 4], "tab": "Axes" },
+          "turrets": { "type": "integer", "default": 0, "range": [0, 4], "tab": "Axes" }
+        },
+        "limits": {
+          "xRange": { "type": "array", "description": "[min, max] in mm", "tab": "Limits", "required": true },
+          "yRange": { "type": "array", "tab": "Limits", "required": true },
+          "zRange": { "type": "array", "tab": "Limits", "required": true },
+          "aRange": { "type": "array", "description": "[min, max] in deg, optional", "tab": "Limits" },
+          "bRange": { "type": "array", "tab": "Limits" },
+          "cRange": { "type": "array", "tab": "Limits" }
+        },
+        "home": {
+          "xHome": { "type": "number", "unit": "mm", "default": 0, "tab": "Home" },
+          "yHome": { "type": "number", "unit": "mm", "default": 0, "tab": "Home" },
+          "zHome": { "type": "number", "unit": "mm", "default": 100, "tab": "Home" }
+        }
+      }
+    },
+    "vmc_simulate": {
+      "display_name": "VMC Simulate",
+      "category": "machine_simulation",
+      "description": "Run full machine simulation — virtual machine moves with the toolpath, including rapids, tool changes, fixture movement, sub-spindle handoff. Records cycle time, axis travel, alarms.",
+      "dialog_tabs": ["Setup", "Speed", "Output", "Triggers"],
+      "parameter_count": 14,
+      "parameters": {
+        "setup": {
+          "operations": { "type": "selection", "description": "Operations to simulate (default: all)", "tab": "Setup" },
+          "stockEvolution": { "type": "boolean", "default": true, "description": "Update stock model as material is removed", "tab": "Setup" },
+          "showRapidsAsLines": { "type": "boolean", "default": true, "tab": "Setup" }
+        },
+        "speed": {
+          "playbackSpeed": { "type": "number", "default": 1.0, "range": [0.01, 100], "description": "Real-time multiplier", "tab": "Speed" },
+          "frameRate": { "type": "number", "unit": "fps", "default": 30, "range": [1, 120], "tab": "Speed" },
+          "stepMode": { "type": "enum", "values": ["continuous", "single_step", "by_block"], "default": "continuous", "tab": "Speed" }
+        },
+        "output": {
+          "recordCycleTime": { "type": "boolean", "default": true, "tab": "Output" },
+          "recordAxisTravel": { "type": "boolean", "default": true, "tab": "Output" },
+          "recordChipVolume": { "type": "boolean", "default": false, "tab": "Output" },
+          "saveAlarms": { "type": "boolean", "default": true, "tab": "Output" }
+        },
+        "triggers": {
+          "stopOnCollision": { "type": "boolean", "default": true, "tab": "Triggers" },
+          "stopOnAxisLimit": { "type": "boolean", "default": true, "tab": "Triggers" },
+          "stopOnRapidThruStock": { "type": "boolean", "default": true, "description": "G0 through workpiece is a programming bug", "tab": "Triggers" },
+          "stopOnUnchangedTool": { "type": "boolean", "default": false, "description": "Tool reuse without re-fetch", "tab": "Triggers" }
+        }
+      }
+    },
+    "vmc_collision_check": {
+      "display_name": "VMC Collision Check",
+      "category": "collision_check",
+      "description": "Static and dynamic collision check between tool, holder, spindle, fixture, table, machine columns. Slower but exhaustive analysis. Uses conservative Minkowski shells for clearance.",
+      "dialog_tabs": ["Bodies", "Tolerance", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "bodies": {
+          "checkTool": { "type": "boolean", "default": true, "tab": "Bodies" },
+          "checkHolder": { "type": "boolean", "default": true, "tab": "Bodies" },
+          "checkShank": { "type": "boolean", "default": true, "tab": "Bodies" },
+          "checkSpindle": { "type": "boolean", "default": true, "tab": "Bodies" },
+          "checkFixture": { "type": "boolean", "default": true, "tab": "Bodies" },
+          "checkTable": { "type": "boolean", "default": true, "tab": "Bodies" },
+          "checkColumn": { "type": "boolean", "default": false, "description": "Slow on long programs", "tab": "Bodies" }
+        },
+        "tolerance": {
+          "shellThickness": { "type": "number", "unit": "mm", "default": 0.5, "description": "Minkowski clearance shell", "tab": "Tolerance" },
+          "warnThreshold": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Tolerance" },
+          "errorThreshold": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Tolerance" }
+        },
+        "strategy": {
+          "checkRapids": { "type": "boolean", "default": true, "description": "Most collisions happen on G0", "tab": "Strategy" },
+          "checkFeedMoves": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "stopOnFirst": { "type": "boolean", "default": false, "description": "False = collect all collisions", "tab": "Strategy" },
+          "exportReport": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "vmc_post_validate": {
+      "display_name": "VMC Post-Process Validate",
+      "category": "post_validation",
+      "description": "Run the GibbsCAM post processor through VMC simulation to confirm the emitted G-code matches the simulated toolpath. Catches post-processor bugs that pure CAM simulation misses.",
+      "dialog_tabs": ["Post", "Tolerance", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "post": {
+          "postFile": { "type": "string", "description": "Path to .vnc post processor", "tab": "Post", "required": true },
+          "controllerFamily": { "type": "enum", "values": ["fanuc", "siemens", "okuma", "haas", "mazak"], "tab": "Post" },
+          "outputUnits": { "type": "enum", "values": ["metric", "imperial"], "default": "metric", "tab": "Post" },
+          "decimalPlaces": { "type": "integer", "default": 4, "range": [2, 6], "tab": "Post" }
+        },
+        "tolerance": {
+          "positionTolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Tolerance" },
+          "feedToleranceMmPerMin": { "type": "number", "default": 1, "tab": "Tolerance" },
+          "spindleToleranceRPM": { "type": "number", "default": 10, "tab": "Tolerance" }
+        },
+        "output": {
+          "gcodeFile": { "type": "string", "description": "Output .nc file path", "tab": "Output", "required": true },
+          "writeListing": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "showRapidsAsBlocks": { "type": "boolean", "default": false, "tab": "Output" },
+          "verifyFirstBlock": { "type": "boolean", "default": true, "description": "G91 G28 Z0 sanity check", "tab": "Output" },
+          "verifyToolChanges": { "type": "boolean", "default": true, "tab": "Output" },
+          "verifyEnd": { "type": "boolean", "default": true, "description": "M30 / M02 present", "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportReport": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Why VMC matters",
+      "key_concepts": ["machine kinematics", "post-process validation", "collision shell tolerance"],
+      "best_practices": [
+        "Always run VMC simulation BEFORE first part — catches rapid-through-stock and post-processor bugs",
+        "Use 0.5 mm shell tolerance for production; tighten to 0.1 mm for thin-wall and fragile fixtures",
+        "Run a fresh post-validate after every post-processor change — small post bugs cause major crashes",
+        "Stop on first collision while debugging; collect all collisions for production sign-off"
+      ]
+    }
+  ]
+}
