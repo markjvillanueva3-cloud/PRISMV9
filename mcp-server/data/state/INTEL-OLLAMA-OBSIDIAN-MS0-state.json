@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestoneId": "INTEL-OLLAMA-OBSIDIAN-MS0",
+  "envelope_version": "3.0.0",
+  "completed_units": [],
+  "in_progress_units": [],
+  "blocked_units": [],
+  "current_phase": "P0",
+  "last_updated": "2026-04-27T19:12:25.458Z",
+  "last_updated_by": "claude-9c056864",
+  "last_updated_pc": "MarkV",
+  "next_recommended_unit": "P20-U01",
+  "notes": "Envelope v3.0.0 final — 92 units, 24 phases, 77hr work, ~23-31 sessions. Multi-model stack added: nomic-embed + llama3.2-vision + deepseek-r1 (required), llama3.3:70b (optional). Vision PDF pipeline + Pre-Claude Review pattern added.",
+  "next_unit_rationale": "P20-U01 (ollama pull nomic-embed-text + llama3.2-vision + deepseek-r1) BLOCKS the entire vector backbone. Without nomic-embed-text, P0-U01 (Qdrant embedder injection) cannot succeed. Execute P20-U01 FIRST, then P0-U01, then proceed to remaining phases in topological order."
+}
