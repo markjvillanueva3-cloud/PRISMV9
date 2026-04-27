@@ -18,6 +18,7 @@ import { ADAPTIVE_CONTROL_ACTION_SCHEMAS } from "../../schemas/adaptiveControlAc
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _afc: any, _asc: any, _bay: any, _tla: any, _dts: any, _acal: any;
+let _adaChat: any, _adaChip: any, _adaOver: any, _adaTherm: any, _adaWear: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "afc": return _afc ??= (await import("../../engines/AdaptiveFeedControlEngine.js")).adaptiveFeedControlEngine;
@@ -26,6 +27,12 @@ async function getEngine(name: string): Promise<any> {
     case "tla": return _tla ??= (await import("../../engines/ToolLifeAdaptiveEngine.js")).toolLifeAdaptiveEngine;
     case "dts": return _dts ??= (await import("../../engines/DigitalTwinSyncEngine.js")).digitalTwinSyncEngine;
     case "acal": return _acal ??= (await import("../../engines/AdaptiveCalibrationEngine.js")).adaptiveCalibrationEngine;
+    // ENGINE-WIRE-MS0/U-WIRE01: 5 leaf adaptive engines (static-method classes)
+    case "adaChat": return _adaChat ??= (await import("../../engines/AdaptiveChatterEngine.js")).AdaptiveChatterEngine;
+    case "adaChip": return _adaChip ??= (await import("../../engines/AdaptiveChiploadEngine.js")).AdaptiveChiploadEngine;
+    case "adaOver": return _adaOver ??= (await import("../../engines/AdaptiveOverrideEngine.js")).AdaptiveOverrideEngine;
+    case "adaTherm": return _adaTherm ??= (await import("../../engines/AdaptiveThermalEngine.js")).AdaptiveThermalEngine;
+    case "adaWear": return _adaWear ??= (await import("../../engines/AdaptiveWearEngine.js")).AdaptiveWearEngine;
     default: throw new Error(`Unknown adaptive control engine: ${name}`);
   }
 }
@@ -38,6 +45,9 @@ const ACTIONS = [
   "digital_twin_sync", "digital_twin_query",
   "calibration_kienzle", "calibration_taylor", "calibration_surface_bias",
   "calibration_drift", "calibration_thermal", "calibration_model_select",
+  // ENGINE-WIRE-MS0/U-WIRE01: leaf adaptive primitives
+  "adaptive_chatter_analyze", "adaptive_chipload_analyze",
+  "adaptive_override_calc", "adaptive_thermal_analyze", "adaptive_wear_analyze",
 ] as const;
 
 /** Registers adaptive control dispatcher.
@@ -180,6 +190,31 @@ Params vary by action — pass relevant fields in params object.`,
             result = eng.modelSelector(params);
             break;
           }
+          case "adaptive_chatter_analyze": {
+            const Eng = await getEngine("adaChat");
+            result = Eng.analyze(params);
+            break;
+          }
+          case "adaptive_chipload_analyze": {
+            const Eng = await getEngine("adaChip");
+            result = Eng.analyze(params);
+            break;
+          }
+          case "adaptive_override_calc": {
+            const Eng = await getEngine("adaOver");
+            result = Eng.calculate(params);
+            break;
+          }
+          case "adaptive_thermal_analyze": {
+            const Eng = await getEngine("adaTherm");
+            result = Eng.analyze(params);
+            break;
+          }
+          case "adaptive_wear_analyze": {
+            const Eng = await getEngine("adaWear");
+            result = Eng.analyze(params);
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -198,5 +233,5 @@ Params vary by action — pass relevant fields in params object.`,
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }
   );
-  log.info("Registered: prism_adaptive_control dispatcher (12 actions)");
+  log.info("Registered: prism_adaptive_control dispatcher (23 actions)");
 }
