@@ -1,5 +1,3 @@
-// WIRE-EXEMPT: prism_wiki dispatcher ships in U-WIKI06; engine consumed by
-// /wiki-lint command (U-WIKI06) and the U-WIKI08 nightly cron until then.
 /**
  * WikiLintEngine — KNOWLEDGE-WIKI-MS0 / U-WIKI03
  *

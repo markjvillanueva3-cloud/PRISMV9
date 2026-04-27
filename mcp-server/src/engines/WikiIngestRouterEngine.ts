@@ -1,5 +1,3 @@
-// WIRE-EXEMPT: prism_wiki dispatcher ships in U-WIKI06; engine is consumed
-// by the /wiki-ingest command (U-WIKI06) and the U-WIKI04B harvest cron until then.
 /**
  * WikiIngestRouterEngine — KNOWLEDGE-WIKI-MS0 / U-WIKI04
  *

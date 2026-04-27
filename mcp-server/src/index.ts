@@ -138,6 +138,9 @@ import { registerDocumentLearningDispatcher } from "./tools/dispatchers/document
 // CC-MS6: Shop Practice Dispatcher — practice KB, trouble trees, material tips (Dispatcher #52)
 import { registerShopPracticeDispatcher } from "./tools/dispatchers/shopPracticeDispatcher.js";
 
+// KNOWLEDGE-WIKI-MS0/U-WIKI06: Wiki Dispatcher — Karpathy LLM-Wiki protocol (6 engines, 11 actions)
+import { registerWikiDispatcher } from "./tools/dispatchers/wikiDispatcher.js";
+
 // VL-MS0: Video Learning Engine — direct video file learning (audio + vision)
 import { videoLearningEngine } from "./engines/VideoLearningEngine.js";
 
@@ -696,6 +699,7 @@ async function registerTools(): Promise<void> {
   registerCADDrawingKnowledgeDispatcher(server);    // 11 actions: cad_select_gdt/datums/drawing/dfm/fit/macros
   registerFeasibilityDispatcher(server);             // L0-B1: feasibility check actions
   registerProvenPipelineDispatcher(server);           // L0-B1: proven pipeline actions
+  registerWikiDispatcher(server);                     // KNOWLEDGE-WIKI-MS0/U-WIKI06: 11 actions across 6 wiki engines
 
   log.info(`All PRISM tools registered: 64 dispatchers (1718+ actions)`);
 

@@ -1,5 +1,3 @@
-// WIRE-EXEMPT: prism_wiki dispatcher ships in U-WIKI06; this engine is consumed
-// by the AGI/DL/Creative-Reasoning facades and the wiki-sync cron until then.
 /**
  * WikiSelfAwarenessSyncEngine — KNOWLEDGE-WIKI-MS0 / U-WIKI05
  *

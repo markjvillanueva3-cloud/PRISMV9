@@ -1,5 +1,3 @@
-// WIRE-EXEMPT: prism_wiki dispatcher ships in U-WIKI06; engine is consumed
-// directly by wiki-bootstrap.mjs and (later) WikiIngestRouterEngine until then.
 /**
  * WikiLogAppenderEngine — KNOWLEDGE-WIKI-MS0 / U-WIKI02
  *

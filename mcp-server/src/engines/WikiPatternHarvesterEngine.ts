@@ -1,5 +1,3 @@
-// WIRE-EXEMPT: prism_wiki dispatcher ships in U-WIKI06; this engine is consumed
-// by /wiki-harvest (U-WIKI06) and the wiki-harvest-h-drive.mjs cron until then.
 /**
  * WikiPatternHarvesterEngine — KNOWLEDGE-WIKI-MS0 / U-WIKI04B
  *
