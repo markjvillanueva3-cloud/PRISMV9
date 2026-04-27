@@ -1682,8 +1682,7 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0: LoRA cadence engines (6 actions)
   "milling_lora_predict", "milling_lora_train", "milling_lora_optimize",
   "millturn_lora_predict", "millturn_lora_train", "millturn_lora_optimize",
-  // WIRE-EXEMPT: declared in legacy commits b7e0b298f / 5af81bd79 — corresponding engines (DFMAnalyzer, FeasibilityOrchestrator, FusionToolLibraryEngine, ProgramCompareEngine) live in their own dispatchers; pending dedicated cases per CAM-EXHAUST follow-up
-"cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
+  "cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -13308,7 +13307,43 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
-          default:
+// Legacy actions declared in commits b7e0b298f / 5af81bd79 — engines live in
+          // other dispatchers. Route callers to the correct dispatcher.
+          case "cam_compare_programs": {
+            result = {
+              success: false,
+              error: "cam_compare_programs handled by ProgramCompareEngine via prism_quality dispatcher",
+              redirect: { dispatcher: "prism_quality", action: "program_compare" },
+            };
+            break;
+          }
+          case "cam_dfm_check": {
+            result = {
+              success: false,
+              error: "cam_dfm_check handled by DFMAnalyzer via prism_cad dispatcher",
+              redirect: { dispatcher: "prism_cad", action: "dfm_check" },
+            };
+            break;
+          }
+          case "cam_feasibility_check": {
+            result = {
+              success: false,
+              error: "cam_feasibility_check handled by FeasibilityOrchestrator via prism_feasibility dispatcher",
+              redirect: { dispatcher: "prism_feasibility", action: "orchestrator_full" },
+            };
+            break;
+          }
+          case "cam_fusion_tool_export": {
+            result = {
+              success: false,
+              error: "cam_fusion_tool_export handled by FusionToolLibraryEngine via prism_cam fusion_export_tool_library",
+              redirect: { dispatcher: "prism_cam", action: "fusion_export_tool_library" },
+            };
+            break;
+          }
+          
+          
+                    default:
             result = { error: `Unknown action: ${action}` };
         }
         // POST-TOOLPATH HOOKS
