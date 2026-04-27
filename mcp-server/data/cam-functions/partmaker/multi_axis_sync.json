@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "partmaker",
+  "section_key": "multi_axis_sync",
+  "extraction_source": "Autodesk PartMaker MultiChannel Reference / Swiss synchronisation training",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-22",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["channel_sync", "dual_turret_balance", "mid_part_pickoff", "parallel_path"]
+  },
+  "operations": {
+    "channel_sync": {
+      "display_name": "Channel Synchronisation",
+      "category": "channel_sync",
+      "description": "PartMaker flagship — 4-channel coordination with WAITM/QUEUEM constructs. $1=main turret, $2=gang slide, $3=sub turret, $4=back tool.",
+      "dialog_tabs": ["Channels", "Sync", "Constraints", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "channels": {
+          "channel_count": { "type": "integer", "default": 4, "description": "Modern Swiss machines run 2-6 channels", "tab": "Channels", "required": true },
+          "channel_$1_role": { "type": "enum", "values": ["main_spindle_turn", "main_spindle_drill", "main_spindle_thread"], "default": "main_spindle_turn", "tab": "Channels" },
+          "channel_$2_role": { "type": "enum", "values": ["gang_slide_OD", "gang_slide_face", "gang_slide_groove"], "default": "gang_slide_OD", "tab": "Channels" },
+          "channel_$3_role": { "type": "enum", "values": ["sub_spindle_turn", "sub_spindle_drill", "idle"], "default": "sub_spindle_turn", "tab": "Channels" }
+        },
+        "sync": {
+          "sync_method": { "type": "enum", "values": ["WAITM", "QUEUEM", "M_code_handshake", "TIME_BASED"], "default": "WAITM", "tab": "Sync" },
+          "wait_codes": { "type": "string", "default": "M101,M102,M103,M104", "description": "Sequential wait codes — M101 paired across channels", "tab": "Sync" },
+          "deadlock_detect": { "type": "boolean", "default": true, "description": "Critical — detect when 2 channels wait on each other", "tab": "Sync" },
+          "deadlock_timeout_s": { "type": "number", "unit": "s", "default": 30.0, "tab": "Sync" }
+        },
+        "constraints": {
+          "max_channels_simultaneous": { "type": "integer", "default": 3, "description": "Mechanical interference limit", "tab": "Constraints" },
+          "main_sub_no_overlap_zone": { "type": "boolean", "default": true, "description": "Block if main+sub Z-paths could collide", "tab": "Constraints" },
+          "tool_collision_zones_defined": { "type": "boolean", "default": true, "tab": "Constraints" }
+        },
+        "output": {
+          "machine_format": { "type": "enum", "values": ["citizen_alpha", "star_swiss", "tornos_evodeco", "marubeni_iso"], "default": "citizen_alpha", "description": "Channel syntax differs between OEMs", "tab": "Output" },
+          "emit_balance_report": { "type": "boolean", "default": true, "description": "Cycle-time per channel — identifies bottleneck", "tab": "Output" },
+          "subprogram_per_channel": { "type": "boolean", "default": true, "description": "O100=$1, O200=$2 etc — keeps code readable", "tab": "Output" },
+          "comments_in_output": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "dual_turret_balance": {
+      "display_name": "Dual-Turret Load Balance",
+      "category": "dual_turret_balance",
+      "description": "Distribute roughing across upper+lower turret simultaneously. PartMaker auto-balances cycle-time per turret.",
+      "dialog_tabs": ["Strategy", "Cut", "Sync", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "strategy": {
+          "balance_mode": { "type": "enum", "values": ["equal_axial_split", "equal_volume", "equal_time", "manual_assign"], "default": "equal_time", "tab": "Strategy" },
+          "upper_turret_role": { "type": "enum", "values": ["rough_OD", "rough_ID", "finish_OD", "finish_ID"], "default": "rough_OD", "tab": "Strategy" },
+          "lower_turret_role": { "type": "enum", "values": ["rough_OD", "rough_ID", "finish_OD", "finish_ID"], "default": "rough_ID", "tab": "Strategy" },
+          "split_z_at_mm": { "type": "number", "unit": "mm", "default": 0.0, "description": "Z boundary between upper/lower work zones", "tab": "Strategy" }
+        },
+        "cut": {
+          "upper_doc_mm": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cut" },
+          "lower_doc_mm": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cut" },
+          "upper_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.3, "tab": "Cut" },
+          "lower_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.3, "tab": "Cut" }
+        },
+        "sync": {
+          "sync_at_z_zone_change": { "type": "boolean", "default": true, "description": "Both turrets clear before Z-zone swap", "tab": "Sync" },
+          "rpm_match_required": { "type": "boolean", "default": false, "description": "Single spindle — both turrets share RPM", "tab": "Sync" },
+          "load_balance_tolerance_pct": { "type": "number", "unit": "pct", "default": 10.0, "description": "Allow ±10% cycle-time imbalance", "tab": "Sync" }
+        },
+        "output": {
+          "report_balance_pct": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_idle_turret_time_pct": { "type": "number", "unit": "pct", "default": 15.0, "description": "Flag if either turret idle >15% of cycle", "tab": "Output" },
+          "auto_rebalance_on_unbalance": { "type": "boolean", "default": false, "description": "Auto-redistribute if balance fails", "tab": "Output" },
+          "emit_per_turret_log": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "mid_part_pickoff": {
+      "display_name": "Mid-Part Pickoff Transfer",
+      "category": "mid_part_pickoff",
+      "description": "Transfer part to sub-spindle MID-cycle (not at end) for back-machining while main is still holding bar — saves cycle time.",
+      "dialog_tabs": ["Transfer", "Sync", "Continue", "Verify"],
+      "parameter_count": 15,
+      "parameters": {
+        "transfer": {
+          "trigger_z_position_mm": { "type": "number", "unit": "mm", "default": 15.0, "description": "Sub-spindle engages at this Z", "tab": "Transfer" },
+          "engagement_clamp_pressure_bar": { "type": "number", "unit": "bar", "default": 25.0, "tab": "Transfer" },
+          "sub_speed_match_first": { "type": "boolean", "default": true, "description": "Match RPM before clamp", "tab": "Transfer" },
+          "main_loosens_after_engage_ms": { "type": "integer", "default": 100, "description": "Main collet partial release after sub clamp", "tab": "Transfer" }
+        },
+        "sync": {
+          "rpm_match_tolerance": { "type": "number", "unit": "rpm", "default": 1.0, "tab": "Sync" },
+          "phase_lock_required": { "type": "boolean", "default": false, "description": "Required if back side has keyed feature", "tab": "Sync" },
+          "phase_arcsec": { "type": "number", "unit": "arcsec", "default": 60, "tab": "Sync" },
+          "sync_macro": { "type": "string", "default": "G140", "description": "OEM macro — Citizen G140, Star G114", "tab": "Sync" }
+        },
+        "continue": {
+          "main_continue_machining": { "type": "boolean", "default": true, "description": "Main keeps cutting while sub holds back end", "tab": "Continue" },
+          "sub_simultaneous_back_machining": { "type": "boolean", "default": true, "description": "Sub-side ops in parallel with main", "tab": "Continue" },
+          "max_simultaneous_ops": { "type": "integer", "default": 2, "tab": "Continue" }
+        },
+        "verify": {
+          "torque_match_check": { "type": "boolean", "default": true, "tab": "Verify" },
+          "part_present_sensor": { "type": "boolean", "default": true, "tab": "Verify" },
+          "fault_action_on_misfeed": { "type": "enum", "values": ["alarm_stop", "scrap_chute", "retry_3x"], "default": "alarm_stop", "tab": "Verify" },
+          "log_event_to_machine": { "type": "boolean", "default": true, "tab": "Verify" }
+        }
+      }
+    },
+    "parallel_path": {
+      "display_name": "Parallel-Path Machining",
+      "category": "parallel_path",
+      "description": "Two tools cut SAME part on SAME spindle simultaneously — turn OD with $1 while drill axial with $2. Cycle-time reduction up to 40%.",
+      "dialog_tabs": ["Tools", "Constraints", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "tools": {
+          "tool_1_post": { "type": "enum", "values": ["gang_slide", "rotary_turret", "back_turret"], "default": "gang_slide", "tab": "Tools" },
+          "tool_1_op": { "type": "enum", "values": ["turn_OD", "turn_ID", "groove", "thread", "form"], "default": "turn_OD", "tab": "Tools" },
+          "tool_2_post": { "type": "enum", "values": ["gang_slide", "rotary_turret", "back_turret"], "default": "rotary_turret", "tab": "Tools" },
+          "tool_2_op": { "type": "enum", "values": ["drill_axial", "ream_axial", "thread_internal", "face"], "default": "drill_axial", "tab": "Tools" }
+        },
+        "constraints": {
+          "min_axial_separation_mm": { "type": "number", "unit": "mm", "default": 5.0, "description": "Min Z gap between tools to avoid interference", "tab": "Constraints" },
+          "min_radial_separation_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Constraints" },
+          "force_balance_check": { "type": "boolean", "default": true, "description": "Verify cutting forces don't deflect part", "tab": "Constraints" },
+          "shared_spindle_rpm_chooses_min": { "type": "boolean", "default": true, "description": "RPM = min(tool1, tool2) for safety", "tab": "Constraints" }
+        },
+        "cut": {
+          "tool_1_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.2, "tab": "Cut" },
+          "tool_2_feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 200, "tab": "Cut" },
+          "shared_rpm": { "type": "number", "unit": "rpm", "default": 3000, "tab": "Cut" },
+          "stagger_engage_ms": { "type": "integer", "default": 200, "description": "Ms between tool1 engage and tool2 engage", "tab": "Cut" }
+        },
+        "output": {
+          "warn_if_force_imbalance_pct": { "type": "number", "unit": "pct", "default": 30.0, "description": "Block if force imbalance > 30% (deflection risk)", "tab": "Output" },
+          "auto_disengage_on_chip_jam": { "type": "boolean", "default": true, "tab": "Output" },
+          "use_subprogram_per_tool": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "WAITM/QUEUEM Sync",
+      "key_concepts": ["WAITM blocks until matching code on partner channel", "Deadlock if both wait on each other", "QUEUEM is non-blocking"],
+      "best_practices": ["Always pair WAITM codes 1:1", "Use deadlock timeout 30s", "Subprogram per channel for readability"]
+    }
+  ]
+}

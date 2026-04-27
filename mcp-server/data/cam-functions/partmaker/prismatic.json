@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "partmaker",
+  "section_key": "prismatic",
+  "extraction_source": "Autodesk PartMaker Holemaking / Swiss-deep-hole training",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-22",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["deep_hole_swiss", "gun_drill", "micro_thread", "knurl_swiss"]
+  },
+  "operations": {
+    "deep_hole_swiss": {
+      "display_name": "Swiss Deep-Hole Drilling",
+      "category": "deep_hole_swiss",
+      "description": "Deep-hole drilling on Swiss machines. PartMaker handles peck schedule with through-spindle coolant prioritisation.",
+      "dialog_tabs": ["Hole", "Peck", "Coolant", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "hole_dia_mm": { "type": "number", "unit": "mm", "default": 2.0, "description": "Swiss-typical small bore", "tab": "Hole", "required": true },
+          "hole_depth_mm": { "type": "number", "unit": "mm", "default": 50.0, "description": "L/D ratios up to 50:1 on Swiss with TSC", "tab": "Hole" },
+          "ld_ratio": { "type": "number", "default": 25.0, "description": "Length / diameter — auto-computed", "tab": "Hole" },
+          "predrill_present": { "type": "boolean", "default": false, "description": "Spot-drill recommended for ld>10", "tab": "Hole" }
+        },
+        "peck": {
+          "peck_strategy": { "type": "enum", "values": ["constant_peck", "decreasing_peck", "G73_high_speed_peck", "G83_full_retract"], "default": "decreasing_peck", "tab": "Peck" },
+          "first_peck_mm": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Peck" },
+          "min_peck_mm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Peck" },
+          "decrement_pct": { "type": "number", "unit": "pct", "default": 20.0, "description": "Each peck shrinks by this %", "tab": "Peck" }
+        },
+        "coolant": {
+          "coolant_mode": { "type": "enum", "values": ["FLOOD", "TSC_neat_oil", "MQL", "AIR_BLAST"], "default": "TSC_neat_oil", "description": "TSC critical for L/D > 10", "tab": "Coolant" },
+          "tsc_pressure_bar": { "type": "number", "unit": "bar", "default": 70.0, "description": "Swiss TSC typically 70-200 bar", "tab": "Coolant" },
+          "min_pressure_for_drill": { "type": "number", "unit": "bar", "default": 50.0, "description": "Block run if TSC < this pressure", "tab": "Coolant" }
+        },
+        "output": {
+          "verify_chip_evacuation": { "type": "boolean", "default": true, "description": "Detect via spindle load spikes", "tab": "Output" },
+          "auto_increase_peck_on_jam": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_no_TSC_for_high_LD": { "type": "boolean", "default": true, "description": "Block if L/D>10 without TSC", "tab": "Output" },
+          "g_code_cycle": { "type": "string", "default": "G83", "tab": "Output" }
+        }
+      }
+    },
+    "gun_drill": {
+      "display_name": "Gun Drilling",
+      "category": "gun_drill",
+      "description": "Single-flute gun drill with through-tool coolant for deep small-diameter holes (L/D up to 100:1). Common Swiss specialty.",
+      "dialog_tabs": ["Drill", "Cut", "Coolant", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "drill": {
+          "gun_drill_dia_mm": { "type": "number", "unit": "mm", "default": 3.0, "description": "Single-flute V-shape geometry", "tab": "Drill", "required": true },
+          "gun_drill_length_mm": { "type": "number", "unit": "mm", "default": 200, "tab": "Drill" },
+          "tip_grind_angle_deg": { "type": "number", "unit": "deg", "default": 118, "tab": "Drill" },
+          "v_angle_deg": { "type": "number", "unit": "deg", "default": 110, "description": "Cutting V angle — affects chip flow", "tab": "Drill" }
+        },
+        "cut": {
+          "rpm": { "type": "number", "unit": "rpm", "default": 2500, "description": "Lower than twist drill — gun drill is single-flute", "tab": "Cut" },
+          "feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 30, "description": "Very low — gun drill removes chip via single flute", "tab": "Cut" },
+          "no_peck_required": { "type": "boolean", "default": true, "description": "Coolant evacuates chips — no retract needed", "tab": "Cut" },
+          "spot_drill_first": { "type": "boolean", "default": true, "description": "Critical — guide gun drill into pilot hole", "tab": "Cut" }
+        },
+        "coolant": {
+          "tsc_pressure_bar": { "type": "number", "unit": "bar", "default": 100, "description": "Higher than twist drill — 100-200 bar typical", "tab": "Coolant" },
+          "coolant_type": { "type": "enum", "values": ["neat_oil", "high_lube_synth", "soluble_oil"], "default": "neat_oil", "tab": "Coolant" },
+          "filtration_microns": { "type": "number", "unit": "um", "default": 5.0, "description": "Fine filter — gun drill TSC clogs easily", "tab": "Coolant" }
+        },
+        "output": {
+          "verify_pilot_hole_present": { "type": "boolean", "default": true, "tab": "Output" },
+          "abort_on_pressure_drop": { "type": "boolean", "default": true, "description": "Block run if TSC drops mid-cut", "tab": "Output" },
+          "depth_runout_check_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Acceptable deviation per 100mm depth", "tab": "Output" },
+          "exit_at_breakthrough": { "type": "boolean", "default": false, "description": "Through-hole — reduce feed at exit", "tab": "Output" }
+        }
+      }
+    },
+    "micro_thread": {
+      "display_name": "Micro Thread Cutting",
+      "category": "micro_thread",
+      "description": "Threading 0.5mm-3mm diameter — UNJ, M-fine, watchcase threads. Single-pass form-tool or thread-mill.",
+      "dialog_tabs": ["Thread", "Strategy", "Tool", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "thread": {
+          "thread_dia_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Thread", "required": true },
+          "thread_pitch_mm": { "type": "number", "unit": "mm", "default": 0.25, "description": "Sub-millimeter pitches typical for micro threads", "tab": "Thread" },
+          "thread_length_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Thread" },
+          "internal_or_external": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Thread" }
+        },
+        "strategy": {
+          "method": { "type": "enum", "values": ["single_point_lathe", "form_tool", "thread_mill_helix", "rolling"], "default": "form_tool", "description": "Form tool one-pass for high volume", "tab": "Strategy" },
+          "passes": { "type": "integer", "default": 1, "description": "Form tool: 1; single-point: 4-6", "tab": "Strategy" },
+          "first_pass_depth_um": { "type": "number", "unit": "um", "default": 50.0, "tab": "Strategy" },
+          "compound_angle_deg": { "type": "number", "unit": "deg", "default": 29, "description": "29° for ISO 60° thread", "tab": "Strategy" }
+        },
+        "tool": {
+          "tool_grade": { "type": "enum", "values": ["HSS", "carbide_solid", "carbide_TiN", "carbide_PVD"], "default": "carbide_PVD", "tab": "Tool" },
+          "tool_runout_um": { "type": "number", "unit": "um", "default": 2.0, "description": "Critical — runout > 5μm scraps the part", "tab": "Tool" },
+          "fluid_required": { "type": "boolean", "default": true, "tab": "Tool" }
+        },
+        "output": {
+          "verify_runout_before_run": { "type": "boolean", "default": true, "description": "Block if measured TIR > runout limit", "tab": "Output" },
+          "min_thread_length_pitches": { "type": "number", "default": 1.5, "description": "Below this, lead-in is impossible", "tab": "Output" },
+          "warn_if_pitch_too_fine": { "type": "boolean", "default": true, "description": "Block if pitch < 0.1mm without specialised tool", "tab": "Output" },
+          "g_code_cycle": { "type": "enum", "values": ["G76", "G92_block", "long_form"], "default": "G76", "tab": "Output" }
+        }
+      }
+    },
+    "knurl_swiss": {
+      "display_name": "Swiss Knurling",
+      "category": "knurl_swiss",
+      "description": "Knurl forming on Swiss — diamond, straight, helical. Form-rolled (no chip) typical for Swiss knurl.",
+      "dialog_tabs": ["Knurl", "Form", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "knurl": {
+          "knurl_pattern": { "type": "enum", "values": ["diamond_male", "diamond_female", "straight_axial", "helical_30deg"], "default": "diamond_male", "tab": "Knurl", "required": true },
+          "knurl_pitch_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Tooth-to-tooth spacing", "tab": "Knurl" },
+          "knurl_dia_after_mm": { "type": "number", "unit": "mm", "default": 6.5, "description": "Final OD after roll-up", "tab": "Knurl" },
+          "knurl_length_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Knurl" }
+        },
+        "form": {
+          "method": { "type": "enum", "values": ["form_rolling", "cut_knurl_machine"], "default": "form_rolling", "description": "Form-rolling preferred — no chip", "tab": "Form" },
+          "infeed_force_N": { "type": "number", "unit": "N", "default": 800, "description": "Rolling force builds tooth", "tab": "Form" },
+          "rolls_per_pass": { "type": "integer", "default": 8, "description": "Material wraps before tooth fully formed", "tab": "Form" },
+          "stock_pre_knurl_mm": { "type": "number", "unit": "mm", "default": 0.15, "description": "Stock under final dia — material rolls UP", "tab": "Form" }
+        },
+        "strategy": {
+          "rpm": { "type": "number", "unit": "rpm", "default": 200, "description": "Slow — high force, low cutting", "tab": "Strategy" },
+          "feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.05, "tab": "Strategy" },
+          "withdraw_after_pass": { "type": "boolean", "default": true, "description": "Lift roller before retract", "tab": "Strategy" }
+        },
+        "output": {
+          "verify_pre_knurl_dia": { "type": "boolean", "default": true, "description": "Block if pre-stock too thin (incomplete tooth)", "tab": "Output" },
+          "warn_if_force_exceeds_machine": { "type": "boolean", "default": true, "tab": "Output" },
+          "tool_post": { "type": "enum", "values": ["gang_slide", "rotary_turret", "cross_slide"], "default": "cross_slide", "tab": "Output" },
+          "lubricant": { "type": "enum", "values": ["neat_oil", "tapping_paste", "coolant"], "default": "neat_oil", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Form Knurling vs Cut Knurling",
+      "key_concepts": ["Form rolling: no chip, material flows", "Pre-stock 0.15mm under final dia", "Slow RPM, high force"],
+      "best_practices": ["Verify pre-knurl OD with mic", "Use neat oil — coolant pollutes form", "Lift roller before Z retract"]
+    }
+  ]
+}

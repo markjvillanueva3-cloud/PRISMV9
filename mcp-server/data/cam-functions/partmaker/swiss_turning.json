@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "system_id": "partmaker",
+  "section_key": "swiss_turning",
+  "extraction_source": "Autodesk PartMaker SwissCAM Reference / Delcam SwissCAM training",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-22",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["sliding_headstock", "guide_bushing", "sub_spindle_pickoff", "screw_machine"]
+  },
+  "operations": {
+    "sliding_headstock": {
+      "display_name": "Sliding Headstock Turn",
+      "category": "sliding_headstock",
+      "description": "PartMaker flagship — Swiss sliding-headstock turn with Z-feed via headstock motion, X/Y from gang slide. Bar moves through guide bushing.",
+      "dialog_tabs": ["Bar", "Headstock", "Cut", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "bar": {
+          "bar_diameter_mm": { "type": "number", "unit": "mm", "default": 12.0, "description": "Stock bar diameter — typical Swiss range 1-32mm", "tab": "Bar", "required": true },
+          "bar_length_mm": { "type": "number", "unit": "mm", "default": 1500, "tab": "Bar" },
+          "remnant_length_mm": { "type": "number", "unit": "mm", "default": 200, "description": "Unmachinable bar end (typ. 6-8x bar dia)", "tab": "Bar" },
+          "stock_extend_per_part_mm": { "type": "number", "unit": "mm", "default": 25, "tab": "Bar" }
+        },
+        "headstock": {
+          "headstock_speed_mode": { "type": "enum", "values": ["constant_rpm", "css_g96", "synchronised_with_subspindle"], "default": "css_g96", "tab": "Headstock" },
+          "max_rpm": { "type": "number", "unit": "rpm", "default": 10000, "description": "Swiss-typical max — depends on machine spec", "tab": "Headstock" },
+          "headstock_z_feed": { "type": "number", "unit": "mm_per_rev", "default": 0.05, "description": "Feed via Z-motion of sliding headstock", "tab": "Headstock", "required": true },
+          "guide_bushing_clearance_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Bar-to-bushing radial clearance — affects vibration", "tab": "Headstock" }
+        },
+        "cut": {
+          "css_speed": { "type": "number", "unit": "m_per_min", "default": 200, "tab": "Cut" },
+          "doc_radial_mm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cut" },
+          "doc_axial_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Cut" },
+          "stock_to_remove": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Cut" }
+        },
+        "output": {
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" },
+          "channel_id": { "type": "enum", "values": ["main_$1", "main_$2", "sub_$3", "back_$4"], "default": "main_$1", "tab": "Output" },
+          "tool_post": { "type": "enum", "values": ["gang_slide", "rotary_turret", "back_turret", "cross_slide"], "default": "gang_slide", "tab": "Output" },
+          "warn_if_unsupported_length": { "type": "boolean", "default": true, "description": "Block if part overhangs >2.5x bar dia past bushing without sub-spindle", "tab": "Output" }
+        }
+      }
+    },
+    "guide_bushing": {
+      "display_name": "Guide Bushing Optimization",
+      "category": "guide_bushing",
+      "description": "Guide-bushing setup for chatter suppression. Bushing reduces effective overhang to ~0.5x dia, enables high-speed turning of long slender parts.",
+      "dialog_tabs": ["Bushing", "Material", "Lubrication", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "bushing": {
+          "bushing_type": { "type": "enum", "values": ["fixed_carbide", "rotating_carbide", "fixed_PCD", "no_bushing_mode"], "default": "rotating_carbide", "description": "Rotating bushing reduces bar-surface galling", "tab": "Bushing" },
+          "bushing_id_mm": { "type": "number", "unit": "mm", "default": 12.005, "description": "Bushing bore — typically bar_dia + 0.005-0.010mm", "tab": "Bushing" },
+          "bushing_runout_max_um": { "type": "number", "unit": "um", "default": 3.0, "description": "Total indicated runout — TIR < 5μm critical", "tab": "Bushing" },
+          "bushing_to_collet_dist_mm": { "type": "number", "unit": "mm", "default": 25, "tab": "Bushing" }
+        },
+        "material": {
+          "bushing_material": { "type": "enum", "values": ["tungsten_carbide", "PCD_diamond", "ceramic", "tool_steel"], "default": "tungsten_carbide", "tab": "Material" },
+          "bar_surface_finish_ra_um": { "type": "number", "unit": "um", "default": 0.4, "description": "Ground bar Ra ≤0.8μm required for bushing life", "tab": "Material" },
+          "bar_concentricity_um": { "type": "number", "unit": "um", "default": 5.0, "tab": "Material" }
+        },
+        "lubrication": {
+          "lube_type": { "type": "enum", "values": ["high_pressure_oil", "synthetic_coolant", "MQL_mist", "neat_cutting_oil"], "default": "neat_cutting_oil", "description": "Swiss prefers neat oil for guide bushing", "tab": "Lubrication" },
+          "lube_pressure_bar": { "type": "number", "unit": "bar", "default": 70.0, "description": "High-pressure to prevent chip wedging in bushing", "tab": "Lubrication" },
+          "flood_at_bushing": { "type": "boolean", "default": true, "tab": "Lubrication" }
+        },
+        "output": {
+          "warn_runout_exceeded": { "type": "boolean", "default": true, "description": "Block if measured TIR > runout_max_um", "tab": "Output" },
+          "auto_disable_for_short_parts": { "type": "boolean", "default": true, "description": "Skip bushing for parts < 3x dia (no benefit)", "tab": "Output" },
+          "bushing_change_after_pieces": { "type": "integer", "default": 5000, "description": "Bushing wear-replace interval", "tab": "Output" }
+        }
+      }
+    },
+    "sub_spindle_pickoff": {
+      "display_name": "Sub-Spindle Pick-Off",
+      "category": "sub_spindle_pickoff",
+      "description": "Mid-part pick-off transfer — sub-spindle grips part before parting, allowing back-side machining without re-fixturing.",
+      "dialog_tabs": ["Approach", "Sync", "Transfer", "Verify"],
+      "parameter_count": 15,
+      "parameters": {
+        "approach": {
+          "approach_distance_mm": { "type": "number", "unit": "mm", "default": 10.0, "tab": "Approach" },
+          "engagement_pressure_bar": { "type": "number", "unit": "bar", "default": 25.0, "description": "Sub-spindle collet pressure for pickoff", "tab": "Approach" },
+          "z_overlap_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Push past part end before clamp", "tab": "Approach" },
+          "approach_feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 500, "tab": "Approach" }
+        },
+        "sync": {
+          "rpm_match_tolerance": { "type": "number", "unit": "rpm", "default": 1.0, "description": "Strict tolerance for Swiss — both spindles ±1 RPM", "tab": "Sync" },
+          "phase_lock_required": { "type": "boolean", "default": false, "description": "Required for keyway/spline parts", "tab": "Sync" },
+          "phase_tolerance_arcsec": { "type": "number", "unit": "arcsec", "default": 60, "description": "Tighter than mill-turn — 60 arcsec ≈ 0.017°", "tab": "Sync" },
+          "sync_macro_name": { "type": "string", "default": "G140_SYNC", "description": "OEM-specific sync macro (Citizen, Star, Tornos)", "tab": "Sync" }
+        },
+        "transfer": {
+          "main_release_after_engage": { "type": "boolean", "default": true, "description": "Main collet releases AFTER sub clamps", "tab": "Transfer" },
+          "transfer_dwell_ms": { "type": "integer", "default": 200, "description": "Pause for clamp pressure stabilisation", "tab": "Transfer" },
+          "auto_part_off_after_transfer": { "type": "boolean", "default": true, "description": "Cut-off saw on main spindle", "tab": "Transfer" }
+        },
+        "verify": {
+          "torque_match_check": { "type": "boolean", "default": true, "tab": "Verify" },
+          "part_present_sensor": { "type": "boolean", "default": true, "description": "Verify part transferred — block on miss", "tab": "Verify" },
+          "pickoff_failure_action": { "type": "enum", "values": ["alarm_stop", "retry_3x", "scrap_chute"], "default": "alarm_stop", "tab": "Verify" },
+          "log_transfer_event": { "type": "boolean", "default": true, "tab": "Verify" }
+        }
+      }
+    },
+    "screw_machine": {
+      "display_name": "Screw Machine Mode",
+      "category": "screw_machine",
+      "description": "Cam-style screw-machine programming — minimal toolchange, dovetailed gang tooling, hi-volume small-part production.",
+      "dialog_tabs": ["Tooling", "Sequence", "Volume", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "tooling": {
+          "gang_tool_count": { "type": "integer", "default": 6, "description": "Tools mounted on gang slide simultaneously", "tab": "Tooling" },
+          "rotary_turret_stations": { "type": "integer", "default": 8, "tab": "Tooling" },
+          "back_tool_count": { "type": "integer", "default": 4, "description": "Sub-spindle-side tooling", "tab": "Tooling" },
+          "tool_change_time_s": { "type": "number", "unit": "s", "default": 0.3, "description": "Gang slide indexing — much faster than turret", "tab": "Tooling" }
+        },
+        "sequence": {
+          "max_concurrent_ops": { "type": "integer", "default": 2, "description": "Main + sub-spindle parallel ops", "tab": "Sequence" },
+          "balance_main_sub_load": { "type": "boolean", "default": true, "description": "Distribute work for cycle-time optimisation", "tab": "Sequence" },
+          "synchronise_at_pickoff": { "type": "boolean", "default": true, "tab": "Sequence" },
+          "deadlock_check_enabled": { "type": "boolean", "default": true, "tab": "Sequence" }
+        },
+        "volume": {
+          "expected_run_pieces": { "type": "integer", "default": 10000, "tab": "Volume" },
+          "bar_changes_per_run": { "type": "integer", "default": 50, "description": "Auto bar-feeder change events", "tab": "Volume" },
+          "uptime_target_pct": { "type": "number", "unit": "pct", "default": 92.0, "description": "Swiss machine uptime budget", "tab": "Volume" },
+          "operator_attendance": { "type": "enum", "values": ["lights_out", "1_per_4_machines", "attended"], "default": "1_per_4_machines", "tab": "Volume" }
+        },
+        "output": {
+          "minimise_toolchanges": { "type": "boolean", "default": true, "description": "Order ops to reduce gang slide moves", "tab": "Output" },
+          "compress_g_code": { "type": "boolean", "default": true, "description": "Subprograms for repeated patterns", "tab": "Output" },
+          "channel_balance_report": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Guide Bushing Mode",
+      "key_concepts": ["Reduces effective overhang", "Bushing wear is consumable", "Neat oil preferred over coolant"],
+      "best_practices": ["Verify bar TIR before run", "Match bushing to bar grade", "Replace bushing every 5000 pieces"]
+    }
+  ]
+}
