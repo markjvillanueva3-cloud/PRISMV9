@@ -205,6 +205,16 @@ function extractTopicSlug() {
     // Position file unavailable
   }
 
+  // 3. Fall back to current git branch last segment (work/cam-exhaust-ms0 -> cam-exhaust-ms0).
+  // Skips main/master/develop so chats on a default branch dont share one slug.
+  const branch = runGit(["symbolic-ref", "--short", "HEAD"]);
+  if (branch) {
+    const last = branch.split("/").pop();
+    if (last && last !== "main" && last !== "master" && last !== "develop") {
+      return last.toLowerCase();
+    }
+  }
+
   return null;
 }
 

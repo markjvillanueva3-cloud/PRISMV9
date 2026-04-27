@@ -34,7 +34,10 @@ STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
 node H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal "$STABLE"
 ```
 
-Canonical storage: `state/shared/handoffs/HANDOFF-<instance>.md` — one per chat. Precompact hook (`helpers/precompact-handoff.mjs`) writes automatically on `/compact`. `/startup` reads this chat's handoff via the helper.
+Canonical storage: `state/shared/handoffs/HANDOFF-<instance>-<topic>.md` — one per chat, **topic suffix mandatory**. Precompact hook (`helpers/precompact-handoff.mjs`) writes automatically on `/compact`. `/startup` reads this chat's handoff via the helper.
+
+### Topic naming (enforced by `enforce-handoff-topic.mjs` Stop hook)
+The topic is derived in this order: most-recent commit's `[SCOPE-MS#]` → `CURRENT_POSITION.md` milestone → last segment of git branch (`work/cam-exhaust-ms0` → `cam-exhaust-ms0`). The Stop hook renames any topicless `HANDOFF-<id>.md` → `HANDOFF-<id>-<topic>.md` so chats can never end a session with an ambiguous unsuffixed file. **Never bypass this hook**: a topicless handoff in a multi-chat run is the precursor to the silent-overwrite class of bug we already hit (see `RESUME_AT_WORK.md` §8). When writing handoffs by hand, always pass `--topic <slug>` to `per-agent-handoff.mjs write`.
 
 ## MCP DISPATCHERS (primary execution surface)
 PRISM exposes every capability as an MCP dispatcher action. Prefer these over inlining logic:
@@ -92,6 +95,16 @@ prismSelfAwarenessEngine.searchTribalKnowledge("thin wall") // → tips
 prismSelfAwarenessEngine.searchPlaybookRules("roughing")  // → rules
 prismSelfAwarenessEngine.recommendAIFeatures("build new engine") // → multi-agent strategy
 ```
+
+## WIKI PROTOCOL (Karpathy LLM-Wiki — see `WIKI_SCHEMA.md`)
+PRISM has a compounding markdown wiki at `H:/prism/knowledge/wiki/`. **Query it before re-deriving.**
+- `wiki/index.md` — 722-entry catalog (575 engines + 90 dispatchers + 57 memories), maintained by `WikiIndexMaintainerEngine`
+- `wiki/log.md` — chronological audit (`grep '^## \[' wiki/log.md | tail -10`)
+- `wiki/{concepts,entities,decisions,patterns,trajectories,lessons,code-tribal,architecture,software-engineering,ux-design}/`
+- **Ollama owns ≥70% of wiki maintenance** (summarize, suggest cross-refs, lint candidates, embed)
+- **Claude owns synthesis, contradiction resolution, schema evolution**
+- Multi-chat: all wiki writes acquire `prism_context:claim_file` lock; log entries carry `by:claude-{id}` attribution
+- Full protocol: `H:/prism/WIKI_SCHEMA.md` (3 layers · 3 ops · 2 index files · frontmatter spec · multi-chat rules · deprecation path)
 
 ## CREATIVE REASONING
 For complex problems, use cross-domain synthesis:
