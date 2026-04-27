@@ -24,6 +24,7 @@ import { exit } from "node:process";
 
 // Parse hook input from stdin
 let payload;
+if (process.stdin.isTTY) { exit(0); }
 try {
   payload = JSON.parse(readFileSync(0, "utf-8"));
 } catch {

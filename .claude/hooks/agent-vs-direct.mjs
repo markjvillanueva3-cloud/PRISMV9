@@ -7,7 +7,9 @@
 
 import { readFileSync } from 'fs';
 
-const input = JSON.parse(readFileSync(0, 'utf8'));
+if (process.stdin.isTTY) { console.log(JSON.stringify({continue:true})); process.exit(0); }
+let input;
+try { input = JSON.parse(readFileSync(0, 'utf8')); } catch { console.log(JSON.stringify({continue:true})); process.exit(0); }
 const { tool_name, tool_input } = input;
 
 if (tool_name !== 'Agent') {
