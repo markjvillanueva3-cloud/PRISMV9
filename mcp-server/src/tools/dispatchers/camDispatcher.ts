@@ -1618,6 +1618,12 @@ export const ACTIONS = [
     "topsolid_function_index_find_parameter", "topsolid_function_index_search_parameters",
     "topsolid_function_index_get_operations_by_category", "topsolid_function_index_get_summary",
     "topsolid_function_index_get_pmi_operations", "topsolid_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-14 — CAMWorks Function Index
+    "camworks_function_index_get", "camworks_function_index_list_sections",
+    "camworks_function_index_get_section", "camworks_function_index_list_operations",
+    "camworks_function_index_find_parameter", "camworks_function_index_search_parameters",
+    "camworks_function_index_get_operations_by_category", "camworks_function_index_get_summary",
+    "camworks_function_index_get_afr_operations", "camworks_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12476,6 +12482,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...TopSolidCAMFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-14 — CAMWorks Function Index (10 actions)
+          case "camworks_function_index_get": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            result = { success: true, index: CAMWorksFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "camworks_function_index_list_sections": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            result = { success: true, sections: CAMWorksFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "camworks_function_index_get_section": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: CAMWorksFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "camworks_function_index_list_operations": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            result = { success: true, operations: CAMWorksFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "camworks_function_index_find_parameter": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: CAMWorksFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "camworks_function_index_search_parameters": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: CAMWorksFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "camworks_function_index_get_operations_by_category": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: CAMWorksFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "camworks_function_index_get_summary": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            result = { success: true, ...CAMWorksFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "camworks_function_index_get_afr_operations": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            result = { success: true, operations: CAMWorksFunctionIndexEngine.getAFROperations() };
+            break;
+          }
+          case "camworks_function_index_get_operation": {
+            const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...CAMWorksFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "system_id": "camworks",
+  "section_key": "afr",
+  "extraction_source": "CAMWorks 2024 Reference / HCL Technologies / SolidWorks public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-14",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["afr", "feature_recognition", "interactive_features", "feature_management"]
+  },
+  "operations": {
+    "afr_extract": {
+      "display_name": "Automatic Feature Recognition",
+      "category": "afr",
+      "description": "CAMWorks signature — scan a SolidWorks part and auto-detect mill/turn/hole features (pockets, slots, bosses, holes, profiles, faces). Drives downstream tool/strategy selection from TechDB without manual feature tagging.",
+      "dialog_tabs": ["Source", "Detection", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "source": {
+          "sourceModel": { "type": "selection", "description": "Parent SolidWorks part", "tab": "Source", "required": true },
+          "modelType": { "type": "enum", "values": ["sldprt", "sldasm", "imported_step", "imported_iges"], "default": "sldprt", "tab": "Source" },
+          "associativeMode": { "type": "boolean", "default": true, "description": "Re-recognize on CAD change", "tab": "Source" }
+        },
+        "detection": {
+          "detectMillFeatures": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detectTurnFeatures": { "type": "boolean", "default": false, "tab": "Detection" },
+          "detectHoles": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detectThreads": { "type": "boolean", "default": true, "description": "Recognize threaded holes from cosmetic threads", "tab": "Detection" },
+          "minPocketDepth": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Detection" },
+          "minHoleDiameter": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Detection" },
+          "groupSimilar": { "type": "boolean", "default": true, "description": "Group holes with same diameter+depth into a pattern", "tab": "Detection" }
+        },
+        "output": {
+          "applyTechDB": { "type": "boolean", "default": true, "description": "Auto-assign tools/strategies from TechDB on detection", "tab": "Output" },
+          "saveFeatureTree": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnUnrecognized": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportFeatureSummary": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "interactive_feature": {
+      "display_name": "Interactive Feature",
+      "category": "interactive_features",
+      "description": "Manually define a feature when AFR doesn't pick it up — e.g., 5-axis pocket, complex multi-floor cavity, pattern not auto-detected. Falls back from AFR but keeps TechDB tool/strategy selection.",
+      "dialog_tabs": ["Type", "Geometry", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "type": {
+          "featureType": { "type": "enum", "values": ["pocket_2_5_axis", "pocket_multi_surface", "slot", "boss", "engrave", "face_feature", "perimeter_open", "curve_feature"], "tab": "Type", "required": true },
+          "openSides": { "type": "integer", "default": 0, "range": [0, 4], "description": "Open vs closed pocket sides", "tab": "Type" },
+          "manualSelection": { "type": "boolean", "default": true, "tab": "Type" }
+        },
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "drawSurface": { "type": "selection", "description": "Optional draft surface for tilted walls", "tab": "Geometry" },
+          "draftAngle": { "type": "number", "unit": "deg", "default": 0, "range": [0, 45], "tab": "Geometry" }
+        },
+        "strategy": {
+          "applyTechDB": { "type": "boolean", "default": true, "description": "Use TechDB rules for tool selection", "tab": "Strategy" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Strategy" },
+          "preferredTool": { "type": "tool_reference", "description": "Override TechDB tool", "tab": "Strategy" },
+          "preferredStrategy": { "type": "enum", "values": ["auto", "rough_then_finish", "finish_only", "rough_only"], "default": "auto", "tab": "Strategy" },
+          "respectFeatureColors": { "type": "boolean", "default": true, "description": "Use SolidWorks face colors as machining hints", "tab": "Strategy" }
+        }
+      }
+    },
+    "feature_classify": {
+      "display_name": "Feature Classification",
+      "category": "feature_recognition",
+      "description": "Classify each AFR-extracted feature by complexity (simple/complex/multi-axis), strategy family (rough/finish/probe), and machinability score. Drives toolpath order and machine selection.",
+      "dialog_tabs": ["Source", "Classification", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "source": {
+          "afrSource": { "type": "selection", "description": "AFR feature tree reference", "tab": "Source", "required": true }
+        },
+        "classification": {
+          "complexityModel": { "type": "enum", "values": ["geometric", "rule_based", "ml_classifier"], "default": "rule_based", "tab": "Classification" },
+          "machinabilityModel": { "type": "enum", "values": ["heuristic", "kienzle", "tribal_lookup"], "default": "heuristic", "tab": "Classification" },
+          "axisRequirementCheck": { "type": "boolean", "default": true, "description": "Detect features requiring 3+2 / full 5-axis", "tab": "Classification" },
+          "fixturabilityCheck": { "type": "boolean", "default": true, "description": "Detect features requiring multiple setups", "tab": "Classification" }
+        },
+        "output": {
+          "groupByStrategy": { "type": "boolean", "default": true, "tab": "Output" },
+          "rankByDepth": { "type": "boolean", "default": true, "tab": "Output" },
+          "rankByDiameter": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportClassificationReport": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnOnUnclassifiable": { "type": "boolean", "default": true, "tab": "Output" },
+          "minScore": { "type": "number", "default": 0.3, "range": [0, 1], "description": "Below this confidence, mark as 'unclassified'", "tab": "Output" },
+          "respectUserOverrides": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "feature_groups": {
+      "display_name": "Feature Group Manager",
+      "category": "feature_management",
+      "description": "Group recognized features into machining sequences. Supports custom user groupings and CAMWorks's automatic grouping by tool, by Z-level, by setup direction.",
+      "dialog_tabs": ["Source", "Grouping", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "source": {
+          "afrSource": { "type": "selection", "description": "AFR feature tree reference", "tab": "Source", "required": true }
+        },
+        "grouping": {
+          "groupingMode": { "type": "enum", "values": ["by_tool", "by_z_level", "by_setup_direction", "by_strategy", "by_feature_type", "manual"], "default": "by_tool", "tab": "Grouping", "required": true },
+          "minGroupSize": { "type": "integer", "default": 2, "range": [1, 50], "tab": "Grouping" },
+          "splitLargeGroups": { "type": "boolean", "default": true, "tab": "Grouping" },
+          "maxGroupSize": { "type": "integer", "default": 30, "range": [5, 100], "tab": "Grouping" },
+          "respectFixturing": { "type": "boolean", "default": true, "description": "Don't merge across fixture rotations", "tab": "Grouping" },
+          "respectThermalGroups": { "type": "boolean", "default": false, "description": "Group ops to balance heat input", "tab": "Grouping" }
+        },
+        "output": {
+          "machiningOrder": { "type": "enum", "values": ["roughing_first", "by_depth", "by_diameter_descending", "user_specified"], "default": "roughing_first", "tab": "Output" },
+          "withinGroupOrder": { "type": "enum", "values": ["nearest_neighbor", "by_z_descending", "by_diameter"], "default": "nearest_neighbor", "tab": "Output" },
+          "writeOperationList": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "validateNoCollision": { "type": "boolean", "default": true, "tab": "Output" },
+          "validateToolReach": { "type": "boolean", "default": true, "tab": "Output" },
+          "validateFixtureClearance": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportToErpAfterValidation": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "AFR + TechDB workflow",
+      "key_concepts": ["automatic feature recognition", "technology database", "interactive override", "feature classification"],
+      "best_practices": [
+        "Always run AFR first — TechDB rules are the productivity multiplier",
+        "Use Interactive Feature for anything AFR misses; never edit TechDB outputs directly",
+        "Validate against tribal lookup whenever the machinability model returns < 0.5 confidence",
+        "Group features by tool first; only re-group by Z-level for deep cavities"
+      ]
+    }
+  ]
+}

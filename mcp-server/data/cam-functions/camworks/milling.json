@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "system_id": "camworks",
+  "section_key": "milling",
+  "extraction_source": "CAMWorks 2024 Mill Reference / HCL Technologies / SolidWorks public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-14",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 76,
+    "categories": ["roughing", "finishing", "high_efficiency", "drilling"]
+  },
+  "operations": {
+    "vomill_rough": {
+      "display_name": "VoluMill Roughing",
+      "category": "high_efficiency",
+      "description": "CAMWorks's VoluMill (licensed Celeritive) high-speed adaptive clearing. Constant tool engagement with morphing arcs in narrow regions. Aggressive DOC, reduced WOC, feed boost.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Engagement", "Smoothing", "Linking"],
+      "parameter_count": 18,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "boundaryOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 8.0, "range": [0.1, 200], "tab": "Levels" }
+        },
+        "engagement": {
+          "tea": { "type": "number", "unit": "deg", "default": 30, "range": [5, 90], "tab": "Engagement", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 8, "range": [3, 25], "tab": "Engagement" },
+          "minChipThickness": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Engagement" }
+        },
+        "smoothing": {
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Smoothing" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Smoothing" },
+          "feedRateBoost": { "type": "boolean", "default": true, "tab": "Smoothing" },
+          "boostFactor": { "type": "number", "default": 2.0, "range": [1, 5], "tab": "Smoothing" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Linking" },
+          "restMachining": { "type": "boolean", "default": true, "tab": "Linking" }
+        }
+      }
+    },
+    "rough_mill": {
+      "display_name": "Rough Mill",
+      "category": "roughing",
+      "description": "Conventional pocket roughing with selectable pattern (offset / parallel / spiral). Driven by AFR-recognized features.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Stepover", "Entry"],
+      "parameter_count": 14,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "islandSelection": { "type": "selection", "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true }
+        },
+        "stepover": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Stepover", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "range": [5, 95], "tab": "Stepover" },
+          "patternType": { "type": "enum", "values": ["offset", "parallel", "spiral", "zigzag"], "default": "offset", "tab": "Stepover" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Stepover" }
+        },
+        "entry": {
+          "entryMethod": { "type": "enum", "values": ["plunge", "ramp", "helix", "predrill"], "default": "helix", "tab": "Entry" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 5, "tab": "Entry" },
+          "helixDiameter": { "type": "number", "unit": "percent", "default": 60, "tab": "Entry" },
+          "predrillTool": { "type": "tool_reference", "tab": "Entry" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Entry" }
+        }
+      }
+    },
+    "contour_mill": {
+      "display_name": "Contour Mill",
+      "category": "finishing",
+      "description": "2D contour finishing with cutter compensation. AFR-driven boundary detection.",
+      "dialog_tabs": ["Profile", "Levels", "Lead", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "profile": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-2, 2], "tab": "Profile" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" },
+          "side": { "type": "enum", "values": ["left", "right", "center"], "default": "right", "tab": "Profile" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Levels" }
+        },
+        "lead": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Lead" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "overlap": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Lead" }
+        },
+        "cycle": {
+          "compensationOutput": { "type": "enum", "values": ["computer", "control", "wear"], "default": "computer", "tab": "Cycle" },
+          "springPasses": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Cycle" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cycle" }
+        }
+      }
+    },
+    "area_clearance": {
+      "display_name": "Area Clearance",
+      "category": "roughing",
+      "description": "Multi-feature area clearance — clears multiple AFR pockets in a single operation by tool-grouping. Reduces tool changes for batch milling.",
+      "dialog_tabs": ["Features", "Strategy", "Linking"],
+      "parameter_count": 15,
+      "parameters": {
+        "features": {
+          "featureGroup": { "type": "selection", "description": "AFR feature group reference", "tab": "Features", "required": true },
+          "minPocketSize": { "type": "number", "unit": "mm", "default": 5, "tab": "Features" },
+          "skipNarrowFeatures": { "type": "boolean", "default": true, "tab": "Features" }
+        },
+        "strategy": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "tab": "Strategy" },
+          "patternType": { "type": "enum", "values": ["offset", "parallel", "spiral"], "default": "offset", "tab": "Strategy" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["depth_first", "feature_first", "tool_first"], "default": "tool_first", "tab": "Strategy" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "feedReductionAtTransitions": { "type": "boolean", "default": true, "tab": "Linking" },
+          "transitionFeedFactor": { "type": "number", "default": 0.5, "range": [0.1, 1], "tab": "Linking" }
+        }
+      }
+    },
+    "drill_cycle": {
+      "display_name": "Drill Cycle",
+      "category": "drilling",
+      "description": "Standard hole-making cycle with G81/G82/G83/G84/G85 selection. AFR-driven hole grouping by diameter and depth.",
+      "dialog_tabs": ["Holes", "Cycle"],
+      "parameter_count": 16,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "description": "AFR hole feature group", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "groupByDiameter": { "type": "boolean", "default": true, "tab": "Holes" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83", "G84", "G85", "G73"], "default": "G81", "tab": "Cycle" },
+          "clearance": { "type": "number", "unit": "mm", "default": 5, "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2, "tab": "Cycle" },
+          "dwell": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 3, "tab": "Cycle" },
+          "peckReduction": { "type": "number", "unit": "percent", "default": 0, "range": [0, 50], "tab": "Cycle" },
+          "minPeck": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "feedRetract": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "tipBreakthrough": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Cycle" },
+          "rigidTap": { "type": "boolean", "default": true, "description": "G84 rigid sync (auto-applied for tap cycles)", "tab": "Cycle" },
+          "spindleReverseDwell": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "AFR + TechDB-driven mill",
+      "key_concepts": ["VoluMill licensing", "feature group grouping", "tool grouping order"],
+      "best_practices": [
+        "Use Area Clearance for parts with many similar pockets — saves tool changes",
+        "Tool-first grouping is the default — only override for very deep cavities",
+        "VoluMill is licensed separately — verify before promising it in a quote"
+      ]
+    }
+  ]
+}

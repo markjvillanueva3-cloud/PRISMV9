@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "system_id": "camworks",
+  "section_key": "turning",
+  "extraction_source": "CAMWorks 2024 Turn Reference / HCL Technologies / SolidWorks public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-14",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["roughing", "finishing", "grooving", "threading"]
+  },
+  "operations": {
+    "rough_turn": {
+      "display_name": "Rough Turn",
+      "category": "roughing",
+      "description": "AFR-driven OD/ID rough turning with G71/G72/G73 cycle output. Pattern recognition handles shoulders and undercuts.",
+      "dialog_tabs": ["Tool", "Profile", "Stepover", "Cycle"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "maxDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Profile" },
+          "axialStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "stepover": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 2.0, "range": [0.1, 20], "tab": "Stepover", "required": true },
+          "passes": { "type": "integer", "default": 0, "tab": "Stepover" },
+          "direction": { "type": "enum", "values": ["axial", "radial", "contour"], "default": "axial", "tab": "Stepover" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G71", "G72", "G73", "long_form"], "default": "G71", "tab": "Cycle" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "retractMode": { "type": "enum", "values": ["clearance", "stock", "shortest"], "default": "clearance", "tab": "Cycle" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Cycle" }
+        }
+      }
+    },
+    "finish_turn": {
+      "display_name": "Finish Turn",
+      "category": "finishing",
+      "description": "G70 finish turning. AFR profile detection. Spring-pass option.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 11,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["right_to_left", "left_to_right"], "default": "right_to_left", "tab": "Strategy" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "leadOutDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "springPass": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "cycleType": { "type": "enum", "values": ["G70", "long_form"], "default": "G70", "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 5000, "tab": "Strategy" }
+        }
+      }
+    },
+    "groove_turn": {
+      "display_name": "Groove Turn",
+      "category": "grooving",
+      "description": "Plunge grooving with AFR-detected groove features. Optional peck and side cleanup.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "profile": {
+          "centerZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "outerDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "rootDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "width": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "leftSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rightSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rootStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "strategy": {
+          "plungeOverlap": { "type": "number", "unit": "percent", "default": 80, "range": [10, 100], "tab": "Strategy" },
+          "depthIncrement": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "peck": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "peckRetract": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "dwellAtRoot": { "type": "number", "unit": "s", "default": 0.2, "tab": "Strategy" },
+          "groovePattern": { "type": "enum", "values": ["plunge", "step", "spiral"], "default": "step", "tab": "Strategy" },
+          "finishPass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "thread_turn": {
+      "display_name": "Thread Turn",
+      "category": "threading",
+      "description": "G76 single-point threading. AFR thread detection from cosmetic threads in SolidWorks.",
+      "dialog_tabs": ["Tool", "Thread", "Passes"],
+      "parameter_count": 14,
+      "parameters": {
+        "thread": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "starts": { "type": "integer", "default": 1, "range": [1, 8], "tab": "Thread" },
+          "internal": { "type": "boolean", "default": false, "tab": "Thread" }
+        },
+        "passes": {
+          "infeedType": { "type": "enum", "values": ["radial", "modified_flank", "alternating", "full_flank"], "default": "modified_flank", "tab": "Passes" },
+          "infeedAngle": { "type": "number", "unit": "deg", "default": 29.5, "range": [0, 30], "tab": "Passes" },
+          "firstCutDepth": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Passes" },
+          "minCutDepth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Passes" },
+          "passes": { "type": "integer", "default": 0, "tab": "Passes" },
+          "springPasses": { "type": "integer", "default": 1, "range": [0, 5], "tab": "Passes" },
+          "cycleType": { "type": "enum", "values": ["G76", "G33", "G92", "long_form"], "default": "G76", "tab": "Passes" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 3, "tab": "Passes" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "CAMWorks turning workflow",
+      "key_concepts": ["AFR cosmetic threads", "TechDB chipbreaker rules", "G70/G71 selection"],
+      "best_practices": [
+        "Always tag cosmetic threads in SolidWorks before AFR — ensures correct thread detection",
+        "TechDB picks chipbreakers automatically — review for thin walls and stainless",
+        "Use G70 for finish — keeps program compact and aligns with most controllers"
+      ]
+    }
+  ]
+}

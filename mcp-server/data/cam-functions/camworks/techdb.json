@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "system_id": "camworks",
+  "section_key": "techdb",
+  "extraction_source": "CAMWorks 2024 TechDB Reference / HCL Technologies / SolidWorks public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-14",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["techdb", "rules", "tool_selection", "post_management"]
+  },
+  "operations": {
+    "techdb_rule_create": {
+      "display_name": "TechDB Rule Create",
+      "category": "rules",
+      "description": "Create a TechDB rule that maps {feature class, material, tolerance, surface finish} → {tool, strategy, feed/speed/DOC}. Drives AFR-to-toolpath automation.",
+      "dialog_tabs": ["Match", "Action", "Validation"],
+      "parameter_count": 17,
+      "parameters": {
+        "match": {
+          "featureClass": { "type": "enum", "values": ["pocket_2_5_axis", "pocket_open", "boss", "slot", "hole", "hole_threaded", "profile", "face", "groove", "thread"], "tab": "Match", "required": true },
+          "material": { "type": "string", "description": "Material designation (P/M/K/N/S/H or AISI/DIN spec)", "tab": "Match", "required": true },
+          "minDepth": { "type": "number", "unit": "mm", "default": 0, "tab": "Match" },
+          "maxDepth": { "type": "number", "unit": "mm", "default": 1000, "tab": "Match" },
+          "minDiameter": { "type": "number", "unit": "mm", "default": 0, "tab": "Match" },
+          "maxDiameter": { "type": "number", "unit": "mm", "default": 1000, "tab": "Match" },
+          "toleranceClass": { "type": "enum", "values": ["it6", "it7", "it8", "it9", "it10", "general"], "default": "general", "tab": "Match" },
+          "surfaceFinishMaxRa": { "type": "number", "unit": "um", "default": 3.2, "tab": "Match" }
+        },
+        "action": {
+          "tool": { "type": "tool_reference", "description": "Tool to assign", "tab": "Action", "required": true },
+          "strategy": { "type": "enum", "values": ["volumill_rough", "rough_mill", "contour_finish", "scallop_finish", "z_level_finish"], "tab": "Action", "required": true },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Action" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Action" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Action" },
+          "stepdown": { "type": "number", "unit": "mm", "tab": "Action" },
+          "stepover": { "type": "number", "unit": "mm", "tab": "Action" }
+        },
+        "validation": {
+          "validateAgainstSafety": { "type": "boolean", "default": true, "description": "Reject rule if S(x) < 0.70", "tab": "Validation" },
+          "validateAgainstTribal": { "type": "boolean", "default": true, "description": "Verify rule aligns with tribal knowledge", "tab": "Validation" }
+        }
+      }
+    },
+    "techdb_rule_query": {
+      "display_name": "TechDB Rule Query",
+      "category": "rules",
+      "description": "Look up the best TechDB rule for a {feature, material, tolerance, finish} combination. Returns ranked candidates by historical success rate.",
+      "dialog_tabs": ["Query", "Ranking", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "query": {
+          "featureClass": { "type": "enum", "values": ["pocket_2_5_axis", "pocket_open", "boss", "slot", "hole", "profile", "face", "groove", "thread"], "tab": "Query", "required": true },
+          "material": { "type": "string", "tab": "Query", "required": true },
+          "depth": { "type": "number", "unit": "mm", "tab": "Query" },
+          "diameter": { "type": "number", "unit": "mm", "tab": "Query" },
+          "toleranceClass": { "type": "string", "tab": "Query" },
+          "surfaceFinishMaxRa": { "type": "number", "unit": "um", "tab": "Query" }
+        },
+        "ranking": {
+          "rankBy": { "type": "enum", "values": ["historical_success", "cycle_time", "cost", "tool_life"], "default": "historical_success", "tab": "Ranking" },
+          "minHistoricalRuns": { "type": "integer", "default": 5, "description": "Skip rules with fewer than N data points", "tab": "Ranking" }
+        },
+        "output": {
+          "topK": { "type": "integer", "default": 3, "range": [1, 50], "tab": "Output" },
+          "explainRanking": { "type": "boolean", "default": true, "tab": "Output" },
+          "includeSafetyScore": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnNoMatch": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "tool_selection": {
+      "display_name": "Tool Selection",
+      "category": "tool_selection",
+      "description": "Select the optimal tool for a feature using TechDB rules + tool crib availability. Considers reach, holder collision, run-out budget.",
+      "dialog_tabs": ["Feature", "Crib", "Constraints", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "feature": {
+          "featureRef": { "type": "selection", "tab": "Feature", "required": true },
+          "minToolReach": { "type": "number", "unit": "mm", "default": 0, "tab": "Feature" }
+        },
+        "crib": {
+          "cribRef": { "type": "selection", "description": "Tool crib reference", "tab": "Crib", "required": true },
+          "preferOnMachine": { "type": "boolean", "default": true, "description": "Pick a tool already in the magazine", "tab": "Crib" },
+          "allowSubstitutions": { "type": "boolean", "default": true, "description": "Pick alternate tool with similar geometry", "tab": "Crib" }
+        },
+        "constraints": {
+          "checkHolderCollision": { "type": "boolean", "default": true, "tab": "Constraints" },
+          "shellThickness": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Constraints" },
+          "checkAxisLimits": { "type": "boolean", "default": true, "tab": "Constraints" },
+          "checkSpindleTorque": { "type": "boolean", "default": true, "tab": "Constraints" },
+          "spindleTorqueMargin": { "type": "number", "default": 0.7, "range": [0.3, 0.95], "description": "Torque headroom factor", "tab": "Constraints" },
+          "checkDeflection": { "type": "boolean", "default": true, "tab": "Constraints" },
+          "deflectionLimit": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Constraints" }
+        },
+        "output": {
+          "topK": { "type": "integer", "default": 3, "range": [1, 20], "tab": "Output" },
+          "explainPick": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnNoFit": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "post_management": {
+      "display_name": "Post-Processor Management",
+      "category": "post_management",
+      "description": "Select and configure the CAMWorks post-processor for a target controller. CAMWorks ships UPG (Universal Post Generator) and CWPost engines.",
+      "dialog_tabs": ["Post", "Controller", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "post": {
+          "postFile": { "type": "string", "description": "Path to .ctl post file", "tab": "Post", "required": true },
+          "postEngine": { "type": "enum", "values": ["upg", "cwpost", "legacy"], "default": "cwpost", "tab": "Post" },
+          "postVersion": { "type": "string", "description": "Post-processor version stamp", "tab": "Post" }
+        },
+        "controller": {
+          "controllerFamily": { "type": "enum", "values": ["fanuc", "siemens", "okuma", "haas", "mazak", "heidenhain"], "tab": "Controller", "required": true },
+          "controllerSubFamily": { "type": "string", "description": "e.g., 0iMD, 31i, 840D, OSP-P300", "tab": "Controller" },
+          "outputUnits": { "type": "enum", "values": ["metric", "imperial"], "default": "metric", "tab": "Controller" },
+          "decimalPlaces": { "type": "integer", "default": 4, "range": [2, 6], "tab": "Controller" }
+        },
+        "output": {
+          "outputPath": { "type": "string", "tab": "Output", "required": true },
+          "writeListing": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeToolList": { "type": "boolean", "default": true, "tab": "Output" },
+          "verifyFirstBlock": { "type": "boolean", "default": true, "description": "G91 G28 Z0 sanity check", "tab": "Output" },
+          "verifyToolChanges": { "type": "boolean", "default": true, "tab": "Output" },
+          "verifyEnd": { "type": "boolean", "default": true, "description": "M30 / M02 present", "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportReport": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "TechDB rule discipline",
+      "key_concepts": ["match keys", "action keys", "historical success ranking", "tribal validation"],
+      "best_practices": [
+        "Match keys must be specific — vague rules cause misroutes",
+        "Always validate new rules against tribal knowledge before promoting to production",
+        "Historical success ranking needs ≥ 5 runs — bootstrap with tribal knowledge for new rules",
+        "Tool selection should always check spindle torque + deflection — not just reach"
+      ]
+    }
+  ]
+}
