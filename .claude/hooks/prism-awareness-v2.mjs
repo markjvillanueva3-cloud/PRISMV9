@@ -31,6 +31,7 @@
  *   }
  */
 
+import { shouldSkipHook as _hp_shouldSkip } from "../helpers/hook-profile.mjs";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
@@ -261,6 +262,7 @@ function buildInjection(data, intent) {
 // Main
 // -----------------------------------------------------------------------
 async function main() {
+  if (_hp_shouldSkip("prism-awareness-v2")) { console.log(JSON.stringify({ continue: true })); return; }
   const input = await readStdin();
   // Detect event type from input or default to SessionStart (how it's wired)
   const eventType = input.event || input.eventType || input.hookType || "SessionStart";

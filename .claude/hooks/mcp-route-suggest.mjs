@@ -8,6 +8,7 @@
  * Falls back to regex-based suggestions when Ollama unavailable.
  */
 
+import { shouldSkipHook as _hp_shouldSkip } from "../helpers/hook-profile.mjs";
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -148,6 +149,7 @@ What's the best MCP action to use instead? Reply with just: dispatcher:action â€
 }
 
 async function main() {
+  if (_hp_shouldSkip("mcp-route-suggest")) { console.log(JSON.stringify({ continue: true })); return; }
   const input = await readStdin();
   const toolName = input.tool_name || input.toolName || "";
   const toolInput = input.tool_input || input.input || {};

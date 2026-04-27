@@ -16,6 +16,7 @@
  *   src/physics/*.ts     → Physics pattern (constants import, citations)
  */
 
+import { shouldSkipHook as _hp_shouldSkip } from "../helpers/hook-profile.mjs";
 import * as path from "path";
 
 const PATTERNS = {
@@ -73,6 +74,7 @@ function detectPattern(filePath) {
 }
 
 async function main() {
+  if (_hp_shouldSkip("coding-pattern-hint")) { console.log(JSON.stringify({ continue: true })); return; }
   const input = await readStdin();
   const toolName = input.tool_name || input.toolName || "";
   const toolInput = input.tool_input || input.input || {};

@@ -9,6 +9,7 @@
  * Rate-limited per-session to once per 90 seconds.
  */
 
+import { shouldSkipHook as _hp_shouldSkip } from "../helpers/hook-profile.mjs";
 import * as fs from "node:fs";
 import {
   getSessionId, getTranscriptTokens, readStdinJson,
@@ -22,6 +23,7 @@ const WARN_UTIL = 0.85;
 const CRIT_UTIL = 0.92;
 
 async function main() {
+  if (_hp_shouldSkip("pretool-context-forecast")) { console.log(JSON.stringify({ continue: true })); return; }
   const killer = setTimeout(() => {
     console.log(JSON.stringify({ continue: true }));
     process.exit(0);

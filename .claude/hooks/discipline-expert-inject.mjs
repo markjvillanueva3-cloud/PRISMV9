@@ -22,6 +22,7 @@
  * = 600 tokens on every prompt without limiting, which dominated session
  * context in long iterative builds.
  */
+import { shouldSkipHook as _hp_shouldSkip } from "../helpers/hook-profile.mjs";
 import fs from "node:fs";
 import { join as _rateJoin, dirname as _rateDirname } from "node:path";
 import _rateOs from "node:os";
@@ -963,6 +964,7 @@ function formatExpertise(discipline) {
 // ============================================================================
 
 async function main() {
+  if (_hp_shouldSkip("discipline-expert-inject")) { console.log(JSON.stringify({ continue: true })); return; }
   const input = readStdinSafe();
   let payload;
   try {
