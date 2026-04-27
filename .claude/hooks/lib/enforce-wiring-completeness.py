@@ -126,12 +126,11 @@ def main():
             f"Wire engines to ALL consumers, not just the first one you find. "
             f"A force engine goes in EVERY pipeline. A tool selector serves ALL machine types."
         )
+        # PreCompact does not accept hookSpecificOutput in the harness schema.
+        # systemMessage at the top level is the supported channel.
         print(json.dumps({
-            "systemMessage": msg,
-            "hookSpecificOutput": {
-                "hookEventName": "PreCompact",
-                "additionalContext": msg
-            }
+            "continue": True,
+            "systemMessage": msg
         }))
     else:
         print(json.dumps({"continue": True}))

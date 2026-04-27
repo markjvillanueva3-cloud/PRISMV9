@@ -126,11 +126,12 @@ def main():
             f"Consider investigating formula accuracy before next session. "
             f"Modified files: {', '.join(files_modified[:5])}."
         )
+        # PreCompact does not accept hookSpecificOutput in the harness schema
+        # (rejected with "Hook JSON output validation failed"). Use top-level
+        # systemMessage instead — it surfaces in the /compact UI.
         print(json.dumps({
-            "hookSpecificOutput": {
-                "hookEventName": "PreCompact",
-                "additionalContext": msg
-            }
+            "continue": True,
+            "systemMessage": msg
         }))
         return
 
