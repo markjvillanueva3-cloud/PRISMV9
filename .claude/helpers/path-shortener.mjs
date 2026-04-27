@@ -71,7 +71,7 @@ function shortenPaths(text) {
   return result;
 }
 
-function main() {
+async function main() {
   const output = collectOutputText();
 
   // Only process if output has paths and is substantial

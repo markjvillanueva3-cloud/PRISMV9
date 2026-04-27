@@ -15,7 +15,7 @@ function collectOutput() {
   return entries.map(([, v]) => v).join("\n");
 }
 
-function main() {
+async function main() {
   const cmd = process.env.TOOL_INPUT_command ?? "";
   const success = (process.env.TOOL_SUCCESS ?? "false") === "true";
 

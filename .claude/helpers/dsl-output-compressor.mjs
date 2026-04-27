@@ -84,7 +84,7 @@ function collectOutputText() {
   return parts.join("\n");
 }
 
-function main() {
+async function main() {
   const output = collectOutputText();
 
   if (output.length < MIN_COMPRESS_LENGTH) {

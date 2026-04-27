@@ -17,7 +17,7 @@ async function main() {
 
   try {
     if (!fs.existsSync(LOCK_DIR)) {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true }));
       return;
     }
 
@@ -46,10 +46,10 @@ async function main() {
         message: `Released ${heldLocks.length} session locks on exit`
       }));
     } else {
-      console.log(JSON.stringify({ result: "pass" }));
+      console.log(JSON.stringify({ continue: true }));
     }
   } catch {
-    console.log(JSON.stringify({ result: "pass" }));
+    console.log(JSON.stringify({ continue: true }));
   }
 }
 

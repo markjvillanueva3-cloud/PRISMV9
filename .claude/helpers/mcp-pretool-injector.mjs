@@ -115,7 +115,7 @@ function getActionCategory(action) {
   return null;
 }
 
-function main() {
+async function main() {
   const toolName = process.env.TOOL_NAME || "";
   const action = process.env.TOOL_INPUT_action || "";
 

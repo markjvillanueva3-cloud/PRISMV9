@@ -151,7 +151,7 @@ function condenseGitDiff(output) {
   return `GIT DIFF (condensed): ${files.length} files, +${totalAdd}/-${totalDel} lines\n${condensed}${files.length > 15 ? `\n... and ${files.length - 15} more files` : ""}`;
 }
 
-function main() {
+async function main() {
   const toolInput = stdinInput.tool_input || {};
   const command = toolInput.command || process.env.TOOL_INPUT_command || "";
   const output = collectOutputText();

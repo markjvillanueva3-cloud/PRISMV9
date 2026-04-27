@@ -92,7 +92,7 @@ function extractSummary(output) {
   return summary;
 }
 
-function main() {
+async function main() {
   const toolInput = stdinInput.tool_input || {};
   const command = toolInput.command || process.env.TOOL_INPUT_command || "";
   const output = collectOutputText();

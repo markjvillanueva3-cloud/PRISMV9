@@ -30,7 +30,7 @@ try {
   if (stdin) stdinInput = JSON.parse(stdin);
 } catch { /* No stdin */ }
 
-function main() {
+async function main() {
   const toolInput = stdinInput.tool_input || {};
   const command = (toolInput.command || process.env.TOOL_INPUT_command || "").trim();
 

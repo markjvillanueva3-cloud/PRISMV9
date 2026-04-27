@@ -50,7 +50,7 @@ function collectOutputText() {
   return parts.join("\n");
 }
 
-function main() {
+async function main() {
   const toolInput = stdinInput.tool_input || {};
   const toolName = stdinInput.tool_name || process.env.TOOL_NAME || "";
   const filePath = toolInput.file_path || process.env.TOOL_INPUT_file_path || "";

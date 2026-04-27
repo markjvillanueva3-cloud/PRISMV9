@@ -103,13 +103,18 @@ const dir = dirname(STATE_PATH);
 if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 writeFileSync(STATE_PATH, JSON.stringify(state, null, 2));
 
-// Build response — only surface waste alerts as hints
-const output = { continue: true };
+// PostToolUse must use hookSpecificOutput.additionalContext for the harness
+// to accept the message; bare `message` is rejected with "unknown top-level key"
+// and the alert is silently dropped.
 const recentAlerts = state.waste_alerts.filter(
   a => Date.now() - new Date(a.timestamp).getTime() < 60000
 );
+const output = { continue: true };
 if (recentAlerts.length > 0) {
-  output.message = `Token economy: ${recentAlerts.map(a => a.message).join('; ')}`;
+  output.hookSpecificOutput = {
+    hookEventName: "PostToolUse",
+    additionalContext: `Token economy: ${recentAlerts.map(a => a.message).join('; ')}`,
+  };
 }
 
 console.log(JSON.stringify(output));
