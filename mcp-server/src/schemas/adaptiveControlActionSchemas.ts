@@ -212,6 +212,98 @@ const calibration_model_select = z.object({
 }).passthrough();
 
 // ============================================================================
+// adaptive_chatter_analyze — AdaptiveChatterEngine.analyze (ENGINE-WIRE-MS0)
+// ============================================================================
+
+const adaptive_chatter_analyze = z.object({
+  spindleSpeed: z.number().describe("Spindle speed RPM"),
+  feedRate: z.number().describe("Feed rate mm/min"),
+  depthOfCut: z.number().describe("Depth of cut mm"),
+  toolDiameter: z.number().describe("Tool diameter mm"),
+  toolStickout: z.number().describe("Tool stickout mm"),
+  fluteCount: z.number().int().describe("Number of flutes"),
+  vibrationAmplitude: z.number().describe("Measured vibration amplitude um"),
+  vibrationFrequency: z.number().describe("Measured vibration frequency Hz"),
+  toothPassFrequency: z.number().optional(),
+  naturalFrequency: z.number().optional(),
+  dampingRatio: z.number().optional(),
+}).passthrough();
+
+// ============================================================================
+// adaptive_chipload_analyze — AdaptiveChiploadEngine.analyze
+// ============================================================================
+
+const adaptive_chipload_analyze = z.object({
+  currentFeedRate: z.number().describe("Current feed rate mm/min"),
+  currentSpindleSpeed: z.number().describe("Current spindle speed RPM"),
+  toolDiameter: z.number().describe("Tool diameter mm"),
+  fluteCount: z.number().int().describe("Number of flutes"),
+  targetChipload: z.number().describe("Target chipload mm/tooth"),
+  minChipload: z.number().describe("Minimum chipload mm/tooth"),
+  maxChipload: z.number().describe("Maximum chipload mm/tooth"),
+  materialHardness: z.number().optional(),
+  toolMaterial: z.enum(["hss", "carbide", "ceramic", "cbn", "pcd"]).optional(),
+}).passthrough();
+
+// ============================================================================
+// adaptive_override_calc — AdaptiveOverrideEngine.calculate
+// ============================================================================
+
+const adaptive_override_calc = z.object({
+  baseSpindleSpeed: z.number().describe("Base spindle speed RPM"),
+  baseFeedRate: z.number().describe("Base feed rate mm/min"),
+  currentOverrideFeed: z.number().optional().describe("Current feed override percent"),
+  currentOverrideSpeed: z.number().optional().describe("Current speed override percent"),
+  chiploadRecommendation: z.record(z.string(), z.number()).optional(),
+  chatterRecommendation: z.record(z.string(), z.number()).optional(),
+  wearRecommendation: z.record(z.string(), z.number()).optional(),
+  thermalRecommendation: z.record(z.string(), z.number()).optional(),
+  operatorOverride: z.number().optional(),
+  mode: z.enum(["conservative", "balanced", "aggressive"]).optional(),
+  maxFeedOverride: z.number().optional(),
+  minFeedOverride: z.number().optional(),
+  maxSpeedOverride: z.number().optional(),
+  minSpeedOverride: z.number().optional(),
+}).passthrough();
+
+// ============================================================================
+// adaptive_thermal_analyze — AdaptiveThermalEngine.analyze
+// ============================================================================
+
+const adaptive_thermal_analyze = z.object({
+  cuttingSpeed: z.number().describe("Cutting speed m/min"),
+  feedRate: z.number().describe("Feed rate mm/min"),
+  depthOfCut: z.number().describe("Depth of cut mm"),
+  toolMaterial: z.enum(["hss", "carbide", "ceramic", "cbn", "pcd"]),
+  workMaterial: z.enum(["aluminum", "steel", "stainless", "titanium", "inconel", "hardened"]),
+  coolantType: z.enum(["none", "flood", "mist", "through_tool", "cryogenic"]),
+  ambientTemp: z.number().optional(),
+  measuredToolTemp: z.number().optional(),
+  measuredWorkTemp: z.number().optional(),
+  spindleTemp: z.number().optional(),
+  machineRuntime: z.number().optional(),
+}).passthrough();
+
+// ============================================================================
+// adaptive_wear_analyze — AdaptiveWearEngine.analyze
+// ============================================================================
+
+const adaptive_wear_analyze = z.object({
+  cuttingTime: z.number().describe("Total cutting time min"),
+  cuttingSpeed: z.number().describe("Cutting speed m/min"),
+  feedRate: z.number().describe("Feed rate mm/min"),
+  depthOfCut: z.number().describe("Depth of cut mm"),
+  toolMaterial: z.enum(["hss", "carbide", "ceramic", "cbn", "pcd"]),
+  workMaterial: z.enum(["aluminum", "steel", "stainless", "titanium", "inconel", "hardened"]),
+  currentPower: z.number().optional(),
+  baselinePower: z.number().optional(),
+  currentForce: z.number().optional(),
+  baselineForce: z.number().optional(),
+  surfaceFinish: z.number().optional(),
+  baselineSurfaceFinish: z.number().optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -234,4 +326,10 @@ export const ADAPTIVE_CONTROL_ACTION_SCHEMAS: ActionSchemaMap = {
   calibration_drift,
   calibration_thermal,
   calibration_model_select,
+  // ENGINE-WIRE-MS0/U-WIRE01
+  adaptive_chatter_analyze,
+  adaptive_chipload_analyze,
+  adaptive_override_calc,
+  adaptive_thermal_analyze,
+  adaptive_wear_analyze,
 };
