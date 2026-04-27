@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "mill_turn",
+  "extraction_source": "ESPRIT TNG Mill-Turn Reference / Hexagon (DP Technology) public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-10",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["mill_turn", "live_tooling", "sub_spindle", "synchronized"]
+  },
+  "operations": {
+    "live_tool_drill_cyl": {
+      "display_name": "Live Tool Cylindrical Drilling",
+      "category": "live_tooling",
+      "description": "Drill or tap holes around the OD of a turning part using a live (driven) tool. C-axis indexes between holes; live tool rotates. Requires C-axis brake or hold for drilling.",
+      "dialog_tabs": ["Tool", "Holes", "Cycle", "C-Axis"],
+      "parameter_count": 13,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "diameter": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "depth": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83", "G84"], "default": "G83", "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 3, "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": false, "description": "Live tool uses feed/min, not /rev", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.2, "tab": "Cycle" }
+        },
+        "c_axis": {
+          "useCAxisBrake": { "type": "boolean", "default": true, "description": "Lock C-axis during drilling", "tab": "C-Axis" },
+          "brakeMcode": { "type": "string", "default": "M19", "tab": "C-Axis" },
+          "indexMode": { "type": "enum", "values": ["absolute", "incremental"], "default": "absolute", "tab": "C-Axis" },
+          "rapidIndex": { "type": "boolean", "default": true, "description": "Use rapid C-axis between holes", "tab": "C-Axis" },
+          "approachDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "C-Axis" },
+          "spindleStop": { "type": "boolean", "default": true, "description": "Main spindle stops during live-tool ops", "tab": "C-Axis" }
+        }
+      }
+    },
+    "live_tool_mill_face": {
+      "display_name": "Live Tool Face Milling",
+      "category": "live_tooling",
+      "description": "Mill features on the face (Z-axis end) of a turning part. Y-axis (if available) or polar interpolation. Common for keyways, slots, flat sections.",
+      "dialog_tabs": ["Tool", "Geometry", "Strategy", "Machine"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zigzag", "spiral", "contour"], "default": "spiral", "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" }
+        },
+        "machine": {
+          "interpolationMode": { "type": "enum", "values": ["xy_y_axis", "polar_g12_1", "cylindrical_g7_1"], "default": "xy_y_axis", "description": "Y-axis preferred over polar", "tab": "Machine" },
+          "polarPlane": { "type": "enum", "values": ["XY", "ZC"], "default": "XY", "tab": "Machine" },
+          "yAxisAvailable": { "type": "boolean", "default": true, "tab": "Machine" },
+          "useCAxisBrake": { "type": "boolean", "default": false, "description": "False for simultaneous mill-turn", "tab": "Machine" },
+          "brakeMcode": { "type": "string", "default": "M19", "tab": "Machine" }
+        }
+      }
+    },
+    "sub_spindle_handoff": {
+      "display_name": "Sub-Spindle Handoff",
+      "category": "sub_spindle",
+      "description": "Synchronized transfer of part between main and sub spindle. Spindle-sync (M19/M21), positional transfer with chuck-close, optional cut-off. Critical for back-side ops without manual handling.",
+      "dialog_tabs": ["Sync", "Transfer", "Cut-Off", "Validation"],
+      "parameter_count": 14,
+      "parameters": {
+        "sync": {
+          "syncMode": { "type": "enum", "values": ["spindle_sync", "feed_sync", "position_sync"], "default": "spindle_sync", "tab": "Sync", "required": true },
+          "syncRPM": { "type": "number", "unit": "rpm", "default": 200, "range": [50, 5000], "tab": "Sync" },
+          "syncMcode": { "type": "string", "default": "M111", "description": "Machine-specific spindle-sync M-code", "tab": "Sync" },
+          "phaseAlignment": { "type": "number", "unit": "deg", "default": 0, "range": [0, 360], "description": "C-axis phase angle for keyed parts", "tab": "Sync" }
+        },
+        "transfer": {
+          "transferZ": { "type": "number", "unit": "mm", "tab": "Transfer", "required": true },
+          "approachFeed": { "type": "number", "unit": "mm/min", "default": 200, "tab": "Transfer" },
+          "subChuckCloseMcode": { "type": "string", "default": "M75", "tab": "Transfer" },
+          "mainChuckOpenMcode": { "type": "string", "default": "M71", "tab": "Transfer" },
+          "dwellAfterClose": { "type": "number", "unit": "s", "default": 0.5, "description": "Allow chuck to settle before main opens", "tab": "Transfer" },
+          "barFeedPushOff": { "type": "boolean", "default": false, "description": "Use bar feeder to push part into sub", "tab": "Transfer" }
+        },
+        "cut_off": {
+          "cutOffEnabled": { "type": "boolean", "default": true, "tab": "Cut-Off" },
+          "cutOffTool": { "type": "tool_reference", "tab": "Cut-Off" },
+          "cutOffFeedReduction": { "type": "number", "unit": "percent", "default": 50, "description": "Reduce feed near center", "tab": "Cut-Off" }
+        },
+        "validation": {
+          "validateRPMMatch": { "type": "boolean", "default": true, "description": "Block if RPM delta > 5%", "tab": "Validation" }
+        }
+      }
+    },
+    "balanced_cut": {
+      "display_name": "Balanced Cut (Twin-Turret)",
+      "category": "synchronized",
+      "description": "Two turrets cut simultaneously on the same part — one OD rough, one OD finish or one OD/one ID. Reduces cycle time and balances cutting force on the part.",
+      "dialog_tabs": ["Channels", "Sync", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "channels": {
+          "channel1Tool": { "type": "tool_reference", "tab": "Channels", "required": true },
+          "channel1Path": { "type": "selection", "tab": "Channels", "required": true },
+          "channel2Tool": { "type": "tool_reference", "tab": "Channels", "required": true },
+          "channel2Path": { "type": "selection", "tab": "Channels", "required": true }
+        },
+        "sync": {
+          "syncMode": { "type": "enum", "values": ["wait_at_start", "wait_at_each_pass", "free_run"], "default": "wait_at_start", "tab": "Sync" },
+          "syncMcode": { "type": "string", "default": "M196", "tab": "Sync" },
+          "waitDwell": { "type": "number", "unit": "s", "default": 0.1, "tab": "Sync" }
+        },
+        "strategy": {
+          "channel1Stock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "channel2Stock": { "type": "number", "unit": "mm", "default": 0, "tab": "Strategy" },
+          "balancingMode": { "type": "enum", "values": ["force_balance", "time_balance", "manual"], "default": "force_balance", "description": "Balance cutting force or balance machining time", "tab": "Strategy" },
+          "minSpacing": { "type": "number", "unit": "mm", "default": 10, "description": "Min Z spacing between turrets", "tab": "Strategy" },
+          "validateNoCollision": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 3000, "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Mill-turn coordination patterns",
+      "key_concepts": ["C-axis brake", "spindle sync M-codes", "polar vs Y-axis", "balanced cutting"],
+      "best_practices": [
+        "Use C-axis brake (M19) for drilling/tapping; release for simultaneous mill-turn",
+        "Prefer Y-axis interpolation over polar G12.1 — better surface finish, no offset error",
+        "Validate spindle-sync RPM delta < 5% before sub-spindle close",
+        "Balance cutting force, not just time, when both turrets cut the same part"
+      ]
+    }
+  ]
+}

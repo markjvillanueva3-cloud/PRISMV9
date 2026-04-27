@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "swiss",
+  "extraction_source": "ESPRIT TNG Swiss Reference / Hexagon (DP Technology) public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-10",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["swiss", "guide_bushing", "back_working", "thread_whirling"]
+  },
+  "operations": {
+    "swiss_turn": {
+      "display_name": "Swiss Turn (Sliding Headstock)",
+      "category": "swiss",
+      "description": "Swiss-style turning with sliding headstock. Z motion comes from the headstock pushing bar through the guide bushing. Tool stays close to the bushing for rigidity at high L/D ratios. Bar advances 1 part length each cycle.",
+      "dialog_tabs": ["Tool", "Profile", "Bushing", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "maxDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "barStock": { "type": "number", "unit": "mm", "tab": "Profile", "required": true }
+        },
+        "bushing": {
+          "bushingType": { "type": "enum", "values": ["fixed", "rotating"], "default": "rotating", "description": "Rotating bushing reduces marking on bar", "tab": "Bushing" },
+          "bushingId": { "type": "number", "unit": "mm", "description": "Inner diameter of guide bushing", "tab": "Bushing", "required": true },
+          "bushingStandoff": { "type": "number", "unit": "mm", "default": 1.5, "description": "Tool tip standoff from bushing face", "tab": "Bushing" },
+          "useBushing": { "type": "boolean", "default": true, "description": "Some short Swiss runs do without", "tab": "Bushing" }
+        },
+        "strategy": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "passes": { "type": "integer", "default": 0, "tab": "Strategy" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 8000, "tab": "Strategy" },
+          "approachMode": { "type": "enum", "values": ["plunge", "ramp", "skim"], "default": "skim", "tab": "Strategy" }
+        }
+      }
+    },
+    "back_work": {
+      "display_name": "Back Working",
+      "category": "back_working",
+      "description": "Back-side machining on Swiss with sub-spindle. Pickup spindle takes part after main cut-off, then performs facing, drilling, threading on the back. Eliminates secondary ops.",
+      "dialog_tabs": ["Sub-Spindle", "Operations", "Strategy"],
+      "parameter_count": 13,
+      "parameters": {
+        "sub_spindle": {
+          "subSpindleAxis": { "type": "enum", "values": ["Z2", "Z_back"], "default": "Z2", "tab": "Sub-Spindle" },
+          "approachZ": { "type": "number", "unit": "mm", "default": 50, "tab": "Sub-Spindle" },
+          "subRPM": { "type": "number", "unit": "rpm", "default": 3000, "tab": "Sub-Spindle" },
+          "subChuckCloseMcode": { "type": "string", "default": "M75", "tab": "Sub-Spindle" },
+          "syncMcode": { "type": "string", "default": "M111", "tab": "Sub-Spindle" }
+        },
+        "operations": {
+          "backFace": { "type": "boolean", "default": true, "tab": "Operations" },
+          "backDrill": { "type": "boolean", "default": false, "tab": "Operations" },
+          "backThread": { "type": "boolean", "default": false, "tab": "Operations" },
+          "backChamfer": { "type": "boolean", "default": true, "tab": "Operations" }
+        },
+        "strategy": {
+          "ejectionMode": { "type": "enum", "values": ["air_blast", "parts_catcher", "conveyor"], "default": "parts_catcher", "tab": "Strategy" },
+          "syncTolerance": { "type": "number", "unit": "deg", "default": 0.5, "description": "Phase-sync tolerance for keyed parts", "tab": "Strategy" },
+          "validateChuckPressure": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "minChuckPressure": { "type": "number", "unit": "bar", "default": 8, "tab": "Strategy" }
+        }
+      }
+    },
+    "thread_whirling": {
+      "display_name": "Thread Whirling",
+      "category": "thread_whirling",
+      "description": "Thread whirling: rotating ring of inserts orbits around the bar at high speed (3000-8000 RPM ring) while the bar rotates slowly (50-300 RPM). Common for medical bone-screw threads — produces cleaner thread profile than single-point.",
+      "dialog_tabs": ["Tool", "Thread", "Whirl", "Strategy"],
+      "parameter_count": 16,
+      "parameters": {
+        "thread": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "starts": { "type": "integer", "default": 1, "range": [1, 8], "tab": "Thread" }
+        },
+        "whirl": {
+          "whirlRPM": { "type": "number", "unit": "rpm", "default": 5000, "range": [1000, 12000], "tab": "Whirl", "required": true },
+          "barRPM": { "type": "number", "unit": "rpm", "default": 100, "range": [10, 500], "tab": "Whirl", "required": true },
+          "whirlDirection": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Whirl" },
+          "ringDiameter": { "type": "number", "unit": "mm", "tab": "Whirl", "required": true },
+          "ringInsertCount": { "type": "integer", "default": 4, "range": [2, 8], "tab": "Whirl" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-5, 5], "description": "Tilt for thread helix angle", "tab": "Whirl" }
+        },
+        "strategy": {
+          "passes": { "type": "integer", "default": 1, "range": [1, 5], "description": "Single-pass usually adequate for whirling", "tab": "Strategy" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "coolantThroughRing": { "type": "boolean", "default": true, "description": "TSC through whirl ring required", "tab": "Strategy" },
+          "minCoolantPressure": { "type": "number", "unit": "bar", "default": 40, "tab": "Strategy" }
+        }
+      }
+    },
+    "polygon_turning": {
+      "display_name": "Polygon Turning",
+      "category": "swiss",
+      "description": "Generate a polygonal section (square, hex, double-D, etc.) on a round bar by synchronizing tool rotation with workpiece rotation at integer ratio. Single-pass, much faster than milling.",
+      "dialog_tabs": ["Tool", "Polygon", "Sync"],
+      "parameter_count": 13,
+      "parameters": {
+        "polygon": {
+          "shape": { "type": "enum", "values": ["hex", "square", "double_d", "triple_d", "spline"], "default": "hex", "tab": "Polygon", "required": true },
+          "acrossFlats": { "type": "number", "unit": "mm", "tab": "Polygon", "required": true },
+          "startZ": { "type": "number", "unit": "mm", "tab": "Polygon", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Polygon", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Polygon" }
+        },
+        "sync": {
+          "ratio": { "type": "string", "description": "Spindle:Tool ratio — '1:1' double-D, '1:2' square, '1:3' hex", "tab": "Sync", "required": true },
+          "barRPM": { "type": "number", "unit": "rpm", "default": 1000, "tab": "Sync" },
+          "toolRPM": { "type": "number", "unit": "rpm", "description": "Auto-derived from ratio", "tab": "Sync" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Sync" },
+          "feed": { "type": "number", "unit": "mm/rev", "default": 0.05, "tab": "Sync" },
+          "phaseOffset": { "type": "number", "unit": "deg", "default": 0, "description": "Polygon orientation offset", "tab": "Sync" },
+          "syncMcode": { "type": "string", "default": "G51_2", "description": "Sync mode G-code", "tab": "Sync" },
+          "validateRatio": { "type": "boolean", "default": true, "description": "Block if ratio doesn't match shape", "tab": "Sync" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Swiss vs conventional turning",
+      "key_concepts": ["sliding headstock", "guide bushing", "L/D > 5", "back working"],
+      "best_practices": [
+        "Swiss is the right choice for L/D > 5 — bushing keeps deflection in check",
+        "Use rotating bushing for Inconel and stainless — reduces galling",
+        "Always pair rough + finish + chamfer + back-work in one cycle to eliminate secondary ops",
+        "Thread whirling is faster and cleaner than single-point for bone screws and orthopedic threads"
+      ]
+    }
+  ]
+}

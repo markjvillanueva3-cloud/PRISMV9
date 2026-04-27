@@ -1594,6 +1594,12 @@ export const ACTIONS = [
     "edgecam_function_index_find_parameter", "edgecam_function_index_search_parameters",
     "edgecam_function_index_get_operations_by_category", "edgecam_function_index_get_summary",
     "edgecam_function_index_get_waveform_operations", "edgecam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-10 — ESPRIT Function Index
+    "esprit_function_index_get", "esprit_function_index_list_sections",
+    "esprit_function_index_get_section", "esprit_function_index_list_operations",
+    "esprit_function_index_find_parameter", "esprit_function_index_search_parameters",
+    "esprit_function_index_get_operations_by_category", "esprit_function_index_get_summary",
+    "esprit_function_index_get_profit_operations", "esprit_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12224,6 +12230,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { EdgecamFunctionIndexEngine } = await import("../../engines/EdgecamFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...EdgecamFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-10 — ESPRIT Function Index (10 actions)
+          case "esprit_function_index_get": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            result = { success: true, index: EspritFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "esprit_function_index_list_sections": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            result = { success: true, sections: EspritFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "esprit_function_index_get_section": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: EspritFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "esprit_function_index_list_operations": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            result = { success: true, operations: EspritFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "esprit_function_index_find_parameter": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: EspritFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "esprit_function_index_search_parameters": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: EspritFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "esprit_function_index_get_operations_by_category": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: EspritFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "esprit_function_index_get_summary": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            result = { success: true, ...EspritFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "esprit_function_index_get_profit_operations": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            result = { success: true, operations: EspritFunctionIndexEngine.getProfitOperations() };
+            break;
+          }
+          case "esprit_function_index_get_operation": {
+            const { EspritFunctionIndexEngine } = await import("../../engines/EspritFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...EspritFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

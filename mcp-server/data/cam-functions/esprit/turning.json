@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "turning",
+  "extraction_source": "ESPRIT TNG Turning Reference / Hexagon (DP Technology) public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-10",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 70,
+    "categories": ["roughing", "finishing", "grooving", "threading", "parting"]
+  },
+  "operations": {
+    "profitturning": {
+      "display_name": "ProfitTurning",
+      "category": "roughing",
+      "description": "ESPRIT's flagship turning roughing strategy. Maintains constant chip volume by varying axial/radial cuts dynamically. Supports deeper DOC than conventional turning by using the full insert length. Reduces cycle time by 20-50% versus G71.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy", "Cycle"],
+      "parameter_count": 16,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "minDiameter": { "type": "number", "unit": "mm", "tab": "Profile" },
+          "maxDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Profile" },
+          "axialStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "strategy": {
+          "constantChipVolume": { "type": "boolean", "default": true, "description": "Vary cut to keep chip load constant", "tab": "Strategy" },
+          "maxDepthOfCut": { "type": "number", "unit": "mm", "default": 5.0, "range": [0.5, 50], "description": "Upper bound on radial DOC", "tab": "Strategy", "required": true },
+          "fullInsertUtilization": { "type": "boolean", "default": true, "description": "Use full insert length, not just nose radius", "tab": "Strategy" },
+          "patternRecognition": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "approachMode": { "type": "enum", "values": ["plunge", "ramp", "skim"], "default": "skim", "tab": "Strategy" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["long_form", "G71_with_overrides"], "default": "long_form", "description": "ProfitTurning needs long-form output", "tab": "Cycle" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": true, "description": "G96 constant surface speed", "tab": "Cycle" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 5000, "tab": "Cycle" }
+        }
+      }
+    },
+    "rough_turn": {
+      "display_name": "Rough Turn (G71)",
+      "category": "roughing",
+      "description": "Standard G71/G72 OD/ID rough turning. Multi-pass with axial or radial direction. Pattern-recognition handles shoulders and undercuts. Output as canned cycle or long-form.",
+      "dialog_tabs": ["Tool", "Profile", "Stepover", "Cycle"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "maxDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Profile" },
+          "axialStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "stepover": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 2.0, "range": [0.1, 20], "tab": "Stepover", "required": true },
+          "passes": { "type": "integer", "default": 0, "tab": "Stepover" },
+          "direction": { "type": "enum", "values": ["axial", "radial", "contour"], "default": "axial", "tab": "Stepover" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G71", "G72", "G73", "long_form"], "default": "G71", "tab": "Cycle" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "retractMode": { "type": "enum", "values": ["clearance", "stock", "shortest"], "default": "clearance", "tab": "Cycle" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Cycle" }
+        }
+      }
+    },
+    "finish_turn": {
+      "display_name": "Finish Turn",
+      "category": "finishing",
+      "description": "G70 finish turning of a complex profile. Honors chamfers, fillets, undercuts. Optional spring pass and constant surface speed.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 11,
+      "parameters": {
+        "profile": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["right_to_left", "left_to_right"], "default": "right_to_left", "tab": "Strategy" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "leadOutDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "springPass": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "tipRadiusComp": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "cycleType": { "type": "enum", "values": ["G70", "long_form"], "default": "G70", "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 5000, "tab": "Strategy" }
+        }
+      }
+    },
+    "thread": {
+      "display_name": "Single-Point Thread",
+      "category": "threading",
+      "description": "G76 / G33 single-point threading. Multi-pass infeed scheduling — radial, modified-flank, alternating, full-flank. Multi-start support and lead-in distance for accel.",
+      "dialog_tabs": ["Tool", "Thread", "Passes"],
+      "parameter_count": 14,
+      "parameters": {
+        "thread": {
+          "startZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "endZ": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "starts": { "type": "integer", "default": 1, "range": [1, 8], "tab": "Thread" },
+          "internal": { "type": "boolean", "default": false, "tab": "Thread" }
+        },
+        "passes": {
+          "infeedType": { "type": "enum", "values": ["radial", "modified_flank", "alternating", "full_flank"], "default": "modified_flank", "tab": "Passes" },
+          "infeedAngle": { "type": "number", "unit": "deg", "default": 29.5, "range": [0, 30], "tab": "Passes" },
+          "firstCutDepth": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Passes" },
+          "minCutDepth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Passes" },
+          "passes": { "type": "integer", "default": 0, "tab": "Passes" },
+          "springPasses": { "type": "integer", "default": 1, "range": [0, 5], "tab": "Passes" },
+          "cycleType": { "type": "enum", "values": ["G76", "G33", "G92", "long_form"], "default": "G76", "tab": "Passes" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 3, "tab": "Passes" }
+        }
+      }
+    },
+    "groove": {
+      "display_name": "Grooving",
+      "category": "grooving",
+      "description": "Plunge grooving with optional peck and side-cleanup. Rectangular, V, full-radius and form grooves. Side stock control, root dwell to break chips.",
+      "dialog_tabs": ["Tool", "Profile", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "profile": {
+          "centerZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "outerDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "rootDiameter": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "width": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "leftSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rightSideStock": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Profile" },
+          "rootStock": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "strategy": {
+          "plungeOverlap": { "type": "number", "unit": "percent", "default": 80, "range": [10, 100], "tab": "Strategy" },
+          "depthIncrement": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "peck": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "peckRetract": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "dwellAtRoot": { "type": "number", "unit": "s", "default": 0.2, "tab": "Strategy" },
+          "groovePattern": { "type": "enum", "values": ["plunge", "step", "spiral"], "default": "step", "tab": "Strategy" },
+          "finishPass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "ProfitTurning vs G71",
+      "key_concepts": ["constant chip volume", "full insert utilization", "long-form output"],
+      "best_practices": [
+        "ProfitTurning shines when DOC > 0.5×insert IC — uses the full edge",
+        "Pair with ISO P/M/K turning grades that have DPV/DPC chipbreakers",
+        "Verify spindle torque budget — ProfitTurning loads more than G71"
+      ]
+    }
+  ]
+}

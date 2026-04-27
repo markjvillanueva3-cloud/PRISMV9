@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "system_id": "esprit",
+  "section_key": "milling",
+  "extraction_source": "ESPRIT TNG Reference / Hexagon (DP Technology) public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-10",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 78,
+    "categories": ["roughing", "finishing", "high_efficiency", "profiling"]
+  },
+  "operations": {
+    "profitmilling_rough": {
+      "display_name": "ProfitMilling Rough",
+      "category": "high_efficiency",
+      "description": "ESPRIT's flagship constant-engagement roughing strategy. Maintains constant tool engagement angle (TEA) using trochoidal/morph arcs, supports deep DOC up to 3×D with reduced WOC. Provides lookahead feed boost in low-engagement air zones.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Engagement", "Smoothing", "Linking"],
+      "parameter_count": 18,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "boundaryOffset": { "type": "number", "unit": "mm", "default": 0, "description": "Extend or shrink the input boundary", "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 8.0, "range": [0.1, 200], "description": "Aggressive DOC up to 3×D", "tab": "Levels" }
+        },
+        "engagement": {
+          "tea": { "type": "number", "unit": "deg", "default": 30, "range": [5, 90], "description": "Tool Engagement Angle target", "tab": "Engagement", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 10, "range": [3, 30], "tab": "Engagement" },
+          "minimumChipThickness": { "type": "number", "unit": "mm", "default": 0.05, "description": "Avoid rubbing", "tab": "Engagement" }
+        },
+        "smoothing": {
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Smoothing" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Smoothing" },
+          "feedRateBoost": { "type": "boolean", "default": true, "tab": "Smoothing" },
+          "boostFactor": { "type": "number", "default": 2.0, "range": [1, 5], "tab": "Smoothing" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "range": [0.5, 10], "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Linking" },
+          "restMachining": { "type": "boolean", "default": true, "tab": "Linking" }
+        }
+      }
+    },
+    "pocket_rough": {
+      "display_name": "Pocket Rough",
+      "category": "roughing",
+      "description": "Conventional pocket clearing with selectable pattern (offset, parallel, hybrid) for closed boundaries with islands. Supports plunge/ramp/helix entry.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Stepover", "Entry"],
+      "parameter_count": 15,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "islandSelection": { "type": "selection", "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true }
+        },
+        "stepover": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Stepover", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "range": [5, 95], "tab": "Stepover" },
+          "patternType": { "type": "enum", "values": ["offset", "parallel", "hybrid", "spiral"], "default": "offset", "tab": "Stepover" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Stepover" },
+          "orderByDepth": { "type": "boolean", "default": true, "tab": "Stepover" }
+        },
+        "entry": {
+          "entryMethod": { "type": "enum", "values": ["plunge", "ramp", "helix", "predrill"], "default": "helix", "tab": "Entry" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 5, "range": [0.5, 30], "tab": "Entry" },
+          "helixDiameter": { "type": "number", "unit": "percent", "default": 60, "range": [10, 100], "tab": "Entry" },
+          "predrillTool": { "type": "tool_reference", "tab": "Entry" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Entry" }
+        }
+      }
+    },
+    "contour_finish": {
+      "display_name": "Contour Finish",
+      "category": "finishing",
+      "description": "2D contour finishing with cutter compensation (G41/G42) output. Supports lead-in/out arcs, multiple spring passes for thin-wall work, and stock-to-leave control.",
+      "dialog_tabs": ["Tool", "Profile", "Levels", "Lead", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "profile": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-2, 2], "tab": "Profile" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" },
+          "side": { "type": "enum", "values": ["left", "right", "center"], "default": "right", "tab": "Profile" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Levels" }
+        },
+        "lead": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Lead" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "overlap": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Lead" }
+        },
+        "cycle": {
+          "compensationOutput": { "type": "enum", "values": ["computer", "control", "wear"], "default": "computer", "tab": "Cycle" },
+          "springPasses": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Cycle" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cycle" }
+        }
+      }
+    },
+    "z_level_finish": {
+      "display_name": "Z-Level Finish",
+      "category": "finishing",
+      "description": "Constant-Z waterline finishing on steep walls. Output is a planar sequence of contours at fixed Z-levels.",
+      "dialog_tabs": ["Tool", "Drive", "Levels", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "drive": {
+          "driveSurfaces": { "type": "selection", "tab": "Drive", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Drive" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Drive" },
+          "minSlope": { "type": "number", "unit": "deg", "default": 30, "range": [0, 90], "description": "Below this slope, switch to scallop", "tab": "Drive" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Levels" },
+          "scallopHeight": { "type": "number", "unit": "mm", "description": "Auto-stepdown from scallop", "tab": "Levels" }
+        },
+        "strategy": {
+          "passDirection": { "type": "enum", "values": ["climb", "conventional", "both"], "default": "climb", "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["depth_first", "feature_first"], "default": "depth_first", "tab": "Strategy" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" }
+        }
+      }
+    },
+    "face_mill": {
+      "display_name": "Face Mill",
+      "category": "roughing",
+      "description": "Face milling for stock prep. Zig-zag, one-way or spiral patterns with selectable lead-in/out and approach angle for face mills with insert geometry.",
+      "dialog_tabs": ["Tool", "Region", "Levels", "Strategy"],
+      "parameter_count": 18,
+      "parameters": {
+        "region": {
+          "boundary": { "type": "selection", "tab": "Region", "required": true },
+          "extension": { "type": "number", "unit": "mm", "default": 5, "tab": "Region" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Region" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels" },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Levels" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zigzag", "oneway", "spiral"], "default": "zigzag", "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 75, "range": [10, 100], "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "leadOutDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "approachAngle": { "type": "number", "unit": "deg", "default": 0, "range": [0, 90], "tab": "Strategy" },
+          "tiltedFace": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2, "tab": "Strategy" },
+          "feedReductionAtCorners": { "type": "boolean", "default": true, "description": "Reduce feed at corners to manage acceleration", "tab": "Strategy" },
+          "cornerFeedFactor": { "type": "number", "default": 0.5, "range": [0.1, 1], "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "ProfitMilling vs traditional pocket roughing",
+      "key_concepts": ["constant tool engagement", "trochoidal morph", "feed boost", "deep-and-fast"],
+      "best_practices": [
+        "Use ProfitMilling when stepdown ≥ 1.5×D — that's where it pays off",
+        "TEA 25-40° for steel, 15-25° for titanium, up to 60° for aluminum",
+        "Set min chip thickness ≥ 0.05 mm to avoid rubbing"
+      ]
+    }
+  ]
+}
