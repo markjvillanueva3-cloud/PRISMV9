@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "system_id": "tebis",
+  "section_key": "mold_die",
+  "extraction_source": "Tebis 4.1 Mold/Die Reference / Tebis AG / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-15",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 70,
+    "categories": ["mold_design", "core_cavity", "electrode", "shutoff", "parting"]
+  },
+  "operations": {
+    "core_cavity_split": {
+      "display_name": "Core/Cavity Split Analysis",
+      "category": "core_cavity",
+      "description": "Compute core/cavity split surfaces from solid mold model. Uses Tebis surface-classifier (draft direction, undercut detection).",
+      "dialog_tabs": ["Geometry", "Draft", "Output"],
+      "parameter_count": 13,
+      "parameters": {
+        "geometry": {
+          "partRef": { "type": "selection", "tab": "Geometry", "required": true },
+          "preferredDraftAxis": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y", "auto"], "default": "+Z", "tab": "Geometry" },
+          "shrinkageFactor": { "type": "number", "default": 1.005, "range": [1.0, 1.025], "description": "Apply uniform shrink to part before split", "tab": "Geometry" }
+        },
+        "draft": {
+          "minDraftAngle": { "type": "number", "unit": "deg", "default": 0.5, "tab": "Draft" },
+          "warnOnNoDraft": { "type": "boolean", "default": true, "tab": "Draft" },
+          "highlightUndercuts": { "type": "boolean", "default": true, "tab": "Draft" },
+          "undercutCarveOut": { "type": "enum", "values": ["liftOut", "sideAction", "manual"], "default": "sideAction", "description": "Strategy when undercuts found", "tab": "Draft" }
+        },
+        "output": {
+          "exportCoreSurface": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportCavitySurface": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportPartingLine": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportShutoffPatches": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "reportPath": { "type": "string", "tab": "Output" }
+        }
+      }
+    },
+    "shutoff_surface_create": {
+      "display_name": "Shutoff Surface Create",
+      "category": "shutoff",
+      "description": "Auto-fill through-holes and openings to seal mold halves. Tebis offers ruled, swept, and tangent-blend variants.",
+      "dialog_tabs": ["Geometry", "Strategy", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "openingSelection": { "type": "selection", "description": "Edges or holes to seal", "tab": "Geometry", "required": true },
+          "boundaryMode": { "type": "enum", "values": ["projectToParting", "tangentExtension", "ruled"], "default": "tangentExtension", "tab": "Geometry" }
+        },
+        "strategy": {
+          "patchType": { "type": "enum", "values": ["ruled", "swept", "blendG2", "patchFill"], "default": "blendG2", "tab": "Strategy" },
+          "blendContinuity": { "type": "enum", "values": ["G0", "G1", "G2"], "default": "G2", "description": "Tangent + curvature continuity for class-A surfaces", "tab": "Strategy" },
+          "minPatchRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "patchRingDirection": { "type": "enum", "values": ["+Z", "-Z", "auto"], "default": "auto", "tab": "Strategy" }
+        },
+        "output": {
+          "exportPatch": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportLayer": { "type": "string", "default": "shutoff_patches", "tab": "Output" },
+          "exportColor": { "type": "string", "default": "yellow", "tab": "Output" },
+          "validateNoSelfIntersect": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDegenerate": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "parting_line_create": {
+      "display_name": "Parting Line Create",
+      "category": "parting",
+      "description": "Generate parting line by silhouette projection or by user-curated edges. Output drives parting surface and shutoff patches.",
+      "dialog_tabs": ["Geometry", "Strategy", "Output"],
+      "parameter_count": 11,
+      "parameters": {
+        "geometry": {
+          "silhouetteSource": { "type": "enum", "values": ["draftAxis", "viewVector", "manualEdges"], "default": "draftAxis", "tab": "Geometry", "required": true },
+          "draftAxis": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y"], "default": "+Z", "tab": "Geometry" },
+          "manualEdgeSelection": { "type": "selection", "description": "Used when silhouetteSource=manualEdges", "tab": "Geometry" }
+        },
+        "strategy": {
+          "smoothingMode": { "type": "enum", "values": ["none", "lowPass", "fitSpline"], "default": "fitSpline", "tab": "Strategy" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.02, "tab": "Strategy" },
+          "snapToFeatures": { "type": "boolean", "default": true, "description": "Snap parting line to existing edges within tolerance", "tab": "Strategy" }
+        },
+        "output": {
+          "exportCurve": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportLayer": { "type": "string", "default": "parting_line", "tab": "Output" },
+          "exportColor": { "type": "string", "default": "magenta", "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDiscontinuity": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "electrode_design": {
+      "display_name": "Electrode Design",
+      "category": "electrode",
+      "description": "Design EDM electrodes from surfaces in mold cavity. Tebis Electrode generates blanks, holders, and machining setups in one step.",
+      "dialog_tabs": ["Faces", "Blank", "Spark", "Output"],
+      "parameter_count": 18,
+      "parameters": {
+        "faces": {
+          "faceSelection": { "type": "selection", "description": "Cavity faces electrode must reach", "tab": "Faces", "required": true },
+          "electrodeRef": { "type": "selection", "description": "Reference origin", "tab": "Faces" },
+          "extensionMode": { "type": "enum", "values": ["bbox", "tangentRule", "manual"], "default": "tangentRule", "tab": "Faces" }
+        },
+        "blank": {
+          "blankShape": { "type": "enum", "values": ["square", "rectangular", "round", "custom"], "default": "rectangular", "tab": "Blank" },
+          "stockOversize": { "type": "number", "unit": "mm", "default": 1.5, "description": "Wall thickness above face envelope", "tab": "Blank" },
+          "shankHeight": { "type": "number", "unit": "mm", "default": 30, "tab": "Blank" },
+          "shankAttachment": { "type": "enum", "values": ["3R", "EROWA", "Hirschmann", "custom"], "default": "EROWA", "tab": "Blank" }
+        },
+        "spark": {
+          "sparkGapRough": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Spark" },
+          "sparkGapFinish": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Spark" },
+          "sparkGapPolish": { "type": "number", "unit": "mm", "default": 0.02, "tab": "Spark" },
+          "rotaryFinish": { "type": "boolean", "default": true, "description": "Use rotary EDM for cylindrical features", "tab": "Spark" }
+        },
+        "output": {
+          "exportElectrodeSolid": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportElectrodeMachiningSetup": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportEDMParameters": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeMeasurementSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "naming": { "type": "string", "default": "ELC_<FACE>_<INDEX>", "description": "Auto-naming pattern", "tab": "Output" },
+          "warnOnUnreachable": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "mold_assembly_check": {
+      "display_name": "Mold Assembly Check",
+      "category": "mold_design",
+      "description": "Verify that mold halves close cleanly: no flash, no interference, draft satisfied, gating reachable.",
+      "dialog_tabs": ["Geometry", "Checks", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "coreRef": { "type": "selection", "tab": "Geometry", "required": true },
+          "cavityRef": { "type": "selection", "tab": "Geometry", "required": true },
+          "shutoffRef": { "type": "selection", "tab": "Geometry" },
+          "partingLineRef": { "type": "selection", "tab": "Geometry" }
+        },
+        "checks": {
+          "checkInterference": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkDraft": { "type": "boolean", "default": true, "tab": "Checks" },
+          "minDraftAngle": { "type": "number", "unit": "deg", "default": 0.5, "tab": "Checks" },
+          "checkUndercuts": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkGatingReach": { "type": "boolean", "default": false, "tab": "Checks" },
+          "checkFlashRisk": { "type": "boolean", "default": true, "tab": "Checks" },
+          "flashClearance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Checks" },
+          "checkSurfaceFinishConsistency": { "type": "boolean", "default": true, "tab": "Checks" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlightOnFailure": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportPDF": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Tebis mold/die discipline",
+      "key_concepts": ["draft analysis", "shutoff patch G2 continuity", "electrode auto-naming"],
+      "best_practices": [
+        "Always run mold_assembly_check before sending mold to manufacturing — interference and flash issues catch upstream",
+        "Use G2 blend continuity on shutoff patches when class-A finish is required",
+        "Electrode naming convention should encode face + index — auditors and assembly use it during fitting"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "system_id": "tebis",
+  "section_key": "proven_processes",
+  "extraction_source": "Tebis 4.1 ProLeiS / Process Library Reference / Tebis AG / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-15",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 58,
+    "categories": ["process_library", "nc_standardization", "virtual_machine", "knowledge_transfer"]
+  },
+  "operations": {
+    "ppl_lookup": {
+      "display_name": "Proven-Process Library Lookup",
+      "category": "process_library",
+      "description": "Tebis flagship surface — query the proven-process library (PPL) for an existing recipe matching {feature, material, machine, customer}. Returns ranked candidates by historical success.",
+      "dialog_tabs": ["Query", "Ranking", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "query": {
+          "featureClass": { "type": "enum", "values": ["mold_cavity", "mold_core", "electrode", "die_punch", "blow_mold_rib", "impeller_blade", "turbine_blade", "general_3d", "general_2_5d"], "tab": "Query", "required": true },
+          "material": { "type": "string", "tab": "Query", "required": true },
+          "hardness": { "type": "number", "unit": "HRC", "tab": "Query" },
+          "machineRef": { "type": "selection", "tab": "Query" },
+          "customerRef": { "type": "selection", "description": "Customer-specific recipes (e.g., BMW, Audi)", "tab": "Query" },
+          "minDimension": { "type": "number", "unit": "mm", "tab": "Query" },
+          "maxDimension": { "type": "number", "unit": "mm", "tab": "Query" }
+        },
+        "ranking": {
+          "rankBy": { "type": "enum", "values": ["historicalSuccess", "cycleTime", "cost", "toolLife", "surfaceFinish"], "default": "historicalSuccess", "tab": "Ranking" },
+          "minHistoricalRuns": { "type": "integer", "default": 5, "description": "Skip recipes with fewer than N runs", "tab": "Ranking" },
+          "preferRecent": { "type": "boolean", "default": true, "tab": "Ranking" },
+          "recencyHorizon": { "type": "integer", "unit": "days", "default": 365, "tab": "Ranking" }
+        },
+        "output": {
+          "topK": { "type": "integer", "default": 3, "range": [1, 50], "tab": "Output" },
+          "explainRanking": { "type": "boolean", "default": true, "tab": "Output" },
+          "includeSafetyScore": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnNoMatch": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "nc_standardization": {
+      "display_name": "Automatic NC Standardization",
+      "category": "nc_standardization",
+      "description": "Apply company NC-output standards: header/footer, tool-list block, M-code conventions, coolant macros, work-coordinate ordering. Removes posthoc post-processor surgery.",
+      "dialog_tabs": ["Header", "Codes", "Tooling", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "header": {
+          "headerTemplate": { "type": "string", "description": "Company header template path", "tab": "Header", "required": true },
+          "includeProgramName": { "type": "boolean", "default": true, "tab": "Header" },
+          "includeProgrammer": { "type": "boolean", "default": true, "tab": "Header" },
+          "includeMachine": { "type": "boolean", "default": true, "tab": "Header" },
+          "includeMaterial": { "type": "boolean", "default": true, "tab": "Header" },
+          "includeStockSize": { "type": "boolean", "default": true, "tab": "Header" }
+        },
+        "codes": {
+          "coolantOnCode": { "type": "string", "default": "M08", "tab": "Codes" },
+          "coolantOffCode": { "type": "string", "default": "M09", "tab": "Codes" },
+          "tscCoolantCode": { "type": "string", "default": "M88", "tab": "Codes" },
+          "spindleSafeStop": { "type": "boolean", "default": true, "description": "Insert M5 + dwell before tool changes", "tab": "Codes" },
+          "endProgramCode": { "type": "enum", "values": ["M30", "M02", "M99"], "default": "M30", "tab": "Codes" }
+        },
+        "tooling": {
+          "toolListBlock": { "type": "boolean", "default": true, "description": "Insert ;TOOL_LIST block at top", "tab": "Tooling" },
+          "tlcMode": { "type": "enum", "values": ["G43", "G43.4", "G43.5", "tableLookup"], "default": "G43", "tab": "Tooling" },
+          "validateToolPresetterData": { "type": "boolean", "default": true, "tab": "Tooling" }
+        },
+        "output": {
+          "writeListing": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "virtual_machine_simulation": {
+      "display_name": "Virtual Machine Simulation",
+      "category": "virtual_machine",
+      "description": "Run NC code through a kinematic twin of the actual machine (incl. tool magazine, work envelope, fixture, controller dialect). Tebis is known for high-fidelity simulation — catches collisions before the machine sees the program.",
+      "dialog_tabs": ["Machine", "Setup", "Checks", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "machine": {
+          "machineRef": { "type": "selection", "description": "Virtual-machine kinematic model", "tab": "Machine", "required": true },
+          "controllerDialect": { "type": "enum", "values": ["fanuc", "siemens", "heidenhain", "okuma", "mazak", "haas"], "tab": "Machine", "required": true },
+          "useToolMagazine": { "type": "boolean", "default": true, "tab": "Machine" },
+          "useFixture": { "type": "boolean", "default": true, "tab": "Machine" }
+        },
+        "setup": {
+          "fixtureRef": { "type": "selection", "tab": "Setup" },
+          "stockRef": { "type": "selection", "tab": "Setup" },
+          "wcsOriginMode": { "type": "enum", "values": ["fromProgram", "manual", "topOfStock"], "default": "fromProgram", "tab": "Setup" }
+        },
+        "checks": {
+          "checkCollision": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkAxisLimits": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkToolReach": { "type": "boolean", "default": true, "tab": "Checks" },
+          "checkSpindleTorque": { "type": "boolean", "default": true, "tab": "Checks" },
+          "spindleTorqueLimit": { "type": "number", "unit": "Nm", "tab": "Checks" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportVideo": { "type": "boolean", "default": false, "description": "Render simulation video for review", "tab": "Output" }
+        }
+      }
+    },
+    "knowledge_capture": {
+      "display_name": "Knowledge Capture",
+      "category": "knowledge_transfer",
+      "description": "Persist a successful job's recipe back into PPL with tags. Tebis encourages capture after every prove-out so PPL keeps growing.",
+      "dialog_tabs": ["Source", "Tagging", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "source": {
+          "jobRef": { "type": "selection", "description": "Completed job to capture", "tab": "Source", "required": true },
+          "captureLevel": { "type": "enum", "values": ["operationOnly", "operationPlusStock", "fullJob"], "default": "fullJob", "tab": "Source" },
+          "includeNCStandard": { "type": "boolean", "default": true, "tab": "Source" }
+        },
+        "tagging": {
+          "featureClass": { "type": "enum", "values": ["mold_cavity", "mold_core", "electrode", "die_punch", "blow_mold_rib", "impeller_blade", "general_3d"], "tab": "Tagging", "required": true },
+          "material": { "type": "string", "tab": "Tagging", "required": true },
+          "customerRef": { "type": "selection", "tab": "Tagging" },
+          "machineRef": { "type": "selection", "tab": "Tagging" },
+          "tags": { "type": "string", "description": "Comma-separated free-text tags", "tab": "Tagging" }
+        },
+        "output": {
+          "writeToPPL": { "type": "boolean", "default": true, "tab": "Output" },
+          "ranking": { "type": "enum", "values": ["unsetUntilProvenOut", "manual", "auto"], "default": "unsetUntilProvenOut", "description": "Don't promote until prove-out signs off", "tab": "Output" },
+          "requireOperatorSignoff": { "type": "boolean", "default": true, "tab": "Output" },
+          "operatorRef": { "type": "selection", "tab": "Output" },
+          "writeAudit": { "type": "boolean", "default": true, "tab": "Output" },
+          "auditPath": { "type": "string", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Tebis ProLeiS / PPL discipline",
+      "key_concepts": ["proven recipe reuse", "NC standardization", "virtual-machine simulation", "knowledge capture"],
+      "best_practices": [
+        "Lookup PPL before generating new toolpaths from scratch — match on feature + material + customer",
+        "Run virtual-machine simulation before sending to the floor — collisions caught here are free",
+        "Capture every prove-out result back into PPL with operator signoff — recipes only get promoted after success",
+        "NC standardization is non-optional — eliminates posthoc post-processor surgery on the floor"
+      ]
+    }
+  ]
+}

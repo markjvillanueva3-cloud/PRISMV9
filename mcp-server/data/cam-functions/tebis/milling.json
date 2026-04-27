@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "system_id": "tebis",
+  "section_key": "milling",
+  "extraction_source": "Tebis 4.1 Reference / Tebis AG Martinsried / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-15",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 72,
+    "categories": ["roughing", "rest_roughing", "semi_finishing", "finishing", "high_efficiency"]
+  },
+  "operations": {
+    "high_efficiency_roughing": {
+      "display_name": "High-Efficiency Roughing (HEM)",
+      "category": "high_efficiency",
+      "description": "Tebis HEM uses VHM-style trochoidal motion with strict radial engagement control. Standard recipe in Tebis proven-process library.",
+      "dialog_tabs": ["Tool", "Stock", "Engagement", "Lift", "Cycle"],
+      "parameter_count": 17,
+      "parameters": {
+        "engagement": {
+          "stepover": { "type": "number", "unit": "mm", "default": 0.8, "range": [0.05, 5.0], "description": "Tool diameter percent normalized to mm", "tab": "Engagement", "required": true },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 8.0, "range": [3, 25], "description": "Maximum radial engagement vs tool diameter", "tab": "Engagement" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 8.0, "range": [0.1, 50], "description": "Axial DOC — large because radial is small (HEM)", "tab": "Engagement", "required": true },
+          "axialAggressivenessFactor": { "type": "number", "default": 2.5, "range": [1.0, 5.0], "description": "Tebis HEM characteristic — 2D HE allows ap >> ae", "tab": "Engagement" }
+        },
+        "stock": {
+          "stockToLeaveRadial": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Stock" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Stock" },
+          "respectInputStock": { "type": "boolean", "default": true, "description": "Honor stock model from previous op", "tab": "Stock" }
+        },
+        "lift": {
+          "rampStrategy": { "type": "enum", "values": ["helix", "zigzag", "plunge", "preDrilled"], "default": "helix", "tab": "Lift", "required": true },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 3.0, "range": [0.5, 15], "tab": "Lift" },
+          "minHelixDiameter": { "type": "number", "unit": "mm", "default": 0.6, "description": "Fraction of tool diameter for helix ramp", "tab": "Lift" }
+        },
+        "cycle": {
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Cycle" },
+          "feedPlunge": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedRamp": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "tsc", "air"], "default": "tsc", "tab": "Cycle" },
+          "useChipThinningComp": { "type": "boolean", "default": true, "description": "Apply chip-thinning correction at low ae/D", "tab": "Cycle" }
+        }
+      }
+    },
+    "z_level_roughing": {
+      "display_name": "Z-Level Roughing",
+      "category": "roughing",
+      "description": "Classic offset-pocket roughing on flat Z-planes. Tebis adds segmented motion to honor stock model boundaries.",
+      "dialog_tabs": ["Tool", "Pattern", "Stock", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "pattern": {
+          "pattern": { "type": "enum", "values": ["concentricInOut", "concentricOutIn", "raster", "spiral"], "default": "concentricInOut", "tab": "Pattern" },
+          "stepover": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Pattern", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Pattern", "required": true },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 0.5, "description": "Corner blend radius for kinematic smoothing", "tab": "Pattern" }
+        },
+        "stock": {
+          "stockToLeaveRadial": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Stock" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Stock" },
+          "respectInputStock": { "type": "boolean", "default": true, "tab": "Stock" }
+        },
+        "cycle": {
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "tsc"], "default": "flood", "tab": "Cycle" },
+          "approachClearance": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "lift": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Cycle" }
+        }
+      }
+    },
+    "rest_roughing": {
+      "display_name": "Rest Roughing",
+      "category": "rest_roughing",
+      "description": "Targeted rest material removal using up-to-date stock model. Tebis tracks IPW and clears only what remains.",
+      "dialog_tabs": ["Tool", "Detection", "Stock", "Cycle"],
+      "parameter_count": 12,
+      "parameters": {
+        "detection": {
+          "minRestThickness": { "type": "number", "unit": "mm", "default": 0.2, "description": "Skip regions thinner than this", "tab": "Detection" },
+          "maxRestThickness": { "type": "number", "unit": "mm", "default": 5.0, "description": "Cap on what one pass will remove", "tab": "Detection" },
+          "restDetectionMode": { "type": "enum", "values": ["fromStockModel", "fromPriorTool", "manual"], "default": "fromStockModel", "tab": "Detection", "required": true },
+          "priorToolDiameter": { "type": "number", "unit": "mm", "description": "Used when mode=fromPriorTool", "tab": "Detection" }
+        },
+        "stock": {
+          "stockToLeaveRadial": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Stock" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Stock" }
+        },
+        "cycle": {
+          "stepover": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "feedDeratingRest": { "type": "number", "default": 0.7, "range": [0.3, 1.0], "description": "Force-corrected feed factor for rest material", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "tsc"], "default": "flood", "tab": "Cycle" }
+        }
+      }
+    },
+    "z_level_finishing": {
+      "display_name": "Z-Level Finishing",
+      "category": "finishing",
+      "description": "Constant-Z waterline finishing for steep walls. Industry-standard mold-die finish strategy. Tebis adds depth-adaptive Δz.",
+      "dialog_tabs": ["Tool", "Profile", "Cycle"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.1, "range": [0.005, 2.0], "tab": "Profile", "required": true },
+          "useScallopAdaptive": { "type": "boolean", "default": true, "description": "Auto-tune Δz to maintain target scallop on shallow zones", "tab": "Profile" },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Profile" },
+          "minSlope": { "type": "number", "unit": "deg", "default": 30.0, "description": "Below this, switch to scallop finish", "tab": "Profile" }
+        },
+        "cycle": {
+          "spiralDirection": { "type": "enum", "values": ["climbOnly", "conventionalOnly", "bidirectional"], "default": "climbOnly", "tab": "Cycle" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "linkType": { "type": "enum", "values": ["onSurface", "stockClearance", "safeZ"], "default": "onSurface", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "air"], "default": "mql", "tab": "Cycle" }
+        }
+      }
+    },
+    "scallop_finishing": {
+      "display_name": "Scallop (Constant-Stepover) Finishing",
+      "category": "finishing",
+      "description": "Constant-scallop finish that follows surface curvature. Pairs with z_level for shallow zones.",
+      "dialog_tabs": ["Tool", "Surface", "Cycle"],
+      "parameter_count": 16,
+      "parameters": {
+        "surface": {
+          "stepover": { "type": "number", "unit": "mm", "default": 0.15, "range": [0.005, 2.0], "tab": "Surface", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.003, "tab": "Surface" },
+          "boundaryMode": { "type": "enum", "values": ["containment", "outsideAvoid", "edgeProject"], "default": "containment", "tab": "Surface" },
+          "boundaryOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Surface" },
+          "maxSlope": { "type": "number", "unit": "deg", "default": 30.0, "description": "Above this, hand off to z_level finish", "tab": "Surface" }
+        },
+        "cycle": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Cycle" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "useToolHolderCheck": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "useGougeProtection": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "air"], "default": "mql", "tab": "Cycle" },
+          "outputFormat": { "type": "enum", "values": ["pointToPoint", "nurbs", "splineFit"], "default": "nurbs", "description": "Tebis NURBS output reduces program size", "tab": "Cycle" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Tebis milling discipline",
+      "key_concepts": ["proven-process library reuse", "stock-model awareness", "z_level + scallop pairing"],
+      "best_practices": [
+        "HEM strategy uses small radial / large axial — check spindle torque and tool flute count",
+        "Always pair z_level finish (steep) with scallop finish (shallow) at consistent slope handoff",
+        "Use NURBS output for finishing toolpaths — reduces controller block-buffer pressure"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "system_id": "tebis",
+  "section_key": "five_axis",
+  "extraction_source": "Tebis 4.1 5-Axis Reference / Tebis AG / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-15",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["simultaneous_5x", "swarf", "tilt_strategy", "deburr"]
+  },
+  "operations": {
+    "simultaneous_5x_finish": {
+      "display_name": "Simultaneous 5-Axis Finish",
+      "category": "simultaneous_5x",
+      "description": "Continuous 5-axis finishing with tool-axis interpolation. Tebis emphasizes lead/tilt control to keep flute engagement constant.",
+      "dialog_tabs": ["Tool", "Surface", "ToolAxis", "Cycle"],
+      "parameter_count": 18,
+      "parameters": {
+        "surface": {
+          "stepover": { "type": "number", "unit": "mm", "default": 0.1, "range": [0.005, 1.0], "tab": "Surface", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.003, "tab": "Surface" },
+          "patternMode": { "type": "enum", "values": ["isoparametric", "guidedByCurve", "morph", "perpendicularToCurve"], "default": "guidedByCurve", "tab": "Surface" },
+          "guideCurveRef": { "type": "selection", "tab": "Surface" }
+        },
+        "toolAxis": {
+          "tiltStrategy": { "type": "enum", "values": ["normalToSurface", "leadAndTilt", "throughCurve", "throughPoint", "tiltByLine"], "default": "leadAndTilt", "tab": "ToolAxis", "required": true },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 5.0, "range": [-30, 30], "tab": "ToolAxis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 5.0, "range": [-30, 30], "tab": "ToolAxis" },
+          "axisSmoothing": { "type": "boolean", "default": true, "description": "Filter axis vector for kinematic smoothness", "tab": "ToolAxis" },
+          "axisSmoothingTolerance": { "type": "number", "unit": "deg", "default": 1.0, "tab": "ToolAxis" },
+          "useGougeProtection": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "useHolderCheck": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "useShankCheck": { "type": "boolean", "default": true, "tab": "ToolAxis" }
+        },
+        "cycle": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedSlowdownAtAxisLimit": { "type": "number", "default": 0.5, "range": [0.1, 1.0], "description": "Feed factor near rotary axis limits", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "outputFormat": { "type": "enum", "values": ["pointToPoint", "nurbs", "splineFit"], "default": "nurbs", "tab": "Cycle" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "linkType": { "type": "enum", "values": ["onSurface", "stockClearance", "safeZ"], "default": "stockClearance", "tab": "Cycle" }
+        }
+      }
+    },
+    "swarf_machining": {
+      "display_name": "Swarf (Side-Wall) Machining",
+      "category": "swarf",
+      "description": "Cut with the side of a flat or tapered tool, axis aligned to ruled surface. Ideal for impeller blades and blow-mold ribs.",
+      "dialog_tabs": ["Surface", "ToolAxis", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "surface": {
+          "ruledSurfaceRef": { "type": "selection", "tab": "Surface", "required": true },
+          "topEdgeRef": { "type": "selection", "tab": "Surface" },
+          "bottomEdgeRef": { "type": "selection", "tab": "Surface" }
+        },
+        "toolAxis": {
+          "axisAlignment": { "type": "enum", "values": ["alongRuling", "tangentToTopEdge", "tangentToBottomEdge"], "default": "alongRuling", "tab": "ToolAxis", "required": true },
+          "useTaperedTool": { "type": "boolean", "default": false, "description": "Rotate axis to match tool taper angle", "tab": "ToolAxis" },
+          "taperAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "ToolAxis" },
+          "axisSmoothing": { "type": "boolean", "default": true, "tab": "ToolAxis" }
+        },
+        "cycle": {
+          "passes": { "type": "integer", "default": 1, "tab": "Cycle" },
+          "stepdownPerPass": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "useGougeProtection": { "type": "boolean", "default": true, "tab": "Cycle" }
+        }
+      }
+    },
+    "deburr_5x": {
+      "display_name": "5-Axis Deburr / Edge Break",
+      "category": "deburr",
+      "description": "Tilted-tool edge break for sharp model edges. Tebis auto-detects edges from solid model.",
+      "dialog_tabs": ["Edges", "ToolAxis", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "edges": {
+          "edgeSource": { "type": "enum", "values": ["allSharp", "selected", "convexOnly", "concaveOnly"], "default": "allSharp", "tab": "Edges", "required": true },
+          "minEdgeAngle": { "type": "number", "unit": "deg", "default": 30.0, "description": "Below this, treat as fillet — skip", "tab": "Edges" },
+          "edgeSelection": { "type": "selection", "description": "Used when edgeSource=selected", "tab": "Edges" }
+        },
+        "toolAxis": {
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 45.0, "range": [10, 80], "description": "Tool axis tilt vs edge bisector", "tab": "ToolAxis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "ToolAxis" },
+          "useGougeProtection": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "useHolderCheck": { "type": "boolean", "default": true, "tab": "ToolAxis" }
+        },
+        "cycle": {
+          "chamferSize": { "type": "number", "unit": "mm", "default": 0.2, "range": [0.05, 2.0], "tab": "Cycle", "required": true },
+          "passes": { "type": "integer", "default": 1, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Cycle" },
+          "outputFormat": { "type": "enum", "values": ["pointToPoint", "nurbs"], "default": "nurbs", "tab": "Cycle" }
+        }
+      }
+    },
+    "auto_indexing_3p2": {
+      "display_name": "Auto 3+2 Indexing",
+      "category": "tilt_strategy",
+      "description": "Convert 5-axis simultaneous toolpath into a sequence of 3+2 indexed setups when machine has limited rotary capability.",
+      "dialog_tabs": ["Source", "Indexing", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "source": {
+          "sourceToolpath": { "type": "selection", "description": "5-axis simultaneous path to convert", "tab": "Source", "required": true },
+          "respectMachineKinematics": { "type": "boolean", "default": true, "tab": "Source" },
+          "machineRef": { "type": "selection", "tab": "Source" }
+        },
+        "indexing": {
+          "tiltDiscretization": { "type": "number", "unit": "deg", "default": 5.0, "description": "Tolerated axis-vector deviation per index", "tab": "Indexing" },
+          "minIndexDuration": { "type": "number", "unit": "s", "default": 5.0, "description": "Skip indexing if subsequent block runs less than this", "tab": "Indexing" },
+          "preferredAxisAlignment": { "type": "enum", "values": ["surfaceNormal", "userVector", "machineDefault"], "default": "surfaceNormal", "tab": "Indexing" },
+          "userVector": { "type": "string", "description": "I,J,K vector when alignment=userVector", "tab": "Indexing" },
+          "checkRotaryLimits": { "type": "boolean", "default": true, "tab": "Indexing" },
+          "rotaryLimitMin": { "type": "number", "unit": "deg", "default": -120, "tab": "Indexing" },
+          "rotaryLimitMax": { "type": "number", "unit": "deg", "default": 120, "tab": "Indexing" }
+        },
+        "output": {
+          "exportEachIndex": { "type": "boolean", "default": true, "tab": "Output" },
+          "preserveOriginalLayer": { "type": "boolean", "default": true, "tab": "Output" },
+          "indexNamingPattern": { "type": "string", "default": "INDEX_<N>_A<rotA>_C<rotC>", "tab": "Output" },
+          "verifyToolReach": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDegradation": { "type": "boolean", "default": true, "description": "Warn when 3+2 sequence is meaningfully worse than original", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Tebis 5-axis discipline",
+      "key_concepts": ["lead/tilt vs surface-normal", "swarf vs flank vs scallop", "rotary smoothing"],
+      "best_practices": [
+        "Use lead+tilt over pure surface-normal — keeps flute engagement off the tool tip and improves finish",
+        "Auto 3+2 indexing is a fallback — verify tool reach AFTER conversion, geometry can change",
+        "NURBS output is critical for 5-axis finish — point-to-point output starves the controller buffer at high feeds"
+      ]
+    }
+  ]
+}

@@ -1624,6 +1624,12 @@ export const ACTIONS = [
     "camworks_function_index_find_parameter", "camworks_function_index_search_parameters",
     "camworks_function_index_get_operations_by_category", "camworks_function_index_get_summary",
     "camworks_function_index_get_afr_operations", "camworks_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-15 — Tebis Function Index
+    "tebis_function_index_get", "tebis_function_index_list_sections",
+    "tebis_function_index_get_section", "tebis_function_index_list_operations",
+    "tebis_function_index_find_parameter", "tebis_function_index_search_parameters",
+    "tebis_function_index_get_operations_by_category", "tebis_function_index_get_summary",
+    "tebis_function_index_get_proven_process_operations", "tebis_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12539,6 +12545,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMWorksFunctionIndexEngine } = await import("../../engines/CAMWorksFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...CAMWorksFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-15 — Tebis Function Index (10 actions)
+          case "tebis_function_index_get": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            result = { success: true, index: TebisFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "tebis_function_index_list_sections": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            result = { success: true, sections: TebisFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "tebis_function_index_get_section": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: TebisFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "tebis_function_index_list_operations": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            result = { success: true, operations: TebisFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "tebis_function_index_find_parameter": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: TebisFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "tebis_function_index_search_parameters": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: TebisFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "tebis_function_index_get_operations_by_category": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: TebisFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "tebis_function_index_get_summary": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            result = { success: true, ...TebisFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "tebis_function_index_get_proven_process_operations": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            result = { success: true, operations: TebisFunctionIndexEngine.getProvenProcessOperations() };
+            break;
+          }
+          case "tebis_function_index_get_operation": {
+            const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...TebisFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
