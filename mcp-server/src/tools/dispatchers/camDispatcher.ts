@@ -1612,6 +1612,12 @@ export const ACTIONS = [
     "worknc_function_index_find_parameter", "worknc_function_index_search_parameters",
     "worknc_function_index_get_operations_by_category", "worknc_function_index_get_summary",
     "worknc_function_index_get_auto5_operations", "worknc_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-13 — TopSolid'Cam Function Index
+    "topsolid_function_index_get", "topsolid_function_index_list_sections",
+    "topsolid_function_index_get_section", "topsolid_function_index_list_operations",
+    "topsolid_function_index_find_parameter", "topsolid_function_index_search_parameters",
+    "topsolid_function_index_get_operations_by_category", "topsolid_function_index_get_summary",
+    "topsolid_function_index_get_pmi_operations", "topsolid_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12413,6 +12419,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...WorkNCFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-13 — TopSolid'Cam Function Index (10 actions)
+          case "topsolid_function_index_get": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            result = { success: true, index: TopSolidCAMFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "topsolid_function_index_list_sections": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            result = { success: true, sections: TopSolidCAMFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "topsolid_function_index_get_section": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: TopSolidCAMFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "topsolid_function_index_list_operations": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            result = { success: true, operations: TopSolidCAMFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "topsolid_function_index_find_parameter": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: TopSolidCAMFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "topsolid_function_index_search_parameters": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: TopSolidCAMFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "topsolid_function_index_get_operations_by_category": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: TopSolidCAMFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "topsolid_function_index_get_summary": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            result = { success: true, ...TopSolidCAMFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "topsolid_function_index_get_pmi_operations": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            result = { success: true, operations: TopSolidCAMFunctionIndexEngine.getPMIOperations() };
+            break;
+          }
+          case "topsolid_function_index_get_operation": {
+            const { TopSolidCAMFunctionIndexEngine } = await import("../../engines/TopSolidCAMFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...TopSolidCAMFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

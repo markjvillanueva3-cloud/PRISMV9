@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "system_id": "topsolid",
+  "section_key": "milling",
+  "extraction_source": "TopSolid'Cam 7.16 Reference / Missler Software public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-13",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 76,
+    "categories": ["roughing", "finishing", "high_efficiency", "associative"]
+  },
+  "operations": {
+    "trochoidal_rough": {
+      "display_name": "Trochoidal Roughing",
+      "category": "high_efficiency",
+      "description": "TopSolid trochoidal HSM clearing — constant tool engagement, deep DOC + reduced WOC. Maintains association with the parent solid model so any geometry change auto-updates the toolpath.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Engagement", "Smoothing", "Linking"],
+      "parameter_count": 18,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "boundaryOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 8.0, "range": [0.1, 200], "tab": "Levels" }
+        },
+        "engagement": {
+          "tea": { "type": "number", "unit": "deg", "default": 30, "range": [5, 90], "tab": "Engagement", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 8, "range": [3, 25], "tab": "Engagement" },
+          "minChipThickness": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Engagement" }
+        },
+        "smoothing": {
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Smoothing" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Smoothing" },
+          "feedRateBoost": { "type": "boolean", "default": true, "tab": "Smoothing" },
+          "boostFactor": { "type": "number", "default": 2.0, "range": [1, 5], "tab": "Smoothing" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Linking" },
+          "associativeLink": { "type": "boolean", "default": true, "description": "Auto-update if parent solid changes", "tab": "Linking" }
+        }
+      }
+    },
+    "pocket": {
+      "display_name": "Pocket Machining",
+      "category": "roughing",
+      "description": "Conventional pocket clearing with offset/parallel/spiral patterns. Closed boundaries with islands. Plunge/ramp/helix entry. Associative link to the source feature.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Stepover", "Entry"],
+      "parameter_count": 14,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "islandSelection": { "type": "selection", "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true }
+        },
+        "stepover": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Stepover", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "range": [5, 95], "tab": "Stepover" },
+          "patternType": { "type": "enum", "values": ["offset", "parallel", "spiral", "hybrid"], "default": "offset", "tab": "Stepover" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Stepover" }
+        },
+        "entry": {
+          "entryMethod": { "type": "enum", "values": ["plunge", "ramp", "helix", "predrill"], "default": "helix", "tab": "Entry" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 5, "range": [0.5, 30], "tab": "Entry" },
+          "helixDiameter": { "type": "number", "unit": "percent", "default": 60, "range": [10, 100], "tab": "Entry" },
+          "predrillTool": { "type": "tool_reference", "tab": "Entry" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Entry" }
+        }
+      }
+    },
+    "contour": {
+      "display_name": "Contour Mill",
+      "category": "finishing",
+      "description": "2D contour finishing with cutter compensation. Lead-in/out arcs, multiple spring passes, computer/control/wear comp output.",
+      "dialog_tabs": ["Profile", "Levels", "Lead", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "profile": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-2, 2], "tab": "Profile" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Profile" },
+          "side": { "type": "enum", "values": ["left", "right", "center"], "default": "right", "tab": "Profile" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Levels" }
+        },
+        "lead": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Lead" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Lead" },
+          "overlap": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Lead" }
+        },
+        "cycle": {
+          "compensationOutput": { "type": "enum", "values": ["computer", "control", "wear"], "default": "computer", "tab": "Cycle" },
+          "springPasses": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Cycle" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cycle" }
+        }
+      }
+    },
+    "surface_finish": {
+      "display_name": "3D Surface Finishing",
+      "category": "finishing",
+      "description": "3D surface finishing with parallel/scallop/Z-level/morph patterns. Optimized for ball/bull mills on free-form surfaces. Associative link to drive surfaces.",
+      "dialog_tabs": ["Drive", "Strategy", "Cusp"],
+      "parameter_count": 16,
+      "parameters": {
+        "drive": {
+          "driveSurfaces": { "type": "selection", "tab": "Drive", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Drive" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Drive" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["parallel", "scallop", "z_level", "morph", "spiral"], "default": "parallel", "tab": "Strategy", "required": true },
+          "patternAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both"], "default": "both", "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["depth_first", "feature_first"], "default": "depth_first", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" }
+        },
+        "cusp": {
+          "cuspHeight": { "type": "number", "unit": "mm", "default": 0.005, "range": [0.001, 0.5], "tab": "Cusp" },
+          "stepover": { "type": "number", "unit": "mm", "tab": "Cusp" },
+          "minSlope": { "type": "number", "unit": "deg", "default": 0, "tab": "Cusp" },
+          "maxSlope": { "type": "number", "unit": "deg", "default": 90, "tab": "Cusp" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Cusp" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Cusp" },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cusp" }
+        }
+      }
+    },
+    "associative_feature_mill": {
+      "display_name": "Associative Feature Mill",
+      "category": "associative",
+      "description": "TopSolid signature: machine an arbitrary feature (pocket, slot, hole, contour) with full bidirectional CAD↔CAM associativity. Geometry changes regenerate the toolpath without manual reselection.",
+      "dialog_tabs": ["Feature", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "feature": {
+          "featureType": { "type": "enum", "values": ["pocket", "slot", "hole", "contour", "boss", "auto_detect"], "default": "auto_detect", "tab": "Feature", "required": true },
+          "featureSelection": { "type": "selection", "tab": "Feature", "required": true },
+          "associativityMode": { "type": "enum", "values": ["bidirectional", "cad_to_cam_only", "frozen"], "default": "bidirectional", "tab": "Feature" }
+        },
+        "strategy": {
+          "autoStrategy": { "type": "boolean", "default": true, "description": "Pick rough/finish based on feature classification", "tab": "Strategy" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "tab": "Strategy" },
+          "patternType": { "type": "enum", "values": ["auto", "offset", "parallel", "spiral"], "default": "auto", "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" }
+        },
+        "output": {
+          "regenerateOnChange": { "type": "boolean", "default": true, "tab": "Output" },
+          "notifyOnRegeneration": { "type": "boolean", "default": true, "description": "Email or UI banner when CAD change triggers regen", "tab": "Output" },
+          "linkInPMI": { "type": "boolean", "default": true, "description": "Carry GD&T from CAD into the operation report", "tab": "Output" },
+          "validateAgainstPMI": { "type": "boolean", "default": true, "description": "Tolerance check against CAD GD&T", "tab": "Output" },
+          "preserveOperatorOverrides": { "type": "boolean", "default": true, "description": "Keep manual feed/speed overrides through regen", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Bidirectional CAD/CAM associativity",
+      "key_concepts": ["associative link", "regeneration", "PMI carry-through", "operator override preservation"],
+      "best_practices": [
+        "Use bidirectional mode for most features — TopSolid handles change propagation",
+        "Pin operator feed/speed overrides so they survive geometry regen",
+        "PMI tolerances should drive operation tolerance — never decouple them"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "system_id": "topsolid",
+  "section_key": "pmi",
+  "extraction_source": "TopSolid'Cam 7.16 PMI / Inspection Reference / Missler Software public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-13",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["pmi", "inspection", "in_process_probe", "automated_planning"]
+  },
+  "operations": {
+    "pmi_extract": {
+      "display_name": "PMI Extract",
+      "category": "pmi",
+      "description": "TopSolid extracts Product Manufacturing Information (GD&T, surface finish, datum reference frames, weld symbols) directly from the parent CAD solid. Drives downstream tolerance validation and inspection planning.",
+      "dialog_tabs": ["Source", "Filters", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "source": {
+          "sourceModel": { "type": "selection", "description": "Parent CAD solid", "tab": "Source", "required": true },
+          "modelType": { "type": "enum", "values": ["topsolid_native", "step", "iges", "parasolid"], "default": "topsolid_native", "tab": "Source" },
+          "associativeMode": { "type": "boolean", "default": true, "description": "Re-extract on CAD change", "tab": "Source" }
+        },
+        "filters": {
+          "extractGDT": { "type": "boolean", "default": true, "tab": "Filters" },
+          "extractSurfaceFinish": { "type": "boolean", "default": true, "tab": "Filters" },
+          "extractDatums": { "type": "boolean", "default": true, "tab": "Filters" },
+          "extractWelds": { "type": "boolean", "default": false, "tab": "Filters" },
+          "extractDimensionalTolerances": { "type": "boolean", "default": true, "tab": "Filters" }
+        },
+        "output": {
+          "exportFormat": { "type": "enum", "values": ["topsolid_pmi", "qif", "json", "step_242"], "default": "qif", "description": "QIF is the ANSI standard for inspection data", "tab": "Output" },
+          "linkToOperations": { "type": "boolean", "default": true, "description": "Tie GD&T to operations that produce the toleranced features", "tab": "Output" },
+          "validateAgainstOperations": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportPath": { "type": "string", "tab": "Output" }
+        }
+      }
+    },
+    "inspection_planner": {
+      "display_name": "Inspection Planner",
+      "category": "inspection",
+      "description": "Generate a CMM inspection plan from extracted PMI. Picks measurement points per ISO 14660, computes uncertainty, outputs DMIS or QIF.",
+      "dialog_tabs": ["Source", "Sampling", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "source": {
+          "pmiSource": { "type": "selection", "description": "PMI extract reference", "tab": "Source", "required": true },
+          "inspectionScope": { "type": "enum", "values": ["all_features", "critical_only", "first_article", "in_process"], "default": "first_article", "tab": "Source" }
+        },
+        "sampling": {
+          "samplingStrategy": { "type": "enum", "values": ["iso_14660", "minimum_3_5_7", "uniform", "hammersley"], "default": "iso_14660", "description": "ISO 14660 specifies geometric-feature point counts", "tab": "Sampling" },
+          "minPointsPerFeature": { "type": "integer", "default": 5, "range": [3, 100], "tab": "Sampling" },
+          "approachDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Sampling" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Sampling" },
+          "probeFeed": { "type": "number", "unit": "mm/min", "default": 100, "tab": "Sampling" },
+          "approachFeed": { "type": "number", "unit": "mm/min", "default": 500, "tab": "Sampling" }
+        },
+        "output": {
+          "outputFormat": { "type": "enum", "values": ["dmis", "qif", "siemens_calypso", "zeiss_native"], "default": "dmis", "tab": "Output" },
+          "outputPath": { "type": "string", "tab": "Output" },
+          "includeUncertaintyBudget": { "type": "boolean", "default": true, "tab": "Output" },
+          "uncertaintyMethod": { "type": "enum", "values": ["iso_15530_3", "iso_15530_4", "monte_carlo"], "default": "iso_15530_3", "tab": "Output" },
+          "validateAgainstPMI": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportToCMM": { "type": "boolean", "default": false, "description": "Push to CMM controller via OPC UA", "tab": "Output" }
+        }
+      }
+    },
+    "in_process_probe": {
+      "display_name": "In-Process Probe",
+      "category": "in_process_probe",
+      "description": "Generate Renishaw-style probing macros for in-process measurement on the CNC. Validates feature dimensions before the next operation runs.",
+      "dialog_tabs": ["Probe", "Features", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "probe": {
+          "probeType": { "type": "enum", "values": ["renishaw_omp", "blum_TC52", "marposs_t36", "heidenhain_TS460"], "default": "renishaw_omp", "tab": "Probe", "required": true },
+          "stylus": { "type": "tool_reference", "tab": "Probe" },
+          "probeFeed": { "type": "number", "unit": "mm/min", "default": 100, "tab": "Probe" },
+          "approachFeed": { "type": "number", "unit": "mm/min", "default": 500, "tab": "Probe" }
+        },
+        "features": {
+          "featureSelection": { "type": "selection", "tab": "Features", "required": true },
+          "featureType": { "type": "enum", "values": ["bore_id", "boss_od", "step", "plane", "edge", "auto"], "default": "auto", "tab": "Features" }
+        },
+        "strategy": {
+          "approachDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "pointsPerFeature": { "type": "integer", "default": 5, "range": [3, 50], "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.05, "description": "Trigger alarm if measurement exceeds this", "tab": "Strategy" },
+          "autoCompensate": { "type": "boolean", "default": false, "description": "Auto-update wear offset if within tolerance", "tab": "Strategy" }
+        },
+        "output": {
+          "macroFormat": { "type": "enum", "values": ["fanuc", "siemens", "okuma", "haas", "mazak"], "default": "fanuc", "tab": "Output" },
+          "alarmOnFail": { "type": "boolean", "default": true, "tab": "Output" },
+          "logToFile": { "type": "boolean", "default": true, "tab": "Output" },
+          "logPath": { "type": "string", "tab": "Output" },
+          "uploadToQuality": { "type": "boolean", "default": false, "description": "Push results to QMS over OPC UA", "tab": "Output" }
+        }
+      }
+    },
+    "auto_process_plan": {
+      "display_name": "Automatic Process Planner",
+      "category": "automated_planning",
+      "description": "TopSolid's signature automated process planning — given a CAD solid with PMI, generate operation sequence, tool list, fixture, and posted G-code with no manual feature selection. Driven by feature-recognition + PMI tolerance.",
+      "dialog_tabs": ["Source", "Constraints", "Output"],
+      "parameter_count": 18,
+      "parameters": {
+        "source": {
+          "sourceModel": { "type": "selection", "tab": "Source", "required": true },
+          "pmiSource": { "type": "selection", "description": "PMI extract reference", "tab": "Source", "required": true },
+          "stockType": { "type": "enum", "values": ["block", "casting", "extrusion", "auto"], "default": "auto", "tab": "Source" },
+          "stockOversize": { "type": "number", "unit": "mm", "default": 5, "tab": "Source" }
+        },
+        "constraints": {
+          "machineFamily": { "type": "enum", "values": ["3axis", "3plus2", "5axis", "millturn", "lathe", "swiss"], "default": "3axis", "tab": "Constraints", "required": true },
+          "availableTools": { "type": "selection", "description": "Tool crib reference", "tab": "Constraints", "required": true },
+          "fixtureType": { "type": "enum", "values": ["vise", "chuck", "tombstone", "fixture_plate", "vacuum"], "default": "vise", "tab": "Constraints" },
+          "maxSetups": { "type": "integer", "default": 2, "range": [1, 6], "tab": "Constraints" },
+          "preferredCycleTime": { "type": "number", "unit": "min", "tab": "Constraints" },
+          "preferredCost": { "type": "number", "unit": "USD", "tab": "Constraints" },
+          "respectPMITolerances": { "type": "boolean", "default": true, "description": "Pick strategies that meet PMI tolerances — never finish at rough-pass tolerance", "tab": "Constraints" }
+        },
+        "output": {
+          "explainPlan": { "type": "boolean", "default": true, "description": "Generate human-readable rationale for each op choice", "tab": "Output" },
+          "validateAgainstSimulation": { "type": "boolean", "default": true, "tab": "Output" },
+          "postProcessor": { "type": "string", "tab": "Output" },
+          "outputPath": { "type": "string", "tab": "Output" },
+          "writeSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeInspectionPlan": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeProveOutGcode": { "type": "boolean", "default": true, "description": "Generate dry-run + air-cut version for first article", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "PMI-driven manufacturing",
+      "key_concepts": ["GD&T extraction", "QIF export", "ISO 14660 sampling", "automated process planning"],
+      "best_practices": [
+        "Extract PMI as the FIRST step — every downstream op should reference it",
+        "Use QIF for inspection output — vendor-neutral and ANSI-standard",
+        "Auto-process planner is a starting point — always review the explain-plan output",
+        "Validate PMI tolerances against operation tolerance before posting; never under-spec"
+      ]
+    }
+  ]
+}

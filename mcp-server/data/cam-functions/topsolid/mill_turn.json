@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "system_id": "topsolid",
+  "section_key": "mill_turn",
+  "extraction_source": "TopSolid'Cam 7.16 Mill-Turn Reference / Missler Software public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-13",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["mill_turn", "live_tooling", "sub_spindle", "synchronized"]
+  },
+  "operations": {
+    "live_tool_drill_radial": {
+      "display_name": "Live Tool Radial Drill",
+      "category": "live_tooling",
+      "description": "Drill radial holes around the OD using a driven tool. C-axis indexes between holes; live tool rotates. Requires C-axis brake.",
+      "dialog_tabs": ["Tool", "Holes", "Cycle", "C-Axis"],
+      "parameter_count": 13,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "diameter": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "depth": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83", "G84"], "default": "G83", "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 3, "tab": "Cycle" },
+          "feedPerRev": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.2, "tab": "Cycle" }
+        },
+        "c_axis": {
+          "useCAxisBrake": { "type": "boolean", "default": true, "tab": "C-Axis" },
+          "brakeMcode": { "type": "string", "default": "M19", "tab": "C-Axis" },
+          "indexMode": { "type": "enum", "values": ["absolute", "incremental"], "default": "absolute", "tab": "C-Axis" },
+          "rapidIndex": { "type": "boolean", "default": true, "tab": "C-Axis" },
+          "approachDistance": { "type": "number", "unit": "mm", "default": 5, "tab": "C-Axis" },
+          "spindleStop": { "type": "boolean", "default": true, "tab": "C-Axis" }
+        }
+      }
+    },
+    "live_tool_mill_face": {
+      "display_name": "Live Tool Face Milling",
+      "category": "live_tooling",
+      "description": "Mill features on the part face using Y-axis (preferred) or polar interpolation.",
+      "dialog_tabs": ["Tool", "Geometry", "Strategy", "Machine"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zigzag", "spiral", "contour"], "default": "spiral", "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 70, "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" }
+        },
+        "machine": {
+          "interpolationMode": { "type": "enum", "values": ["xy_y_axis", "polar_g12_1", "cylindrical_g7_1"], "default": "xy_y_axis", "tab": "Machine" },
+          "polarPlane": { "type": "enum", "values": ["XY", "ZC"], "default": "XY", "tab": "Machine" },
+          "yAxisAvailable": { "type": "boolean", "default": true, "tab": "Machine" },
+          "useCAxisBrake": { "type": "boolean", "default": false, "tab": "Machine" },
+          "brakeMcode": { "type": "string", "default": "M19", "tab": "Machine" }
+        }
+      }
+    },
+    "sub_spindle_handoff": {
+      "display_name": "Sub-Spindle Handoff",
+      "category": "sub_spindle",
+      "description": "Synchronized transfer of part between main and sub spindle. Spindle-sync, position transfer, optional cut-off.",
+      "dialog_tabs": ["Sync", "Transfer", "Cut-Off", "Validation"],
+      "parameter_count": 14,
+      "parameters": {
+        "sync": {
+          "syncMode": { "type": "enum", "values": ["spindle_sync", "feed_sync", "position_sync"], "default": "spindle_sync", "tab": "Sync", "required": true },
+          "syncRPM": { "type": "number", "unit": "rpm", "default": 200, "range": [50, 5000], "tab": "Sync" },
+          "syncMcode": { "type": "string", "default": "M111", "tab": "Sync" },
+          "phaseAlignment": { "type": "number", "unit": "deg", "default": 0, "range": [0, 360], "tab": "Sync" }
+        },
+        "transfer": {
+          "transferZ": { "type": "number", "unit": "mm", "tab": "Transfer", "required": true },
+          "approachFeed": { "type": "number", "unit": "mm/min", "default": 200, "tab": "Transfer" },
+          "subChuckCloseMcode": { "type": "string", "default": "M75", "tab": "Transfer" },
+          "mainChuckOpenMcode": { "type": "string", "default": "M71", "tab": "Transfer" },
+          "dwellAfterClose": { "type": "number", "unit": "s", "default": 0.5, "tab": "Transfer" },
+          "barFeedPushOff": { "type": "boolean", "default": false, "tab": "Transfer" }
+        },
+        "cut_off": {
+          "cutOffEnabled": { "type": "boolean", "default": true, "tab": "Cut-Off" },
+          "cutOffTool": { "type": "tool_reference", "tab": "Cut-Off" },
+          "cutOffFeedReduction": { "type": "number", "unit": "percent", "default": 50, "tab": "Cut-Off" }
+        },
+        "validation": {
+          "validateRPMMatch": { "type": "boolean", "default": true, "description": "Block if RPM delta > 5%", "tab": "Validation" }
+        }
+      }
+    },
+    "channel_sync": {
+      "display_name": "Multi-Channel Sync",
+      "category": "synchronized",
+      "description": "Coordinates multiple turrets/spindles with wait codes. TopSolid generates explicit wait diagrams in the operation view.",
+      "dialog_tabs": ["Channels", "Sync", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "channels": {
+          "channel1Tool": { "type": "tool_reference", "tab": "Channels", "required": true },
+          "channel1Path": { "type": "selection", "tab": "Channels", "required": true },
+          "channel2Tool": { "type": "tool_reference", "tab": "Channels", "required": true },
+          "channel2Path": { "type": "selection", "tab": "Channels", "required": true }
+        },
+        "sync": {
+          "syncMode": { "type": "enum", "values": ["wait_at_start", "wait_at_each_pass", "free_run"], "default": "wait_at_start", "tab": "Sync" },
+          "syncMcode": { "type": "string", "default": "M196", "tab": "Sync" },
+          "waitDwell": { "type": "number", "unit": "s", "default": 0.1, "tab": "Sync" }
+        },
+        "strategy": {
+          "channel1Stock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "channel2Stock": { "type": "number", "unit": "mm", "default": 0, "tab": "Strategy" },
+          "balancingMode": { "type": "enum", "values": ["force_balance", "time_balance", "manual"], "default": "time_balance", "tab": "Strategy" },
+          "minSpacing": { "type": "number", "unit": "mm", "default": 10, "tab": "Strategy" },
+          "validateNoCollision": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "feedPerRev": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "ccsMode": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "maxRPM": { "type": "number", "unit": "rpm", "default": 3000, "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Channel sync wait diagrams",
+      "key_concepts": ["wait codes M196", "channel layout", "balancing mode"],
+      "best_practices": [
+        "TopSolid surfaces a Gantt-like wait diagram — read it before posting",
+        "Time-balance mode is the default; force-balance only when both channels cut the same OD",
+        "Validate post emits M196 codes — older posts skip them"
+      ]
+    }
+  ]
+}
