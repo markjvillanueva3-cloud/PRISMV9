@@ -1654,6 +1654,12 @@ export const ACTIONS = [
     "alphacam_function_index_find_parameter", "alphacam_function_index_search_parameters",
     "alphacam_function_index_get_operations_by_category", "alphacam_function_index_get_summary",
     "alphacam_function_index_get_drilling_operations", "alphacam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index
+    "visi_function_index_get", "visi_function_index_list_sections",
+    "visi_function_index_get_section", "visi_function_index_list_operations",
+    "visi_function_index_find_parameter", "visi_function_index_search_parameters",
+    "visi_function_index_get_operations_by_category", "visi_function_index_get_summary",
+    "visi_function_index_get_mold_operations", "visi_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -1676,6 +1682,7 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0: LoRA cadence engines (6 actions)
   "milling_lora_predict", "milling_lora_train", "milling_lora_optimize",
   "millturn_lora_predict", "millturn_lora_train", "millturn_lora_optimize",
+  "cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -12854,6 +12861,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...AlphacamFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index (10 actions)
+          case "visi_function_index_get": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            result = { success: true, index: VISIFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "visi_function_index_list_sections": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            result = { success: true, sections: VISIFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "visi_function_index_get_section": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: VISIFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "visi_function_index_list_operations": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            result = { success: true, operations: VISIFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "visi_function_index_find_parameter": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: VISIFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "visi_function_index_search_parameters": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: VISIFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "visi_function_index_get_operations_by_category": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: VISIFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "visi_function_index_get_summary": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            result = { success: true, ...VISIFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "visi_function_index_get_mold_operations": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            result = { success: true, operations: VISIFunctionIndexEngine.getMoldOperations() };
+            break;
+          }
+          case "visi_function_index_get_operation": {
+            const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...VISIFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

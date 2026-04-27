@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "system_id": "visi",
+  "section_key": "mold_design",
+  "extraction_source": "VISI Mould 2024 Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-20",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 64,
+    "categories": ["mold_base", "ejector_layout", "cooling_circuit", "parting_line"]
+  },
+  "operations": {
+    "mold_base_select": {
+      "display_name": "Mold Base Selection",
+      "category": "mold_base",
+      "description": "VISI Mould flagship — mold-base library lookup and configuration. Auto-sized to part envelope. DME/HASCO/Meusburger/PCS catalogs.",
+      "dialog_tabs": ["Library", "Size", "Plates", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "library": {
+          "library": { "type": "enum", "values": ["DME", "HASCO", "Meusburger", "PCS", "Strack", "Futaba", "custom"], "default": "DME", "tab": "Library", "required": true },
+          "series": { "type": "string", "tab": "Library" },
+          "moldType": { "type": "enum", "values": ["2plate", "3plate", "stripper", "stack", "rotary"], "default": "2plate", "tab": "Library" },
+          "guidanceType": { "type": "enum", "values": ["standard_pillars", "ball_bushings", "selfLubricating", "hydraulic"], "default": "standard_pillars", "tab": "Library" }
+        },
+        "size": {
+          "partEnvelopeX": { "type": "number", "unit": "mm", "tab": "Size", "required": true },
+          "partEnvelopeY": { "type": "number", "unit": "mm", "tab": "Size", "required": true },
+          "partEnvelopeZ": { "type": "number", "unit": "mm", "tab": "Size", "required": true },
+          "wallThickMin": { "type": "number", "unit": "mm", "default": 30, "description": "Min wall around cavity", "tab": "Size" },
+          "topClearance": { "type": "number", "unit": "mm", "default": 50, "tab": "Size" }
+        },
+        "plates": {
+          "topPlate": { "type": "boolean", "default": true, "tab": "Plates" },
+          "cavityPlate": { "type": "boolean", "default": true, "tab": "Plates" },
+          "corePlate": { "type": "boolean", "default": true, "tab": "Plates" },
+          "bottomPlate": { "type": "boolean", "default": true, "tab": "Plates" },
+          "stripperPlate": { "type": "boolean", "default": false, "tab": "Plates" }
+        },
+        "output": {
+          "exportBOM": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportDrawing": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "ejector_layout": {
+      "display_name": "Ejector Pin Layout",
+      "category": "ejector_layout",
+      "description": "Auto-place ejector pins on core surface. Avoids cosmetic A-side, balances ejection force, respects rib/boss locations.",
+      "dialog_tabs": ["Pins", "Placement", "Force", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "pins": {
+          "pinDiameter": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Pins", "required": true },
+          "pinType": { "type": "enum", "values": ["round", "blade", "sleeve", "hexagonal"], "default": "round", "tab": "Pins" },
+          "pinLength": { "type": "number", "unit": "mm", "default": 200, "tab": "Pins" },
+          "pinMaterial": { "type": "enum", "values": ["nitrided", "throughHardened", "shoulderH13", "PVD_TiN"], "default": "nitrided", "tab": "Pins" }
+        },
+        "placement": {
+          "minSpacing": { "type": "number", "unit": "mm", "default": 30, "tab": "Placement" },
+          "edgeOffset": { "type": "number", "unit": "mm", "default": 10, "description": "From core perimeter", "tab": "Placement" },
+          "avoidRibs": { "type": "boolean", "default": true, "tab": "Placement" },
+          "avoidBosses": { "type": "boolean", "default": true, "tab": "Placement" },
+          "avoidCosmeticFaces": { "type": "boolean", "default": true, "description": "Cosmetic A-side gets no pins", "tab": "Placement" }
+        },
+        "force": {
+          "ejectionForce": { "type": "number", "unit": "N", "tab": "Force" },
+          "frictionCoefficient": { "type": "number", "default": 0.3, "tab": "Force" },
+          "expectedShrinkage": { "type": "number", "unit": "percent", "default": 0.5, "tab": "Force" },
+          "balancedDistribution": { "type": "boolean", "default": true, "tab": "Force" }
+        },
+        "output": {
+          "exportPinDrillProgram": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportPinList": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "cooling_circuit": {
+      "display_name": "Cooling Circuit Design",
+      "category": "cooling_circuit",
+      "description": "VISI Compass cooling-line design. Conformal or conventional drilled cooling. Heat-balance simulation.",
+      "dialog_tabs": ["Circuit", "Channel", "Flow", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "circuit": {
+          "circuitType": { "type": "enum", "values": ["conventional_drilled", "conformal", "baffles", "bubblers", "hybrid"], "default": "conventional_drilled", "tab": "Circuit", "required": true },
+          "coolant": { "type": "enum", "values": ["water_pure", "water_glycol30", "oil_HTF", "thermosol"], "default": "water_pure", "tab": "Circuit" },
+          "coolantTempIn": { "type": "number", "unit": "C", "default": 40, "tab": "Circuit" },
+          "coolantTempOut": { "type": "number", "unit": "C", "default": 50, "tab": "Circuit" }
+        },
+        "channel": {
+          "channelDia": { "type": "number", "unit": "mm", "default": 10, "tab": "Channel" },
+          "channelToCavityMin": { "type": "number", "unit": "mm", "default": 15, "description": "Min steel between channel and cavity wall", "tab": "Channel" },
+          "channelToChannelMin": { "type": "number", "unit": "mm", "default": 25, "tab": "Channel" },
+          "depthToDiameterRatio": { "type": "number", "default": 8, "description": "Drilling reach limit", "tab": "Channel" },
+          "branchAngle": { "type": "number", "unit": "deg", "default": 90, "values": [45, 60, 90], "tab": "Channel" }
+        },
+        "flow": {
+          "flowRateLpm": { "type": "number", "unit": "lpm", "default": 8, "description": "L/min target flow", "tab": "Flow" },
+          "reynoldsTarget": { "type": "number", "default": 10000, "description": "Turbulent regime", "tab": "Flow" },
+          "pressureLimit": { "type": "number", "unit": "bar", "default": 4, "tab": "Flow" }
+        },
+        "output": {
+          "exportDrillProgram": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportFlowReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfReynoldsLow": { "type": "boolean", "default": true, "description": "Re<2300 = laminar = 5x worse heat transfer", "tab": "Output" }
+        }
+      }
+    },
+    "parting_line": {
+      "display_name": "Parting Line Design",
+      "category": "parting_line",
+      "description": "Auto + manual parting-line design. Silhouette method, draft-zero detection, undercut classification.",
+      "dialog_tabs": ["Method", "Validation", "Surface", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "method": {
+          "detectionMethod": { "type": "enum", "values": ["silhouette", "userCurve", "draftZero", "manual"], "default": "silhouette", "tab": "Method", "required": true },
+          "moldDirection": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y", "auto"], "default": "auto", "tab": "Method" },
+          "draftMin": { "type": "number", "unit": "deg", "default": 0.5, "range": [0, 10], "tab": "Method" },
+          "tangentTransition": { "type": "boolean", "default": true, "tab": "Method" }
+        },
+        "validation": {
+          "checkUndercuts": { "type": "boolean", "default": true, "tab": "Validation" },
+          "checkSelfIntersection": { "type": "boolean", "default": true, "tab": "Validation" },
+          "checkTangentialContinuity": { "type": "boolean", "default": true, "tab": "Validation" },
+          "warnOnAcuteAngle": { "type": "boolean", "default": true, "tab": "Validation" },
+          "minRadiusOnPL": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Validation" }
+        },
+        "surface": {
+          "surfaceType": { "type": "enum", "values": ["flat", "ruled", "extruded", "stepped"], "default": "ruled", "tab": "Surface" },
+          "extensionLength": { "type": "number", "unit": "mm", "default": 30, "tab": "Surface" },
+          "trimToBlock": { "type": "boolean", "default": true, "tab": "Surface" },
+          "smoothFactor": { "type": "number", "default": 0.5, "range": [0, 1], "tab": "Surface" }
+        },
+        "output": {
+          "exportPartingDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlightUndercuts": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "VISI Mould design discipline",
+      "key_concepts": ["DME 2-plate vs 3-plate selection", "ejector force balance", "Reynolds turbulent flow target"],
+      "best_practices": [
+        "DME 2-plate is the workhorse for parts under 200x300mm; switch to 3-plate when gating is sensitive",
+        "Ejector force imbalance > 25% causes core-side flash and stuck parts — VISI Mould auto-balances pin layout",
+        "Coolant Re < 2300 (laminar) cuts heat transfer 5x — design for Re ≥ 10000 by upping flow rate, not channel size"
+      ]
+    }
+  ]
+}

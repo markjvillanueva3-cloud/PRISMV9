@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "system_id": "visi",
+  "section_key": "electrode",
+  "extraction_source": "VISI Electrode 2024 Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-20",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["electrode_extract", "electrode_design", "edm_setup", "library"]
+  },
+  "operations": {
+    "electrode_extract": {
+      "display_name": "Electrode Extract",
+      "category": "electrode_extract",
+      "description": "VISI Electrode flagship — auto-extract burn faces from cavity. Detects undercuts, deep ribs, sharp corners requiring electrodes.",
+      "dialog_tabs": ["Cavity", "Extract", "Reference", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "cavity": {
+          "cavityModel": { "type": "selection", "tab": "Cavity", "required": true },
+          "machiningOrigin": { "type": "selection", "tab": "Cavity" },
+          "moldOrientation": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y", "auto"], "default": "+Z", "tab": "Cavity" }
+        },
+        "extract": {
+          "minToolReach": { "type": "number", "unit": "mm", "default": 1.0, "description": "Smallest milling tool that fits — anything tighter requires EDM", "tab": "Extract" },
+          "maxAspectRatio": { "type": "number", "default": 6, "description": "Length/width — beyond this, EDM is required", "tab": "Extract" },
+          "minSharpRadius": { "type": "number", "unit": "mm", "default": 0.2, "description": "Below this, EDM required for sharp corners", "tab": "Extract" },
+          "extendBeyondCavity": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Extract" }
+        },
+        "reference": {
+          "refDirection": { "type": "selection", "tab": "Reference" },
+          "refSurface": { "type": "selection", "tab": "Reference" },
+          "burnDepth": { "type": "number", "unit": "mm", "default": 0, "description": "0 = compute from cavity depth", "tab": "Reference" }
+        },
+        "output": {
+          "exportElectrodeBlanks": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportRegion3D": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeRegionReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnTooSmall": { "type": "boolean", "default": true, "description": "Warn if extracted region too small to make electrode", "tab": "Output" }
+        }
+      }
+    },
+    "electrode_design": {
+      "display_name": "Electrode Design",
+      "category": "electrode_design",
+      "description": "Manual electrode design with blank, shank, fiducials. Supports graphite (POCO/EDM3) and copper (tellurium/electrolytic).",
+      "dialog_tabs": ["Blank", "Shank", "Fiducials", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "blank": {
+          "blankShape": { "type": "enum", "values": ["square", "round", "hex", "custom"], "default": "square", "tab": "Blank", "required": true },
+          "blankSize": { "type": "number", "unit": "mm", "default": 25, "tab": "Blank" },
+          "blankHeight": { "type": "number", "unit": "mm", "default": 30, "tab": "Blank" },
+          "blankMaterial": { "type": "enum", "values": ["graphite_EDM3", "graphite_POCO_AF5", "graphite_POCO_EDM200", "copper_tellurium", "copper_electrolytic", "tungsten"], "default": "graphite_EDM3", "tab": "Blank" }
+        },
+        "shank": {
+          "shankAttachment": { "type": "enum", "values": ["EROWA", "3R", "MecaTool", "weld", "thread"], "default": "EROWA", "tab": "Shank" },
+          "shankRotation": { "type": "number", "unit": "deg", "default": 0, "tab": "Shank" },
+          "engravingId": { "type": "boolean", "default": true, "description": "Auto-engrave electrode ID on shank", "tab": "Shank" }
+        },
+        "fiducials": {
+          "fiducialCount": { "type": "integer", "default": 2, "range": [0, 6], "tab": "Fiducials" },
+          "fiducialType": { "type": "enum", "values": ["sphere", "cone", "pyramid", "cylinder"], "default": "cone", "tab": "Fiducials" },
+          "fiducialSize": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Fiducials" }
+        },
+        "output": {
+          "exportBlueprint": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSTEP": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeBOM": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "edm_setup": {
+      "display_name": "EDM Setup Sheet",
+      "category": "edm_setup",
+      "description": "Auto-generate setup sheet for die-sinker EDM. Includes electrode list, burn sequence, orbit ladder, polarity.",
+      "dialog_tabs": ["Machine", "Sequence", "Burn", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "machine": {
+          "machineMake": { "type": "enum", "values": ["AgieCharmilles", "Mitsubishi", "Sodick", "Makino", "OPS", "Eagle"], "default": "AgieCharmilles", "tab": "Machine" },
+          "axisCount": { "type": "integer", "default": 3, "range": [3, 5], "tab": "Machine" },
+          "controllerVersion": { "type": "string", "tab": "Machine" }
+        },
+        "sequence": {
+          "electrodeOrder": { "type": "enum", "values": ["roughFirst", "finishFirst", "byZone", "manual"], "default": "roughFirst", "tab": "Sequence" },
+          "totalElectrodes": { "type": "integer", "default": 3, "range": [1, 12], "tab": "Sequence", "required": true },
+          "roughElectrodes": { "type": "integer", "default": 1, "tab": "Sequence" },
+          "finishElectrodes": { "type": "integer", "default": 1, "tab": "Sequence" }
+        },
+        "burn": {
+          "roughOrbit": { "type": "number", "unit": "mm", "default": 0.10, "tab": "Burn" },
+          "semiOrbit": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Burn" },
+          "finishOrbit": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Burn" },
+          "polarityPattern": { "type": "enum", "values": ["positive", "negative", "alternate"], "default": "alternate", "description": "Alternate gives best electrode life", "tab": "Burn" }
+        },
+        "output": {
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportElectrodeList": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnExcessElectrodes": { "type": "boolean", "default": true, "description": "More than 12 electrodes for 1 cavity is suspicious", "tab": "Output" }
+        }
+      }
+    },
+    "electrode_library": {
+      "display_name": "Electrode Library Reuse",
+      "category": "library",
+      "description": "Search electrode library for similar prior burns. Reuse standardized blanks across cavities to save graphite.",
+      "dialog_tabs": ["Search", "Reuse", "Storage", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "search": {
+          "searchMode": { "type": "enum", "values": ["geometricSimilar", "tagBased", "naming", "manual"], "default": "geometricSimilar", "tab": "Search" },
+          "geomTolerance": { "type": "number", "unit": "mm", "default": 0.5, "description": "Match electrodes within this size deviation", "tab": "Search" },
+          "minMatchScore": { "type": "number", "default": 0.85, "range": [0.5, 1.0], "tab": "Search" }
+        },
+        "reuse": {
+          "preferReuse": { "type": "boolean", "default": true, "tab": "Reuse" },
+          "trackBurnCount": { "type": "boolean", "default": true, "tab": "Reuse" },
+          "maxBurnsBeforeRedress": { "type": "integer", "default": 10, "tab": "Reuse" },
+          "warnIfWearOver": { "type": "number", "unit": "percent", "default": 15, "description": "Replace if cumulative wear above this", "tab": "Reuse" }
+        },
+        "storage": {
+          "storageLocation": { "type": "string", "default": "library/electrodes", "tab": "Storage" },
+          "storageBins": { "type": "integer", "default": 20, "tab": "Storage" },
+          "labelEachElectrode": { "type": "boolean", "default": true, "description": "Print barcode/QR for each electrode", "tab": "Storage" },
+          "trackInventoryDB": { "type": "boolean", "default": true, "tab": "Storage" }
+        },
+        "output": {
+          "writeReuseReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSavingsReport": { "type": "boolean", "default": true, "description": "Track $ saved by reuse", "tab": "Output" },
+          "warnIfNoMatch": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "VISI Electrode discipline",
+      "key_concepts": ["EROWA shank standardization", "graphite vs copper electrode selection", "alternating polarity for electrode life"],
+      "best_practices": [
+        "Standardize on EROWA shanks across all electrodes — repeatability of ±0.002 mm avoids re-zero on machine",
+        "POCO AF5 graphite for finest cavities (Ra 0.3 μm); EDM3 for general production; copper-tellurium for high-precision side burns",
+        "Alternating polarity (rough = neg, finish = pos) extends electrode life ~30% vs constant polarity"
+      ]
+    }
+  ]
+}

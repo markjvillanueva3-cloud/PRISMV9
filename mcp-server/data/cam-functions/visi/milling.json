@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "visi",
+  "section_key": "milling",
+  "extraction_source": "VISI 2024 Mill Reference / Hexagon mold-die training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-20",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["pocket_2_5d", "profile_2d", "surface_3d", "multi_axis_5x"]
+  },
+  "operations": {
+    "pocket_2_5d": {
+      "display_name": "Pocket 2.5D",
+      "category": "pocket_2_5d",
+      "description": "VISI 2.5-axis pocket with island recognition. Optimized for tool steel cores and cavities (P20, H13, S7).",
+      "dialog_tabs": ["Geometry", "Strategy", "Tool", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "boundaryCurve": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "islands": { "type": "selection", "tab": "Geometry" }
+        },
+        "strategy": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 60, "range": [10, 95], "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "range": [0.05, 25], "tab": "Strategy", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 2.5, "range": [0.5, 30], "tab": "Strategy" },
+          "pattern": { "type": "enum", "values": ["zigZag", "spiral", "morph", "constantOffset"], "default": "constantOffset", "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" }
+        },
+        "tool": {
+          "preferredToolType": { "type": "enum", "values": ["endMill", "bullNose", "ballNose", "shellMill"], "default": "endMill", "tab": "Tool" },
+          "minDiameter": { "type": "number", "unit": "mm", "default": 3, "tab": "Tool" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Output" },
+          "smoothLink": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "profile_2d": {
+      "display_name": "Profile 2D",
+      "category": "profile_2d",
+      "description": "Side-wall profile cutting with Z-stepdown. Used for shut-offs, parting-line trims, and core inserts.",
+      "dialog_tabs": ["Profile", "Passes", "LeadInOut", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "profileCurve": { "type": "selection", "tab": "Profile", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "compensation": { "type": "enum", "values": ["computer", "control_G41_G42", "wear", "off"], "default": "computer", "tab": "Profile" }
+        },
+        "passes": {
+          "axialPasses": { "type": "integer", "default": 1, "range": [1, 50], "tab": "Passes" },
+          "radialPasses": { "type": "integer", "default": 1, "range": [1, 20], "tab": "Passes" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Passes" },
+          "finishSpringPass": { "type": "boolean", "default": false, "tab": "Passes" }
+        },
+        "leadInOut": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular"], "default": "arc", "tab": "LeadInOut" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "LeadInOut" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "LeadInOut" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "LeadInOut" }
+        },
+        "output": {
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Output" },
+          "feedReductionInCorners": { "type": "number", "unit": "percent", "default": 25, "tab": "Output" }
+        }
+      }
+    },
+    "surface_3d": {
+      "display_name": "Surface 3D",
+      "category": "surface_3d",
+      "description": "3-axis surface finishing with Z-level, scallop, and pencil strategies. Optimized for mold finishing to Ra 0.4.",
+      "dialog_tabs": ["Surface", "Strategy", "Output", "Tool"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "boundary": { "type": "selection", "tab": "Surface" },
+          "checkSurface": { "type": "selection", "tab": "Surface" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zLevel", "scallop", "pencil", "spiral", "parallel"], "default": "scallop", "tab": "Strategy", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "range": [0.0001, 0.1], "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "patternAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Strategy" }
+        },
+        "output": {
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "linkSmooth": { "type": "boolean", "default": true, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped", "constant"], "default": "smooth", "tab": "Output" }
+        },
+        "tool": {
+          "preferredToolType": { "type": "enum", "values": ["ballNose", "bullNose", "tapered"], "default": "ballNose", "tab": "Tool" },
+          "minToolEngagement": { "type": "number", "unit": "percent", "default": 10, "tab": "Tool" }
+        }
+      }
+    },
+    "multi_axis_5x": {
+      "display_name": "Multi-Axis 5X",
+      "category": "multi_axis_5x",
+      "description": "5-axis simultaneous milling: tilt drive, port machining, undercut access. Supports 5 tool-axis modes.",
+      "dialog_tabs": ["Drive", "ToolAxis", "Strategy", "Limits"],
+      "parameter_count": 14,
+      "parameters": {
+        "drive": {
+          "drivingSurface": { "type": "selection", "tab": "Drive", "required": true },
+          "edgeCurve": { "type": "selection", "tab": "Drive" },
+          "checkSurfaces": { "type": "selection", "tab": "Drive" }
+        },
+        "toolAxis": {
+          "axisMode": { "type": "enum", "values": ["normalToSurface", "throughCurve", "tiltedFromCurve", "tiltedFromAxis", "swarf"], "default": "normalToSurface", "tab": "ToolAxis", "required": true },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 5.0, "range": [-30, 30], "tab": "ToolAxis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 10.0, "range": [-45, 45], "tab": "ToolAxis" },
+          "smoothingMethod": { "type": "enum", "values": ["none", "linear", "spline"], "default": "spline", "tab": "ToolAxis" }
+        },
+        "strategy": {
+          "stepover": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Strategy" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Strategy" }
+        },
+        "limits": {
+          "rotaryAxisALimits": { "type": "string", "default": "[-110, 110]", "tab": "Limits" },
+          "rotaryAxisCLimits": { "type": "string", "default": "[-360, 360]", "tab": "Limits" },
+          "checkCollision": { "type": "boolean", "default": true, "tab": "Limits" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "VISI mold milling discipline",
+      "key_concepts": ["scallop pattern for mold cores", "5-axis swarf for ruled side-walls", "constant-offset for hardened steel"],
+      "best_practices": [
+        "Constant-offset pocket pattern keeps engagement steady on hardened P20/H13 — avoids tool snap on corners",
+        "Scallop with 0.005mm scallop height delivers Ra 0.4 finish on cavities — verify with surface profilometer",
+        "Multi-axis swarf is required for ruled side-walls in slider pockets — normalToSurface leaves witness marks"
+      ]
+    }
+  ]
+}

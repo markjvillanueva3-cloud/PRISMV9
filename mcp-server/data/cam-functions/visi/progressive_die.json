@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "system_id": "visi",
+  "section_key": "progressive_die",
+  "extraction_source": "VISI Progress 2024 Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-20",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["strip_layout", "blanking", "forming", "transfer_die"]
+  },
+  "operations": {
+    "strip_layout": {
+      "display_name": "Strip Layout (VISI Progress)",
+      "category": "strip_layout",
+      "description": "VISI Progress flagship — progressive-die strip design. Auto-sequences trim, pierce, form, draw across 4-30 stations.",
+      "dialog_tabs": ["Strip", "Stations", "Carrier", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "strip": {
+          "stripWidth": { "type": "number", "unit": "mm", "tab": "Strip", "required": true },
+          "stripPitch": { "type": "number", "unit": "mm", "tab": "Strip", "required": true },
+          "thickness": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strip", "required": true },
+          "material": { "type": "string", "default": "DC04", "tab": "Strip" },
+          "orientation": { "type": "enum", "values": ["rolling_direction", "transverse", "bias45"], "default": "rolling_direction", "tab": "Strip" }
+        },
+        "stations": {
+          "stationCount": { "type": "integer", "default": 8, "range": [3, 30], "tab": "Stations" },
+          "idleStations": { "type": "integer", "default": 1, "description": "Add 1 idle every 3 active for slug ejection", "tab": "Stations" },
+          "feedDirection": { "type": "enum", "values": ["+X", "-X", "+Y", "-Y"], "default": "+X", "tab": "Stations" },
+          "feedHeight": { "type": "number", "unit": "mm", "default": 3.0, "description": "Lift between stations", "tab": "Stations" }
+        },
+        "carrier": {
+          "carrierType": { "type": "enum", "values": ["edge", "center", "stretchWeb", "doubleEdge"], "default": "edge", "tab": "Carrier" },
+          "carrierWidth": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Carrier" },
+          "pilotHoleDia": { "type": "number", "unit": "mm", "default": 6.0, "tab": "Carrier" },
+          "pilotSpacing": { "type": "number", "unit": "mm", "default": 0, "description": "0 = match stripPitch", "tab": "Carrier" }
+        },
+        "output": {
+          "exportStripDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfPitchTooSmall": { "type": "boolean", "default": true, "description": "Sub-thickness pitch causes feed jams", "tab": "Output" }
+        }
+      }
+    },
+    "blanking_punch": {
+      "display_name": "Blanking & Pierce Punch",
+      "category": "blanking",
+      "description": "Punch and die geometry for blanking, piercing, slotting, notching. Auto-clearance based on material thickness.",
+      "dialog_tabs": ["Geometry", "Clearance", "Holder", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "punchProfile": { "type": "selection", "tab": "Geometry", "required": true },
+          "punchType": { "type": "enum", "values": ["blanking", "piercing", "slotting", "notching", "cutoff"], "default": "blanking", "tab": "Geometry" },
+          "stripperType": { "type": "enum", "values": ["springLoaded", "fixed", "urethane", "nitrogen"], "default": "springLoaded", "tab": "Geometry" }
+        },
+        "clearance": {
+          "clearancePerSide": { "type": "number", "unit": "percent_of_thk", "default": 8, "range": [3, 15], "description": "8% typical for mild steel", "tab": "Clearance", "required": true },
+          "punchOversize": { "type": "number", "unit": "mm", "default": 0, "description": "For pierce: punch is undersized; for blank: punch is oversized", "tab": "Clearance" },
+          "shearAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Reduces tonnage on long cuts", "tab": "Clearance" }
+        },
+        "holder": {
+          "holderType": { "type": "enum", "values": ["DME", "HASCO", "Misumi", "Strack", "custom"], "default": "DME", "tab": "Holder" },
+          "punchPocket": { "type": "enum", "values": ["press_fit", "ball_lock", "T_lock", "side_lock"], "default": "ball_lock", "tab": "Holder" },
+          "diePocket": { "type": "enum", "values": ["press_fit", "screwed_insert", "tapered_lock"], "default": "screwed_insert", "tab": "Holder" }
+        },
+        "output": {
+          "exportPunchDie": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportClearanceReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnHighClearance": { "type": "boolean", "default": true, "description": "Above 12% causes burr formation", "tab": "Output" },
+          "writeTonnageEstimate": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "forming_die": {
+      "display_name": "Forming Die Design",
+      "category": "forming",
+      "description": "Bend, draw, form, coin, emboss. Springback compensation per material. Multi-station progressive forming.",
+      "dialog_tabs": ["Type", "Geometry", "Springback", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "type": {
+          "formingType": { "type": "enum", "values": ["airBend", "bottomBend", "coining", "draw", "emboss", "lance"], "default": "airBend", "tab": "Type", "required": true },
+          "stationsRequired": { "type": "integer", "default": 1, "tab": "Type" }
+        },
+        "geometry": {
+          "bendAngle": { "type": "number", "unit": "deg", "default": 90, "tab": "Geometry" },
+          "innerRadius": { "type": "number", "unit": "mm", "default": 1.0, "description": "Min ~thickness for mild steel", "tab": "Geometry" },
+          "flangeLength": { "type": "number", "unit": "mm", "default": 10, "tab": "Geometry" },
+          "kFactor": { "type": "number", "default": 0.42, "range": [0.3, 0.5], "description": "Neutral axis position factor", "tab": "Geometry" }
+        },
+        "springback": {
+          "springbackComp": { "type": "boolean", "default": true, "tab": "Springback" },
+          "springbackAngleDeg": { "type": "number", "unit": "deg", "default": 2, "description": "Material-specific overbend", "tab": "Springback" },
+          "materialModulus": { "type": "number", "unit": "GPa", "default": 210, "tab": "Springback" },
+          "yieldStrength": { "type": "number", "unit": "MPa", "default": 250, "tab": "Springback" }
+        },
+        "output": {
+          "exportFormDieDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportFlatPattern": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeForceReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnTightRadius": { "type": "boolean", "default": true, "description": "Below 0.5x thickness causes cracks", "tab": "Output" }
+        }
+      }
+    },
+    "transfer_die": {
+      "display_name": "Transfer Die Setup",
+      "category": "transfer_die",
+      "description": "Transfer-die station design. Mechanical fingers grip and lift parts between stations. Cycle-time optimization.",
+      "dialog_tabs": ["Stations", "Transfer", "Timing", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "stations": {
+          "stationCount": { "type": "integer", "default": 6, "range": [2, 20], "tab": "Stations", "required": true },
+          "stationSpacing": { "type": "number", "unit": "mm", "default": 200, "tab": "Stations" },
+          "stationLayout": { "type": "enum", "values": ["inLine", "transverse", "circular"], "default": "inLine", "tab": "Stations" }
+        },
+        "transfer": {
+          "transferType": { "type": "enum", "values": ["3axis_servo", "mechanical_cam", "robotic"], "default": "3axis_servo", "tab": "Transfer" },
+          "fingerCount": { "type": "integer", "default": 6, "tab": "Transfer" },
+          "fingerType": { "type": "enum", "values": ["scissor", "vacuum", "magnetic", "pin_lift"], "default": "scissor", "tab": "Transfer" },
+          "liftHeight": { "type": "number", "unit": "mm", "default": 100, "tab": "Transfer" },
+          "transferStrokeMm": { "type": "number", "unit": "mm", "default": 200, "tab": "Transfer" }
+        },
+        "timing": {
+          "strokesPerMinute": { "type": "number", "unit": "spm", "default": 25, "tab": "Timing" },
+          "transferDelayMs": { "type": "number", "unit": "ms", "default": 200, "tab": "Timing" },
+          "dwellAtTopMs": { "type": "number", "unit": "ms", "default": 100, "tab": "Timing" },
+          "lockingPinTime": { "type": "number", "unit": "ms", "default": 50, "tab": "Timing" }
+        },
+        "output": {
+          "writeTimingDiagram": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportLayoutDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfCollision": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfTimingTooFast": { "type": "boolean", "default": true, "description": "Fingers can't keep up >35 SPM with 200mm stroke", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "VISI Progress die discipline",
+      "key_concepts": ["1 idle station per 3 active for slug ejection", "8% punch-die clearance for mild steel", "transfer SPM vs stroke trade-off"],
+      "best_practices": [
+        "Add 1 idle station after every 3 active operations — this gives slugs time to drop before next stroke",
+        "8% per-side clearance is the sweet spot for mild steel — under 5% causes excessive tonnage, over 12% leaves heavy burrs",
+        "3-axis servo transfer can hit 35 SPM with 200mm stroke; mechanical-cam transfers max out at 25 SPM"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "system_id": "visi",
+  "section_key": "mold_machining",
+  "extraction_source": "VISI 2024 Mould Machining Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-20",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["cavity_roughing", "cavity_finishing", "blend_finishing", "lettering"]
+  },
+  "operations": {
+    "cavity_roughing": {
+      "display_name": "Cavity Roughing",
+      "category": "cavity_roughing",
+      "description": "VISI cavity-specific roughing for hardened mold cores. Plunge-and-roll, trochoidal corners, step-and-shoulder pocket recognition.",
+      "dialog_tabs": ["Geometry", "Tool", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "drivingSurface": { "type": "selection", "tab": "Geometry", "required": true },
+          "stockOrigin": { "type": "enum", "values": ["fromCAD", "computed", "measured"], "default": "fromCAD", "tab": "Geometry" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true }
+        },
+        "strategy": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 60, "range": [10, 90], "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.5, "range": [0.05, 25], "tab": "Strategy", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "patternType": { "type": "enum", "values": ["zigZag", "constantOffset", "morph", "spiralFromInside"], "default": "constantOffset", "tab": "Strategy" },
+          "trochoidalCorners": { "type": "boolean", "default": true, "description": "Avoid full-engagement at corners on hardened steel", "tab": "Strategy" },
+          "trochoidalRadius": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "feedReductionEntry": { "type": "number", "unit": "percent", "default": 30, "tab": "Strategy" }
+        },
+        "output": {
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Output" },
+          "ramp": { "type": "enum", "values": ["plunge", "ramp", "helix", "preDrill"], "default": "helix", "tab": "Output" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 2.5, "range": [0.5, 30], "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Output" },
+          "smoothLink": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "cavity_finishing": {
+      "display_name": "Cavity Finishing",
+      "category": "cavity_finishing",
+      "description": "Z-level + scallop finishing for cavity surfaces. VISI's mold-aware sequencing handles vertical walls separately from sloped faces.",
+      "dialog_tabs": ["Surface", "Strategy", "Pattern", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "checkSurface": { "type": "selection", "tab": "Surface" },
+          "boundary": { "type": "selection", "tab": "Surface" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zLevel", "scallop", "spiralBetween", "morph", "constantStepover"], "default": "zLevel", "tab": "Strategy", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "range": [0.001, 0.1], "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "splitVerticalSloped": { "type": "boolean", "default": true, "description": "Use Z-level on vertical walls; scallop on slopes", "tab": "Strategy" }
+        },
+        "pattern": {
+          "patternAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Pattern" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 30, "description": "Boundary slope splitting threshold", "tab": "Pattern" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped", "constant"], "default": "smooth", "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Output" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Output" }
+        }
+      }
+    },
+    "blend_finishing": {
+      "display_name": "Blend Finishing",
+      "category": "blend_finishing",
+      "description": "Pencil-trace, scallop-pencil, corner-cleanup. Removes residual stock at fillets between cavity faces.",
+      "dialog_tabs": ["Region", "Strategy", "Tool", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "region": {
+          "drivingSurface": { "type": "selection", "tab": "Region", "required": true },
+          "regionType": { "type": "enum", "values": ["pencilTrace", "scallopPencil", "cornerCleanup", "rest3D"], "default": "pencilTrace", "tab": "Region", "required": true },
+          "minRadius": { "type": "number", "unit": "mm", "default": 1.0, "description": "Smallest fillet radius for tool reach", "tab": "Region" },
+          "maxRadius": { "type": "number", "unit": "mm", "default": 25, "tab": "Region" }
+        },
+        "strategy": {
+          "passCount": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.003, "tab": "Strategy" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Strategy" }
+        },
+        "tool": {
+          "preferredToolType": { "type": "enum", "values": ["ballNose", "tapered", "lollipop"], "default": "ballNose", "tab": "Tool" },
+          "minToolDia": { "type": "number", "unit": "mm", "default": 1.0, "description": "Auto-pick smallest tool that fits region", "tab": "Tool" }
+        },
+        "output": {
+          "smoothLink": { "type": "boolean", "default": true, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped"], "default": "smooth", "tab": "Output" },
+          "feedReductionInTight": { "type": "number", "unit": "percent", "default": 40, "tab": "Output" }
+        }
+      }
+    },
+    "lettering": {
+      "display_name": "Mold Lettering & Engraving",
+      "category": "lettering",
+      "description": "Cavity ID engraving, raised text on plastic-side, recessed steel marks. VISI's lettering keeps consistent depth on curved faces.",
+      "dialog_tabs": ["Text", "Geometry", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "text": {
+          "textString": { "type": "string", "tab": "Text", "required": true },
+          "fontFamily": { "type": "enum", "values": ["Arial", "Helvetica", "VeroSans", "Single-stroke", "user_defined"], "default": "VeroSans", "tab": "Text" },
+          "textHeight": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Text" },
+          "textSpacing": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Text" }
+        },
+        "geometry": {
+          "anchorPoint": { "type": "selection", "tab": "Geometry", "required": true },
+          "anchorSurface": { "type": "selection", "tab": "Geometry" },
+          "engravingMode": { "type": "enum", "values": ["recessed", "raised", "cutThrough"], "default": "recessed", "tab": "Geometry" },
+          "engravingDepth": { "type": "number", "unit": "mm", "default": 0.3, "range": [0.05, 5.0], "tab": "Geometry" }
+        },
+        "strategy": {
+          "toolType": { "type": "enum", "values": ["vBit", "ballNose", "engraveBit"], "default": "vBit", "tab": "Strategy" },
+          "vBitAngle": { "type": "number", "unit": "deg", "default": 60, "values_when_vBit": ["30", "60", "90"], "tab": "Strategy" },
+          "passDepth": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Strategy" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 600, "description": "Slow for clean text edges", "tab": "Strategy" }
+        },
+        "output": {
+          "writeSetupSheet": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportTextPath": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnIfDepthVariance": { "type": "boolean", "default": true, "description": "Curved-face engraving needs constant Z-projection", "tab": "Output" },
+          "smoothEdges": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "VISI mold-machining discipline",
+      "key_concepts": ["trochoidal corners on hardened steel", "split vertical-vs-sloped finishing", "v-bit angle for legible engraving"],
+      "best_practices": [
+        "Trochoidal corners at 1mm radius prevent tool snap on HRC 52+ — never disable on Stavax/H13",
+        "Split-vertical-sloped uses Z-level on walls (constant scallop along Z) and scallop on slopes (constant scallop on surface)",
+        "60-degree v-bit gives best legibility for 3-5mm tall text — 30-degree wears fast, 90-degree leaves wide kerf"
+      ]
+    }
+  ]
+}
