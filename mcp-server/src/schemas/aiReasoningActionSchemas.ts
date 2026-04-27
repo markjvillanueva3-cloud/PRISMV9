@@ -29,6 +29,7 @@ export const AI_REASONING_ACTIONS = [
   "ppg_drift_canary_check",
   "sfc_fewshot_predict",
   "ppg_sfc_closed_loop",
+  "iterate_retrieve",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -205,6 +206,24 @@ const pattern_reinforce = z.object({
 /** Get pattern bank statistics */
 const pattern_stats = z.object({}).passthrough();
 
+/** Iterative retrieval — progressive context refinement (DISPATCH→EVALUATE→REFINE→LOOP, max 3 cycles) */
+const iterate_retrieve = z.object({
+  query: z.string().min(1).describe("Natural-language task or search intent"),
+  dispatch_target: z.enum([
+    "codebase",
+    "engines_only",
+    "skills_only",
+    "knowledge_wiki",
+    "dispatchers_only",
+  ]).optional().describe("Search scope (default: codebase)"),
+  max_cycles: z.number().int().min(1).max(5).optional().describe("Max refinement cycles (default 3)"),
+  target_count: z.number().int().min(1).max(50).optional().describe("High-relevance hits needed for early termination (default 3)"),
+  min_relevance: z.number().min(0).max(1).optional().describe("Threshold for high_relevance bucket (default 0.7)"),
+  initial_keywords: z.array(z.string()).max(20).optional().describe("Seed keywords (in addition to query tokens)"),
+  exclude_patterns: z.array(z.string()).max(20).optional().describe("Path substrings to exclude"),
+  max_files_per_cycle: z.number().int().min(10).max(500).optional().describe("Cap per cycle (default 100)"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -217,4 +236,5 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   pattern_query,
   pattern_reinforce,
   pattern_stats,
+  iterate_retrieve,
 };

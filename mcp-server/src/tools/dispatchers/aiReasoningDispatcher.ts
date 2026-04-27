@@ -303,6 +303,24 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // iterate_retrieve — progressive context refinement (DISPATCH→EVALUATE→REFINE→LOOP)
+      // ──────────────────────────────────────────────────────────────────────
+      case "iterate_retrieve": {
+        const { iterativeRetrievalEngine } = await import("../../engines/IterativeRetrievalEngine.js");
+        result = iterativeRetrievalEngine.retrieve({
+          query: params.query as string,
+          dispatch_target: params.dispatch_target as any,
+          max_cycles: params.max_cycles as number | undefined,
+          target_count: params.target_count as number | undefined,
+          min_relevance: params.min_relevance as number | undefined,
+          initial_keywords: params.initial_keywords as string[] | undefined,
+          exclude_patterns: params.exclude_patterns as string[] | undefined,
+          max_files_per_cycle: params.max_files_per_cycle as number | undefined,
+        });
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
