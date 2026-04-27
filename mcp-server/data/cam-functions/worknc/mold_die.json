@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "system_id": "worknc",
+  "section_key": "mold_die",
+  "extraction_source": "WorkNC 2024 Reference / Vero / Hexagon Manufacturing Intelligence public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-12",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 78,
+    "categories": ["mold_die", "roughing", "rest_machining", "core_cavity", "edm_prep"]
+  },
+  "operations": {
+    "global_roughing": {
+      "display_name": "Global Roughing",
+      "category": "mold_die",
+      "description": "WorkNC's signature mold/die roughing — automatic detection of cavity and core regions, tilt-aware Z-level slicing, automatic rest detection between passes. Works on raw imported geometry without manual feature tagging.",
+      "dialog_tabs": ["Stock", "Levels", "Strategy", "Smoothing", "Linking"],
+      "parameter_count": 17,
+      "parameters": {
+        "stock": {
+          "stockType": { "type": "enum", "values": ["block", "casting", "imported_stl", "previous_op"], "default": "block", "tab": "Stock", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Stock" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Stock" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 4.0, "range": [0.1, 200], "tab": "Levels" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zlevel", "spiral", "offset", "morph"], "default": "zlevel", "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 60, "range": [10, 100], "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both"], "default": "climb", "tab": "Strategy" },
+          "autoCavityDetect": { "type": "boolean", "default": true, "description": "Detect closed pockets vs open core regions automatically", "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["depth_first", "feature_first", "by_region"], "default": "by_region", "tab": "Strategy" }
+        },
+        "smoothing": {
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Smoothing" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Smoothing" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Smoothing" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill", "outside"], "default": "outside", "description": "Mold roughing prefers entry from outside the part", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" }
+        }
+      }
+    },
+    "vortex_rough": {
+      "display_name": "Vortex Roughing",
+      "category": "roughing",
+      "description": "WorkNC's licensed Vortex (Delcam) high-speed adaptive clearing. Constant tool engagement with morphing trochoidal arcs in narrow regions. Aggressive DOC, reduced WOC, feed boost in low-engagement zones.",
+      "dialog_tabs": ["Tool", "Boundary", "Levels", "Engagement", "Smoothing", "Linking"],
+      "parameter_count": 18,
+      "parameters": {
+        "boundary": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Boundary" },
+          "axialStockToLeave": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Boundary" },
+          "boundaryOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 8.0, "range": [0.1, 200], "tab": "Levels" }
+        },
+        "engagement": {
+          "tea": { "type": "number", "unit": "deg", "default": 30, "range": [5, 90], "description": "Tool Engagement Angle target", "tab": "Engagement", "required": true },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 8, "range": [3, 25], "tab": "Engagement" },
+          "minChipThickness": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Engagement" }
+        },
+        "smoothing": {
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Smoothing" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Smoothing" },
+          "feedRateBoost": { "type": "boolean", "default": true, "tab": "Smoothing" },
+          "boostFactor": { "type": "number", "default": 2.0, "range": [1, 5], "tab": "Smoothing" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "restMachining": { "type": "boolean", "default": true, "tab": "Linking" }
+        }
+      }
+    },
+    "rest_rough": {
+      "display_name": "Rest Roughing",
+      "category": "rest_machining",
+      "description": "Automatic rest material detection from previous tool. Targets pockets and corners that the previous-larger tool could not reach. Supports cumulative rest from multiple previous tools.",
+      "dialog_tabs": ["Tool", "Reference", "Strategy", "Linking"],
+      "parameter_count": 14,
+      "parameters": {
+        "reference": {
+          "previousTools": { "type": "array", "description": "List of previous tool diameters for rest calc", "tab": "Reference", "required": true },
+          "previousStock": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Reference" },
+          "minMaterialThreshold": { "type": "number", "unit": "mm", "default": 0.1, "description": "Skip regions with less rest than this", "tab": "Reference" }
+        },
+        "strategy": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 50, "tab": "Strategy" },
+          "patternType": { "type": "enum", "values": ["zlevel", "scallop", "spiral"], "default": "zlevel", "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["small_first", "large_first", "by_region"], "default": "small_first", "tab": "Strategy" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill", "outside"], "default": "ramp", "tab": "Linking" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 5, "tab": "Linking" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Linking" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Linking" }
+        }
+      }
+    },
+    "core_cavity_finish": {
+      "display_name": "Core/Cavity Finishing",
+      "category": "core_cavity",
+      "description": "Automatic finishing strategy split between core (convex) and cavity (concave) regions of mold halves. Different stepover and direction for each.",
+      "dialog_tabs": ["Region", "Core", "Cavity", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "region": {
+          "driveSurfaces": { "type": "selection", "tab": "Region", "required": true },
+          "splitMode": { "type": "enum", "values": ["auto", "manual_pick"], "default": "auto", "tab": "Region" },
+          "splitAngle": { "type": "number", "unit": "deg", "default": 30, "description": "Slope threshold for core/cavity split", "tab": "Region" }
+        },
+        "core": {
+          "coreStepover": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Core" },
+          "coreDirection": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Core" },
+          "corePatternType": { "type": "enum", "values": ["scallop", "zlevel", "spiral"], "default": "scallop", "tab": "Core" }
+        },
+        "cavity": {
+          "cavityStepover": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Cavity" },
+          "cavityDirection": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cavity" },
+          "cavityPatternType": { "type": "enum", "values": ["scallop", "zlevel", "spiral", "morph"], "default": "morph", "description": "Morph fits cavity geometry better", "tab": "Cavity" }
+        },
+        "strategy": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Strategy" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "edm_pocket": {
+      "display_name": "EDM Pocket Prep",
+      "category": "edm_prep",
+      "description": "Roughing strategy that leaves a uniform stock for sinker-EDM electrodes. Critical for mold makers — over-cut causes burn marks; under-cut leaves witness lines.",
+      "dialog_tabs": ["Boundary", "Levels", "EDM", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "boundary": {
+          "boundary": { "type": "selection", "tab": "Boundary", "required": true },
+          "boundaryOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Boundary" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Levels" }
+        },
+        "edm": {
+          "edmStock": { "type": "number", "unit": "mm", "default": 0.05, "range": [0.01, 0.2], "description": "Uniform stock for EDM electrode — typically 0.05-0.1 mm", "tab": "EDM", "required": true },
+          "uniformStockRequired": { "type": "boolean", "default": true, "description": "Validate uniform stock; reject paths that under/over-cut", "tab": "EDM" },
+          "stockTolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "EDM" },
+          "burnAllowanceCheck": { "type": "boolean", "default": true, "description": "Verify edmStock matches sinker burn allowance", "tab": "EDM" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zlevel", "spiral", "offset"], "default": "zlevel", "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 50, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "WorkNC mold/die discipline",
+      "key_concepts": ["uniform stock", "core/cavity split", "EDM allowance", "tilt-aware Z-level"],
+      "best_practices": [
+        "Always run Global Roughing before Vortex — Vortex needs known stock",
+        "EDM pocket stock = sinker burn allowance (0.05-0.1 mm typical for steel)",
+        "Pencil tracing is mandatory after Z-level finish to clean up corners",
+        "Validate uniform stock with WorkNC's stock comparison view before promoting to EDM"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "system_id": "worknc",
+  "section_key": "drilling",
+  "extraction_source": "WorkNC 2024 Hole-making Reference / Vero / Hexagon Manufacturing Intelligence public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-12",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 48,
+    "categories": ["holemaking"]
+  },
+  "operations": {
+    "drill": {
+      "display_name": "Drill",
+      "category": "holemaking",
+      "description": "Standard G81 drilling cycle. Single-rapid in, dwell at bottom optional, rapid retract.",
+      "dialog_tabs": ["Holes", "Cycle"],
+      "parameter_count": 9,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "literal", "value": "G81", "tab": "Cycle" },
+          "clearance": { "type": "number", "unit": "mm", "default": 5, "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2, "tab": "Cycle" },
+          "dwell": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "feedRetract": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "tipBreakthrough": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Cycle" }
+        }
+      }
+    },
+    "peck_drill": {
+      "display_name": "Peck Drill",
+      "category": "holemaking",
+      "description": "G83 deep-hole drilling with full retract for chip clear. Suited to L/D 3-10.",
+      "dialog_tabs": ["Holes", "Cycle"],
+      "parameter_count": 11,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "literal", "value": "G83", "tab": "Cycle" },
+          "firstPeck": { "type": "number", "unit": "mm", "default": 4, "range": [0.5, 50], "tab": "Cycle" },
+          "subsequentPeck": { "type": "number", "unit": "mm", "default": 3, "tab": "Cycle" },
+          "peckReduction": { "type": "number", "unit": "percent", "default": 10, "range": [0, 50], "tab": "Cycle" },
+          "minPeck": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "retractDistance": { "type": "number", "unit": "mm", "default": 1, "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.2, "tab": "Cycle" },
+          "fullRetract": { "type": "boolean", "default": true, "description": "True = G83 full retract; false = G73 high-speed peck", "tab": "Cycle" }
+        }
+      }
+    },
+    "tap": {
+      "display_name": "Tap (Rigid)",
+      "category": "holemaking",
+      "description": "G84 rigid tap. Spindle-feed sync to thread pitch. Validates F = N × pitch.",
+      "dialog_tabs": ["Holes", "Thread", "Cycle"],
+      "parameter_count": 10,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "thread": {
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "rigidTap": { "type": "boolean", "default": true, "tab": "Thread" },
+          "spindleReverseDwell": { "type": "number", "unit": "s", "default": 0, "tab": "Thread" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G84", "G74"], "default": "G84", "description": "G84 right-hand, G74 left-hand", "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 5, "tab": "Cycle" },
+          "retractFeedFactor": { "type": "number", "default": 1.0, "range": [0.5, 2], "tab": "Cycle" },
+          "peckTap": { "type": "boolean", "default": false, "description": "Peck-tap for blind deep holes", "tab": "Cycle" }
+        }
+      }
+    },
+    "ream": {
+      "display_name": "Ream",
+      "category": "holemaking",
+      "description": "G85 reaming. Feed in, feed out. Designed for reamers and finish bores.",
+      "dialog_tabs": ["Holes", "Cycle"],
+      "parameter_count": 9,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Holes", "required": true }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G85", "G89"], "default": "G85", "description": "G89 = G85 with bottom dwell", "tab": "Cycle" },
+          "clearance": { "type": "number", "unit": "mm", "default": 5, "tab": "Cycle" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2, "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractFeedFactor": { "type": "number", "default": 1.0, "range": [0.5, 2], "tab": "Cycle" },
+          "spindleStopAtBottom": { "type": "boolean", "default": false, "tab": "Cycle" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Cycle selection by L/D ratio",
+      "key_concepts": ["G81 short", "G83 medium", "G73 chip-break", "G84 rigid tap"],
+      "best_practices": [
+        "L/D ≤ 3 → G81 with 0.2 s bottom dwell",
+        "3 < L/D ≤ 10 → G83 with 0.5-1 mm retract",
+        "L/D > 10 → use gun drill cycle (separate operation)",
+        "Always tipBreakthrough ≥ 1.5 × tan(point_angle/2) × diameter"
+      ]
+    }
+  ]
+}

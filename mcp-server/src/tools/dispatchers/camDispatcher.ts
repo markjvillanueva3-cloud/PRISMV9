@@ -1606,6 +1606,12 @@ export const ACTIONS = [
     "gibbscam_function_index_find_parameter", "gibbscam_function_index_search_parameters",
     "gibbscam_function_index_get_operations_by_category", "gibbscam_function_index_get_summary",
     "gibbscam_function_index_get_volumill_operations", "gibbscam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-12 — WorkNC Function Index
+    "worknc_function_index_get", "worknc_function_index_list_sections",
+    "worknc_function_index_get_section", "worknc_function_index_list_operations",
+    "worknc_function_index_find_parameter", "worknc_function_index_search_parameters",
+    "worknc_function_index_get_operations_by_category", "worknc_function_index_get_summary",
+    "worknc_function_index_get_auto5_operations", "worknc_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12350,6 +12356,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { GibbsCAMFunctionIndexEngine } = await import("../../engines/GibbsCAMFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...GibbsCAMFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-12 — WorkNC Function Index (10 actions)
+          case "worknc_function_index_get": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            result = { success: true, index: WorkNCFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "worknc_function_index_list_sections": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            result = { success: true, sections: WorkNCFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "worknc_function_index_get_section": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: WorkNCFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "worknc_function_index_list_operations": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            result = { success: true, operations: WorkNCFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "worknc_function_index_find_parameter": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: WorkNCFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "worknc_function_index_search_parameters": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: WorkNCFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "worknc_function_index_get_operations_by_category": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: WorkNCFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "worknc_function_index_get_summary": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            result = { success: true, ...WorkNCFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "worknc_function_index_get_auto5_operations": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            result = { success: true, operations: WorkNCFunctionIndexEngine.getAuto5Operations() };
+            break;
+          }
+          case "worknc_function_index_get_operation": {
+            const { WorkNCFunctionIndexEngine } = await import("../../engines/WorkNCFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...WorkNCFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

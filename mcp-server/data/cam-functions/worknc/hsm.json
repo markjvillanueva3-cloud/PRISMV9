@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "system_id": "worknc",
+  "section_key": "hsm",
+  "extraction_source": "WorkNC 2024 HSM Reference / Vero / Hexagon Manufacturing Intelligence public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-12",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["finishing", "high_speed", "scallop", "pencil"]
+  },
+  "operations": {
+    "scallop_finish": {
+      "display_name": "Scallop Finishing",
+      "category": "scallop",
+      "description": "Constant scallop-height finishing on free-form surfaces. Stepover automatically varies with surface slope to maintain uniform cusp height. Ball-end mill required.",
+      "dialog_tabs": ["Drive", "Cusp", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "drive": {
+          "driveSurfaces": { "type": "selection", "tab": "Drive", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Drive" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Drive" },
+          "minSlope": { "type": "number", "unit": "deg", "default": 0, "tab": "Drive" },
+          "maxSlope": { "type": "number", "unit": "deg", "default": 90, "tab": "Drive" }
+        },
+        "cusp": {
+          "cuspHeight": { "type": "number", "unit": "mm", "default": 0.005, "range": [0.001, 0.5], "tab": "Cusp", "required": true },
+          "minStepover": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Cusp" },
+          "maxStepover": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cusp" }
+        },
+        "strategy": {
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both"], "default": "both", "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["depth_first", "feature_first"], "default": "depth_first", "tab": "Strategy" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "z_level_finish": {
+      "display_name": "Z-Level Finish",
+      "category": "finishing",
+      "description": "Constant-Z waterline finishing on steep walls. Below the slope threshold, automatically switches to scallop. Common companion to Scallop Finishing for full surface coverage.",
+      "dialog_tabs": ["Drive", "Levels", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "drive": {
+          "driveSurfaces": { "type": "selection", "tab": "Drive", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Drive" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Drive" },
+          "minSlope": { "type": "number", "unit": "deg", "default": 30, "description": "Below this slope, switch to scallop", "tab": "Drive" }
+        },
+        "levels": {
+          "topZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Levels", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Levels" },
+          "scallopFallback": { "type": "boolean", "default": true, "description": "Switch to scallop on shallow regions", "tab": "Levels" }
+        },
+        "strategy": {
+          "passDirection": { "type": "enum", "values": ["climb", "conventional", "both"], "default": "climb", "tab": "Strategy" },
+          "machiningOrder": { "type": "enum", "values": ["depth_first", "feature_first"], "default": "depth_first", "tab": "Strategy" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "minimumRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" }
+        }
+      }
+    },
+    "pencil_trace": {
+      "display_name": "Pencil Tracing",
+      "category": "pencil",
+      "description": "Single-pass tracing of internal corners and concave edges. Catches the residual scallop the larger Z-level / Scallop tools could not reach. Distinctive WorkNC strategy.",
+      "dialog_tabs": ["Tool", "Edges", "Strategy"],
+      "parameter_count": 13,
+      "parameters": {
+        "edges": {
+          "edgeDetection": { "type": "enum", "values": ["concave_edges_only", "all_edges", "manual_pick"], "default": "concave_edges_only", "tab": "Edges", "required": true },
+          "minRadius": { "type": "number", "unit": "mm", "default": 0.5, "description": "Skip edges below this radius", "tab": "Edges" },
+          "maxRadius": { "type": "number", "unit": "mm", "default": 5, "description": "Skip edges above this radius (use Z-level instead)", "tab": "Edges" }
+        },
+        "strategy": {
+          "passes": { "type": "integer", "default": 1, "range": [1, 5], "description": "Number of overlapping passes", "tab": "Strategy" },
+          "passOffset": { "type": "number", "unit": "mm", "default": 0.1, "description": "Offset between passes when passes > 1", "tab": "Strategy" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Strategy" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "approachMode": { "type": "enum", "values": ["tangent", "perpendicular", "ramp"], "default": "tangent", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "highSpeedSmoothing": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "smoothingTolerance": { "type": "number", "unit": "mm", "default": 0.02, "tab": "Strategy" }
+        }
+      }
+    },
+    "rib_machining": {
+      "display_name": "Rib Machining",
+      "category": "high_speed",
+      "description": "Specialty strategy for tall thin walls (ribs). Multi-pass with adaptive depth, includes climb-down then conventional-up to balance side load. Avoids deflection on long-overhang tooling.",
+      "dialog_tabs": ["Tool", "Rib", "Strategy"],
+      "parameter_count": 15,
+      "parameters": {
+        "rib": {
+          "ribGeometry": { "type": "selection", "tab": "Rib", "required": true },
+          "ribHeight": { "type": "number", "unit": "mm", "tab": "Rib", "required": true },
+          "ribThickness": { "type": "number", "unit": "mm", "tab": "Rib", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Rib" }
+        },
+        "strategy": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "default": 30, "description": "Reduced WOC to limit deflection", "tab": "Strategy" },
+          "balancedSideLoad": { "type": "boolean", "default": true, "description": "Climb-down then conv-up to balance lateral force", "tab": "Strategy" },
+          "passDirection": { "type": "enum", "values": ["climb", "conventional", "balanced"], "default": "balanced", "tab": "Strategy" },
+          "thinWallDeflectionLimit": { "type": "number", "unit": "mm", "default": 0.05, "description": "Max predicted deflection — reduce WOC if exceeded", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "stayDown": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "feedReductionAtTop": { "type": "boolean", "default": true, "description": "Reduce feed near the top of the rib (less rigidity)", "tab": "Strategy" },
+          "topFeedFactor": { "type": "number", "default": 0.5, "range": [0.1, 1], "tab": "Strategy" },
+          "spindleRPMReduction": { "type": "boolean", "default": false, "description": "Reduce RPM near top for chatter avoidance", "tab": "Strategy" },
+          "topRPMFactor": { "type": "number", "default": 0.7, "range": [0.3, 1], "tab": "Strategy" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Pencil tracing — when and how",
+      "key_concepts": ["concave edge", "residual scallop", "uniform finish", "single-pass tracing"],
+      "best_practices": [
+        "Always run pencil tracing AFTER Z-level + Scallop — never as a primary strategy",
+        "Match pencil tool radius ≤ smallest internal edge radius",
+        "Use 2-3 overlapping passes for high-polish requirements"
+      ]
+    }
+  ]
+}

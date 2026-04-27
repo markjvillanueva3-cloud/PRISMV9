@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "system_id": "worknc",
+  "section_key": "five_axis",
+  "extraction_source": "WorkNC 2024 Auto5 Reference / Vero / Hexagon Manufacturing Intelligence public docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-12",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 64,
+    "categories": ["five_axis", "auto5", "indexed", "simultaneous", "swarf"]
+  },
+  "operations": {
+    "auto5_3plus2": {
+      "display_name": "Auto5 (3+2 Conversion)",
+      "category": "auto5",
+      "description": "WorkNC's signature feature — automatically converts an existing 3-axis program into 3+2 (indexed 5-axis) by detecting collisions between the holder/shank and stock, then choosing rotary positions that eliminate them with shorter tools.",
+      "dialog_tabs": ["Source", "Holder", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "source": {
+          "sourceProgram": { "type": "selection", "description": "Existing 3-axis toolpath to convert", "tab": "Source", "required": true },
+          "preserveStrategy": { "type": "boolean", "default": true, "description": "Keep original toolpath logic; only adjust orientations", "tab": "Source" }
+        },
+        "holder": {
+          "holderProfile": { "type": "tool_reference", "description": "Holder + shank geometry for clearance check", "tab": "Holder", "required": true },
+          "shellThickness": { "type": "number", "unit": "mm", "default": 1.0, "description": "Clearance shell around holder", "tab": "Holder" },
+          "checkShank": { "type": "boolean", "default": true, "tab": "Holder" }
+        },
+        "strategy": {
+          "tiltMode": { "type": "enum", "values": ["min_tilt", "max_clearance", "single_orientation"], "default": "min_tilt", "description": "Min tilt = closest to original Z; max clearance = best holder clearance", "tab": "Strategy" },
+          "maxTiltA": { "type": "number", "unit": "deg", "default": 30, "range": [0, 90], "tab": "Strategy" },
+          "maxTiltB": { "type": "number", "unit": "deg", "default": 30, "range": [0, 90], "tab": "Strategy" },
+          "groupByOrientation": { "type": "boolean", "default": true, "description": "Cluster operations into shared rotary positions", "tab": "Strategy" }
+        },
+        "output": {
+          "outputMode": { "type": "enum", "values": ["G68_2", "G54_1_P", "rotary_then_3axis"], "default": "G68_2", "tab": "Output" },
+          "rotaryAxisLimitsCheck": { "type": "boolean", "default": true, "tab": "Output" },
+          "axisLimitMargin": { "type": "number", "unit": "deg", "default": 5, "tab": "Output" },
+          "validateNoCollision": { "type": "boolean", "default": true, "tab": "Output" },
+          "tcpcOutput": { "type": "boolean", "default": false, "description": "RTCP not required for indexed", "tab": "Output" },
+          "outputAsSubprograms": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "five_axis_swarf": {
+      "display_name": "5-Axis Swarf",
+      "category": "swarf",
+      "description": "Side-edge swarfing along ruled surfaces. Single pass produces full-height wall. Used for impeller/blisk vanes, turbine blades, dovetail walls.",
+      "dialog_tabs": ["Surface", "Tool Axis", "Strategy"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "guideSurfaces": { "type": "selection", "tab": "Surface", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Surface" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Surface" }
+        },
+        "tool_axis": {
+          "tiltMode": { "type": "enum", "values": ["surface_normal", "fixed_lead", "auto_lead"], "default": "surface_normal", "tab": "Tool Axis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-15, 15], "tab": "Tool Axis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-15, 15], "description": "Avoid centerline cutting", "tab": "Tool Axis" }
+        },
+        "strategy": {
+          "passDirection": { "type": "enum", "values": ["U", "V", "spiral"], "default": "U", "tab": "Strategy" },
+          "passType": { "type": "enum", "values": ["zigzag", "oneway"], "default": "oneway", "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strategy" },
+          "leadInType": { "type": "enum", "values": ["arc", "linear", "none"], "default": "arc", "tab": "Strategy" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2, "tab": "Strategy" },
+          "axisSmoothing": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "smoothingTolerance": { "type": "number", "unit": "deg", "default": 0.5, "tab": "Strategy" },
+          "collisionAvoidance": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "tcpcOutput": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "five_axis_drive_curve": {
+      "display_name": "5-Axis Drive Curve",
+      "category": "simultaneous",
+      "description": "Continuous 5-axis along a 3D guide curve with controllable tool-axis behavior. Used for trim edges, ports, blends. Singularity avoidance and smoothing built-in.",
+      "dialog_tabs": ["Curve", "Tool Axis", "Strategy"],
+      "parameter_count": 13,
+      "parameters": {
+        "curve": {
+          "guideCurve": { "type": "selection", "tab": "Curve", "required": true },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Curve" }
+        },
+        "tool_axis": {
+          "axisMode": { "type": "enum", "values": ["normal_to_drive", "through_curve", "fan_from_point", "fixed"], "default": "normal_to_drive", "tab": "Tool Axis" },
+          "fanPoint": { "type": "vector", "tab": "Tool Axis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Tool Axis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Tool Axis" },
+          "axisSmoothing": { "type": "boolean", "default": true, "tab": "Tool Axis" }
+        },
+        "strategy": {
+          "passes": { "type": "integer", "default": 1, "range": [1, 100], "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "leadInType": { "type": "enum", "values": ["tangent", "perpendicular", "none"], "default": "tangent", "tab": "Strategy" },
+          "linkingMode": { "type": "enum", "values": ["safe", "smart", "minimum"], "default": "smart", "tab": "Strategy" },
+          "singularityAvoidance": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "tcpcOutput": { "type": "boolean", "default": true, "tab": "Strategy" }
+        }
+      }
+    },
+    "five_axis_drill_indexed": {
+      "display_name": "5-Axis Hole Drill (Indexed)",
+      "category": "indexed",
+      "description": "Drill non-axial holes by indexing rotary axes per group. Supports G68.2 tilted-plane output and grouping by axis vector.",
+      "dialog_tabs": ["Holes", "Strategy", "Output"],
+      "parameter_count": 11,
+      "parameters": {
+        "holes": {
+          "selection": { "type": "selection", "tab": "Holes", "required": true },
+          "groupBy": { "type": "enum", "values": ["axis", "diameter", "depth", "tool"], "default": "axis", "tab": "Holes" }
+        },
+        "strategy": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83"], "default": "G83", "tab": "Strategy" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 3, "tab": "Strategy" },
+          "minRotaryDelta": { "type": "number", "unit": "deg", "default": 0.5, "tab": "Strategy" },
+          "retractAtRapid": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "output": {
+          "outputMode": { "type": "enum", "values": ["G68_2_per_group", "G54_1_P", "long_form"], "default": "G68_2_per_group", "tab": "Output" },
+          "rotaryAxisLimitsCheck": { "type": "boolean", "default": true, "tab": "Output" },
+          "axisLimitMargin": { "type": "number", "unit": "deg", "default": 5, "tab": "Output" },
+          "tableTableHead": { "type": "enum", "values": ["table_table", "head_table", "head_head"], "default": "table_table", "tab": "Output" },
+          "rtcpRequired": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Auto5 — when 3+2 wins",
+      "key_concepts": ["holder collision", "shorter tool", "rotary clustering", "min tilt vs max clearance"],
+      "best_practices": [
+        "Auto5 wins on deep mold cores where holder collides with cavity walls",
+        "Use 'min_tilt' on most jobs — keeps the program close to the original 3-axis intent",
+        "Use 'max_clearance' only when the part has very tight features near tall walls",
+        "Always validate axis limits — Auto5 can pick orientations that exceed machine A/B travel"
+      ]
+    }
+  ]
+}
