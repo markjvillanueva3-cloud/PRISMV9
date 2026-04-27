@@ -1676,6 +1676,7 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0: LoRA cadence engines (6 actions)
   "milling_lora_predict", "milling_lora_train", "milling_lora_optimize",
   "millturn_lora_predict", "millturn_lora_train", "millturn_lora_optimize",
+  "cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -13240,6 +13241,76 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const p = params as { current_score: number; baseline_score: number };
             const drift = millTurnLoRACadenceEngine.checkDrift(p.current_score, p.baseline_score);
             result = { success: true, drift_detected: drift.driftDetected, drift_amount: drift.driftAmount, threshold: drift.threshold };
+            break;
+          }
+
+          // CAM-EXHAUST-MS0/U-FUS-API02: zombie-wire cases (engines existed; dispatcher routes were missing)
+          case "cam_compare_programs": {
+            const { cadGeometryComparisonEngine } = await import("../../engines/CADGeometryComparisonEngine.js");
+            const p = params as { original_path?: string; generated_path?: string; thresholds?: Record<string, unknown> };
+            if (!p.original_path || !p.generated_path) {
+              result = { error: "cam_compare_programs requires both 'original_path' and 'generated_path'" };
+              break;
+            }
+            const cmp = cadGeometryComparisonEngine.compare(p.original_path, p.generated_path, p.thresholds as never);
+            result = { success: true, comparison: cmp };
+            break;
+          }
+          case "cam_dfm_check": {
+            const { checkDfMRules } = await import("../../engines/DfMRulesEngine.js");
+            const p = params as {
+              features?: Array<Record<string, unknown>>;
+              material_type?: "metal" | "plastic";
+              machine_type?: "3axis" | "5axis_indexed" | "5axis_continuous" | "lathe" | "mill_turn";
+              tolerance_mm?: number;
+            };
+            const dfm = checkDfMRules({
+              features: (p.features ?? []) as never,
+              material_type: p.material_type,
+              machine_type: p.machine_type,
+              tolerance_mm: p.tolerance_mm,
+            });
+            result = { success: true, dfm };
+            break;
+          }
+          case "cam_feasibility_check": {
+            const { feasibilityOrchestratorEngine } = await import("../../engines/FeasibilityOrchestratorEngine.js");
+            const p = params as {
+              stock?: { length_mm: number; width_mm: number; height_mm: number };
+              operations?: Array<Record<string, unknown>>;
+              material?: Record<string, unknown>;
+              machine?: Record<string, unknown>;
+              options?: { auto_reorder?: boolean; quick_mode?: boolean; safety_factor?: number };
+            };
+            if (!p.stock || !Array.isArray(p.operations) || p.operations.length === 0) {
+              result = { error: "cam_feasibility_check requires 'stock' (length/width/height_mm) and at least one operation" };
+              break;
+            }
+            const job = {
+              stock: p.stock,
+              operations: p.operations as never,
+              material: p.material as never,
+              machine: p.machine as never,
+              options: p.options,
+            };
+            const report = p.options?.quick_mode
+              ? await feasibilityOrchestratorEngine.quickCheck(job)
+              : await feasibilityOrchestratorEngine.fullAnalysis(job);
+            result = { success: true, report };
+            break;
+          }
+          case "cam_fusion_tool_export": {
+            const { fusionToolExportEngine } = await import("../../engines/FusionToolExportEngine.js");
+            const p = params as {
+              material_iso_group?: string;
+              tool_type?: string;
+              diameter_range_mm?: [number, number];
+              manufacturer?: string;
+              max_tools?: number;
+              include_holders?: boolean;
+            };
+            const library = fusionToolExportEngine.export(p);
+            result = { success: true, library };
             break;
           }
 
