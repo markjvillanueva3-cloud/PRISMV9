@@ -16,12 +16,12 @@ import esbuild from "esbuild";
 // ── Banner ─────────────────────────────────────────────────────────────────
 // ESM compat shims: provides require(), __filename, __dirname in every chunk.
 const banner = [
-  `import { createRequire } from 'module';`,
-  `import { fileURLToPath } from 'url';`,
-  `import { dirname } from 'path';`,
-  `const require = createRequire(import.meta.url);`,
-  `const __filename = fileURLToPath(import.meta.url);`,
-  `const __dirname = dirname(__filename);`,
+  `import { createRequire as __esmCreateRequire } from 'module';`,
+  `import { fileURLToPath as __esmFileURLToPath } from 'url';`,
+  `import { dirname as __esmDirname } from 'path';`,
+  `const require = __esmCreateRequire(import.meta.url);`,
+  `const __filename = __esmFileURLToPath(import.meta.url);`,
+  `const __dirname = __esmDirname(__filename);`,
 ].join(" ");
 
 // ── Externals ──────────────────────────────────────────────────────────────
