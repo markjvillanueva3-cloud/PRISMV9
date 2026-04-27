@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "featurecam",
+  "section_key": "drilling",
+  "extraction_source": "Autodesk FeatureCAM Drilling/Holemaking Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-24",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["drill", "tap", "ream", "bore"]
+  },
+  "operations": {
+    "drill": {
+      "display_name": "Drill Cycle",
+      "category": "drill",
+      "description": "Standard drill cycle. AFR auto-classifies hole features and chains drill→tap→ream as needed.",
+      "dialog_tabs": ["Hole", "Cycle", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "holeRef": { "type": "selection", "tab": "Hole", "required": true },
+          "hole_dia_mm": { "type": "number", "unit": "mm", "default": 8.0, "tab": "Hole" },
+          "hole_depth_mm": { "type": "number", "unit": "mm", "default": 20.0, "tab": "Hole" },
+          "blind_or_through": { "type": "enum", "values": ["blind", "through"], "default": "blind", "tab": "Hole" }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G81", "G82", "G83_peck", "G73_high_speed_peck"], "default": "G83_peck", "tab": "Cycle" },
+          "peck_depth_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Cycle" },
+          "retract_at_peck": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "dwell_at_bottom_s": { "type": "number", "unit": "s", "default": 0.0, "tab": "Cycle" }
+        },
+        "cut": {
+          "drill_rpm": { "type": "number", "unit": "rpm", "default": 2500, "tab": "Cut" },
+          "drill_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.15, "tab": "Cut" },
+          "spot_drill_first": { "type": "boolean", "default": true, "tab": "Cut" }
+        },
+        "output": {
+          "rapid_to_clearance": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_LD_too_long": { "type": "boolean", "default": true, "description": "Flag if depth > 4*dia", "tab": "Output" },
+          "auto_select_drill": { "type": "boolean", "default": true, "tab": "Output" },
+          "tool_dia_mm": { "type": "number", "unit": "mm", "default": 8.0, "tab": "Output" }
+        }
+      }
+    },
+    "tap": {
+      "display_name": "Tap Cycle",
+      "category": "tap",
+      "description": "Rigid tap or floating-holder tap. AFR auto-detects tap features, links to thread spec table.",
+      "dialog_tabs": ["Hole", "Tap", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "tap_drill_dia_mm": { "type": "number", "unit": "mm", "default": 8.5, "description": "8.5 for M10x1.5", "tab": "Hole", "required": true },
+          "thread_spec": { "type": "string", "default": "M10x1.5", "tab": "Hole" },
+          "thread_depth_mm": { "type": "number", "unit": "mm", "default": 15.0, "tab": "Hole" },
+          "blind_or_through": { "type": "enum", "values": ["blind", "through"], "default": "blind", "tab": "Hole" }
+        },
+        "tap": {
+          "tap_pitch_mm": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Tap", "required": true },
+          "lead_in_pitches": { "type": "integer", "default": 3, "tab": "Tap" },
+          "left_or_right_hand": { "type": "enum", "values": ["right", "left"], "default": "right", "tab": "Tap" },
+          "tap_form": { "type": "enum", "values": ["cutting", "forming_roll"], "default": "cutting", "tab": "Tap" }
+        },
+        "strategy": {
+          "rigid_tap": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "tap_speed_rpm": { "type": "number", "unit": "rpm", "default": 800, "tab": "Strategy" },
+          "spindle_synch_check": { "type": "boolean", "default": true, "description": "Verify rigid tap capability before run", "tab": "Strategy" }
+        },
+        "output": {
+          "g_code_cycle": { "type": "enum", "values": ["G84", "G84.2", "G74_left_hand"], "default": "G84", "tab": "Output" },
+          "M29_before_cycle": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_pre_drill_wrong": { "type": "boolean", "default": true, "description": "Block if hole_dia != tap_drill_size for thread spec", "tab": "Output" },
+          "use_tapping_paste": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "ream": {
+      "display_name": "Ream Cycle",
+      "category": "ream",
+      "description": "Reaming for H7-tolerance bore finish. FCAM auto-derives ream params from drill predecessor + reamer in tool DB.",
+      "dialog_tabs": ["Hole", "Reamer", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "ream_dia_mm": { "type": "number", "unit": "mm", "default": 12.0, "tab": "Hole", "required": true },
+          "ream_depth_mm": { "type": "number", "unit": "mm", "default": 25.0, "tab": "Hole" },
+          "predrill_dia_mm": { "type": "number", "unit": "mm", "default": 11.8, "description": "Auto-set 0.2mm under finish", "tab": "Hole" },
+          "tolerance_class": { "type": "enum", "values": ["H7", "H8", "H9"], "default": "H7", "tab": "Hole" }
+        },
+        "reamer": {
+          "flute_count": { "type": "integer", "default": 6, "tab": "Reamer" },
+          "helix_angle_deg": { "type": "number", "unit": "deg", "default": 7.0, "description": "+ for blind, - for through", "tab": "Reamer" },
+          "reamer_material": { "type": "enum", "values": ["HSS", "HSS_TiN", "carbide_solid", "carbide_brazed"], "default": "carbide_solid", "tab": "Reamer" },
+          "wiper_land_mm": { "type": "number", "unit": "mm", "default": 0.15, "tab": "Reamer" }
+        },
+        "cut": {
+          "ream_rpm": { "type": "number", "unit": "rpm", "default": 600, "description": "30-50% drill RPM", "tab": "Cut" },
+          "ream_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.15, "description": "2-3x drill FPR", "tab": "Cut" },
+          "coolantMode": { "type": "enum", "values": ["FLOOD", "MIST", "TSC", "AIR"], "default": "FLOOD", "tab": "Cut" }
+        },
+        "output": {
+          "g_code_cycle": { "type": "string", "default": "G85", "tab": "Output" },
+          "no_dwell_at_bottom": { "type": "boolean", "default": true, "description": "Reamers must NEVER dwell — score marks", "tab": "Output" },
+          "warn_if_predrill_wrong": { "type": "boolean", "default": true, "description": "Block if predrill 0.5mm under (excessive stock)", "tab": "Output" },
+          "verify_reamer_runout_before_run": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "bore": {
+      "display_name": "Bore Cycle",
+      "category": "bore",
+      "description": "Single-point boring with shift-out for finish. Auto-detects boring features from hole tolerance.",
+      "dialog_tabs": ["Hole", "Cycle", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "bore_dia_mm": { "type": "number", "unit": "mm", "default": 25.0, "tab": "Hole", "required": true },
+          "bore_depth_mm": { "type": "number", "unit": "mm", "default": 30.0, "tab": "Hole" },
+          "stock_to_remove_mm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Hole" },
+          "tolerance_band_um": { "type": "number", "unit": "um", "default": 25, "tab": "Hole" }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G85", "G86", "G87_back_bore", "G89_dwell"], "default": "G85", "tab": "Cycle" },
+          "feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 100, "tab": "Cycle" },
+          "rpm": { "type": "number", "unit": "rpm", "default": 1500, "tab": "Cycle" },
+          "shift_out_um": { "type": "number", "unit": "um", "default": 50, "tab": "Cycle" }
+        },
+        "strategy": {
+          "spring_pass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "dwell_at_bottom_s": { "type": "number", "unit": "s", "default": 0.5, "tab": "Strategy" },
+          "feed_at_retract_pct": { "type": "number", "unit": "pct", "default": 50.0, "tab": "Strategy" }
+        },
+        "output": {
+          "auto_M19_for_back_bore": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_LD_too_long": { "type": "boolean", "default": true, "description": "Flag if L/D > 4 chatter risk", "tab": "Output" },
+          "use_anti_vib_bar": { "type": "boolean", "default": false, "description": "Recommend Sandvik Silent Tools or equiv", "tab": "Output" },
+          "min_workholding_for_LD_5": { "type": "string", "default": "tailstock_required", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Reamer Score Mark Prevention",
+      "key_concepts": ["Lower RPM than drill (30-50%)", "Higher feed than drill (2-3x)", "NEVER dwell at bottom"],
+      "best_practices": ["Pre-drill 0.2mm under finish dia", "Use spiral flutes for blind holes", "Verify TIR before run"]
+    }
+  ]
+}

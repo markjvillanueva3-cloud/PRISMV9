@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "featurecam",
+  "section_key": "turning",
+  "extraction_source": "Autodesk FeatureCAM Turning Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-24",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["rough_turning", "finish_turning", "thread_turning", "groove_turning"]
+  },
+  "operations": {
+    "rough_turning": {
+      "display_name": "Rough Turning",
+      "category": "rough_turning",
+      "description": "FeatureCAM rough turning — radial passes between turn profile and stock. Auto-selects insert from FCAM DB.",
+      "dialog_tabs": ["Profile", "Cut", "Insert", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "profile": {
+          "turnProfileRef": { "type": "selection", "tab": "Profile", "required": true },
+          "stockRef": { "type": "selection", "tab": "Profile", "required": true },
+          "machine_area": { "type": "enum", "values": ["EXT_OD", "INT_ID", "FACE"], "default": "EXT_OD", "tab": "Profile" },
+          "rough_stock_left_mm": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Profile" }
+        },
+        "cut": {
+          "depth_of_cut_mm": { "type": "number", "unit": "mm", "default": 2.5, "tab": "Cut" },
+          "feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.3, "tab": "Cut" },
+          "css_speed_m_per_min": { "type": "number", "unit": "m_per_min", "default": 200, "tab": "Cut" },
+          "max_rpm": { "type": "number", "unit": "rpm", "default": 3500, "tab": "Cut" }
+        },
+        "insert": {
+          "auto_select_insert": { "type": "boolean", "default": true, "description": "Pick insert from FCAM DB by material+area", "tab": "Insert" },
+          "insert_shape": { "type": "enum", "values": ["C_80deg", "D_55deg", "S_90deg", "T_60deg", "W_80deg"], "default": "C_80deg", "tab": "Insert" },
+          "nose_radius_mm": { "type": "number", "unit": "mm", "default": 0.8, "tab": "Insert" },
+          "insert_grade": { "type": "string", "default": "P25_PVD", "tab": "Insert" }
+        },
+        "output": {
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" },
+          "g96_g97_switch": { "type": "boolean", "default": true, "tab": "Output" },
+          "min_diameter_g96_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Output" }
+        }
+      }
+    },
+    "finish_turning": {
+      "display_name": "Finish Turning",
+      "category": "finish_turning",
+      "description": "Finish pass with auto-feed-from-Ra calculation. FCAM derives feed from target Ra and nose radius.",
+      "dialog_tabs": ["Profile", "Finish", "Insert", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "profile": {
+          "profileRef": { "type": "selection", "tab": "Profile", "required": true },
+          "stock_to_remove_mm": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Profile" },
+          "machine_area": { "type": "enum", "values": ["EXT_OD", "INT_ID", "FACE"], "default": "EXT_OD", "tab": "Profile" },
+          "approach_angle_deg": { "type": "number", "unit": "deg", "default": 90.0, "tab": "Profile" }
+        },
+        "finish": {
+          "ra_target_um": { "type": "number", "unit": "um", "default": 1.6, "tab": "Finish" },
+          "auto_feed_from_ra": { "type": "boolean", "default": true, "description": "Compute feed from Ra = f²/(8*r)", "tab": "Finish" },
+          "manual_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.1, "tab": "Finish" },
+          "spring_pass": { "type": "boolean", "default": true, "description": "Repeat for tool deflection compensation", "tab": "Finish" }
+        },
+        "insert": {
+          "use_wiper_geometry": { "type": "boolean", "default": true, "description": "Wiper allows 2x feed for same Ra", "tab": "Insert" },
+          "nose_radius_mm": { "type": "number", "unit": "mm", "default": 0.4, "description": "Smaller for finish — better surface", "tab": "Insert" },
+          "lead_angle_deg": { "type": "number", "unit": "deg", "default": 95.0, "tab": "Insert" }
+        },
+        "output": {
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" },
+          "css_speed_m_per_min": { "type": "number", "unit": "m_per_min", "default": 240, "tab": "Output" },
+          "max_rpm": { "type": "number", "unit": "rpm", "default": 4500, "tab": "Output" },
+          "verify_min_feed_for_chip_break": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "thread_turning": {
+      "display_name": "Thread Turning",
+      "category": "thread_turning",
+      "description": "Single-point thread cutting with constant-volume infeed. Multi-start support, G76 cycle output.",
+      "dialog_tabs": ["Thread", "Infeed", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "thread": {
+          "thread_dia_mm": { "type": "number", "unit": "mm", "default": 25.0, "tab": "Thread", "required": true },
+          "thread_pitch_mm": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Thread", "required": true },
+          "thread_length_mm": { "type": "number", "unit": "mm", "default": 30.0, "tab": "Thread" },
+          "thread_class": { "type": "enum", "values": ["6g_external", "6H_internal", "5g_external", "5H_internal"], "default": "6g_external", "tab": "Thread" }
+        },
+        "infeed": {
+          "infeed_mode": { "type": "enum", "values": ["radial", "modified_flank", "constant_volume", "alternating"], "default": "constant_volume", "tab": "Infeed" },
+          "first_pass_depth_mm": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Infeed" },
+          "min_pass_depth_mm": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Infeed" },
+          "spring_passes": { "type": "integer", "default": 1, "tab": "Infeed" }
+        },
+        "strategy": {
+          "lead_in_dist_mm": { "type": "number", "unit": "mm", "default": 4.0, "description": "≥3*pitch acceleration distance", "tab": "Strategy" },
+          "compoundAngle_deg": { "type": "number", "unit": "deg", "default": 29.0, "tab": "Strategy" },
+          "starts": { "type": "integer", "default": 1, "tab": "Strategy" }
+        },
+        "output": {
+          "g_code_cycle": { "type": "enum", "values": ["G76", "G92", "long_form"], "default": "G76", "tab": "Output" },
+          "css_speed_m_per_min": { "type": "number", "unit": "m_per_min", "default": 80, "description": "Lower for threading", "tab": "Output" },
+          "max_rpm": { "type": "number", "unit": "rpm", "default": 1500, "tab": "Output" },
+          "x_retract_mode": { "type": "enum", "values": ["chamfer_45", "vertical", "no_retract"], "default": "chamfer_45", "tab": "Output" }
+        }
+      }
+    },
+    "groove_turning": {
+      "display_name": "Groove Turning",
+      "category": "groove_turning",
+      "description": "OD/ID grooving for retaining ring grooves, O-ring grooves, parting cuts.",
+      "dialog_tabs": ["Groove", "Cut", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "groove": {
+          "grooveRef": { "type": "selection", "tab": "Groove", "required": true },
+          "groove_width_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Groove" },
+          "groove_depth_mm": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Groove" },
+          "insert_width_mm": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Groove" }
+        },
+        "cut": {
+          "plunge_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.05, "tab": "Cut" },
+          "side_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.1, "tab": "Cut" },
+          "css_speed_m_per_min": { "type": "number", "unit": "m_per_min", "default": 150, "tab": "Cut" },
+          "peck_increment_mm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cut" }
+        },
+        "strategy": {
+          "groove_pattern": { "type": "enum", "values": ["plunge_only", "plunge_then_finish", "pinch_grooving"], "default": "plunge_then_finish", "tab": "Strategy" },
+          "side_finish_pass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "dwell_at_bottom_s": { "type": "number", "unit": "s", "default": 0.2, "tab": "Strategy" },
+          "chip_break_step_mm": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" }
+        },
+        "output": {
+          "coolant_mode": { "type": "enum", "values": ["FLOOD", "TSC_HIGH_PRESS", "MIST"], "default": "TSC_HIGH_PRESS", "tab": "Output" },
+          "warn_if_narrow_groove": { "type": "boolean", "default": true, "tab": "Output" },
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Auto Feed from Ra",
+      "key_concepts": ["Ra = f²/(8*r) for theoretical surface", "Wiper insert allows 2x feed", "Spring pass corrects deflection"],
+      "best_practices": ["Set Ra target 20-30% above tolerance", "Use wiper for production volumes", "Always include 1 spring pass for steel"]
+    }
+  ]
+}

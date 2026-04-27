@@ -21,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { inferAgentIdentity } from "./agent-identity.mjs";
+import { deriveSessionTopic } from "./derive-session-topic.mjs";
 
 const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
 const SESSION_ID_FILE = path.join(HANDOFFS_DIR, ".current-session-ids.json");
@@ -368,8 +369,10 @@ function main() {
     resumeSource = "generated";
   }
 
-  // Step 2.5: Extract topic slug for filename
-  const topic = extractTopicSlug();
+  // Step 2.5: Derive topic — prefer THIS chat's existing handoff or state markers
+  // over global git log (which can mis-attribute peer chats' work to us).
+  const derived = deriveSessionTopic(identity.instance);
+  const topic = derived.topic;
 
   // Step 3: Write the handoff via per-agent-handoff.mjs
   const handoffScript = path.resolve("H:/prism/.claude/helpers/per-agent-handoff.mjs");
