@@ -214,6 +214,17 @@
         ]
       },
       {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/iterate-retrieve-suggest.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
         "matcher": "Read",
         "hooks": [
           {
@@ -392,13 +403,13 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_broken_imports.mjs",
             "timeout": 5000,
-            "continueOnError": true
+            "continueOnError": false
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_unsafe_gcode.mjs",
             "timeout": 3000,
-            "continueOnError": true
+            "continueOnError": false
           },
           {
             "type": "command",
