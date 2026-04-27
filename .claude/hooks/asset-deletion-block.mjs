@@ -11,6 +11,13 @@
 
 import * as fs from 'fs';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return require("fs").readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
 const PROTECTED_PATHS = [
   '/.claude/hooks/',
   '/.claude/commands/',
@@ -19,6 +26,13 @@ const PROTECTED_PATHS = [
   '/prism/.claude/',
   '/mcp-server/src/engines/',
   '/mcp-server/src/tools/dispatchers/',
+  '/mcp-server/src/schemas/',
+  '/mcp-server/src/__tests__/',
+  '/PRISM/resources/',
+  '/prism/resources/',
+  '/PRISM/JM DIE/',
+  '/prism/JM DIE/',
+  '/PRISM/JM%20DIE/',
 ];
 
 const DELETION_PATTERNS = [
@@ -69,7 +83,8 @@ async function main() {
     return;
   }
 
-  const { tool, input: toolInput } = input;
+  const tool = input.tool_name || input.tool || "";
+  const toolInput = input.tool_input || input.input || {};
 
   // Check Bash commands for deletion
   if (tool === 'Bash') {

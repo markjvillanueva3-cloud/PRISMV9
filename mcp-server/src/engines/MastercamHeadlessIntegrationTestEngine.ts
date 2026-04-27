@@ -673,14 +673,4 @@ export class MastercamHeadlessIntegrationTestEngine {
   }
 }
 
-// ── Type Re-exports ─────────────────────────────────────────────────────────
-
-export type {
-  MCVersion,
-  MCTestStatus,
-  MCTestCase,
-  MCTestResult,
-  MCTestSuiteResult,
-  MCOperationSnapshot,
-  MCFileSnapshot,
-};
+// Types MCVersion/MCTestStatus/MCTestCase/MCTestResult/MCTestSuiteResult/MCOperationSnapshot/MCFileSnapshot are exported at their declarations above.

@@ -48,9 +48,30 @@ if [[ "$cmd" == "git restore ." || "$cmd" == "git restore -- ." ]]; then
   exit 2
 fi
 
-if [[ "$cmd" == *"git clean -f"* && "$cmd" != *"git clean -n"* ]]; then
-  echo "BLOCKED: 'git clean -f' permanently deletes untracked files. Review first with 'git clean -n' (dry run)." >&2
-  exit 2
+if [[ "$cmd" =~ git[[:space:]]+clean[[:space:]]+([^#]*)([[:space:]]|$) ]]; then
+  flags="${BASH_REMATCH[1]}"
+  if [[ "$flags" == *"-n"* || "$flags" == *"--dry-run"* ]]; then
+    :
+  elif [[ "$flags" == *"-f"* || "$flags" == *"--force"* ]]; then
+    echo "BLOCKED: git clean with -f/--force permanently deletes untracked files (any flag order). Use -n / --dry-run first." >&2
+    exit 2
+  fi
+fi
+
+# Asset preservation: PowerShell recursive force delete on protected paths
+if [[ "$cmd" == *"Remove-Item"* && "$cmd" == *"-Recurse"* && "$cmd" == *"-Force"* ]]; then
+  if [[ "$cmd" == *"resources"* || "$cmd" == *"JM DIE"* || "$cmd" == *"engines"* || "$cmd" == *"schemas"* || "$cmd" == *".claude"* ]]; then
+    echo "BLOCKED: PowerShell Remove-Item -Recurse -Force targeting protected path (resources/JM DIE/engines/schemas/.claude)." >&2
+    exit 2
+  fi
+fi
+
+# Asset preservation: robocopy with destructive flags on protected paths
+if [[ "$cmd" == *"robocopy"* ]] && [[ "$cmd" == *"/MIR"* || "$cmd" == *"/PURGE"* ]]; then
+  if [[ "$cmd" == *"resources"* || "$cmd" == *"JM DIE"* ]]; then
+    echo "BLOCKED: robocopy with /MIR or /PURGE targeting resources or JM DIE will DELETE dest files not in source. Use additive flags only (/XO /XN /XC)." >&2
+    exit 2
+  fi
 fi
 
 # Helper: check if cache file is younger than N seconds

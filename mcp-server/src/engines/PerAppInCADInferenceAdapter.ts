@@ -637,15 +637,4 @@ export class PerAppInCADInferenceAdapter {
   }
 }
 
-// ── Type Re-exports ─────────────────────────────────────────────────────────
-
-export type {
-  CADAppType,
-  InferenceType,
-  ModelFormat,
-  Quantization,
-  ModelConfig,
-  FeatureVector,
-  InferenceResult,
-  LatencyStats,
-};
+// Types CADAppType/InferenceType/ModelFormat/Quantization/ModelConfig/FeatureVector/InferenceResult/LatencyStats are exported at their declarations above.
