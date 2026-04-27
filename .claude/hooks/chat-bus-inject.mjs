@@ -59,7 +59,7 @@ function isRelevantPath(rawPath, cwd) {
   const p = normalizePath(rawPath);
   const c = normalizePath(cwd);
   if (!c) return true;
-  if (p.startsWith(c)) return true;
+  if (p === c || p.startsWith(c.endsWith("/") ? c : c + "/")) return true;
   for (const frag of SHARED_PATH_FRAGMENTS) if (p.includes(frag)) return true;
   if (new RegExp("^[a-z]:/prism-[a-z0-9-]+/").test(p) || p.includes("/.claude/worktrees/")) return false;
   if (p.startsWith("c:/") && !c.startsWith("c:/")) return false;
