@@ -179,7 +179,7 @@ function main() {
     ].join("\n");
 
     console.log(JSON.stringify({
-      continue: false,
+      decision: "block",
       reason: msg,
     }));
     return;

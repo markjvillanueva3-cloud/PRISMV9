@@ -12,6 +12,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return require("fs").readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
 const ENGINES_INDEX = 'H:/prism/mcp-server/src/engines/index.ts';
 const REGISTRY_PATH = 'H:/prism/mcp-server/data/state/cross-session-asset-registry.json';
 const CREATE_PATHS = ['/engines/', '/hooks/', '/.claude/commands/'];
@@ -97,7 +104,8 @@ async function main() {
     return;
   }
 
-  const { tool, input: toolInput } = input;
+  const tool = input.tool_name || input.tool || "";
+  const toolInput = input.tool_input || input.input || {};
 
   if (!isAssetCreate(tool, toolInput)) {
     console.log(JSON.stringify({ decision: 'approve' }));

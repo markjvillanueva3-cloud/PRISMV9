@@ -11,6 +11,13 @@
 
 import { readFileSync, existsSync } from 'fs';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return require("fs").readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
 const FRONTEND_PATHS = [
   'web/src/pages/',
   'web/src/components/',
@@ -62,8 +69,8 @@ function isBackendPath(filePath) {
 
 function main() {
   try {
-    const toolInput = process.env.TOOL_INPUT || '{}';
-    const tool = process.env.TOOL || '';
+    const _raw = readStdinSafe(); const _payload = _raw ? (() => { try { return JSON.parse(_raw); } catch { return {}; } })() : {}; const toolInput = JSON.stringify(_payload.tool_input || _payload.input || {});
+    const tool = _payload.tool_name || _payload.tool || '';
 
     // Only check Write/Edit/MultiEdit operations
     if (!['Write', 'Edit', 'MultiEdit'].includes(tool)) {

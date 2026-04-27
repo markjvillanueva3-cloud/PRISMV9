@@ -158,6 +158,10 @@ function inferScopeFromFiles(files) {
     welder: /(welder|welding)/i,
     safety: /(safety|safetyDispatcher|collision|forceCapability)/i,
     physics: /(physics\/|kienzle|taylor|johnsonCook)/i,
+    // KNOWLEDGE-WIKI-MS0 + future ingest/lint work. Matches WikiX engines,
+    // WIKI_SCHEMA.md, wiki-bootstrap.mjs, knowledge/wiki/ pages, wikiLock.
+    // Tight: `Wiki[A-Z]` wont accidentally hit unrelated lowercase wiki.
+    knowledge: /(WIKI_|Wiki[A-Z]|wiki-?(?:bootstrap|lock|lint|ingest)|knowledge\/(?:wiki|memories|lint-reports))/,
     test: /(__tests__|\.test\.ts$|\.spec\.ts$)/i,
     hooks: /(\.claude\/hooks\/|hookDispatcher)/i,
     docs: /\.(md|txt)$/i,
@@ -359,11 +363,9 @@ function branchBasename(b) {
 
 function scopeMatchesBranch(scopeToken, branchHead, fullBranch) {
   if (!scopeToken || !branchHead) return false;
-  // Case-insensitive — scope tokens are uppercase ([META]), branch refs are lowercase
   const sLow = String(scopeToken).toLowerCase();
   const headLow = String(branchHead).toLowerCase();
   if (headLow.includes(sLow) || sLow.includes(headLow.split("-")[0])) return true;
-  // Check ALL path segments of full branch (e.g. "meta" in "meta/file-claim-fix")
   if (fullBranch) {
     const segs = String(fullBranch).toLowerCase().split("/").filter(Boolean);
     for (const seg of segs) {

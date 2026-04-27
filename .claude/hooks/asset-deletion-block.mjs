@@ -11,6 +11,13 @@
 
 import * as fs from 'fs';
 
+function readStdinSafe() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return require("fs").readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
 const PROTECTED_PATHS = [
   '/.claude/hooks/',
   '/.claude/commands/',
@@ -69,7 +76,8 @@ async function main() {
     return;
   }
 
-  const { tool, input: toolInput } = input;
+  const tool = input.tool_name || input.tool || "";
+  const toolInput = input.tool_input || input.input || {};
 
   // Check Bash commands for deletion
   if (tool === 'Bash') {

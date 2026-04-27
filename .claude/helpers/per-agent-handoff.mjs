@@ -343,11 +343,34 @@ function cmdWrite(identity, args) {
 function cmdRead(identity, args) {
   ensureDirs();
   const targetInstance = args.agent || identity.instance;
+  // (1a) Exact match with --topic if provided
+  if (args.topic) {
+    const fpTopic = handoffPath(targetInstance, args.topic);
+    if (fs.existsSync(fpTopic)) {
+      return { ok: true, content: fs.readFileSync(fpTopic, "utf-8"), file: fpTopic, matchedBy: "exact-topic" };
+    }
+  }
+  // (1b) Exact match topicless
   const filePath = handoffPath(targetInstance);
-
   if (fs.existsSync(filePath)) {
     return { ok: true, content: fs.readFileSync(filePath, "utf-8"), file: filePath, matchedBy: "exact" };
   }
+  // (1c) THE FIX (2026-04-27): topic-suffixed variant for this instance — newest mtime wins.
+  // precompact-handoff.mjs writes HANDOFF-{instance}-{topic}.md but cmdRead
+  // previously only looked for topicless HANDOFF-{instance}.md → silent fallback to
+  // family-latest, cross-contaminating concurrent chats. Per Agent C audit.
+  try {
+    const sanInstance = sanitizeFilename(targetInstance);
+    const allFiles = fs.readdirSync(HANDOFFS_DIR);
+    const topicVariants = allFiles
+      .filter((f) => f.startsWith("HANDOFF-" + sanInstance + "-") && f.endsWith(".md"))
+      .map((f) => ({ file: f, path: path.join(HANDOFFS_DIR, f), mtime: fs.statSync(path.join(HANDOFFS_DIR, f)).mtimeMs }))
+      .sort((a, b) => b.mtime - a.mtime);
+    if (topicVariants.length > 0) {
+      const t = topicVariants[0];
+      return { ok: true, content: fs.readFileSync(t.path, "utf-8"), file: t.file, matchedBy: "exact-topic-variant", age_minutes: Math.round((Date.now() - t.mtime) / 60000) };
+    }
+  } catch { /* fall through to fuzzy */ }
 
   // Fallback chain: (1) fuzzy name match, (2) most recent by family, (3) most recent overall
   const files = fs.readdirSync(HANDOFFS_DIR)
