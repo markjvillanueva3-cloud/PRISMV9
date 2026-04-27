@@ -18,7 +18,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import express from "express";
+import express, { type Request, type Response } from "express";
 import dotenv from "dotenv";
 import path from "node:path";
 import fs from "node:fs";
@@ -115,7 +115,7 @@ import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligence
 import { registerAIReasoningDispatcher } from "./tools/dispatchers/aiReasoningDispatcher.js";
 
 // Agent — AGENT-MS1-5 unified agent surface (chat, memory, capabilities, context)
-import { registerAgentDispatcher } from "./tools/dispatchers/agentDispatcher.js";
+// import { registerAgentDispatcher } from "./tools/dispatchers/agentDispatcher.js"; // NOT ON THIS BRANCH
 
 // SYS-MS1: Product Dispatcher — 40 actions extracted from intelligence (Dispatcher #46)
 import { registerProductDispatcher } from "./tools/dispatchers/productDispatcher.js";
@@ -155,12 +155,13 @@ import { registerOperatingSystemDispatcher } from "./tools/dispatchers/operating
 import { registerMonitoringDispatcher } from "./tools/dispatchers/monitoringDispatcher.js";
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerResourceHarvesterDispatcher } from "./tools/dispatchers/resourceHarvesterDispatcher.js";
-import { registerResourceHarvestingDispatcher } from "./tools/dispatchers/resourceHarvestingDispatcher.js";
+// import { registerResourceHarvestingDispatcher } from "./tools/dispatchers/resourceHarvestingDispatcher.js"; // NOT ON THIS BRANCH
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
 
 // L3: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions (#40-#45)
 import { registerTurningDispatcher } from "./tools/dispatchers/turningDispatcher.js";
 import { registerFiveAxisDispatcher } from "./tools/dispatchers/fiveAxisDispatcher.js";
+import { registerMillDispatcher } from "./tools/dispatchers/millDispatcher.js"; // MILL-MASTER-P1-U01
 import { registerEdmDispatcher } from "./tools/dispatchers/edmDispatcher.js";
 import { registerGrindingDispatcher } from "./tools/dispatchers/grindingDispatcher.js";
 import { registerIndustryDispatcher } from "./tools/dispatchers/industryDispatcher.js";
@@ -203,7 +204,7 @@ import { registerFeasibilityDispatcher } from "./tools/dispatchers/feasibilityDi
 import { registerProvenPipelineDispatcher } from "./tools/dispatchers/provenPipelineDispatcher.js";
 
 // PP-DISPATCHER: Dedicated PostProcessor dispatcher — 50 actions
-import { registerPPDispatcher } from "./tools/dispatchers/ppDispatcher.js";
+// import { registerPPDispatcher } from "./tools/dispatchers/ppDispatcher.js"; // NOT ON THIS BRANCH
 
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
@@ -616,7 +617,7 @@ async function registerTools(): Promise<void> {
   registerAIReasoningDispatcher(server);
 
   // Agent — chat/memory/capabilities/context/self_awareness/stats (8 actions)
-  registerAgentDispatcher(server);
+  // registerAgentDispatcher(server); // NOT ON THIS BRANCH
 
   // SYS-MS1: Product Dispatcher — SFC, PPG, Shop, ACNC (40 actions)
   registerProductDispatcher(server);
@@ -641,7 +642,7 @@ async function registerTools(): Promise<void> {
   registerCamDispatcher(server);
 
   // PP-DISPATCHER: PostProcessor-specific operations — 50 actions (generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics)
-  registerPPDispatcher(server);
+  // registerPPDispatcher(server); // NOT ON THIS BRANCH
   registerQualityDispatcher(server);
   registerProcessControlDispatcher(server);
   registerSchedulingDispatcher(server);
@@ -652,12 +653,13 @@ async function registerTools(): Promise<void> {
   registerMonitoringDispatcher(server);
   registerAuthDispatcher(server);
   registerResourceHarvesterDispatcher(server);
-  registerResourceHarvestingDispatcher(server);   // RESOURCE-HARVEST-MS1: 8 actions (automated pipeline)
+  // registerResourceHarvestingDispatcher(server);   // RESOURCE-HARVEST-MS1: 8 actions (automated pipeline) // NOT ON THIS BRANCH
   registerExportDispatcher(server);
 
   // L3-P1: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions
   registerTurningDispatcher(server);
   registerFiveAxisDispatcher(server);
+  registerMillDispatcher(server); // MILL-MASTER-P1-U01: 46 actions, cohesion core via MillMasterOrchestratorFacadeEngine
   registerEdmDispatcher(server);
   registerGrindingDispatcher(server);
   registerIndustryDispatcher(server);
@@ -955,6 +957,82 @@ async function runHTTP(): Promise<void> {
       return { error: e.message };
     }
   }
+
+  // ========================================================================
+  // /api/cam — Generic action-dispatcher route for the Fusion 360 add-in panel
+  // (CAM-EXHAUST-MS0/U-FUS-API01)
+  //
+  // The PRISM_CAM_Optimizer Fusion add-in's prism_api_client.py POSTs
+  //   { action: "cam_unified_generate" | "prism_data:material_search" | ..., params: {} }
+  // to http://localhost:3100/api/cam (PRISM canonical port). This route maps the action to the
+  // correct registered MCP tool and reuses the existing callTool path.
+  // ========================================================================
+  function actionToToolName(action: string): string | null {
+    if (!action) return null;
+    if (action.includes(":")) return action.split(":")[0];
+    if (action.startsWith("cam_") || action.startsWith("pp_") || action.startsWith("probe_")) return "prism_cam";
+    if (action.startsWith("quote_")) return "prism_business";
+    if (action === "tool_catalog_search") return "prism_calc";
+    if (action === "material_search" || action === "machine_search" || action.startsWith("data_")) return "prism_data";
+    return null;
+  }
+
+  function actionInnerName(action: string): string {
+    return action.includes(":") ? action.split(":").slice(1).join(":") : action;
+  }
+
+  function setFusionCors(res: Response): void {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Max-Age", "86400");
+  }
+
+  function hasError(value: unknown): value is { error: string } {
+    return typeof value === "object" && value !== null && "error" in value && typeof (value as { error: unknown }).error === "string";
+  }
+
+  app.options("/api/cam", (_req: Request, res: Response) => {
+    setFusionCors(res);
+    res.status(204).end();
+  });
+
+  app.post("/api/cam", async (req: Request, res: Response) => {
+    setFusionCors(res);
+    const body: { action?: unknown; params?: unknown } = req.body ?? {};
+    const action = body.action;
+    const params = (body.params && typeof body.params === "object") ? body.params as Record<string, unknown> : {};
+
+    if (typeof action !== "string" || !action) {
+      res.status(400).json({ error: "Missing 'action' in request body", code: "MISSING_ACTION" });
+      return;
+    }
+
+    const toolName = actionToToolName(action);
+    if (!toolName) {
+      res.status(400).json({
+        error: `Unknown action prefix: '${action}'. Use a known dispatcher prefix or 'dispatcher:action' form.`,
+        code: "UNKNOWN_ACTION_PREFIX",
+        action,
+      });
+      return;
+    }
+
+    const inner = actionInnerName(action);
+    try {
+      const result = await callTool(toolName, inner, params);
+      if (hasError(result)) {
+        const status = result.error.includes("not found") ? 404 : 400;
+        res.status(status).json({ error: result.error, code: "TOOL_ERROR", tool: toolName, action: inner });
+        return;
+      }
+      res.status(200).json(result);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      log.error(`[/api/cam] dispatch failed: ${msg}`);
+      res.status(500).json({ error: msg, code: "DISPATCH_FAILED", tool: toolName, action: inner });
+    }
+  });
 
   // Register all route modules (SFC, CAD, CAM, Quality, Schedule, Cost, Export, Data, Safety)
   const { registerRoutes } = await import("./routes/index.js");
