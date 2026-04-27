@@ -280,7 +280,7 @@ export class WikiErrorLearningBridgeEngine extends BaseEngine {
     }
 
     if (upserts.length > 0) {
-      await indexEngine.upsertMany(upserts, today);
+      await indexEngine.upsertMany(upserts);
     }
 
     if (lessons.length > 0) {

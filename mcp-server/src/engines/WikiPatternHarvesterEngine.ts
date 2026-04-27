@@ -296,7 +296,7 @@ export class WikiPatternHarvesterEngine extends BaseEngine {
     }
 
     if (upsertEntries.length > 0) {
-      await this.indexEngine.upsertMany(upsertEntries, today);
+      await this.indexEngine.upsertMany(upsertEntries);
     }
 
     const filesWritten = results.filter((r) => r.patternFileWritten).length;
