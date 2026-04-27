@@ -24,7 +24,12 @@
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const USER_AUTHORED_SUBDIRS = ["commands", "agents", "hooks", "skills", "rules", "plans"];
+// Note: "plans" deliberately excluded — Claude Code's plan-mode auto-writes
+// whimsical-named files to ~/.claude/plans/ (e.g. composed-swinging-piglet.md).
+// Those are CLI-managed transient artifacts, not source-controlled assets, and
+// have no portability concern. Keeping it in the list caused every Stop event
+// to block on plan-mode side effects.
+const USER_AUTHORED_SUBDIRS = ["commands", "agents", "hooks", "skills", "rules"];
 const HOOKIFY_FILE_RE = /^hookify[.\-][^/\\]+\.md$/i;
 const H_CLAUDE_ROOT = "H:/.claude";
 const MAX_DEPTH = 12;
