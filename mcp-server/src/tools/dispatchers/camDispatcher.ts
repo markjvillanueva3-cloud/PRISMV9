@@ -1630,6 +1630,12 @@ export const ACTIONS = [
     "tebis_function_index_find_parameter", "tebis_function_index_search_parameters",
     "tebis_function_index_get_operations_by_category", "tebis_function_index_get_summary",
     "tebis_function_index_get_proven_process_operations", "tebis_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-16 — BobCAD-CAM Function Index
+    "bobcad_function_index_get", "bobcad_function_index_list_sections",
+    "bobcad_function_index_get_section", "bobcad_function_index_list_operations",
+    "bobcad_function_index_find_parameter", "bobcad_function_index_search_parameters",
+    "bobcad_function_index_get_operations_by_category", "bobcad_function_index_get_summary",
+    "bobcad_function_index_get_dmt_operations", "bobcad_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12602,6 +12608,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { TebisFunctionIndexEngine } = await import("../../engines/TebisFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...TebisFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-16 — BobCAD-CAM Function Index (10 actions)
+          case "bobcad_function_index_get": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            result = { success: true, index: BobCADCAMFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "bobcad_function_index_list_sections": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            result = { success: true, sections: BobCADCAMFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "bobcad_function_index_get_section": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: BobCADCAMFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "bobcad_function_index_list_operations": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            result = { success: true, operations: BobCADCAMFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "bobcad_function_index_find_parameter": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: BobCADCAMFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "bobcad_function_index_search_parameters": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: BobCADCAMFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "bobcad_function_index_get_operations_by_category": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: BobCADCAMFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "bobcad_function_index_get_summary": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            result = { success: true, ...BobCADCAMFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "bobcad_function_index_get_dmt_operations": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            result = { success: true, operations: BobCADCAMFunctionIndexEngine.getDMTOperations() };
+            break;
+          }
+          case "bobcad_function_index_get_operation": {
+            const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...BobCADCAMFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

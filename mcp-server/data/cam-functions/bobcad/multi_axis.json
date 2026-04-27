@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "system_id": "bobcad",
+  "section_key": "multi_axis",
+  "extraction_source": "BobCAD-CAM V35 Multi-Axis Reference / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-16",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["four_axis_wrap", "four_axis_simultaneous", "five_axis_simultaneous", "five_axis_3p2"]
+  },
+  "operations": {
+    "four_axis_wrap": {
+      "display_name": "4-Axis Wrap",
+      "category": "four_axis_wrap",
+      "description": "Wrap 2D / 2.5D toolpath around a cylindrical axis (A, B, or C). Common for engraving, splines, scrolls.",
+      "dialog_tabs": ["Source", "Wrap", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "source": {
+          "sourcePath": { "type": "selection", "description": "2D toolpath to wrap", "tab": "Source", "required": true },
+          "wrapPlane": { "type": "enum", "values": ["XY", "XZ", "YZ"], "default": "XY", "tab": "Source" }
+        },
+        "wrap": {
+          "rotaryAxis": { "type": "enum", "values": ["A", "B", "C"], "default": "A", "tab": "Wrap", "required": true },
+          "rollDiameter": { "type": "number", "unit": "mm", "tab": "Wrap", "required": true },
+          "rollDirection": { "type": "enum", "values": ["clockwise", "counterClockwise"], "default": "counterClockwise", "tab": "Wrap" },
+          "originAtCenter": { "type": "boolean", "default": true, "description": "Origin = rotary centerline (vs surface)", "tab": "Wrap" },
+          "useG107": { "type": "boolean", "default": false, "description": "Output Fanuc G107 cylindrical interpolation block", "tab": "Wrap" }
+        },
+        "cycle": {
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedRotary": { "type": "number", "unit": "deg/min", "description": "Override rotary feed; computed from feed if unset", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "useFeedPerRev": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "air"], "default": "flood", "tab": "Cycle" },
+          "approachClearance": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" }
+        }
+      }
+    },
+    "four_axis_simultaneous": {
+      "display_name": "4-Axis Simultaneous",
+      "category": "four_axis_simultaneous",
+      "description": "Continuous 4-axis machining — XYZ + 1 rotary moving simultaneously. Used for impeller-like blade paths on horizontal axis lathes/mills.",
+      "dialog_tabs": ["Surface", "ToolAxis", "Cycle"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "surfaceRef": { "type": "selection", "tab": "Surface", "required": true },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Surface", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Surface" }
+        },
+        "toolAxis": {
+          "axisAlignment": { "type": "enum", "values": ["normalToSurface", "throughCurve", "alongCurve"], "default": "normalToSurface", "tab": "ToolAxis" },
+          "rotaryAxis": { "type": "enum", "values": ["A", "B", "C"], "default": "A", "tab": "ToolAxis", "required": true },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-30, 30], "tab": "ToolAxis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-30, 30], "tab": "ToolAxis" },
+          "useGougeProtection": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "useHolderCheck": { "type": "boolean", "default": true, "tab": "ToolAxis" }
+        },
+        "cycle": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "outputFormat": { "type": "enum", "values": ["pointToPoint", "nurbs"], "default": "pointToPoint", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql"], "default": "mql", "tab": "Cycle" }
+        }
+      }
+    },
+    "five_axis_simultaneous": {
+      "display_name": "5-Axis Simultaneous",
+      "category": "five_axis_simultaneous",
+      "description": "Full 5-axis machining: XYZ + 2 rotary moving simultaneously. Includes lead/tilt control, gouge protection, and TCP output.",
+      "dialog_tabs": ["Surface", "ToolAxis", "Cycle"],
+      "parameter_count": 18,
+      "parameters": {
+        "surface": {
+          "surfaceRef": { "type": "selection", "tab": "Surface", "required": true },
+          "patternMode": { "type": "enum", "values": ["isoparametric", "guidedByCurve", "morph", "scallop"], "default": "guidedByCurve", "tab": "Surface" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.1, "range": [0.005, 1.0], "tab": "Surface", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.003, "tab": "Surface" },
+          "guideCurveRef": { "type": "selection", "tab": "Surface" }
+        },
+        "toolAxis": {
+          "tiltStrategy": { "type": "enum", "values": ["normalToSurface", "leadAndTilt", "throughCurve", "throughPoint", "tiltByLine"], "default": "leadAndTilt", "tab": "ToolAxis", "required": true },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 5.0, "range": [-30, 30], "tab": "ToolAxis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 5.0, "range": [-30, 30], "tab": "ToolAxis" },
+          "axisSmoothing": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "axisSmoothingTolerance": { "type": "number", "unit": "deg", "default": 1.0, "tab": "ToolAxis" },
+          "useGougeProtection": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "useHolderCheck": { "type": "boolean", "default": true, "tab": "ToolAxis" },
+          "useShankCheck": { "type": "boolean", "default": true, "tab": "ToolAxis" }
+        },
+        "cycle": {
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedSlowdownAtAxisLimit": { "type": "number", "default": 0.5, "range": [0.1, 1.0], "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "outputFormat": { "type": "enum", "values": ["pointToPoint", "nurbs"], "default": "nurbs", "tab": "Cycle" },
+          "tcpOutput": { "type": "enum", "values": ["G43", "G43.4", "G43.5", "off"], "default": "G43.4", "description": "Tool-tip compensation mode for the controller", "tab": "Cycle" }
+        }
+      }
+    },
+    "five_axis_3p2": {
+      "display_name": "5-Axis 3+2 Indexing",
+      "category": "five_axis_3p2",
+      "description": "3-axis machining at indexed rotary positions. Tool axis tilted to a fixed orientation, then XYZ moves only. Output G68.2 tilted-work-plane.",
+      "dialog_tabs": ["Indexing", "Source", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "indexing": {
+          "indexAxisVector": { "type": "string", "description": "I,J,K vector or named direction", "tab": "Indexing", "required": true },
+          "indexA": { "type": "number", "unit": "deg", "tab": "Indexing" },
+          "indexB": { "type": "number", "unit": "deg", "tab": "Indexing" },
+          "indexC": { "type": "number", "unit": "deg", "tab": "Indexing" },
+          "checkRotaryLimits": { "type": "boolean", "default": true, "tab": "Indexing" },
+          "rotaryLimitMin": { "type": "number", "unit": "deg", "default": -120, "tab": "Indexing" },
+          "rotaryLimitMax": { "type": "number", "unit": "deg", "default": 120, "tab": "Indexing" }
+        },
+        "source": {
+          "source3AxisToolpaths": { "type": "selection", "description": "3-axis ops to run at this index", "tab": "Source", "required": true },
+          "useToolReachCheck": { "type": "boolean", "default": true, "tab": "Source" }
+        },
+        "output": {
+          "outputMode": { "type": "enum", "values": ["G68_2", "longForm", "machinePost"], "default": "G68_2", "description": "Output tilted-work-plane block (Fanuc G68.2)", "tab": "Output" },
+          "preTiltSafety": { "type": "boolean", "default": true, "description": "Insert G91 G28 Z0 before tilt", "tab": "Output" },
+          "postRetract": { "type": "boolean", "default": true, "description": "Retract to safe Z before unset G68.2", "tab": "Output" },
+          "verifyToolReach": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDegradation": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "BobCAD multi-axis discipline",
+      "key_concepts": ["G68.2 tilted work plane", "G43.4/G43.5 TCP", "rotary axis limit checks"],
+      "best_practices": [
+        "5-axis 3+2 indexing always retracts to safe Z before tilt — gouge risk on tilt-in-cut is real",
+        "Use NURBS output for finishing 5-axis paths — controller block buffer chokes on point-to-point at high feeds",
+        "Verify tool reach AFTER 3+2 indexing — tilt can put the holder into the part"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "system_id": "bobcad",
+  "section_key": "milling",
+  "extraction_source": "BobCAD-CAM V35 Reference / BobCAD-CAM Inc. / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-16",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 70,
+    "categories": ["dmt_hsm", "pocketing", "profiling", "face", "drilling"]
+  },
+  "operations": {
+    "dmt_roughing": {
+      "display_name": "Dynamic Motion Technology (DMT) Roughing",
+      "category": "dmt_hsm",
+      "description": "BobCAD's flagship Dynamic Motion Technology — patented HSM-style adaptive clearing. Constant tool engagement with smooth motion blending; equivalent to Mastercam Dynamic Motion / hyperMILL Maxx Machining.",
+      "dialog_tabs": ["Tool", "Pattern", "Engagement", "Cycle"],
+      "parameter_count": 17,
+      "parameters": {
+        "engagement": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 8.0, "range": [3, 25], "description": "Radial engagement vs tool diameter — DMT enables low ae", "tab": "Engagement", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 10.0, "range": [0.1, 80], "description": "Axial DOC — large because radial is small (HSM)", "tab": "Engagement", "required": true },
+          "maxEngagementAngle": { "type": "number", "unit": "deg", "default": 65.0, "range": [10, 180], "description": "DMT slows feed when engagement spikes", "tab": "Engagement" },
+          "minRadiusFactor": { "type": "number", "default": 0.3, "range": [0.1, 1.0], "description": "Min trochoidal arc radius vs tool diameter", "tab": "Engagement" }
+        },
+        "pattern": {
+          "patternType": { "type": "enum", "values": ["dmtAdaptive", "concentricInOut", "raster", "spiralIn"], "default": "dmtAdaptive", "tab": "Pattern", "required": true },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 1.0, "description": "Corner blend radius for kinematic smoothing", "tab": "Pattern" },
+          "respectRestStock": { "type": "boolean", "default": true, "tab": "Pattern" }
+        },
+        "lift": {
+          "rampMode": { "type": "enum", "values": ["helix", "zigzag", "plunge", "preDrilled"], "default": "helix", "tab": "Cycle" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 3.0, "range": [0.5, 15], "tab": "Cycle" },
+          "minHelixDiaFactor": { "type": "number", "default": 0.6, "tab": "Cycle" }
+        },
+        "cycle": {
+          "stockToLeaveRadial": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Cycle" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Cycle" },
+          "feedPlunge": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "tsc", "air"], "default": "tsc", "tab": "Cycle" }
+        }
+      }
+    },
+    "pocket_2_5_axis": {
+      "display_name": "2.5-Axis Pocket",
+      "category": "pocketing",
+      "description": "Classic offset-pocket clearing on flat Z-planes. Workhorse for mid-tier shops without DMT licenses.",
+      "dialog_tabs": ["Tool", "Pattern", "Cycle"],
+      "parameter_count": 12,
+      "parameters": {
+        "pattern": {
+          "pattern": { "type": "enum", "values": ["concentricInOut", "concentricOutIn", "raster", "spiral"], "default": "concentricInOut", "tab": "Pattern" },
+          "stepover": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Pattern", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Pattern", "required": true },
+          "rasterAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Pattern" }
+        },
+        "cycle": {
+          "stockToLeaveRadial": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Cycle" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql"], "default": "flood", "tab": "Cycle" },
+          "approachClearance": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "retract": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Cycle" }
+        }
+      }
+    },
+    "profile_2d": {
+      "display_name": "2D Contour / Profile",
+      "category": "profiling",
+      "description": "Outside or inside contour milling along selected chains. Multi-pass capable. Cutter-comp side selection.",
+      "dialog_tabs": ["Tool", "Geometry", "Cycle"],
+      "parameter_count": 13,
+      "parameters": {
+        "geometry": {
+          "chainSelection": { "type": "selection", "tab": "Geometry", "required": true },
+          "side": { "type": "enum", "values": ["left", "right", "on"], "default": "right", "tab": "Geometry" },
+          "cutterComp": { "type": "enum", "values": ["computer", "control", "wear", "reverseWear"], "default": "computer", "tab": "Geometry" }
+        },
+        "cycle": {
+          "passes": { "type": "integer", "default": 1, "tab": "Cycle" },
+          "stepover": { "type": "number", "unit": "mm", "default": 0, "description": "Radial stock-removal per pass when passes > 1", "tab": "Cycle" },
+          "totalDepth": { "type": "number", "unit": "mm", "tab": "Cycle", "required": true },
+          "depthPerPass": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Cycle" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "leadIn": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Cycle" },
+          "leadOut": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql"], "default": "flood", "tab": "Cycle" }
+        }
+      }
+    },
+    "face_mill": {
+      "display_name": "Face Mill",
+      "category": "face",
+      "description": "Top-of-stock facing with shell mill. Bidirectional or one-way cuts.",
+      "dialog_tabs": ["Tool", "Pattern", "Cycle"],
+      "parameter_count": 12,
+      "parameters": {
+        "pattern": {
+          "pattern": { "type": "enum", "values": ["zigzag", "oneWay", "spiral"], "default": "zigzag", "tab": "Pattern" },
+          "rasterAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Pattern" },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 75, "range": [10, 95], "description": "Percent of tool diameter", "tab": "Pattern" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Pattern" }
+        },
+        "cycle": {
+          "totalDepth": { "type": "number", "unit": "mm", "tab": "Cycle", "required": true },
+          "depthPerPass": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "feedPerTooth": { "type": "number", "unit": "mm", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "approachClearance": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Cycle" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "air"], "default": "flood", "tab": "Cycle" },
+          "leadOff": { "type": "number", "unit": "mm", "default": 5.0, "description": "Distance past edge to ensure full clearance", "tab": "Cycle" }
+        }
+      }
+    },
+    "drill_cycle": {
+      "display_name": "Drill Cycle",
+      "category": "drilling",
+      "description": "Standard drill / peck-drill / chip-break / tap / ream / bore canned cycles. Output G81/G82/G83/G84/G85.",
+      "dialog_tabs": ["Tool", "Cycle", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["drill", "drillDwell", "peck", "chipBreak", "tap", "rigidTap", "ream", "bore"], "default": "drill", "tab": "Cycle", "required": true },
+          "depth": { "type": "number", "unit": "mm", "tab": "Cycle", "required": true },
+          "peckIncrement": { "type": "number", "unit": "mm", "default": 1.0, "description": "Used when cycleType=peck or chipBreak", "tab": "Cycle" },
+          "peckRetractType": { "type": "enum", "values": ["full", "partial", "chipBreak"], "default": "partial", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "feed": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Cycle" },
+          "tapPitch": { "type": "number", "unit": "mm", "description": "Used when cycleType=tap or rigidTap", "tab": "Cycle" },
+          "tapDirection": { "type": "enum", "values": ["right", "left"], "default": "right", "tab": "Cycle" }
+        },
+        "output": {
+          "outputCannedCode": { "type": "boolean", "default": true, "description": "Emit G81/G82/G83 vs long-form line-by-line", "tab": "Output" },
+          "rapidPlane": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Output" },
+          "feedPlane": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Output" },
+          "centerDrillFirst": { "type": "boolean", "default": false, "description": "Insert separate center-drill op", "tab": "Output" },
+          "spotDrillFirst": { "type": "boolean", "default": false, "tab": "Output" },
+          "cycleEndCode": { "type": "string", "default": "G80", "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mql", "tsc"], "default": "flood", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "BobCAD milling discipline",
+      "key_concepts": ["DMT vs traditional pocket", "G81-G85 canned cycle output", "cutter-comp wear/reverseWear"],
+      "best_practices": [
+        "DMT requires HSM-rated cutters and proper TSC — do not use on conventional flute/holder combos",
+        "For taps in BobCAD always use rigidTap on rigid-tap-capable controllers — costs nothing, avoids broken taps",
+        "Wear / reverseWear cutter comp lets the operator dial in size at the control without re-posting"
+      ]
+    }
+  ]
+}

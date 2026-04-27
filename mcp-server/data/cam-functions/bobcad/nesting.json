@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "system_id": "bobcad",
+  "section_key": "nesting",
+  "extraction_source": "BobCAD-CAM V35 Nesting/Sheet Reference / public training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-16",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["sheet_nesting", "kerf_comp", "common_line", "lead_and_micro_tabs"]
+  },
+  "operations": {
+    "sheet_auto_nest": {
+      "display_name": "Sheet Auto-Nest",
+      "category": "sheet_nesting",
+      "description": "BobCAD's flagship nesting — auto-arrange parts on stock sheet to maximize yield. Used for laser/plasma/waterjet/router cuts. Genetic algorithm with rotation/grain constraints.",
+      "dialog_tabs": ["Sheet", "Parts", "Algorithm", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "sheet": {
+          "sheetWidth": { "type": "number", "unit": "mm", "tab": "Sheet", "required": true },
+          "sheetHeight": { "type": "number", "unit": "mm", "tab": "Sheet", "required": true },
+          "sheetMargin": { "type": "number", "unit": "mm", "default": 5.0, "description": "Border keep-out from sheet edge", "tab": "Sheet" },
+          "thickness": { "type": "number", "unit": "mm", "tab": "Sheet" }
+        },
+        "parts": {
+          "partList": { "type": "selection", "description": "Parts + quantities to nest", "tab": "Parts", "required": true },
+          "partSpacing": { "type": "number", "unit": "mm", "default": 3.0, "description": "Min gap between part outlines", "tab": "Parts" },
+          "respectGrain": { "type": "boolean", "default": false, "description": "Lock parts to grain-aligned rotations only", "tab": "Parts" },
+          "allowedRotations": { "type": "enum", "values": ["0_only", "0_180", "0_90_180_270", "any"], "default": "0_90_180_270", "tab": "Parts" }
+        },
+        "algorithm": {
+          "algorithm": { "type": "enum", "values": ["geneticAlgorithm", "boundingBoxFFD", "noFitPolygon"], "default": "geneticAlgorithm", "tab": "Algorithm" },
+          "iterations": { "type": "integer", "default": 200, "range": [50, 5000], "tab": "Algorithm" },
+          "populationSize": { "type": "integer", "default": 50, "range": [10, 500], "tab": "Algorithm" },
+          "convergenceTol": { "type": "number", "default": 0.005, "description": "Stop when yield improvement falls below this", "tab": "Algorithm" }
+        },
+        "output": {
+          "exportYieldReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportNestedDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "yieldThresholdWarn": { "type": "number", "unit": "percent", "default": 65, "description": "Warn if yield falls below this", "tab": "Output" },
+          "outputMultipleSheets": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "kerf_compensation": {
+      "display_name": "Kerf Compensation",
+      "category": "kerf_comp",
+      "description": "Apply kerf offset to nested cut paths. Critical for laser/plasma/waterjet — kerf width depends on power and material thickness.",
+      "dialog_tabs": ["Process", "Material", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "process": {
+          "processType": { "type": "enum", "values": ["laser", "plasma", "waterjet", "router", "edm"], "default": "laser", "tab": "Process", "required": true },
+          "power": { "type": "number", "unit": "W", "tab": "Process" },
+          "gas": { "type": "enum", "values": ["O2", "N2", "air", "argon", "none"], "default": "N2", "tab": "Process" },
+          "abrasiveLoad": { "type": "number", "unit": "g/min", "description": "Used for waterjet only", "tab": "Process" }
+        },
+        "material": {
+          "material": { "type": "string", "tab": "Material", "required": true },
+          "thickness": { "type": "number", "unit": "mm", "tab": "Material", "required": true },
+          "kerfOverride": { "type": "number", "unit": "mm", "description": "Override calculated kerf width", "tab": "Material" }
+        },
+        "output": {
+          "compMode": { "type": "enum", "values": ["computer", "control_G41_G42", "off"], "default": "computer", "tab": "Output" },
+          "compSide": { "type": "enum", "values": ["outsideCut", "insideCut", "auto"], "default": "auto", "tab": "Output" },
+          "compTaperAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Waterjet/plasma have inherent taper", "tab": "Output" },
+          "warnOnUnknownKerf": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "common_line_cutting": {
+      "display_name": "Common-Line Cutting",
+      "category": "common_line",
+      "description": "Two adjacent parts share a single cut. Reduces cycle time on dense nests but locks rotation. Common-line is the highest-yield strategy when applicable.",
+      "dialog_tabs": ["Detection", "Strategy", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "detection": {
+          "minSharedEdgeLength": { "type": "number", "unit": "mm", "default": 20, "description": "Below this, don't bother sharing", "tab": "Detection" },
+          "maxAngleDeviation": { "type": "number", "unit": "deg", "default": 1.0, "description": "Edges within this angle are candidates", "tab": "Detection" },
+          "candidateLayer": { "type": "string", "default": "common_line_candidates", "tab": "Detection" }
+        },
+        "strategy": {
+          "approachMode": { "type": "enum", "values": ["fromOutside", "fromInside", "alongEdge"], "default": "alongEdge", "tab": "Strategy" },
+          "kerfSplit": { "type": "enum", "values": ["even", "favorPartA", "favorPartB"], "default": "even", "description": "Distribute kerf across part boundaries", "tab": "Strategy" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" },
+          "terminationMode": { "type": "enum", "values": ["ramp", "hardOff", "fadeOut"], "default": "fadeOut", "tab": "Strategy" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlightSharedEdges": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDegradation": { "type": "boolean", "default": true, "description": "Warn if common-line lowers part precision", "tab": "Output" },
+          "exportLayer": { "type": "string", "default": "common_line_cuts", "tab": "Output" }
+        }
+      }
+    },
+    "lead_in_out_micro_tabs": {
+      "display_name": "Lead-In/Out + Micro-Tabs",
+      "category": "lead_and_micro_tabs",
+      "description": "Pierce strategy + retain part with micro-tabs so the part doesn't fall into the bed. Workflow: pierce → lead-in → contour → lead-out → micro-tab.",
+      "dialog_tabs": ["Pierce", "LeadInOut", "Tabs", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "pierce": {
+          "pierceMode": { "type": "enum", "values": ["fixedDelay", "powerRamp", "edgeStart", "preDrilled"], "default": "powerRamp", "tab": "Pierce" },
+          "pierceDelay": { "type": "number", "unit": "s", "default": 0.5, "tab": "Pierce" },
+          "pierceHeight": { "type": "number", "unit": "mm", "default": 6.0, "tab": "Pierce" },
+          "useEdgePierce": { "type": "boolean", "default": false, "description": "Pierce off the edge of stock", "tab": "Pierce" }
+        },
+        "leadInOut": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "loop"], "default": "arc", "tab": "LeadInOut" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 3.0, "tab": "LeadInOut" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "LeadInOut" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 3.0, "tab": "LeadInOut" }
+        },
+        "tabs": {
+          "useTabs": { "type": "boolean", "default": true, "tab": "Tabs" },
+          "tabCount": { "type": "integer", "default": 2, "range": [0, 16], "tab": "Tabs" },
+          "tabWidth": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Tabs" },
+          "tabHeight": { "type": "number", "unit": "mm", "default": 0.3, "description": "Used for waterjet/router; not for laser", "tab": "Tabs" },
+          "tabPositioning": { "type": "enum", "values": ["evenlySpaced", "flatEdgesOnly", "manual"], "default": "evenlySpaced", "tab": "Tabs" }
+        },
+        "output": {
+          "warnOnSmallParts": { "type": "boolean", "default": true, "description": "Warn if part is too small for tabs", "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnFirstError": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "BobCAD nesting / sheet-cut discipline",
+      "key_concepts": ["yield optimization", "kerf vs material thickness", "tabs vs catch tray"],
+      "best_practices": [
+        "Allow 0/90/180/270 rotations by default — locking to 0 only loses 10-20% yield",
+        "Always use micro-tabs on parts under ~50mm — without them the part tips and gouges the cutter",
+        "Common-line cutting is the biggest yield win when parts have straight edges — try first before tweaking GA iterations"
+      ]
+    }
+  ]
+}
