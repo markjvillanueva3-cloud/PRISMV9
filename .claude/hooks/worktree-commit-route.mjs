@@ -357,17 +357,25 @@ function branchBasename(b) {
   return b.split("/").pop().toLowerCase();
 }
 
-function scopeMatchesBranch(scopeToken, branchHead) {
+function scopeMatchesBranch(scopeToken, branchHead, fullBranch) {
   if (!scopeToken || !branchHead) return false;
-  return (
-    branchHead.includes(scopeToken) ||
-    scopeToken.includes(branchHead.split("-")[0]) // main token of branch
-  );
+  // Case-insensitive — scope tokens are uppercase ([META]), branch refs are lowercase
+  const sLow = String(scopeToken).toLowerCase();
+  const headLow = String(branchHead).toLowerCase();
+  if (headLow.includes(sLow) || sLow.includes(headLow.split("-")[0])) return true;
+  // Check ALL path segments of full branch (e.g. "meta" in "meta/file-claim-fix")
+  if (fullBranch) {
+    const segs = String(fullBranch).toLowerCase().split("/").filter(Boolean);
+    for (const seg of segs) {
+      if (seg === sLow || seg.includes(sLow) || sLow.includes(seg)) return true;
+    }
+  }
+  return false;
 }
 
 const matchedWts = worktrees.filter((w) => {
   const head = branchBasename(w.branch);
-  return head !== "main" && head !== "master" && scopeMatchesBranch(scope, head);
+  return head !== "main" && head !== "master" && scopeMatchesBranch(scope, head, w.branch);
 });
 
 // ── Decision ──────────────────────────────────────────────────────────
@@ -437,7 +445,7 @@ if (currentWt) {
     );
   }
   // On a non-main worktree. Does it match the commit scope?
-  if (scopeMatchesBranch(scope, head)) {
+  if (scopeMatchesBranch(scope, head, currentWt && currentWt.branch)) {
     exit(0); // perfect — silent allow
   }
   // On a worktree that does NOT match the scope.
