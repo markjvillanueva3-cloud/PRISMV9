@@ -1678,6 +1678,12 @@ export const ACTIONS = [
     "catia_machining_function_index_find_parameter", "catia_machining_function_index_search_parameters",
     "catia_machining_function_index_get_operations_by_category", "catia_machining_function_index_get_summary",
     "catia_machining_function_index_get_surface_operations", "catia_machining_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-24 — FeatureCAM (Autodesk AFR) Function Index
+    "featurecam_function_index_get", "featurecam_function_index_list_sections",
+    "featurecam_function_index_get_section", "featurecam_function_index_list_operations",
+    "featurecam_function_index_find_parameter", "featurecam_function_index_search_parameters",
+    "featurecam_function_index_get_operations_by_category", "featurecam_function_index_get_summary",
+    "featurecam_function_index_get_afr_operations", "featurecam_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -13107,6 +13113,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...CATIAMachiningFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-24 — FeatureCAM (Autodesk AFR) Function Index (10 actions)
+          case "featurecam_function_index_get": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            result = { success: true, index: FeatureCAMFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "featurecam_function_index_list_sections": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            result = { success: true, sections: FeatureCAMFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "featurecam_function_index_get_section": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: FeatureCAMFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "featurecam_function_index_list_operations": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            result = { success: true, operations: FeatureCAMFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "featurecam_function_index_find_parameter": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: FeatureCAMFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "featurecam_function_index_search_parameters": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: FeatureCAMFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "featurecam_function_index_get_operations_by_category": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: FeatureCAMFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "featurecam_function_index_get_summary": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            result = { success: true, ...FeatureCAMFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "featurecam_function_index_get_afr_operations": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            result = { success: true, operations: FeatureCAMFunctionIndexEngine.getAFROperations() };
+            break;
+          }
+          case "featurecam_function_index_get_operation": {
+            const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...FeatureCAMFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "featurecam",
+  "section_key": "milling",
+  "extraction_source": "Autodesk FeatureCAM Milling Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-24",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["face_milling", "pocket_milling", "rib_milling", "chamfer_milling"]
+  },
+  "operations": {
+    "face_milling": {
+      "display_name": "Face Milling",
+      "category": "face_milling",
+      "description": "Top-of-stock face mill. FeatureCAM auto-selects face mill diameter from FCAM tool DB based on stock width.",
+      "dialog_tabs": ["Geometry", "Cut", "Tool", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "geometry": {
+          "faceRef": { "type": "selection", "tab": "Geometry", "required": true },
+          "stock_thickness_to_remove_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Geometry" },
+          "approach_clearance_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Geometry" },
+          "exit_clearance_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Geometry" }
+        },
+        "cut": {
+          "step_over_pct_of_dia": { "type": "number", "unit": "pct", "default": 75, "description": "Standard 75% engagement", "tab": "Cut" },
+          "step_depth_mm": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cut" },
+          "feed_per_tooth_mm": { "type": "number", "unit": "mm_per_tooth", "default": 0.15, "tab": "Cut" },
+          "spindle_rpm": { "type": "number", "unit": "rpm", "default": 4000, "tab": "Cut" }
+        },
+        "tool": {
+          "auto_select_face_mill": { "type": "boolean", "default": true, "description": "Pick from FCAM DB by stock width", "tab": "Tool" },
+          "min_face_mill_dia_mm": { "type": "number", "unit": "mm", "default": 50, "tab": "Tool" },
+          "max_face_mill_dia_mm": { "type": "number", "unit": "mm", "default": 200, "tab": "Tool" },
+          "insert_count": { "type": "integer", "default": 6, "tab": "Tool" }
+        },
+        "output": {
+          "climb_or_conventional": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Output" },
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CW", "tab": "Output" },
+          "use_g41_g42_comp": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "pocket_milling": {
+      "display_name": "Pocket Milling",
+      "category": "pocket_milling",
+      "description": "Closed pocket with rough + finish. Supports trochoidal HSM, ramp entry, helical entry, rest machining.",
+      "dialog_tabs": ["Pocket", "Rough", "Finish", "Entry"],
+      "parameter_count": 16,
+      "parameters": {
+        "pocket": {
+          "pocketRef": { "type": "selection", "tab": "Pocket", "required": true },
+          "depth_mm": { "type": "number", "unit": "mm", "default": 10.0, "tab": "Pocket" },
+          "wall_stock_mm": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Pocket" },
+          "floor_stock_mm": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Pocket" }
+        },
+        "rough": {
+          "rough_strategy": { "type": "enum", "values": ["pocket_rough", "trochoidal_HSM", "plunge_rough", "ramp_rough"], "default": "trochoidal_HSM", "description": "HSM trochoidal default for steel", "tab": "Rough" },
+          "stepover_pct_of_dia": { "type": "number", "unit": "pct", "default": 8, "description": "8% for trochoidal HSM", "tab": "Rough" },
+          "step_depth_mm": { "type": "number", "unit": "mm", "default": 12.0, "description": "Higher for trochoidal — full DOC possible", "tab": "Rough" },
+          "rough_feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 3000, "tab": "Rough" }
+        },
+        "finish": {
+          "finish_strategy": { "type": "enum", "values": ["contour_finish", "spiral_finish", "scallop_finish"], "default": "contour_finish", "tab": "Finish" },
+          "finish_passes": { "type": "integer", "default": 1, "tab": "Finish" },
+          "finish_feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 1500, "tab": "Finish" },
+          "spring_pass": { "type": "boolean", "default": false, "tab": "Finish" }
+        },
+        "entry": {
+          "entry_method": { "type": "enum", "values": ["helix", "ramp", "plunge", "predrill_then_pocket"], "default": "helix", "tab": "Entry" },
+          "ramp_angle_deg": { "type": "number", "unit": "deg", "default": 3.0, "tab": "Entry" },
+          "helix_dia_pct_of_tool": { "type": "number", "unit": "pct", "default": 80, "tab": "Entry" },
+          "predrill_holes": { "type": "integer", "default": 0, "tab": "Entry" }
+        }
+      }
+    },
+    "rib_milling": {
+      "display_name": "Rib Milling",
+      "category": "rib_milling",
+      "description": "Thin-wall rib finishing — climb-then-conventional dual-direction to balance forces, prevent deflection.",
+      "dialog_tabs": ["Rib", "Strategy", "Cut", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "rib": {
+          "ribRef": { "type": "selection", "tab": "Rib", "required": true },
+          "rib_height_mm": { "type": "number", "unit": "mm", "default": 15.0, "tab": "Rib" },
+          "rib_thickness_mm": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Rib" },
+          "rib_aspect_ratio": { "type": "number", "default": 7.5, "description": "h/t — flag if > 8 for chatter risk", "tab": "Rib" }
+        },
+        "strategy": {
+          "approach_strategy": { "type": "enum", "values": ["climb_only", "conventional_only", "alternating_climb_conv"], "default": "alternating_climb_conv", "description": "Force balance for thin walls", "tab": "Strategy" },
+          "step_down_strategy": { "type": "enum", "values": ["full_depth", "stepped", "tapered"], "default": "stepped", "tab": "Strategy" },
+          "step_depth_mm": { "type": "number", "unit": "mm", "default": 2.0, "description": "Light DOC for thin walls", "tab": "Strategy" }
+        },
+        "cut": {
+          "tool_dia_mm": { "type": "number", "unit": "mm", "default": 6.0, "tab": "Cut" },
+          "feed_per_tooth_mm": { "type": "number", "unit": "mm_per_tooth", "default": 0.04, "description": "Reduced for thin-wall stability", "tab": "Cut" },
+          "rpm": { "type": "number", "unit": "rpm", "default": 8000, "tab": "Cut" },
+          "stepover_mm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cut" }
+        },
+        "output": {
+          "warn_if_aspect_exceeds": { "type": "number", "default": 8.0, "tab": "Output" },
+          "use_dynamic_feed": { "type": "boolean", "default": true, "description": "Slow feed at thin sections", "tab": "Output" },
+          "include_chatter_check": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "chamfer_milling": {
+      "display_name": "Chamfer Milling",
+      "category": "chamfer_milling",
+      "description": "Edge chamfer with V-mill or chamfer endmill. FeatureCAM auto-detects chamfer features from solid model edges.",
+      "dialog_tabs": ["Chamfer", "Tool", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "chamfer": {
+          "edgeRef": { "type": "selection", "tab": "Chamfer", "required": true },
+          "chamfer_size_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "C-size", "tab": "Chamfer" },
+          "chamfer_angle_deg": { "type": "number", "unit": "deg", "default": 45.0, "tab": "Chamfer" },
+          "chamfer_only_perimeter": { "type": "boolean", "default": false, "description": "False = also internal edges", "tab": "Chamfer" }
+        },
+        "tool": {
+          "tool_type": { "type": "enum", "values": ["v_mill_60deg", "v_mill_90deg", "chamfer_endmill_45deg", "engraving_bit"], "default": "v_mill_90deg", "tab": "Tool" },
+          "tool_diameter_mm": { "type": "number", "unit": "mm", "default": 12, "tab": "Tool" },
+          "tool_pointed_or_flat_tip": { "type": "enum", "values": ["pointed", "flat_with_relief"], "default": "flat_with_relief", "tab": "Tool" },
+          "auto_select_from_size": { "type": "boolean", "default": true, "description": "Pick V-mill diameter from chamfer size", "tab": "Tool" }
+        },
+        "cut": {
+          "z_position_mm": { "type": "number", "unit": "mm", "default": 0.0, "description": "Z offset to control chamfer width vs. point of contact", "tab": "Cut" },
+          "feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 800, "tab": "Cut" },
+          "rpm": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Cut" }
+        },
+        "output": {
+          "single_pass_chamfer": { "type": "boolean", "default": true, "tab": "Output" },
+          "exit_at_corner": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_chamfer_exceeds_pct": { "type": "number", "unit": "pct", "default": 75.0, "description": "Block if chamfer > 75% of tool flute length", "tab": "Output" },
+          "verify_no_undercut": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Trochoidal HSM Pocket",
+      "key_concepts": ["8% stepover", "Full DOC possible", "Constant tool engagement"],
+      "best_practices": ["Use for steel and stainless", "Verify spindle power available", "Pre-drill if pocket > 2x tool dia"]
+    }
+  ]
+}

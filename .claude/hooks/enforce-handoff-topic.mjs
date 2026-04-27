@@ -23,6 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { deriveSessionTopic } from "../helpers/derive-session-topic.mjs";
 
 const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
 const POSITION_FILE = path.resolve("H:/prism/state/CURRENT_POSITION.md");
@@ -107,7 +108,9 @@ function main() {
     return emit(`enforce-handoff-topic: ${sessionId} already topic-named or no handoff yet`);
   }
 
-  const topic = sanitizeTopic(extractTopicSlug());
+  // Prefer THIS chat's existing handoff topic / state markers over global git log
+  const derived = deriveSessionTopic(sessionId);
+  const topic = sanitizeTopic(derived.topic);
   if (!topic) {
     return emit(`enforce-handoff-topic: could not derive topic for ${sessionId} (on main/develop?), left as-is`);
   }

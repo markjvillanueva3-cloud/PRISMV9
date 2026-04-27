@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "system_id": "featurecam",
+  "section_key": "afr",
+  "extraction_source": "Autodesk FeatureCAM Reference / FCAM AFR Engine training",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-24",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["afr_enable", "afr_classify", "afr_suggest", "manual_feature"]
+  },
+  "operations": {
+    "afr_enable": {
+      "display_name": "Automatic Feature Recognition (AFR)",
+      "category": "afr_enable",
+      "description": "FeatureCAM flagship — scans solid model and automatically detects holes, pockets, slots, bosses, chamfers, threads. Creates feature tree with parametric links to geometry.",
+      "dialog_tabs": ["Source", "Detection", "Filter", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "source": {
+          "modelRef": { "type": "selection", "tab": "Source", "required": true, "description": "Solid body or assembly to scan" },
+          "scope": { "type": "enum", "values": ["entire_part", "selected_face_set", "stock_minus_part_envelope"], "default": "entire_part", "tab": "Source" },
+          "fileFormat": { "type": "enum", "values": ["NATIVE_FCAM", "STEP_AP242", "STEP_AP203", "PARASOLID", "ACIS"], "default": "NATIVE_FCAM", "tab": "Source" },
+          "auto_unite_solids": { "type": "boolean", "default": true, "description": "Merge co-incident bodies before scan", "tab": "Source" }
+        },
+        "detection": {
+          "detect_holes": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_pockets": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_slots": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_bosses": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_chamfers": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_threads": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_grooves": { "type": "boolean", "default": false, "description": "Off by default — turning-side feature", "tab": "Detection" }
+        },
+        "filter": {
+          "min_feature_size_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Skip features smaller than this", "tab": "Filter" },
+          "max_feature_size_mm": { "type": "number", "unit": "mm", "default": 500, "tab": "Filter" },
+          "min_through_depth_mm": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Filter" }
+        },
+        "output": {
+          "create_setup_per_feature_face": { "type": "boolean", "default": false, "description": "Auto-generate setup orientation per detected feature", "tab": "Output" },
+          "rebuild_on_geometry_change": { "type": "boolean", "default": true, "description": "Re-scan when solid model regenerates", "tab": "Output" }
+        }
+      }
+    },
+    "afr_classify": {
+      "display_name": "AFR Feature Classification",
+      "category": "afr_classify",
+      "description": "After AFR runs, classify each detected feature with manufacturing intent (hole/pocket/etc.) and assign tolerance class.",
+      "dialog_tabs": ["Classify", "Tolerance", "Material", "Override"],
+      "parameter_count": 14,
+      "parameters": {
+        "classify": {
+          "use_feature_taxonomy": { "type": "boolean", "default": true, "description": "Apply standard feature taxonomy (drilled hole, milled pocket, etc.)", "tab": "Classify" },
+          "auto_assign_subtype": { "type": "boolean", "default": true, "description": "e.g. distinguish counterbore from countersink from drill", "tab": "Classify" },
+          "min_confidence_pct": { "type": "number", "unit": "pct", "default": 80.0, "description": "Below this, prompt user for manual classification", "tab": "Classify" },
+          "use_thread_table": { "type": "boolean", "default": true, "description": "Match thread features to standard pitch tables (ISO/UNJ/UNF)", "tab": "Classify" }
+        },
+        "tolerance": {
+          "default_tol_class_iso2768": { "type": "enum", "values": ["fine_f", "medium_m", "coarse_c"], "default": "medium_m", "description": "ISO 2768 general tolerance class", "tab": "Tolerance" },
+          "h7_for_bores": { "type": "boolean", "default": true, "description": "Auto-flag through-bores as H7 fit class", "tab": "Tolerance" },
+          "ra_target_um": { "type": "number", "unit": "um", "default": 1.6, "description": "Default surface finish target", "tab": "Tolerance" }
+        },
+        "material": {
+          "material_lookup": { "type": "boolean", "default": true, "description": "Pull from FCAM material database for cutting params", "tab": "Material" },
+          "default_material": { "type": "string", "default": "STEEL_1018", "tab": "Material" },
+          "use_material_specific_tolerance": { "type": "boolean", "default": true, "description": "Tighter for stainless/inconel; looser for aluminum", "tab": "Material" }
+        },
+        "override": {
+          "allow_manual_reclassify": { "type": "boolean", "default": true, "tab": "Override" },
+          "lock_classification_after_setup": { "type": "boolean", "default": false, "description": "Prevent reclassification after operations are linked", "tab": "Override" },
+          "log_reclassify_events": { "type": "boolean", "default": true, "tab": "Override" }
+        }
+      }
+    },
+    "afr_suggest": {
+      "display_name": "AFR Strategy Suggestion",
+      "category": "afr_suggest",
+      "description": "FeatureCAM auto-selects machining strategies based on feature type, material, machine capability. Spans rough/finish/probe sequences.",
+      "dialog_tabs": ["Strategy", "Tooling", "Machine", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "strategy": {
+          "strategy_engine": { "type": "enum", "values": ["FCAM_SmartCut", "knowledge_base", "manual"], "default": "FCAM_SmartCut", "description": "Internal AI vs rule-based vs manual", "tab": "Strategy" },
+          "rough_then_finish": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "include_inspection": { "type": "boolean", "default": false, "description": "Auto-add probe cycles after critical features", "tab": "Strategy" },
+          "use_high_speed_machining": { "type": "boolean", "default": false, "tab": "Strategy" }
+        },
+        "tooling": {
+          "tool_database_ref": { "type": "selection", "tab": "Tooling", "required": true, "description": "FCAM tool library (TDM-format)" },
+          "auto_assemble_holders": { "type": "boolean", "default": true, "description": "Auto-pick holder + extension for each tool", "tab": "Tooling" },
+          "minimize_toolchanges": { "type": "boolean", "default": true, "description": "Reorder ops to share tooling", "tab": "Tooling" },
+          "max_extensions_per_tool": { "type": "integer", "default": 2, "tab": "Tooling" }
+        },
+        "machine": {
+          "machine_kinematic_check": { "type": "boolean", "default": true, "description": "Verify machine can reach all features", "tab": "Machine" },
+          "fixture_collision_check": { "type": "boolean", "default": true, "tab": "Machine" },
+          "max_table_load_kg": { "type": "number", "unit": "kg", "default": 500, "tab": "Machine" }
+        },
+        "output": {
+          "report_alternative_strategies": { "type": "boolean", "default": true, "description": "Show top-3 ranked alternatives", "tab": "Output" },
+          "save_strategy_baseline": { "type": "boolean", "default": true, "description": "Capture suggested strategy as baseline for revisions", "tab": "Output" },
+          "auto_apply_top_strategy": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_below_confidence_pct": { "type": "number", "unit": "pct", "default": 70.0, "tab": "Output" }
+        }
+      }
+    },
+    "manual_feature": {
+      "display_name": "Manual Feature Definition",
+      "category": "manual_feature",
+      "description": "User-defined feature for custom geometry AFR cannot recognize (e.g., proprietary forms, undercuts, freeform pockets).",
+      "dialog_tabs": ["Geometry", "Type", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "geometry": {
+          "geometryRef": { "type": "selection", "tab": "Geometry", "required": true },
+          "feature_type": { "type": "enum", "values": ["pocket", "boss", "slot", "hole", "thread", "freeform"], "default": "pocket", "tab": "Geometry" },
+          "depth_mode": { "type": "enum", "values": ["full_depth", "user_specified", "to_face"], "default": "to_face", "tab": "Geometry" },
+          "depth_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Geometry" }
+        },
+        "type": {
+          "subtype": { "type": "enum", "values": ["rectangular_pocket", "circular_pocket", "irregular_pocket", "tapered_pocket"], "default": "rectangular_pocket", "tab": "Type" },
+          "open_side_count": { "type": "integer", "default": 0, "description": "0=closed, 1=open on one side, etc.", "tab": "Type" },
+          "draft_angle_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Type" },
+          "corner_radius_mm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Type" }
+        },
+        "strategy": {
+          "rough_strategy": { "type": "enum", "values": ["pocket_rough", "trochoidal", "plunge_rough", "ramp_rough"], "default": "pocket_rough", "tab": "Strategy" },
+          "finish_strategy": { "type": "enum", "values": ["spiral_finish", "contour_finish", "scallop_finish"], "default": "contour_finish", "tab": "Strategy" },
+          "include_finish_pass": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "output": {
+          "save_to_feature_library": { "type": "boolean", "default": false, "description": "Reuse this feature in future AFR scans", "tab": "Output" },
+          "auto_link_to_geometry_change": { "type": "boolean", "default": true, "tab": "Output" },
+          "manual_strategy_override_lock": { "type": "boolean", "default": false, "description": "Prevent SmartCut from overriding manual strategy", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "FeatureCAM AFR Engine",
+      "key_concepts": ["Solid-model based", "Recognizes 6+ feature types", "Confidence-driven classification"],
+      "best_practices": ["Run AFR before manual feature definition", "Set min_confidence to 80%", "Always review classification before strategy"]
+    }
+  ]
+}
