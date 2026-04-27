@@ -1672,6 +1672,12 @@ export const ACTIONS = [
     "partmaker_function_index_find_parameter", "partmaker_function_index_search_parameters",
     "partmaker_function_index_get_operations_by_category", "partmaker_function_index_get_summary",
     "partmaker_function_index_get_swiss_turning_operations", "partmaker_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-23 — CATIA Machining (Dassault) Function Index
+    "catia_machining_function_index_get", "catia_machining_function_index_list_sections",
+    "catia_machining_function_index_get_section", "catia_machining_function_index_list_operations",
+    "catia_machining_function_index_find_parameter", "catia_machining_function_index_search_parameters",
+    "catia_machining_function_index_get_operations_by_category", "catia_machining_function_index_get_summary",
+    "catia_machining_function_index_get_surface_operations", "catia_machining_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -13044,6 +13050,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { PartMakerFunctionIndexEngine } = await import("../../engines/PartMakerFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...PartMakerFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-23 — CATIA Machining (Dassault) Function Index (10 actions)
+          case "catia_machining_function_index_get": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            result = { success: true, index: CATIAMachiningFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "catia_machining_function_index_list_sections": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            result = { success: true, sections: CATIAMachiningFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "catia_machining_function_index_get_section": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: CATIAMachiningFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "catia_machining_function_index_list_operations": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            result = { success: true, operations: CATIAMachiningFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "catia_machining_function_index_find_parameter": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: CATIAMachiningFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "catia_machining_function_index_search_parameters": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: CATIAMachiningFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "catia_machining_function_index_get_operations_by_category": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: CATIAMachiningFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "catia_machining_function_index_get_summary": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            result = { success: true, ...CATIAMachiningFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "catia_machining_function_index_get_surface_operations": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            result = { success: true, operations: CATIAMachiningFunctionIndexEngine.getSurfaceMachiningOperations() };
+            break;
+          }
+          case "catia_machining_function_index_get_operation": {
+            const { CATIAMachiningFunctionIndexEngine } = await import("../../engines/CATIAMachiningFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...CATIAMachiningFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
