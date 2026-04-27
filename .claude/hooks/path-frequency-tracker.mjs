@@ -117,7 +117,8 @@ if (pathEntry.accessCount % 20 === 0 && hotPaths.length >= 3) {
     ...hotPaths.map(([p, e]) => `  • ${p.split('/').slice(-2).join('/')} (score: ${e.score.toFixed(1)})`),
     `  Tip: Hot paths can be pre-loaded for faster context on session start.`,
   ].join('\n');
-  console.log(JSON.stringify({ message }));
+  // PostToolUse: bare `message` is not a recognized top-level key — use hookSpecificOutput
+  console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: message } }));
 } else {
   console.log(JSON.stringify({ continue: true }));
 }
