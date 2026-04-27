@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "cimatron",
+  "section_key": "drill_grid",
+  "extraction_source": "Cimatron 16 Drill5x reference / training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-17",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["five_axis_drill", "hole_classification", "pattern_drill", "tap_thread"]
+  },
+  "operations": {
+    "drill_5x": {
+      "display_name": "Drill 5X (Cimatron Flagship)",
+      "category": "five_axis_drill",
+      "description": "Cimatron's signature 5-axis hole-pattern automation — auto-classifies holes by orientation/diameter/depth, sequences across rotary moves, optimizes index strategy.",
+      "dialog_tabs": ["Geometry", "Strategy", "Tools", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "holeFeatures": { "type": "selection", "tab": "Geometry", "required": true },
+          "rotaryAxisLimits": { "type": "string", "default": "[-120, 120]", "tab": "Geometry" },
+          "useExistingClassification": { "type": "boolean", "default": false, "tab": "Geometry" },
+          "stockExtents": { "type": "selection", "tab": "Geometry" }
+        },
+        "strategy": {
+          "groupingStrategy": { "type": "enum", "values": ["byDiameter", "byOrientation", "byDepth", "byMaterial", "byTool", "auto"], "default": "auto", "tab": "Strategy", "required": true },
+          "indexOptimization": { "type": "enum", "values": ["minimumIndex", "minimumTime", "minimumWear", "byTool"], "default": "minimumTime", "tab": "Strategy" },
+          "rotaryRetractMode": { "type": "enum", "values": ["safeZ", "fastIndex", "fullRetract"], "default": "fastIndex", "tab": "Strategy" },
+          "approachAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Strategy" },
+          "maxBacklash": { "type": "number", "unit": "deg", "default": 0.005, "tab": "Strategy" }
+        },
+        "tools": {
+          "toolLibrary": { "type": "selection", "tab": "Tools", "required": true },
+          "warnIfNoMatch": { "type": "boolean", "default": true, "tab": "Tools" },
+          "preferShortest": { "type": "boolean", "default": true, "description": "Prefer shortest tool that reaches", "tab": "Tools" }
+        },
+        "output": {
+          "writeIndexReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnSingularity": { "type": "boolean", "default": true, "tab": "Output" },
+          "splitByOrientation": { "type": "boolean", "default": false, "description": "Split program into separate files per setup", "tab": "Output" }
+        }
+      }
+    },
+    "hole_classification": {
+      "display_name": "Hole Classification",
+      "category": "hole_classification",
+      "description": "Cimatron's automatic hole detection. Identifies through, blind, threaded, counterbore, countersink, dowel, ream from CAD topology.",
+      "dialog_tabs": ["Detection", "Filters", "Naming", "Output"],
+      "parameter_count": 13,
+      "parameters": {
+        "detection": {
+          "minDiameter": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Detection" },
+          "maxDiameter": { "type": "number", "unit": "mm", "default": 50, "tab": "Detection" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.001, "tab": "Detection" },
+          "detectThreaded": { "type": "boolean", "default": true, "tab": "Detection" }
+        },
+        "filters": {
+          "filterByDepth": { "type": "boolean", "default": false, "tab": "Filters" },
+          "minDepth": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Filters" },
+          "filterByMaterial": { "type": "boolean", "default": false, "tab": "Filters" },
+          "ignoreSlots": { "type": "boolean", "default": true, "tab": "Filters" }
+        },
+        "naming": {
+          "namingScheme": { "type": "enum", "values": ["typeFirst_d###", "diaFirst_d###", "operationOrder", "feature_id"], "default": "typeFirst_d###", "tab": "Naming" },
+          "addOrientation": { "type": "boolean", "default": true, "description": "Append +Z, -X, etc.", "tab": "Naming" }
+        },
+        "output": {
+          "exportClassificationCSV": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeFeatureTree": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnUnclassified": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "pattern_drill": {
+      "display_name": "Pattern Drill",
+      "category": "pattern_drill",
+      "description": "2D pattern drilling for plate work. Linear, polar, rectangular, and hex grids. Used heavily for vent plates and ejector grids.",
+      "dialog_tabs": ["Pattern", "Cycle", "Strategy", "Output"],
+      "parameter_count": 13,
+      "parameters": {
+        "pattern": {
+          "patternType": { "type": "enum", "values": ["linear", "rectangular", "polar", "hex", "spiral"], "default": "rectangular", "tab": "Pattern", "required": true },
+          "rows": { "type": "integer", "default": 5, "range": [1, 1000], "tab": "Pattern" },
+          "cols": { "type": "integer", "default": 5, "range": [1, 1000], "tab": "Pattern" },
+          "rowSpacing": { "type": "number", "unit": "mm", "default": 10, "tab": "Pattern" },
+          "colSpacing": { "type": "number", "unit": "mm", "default": 10, "tab": "Pattern" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83_peck", "G73_chip", "G84_tap", "G85_ream", "custom"], "default": "G83_peck", "tab": "Cycle" },
+          "depth": { "type": "number", "unit": "mm", "default": 10, "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "dwell": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+        },
+        "strategy": {
+          "sequencing": { "type": "enum", "values": ["zigZag", "spiral", "rowByRow", "shortestPath"], "default": "shortestPath", "tab": "Strategy" },
+          "feedReductionInDeepHoles": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "output": {
+          "writeSetupSheet": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportPattern": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "tap_thread_5x": {
+      "display_name": "Tap & Thread 5X",
+      "category": "tap_thread",
+      "description": "Rigid tap with G84/G84.2 across 5-axis rotary planes. Multi-start support. Cuts forward, rigid retract.",
+      "dialog_tabs": ["Thread", "Cycle", "Recovery", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "thread": {
+          "threadStandard": { "type": "enum", "values": ["metric_M", "UNC", "UNF", "BSP", "BSPT", "NPT"], "default": "metric_M", "tab": "Thread", "required": true },
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "depth": { "type": "number", "unit": "mm", "tab": "Thread", "required": true },
+          "threadFit": { "type": "enum", "values": ["6H", "5H", "4H", "1B", "2B", "3B"], "default": "6H", "tab": "Thread" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G84_rigid", "G84.2_synchronous", "G84.3_reverse", "longForm"], "default": "G84_rigid", "tab": "Cycle" },
+          "spindleSync": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "ccsMode": { "type": "boolean", "default": false, "description": "G97 fixed RPM is required for synchronous tap", "tab": "Cycle" },
+          "pullOutRPM": { "type": "number", "unit": "rpm", "default": 0, "description": "0 = same as cut", "tab": "Cycle" }
+        },
+        "recovery": {
+          "breakDetection": { "type": "boolean", "default": true, "tab": "Recovery" },
+          "retractOnBreak": { "type": "boolean", "default": true, "tab": "Recovery" },
+          "alarmOnBreak": { "type": "boolean", "default": true, "tab": "Recovery" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnOnFloating": { "type": "boolean", "default": true, "description": "Floating tap holders fail in synchronous mode", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Cimatron Drill5x discipline",
+      "key_concepts": ["minimum index time vs minimum tool wear", "G97 lock for synchronous tap", "rotary backlash compensation"],
+      "best_practices": [
+        "Drill5x's 'minimumTime' index ordering saves 30-60% rotary moves vs naive sort — always use unless tool wear dominates",
+        "Synchronous taps (G84.2) require ccsMode=false (G97 fixed RPM) — surface-speed mode breaks taps",
+        "Plan for 0.005° rotary backlash on machines without dual encoders — Cimatron compensates via approach offset"
+      ]
+    }
+  ]
+}

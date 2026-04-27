@@ -1636,6 +1636,12 @@ export const ACTIONS = [
     "bobcad_function_index_find_parameter", "bobcad_function_index_search_parameters",
     "bobcad_function_index_get_operations_by_category", "bobcad_function_index_get_summary",
     "bobcad_function_index_get_dmt_operations", "bobcad_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-17 — Cimatron Function Index
+    "cimatron_function_index_get", "cimatron_function_index_list_sections",
+    "cimatron_function_index_get_section", "cimatron_function_index_list_operations",
+    "cimatron_function_index_find_parameter", "cimatron_function_index_search_parameters",
+    "cimatron_function_index_get_operations_by_category", "cimatron_function_index_get_summary",
+    "cimatron_function_index_get_mold_die_operations", "cimatron_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12665,6 +12671,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { BobCADCAMFunctionIndexEngine } = await import("../../engines/BobCADCAMFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...BobCADCAMFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-17 — Cimatron Function Index (10 actions)
+          case "cimatron_function_index_get": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            result = { success: true, index: CimatronFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "cimatron_function_index_list_sections": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            result = { success: true, sections: CimatronFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "cimatron_function_index_get_section": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: CimatronFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "cimatron_function_index_list_operations": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            result = { success: true, operations: CimatronFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "cimatron_function_index_find_parameter": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: CimatronFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "cimatron_function_index_search_parameters": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: CimatronFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "cimatron_function_index_get_operations_by_category": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: CimatronFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "cimatron_function_index_get_summary": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            result = { success: true, ...CimatronFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "cimatron_function_index_get_mold_die_operations": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            result = { success: true, operations: CimatronFunctionIndexEngine.getMoldDieOperations() };
+            break;
+          }
+          case "cimatron_function_index_get_operation": {
+            const { CimatronFunctionIndexEngine } = await import("../../engines/CimatronFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...CimatronFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

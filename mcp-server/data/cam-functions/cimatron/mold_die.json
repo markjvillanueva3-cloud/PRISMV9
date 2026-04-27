@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "system_id": "cimatron",
+  "section_key": "mold_die",
+  "extraction_source": "Cimatron 16 MoldDesign / DieDesign reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-17",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 64,
+    "categories": ["core_cavity", "parting_design", "sliding_components", "die_design"]
+  },
+  "operations": {
+    "core_cavity_split": {
+      "display_name": "Core/Cavity Split",
+      "category": "core_cavity",
+      "description": "Cimatron MoldDesign automated core/cavity separation from imported part body. Detects parting lines, undercuts, draft.",
+      "dialog_tabs": ["Part", "Parting", "Draft", "Output"],
+      "parameter_count": 18,
+      "parameters": {
+        "part": {
+          "partBody": { "type": "selection", "tab": "Part", "required": true },
+          "shrinkagePct": { "type": "number", "unit": "percent", "default": 0.5, "range": [0, 5], "tab": "Part" },
+          "moldDirection": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y", "auto"], "default": "auto", "tab": "Part" },
+          "moldOpenForce": { "type": "number", "unit": "kN", "tab": "Part" }
+        },
+        "parting": {
+          "partingLineMethod": { "type": "enum", "values": ["silhouette", "user_curve", "draft_zero", "manual"], "default": "silhouette", "tab": "Parting" },
+          "partingSurfaceType": { "type": "enum", "values": ["flat", "stepped", "extruded", "ruled"], "default": "ruled", "tab": "Parting" },
+          "extrusionLength": { "type": "number", "unit": "mm", "default": 50, "tab": "Parting" },
+          "tangentTransition": { "type": "boolean", "default": true, "tab": "Parting" }
+        },
+        "draft": {
+          "minDraftAngle": { "type": "number", "unit": "deg", "default": 0.5, "range": [0, 10], "tab": "Draft" },
+          "draftCheckTolerance": { "type": "number", "unit": "deg", "default": 0.1, "tab": "Draft" },
+          "undercutAction": { "type": "enum", "values": ["flag", "addSlider", "addLifter", "redesign"], "default": "flag", "tab": "Draft" },
+          "warnOnZeroDraft": { "type": "boolean", "default": true, "tab": "Draft" }
+        },
+        "output": {
+          "exportSeparateBodies": { "type": "boolean", "default": true, "tab": "Output" },
+          "coreColor": { "type": "string", "default": "#3498DB", "tab": "Output" },
+          "cavityColor": { "type": "string", "default": "#E74C3C", "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "reportPath": { "type": "string", "tab": "Output" },
+          "highlightUndercuts": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "parting_surface_design": {
+      "display_name": "Parting Surface Design",
+      "category": "parting_design",
+      "description": "Manual parting-surface creation with fence, ruled, and extruded surfaces. Used when auto detection fails on complex curves.",
+      "dialog_tabs": ["Curves", "Surface", "Extension", "Validation"],
+      "parameter_count": 14,
+      "parameters": {
+        "curves": {
+          "partingCurves": { "type": "selection", "tab": "Curves", "required": true },
+          "draftDirection": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y"], "default": "+Z", "tab": "Curves", "required": true },
+          "tangentialContinuity": { "type": "boolean", "default": true, "tab": "Curves" }
+        },
+        "surface": {
+          "surfaceType": { "type": "enum", "values": ["ruled", "extruded", "swept", "boundary"], "default": "ruled", "tab": "Surface" },
+          "ruleDirection": { "type": "enum", "values": ["normal", "draft", "constantAngle"], "default": "draft", "tab": "Surface" },
+          "extensionLength": { "type": "number", "unit": "mm", "default": 30, "range": [5, 500], "tab": "Surface" },
+          "smoothFactor": { "type": "number", "default": 0.5, "range": [0, 1], "tab": "Surface" }
+        },
+        "extension": {
+          "extendBeyondPart": { "type": "boolean", "default": true, "tab": "Extension" },
+          "extensionDistance": { "type": "number", "unit": "mm", "default": 25, "tab": "Extension" },
+          "trimToBlock": { "type": "boolean", "default": true, "tab": "Extension" }
+        },
+        "validation": {
+          "checkSelfIntersection": { "type": "boolean", "default": true, "tab": "Validation" },
+          "checkGapTolerance": { "type": "number", "unit": "mm", "default": 0.001, "tab": "Validation" },
+          "warnOnSplineKink": { "type": "boolean", "default": true, "tab": "Validation" },
+          "exportReport": { "type": "boolean", "default": true, "tab": "Validation" }
+        }
+      }
+    },
+    "sliding_component": {
+      "display_name": "Sliding Component (Slider/Lifter)",
+      "category": "sliding_components",
+      "description": "Add slider or lifter to release undercut. Includes wedge, gib, and travel-stroke calculation.",
+      "dialog_tabs": ["Type", "Geometry", "Mechanism", "Force"],
+      "parameter_count": 16,
+      "parameters": {
+        "type": {
+          "componentType": { "type": "enum", "values": ["slider", "lifter", "collapsibleCore"], "default": "slider", "tab": "Type", "required": true },
+          "actuationMethod": { "type": "enum", "values": ["angledPin", "hydraulic", "spring", "wedge"], "default": "angledPin", "tab": "Type" },
+          "library": { "type": "enum", "values": ["DME", "HASCO", "Meusburger", "PCS", "custom"], "default": "DME", "tab": "Type" }
+        },
+        "geometry": {
+          "undercutDepth": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "moldOpenStroke": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "sliderTravel": { "type": "number", "unit": "mm", "default": 0, "description": "0 = compute from undercut + clearance", "tab": "Geometry" },
+          "sliderClearance": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Geometry" },
+          "interferenceCheck": { "type": "boolean", "default": true, "tab": "Geometry" }
+        },
+        "mechanism": {
+          "wedgeAngle": { "type": "number", "unit": "deg", "default": 18, "range": [10, 30], "tab": "Mechanism" },
+          "gibClearance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Mechanism" },
+          "limitSwitch": { "type": "boolean", "default": true, "tab": "Mechanism" },
+          "endStop": { "type": "enum", "values": ["positive", "spring", "none"], "default": "positive", "tab": "Mechanism" }
+        },
+        "force": {
+          "ejectionForce": { "type": "number", "unit": "N", "tab": "Force" },
+          "frictionCoefficient": { "type": "number", "default": 0.15, "range": [0.05, 0.5], "tab": "Force" },
+          "safetyFactor": { "type": "number", "default": 1.5, "range": [1.0, 3.0], "tab": "Force" },
+          "warnIfOverload": { "type": "boolean", "default": true, "tab": "Force" }
+        }
+      }
+    },
+    "die_design_progressive": {
+      "display_name": "Progressive Die Design",
+      "category": "die_design",
+      "description": "Cimatron DieDesign progressive-die strip layout. Stations: trim, pierce, form, draw, restrike, blank-out.",
+      "dialog_tabs": ["Strip", "Stations", "Tooling", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "strip": {
+          "stripWidth": { "type": "number", "unit": "mm", "tab": "Strip", "required": true },
+          "stripPitch": { "type": "number", "unit": "mm", "tab": "Strip", "required": true },
+          "carrierType": { "type": "enum", "values": ["edge", "center", "stretchWeb"], "default": "edge", "tab": "Strip" },
+          "material": { "type": "string", "default": "DC04", "tab": "Strip" },
+          "thickness": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Strip", "required": true }
+        },
+        "stations": {
+          "stationCount": { "type": "integer", "default": 8, "range": [3, 30], "tab": "Stations" },
+          "idleStations": { "type": "integer", "default": 1, "tab": "Stations" },
+          "stationOrder": { "type": "enum", "values": ["trimFirst", "pierceFirst", "formFirst", "userDefined"], "default": "pierceFirst", "tab": "Stations" }
+        },
+        "tooling": {
+          "punchClearance": { "type": "number", "unit": "percent_of_thk", "default": 8, "range": [3, 15], "tab": "Tooling" },
+          "punchHolderType": { "type": "enum", "values": ["DME", "HASCO", "Misumi", "custom"], "default": "DME", "tab": "Tooling" },
+          "shedderPlate": { "type": "boolean", "default": true, "tab": "Tooling" },
+          "stripperPlate": { "type": "boolean", "default": true, "tab": "Tooling" },
+          "guidePosts": { "type": "integer", "default": 4, "range": [2, 8], "tab": "Tooling" }
+        },
+        "output": {
+          "exportStripLayoutDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportTopBottomDieDXF": { "type": "boolean", "default": true, "tab": "Output" },
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfFeedJam": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Cimatron mold/die discipline",
+      "key_concepts": ["parting line silhouette method", "wedge angle ≥18° for safe self-locking", "carrier strip pitch"],
+      "best_practices": [
+        "Use silhouette parting for organic shapes; user_curve for cosmetic A-class surfaces",
+        "Wedge angle below 18° relies on hydraulic hold — angled-pin sliders should always be 18-25°",
+        "Add 1 idle station every 3 active stations in progressive dies — gives slug ejection room"
+      ]
+    }
+  ]
+}

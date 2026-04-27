@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "system_id": "cimatron",
+  "section_key": "milling",
+  "extraction_source": "Cimatron 16 Reference / Hexagon mold-die training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-17",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["roughing_2_5d", "profile_milling", "rest_machining", "helical_3d"]
+  },
+  "operations": {
+    "pocket_roughing_2_5d": {
+      "display_name": "Pocket Roughing 2.5D",
+      "category": "roughing_2_5d",
+      "description": "Cimatron 2.5-axis pocket clearing with island recognition. Optional MicroMilling sub-mode for hardened steel < HRC 55.",
+      "dialog_tabs": ["Geometry", "Tool", "Stepover", "Strategy"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "boundaryCurve": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "islands": { "type": "selection", "description": "Closed regions to skip", "tab": "Geometry" }
+        },
+        "stepover": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 65, "range": [10, 95], "tab": "Stepover" },
+          "stepdownAxial": { "type": "number", "unit": "mm", "default": 1.5, "range": [0.05, 25], "tab": "Stepover", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Stepover" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 3.0, "range": [0.5, 45], "tab": "Stepover" }
+        },
+        "strategy": {
+          "pattern": { "type": "enum", "values": ["zigZag", "spiral", "morph", "constantOffset"], "default": "constantOffset", "tab": "Strategy" },
+          "climb": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "smartLink": { "type": "boolean", "default": true, "description": "Cimatron's optimized link moves between regions", "tab": "Strategy" },
+          "trochoidalCorners": { "type": "boolean", "default": false, "tab": "Strategy" },
+          "trochoidalRadius": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Strategy" },
+          "microMilling": { "type": "boolean", "default": false, "description": "Reduce engagement for HRC 55+ steels", "tab": "Strategy" },
+          "engagementCap": { "type": "number", "unit": "percent", "default": 35, "description": "Active when microMilling=true", "tab": "Strategy" },
+          "feedReductionInCorners": { "type": "number", "unit": "percent", "default": 25, "tab": "Strategy" }
+        }
+      }
+    },
+    "profile_milling": {
+      "display_name": "Profile Milling",
+      "category": "profile_milling",
+      "description": "2.5-axis side-wall profile cuts with multiple-Z passes. Used for trimming molded shut-offs and steel finish walls.",
+      "dialog_tabs": ["Geometry", "Tool", "Passes", "LeadInOut"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "profileCurve": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "compensation": { "type": "enum", "values": ["computer", "control_G41_G42", "wear_only", "off"], "default": "computer", "tab": "Geometry" }
+        },
+        "passes": {
+          "axialPasses": { "type": "integer", "default": 1, "range": [1, 50], "tab": "Passes" },
+          "radialPasses": { "type": "integer", "default": 1, "range": [1, 20], "tab": "Passes" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Passes" },
+          "finalSpringPass": { "type": "boolean", "default": false, "tab": "Passes" },
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Passes" }
+        },
+        "leadInOut": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "rampDown"], "default": "arc", "tab": "LeadInOut" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "LeadInOut" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 3.0, "tab": "LeadInOut" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "LeadInOut" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 2.0, "tab": "LeadInOut" }
+        }
+      }
+    },
+    "rest_machining": {
+      "display_name": "Rest Machining",
+      "category": "rest_machining",
+      "description": "Identifies leftover material from prior tool size and clears it with smaller cutter. Common after large-tool roughing in molds.",
+      "dialog_tabs": ["Reference", "Tool", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "reference": {
+          "previousToolDiameter": { "type": "number", "unit": "mm", "tab": "Reference", "required": true },
+          "previousToolCornerRadius": { "type": "number", "unit": "mm", "default": 0, "tab": "Reference" },
+          "stockSource": { "type": "enum", "values": ["fromPriorOp", "computeFromCAD", "measureMcs"], "default": "fromPriorOp", "tab": "Reference" }
+        },
+        "strategy": {
+          "minRestArea": { "type": "number", "unit": "mm2", "default": 4.0, "description": "Skip rest pockets smaller than this", "tab": "Strategy" },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 40, "range": [10, 80], "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Strategy" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["fromOutside", "fromInside", "auto"], "default": "auto", "tab": "Strategy" },
+          "splitByRegion": { "type": "boolean", "default": true, "description": "Partition rest into separate isolated cuts", "tab": "Strategy" }
+        },
+        "output": {
+          "warnIfBelowMinTool": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportRestMap": { "type": "boolean", "default": false, "tab": "Output" },
+          "skipRegionsBelowDepth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Output" },
+          "feedReductionInRest": { "type": "number", "unit": "percent", "default": 20, "tab": "Output" },
+          "linkType": { "type": "enum", "values": ["smartLink", "rapid", "feedRate"], "default": "smartLink", "tab": "Output" }
+        }
+      }
+    },
+    "helical_3d": {
+      "display_name": "Helical 3D",
+      "category": "helical_3d",
+      "description": "Cimatron's signature helical 3D toolpath — continuous spiral down a 3D pocket without retract. Excellent surface finish on cores.",
+      "dialog_tabs": ["Geometry", "Tool", "Helix", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "topSurface": { "type": "selection", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "boundaryCurve": { "type": "selection", "tab": "Geometry" }
+        },
+        "helix": {
+          "axialPitch": { "type": "number", "unit": "mm", "default": 0.5, "range": [0.05, 5.0], "tab": "Helix", "required": true },
+          "radialEngagement": { "type": "number", "unit": "percent", "default": 25, "range": [5, 60], "tab": "Helix" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 1.5, "range": [0.1, 10], "tab": "Helix" },
+          "directionOfRotation": { "type": "enum", "values": ["clockwise", "counterClockwise"], "default": "counterClockwise", "tab": "Helix" },
+          "spiralCount": { "type": "integer", "default": 0, "description": "0 = compute from depth", "tab": "Helix" },
+          "tangentLeadIn": { "type": "boolean", "default": true, "tab": "Helix" }
+        },
+        "output": {
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "cornerRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped", "constant"], "default": "smooth", "tab": "Output" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Output" },
+          "smoothRetract": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Cimatron 2.5D / 3D mold-cavity discipline",
+      "key_concepts": ["MicroMilling for HRC55+", "smartLink reducing rapid time", "helical 3D for cores"],
+      "best_practices": [
+        "Enable MicroMilling on hardened molds — engagement cap of 35% prevents tool snap on HRC 60",
+        "Helical 3D produces a continuous spiral with no retract — ideal for finishing core inserts to <Ra 0.4 μm",
+        "Use rest machining after every large-tool rough op — Cimatron's region split keeps rest pockets isolated"
+      ]
+    }
+  ]
+}

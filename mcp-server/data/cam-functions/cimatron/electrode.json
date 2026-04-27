@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "system_id": "cimatron",
+  "section_key": "electrode",
+  "extraction_source": "Cimatron 16 Quick Electrode Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-17",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["quick_electrode", "electrode_design", "edm_program", "burn_management"]
+  },
+  "operations": {
+    "quick_electrode": {
+      "display_name": "Quick Electrode",
+      "category": "quick_electrode",
+      "description": "Cimatron's flagship electrode automation — picks burn faces from cavity model, assigns blank, generates EDM program, exports to wire/die-sinker.",
+      "dialog_tabs": ["BurnFaces", "Blank", "Reference", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "burnFaces": {
+          "cavityFaces": { "type": "selection", "tab": "BurnFaces", "required": true },
+          "extractionDirection": { "type": "enum", "values": ["+Z", "-Z", "+X", "-X", "+Y", "-Y", "auto"], "default": "+Z", "tab": "BurnFaces", "required": true },
+          "burnTolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "BurnFaces" },
+          "extendFaces": { "type": "boolean", "default": true, "description": "Extend burn faces beyond cavity edge to safe-zone", "tab": "BurnFaces" },
+          "extensionLength": { "type": "number", "unit": "mm", "default": 2.0, "tab": "BurnFaces" }
+        },
+        "blank": {
+          "blankShape": { "type": "enum", "values": ["square", "round", "hex", "rectangular", "custom"], "default": "square", "tab": "Blank", "required": true },
+          "blankMaterial": { "type": "enum", "values": ["copper", "graphite_EDM3", "graphite_POCO_AF5", "graphite_POCO_EDM200", "tungsten", "tellurium_copper"], "default": "graphite_EDM3", "tab": "Blank" },
+          "blankSize": { "type": "number", "unit": "mm", "default": 25, "tab": "Blank" },
+          "blankHeight": { "type": "number", "unit": "mm", "default": 30, "tab": "Blank" },
+          "shankAttachment": { "type": "enum", "values": ["EROWA", "3R", "MecaTool", "weld", "thread"], "default": "EROWA", "tab": "Blank" }
+        },
+        "reference": {
+          "burnDepth": { "type": "number", "unit": "mm", "default": 0, "description": "0 = auto from cavity depth", "tab": "Reference" },
+          "spark_undersizing": { "type": "number", "unit": "mm", "default": 0.1, "description": "Roughing electrode under-size", "tab": "Reference" },
+          "finishUndersize": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Reference" }
+        },
+        "output": {
+          "generateBlueprint": { "type": "boolean", "default": true, "tab": "Output" },
+          "generateBOM": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportFormat": { "type": "enum", "values": ["dxf_2D", "step_3D", "iges_3D", "native"], "default": "step_3D", "tab": "Output" }
+        }
+      }
+    },
+    "electrode_design_manual": {
+      "display_name": "Electrode Design Manual",
+      "category": "electrode_design",
+      "description": "Manual electrode design when Quick Electrode fails on complex burns. Full control over draft, relief, and finish.",
+      "dialog_tabs": ["Body", "Geometry", "Reference", "Validation"],
+      "parameter_count": 14,
+      "parameters": {
+        "body": {
+          "primaryBlank": { "type": "selection", "tab": "Body", "required": true },
+          "burnFaces": { "type": "selection", "tab": "Body", "required": true },
+          "fillet": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Body" }
+        },
+        "geometry": {
+          "draftAngle": { "type": "number", "unit": "deg", "default": 1.0, "range": [0, 5], "tab": "Geometry" },
+          "draftDirection": { "type": "enum", "values": ["fromTop", "fromBottom", "uniform"], "default": "fromTop", "tab": "Geometry" },
+          "reliefDistance": { "type": "number", "unit": "mm", "default": 0.5, "description": "Lateral relief from non-burn face", "tab": "Geometry" },
+          "topClearance": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Geometry" },
+          "minWallThickness": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" }
+        },
+        "reference": {
+          "referenceCurve": { "type": "selection", "tab": "Reference" },
+          "burnPlane": { "type": "selection", "tab": "Reference" },
+          "directionMarker": { "type": "boolean", "default": true, "tab": "Reference" }
+        },
+        "validation": {
+          "checkInterference": { "type": "boolean", "default": true, "tab": "Validation" },
+          "checkBurnFootprint": { "type": "boolean", "default": true, "tab": "Validation" },
+          "warnOnUnreachable": { "type": "boolean", "default": true, "tab": "Validation" }
+        }
+      }
+    },
+    "edm_program_generation": {
+      "display_name": "EDM Program Generation",
+      "category": "edm_program",
+      "description": "Generates die-sinker EDM cycle program — covers Ag, Mitsubishi, Sodick, Makino dialects. Includes electrode change, orbit, polish.",
+      "dialog_tabs": ["Machine", "Cycle", "Electrodes", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "machine": {
+          "machineMake": { "type": "enum", "values": ["AgieCharmilles", "Mitsubishi", "Sodick", "Makino", "OPS", "Eagle"], "default": "AgieCharmilles", "tab": "Machine", "required": true },
+          "machineModel": { "type": "string", "tab": "Machine" },
+          "controllerVersion": { "type": "string", "tab": "Machine" },
+          "axisCount": { "type": "integer", "default": 3, "range": [3, 5], "tab": "Machine" }
+        },
+        "cycle": {
+          "burnTechnology": { "type": "enum", "values": ["copper_steel", "graphite_steel", "graphite_carbide", "tungsten_PCD"], "default": "graphite_steel", "tab": "Cycle" },
+          "roughOrbit": { "type": "number", "unit": "mm", "default": 0.10, "tab": "Cycle" },
+          "semiOrbit": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Cycle" },
+          "finishOrbit": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Cycle" },
+          "polishOrbit": { "type": "number", "unit": "mm", "default": 0.012, "tab": "Cycle" }
+        },
+        "electrodes": {
+          "totalElectrodes": { "type": "integer", "default": 3, "range": [1, 12], "tab": "Electrodes", "required": true },
+          "roughElectrodes": { "type": "integer", "default": 1, "tab": "Electrodes" },
+          "semiElectrodes": { "type": "integer", "default": 1, "tab": "Electrodes" },
+          "finishElectrodes": { "type": "integer", "default": 1, "tab": "Electrodes" }
+        },
+        "output": {
+          "writeSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportAsZip": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfShortLife": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "burn_management": {
+      "display_name": "Burn Management & Wear Compensation",
+      "category": "burn_management",
+      "description": "Manages cumulative wear across rough/semi/finish electrode set. Compensates for over-burn via Z-stepdown.",
+      "dialog_tabs": ["Wear", "Compensation", "Reuse", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "wear": {
+          "expectedWearPct": { "type": "number", "unit": "percent", "default": 8, "range": [1, 50], "tab": "Wear" },
+          "wearMeasurementInterval": { "type": "number", "unit": "burns", "default": 5, "tab": "Wear" },
+          "warnOnExcessWear": { "type": "number", "unit": "percent", "default": 15, "tab": "Wear" }
+        },
+        "compensation": {
+          "zStepdown": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Compensation" },
+          "compensationMode": { "type": "enum", "values": ["fixed", "linear", "wearScaled", "manual"], "default": "wearScaled", "tab": "Compensation" },
+          "polarityAdjust": { "type": "boolean", "default": true, "description": "Switch polarity for finish electrode lifetime", "tab": "Compensation" },
+          "minResidualHeight": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Compensation" }
+        },
+        "reuse": {
+          "allowReuseAcrossCavities": { "type": "boolean", "default": true, "tab": "Reuse" },
+          "maxBurnsBeforeRedress": { "type": "integer", "default": 10, "tab": "Reuse" },
+          "matchToleranceMm": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Reuse" },
+          "reuseFromLibrary": { "type": "boolean", "default": false, "tab": "Reuse" }
+        },
+        "output": {
+          "writeWearLog": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportReuseRecommendation": { "type": "boolean", "default": true, "tab": "Output" },
+          "stopOnExcessWear": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Cimatron Quick Electrode workflow",
+      "key_concepts": ["graphite EDM3 vs POCO AF5 selection", "EROWA shank standardization", "rough/semi/finish orbit ratio"],
+      "best_practices": [
+        "Use POCO AF5 for cavities under Ra 0.4 μm; EDM3 for general production work",
+        "Standardize on EROWA shanks across all electrodes — repeatability ±0.002 mm avoids re-zero on machine",
+        "Rough orbit:semi:finish ratio of 4:2:1 keeps wear distribution balanced — single-electrode burns wear fast"
+      ]
+    }
+  ]
+}
