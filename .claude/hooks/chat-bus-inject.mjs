@@ -38,6 +38,34 @@ const PRESENCE_TTL_MS = 10 * 60 * 1000;
 const MAX_MESSAGES_INJECTED = 20;
 const MAX_BODY_CHARS = 400;
 
+// Worktree relevance filter — paths that always matter to every chat.
+// Anything else is filtered to my-cwd-only so a chat in /h/prism-knowledge-wiki
+// doesn't get flooded with claims from /h/prism-cad-complete, /h/PRISM/.claude/worktrees/*, etc.
+const SHARED_PATH_FRAGMENTS = [
+  "/state/shared/",
+  "/.claude/commands/",
+  "/.claude/agents/",
+  "/.claude/settings.json",
+  "/.claude/settings.local.json",
+  "/knowledge/wiki/",
+  "/knowledge/raw/",
+  "/knowledge/memories/",
+];
+
+function normalizePath(p) { return String(p ?? "").toLowerCase().split(String.fromCharCode(92)).join("/"); }
+
+function isRelevantPath(rawPath, cwd) {
+  if (!rawPath) return true;
+  const p = normalizePath(rawPath);
+  const c = normalizePath(cwd);
+  if (!c) return true;
+  if (p.startsWith(c)) return true;
+  for (const frag of SHARED_PATH_FRAGMENTS) if (p.includes(frag)) return true;
+  if (new RegExp("/h/prism-[a-z0-9-]+/").test(p) || p.includes("/.claude/worktrees/")) return false;
+  if (p.startsWith("c:/") && !c.startsWith("c:/")) return false;
+  return true;
+}
+
 function ensureDir(p) {
   if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
 }
@@ -95,7 +123,7 @@ function heartbeatSelf(sessionId, pcName) {
   });
 }
 
-function readUnreadMessages(sessionId) {
+function readUnreadMessages(sessionId, cwd) {
   const cursorFile = path.join(CURSORS_DIR, `${sessionId}.json`);
   const cursor = readJsonSafe(cursorFile);
   const sinceTs = cursor?.ts ?? "1970-01-01T00:00:00.000Z";
@@ -106,6 +134,7 @@ function readUnreadMessages(sessionId) {
     const m = readJsonSafe(path.join(MESSAGES_DIR, f));
     if (!m || m.ts <= sinceTs) continue;
     if (m.sessionId === sessionId) continue;
+    if ((m.kind === "claim" || m.kind === "release") && !isRelevantPath(m.path, cwd)) continue;
     messages.push(m);
   }
 
@@ -116,7 +145,7 @@ function readUnreadMessages(sessionId) {
   return messages;
 }
 
-function activeForeignClaims(sessionId) {
+function activeForeignClaims(sessionId, cwd) {
   const now = Date.now();
   const out = [];
   for (const f of listDirSafe(CLAIMS_DIR)) {
@@ -125,6 +154,7 @@ function activeForeignClaims(sessionId) {
     if (c.sessionId === sessionId) continue;
     const expMs = Date.parse(c.expiresAt);
     if (Number.isFinite(expMs) && expMs < now) continue;
+    if (!isRelevantPath(c.path, cwd)) continue;
     out.push(c);
   }
   return out;
@@ -208,8 +238,9 @@ async function main() {
 
   heartbeatSelf(sessionId, pcName);
 
-  const messages = readUnreadMessages(sessionId);
-  const claims = activeForeignClaims(sessionId);
+  const cwd = (payload && (payload.cwd || payload.workdir)) || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const messages = readUnreadMessages(sessionId, cwd);
+  const claims = activeForeignClaims(sessionId, cwd);
   const peers = activePeers(sessionId);
 
   const brief = formatBrief({ messages, claims, peers, sessionId });
