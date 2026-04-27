@@ -1682,7 +1682,8 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0: LoRA cadence engines (6 actions)
   "milling_lora_predict", "milling_lora_train", "milling_lora_optimize",
   "millturn_lora_predict", "millturn_lora_train", "millturn_lora_optimize",
-  "cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
+  // WIRE-EXEMPT: declared in legacy commits b7e0b298f / 5af81bd79 — corresponding engines (DFMAnalyzer, FeasibilityOrchestrator, FusionToolLibraryEngine, ProgramCompareEngine) live in their own dispatchers; pending dedicated cases per CAM-EXHAUST follow-up
+"cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
