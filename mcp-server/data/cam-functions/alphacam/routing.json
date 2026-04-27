@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "system_id": "alphacam",
+  "section_key": "routing",
+  "extraction_source": "Alphacam 2024 Wood/Composite Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-19",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 56,
+    "categories": ["pocket_routing", "profile_routing", "surface_3d", "edge_finish"]
+  },
+  "operations": {
+    "pocket_routing": {
+      "display_name": "Pocket Routing",
+      "category": "pocket_routing",
+      "description": "Alphacam wood/composite pocket clearing. Optimized for spoilboard, MDF, plywood, panel-saw stock. Adaptive feed for grain.",
+      "dialog_tabs": ["Geometry", "Tool", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "boundaryCurve": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "islands": { "type": "selection", "tab": "Geometry" }
+        },
+        "strategy": {
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 75, "range": [10, 95], "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 6.0, "range": [0.5, 50], "tab": "Strategy", "required": true },
+          "rampType": { "type": "enum", "values": ["plunge", "ramp", "helix", "preDrill"], "default": "ramp", "tab": "Strategy" },
+          "approachType": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Climb cuts split MDF dust evenly", "tab": "Strategy" },
+          "grainCompensation": { "type": "boolean", "default": true, "description": "Slow feed across grain for tearout-prone woods", "tab": "Strategy" },
+          "tearoutReductionPct": { "type": "number", "unit": "percent", "default": 30, "tab": "Strategy" }
+        },
+        "output": {
+          "minToolEngagement": { "type": "number", "unit": "percent", "default": 15, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Output" },
+          "dustExtraction": { "type": "boolean", "default": true, "description": "M-code for dust hood activation", "tab": "Output" }
+        }
+      }
+    },
+    "profile_routing": {
+      "display_name": "Profile Routing",
+      "category": "profile_routing",
+      "description": "Side-cut profile routing for cabinet edges, panels, doors. Multi-pass support, lead-in/out, micro-tabs to retain part.",
+      "dialog_tabs": ["Profile", "Passes", "LeadInOut", "Tabs"],
+      "parameter_count": 14,
+      "parameters": {
+        "profile": {
+          "profileCurve": { "type": "selection", "tab": "Profile", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "compensation": { "type": "enum", "values": ["computer", "control_G41_G42", "wear", "off"], "default": "computer", "tab": "Profile" }
+        },
+        "passes": {
+          "axialPasses": { "type": "integer", "default": 1, "range": [1, 20], "tab": "Passes" },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" },
+          "finalPassDepth": { "type": "number", "unit": "mm", "default": 5, "tab": "Passes" },
+          "approach": { "type": "enum", "values": ["climb", "conventional", "alternating"], "default": "climb", "tab": "Passes" }
+        },
+        "leadInOut": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "rampDown"], "default": "arc", "tab": "LeadInOut" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 5, "tab": "LeadInOut" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "LeadInOut" }
+        },
+        "tabs": {
+          "useTabs": { "type": "boolean", "default": true, "description": "Micro-tabs hold part on spoilboard", "tab": "Tabs" },
+          "tabCount": { "type": "integer", "default": 4, "range": [0, 16], "tab": "Tabs" },
+          "tabWidth": { "type": "number", "unit": "mm", "default": 8, "tab": "Tabs" },
+          "tabHeight": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Tabs" }
+        }
+      }
+    },
+    "surface_3d": {
+      "display_name": "Surface 3D Routing",
+      "category": "surface_3d",
+      "description": "3-axis surface finishing for carved wood signs, sculpted panels, foam patterns. Z-level + scallop strategies.",
+      "dialog_tabs": ["Surface", "Strategy", "Tool", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "boundary": { "type": "selection", "tab": "Surface" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Surface" },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Surface" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zLevel", "scallop", "spiral", "parallel", "morph"], "default": "zLevel", "tab": "Strategy", "required": true },
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.05, "range": [0.005, 1.0], "tab": "Strategy" },
+          "stepover": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Strategy" },
+          "patternAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Strategy" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Strategy" }
+        },
+        "tool": {
+          "preferredToolType": { "type": "enum", "values": ["ballNose", "bullNose", "tapered", "vGroove"], "default": "ballNose", "tab": "Tool" }
+        },
+        "output": {
+          "smoothLink": { "type": "boolean", "default": true, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped", "constant"], "default": "smooth", "tab": "Output" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Output" }
+        }
+      }
+    },
+    "edge_finish": {
+      "display_name": "Edge Finishing",
+      "category": "edge_finish",
+      "description": "Edge banding prep, profile edge molding, chamfer/round-over. Common for cabinet doors and tabletops.",
+      "dialog_tabs": ["Edge", "Profile", "Tool", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "edge": {
+          "edgeCurve": { "type": "selection", "tab": "Edge", "required": true },
+          "edgeOrientation": { "type": "enum", "values": ["top", "bottom", "side", "all"], "default": "all", "tab": "Edge" },
+          "edgeThickness": { "type": "number", "unit": "mm", "default": 19, "tab": "Edge" }
+        },
+        "profile": {
+          "profileShape": { "type": "enum", "values": ["chamfer", "round_over", "ogee", "cove", "roman_ogee", "custom"], "default": "round_over", "tab": "Profile", "required": true },
+          "profileSize": { "type": "number", "unit": "mm", "default": 6.35, "description": "1/4 inch radius default", "tab": "Profile" },
+          "passDepth": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Profile" },
+          "feedRate": { "type": "number", "unit": "mm_per_min", "default": 4500, "tab": "Profile" }
+        },
+        "tool": {
+          "preferredToolType": { "type": "enum", "values": ["roundOverBit", "chamferBit", "vGroove", "ogee", "covBit"], "default": "roundOverBit", "tab": "Tool" },
+          "spindleRPM": { "type": "number", "unit": "rpm", "default": 18000, "tab": "Tool" },
+          "shankSize": { "type": "enum", "values": ["6mm", "8mm", "12.7mm", "1/4in", "1/2in"], "default": "12.7mm", "tab": "Tool" }
+        },
+        "output": {
+          "doubleEdgeMode": { "type": "boolean", "default": false, "description": "Profile both edges in single pass for symmetric mouldings", "tab": "Output" },
+          "writeDustReport": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnOnTearout": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Alphacam wood routing discipline",
+      "key_concepts": ["climb cut for chip evacuation in wood", "micro-tabs vs vacuum hold-down", "grain compensation for tearout"],
+      "best_practices": [
+        "Climb cuts (cutter spinning into the grain on the downstream side) prevent chip-pull-out in MDF and softwoods",
+        "Micro-tabs at 4 positions per part holds the part during the final pass; remove tabs by hand after cycle",
+        "Grain compensation slows feed by ~30% across-grain to prevent tearout in oak/walnut/birch"
+      ]
+    }
+  ]
+}

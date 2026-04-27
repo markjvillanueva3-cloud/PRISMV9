@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "system_id": "alphacam",
+  "section_key": "cutting",
+  "extraction_source": "Alphacam 2024 Cutting Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-19",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["laser_sheet", "plasma_sheet", "waterjet_stone", "oxy_fuel"]
+  },
+  "operations": {
+    "laser_sheet_cut": {
+      "display_name": "Laser Sheet Cut",
+      "category": "laser_sheet",
+      "description": "Sheet metal/composite laser cutting. Supports CO2, fiber, Nd:YAG. Auto-piercing strategies and adaptive lead-in.",
+      "dialog_tabs": ["Material", "Process", "LeadIn", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "material": {
+          "materialType": { "type": "enum", "values": ["mildSteel", "stainless", "aluminum", "copper", "brass", "plywood", "MDF", "acrylic", "carbonFiber"], "default": "mildSteel", "tab": "Material", "required": true },
+          "thickness": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Material", "required": true },
+          "kerf": { "type": "number", "unit": "mm", "default": 0.15, "description": "Auto-computed; override if needed", "tab": "Material" }
+        },
+        "process": {
+          "laserType": { "type": "enum", "values": ["CO2", "fiber", "Nd_YAG", "diode"], "default": "fiber", "tab": "Process" },
+          "powerW": { "type": "number", "unit": "W", "default": 4000, "tab": "Process" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 4000, "tab": "Process" },
+          "frequency": { "type": "number", "unit": "Hz", "default": 5000, "tab": "Process" },
+          "assistGas": { "type": "enum", "values": ["O2", "N2", "air", "argon", "none"], "default": "N2", "tab": "Process" },
+          "gasPressure": { "type": "number", "unit": "bar", "default": 18, "tab": "Process" }
+        },
+        "leadIn": {
+          "pierceMode": { "type": "enum", "values": ["fixedDelay", "powerRamp", "edgePierce", "preDrilled"], "default": "powerRamp", "tab": "LeadIn" },
+          "pierceDelay": { "type": "number", "unit": "s", "default": 0.5, "tab": "LeadIn" },
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "loop"], "default": "arc", "tab": "LeadIn" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 5.0, "tab": "LeadIn" }
+        },
+        "output": {
+          "kerfCompensation": { "type": "enum", "values": ["computer", "control", "off"], "default": "computer", "tab": "Output" },
+          "warnIfThicknessOut": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "plasma_sheet_cut": {
+      "display_name": "Plasma Sheet Cut",
+      "category": "plasma_sheet",
+      "description": "Plasma cutting for thicker sheet (3-50mm steel). Air, oxygen, or nitrogen. Includes voltage-height control.",
+      "dialog_tabs": ["Material", "Plasma", "Height", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "material": {
+          "materialType": { "type": "enum", "values": ["mildSteel", "stainless", "aluminum"], "default": "mildSteel", "tab": "Material", "required": true },
+          "thickness": { "type": "number", "unit": "mm", "default": 12, "tab": "Material", "required": true },
+          "kerf": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Material" }
+        },
+        "plasma": {
+          "currentAmps": { "type": "number", "unit": "A", "default": 130, "tab": "Plasma" },
+          "voltage": { "type": "number", "unit": "V", "default": 145, "tab": "Plasma" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 1800, "tab": "Plasma" },
+          "gas": { "type": "enum", "values": ["air", "O2", "N2", "H35", "Ar_H2"], "default": "air", "tab": "Plasma" },
+          "torchType": { "type": "enum", "values": ["mechanized", "handheld_assisted", "high_def", "fine_plasma"], "default": "high_def", "tab": "Plasma" }
+        },
+        "height": {
+          "thcEnabled": { "type": "boolean", "default": true, "description": "Voltage-controlled torch height", "tab": "Height" },
+          "thcSetpoint": { "type": "number", "unit": "V", "default": 145, "tab": "Height" },
+          "pierceHeight": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Height" },
+          "cutHeight": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Height" }
+        },
+        "output": {
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnConsumableLife": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "waterjet_stone": {
+      "display_name": "Waterjet Stone & Composite",
+      "category": "waterjet_stone",
+      "description": "Abrasive waterjet for stone (granite, marble), composites, glass. High-pressure (60K-90K PSI).",
+      "dialog_tabs": ["Material", "Waterjet", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "material": {
+          "materialType": { "type": "enum", "values": ["granite", "marble", "glass", "carbonFiber", "kevlar", "honeycomb", "stainless", "titanium"], "default": "granite", "tab": "Material", "required": true },
+          "thickness": { "type": "number", "unit": "mm", "default": 30, "tab": "Material", "required": true },
+          "kerf": { "type": "number", "unit": "mm", "default": 1.2, "tab": "Material" }
+        },
+        "waterjet": {
+          "pressurePSI": { "type": "number", "unit": "psi", "default": 60000, "tab": "Waterjet" },
+          "abrasiveLoad": { "type": "number", "unit": "g_per_min", "default": 450, "tab": "Waterjet" },
+          "abrasiveType": { "type": "enum", "values": ["garnet80", "garnet120", "olivine"], "default": "garnet80", "tab": "Waterjet" },
+          "orificeDiameter": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Waterjet" },
+          "mixingTubeDiameter": { "type": "number", "unit": "mm", "default": 0.76, "tab": "Waterjet" }
+        },
+        "strategy": {
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 250, "tab": "Strategy" },
+          "qualityLevel": { "type": "enum", "values": ["Q1_separation", "Q2_rough", "Q3_smooth", "Q4_quality", "Q5_finest"], "default": "Q3_smooth", "tab": "Strategy" },
+          "taperCompensation": { "type": "boolean", "default": true, "description": "Compensate for inherent waterjet taper", "tab": "Strategy" }
+        },
+        "output": {
+          "writeStartHole": { "type": "boolean", "default": false, "description": "Glass/granite require pre-drilled start hole", "tab": "Output" },
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "oxy_fuel": {
+      "display_name": "Oxy-Fuel Cut",
+      "category": "oxy_fuel",
+      "description": "Oxy-fuel for thick steel (>25mm). Acetylene/propane/natural gas. Slow but cuts very thick plate.",
+      "dialog_tabs": ["Material", "Gas", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "material": {
+          "materialType": { "type": "enum", "values": ["mildSteel", "weatheringSteel", "armor"], "default": "mildSteel", "tab": "Material", "required": true },
+          "thickness": { "type": "number", "unit": "mm", "default": 50, "tab": "Material", "required": true },
+          "kerf": { "type": "number", "unit": "mm", "default": 4.5, "tab": "Material" }
+        },
+        "gas": {
+          "fuelType": { "type": "enum", "values": ["acetylene", "propane", "natural_gas", "MAPP"], "default": "acetylene", "tab": "Gas" },
+          "fuelPressure": { "type": "number", "unit": "bar", "default": 0.5, "tab": "Gas" },
+          "oxygenPressure": { "type": "number", "unit": "bar", "default": 4.5, "tab": "Gas" },
+          "tipSize": { "type": "string", "default": "size_2", "tab": "Gas" }
+        },
+        "strategy": {
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 350, "description": "Slow due to thick plate", "tab": "Strategy" },
+          "preheatTimeS": { "type": "number", "unit": "s", "default": 6, "tab": "Strategy" },
+          "pierceTimeS": { "type": "number", "unit": "s", "default": 4, "tab": "Strategy" },
+          "drag": { "type": "number", "unit": "deg", "default": 1.5, "description": "Backward kerf-tilt", "tab": "Strategy" }
+        },
+        "output": {
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfTooThin": { "type": "boolean", "default": true, "description": "Oxy-fuel struggles below 6mm", "tab": "Output" },
+          "writeKerfDiagram": { "type": "boolean", "default": false, "tab": "Output" },
+          "halfSpeedAtCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "preheatPosition": { "type": "string", "default": "atPiercePoint", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Alphacam cutting discipline",
+      "key_concepts": ["laser N2 vs O2 (assist gas selection)", "plasma THC voltage control", "waterjet quality levels Q1-Q5"],
+      "best_practices": [
+        "Use N2 assist gas for stainless and aluminum to prevent oxidation; O2 with mild steel for fast burn-cut",
+        "Plasma without THC (torch height control) burns consumables in 30 minutes — always enable thcEnabled",
+        "Waterjet Q5 (finest) is ~6x slower than Q1 (separation) — use Q3 for most production work"
+      ]
+    }
+  ]
+}

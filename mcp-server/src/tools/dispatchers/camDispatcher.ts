@@ -1648,6 +1648,12 @@ export const ACTIONS = [
     "sprutcam_function_index_find_parameter", "sprutcam_function_index_search_parameters",
     "sprutcam_function_index_get_operations_by_category", "sprutcam_function_index_get_summary",
     "sprutcam_function_index_get_robot_operations", "sprutcam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-19 — Alphacam Function Index
+    "alphacam_function_index_get", "alphacam_function_index_list_sections",
+    "alphacam_function_index_get_section", "alphacam_function_index_list_operations",
+    "alphacam_function_index_find_parameter", "alphacam_function_index_search_parameters",
+    "alphacam_function_index_get_operations_by_category", "alphacam_function_index_get_summary",
+    "alphacam_function_index_get_drilling_operations", "alphacam_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12791,6 +12797,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { SprutCAMFunctionIndexEngine } = await import("../../engines/SprutCAMFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...SprutCAMFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-19 — Alphacam Function Index (10 actions)
+          case "alphacam_function_index_get": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            result = { success: true, index: AlphacamFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "alphacam_function_index_list_sections": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            result = { success: true, sections: AlphacamFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "alphacam_function_index_get_section": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: AlphacamFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "alphacam_function_index_list_operations": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            result = { success: true, operations: AlphacamFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "alphacam_function_index_find_parameter": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: AlphacamFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "alphacam_function_index_search_parameters": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: AlphacamFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "alphacam_function_index_get_operations_by_category": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: AlphacamFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "alphacam_function_index_get_summary": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            result = { success: true, ...AlphacamFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "alphacam_function_index_get_drilling_operations": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            result = { success: true, operations: AlphacamFunctionIndexEngine.getDrillingOperations() };
+            break;
+          }
+          case "alphacam_function_index_get_operation": {
+            const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...AlphacamFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines

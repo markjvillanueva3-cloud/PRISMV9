@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "system_id": "alphacam",
+  "section_key": "nesting",
+  "extraction_source": "Alphacam 2024 Auto-Nest Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-19",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 64,
+    "categories": ["wood_grain_nest", "common_line", "batch_nest", "off_cut_optimize"]
+  },
+  "operations": {
+    "wood_grain_nest": {
+      "display_name": "Wood-Grain Auto-Nest",
+      "category": "wood_grain_nest",
+      "description": "Alphacam flagship — auto-nest with wood-grain orientation lock. Honors customer-specified grain direction (with/across) per part.",
+      "dialog_tabs": ["Sheet", "Parts", "Algorithm", "Grain"],
+      "parameter_count": 18,
+      "parameters": {
+        "sheet": {
+          "sheetWidth": { "type": "number", "unit": "mm", "tab": "Sheet", "required": true },
+          "sheetHeight": { "type": "number", "unit": "mm", "tab": "Sheet", "required": true },
+          "grainDirection": { "type": "enum", "values": ["+X", "+Y", "noGrain"], "default": "+X", "tab": "Sheet", "required": true },
+          "sheetMargin": { "type": "number", "unit": "mm", "default": 8, "tab": "Sheet" },
+          "thickness": { "type": "number", "unit": "mm", "default": 19, "tab": "Sheet" }
+        },
+        "parts": {
+          "partList": { "type": "selection", "tab": "Parts", "required": true },
+          "partSpacing": { "type": "number", "unit": "mm", "default": 5, "description": "Allow router pass + small kerf", "tab": "Parts" },
+          "respectGrain": { "type": "boolean", "default": true, "description": "Lock part rotation to grain rules", "tab": "Parts" },
+          "edgeBandedSides": { "type": "string", "default": "[long_edges]", "tab": "Parts" }
+        },
+        "algorithm": {
+          "algorithm": { "type": "enum", "values": ["geneticAlgorithm", "boundingBoxFFD", "noFitPolygon", "guillotine"], "default": "geneticAlgorithm", "tab": "Algorithm" },
+          "iterations": { "type": "integer", "default": 250, "range": [50, 5000], "tab": "Algorithm" },
+          "populationSize": { "type": "integer", "default": 50, "range": [10, 500], "tab": "Algorithm" },
+          "convergenceTol": { "type": "number", "default": 0.005, "tab": "Algorithm" },
+          "yieldThresholdAbort": { "type": "number", "unit": "percent", "default": 50, "description": "Abort if cannot beat this yield", "tab": "Algorithm" }
+        },
+        "grain": {
+          "withGrainAllowed": { "type": "boolean", "default": true, "tab": "Grain" },
+          "acrossGrainAllowed": { "type": "boolean", "default": false, "description": "Default: never rotate parts that have grain-aligned cosmetic faces", "tab": "Grain" },
+          "perpendicularAllowed": { "type": "boolean", "default": false, "tab": "Grain" },
+          "anyAllowed": { "type": "boolean", "default": false, "description": "Override: ignore grain constraint", "tab": "Grain" }
+        }
+      }
+    },
+    "common_line_woodwork": {
+      "display_name": "Common-Line Cutting (Woodwork)",
+      "category": "common_line",
+      "description": "Two parts share a router cut. Saves cycle time on dense furniture nests but requires straight shared edges.",
+      "dialog_tabs": ["Detection", "Strategy", "Cuts", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "detection": {
+          "minSharedEdgeLength": { "type": "number", "unit": "mm", "default": 80, "description": "Below this, common-line is not worth setup overhead", "tab": "Detection" },
+          "maxAngleDeviation": { "type": "number", "unit": "deg", "default": 0.5, "tab": "Detection" },
+          "candidateLayer": { "type": "string", "default": "common_line_candidates", "tab": "Detection" }
+        },
+        "strategy": {
+          "approachMode": { "type": "enum", "values": ["fromOutside", "fromInside", "alongEdge", "auto"], "default": "auto", "tab": "Strategy" },
+          "kerfSplit": { "type": "enum", "values": ["even", "favorPartA", "favorPartB"], "default": "even", "tab": "Strategy" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 8, "tab": "Strategy" }
+        },
+        "cuts": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 6, "tab": "Cuts" },
+          "passCount": { "type": "integer", "default": 4, "tab": "Cuts" },
+          "feedReductionShared": { "type": "number", "unit": "percent", "default": 15, "description": "Slow down on shared cuts to handle dual-side load", "tab": "Cuts" }
+        },
+        "output": {
+          "writeReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlightShared": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDegradation": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportLayer": { "type": "string", "default": "common_line_cuts", "tab": "Output" }
+        }
+      }
+    },
+    "batch_nest": {
+      "display_name": "Batch Nesting",
+      "category": "batch_nest",
+      "description": "Multi-sheet batch nesting for production runs. Handles material substitution and minimum-quantity constraints.",
+      "dialog_tabs": ["Batch", "Materials", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "batch": {
+          "totalParts": { "type": "integer", "default": 100, "tab": "Batch", "required": true },
+          "sheetCount": { "type": "integer", "default": 0, "description": "0 = compute from yield", "tab": "Batch" },
+          "minQuantityPerSheet": { "type": "integer", "default": 1, "tab": "Batch" },
+          "maxSheetsPerJob": { "type": "integer", "default": 50, "tab": "Batch" }
+        },
+        "materials": {
+          "materialList": { "type": "selection", "tab": "Materials", "required": true },
+          "allowSubstitution": { "type": "boolean", "default": false, "tab": "Materials" },
+          "thicknessTolerance": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Materials" },
+          "preferGroupBatching": { "type": "boolean", "default": true, "description": "Batch like-materials together to minimize stops", "tab": "Materials" }
+        },
+        "strategy": {
+          "globalAlgorithm": { "type": "enum", "values": ["genetic", "bestFit", "firstFit", "leastWaste"], "default": "genetic", "tab": "Strategy" },
+          "iterationsPerSheet": { "type": "integer", "default": 100, "tab": "Strategy" },
+          "yieldThresholdSwitch": { "type": "number", "unit": "percent", "default": 70, "description": "Below this, switch to next algorithm", "tab": "Strategy" }
+        },
+        "output": {
+          "writeJobReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSheetDiagrams": { "type": "boolean", "default": true, "tab": "Output" },
+          "writePartLocations": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportToCSV": { "type": "boolean", "default": false, "tab": "Output" },
+          "exportLabels": { "type": "boolean", "default": true, "description": "Generate part labels for QR / barcode", "tab": "Output" }
+        }
+      }
+    },
+    "off_cut_optimize": {
+      "display_name": "Off-Cut Optimization",
+      "category": "off_cut_optimize",
+      "description": "Track off-cuts (remnants) into inventory. Future jobs prefer off-cuts before consuming new sheets.",
+      "dialog_tabs": ["Track", "Use", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "track": {
+          "trackOffCuts": { "type": "boolean", "default": true, "tab": "Track" },
+          "minOffCutSize": { "type": "number", "unit": "mm", "default": 200, "description": "Below this, scrap not stored", "tab": "Track" },
+          "minOffCutArea": { "type": "number", "unit": "mm2", "default": 100000, "tab": "Track" },
+          "saveLocation": { "type": "string", "default": "inventory/off_cuts", "tab": "Track" },
+          "labelOffCuts": { "type": "boolean", "default": true, "description": "Print barcode label for off-cut", "tab": "Track" }
+        },
+        "use": {
+          "preferOffCutsFirst": { "type": "boolean", "default": true, "tab": "Use" },
+          "offCutSearchTolerance": { "type": "number", "unit": "mm", "default": 5, "description": "Match off-cuts within this size deviation", "tab": "Use" },
+          "warnIfNoMatch": { "type": "boolean", "default": false, "tab": "Use" }
+        },
+        "strategy": {
+          "fitMethod": { "type": "enum", "values": ["bestFit", "smallestSuitable", "manualSelect"], "default": "bestFit", "tab": "Strategy" },
+          "rotationAllowed": { "type": "enum", "values": ["any", "0_90", "0_only"], "default": "0_90", "tab": "Strategy" },
+          "respectGrainOnOffCut": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "yieldImprovementThresh": { "type": "number", "unit": "percent", "default": 5, "description": "Use off-cut only if yield ≥5% better than fresh sheet", "tab": "Strategy" }
+        },
+        "output": {
+          "writeOffCutInventory": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportOffCutCSV": { "type": "boolean", "default": false, "tab": "Output" },
+          "warnIfInventoryOverflow": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportSavingsReport": { "type": "boolean", "default": true, "description": "Track $ saved by off-cut reuse", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Alphacam wood-nesting discipline",
+      "key_concepts": ["grain direction lock per part", "common-line cuts save 15-30% cycle time", "off-cut tracking for material savings"],
+      "best_practices": [
+        "Always lock grain direction on cosmetic-face panels — across-grain rotation ruins matched-set cabinets",
+        "Common-line is the highest-yield cycle-time saver on dense nests but requires ≥80mm shared edge",
+        "Off-cut tracking pays off when sheet utilization is < 70% — schedule off-cuts before new sheets"
+      ]
+    }
+  ]
+}

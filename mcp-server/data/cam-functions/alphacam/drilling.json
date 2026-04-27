@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "system_id": "alphacam",
+  "section_key": "drilling",
+  "extraction_source": "Alphacam 2024 Drilling/LR32 Reference / Hexagon training docs",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-19",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["lr32_system", "dowel_drilling", "multi_spindle", "aggregate_head"]
+  },
+  "operations": {
+    "lr32_system_holes": {
+      "display_name": "LR32 System Holes",
+      "category": "lr32_system",
+      "description": "Alphacam flagship — LR32 32mm system-hole pattern for European furniture. Auto-spaces 32mm pitch for shelf pins, hinges, drawer slides.",
+      "dialog_tabs": ["Pattern", "Diameter", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "pattern": {
+          "lineCurve": { "type": "selection", "tab": "Pattern", "required": true },
+          "startOffset": { "type": "number", "unit": "mm", "default": 32, "description": "Distance from edge to first hole (typ. 32 or 37 mm)", "tab": "Pattern" },
+          "pitch": { "type": "number", "unit": "mm", "default": 32, "description": "LR32 standard pitch — never deviate", "tab": "Pattern", "required": true },
+          "endOffset": { "type": "number", "unit": "mm", "default": 32, "tab": "Pattern" },
+          "holeCount": { "type": "integer", "default": 0, "description": "0 = compute from line length", "tab": "Pattern" }
+        },
+        "diameter": {
+          "shelfPinDia": { "type": "number", "unit": "mm", "default": 5.0, "description": "5mm or 5/16in for shelf pins", "tab": "Diameter" },
+          "depth": { "type": "number", "unit": "mm", "default": 13, "tab": "Diameter", "required": true },
+          "depthMode": { "type": "enum", "values": ["throughHole", "blindStopAt", "blindBeyondTop"], "default": "blindStopAt", "tab": "Diameter" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Diameter" }
+        },
+        "strategy": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83_peck"], "default": "G81", "tab": "Strategy" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 1500, "tab": "Strategy" },
+          "spindleRPM": { "type": "number", "unit": "rpm", "default": 18000, "tab": "Strategy" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Strategy" }
+        },
+        "output": {
+          "warnIfPitchOff": { "type": "boolean", "default": true, "description": "Block any program with non-32mm spacing — LR32 is sacred", "tab": "Output" },
+          "exportSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "doubleSidedFlip": { "type": "boolean", "default": false, "description": "Flip part for opposite-side pattern", "tab": "Output" }
+        }
+      }
+    },
+    "dowel_drilling": {
+      "display_name": "Dowel Drilling",
+      "category": "dowel_drilling",
+      "description": "Dowel-pin drilling for cabinet joinery. Top-edge holes for shelf-to-side pinning. Variable pitch supported.",
+      "dialog_tabs": ["Pattern", "Diameter", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "pattern": {
+          "edgeCurve": { "type": "selection", "tab": "Pattern", "required": true },
+          "spacing": { "type": "number", "unit": "mm", "default": 96, "description": "Standard 96mm 32mm-multiple", "tab": "Pattern" },
+          "edgeOffset": { "type": "number", "unit": "mm", "default": 9.5, "description": "Distance from edge to dowel center", "tab": "Pattern" },
+          "stagger": { "type": "boolean", "default": false, "description": "Alternate two-row dowel pattern", "tab": "Pattern" }
+        },
+        "diameter": {
+          "dowelDiameter": { "type": "number", "unit": "mm", "default": 8.0, "description": "8mm metric or 5/16in imperial", "tab": "Diameter" },
+          "depth": { "type": "number", "unit": "mm", "default": 30, "description": "Dowel insertion depth (typ. 30mm)", "tab": "Diameter" },
+          "interferenceTolerance": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Diameter" }
+        },
+        "strategy": {
+          "cycleType": { "type": "enum", "values": ["G81", "G83_peck"], "default": "G81", "tab": "Strategy" },
+          "spindleRPM": { "type": "number", "unit": "rpm", "default": 16000, "tab": "Strategy" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 1200, "tab": "Strategy" }
+        },
+        "output": {
+          "writeSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnIfDowelInterference": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportPatternDXF": { "type": "boolean", "default": false, "tab": "Output" },
+          "checkPartFlat": { "type": "boolean", "default": true, "description": "Block if part is not flat for dowel drilling", "tab": "Output" }
+        }
+      }
+    },
+    "multi_spindle_drill": {
+      "display_name": "Multi-Spindle Drill Bank",
+      "category": "multi_spindle",
+      "description": "Multi-spindle drill bank — 8-32 spindles fire simultaneously for line-drilling. Common in case-construction CNC.",
+      "dialog_tabs": ["Bank", "Pattern", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "bank": {
+          "spindleCount": { "type": "integer", "default": 8, "range": [2, 32], "tab": "Bank", "required": true },
+          "spindleSpacing": { "type": "number", "unit": "mm", "default": 32, "description": "32mm pitch matches LR32", "tab": "Bank" },
+          "spindleOrientation": { "type": "enum", "values": ["X-axis", "Y-axis", "user_defined"], "default": "Y-axis", "tab": "Bank" },
+          "spindleEnableMask": { "type": "string", "default": "11111111", "description": "Bit mask, 1=active spindle", "tab": "Bank" }
+        },
+        "pattern": {
+          "edgeCurve": { "type": "selection", "tab": "Pattern", "required": true },
+          "edgeOffset": { "type": "number", "unit": "mm", "default": 9.5, "tab": "Pattern" },
+          "diameter": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Pattern" }
+        },
+        "strategy": {
+          "depth": { "type": "number", "unit": "mm", "default": 13, "tab": "Strategy" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 800, "description": "Reduced for multi-spindle load", "tab": "Strategy" },
+          "spindleRPM": { "type": "number", "unit": "rpm", "default": 5000, "description": "Geared bank — low RPM is normal", "tab": "Strategy" },
+          "dwell": { "type": "number", "unit": "s", "default": 0.3, "tab": "Strategy" }
+        },
+        "output": {
+          "writeBankReport": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnDisabledSpindle": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportMaskCSV": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "aggregate_head": {
+      "display_name": "Aggregate Head Drilling",
+      "category": "aggregate_head",
+      "description": "5-axis aggregate (drilling head) attached to spindle. Drills perpendicular to side faces without re-fixturing the part.",
+      "dialog_tabs": ["Aggregate", "Geometry", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "aggregate": {
+          "headType": { "type": "enum", "values": ["sideDrill", "horizontalDrill", "saw_blade", "router_head"], "default": "sideDrill", "tab": "Aggregate", "required": true },
+          "headOrientation": { "type": "enum", "values": ["+X", "-X", "+Y", "-Y", "tilted"], "default": "+Y", "tab": "Aggregate" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Aggregate" },
+          "headOffsetMm": { "type": "number", "unit": "mm", "default": 100, "description": "Distance from spindle nose to drill tip", "tab": "Aggregate" }
+        },
+        "geometry": {
+          "holeCenters": { "type": "selection", "tab": "Geometry", "required": true },
+          "holeDiameter": { "type": "number", "unit": "mm", "default": 8, "tab": "Geometry" },
+          "depth": { "type": "number", "unit": "mm", "default": 20, "tab": "Geometry" },
+          "edgeFace": { "type": "selection", "tab": "Geometry" }
+        },
+        "strategy": {
+          "cycleType": { "type": "enum", "values": ["G81", "G82", "G83_peck"], "default": "G81", "tab": "Strategy" },
+          "spindleRPM": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Strategy" },
+          "feedrate": { "type": "number", "unit": "mm_per_min", "default": 800, "tab": "Strategy" },
+          "approachClearance": { "type": "number", "unit": "mm", "default": 5, "tab": "Strategy" }
+        },
+        "output": {
+          "checkAggregate": { "type": "boolean", "default": true, "description": "Verify aggregate-head presence on machine", "tab": "Output" },
+          "writeSetupSheet": { "type": "boolean", "default": true, "tab": "Output" },
+          "warnOnReachLimit": { "type": "boolean", "default": true, "tab": "Output" },
+          "exportToolList": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Alphacam LR32 system discipline",
+      "key_concepts": ["32mm pitch is sacred — never deviate", "LR32 5mm vs 8mm holes (shelf pin vs hinge)", "aggregate head 100mm offset from spindle"],
+      "best_practices": [
+        "LR32 pitch must be exactly 32mm — Alphacam blocks any program where pitch deviates and warnIfPitchOff is true",
+        "Multi-spindle banks are geared low-RPM (5000) but high-load — lower feedrate proportionally to spindle count",
+        "Aggregate heads add 100mm Y-offset — always use approachClearance in side-drilling cycles to avoid clamps"
+      ]
+    }
+  ]
+}
