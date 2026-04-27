@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "system_id": "creo",
+  "section_key": "mill_turn",
+  "extraction_source": "PTC Creo NC 11 Mill-Turn Module / Multi-Channel Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-21",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["multi_axis_mill_turn", "sub_spindle_sync", "polar_milling", "live_tool_drill"]
+  },
+  "operations": {
+    "multi_axis_mill_turn": {
+      "display_name": "Multi-Axis Mill-Turn",
+      "category": "multi_axis_mill_turn",
+      "description": "Creo flagship mill-turn — simultaneous B-axis tool tilt with C-axis indexing. Supports turret + sub-spindle synchronisation.",
+      "dialog_tabs": ["Channel", "Axes", "Tool", "Sync"],
+      "parameter_count": 16,
+      "parameters": {
+        "channel": {
+          "channelId": { "type": "enum", "values": ["main_spindle_turret_upper", "main_spindle_turret_lower", "sub_spindle_turret"], "default": "main_spindle_turret_upper", "tab": "Channel", "required": true },
+          "machineConfigRef": { "type": "selection", "tab": "Channel", "required": true, "description": "Mill-turn machine config (Mazak Integrex, DMG Mori NTX, etc.)" },
+          "ncProgramName": { "type": "string", "default": "MAIN_CH1", "tab": "Channel" },
+          "syncWithChannel": { "type": "string", "default": "", "description": "Companion channel for synchronisation", "tab": "Channel" }
+        },
+        "axes": {
+          "use_b_axis": { "type": "boolean", "default": true, "description": "B-axis tool tilt enabled", "tab": "Axes" },
+          "use_c_axis": { "type": "boolean", "default": true, "description": "C-axis indexing for milling", "tab": "Axes" },
+          "use_y_axis": { "type": "boolean", "default": true, "description": "Y-axis cross feed for off-center milling", "tab": "Axes" },
+          "max_b_tilt_deg": { "type": "number", "unit": "deg", "default": 90.0, "tab": "Axes" }
+        },
+        "tool": {
+          "tool_orientation_deg": { "type": "number", "unit": "deg", "default": 0.0, "description": "Rotational orientation about turret axis", "tab": "Tool" },
+          "live_tool_rpm": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Tool" },
+          "live_tool_feed": { "type": "number", "unit": "mm_per_min", "default": 800, "tab": "Tool" },
+          "spindle_lock_for_mill": { "type": "boolean", "default": true, "description": "M19 spindle orient + C-axis engage", "tab": "Tool" }
+        },
+        "sync": {
+          "syncCodeStart": { "type": "string", "default": "M101", "tab": "Sync" },
+          "syncCodeEnd": { "type": "string", "default": "M102", "tab": "Sync" },
+          "waitForChannel": { "type": "boolean", "default": true, "description": "Block until partner channel reaches sync point", "tab": "Sync" },
+          "deadlock_timeout_s": { "type": "number", "unit": "s", "default": 30.0, "tab": "Sync" }
+        }
+      }
+    },
+    "sub_spindle_sync": {
+      "display_name": "Sub-Spindle Synchronisation",
+      "category": "sub_spindle_sync",
+      "description": "Synchronised RPM and Z-position for part transfer between main spindle and sub-spindle.",
+      "dialog_tabs": ["Transfer", "Sync", "Verify", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "transfer": {
+          "transferType": { "type": "enum", "values": ["pickoff_then_part", "synchronous_pickoff"], "default": "synchronous_pickoff", "tab": "Transfer" },
+          "approach_distance_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Transfer" },
+          "engage_distance_mm": { "type": "number", "unit": "mm", "default": 2.0, "description": "Sub-spindle engagement past part end", "tab": "Transfer" },
+          "clamp_pressure_bar": { "type": "number", "unit": "bar", "default": 30.0, "tab": "Transfer" }
+        },
+        "sync": {
+          "rpm_match_tolerance": { "type": "number", "unit": "rpm", "default": 5.0, "description": "Both spindles within +/- this RPM", "tab": "Sync" },
+          "phase_match_required": { "type": "boolean", "default": false, "description": "C-axis angular phase match (for keyed parts)", "tab": "Sync" },
+          "phase_tolerance_deg": { "type": "number", "unit": "deg", "default": 0.1, "tab": "Sync" },
+          "max_sync_attempts": { "type": "integer", "default": 3, "tab": "Sync" }
+        },
+        "verify": {
+          "barfeed_present_check": { "type": "boolean", "default": true, "tab": "Verify" },
+          "part_present_sensor_check": { "type": "boolean", "default": true, "description": "Verify part transferred to sub-spindle", "tab": "Verify" },
+          "torque_match_check": { "type": "boolean", "default": true, "tab": "Verify" }
+        },
+        "output": {
+          "useSyncMacro": { "type": "boolean", "default": true, "description": "Use OEM sync macro (Mazak G140, Mori G155 etc.)", "tab": "Output" },
+          "auto_part_off_after": { "type": "boolean", "default": true, "tab": "Output" },
+          "log_transfer_event": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "polar_milling": {
+      "display_name": "Polar Milling",
+      "category": "polar_milling",
+      "description": "C-axis driven milling for slots, cams, splines, hex flats on a turning center using live tooling.",
+      "dialog_tabs": ["Geometry", "Pattern", "Cut", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "geometry": {
+          "featureType": { "type": "enum", "values": ["slot", "hex_flat", "spline_external", "cam_profile"], "default": "slot", "tab": "Geometry", "required": true },
+          "feature_diameter_mm": { "type": "number", "unit": "mm", "default": 25.0, "tab": "Geometry" },
+          "axial_depth_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Geometry" },
+          "feature_width_mm": { "type": "number", "unit": "mm", "default": 4.0, "tab": "Geometry" }
+        },
+        "pattern": {
+          "feature_count": { "type": "integer", "default": 6, "description": "Number of features around C", "tab": "Pattern" },
+          "angular_spacing_deg": { "type": "number", "unit": "deg", "default": 60.0, "tab": "Pattern" },
+          "start_angle_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Pattern" },
+          "useG12_1_polar": { "type": "boolean", "default": true, "description": "Use polar coordinate interpolation (G12.1/G112)", "tab": "Pattern" }
+        },
+        "cut": {
+          "step_depth_mm": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Cut" },
+          "live_tool_rpm": { "type": "number", "unit": "rpm", "default": 6000, "tab": "Cut" },
+          "feed_per_tooth_mm": { "type": "number", "unit": "mm_per_tooth", "default": 0.05, "tab": "Cut" },
+          "tool_dia_mm": { "type": "number", "unit": "mm", "default": 6.0, "tab": "Cut" }
+        },
+        "output": {
+          "polar_in_code": { "type": "string", "default": "G12.1", "tab": "Output" },
+          "polar_out_code": { "type": "string", "default": "G13.1", "tab": "Output" },
+          "warn_at_centerline": { "type": "boolean", "default": true, "description": "Block if path passes within 0.5mm of C-axis center (singularity)", "tab": "Output" }
+        }
+      }
+    },
+    "live_tool_drill": {
+      "display_name": "Live Tool Drilling",
+      "category": "live_tool_drill",
+      "description": "Live-tool drilling on lathe — radial OD/ID holes, axial face holes off C-axis with M19 spindle orient.",
+      "dialog_tabs": ["Hole", "Cycle", "Coolant", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "hole": {
+          "holeOrientation": { "type": "enum", "values": ["radial_OD", "radial_ID", "axial_face"], "default": "radial_OD", "tab": "Hole", "required": true },
+          "hole_dia_mm": { "type": "number", "unit": "mm", "default": 6.0, "tab": "Hole" },
+          "hole_depth_mm": { "type": "number", "unit": "mm", "default": 12.0, "tab": "Hole" },
+          "c_angle_deg": { "type": "number", "unit": "deg", "default": 0.0, "description": "C-axis position for hole", "tab": "Hole" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G81", "G83_peck", "G73_high_speed_peck", "G84_tap"], "default": "G83_peck", "tab": "Cycle" },
+          "peck_increment_mm": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Cycle" },
+          "drill_rpm": { "type": "number", "unit": "rpm", "default": 5000, "tab": "Cycle" },
+          "drill_feed_mm_per_rev": { "type": "number", "unit": "mm_per_rev", "default": 0.08, "tab": "Cycle" }
+        },
+        "coolant": {
+          "coolantMode": { "type": "enum", "values": ["FLOOD", "MIST", "TSC_THROUGH_LIVE_TOOL", "AIR"], "default": "TSC_THROUGH_LIVE_TOOL", "tab": "Coolant" },
+          "tsc_pressure_bar": { "type": "number", "unit": "bar", "default": 30.0, "tab": "Coolant" }
+        },
+        "output": {
+          "spindle_orient_M19": { "type": "boolean", "default": true, "tab": "Output" },
+          "c_axis_engage_Mcode": { "type": "string", "default": "M52", "tab": "Output" },
+          "c_axis_disengage_Mcode": { "type": "string", "default": "M53", "tab": "Output" },
+          "verify_clearance_to_chuck": { "type": "boolean", "default": true, "description": "Block if hole position would crash into chuck jaws", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Sub-Spindle Synchronisation",
+      "key_concepts": ["Phase-locked C-axis transfer", "RPM tolerance band", "Torque-match handshake"],
+      "best_practices": ["Always log transfer event", "Use OEM macro over inline code", "Test sync at slow RPM first"]
+    }
+  ]
+}

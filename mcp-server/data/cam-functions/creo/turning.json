@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "system_id": "creo",
+  "section_key": "turning",
+  "extraction_source": "PTC Creo NC 11 Manufacturing — Turning Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-21",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["area_turning", "profile_turning", "groove_turning", "thread_turning"]
+  },
+  "operations": {
+    "area_turning": {
+      "display_name": "Area Turning",
+      "category": "area_turning",
+      "description": "Creo flagship turning rough — removes bulk material in axial passes between turn profile and stock boundary.",
+      "dialog_tabs": ["TurnProfile", "Cut", "Approach", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "turn_profile": {
+          "turnProfileRef": { "type": "selection", "tab": "TurnProfile", "required": true, "description": "2D revolve profile sketched in TURN_PROFILE feature" },
+          "stockRef": { "type": "selection", "tab": "TurnProfile", "required": true },
+          "areaType": { "type": "enum", "values": ["EXT_OD", "INT_ID", "FACE"], "default": "EXT_OD", "tab": "TurnProfile" },
+          "rough_option": { "type": "enum", "values": ["TURN_ONLY", "TURN_AND_PROFILE"], "default": "TURN_AND_PROFILE", "tab": "TurnProfile" }
+        },
+        "cut": {
+          "step_depth": { "type": "number", "unit": "mm", "default": 2.5, "description": "Radial DOC per pass", "tab": "Cut", "required": true },
+          "cut_feed": { "type": "number", "unit": "mm_per_rev", "default": 0.3, "tab": "Cut" },
+          "css_speed": { "type": "number", "unit": "m_per_min", "default": 200, "description": "Constant surface speed (G96)", "tab": "Cut" },
+          "max_rpm": { "type": "number", "unit": "rpm", "default": 3500, "description": "Cap for G96 mode", "tab": "Cut" },
+          "rough_stock_allow": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Cut" }
+        },
+        "approach": {
+          "approach_dist": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Approach" },
+          "exit_dist": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Approach" },
+          "clearance_dia": { "type": "number", "unit": "mm", "default": 50.0, "description": "Safe diameter above stock", "tab": "Approach" },
+          "tool_orient_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Approach" }
+        },
+        "output": {
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" },
+          "g96_g97_switch": { "type": "boolean", "default": true, "description": "Auto-switch G96 to G97 when face approaches center", "tab": "Output" },
+          "min_diameter_g96": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Output" },
+          "coolant_mode": { "type": "enum", "values": ["FLOOD", "MIST", "TSC", "DRY"], "default": "FLOOD", "tab": "Output" }
+        }
+      }
+    },
+    "profile_turning": {
+      "display_name": "Profile Turning",
+      "category": "profile_turning",
+      "description": "Single-pass profile finish along turn profile. Wiper insert support and surface-finish-driven feed.",
+      "dialog_tabs": ["Reference", "Cut", "Insert", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "reference": {
+          "turnProfileRef": { "type": "selection", "tab": "Reference", "required": true },
+          "areaType": { "type": "enum", "values": ["EXT_OD", "INT_ID", "FACE"], "default": "EXT_OD", "tab": "Reference" },
+          "stock_to_remove": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Reference" },
+          "checkSurfaces": { "type": "selection", "tab": "Reference" }
+        },
+        "cut": {
+          "cut_feed": { "type": "number", "unit": "mm_per_rev", "default": 0.1, "tab": "Cut" },
+          "css_speed": { "type": "number", "unit": "m_per_min", "default": 240, "tab": "Cut" },
+          "max_rpm": { "type": "number", "unit": "rpm", "default": 4000, "tab": "Cut" },
+          "spring_pass": { "type": "boolean", "default": false, "description": "Repeat last pass for tool deflection", "tab": "Cut" }
+        },
+        "insert": {
+          "noseRadius": { "type": "number", "unit": "mm", "default": 0.4, "description": "Insert nose radius (typ. 0.4-0.8 mm)", "tab": "Insert" },
+          "wiperGeometry": { "type": "boolean", "default": true, "description": "Wiper insert allows 2x feed for same Ra", "tab": "Insert" },
+          "leadAngle_deg": { "type": "number", "unit": "deg", "default": 95.0, "tab": "Insert" }
+        },
+        "output": {
+          "surface_finish_target_um": { "type": "number", "unit": "um", "default": 1.6, "description": "Ra target — auto-derives feed", "tab": "Output" },
+          "auto_feed_from_finish": { "type": "boolean", "default": true, "tab": "Output" },
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" }
+        }
+      }
+    },
+    "groove_turning": {
+      "display_name": "Groove Turning",
+      "category": "groove_turning",
+      "description": "Plunge or pinch grooving for retaining ring grooves, O-ring grooves, parting cuts.",
+      "dialog_tabs": ["Groove", "Cut", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "groove": {
+          "grooveRef": { "type": "selection", "tab": "Groove", "required": true },
+          "groove_width": { "type": "number", "unit": "mm", "default": 3.0, "tab": "Groove" },
+          "groove_depth": { "type": "number", "unit": "mm", "default": 2.0, "tab": "Groove" },
+          "insert_width": { "type": "number", "unit": "mm", "default": 3.0, "description": "Grooving insert width", "tab": "Groove" }
+        },
+        "cut": {
+          "plunge_feed": { "type": "number", "unit": "mm_per_rev", "default": 0.05, "tab": "Cut" },
+          "side_feed": { "type": "number", "unit": "mm_per_rev", "default": 0.1, "tab": "Cut" },
+          "css_speed": { "type": "number", "unit": "m_per_min", "default": 150, "tab": "Cut" },
+          "peck_increment": { "type": "number", "unit": "mm", "default": 0.5, "description": "Peck depth for chip break", "tab": "Cut" }
+        },
+        "strategy": {
+          "groove_pattern": { "type": "enum", "values": ["plunge_only", "plunge_then_finish", "pinch_grooving"], "default": "plunge_then_finish", "tab": "Strategy" },
+          "side_finish_pass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "dwell_at_bottom_s": { "type": "number", "unit": "s", "default": 0.2, "description": "Pause for chip break at depth", "tab": "Strategy" },
+          "chip_break_step": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Strategy" }
+        },
+        "output": {
+          "coolantMode": { "type": "enum", "values": ["FLOOD", "TSC_HIGH_PRESS", "MIST"], "default": "TSC_HIGH_PRESS", "description": "TSC critical for grooving chip evacuation", "tab": "Output" },
+          "warnIfNarrowGroove": { "type": "boolean", "default": true, "description": "Block if groove < insert width", "tab": "Output" },
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CCW", "tab": "Output" }
+        }
+      }
+    },
+    "thread_turning": {
+      "display_name": "Thread Turning",
+      "category": "thread_turning",
+      "description": "Single-point thread turning. Constant-volume infeed for chip-load consistency. Multi-start thread support.",
+      "dialog_tabs": ["Thread", "Infeed", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "thread": {
+          "thread_diameter": { "type": "number", "unit": "mm", "default": 25.0, "tab": "Thread", "required": true },
+          "thread_pitch": { "type": "number", "unit": "mm", "default": 1.5, "description": "Lead per revolution; 25.4/TPI for imperial", "tab": "Thread", "required": true },
+          "thread_length": { "type": "number", "unit": "mm", "default": 30.0, "tab": "Thread" },
+          "starts": { "type": "integer", "default": 1, "description": "Multi-start thread count", "tab": "Thread" }
+        },
+        "infeed": {
+          "infeed_mode": { "type": "enum", "values": ["radial", "modified_flank", "constant_volume", "alternating"], "default": "constant_volume", "tab": "Infeed" },
+          "first_pass_depth": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Infeed" },
+          "min_pass_depth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Infeed" },
+          "spring_passes": { "type": "integer", "default": 1, "tab": "Infeed" }
+        },
+        "strategy": {
+          "lead_in_dist": { "type": "number", "unit": "mm", "default": 4.0, "description": "≥3*pitch acceleration distance", "tab": "Strategy" },
+          "thread_finish_pass_count": { "type": "integer", "default": 1, "tab": "Strategy" },
+          "compoundAngle_deg": { "type": "number", "unit": "deg", "default": 29.0, "description": "29° compound for ISO 60° thread", "tab": "Strategy" }
+        },
+        "output": {
+          "g_code_cycle": { "type": "enum", "values": ["G76", "G92", "long_form"], "default": "G76", "tab": "Output" },
+          "warnIfThreadShort": { "type": "boolean", "default": true, "description": "Block if thread length < 3*pitch lead-in", "tab": "Output" },
+          "exitDwell_ms": { "type": "number", "unit": "ms", "default": 100, "tab": "Output" },
+          "x_retract_mode": { "type": "enum", "values": ["chamfer_45", "vertical", "no_retract"], "default": "chamfer_45", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Constant Volume Threading",
+      "key_concepts": ["Each pass removes equal chip volume", "Avoids overload on first pass", "Self-decreasing depth schedule"],
+      "best_practices": ["Use for stainless and superalloys", "Drop to radial for soft aluminum", "Always include ≥1 spring pass"]
+    }
+  ]
+}

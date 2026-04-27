@@ -1660,6 +1660,12 @@ export const ACTIONS = [
     "visi_function_index_find_parameter", "visi_function_index_search_parameters",
     "visi_function_index_get_operations_by_category", "visi_function_index_get_summary",
     "visi_function_index_get_mold_operations", "visi_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-21 — Creo (PTC) Function Index
+    "creo_function_index_get", "creo_function_index_list_sections",
+    "creo_function_index_get_section", "creo_function_index_list_operations",
+    "creo_function_index_find_parameter", "creo_function_index_search_parameters",
+    "creo_function_index_get_operations_by_category", "creo_function_index_get_summary",
+    "creo_function_index_get_mill_turn_operations", "creo_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -12918,6 +12924,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { VISIFunctionIndexEngine } = await import("../../engines/VISIFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...VISIFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-21 — Creo (PTC) Function Index (10 actions)
+          case "creo_function_index_get": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            result = { success: true, index: CreoFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "creo_function_index_list_sections": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            result = { success: true, sections: CreoFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "creo_function_index_get_section": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: CreoFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "creo_function_index_list_operations": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            result = { success: true, operations: CreoFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "creo_function_index_find_parameter": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: CreoFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "creo_function_index_search_parameters": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: CreoFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "creo_function_index_get_operations_by_category": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: CreoFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "creo_function_index_get_summary": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            result = { success: true, ...CreoFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "creo_function_index_get_mill_turn_operations": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            result = { success: true, operations: CreoFunctionIndexEngine.getMillTurnOperations() };
+            break;
+          }
+          case "creo_function_index_get_operation": {
+            const { CreoFunctionIndexEngine } = await import("../../engines/CreoFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...CreoFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
