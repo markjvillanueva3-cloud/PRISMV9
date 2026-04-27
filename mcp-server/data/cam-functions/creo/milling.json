@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "system_id": "creo",
+  "section_key": "milling",
+  "extraction_source": "PTC Creo NC 11 Manufacturing Reference / Pro/NC Best Practices",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-21",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 64,
+    "categories": ["volume_milling", "profile_milling", "surface_milling", "trajectory"]
+  },
+  "operations": {
+    "volume_milling": {
+      "display_name": "Volume Milling",
+      "category": "volume_milling",
+      "description": "Creo flagship — parametric volume rough using mill volume features. Family-table driven; survives part regeneration.",
+      "dialog_tabs": ["MillVolume", "Cut", "Step", "Clearance"],
+      "parameter_count": 17,
+      "parameters": {
+        "mill_volume": {
+          "millVolumeRef": { "type": "selection", "tab": "MillVolume", "required": true, "description": "Mill volume feature created by Pro/NC" },
+          "stockRef": { "type": "selection", "tab": "MillVolume", "required": true },
+          "scanType": { "type": "enum", "values": ["TYPE_3_AXIS_REL", "TYPE_HELICAL", "TYPE_SPIRAL"], "default": "TYPE_3_AXIS_REL", "tab": "MillVolume" },
+          "rough_option": { "type": "enum", "values": ["ROUGH_AND_PROF", "ROUGH_ONLY", "PROF_ONLY"], "default": "ROUGH_AND_PROF", "tab": "MillVolume" }
+        },
+        "cut": {
+          "step_depth": { "type": "number", "unit": "mm", "default": 5.0, "description": "Per-pass Z step", "tab": "Cut", "required": true },
+          "cut_feed": { "type": "number", "unit": "mm_per_min", "default": 1500, "tab": "Cut" },
+          "cut_speed": { "type": "number", "unit": "rpm", "default": 8000, "tab": "Cut" },
+          "rough_stock_allow": { "type": "number", "unit": "mm", "default": 0.5, "description": "Stock left for finish", "tab": "Cut" },
+          "bottom_stock_allow": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Cut" }
+        },
+        "step": {
+          "step_over": { "type": "number", "unit": "mm", "default": 8.0, "description": "XY stepover", "tab": "Step", "required": true },
+          "max_step_depth": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Step" },
+          "scallop_height": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Step" },
+          "approach_distance": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Step" },
+          "exit_distance": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Step" }
+        },
+        "clearance": {
+          "clear_dist": { "type": "number", "unit": "mm", "default": 10.0, "description": "Z above stock for rapid moves", "tab": "Clearance", "required": true },
+          "retract_height": { "type": "number", "unit": "mm", "default": 50.0, "tab": "Clearance" },
+          "ramp_angle_deg": { "type": "number", "unit": "deg", "default": 5.0, "description": "Helical ramp entry", "tab": "Clearance" }
+        }
+      }
+    },
+    "profile_milling": {
+      "display_name": "Profile Milling",
+      "category": "profile_milling",
+      "description": "2D profile finishing along surface or curve chain. Supports cutter compensation G41/G42 and corner rounding.",
+      "dialog_tabs": ["Reference", "Cut", "Compensation", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "reference": {
+          "profileSurfRef": { "type": "selection", "tab": "Reference", "required": true },
+          "depthMode": { "type": "enum", "values": ["fullDepth", "byPasses", "byZLevels"], "default": "byPasses", "tab": "Reference" },
+          "checkSurfaces": { "type": "selection", "tab": "Reference", "description": "Surfaces to avoid" },
+          "wallStockAllow": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Reference" }
+        },
+        "cut": {
+          "cut_feed": { "type": "number", "unit": "mm_per_min", "default": 800, "tab": "Cut" },
+          "cut_speed": { "type": "number", "unit": "rpm", "default": 10000, "tab": "Cut" },
+          "step_depth": { "type": "number", "unit": "mm", "default": 0.5, "description": "Finish-cut Z step", "tab": "Cut" },
+          "num_profile_passes": { "type": "integer", "default": 1, "tab": "Cut" }
+        },
+        "compensation": {
+          "cutter_comp_mode": { "type": "enum", "values": ["off", "computer", "control_G41", "control_G42"], "default": "computer", "tab": "Compensation" },
+          "cutter_comp_offset": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Compensation" },
+          "lead_in_arc_radius": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Compensation" },
+          "lead_out_arc_radius": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Compensation" }
+        },
+        "output": {
+          "climb_or_conventional": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Output" },
+          "exitOnContour": { "type": "boolean", "default": true, "tab": "Output" },
+          "spindle_dir": { "type": "enum", "values": ["CW", "CCW"], "default": "CW", "tab": "Output" }
+        }
+      }
+    },
+    "surface_milling": {
+      "display_name": "Surface Milling",
+      "category": "surface_milling",
+      "description": "3D surface finishing using ball-nose cutter on freeform surfaces. Constant scallop or stepover modes.",
+      "dialog_tabs": ["Surface", "Pattern", "Cut", "Constraints"],
+      "parameter_count": 16,
+      "parameters": {
+        "surface": {
+          "surfRef": { "type": "selection", "tab": "Surface", "required": true },
+          "ballNoseDia": { "type": "number", "unit": "mm", "default": 6.0, "description": "Ball-nose cutter diameter", "tab": "Surface", "required": true },
+          "stockAllow": { "type": "number", "unit": "mm", "default": 0.0, "tab": "Surface" }
+        },
+        "pattern": {
+          "scanType": { "type": "enum", "values": ["TYPE_ZIG_ZAG", "TYPE_ZIG_ZAG_OPT", "TYPE_3_AXIS_SCAN", "TYPE_FROM_SURFACE_NORMAL"], "default": "TYPE_ZIG_ZAG_OPT", "tab": "Pattern" },
+          "cutDirection": { "type": "enum", "values": ["UP_HILL", "DOWN_HILL", "EITHER"], "default": "DOWN_HILL", "tab": "Pattern" },
+          "cut_angle_deg": { "type": "number", "unit": "deg", "default": 0.0, "description": "Tool path direction in XY", "tab": "Pattern" },
+          "step_over_or_scallop": { "type": "enum", "values": ["step_over", "scallop_height"], "default": "scallop_height", "tab": "Pattern" }
+        },
+        "cut": {
+          "step_over": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cut" },
+          "scallop_height": { "type": "number", "unit": "mm", "default": 0.005, "description": "Theoretical residual cusp height", "tab": "Cut" },
+          "cut_feed": { "type": "number", "unit": "mm_per_min", "default": 600, "tab": "Cut" },
+          "cut_speed": { "type": "number", "unit": "rpm", "default": 12000, "tab": "Cut" }
+        },
+        "constraints": {
+          "minStepDist": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Constraints" },
+          "maxStepDist": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Constraints" },
+          "maxAngleAxis_deg": { "type": "number", "unit": "deg", "default": 75.0, "description": "Max tilt for 3+2 indexing", "tab": "Constraints" },
+          "checkSurfClear": { "type": "boolean", "default": true, "description": "Verify no gouge against check surfaces", "tab": "Constraints" },
+          "smoothPathFilter": { "type": "boolean", "default": true, "tab": "Constraints" }
+        }
+      }
+    },
+    "trajectory": {
+      "display_name": "Trajectory Milling",
+      "category": "trajectory",
+      "description": "User-defined 3D curve trajectory. Free-form NC path with full control over tool axis and feed/speed transitions.",
+      "dialog_tabs": ["Trajectory", "Tool", "Cut", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "trajectory": {
+          "curveRef": { "type": "selection", "tab": "Trajectory", "required": true },
+          "tipOrCenter": { "type": "enum", "values": ["tip", "centerline"], "default": "tip", "tab": "Trajectory" },
+          "approachStart": { "type": "boolean", "default": true, "tab": "Trajectory" },
+          "exitEnd": { "type": "boolean", "default": true, "tab": "Trajectory" }
+        },
+        "tool": {
+          "axisMode": { "type": "enum", "values": ["FIXED_VERTICAL", "TILT_NORMAL", "FIVE_AXIS"], "default": "FIXED_VERTICAL", "tab": "Tool" },
+          "tilt_lead_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Tool" },
+          "tilt_lag_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Tool" },
+          "side_tilt_deg": { "type": "number", "unit": "deg", "default": 0.0, "tab": "Tool" }
+        },
+        "cut": {
+          "cut_feed": { "type": "number", "unit": "mm_per_min", "default": 1000, "tab": "Cut" },
+          "cut_speed": { "type": "number", "unit": "rpm", "default": 9000, "tab": "Cut" },
+          "plunge_feed": { "type": "number", "unit": "mm_per_min", "default": 200, "tab": "Cut" },
+          "step_depth": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Cut" }
+        },
+        "output": {
+          "circular_interp": { "type": "boolean", "default": true, "description": "Generate G02/G03 arcs where possible", "tab": "Output" },
+          "max_chord_dev": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Output" },
+          "smooth_corners": { "type": "boolean", "default": true, "tab": "Output" },
+          "single_arc_per_segment": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Mill Volume Features",
+      "key_concepts": ["Created in Pro/NC", "Family-table linked", "Auto-update on geometry regen"],
+      "best_practices": ["Reference solid features when possible", "Avoid free-floating volumes", "Use NC check after every regen"]
+    }
+  ]
+}
