@@ -146,6 +146,33 @@ CI: `.github/workflows/` (ci.yml, deploy.yml, nightly.yml). Tests: real behavior
 - Always run affected tests after engine modifications (hook suggests which).
 - Always check `ENGINE_DIGEST.md` before creating new engines.
 
+## ENFORCEMENT GATES (hooks block — comply on first try to avoid retries)
+The hooks below are **already wired** in `H:/.claude/settings.json` with `continueOnError: false`. Each rule is the *positive form* of a HARD BLOCK; getting it right on the first attempt is faster than fixing the block message.
+
+### Build discipline
+- **IMPORTANT: NEVER ship code with** TODO/FIXME/HACK/`catch{}`/`throw new Error("not implemented")`/`expect().toBeDefined()`/`.skip()`/`.only()` → `code-completeness-gate.mjs` HARD BLOCKS. Complete the work or extract to a tracked issue tagged `[TRACKED]`.
+- **IMPORTANT: NEVER ship facade-only engines** (return mock objects, no real logic) → `ban-facade-patterns.mjs` HARD BLOCKS. Real implementation, no exceptions.
+- **IMPORTANT: Every test assertion MUST validate the computed value against a real reference** (Klocke/Kienzle/Makino published data, algebraic invariant, or independently-derived expected value). `test-legitimacy.mjs` rejects loose ranges (`toBeGreaterThan(0)`) and shape-only checks. Coverage floor: happy + ≥3 failure modes + ≥2 adversarial (NaN, Infinity, empty, oversize).
+- **IMPORTANT: NEVER use `any`, `@ts-ignore`, double assertions, untyped object literals** as escape hatches → `anti-pattern-detector.mjs` HARD BLOCKS.
+- **IMPORTANT: When editing, the `old_string` MUST match exact whitespace/tabs/newlines from a prior Read** → `edit-old-string-verify.mjs` HARD BLOCKS mismatches. Always Read the target range immediately before Edit. Note: many PRISM files use CRLF (Windows) — single-line anchors avoid CRLF/LF mismatch.
+
+### Duplication
+- **YOU MUST call `duplicationGuardEngine.checkBeforeCreating({assetType, proposedName, keywords, description})` BEFORE writing any new engine/algorithm/formula/hook/skill/dispatcher/script/test.** If `shouldProceed === false`, USE the existing `matches[0]` instead of creating new. `duplication-hard-block.mjs` HARD BLOCKS exact name/keyword overlap; `duplication-guard-stop.mjs` sweeps on Stop.
+
+### Multi-chat lane discipline (6 concurrent chats)
+- **IMPORTANT: Each chat owns ONE worktree+branch+scope.** At SessionStart, run `git rev-parse --abbrev-ref HEAD`. If on `main` or a branch already owned by an active peer (read `chat-bus-inject.mjs` output every prompt), CREATE a new worktree before any non-trivial edit: `git worktree add H:/prism-<topic> -b <work|meta>/<topic>`. Existing convention: `H:/prism-<topic>` paths, `work/<topic>` for feature work, `meta/<topic>` for tooling. Then `EnterWorktree` to switch session.
+- **IMPORTANT: NEVER edit files claimed by another chat** → `file-claim-guard.mjs` HARD BLOCKS PreToolUse:Edit/Write/MultiEdit. Active claims (15-min TTL) appear in every prompt's chat-bus injection — read them.
+- **IMPORTANT: Before `git commit`** → run `git rev-parse --abbrev-ref HEAD` (verify own branch) AND `git diff --cached --stat` (verify staged paths in scope). `file-claim-commit-guard.mjs` HARD BLOCKS commits containing peer-claimed paths. Use `git add <specific-paths>`, NEVER `git add .` or `git add -A` (peer pollution risk per HANDOFF post-mortems).
+- **IMPORTANT: Commit subject MUST be `[<SCOPE>]/U-<ID>: title`** where SCOPE matches your branch's topic. Use `[MAIN]` ONLY when explicitly approved by user. `worktree-commit-route.mjs` validates scope-branch alignment.
+- **IMPORTANT: BEFORE first non-trivial Edit/Write in a unit, POST to chat bus** via `node H:/PRISM/.claude/helpers/agent-coordination.mjs post --message "starting <unit>: <files>" --status active --current "<task>" --next "<next>"`. Doing this BEFORE the edit prevents racing. POST a completion summary on Stop/handoff. The `agent-boundary-guard.mjs` PreToolUse hook also enforces Claude=backend / Codex=frontend separation.
+
+### Asset preservation
+- **IMPORTANT: NEVER delete settings/hooks/skills/scripts** → `asset-deletion-block.mjs` HARD BLOCKS. To "disable", set `continueOnError: true` (advisory hooks) or hardcode `enabled: false` (config). Never `rm`. `settings-json-addonly-guard.mjs` HARD BLOCKS removal of any settings.json entry.
+- **IMPORTANT: NEVER soften correctness gates** by flipping `continueOnError: false → true` on `code-completeness-gate`, `test-legitimacy`, `duplication-hard-block`, `anti-pattern-detector`, `file-claim-guard`, `bash-destructive-guard`, `asset-deletion-block`, `agent-boundary-guard`, `canonical-constants`, `comprehensive-build-enforce`, `ban-facade-patterns`, `api-contract-enforcer`, `document-preserve-guard`. They exist to block half-built work — softening them ships partial code.
+
+### Bash safety
+- **IMPORTANT: NEVER use destructive git on protected branches** (`git push --force main`, `git reset --hard`, `git clean -f`, `git filter-branch`, `git checkout .`) → `bash-destructive-guard.mjs` HARD BLOCKS. Use safer alternatives: `git push --force-with-lease`, `git stash`, `git clean -nd` (dry-run).
+
 ## SCHEMA VERSIONING
 Every state JSON requires `schemaVersion`. Migrations in `src/migrations/`. Backward compatibility: N-1 versions. Breaking changes → version bump + migration path.
 
