@@ -2,56 +2,24 @@
 /**
  * pretool-context-forecast.mjs — PreToolUse hook
  *
- * Cheap check that runs before every tool call: is the session close
- * enough to its context window that we should recommend /compact or
- * /handoff? Uses a local JSON read to find the last-known token count
- * and a rough per-step overhead so the hook stays <50ms.
+ * Per-session: reads the calling chat's transcript_path tokens (no shared
+ * state), then warns if the chat is >85% of its 1M window. Designed for up
+ * to 8 concurrent chats — chat A at 90% never triggers warnings in chat B.
  *
- * Non-blocking — only advises. Rate-limited to once per 90 seconds.
+ * Rate-limited per-session to once per 90 seconds.
  */
 
 import * as fs from "node:fs";
-import * as path from "node:path";
-import * as os from "node:os";
+import {
+  getSessionId, getTranscriptTokens, readStdinJson,
+  readSessionJson, writeSessionJson, CONTEXT_CAP,
+} from "../helpers/session-token-state.mjs";
 
 const TIME_BUDGET_MS = 80;
-const RATE_FILE = path.join(os.tmpdir(), "prism-hook-state", "context-forecast.last.json");
+const RATE_NAME = "context-forecast-rate";
 const RATE_WINDOW_MS = 90_000;
 const WARN_UTIL = 0.85;
 const CRIT_UTIL = 0.92;
-
-function readStdin() {
-  try {
-    return JSON.parse(fs.readFileSync(0, "utf8") || "{}");
-  } catch {
-    return {};
-  }
-}
-
-function loadRate() { try { return JSON.parse(fs.readFileSync(RATE_FILE, "utf8")); } catch { return {}; } }
-function saveRate(s) {
-  try {
-    const d = path.dirname(RATE_FILE);
-    if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(RATE_FILE, JSON.stringify(s));
-  } catch { /* ignore */ }
-}
-
-function readKnownTokens() {
-  const candidates = [
-    path.join(process.cwd(), "state", "context_pressure.json"),
-    path.join(process.cwd(), "mcp-server", "data", "state", "context_pressure.json"),
-  ];
-  for (const p of candidates) {
-    if (!fs.existsSync(p)) continue;
-    try {
-      const d = JSON.parse(fs.readFileSync(p, "utf8"));
-      const t = d.current_tokens ?? d.tokens ?? d.currentTokens ?? null;
-      if (typeof t === "number") return { tokens: t, window: d.window || d.window_tokens || 200_000 };
-    } catch { /* ignore */ }
-  }
-  return null;
-}
 
 async function main() {
   const killer = setTimeout(() => {
@@ -59,41 +27,43 @@ async function main() {
     process.exit(0);
   }, TIME_BUDGET_MS);
 
-  readStdin();
-  const known = readKnownTokens();
+  const stdin = readStdinJson() || {};
+  const sessionId = getSessionId(stdin);
+  const tokens = getTranscriptTokens(stdin);
   clearTimeout(killer);
-  if (!known) {
+
+  if (!tokens || tokens <= 0) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  const util = known.tokens / known.window;
+  const util = tokens / CONTEXT_CAP;
   if (util < WARN_UTIL) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  // Rate limit so the reminder doesn't flood the chat
-  const rate = loadRate();
+  // Per-session rate limit so we don't spam this chat (and don't see other chats' rate)
+  const rate = readSessionJson(sessionId, RATE_NAME, {});
   const now = Date.now();
   if (now - (rate.lastFired || 0) < RATE_WINDOW_MS) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
   rate.lastFired = now;
-  saveRate(rate);
+  writeSessionJson(sessionId, RATE_NAME, rate);
 
   const icon = util >= CRIT_UTIL ? "🔴" : "🟠";
-  const verb = util >= CRIT_UTIL ? "/compact NOW — next step may overflow" : "plan a /compact soon";
-  console.log(
-    JSON.stringify({
-      continue: true,
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        additionalContext: `${icon} Context at ${(util * 100).toFixed(0)}% (${known.tokens}/${known.window}) — ${verb}.`,
-      },
-    })
-  );
+  const verb = util >= CRIT_UTIL
+    ? "/compact NOW — next step may overflow"
+    : "plan a /compact soon";
+  console.log(JSON.stringify({
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      additionalContext: `${icon} Context at ${(util * 100).toFixed(0)}% (${tokens.toLocaleString()}/${CONTEXT_CAP.toLocaleString()}) — ${verb}.`,
+    },
+  }));
 }
 
 main().catch(() => {

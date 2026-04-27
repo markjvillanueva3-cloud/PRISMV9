@@ -6,16 +6,19 @@
  * Early session: exploration heavy. Mid session: execution heavy.
  * Late session: consolidation heavy.
  *
- * Injects budget guidance on SessionStart based on context utilization.
+ * Per-session: each chat reads its own transcript_path and writes its own
+ * budget file at .claude/cache/per-session/<sid>/cognitive-budget.json.
+ * Eliminates the cross-chat contamination caused by a single shared file
+ * (designed for up to 8 concurrent chats).
  */
 
-import * as fs from "fs";
-import * as path from "path";
+import {
+  getSessionId, getTranscriptTokens, readStdinJson,
+  readSessionJson, writeSessionJson, CONTEXT_CAP,
+} from "../helpers/session-token-state.mjs";
 
-const BUDGET_STATE_FILE = "H:/prism/mcp-server/data/state/COGNITIVE_BUDGET.json";
-const SESSION_MEMORY_FILE = "H:/prism/state/SESSION_MEMORY.json";
-// Opus 4.5 = 200,000 tokens. Override via env PRISM_MAX_CONTEXT_TOKENS.
-const MAX_CONTEXT_TOKENS = Number(process.env.PRISM_MAX_CONTEXT_TOKENS) || 200_000;
+const BUDGET_NAME = "cognitive-budget";
+const MAX_CONTEXT_TOKENS = Number(process.env.PRISM_MAX_CONTEXT_TOKENS) || CONTEXT_CAP;
 
 const LIFECYCLE_PHASES = {
   EXPLORATION: { tokenBudget: 0.3, description: "discovery and planning" },
@@ -23,59 +26,29 @@ const LIFECYCLE_PHASES = {
   CONSOLIDATION: { tokenBudget: 0.2, description: "review and handoff" },
 };
 
-function loadBudgetState() {
-  try {
-    if (fs.existsSync(BUDGET_STATE_FILE)) {
-      return JSON.parse(fs.readFileSync(BUDGET_STATE_FILE, "utf-8"));
-    }
-  } catch {
-    // Start fresh
-  }
-  return {
-    schemaVersion: 1,
+function loadBudgetState(sessionId) {
+  return readSessionJson(sessionId, BUDGET_NAME, {
+    schemaVersion: 2,
+    sessionId,
     currentPhase: "EXPLORATION",
     tokensUsedEstimate: 0,
     phaseHistory: [],
     recommendations: [],
     lastUpdate: null,
-  };
+  });
 }
 
-function saveBudgetState(state) {
-  try {
-    const dir = path.dirname(BUDGET_STATE_FILE);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    state.lastUpdate = new Date().toISOString();
-    fs.writeFileSync(BUDGET_STATE_FILE, JSON.stringify(state, null, 2));
-  } catch {
-    // Ignore
-  }
-}
-
-function estimateContextUsage() {
-  try {
-    if (fs.existsSync(SESSION_MEMORY_FILE)) {
-      const memory = JSON.parse(fs.readFileSync(SESSION_MEMORY_FILE, "utf-8"));
-      const messageCount = memory.messageCount || 0;
-      const avgTokensPerMessage = 500;
-      return Math.min(messageCount * avgTokensPerMessage, MAX_CONTEXT_TOKENS);
-    }
-  } catch {
-    // Ignore
-  }
-  return 0;
+function saveBudgetState(sessionId, state) {
+  state.lastUpdate = new Date().toISOString();
+  state.sessionId = sessionId;
+  writeSessionJson(sessionId, BUDGET_NAME, state);
 }
 
 function determinePhase(tokensUsed) {
   const utilizationPct = tokensUsed / MAX_CONTEXT_TOKENS;
-
-  if (utilizationPct < 0.25) {
-    return "EXPLORATION";
-  } else if (utilizationPct < 0.75) {
-    return "EXECUTION";
-  } else {
-    return "CONSOLIDATION";
-  }
+  if (utilizationPct < 0.25) return "EXPLORATION";
+  if (utilizationPct < 0.75) return "EXECUTION";
+  return "CONSOLIDATION";
 }
 
 function generateRecommendations(phase, tokensUsed) {
@@ -108,7 +81,8 @@ function generateRecommendations(phase, tokensUsed) {
         action: "Commit frequently to preserve progress",
         reason: "Context pressure increasing — lock in wins",
       });
-      if (remaining < 80000) {
+      // Scaled to 1M context: nudge compaction when remaining < 200K (20% headroom).
+      if (remaining < 200_000) {
         recommendations.push({
           priority: 1,
           action: "Consider triggering compaction soon",
@@ -158,14 +132,15 @@ function calculateBudgetAllocation(phase, tokensUsed) {
 }
 
 async function main() {
-  // Load current state
-  let state = loadBudgetState();
+  // Per-session: read transcript tokens for THIS chat only
+  const stdin = readStdinJson();
+  const sessionId = getSessionId(stdin);
+  let state = loadBudgetState(sessionId);
 
-  // Estimate context usage
-  const tokensUsed = estimateContextUsage();
+  // Authoritative token count from this chat's transcript JSONL
+  const tokensUsed = getTranscriptTokens(stdin);
   state.tokensUsedEstimate = tokensUsed;
 
-  // Determine current phase
   const newPhase = determinePhase(tokensUsed);
   const phaseChanged = state.currentPhase !== newPhase;
 
@@ -179,21 +154,16 @@ async function main() {
     state.currentPhase = newPhase;
   }
 
-  // Generate recommendations
   state.recommendations = generateRecommendations(newPhase, tokensUsed);
-
-  // Calculate budget allocation
   const allocation = calculateBudgetAllocation(newPhase, tokensUsed);
   state.allocation = allocation;
 
-  // Save state
-  saveBudgetState(state);
+  saveBudgetState(sessionId, state);
 
-  // Output guidance if phase changed or in consolidation
   if (phaseChanged || newPhase === "CONSOLIDATION") {
     const topRec = state.recommendations[0];
     console.log(JSON.stringify({
-      systemMessage: `[CognitiveBudget] Phase: ${newPhase} (${allocation.utilizationPct}% context used). ${topRec?.action || "Manage tokens wisely."}`,
+      systemMessage: `[CognitiveBudget ${sessionId}] Phase: ${newPhase} (${allocation.utilizationPct}% context). ${topRec?.action || "Manage tokens wisely."}`,
     }));
   }
 }

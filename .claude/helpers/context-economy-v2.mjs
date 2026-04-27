@@ -21,9 +21,13 @@ process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);
 import { promises as fs } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { getSessionId, readStdinJson } from "./session-token-state.mjs";
 
 const CACHE_DIR = "H:/prism/.claude/cache";
-const ECONOMY_FILE = path.join(CACHE_DIR, "context-economy.json");
+// Per-session economy file (designed for up to 8 concurrent chats).
+const STDIN_SESSION = getSessionId(readStdinJson());
+const SESSION_DIR = path.join(CACHE_DIR, "per-session", STDIN_SESSION);
+const ECONOMY_FILE = path.join(SESSION_DIR, "context-economy.json");
 const READ_CACHE_FILE = path.join(CACHE_DIR, "read-once-registry.json");
 
 // Token estimation: ~4 chars per token for code, ~3.5 for prose
@@ -31,13 +35,13 @@ const CHARS_PER_TOKEN = 3.8;
 
 // Task-aware thresholds (from TokenEconomyEngine budget profiles)
 const TASK_BUDGETS = {
-  backend: { total: 200_000, compact_at: 150_000, critical_at: 180_000 },
-  physics: { total: 150_000, compact_at: 110_000, critical_at: 135_000 },
-  search: { total: 80_000, compact_at: 60_000, critical_at: 72_000 },
-  refactor: { total: 250_000, compact_at: 180_000, critical_at: 225_000 },
-  audit: { total: 120_000, compact_at: 90_000, critical_at: 108_000 },
-  frontend: { total: 180_000, compact_at: 135_000, critical_at: 162_000 },
-  default: { total: 200_000, compact_at: 150_000, critical_at: 180_000 },
+  backend:  { total: 1_000_000, compact_at: 750_000, critical_at: 950_000 },
+  physics:  { total:   750_000, compact_at: 550_000, critical_at: 675_000 },
+  search:   { total:   400_000, compact_at: 300_000, critical_at: 360_000 },
+  refactor: { total: 1_000_000, compact_at: 800_000, critical_at: 950_000 },
+  audit:    { total:   600_000, compact_at: 450_000, critical_at: 540_000 },
+  frontend: { total:   900_000, compact_at: 675_000, critical_at: 810_000 },
+  default:  { total: 1_000_000, compact_at: 750_000, critical_at: 950_000 },
 };
 
 // Waste patterns to detect
@@ -51,7 +55,7 @@ const WASTE_PATTERNS = [
 
 async function ensureDir() {
   try {
-    await fs.mkdir(CACHE_DIR, { recursive: true });
+    await fs.mkdir(SESSION_DIR, { recursive: true });
   } catch {
     // recursive mkdir is idempotent; concurrent-terminal races are benign.
     // Real FS errors surface at the subsequent cache writeFile.

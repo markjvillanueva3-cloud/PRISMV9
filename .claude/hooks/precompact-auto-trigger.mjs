@@ -3,7 +3,7 @@
  * precompact-auto-trigger.mjs — Enforce /precompact at 160K tokens.
  *
  * Goal:
- *   Claude runs with a 200K token context window (Opus 4.5). At 900K tokens we MUST run
+ *   Claude runs with a 1M token context window (Opus 4.5). At 900K tokens we MUST run
  *   /precompact (writes the per-chat handoff so /startup can resume). The
  *   100K remaining buffer is writing-room for the handoff and for Claude's
  *   subsequent invocation of /compact before hitting the hard cap.
@@ -24,8 +24,8 @@
  *   (bytes / 3.5) when transcript unavailable.
  *
  * Thresholds (configurable via env):
- *   PRECOMPACT_SOFT_TOKENS  (default 175_000) — soft inject
- *   PRECOMPACT_HARD_TOKENS  (default 185_000) — hard block (buffer for
+ *   PRECOMPACT_SOFT_TOKENS  (default 800000) — soft inject
+ *   PRECOMPACT_HARD_TOKENS  (default 900000) — hard block (buffer for
  *                                                pre-compact + compact chain)
  *
  * Dedup:
@@ -41,13 +41,14 @@ const CACHE_DIR = path.resolve("H:/prism/.claude/cache");
 const SOFT_FIRED = path.join(CACHE_DIR, "precompact-auto-soft-fired.marker");
 const PENDING_MARKER_DIR = CACHE_DIR; // precompact-pending-<sid>.marker lives here
 
-// Thresholds are paired with CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=95 (190K):
-//   SOFT 160K — nudge Claude to run /precompact (non-blocking)
-//   HARD 180K — last-chance block BEFORE native autocompact at 190K, so
+// Thresholds are paired with CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=95 (950K of 1M):
+//   SOFT 800K — nudge Claude to run /precompact (non-blocking)
+//   HARD 900K — last-chance block BEFORE native autocompact at 950K, so
 //                 /precompact has room to write the handoff in the 50K
 //                 buffer between HARD and native autocompact.
-const SOFT = Number(process.env.PRECOMPACT_SOFT_TOKENS || 175_000);
-const HARD = Number(process.env.PRECOMPACT_HARD_TOKENS || 185_000);
+const SOFT = Number(process.env.PRECOMPACT_SOFT_TOKENS || 800_000);
+const HARD = Number(process.env.PRECOMPACT_HARD_TOKENS || 900_000);
+const CONTEXT_CAP = Number(process.env.PRECOMPACT_CONTEXT_CAP || 1_000_000);
 const CHARS_PER_TOKEN = 3.5;
 
 function readStdinSync() {
@@ -168,7 +169,7 @@ function main() {
       reason: [
         `CONTEXT AT ${tokens.toLocaleString()} TOKENS — PRECOMPACT HARD THRESHOLD (${HARD.toLocaleString()})`,
         ``,
-        `You are ${Math.max(0, 200_000 - tokens).toLocaleString()} tokens from the 200K hard cap.`,
+        `You are ${Math.max(0, CONTEXT_CAP - tokens).toLocaleString()} tokens from the 1M hard cap.`,
         `You MUST run /precompact NOW before any more tool calls.`,
         ``,
         `Steps:`,
@@ -186,10 +187,10 @@ function main() {
   if ((event === "PostToolUse" || event === "UserPromptSubmit") &&
       tokens >= SOFT && !precompactAlreadyArmed && !softAlreadyFired(tokens)) {
     markSoftFired(tokens);
-    const remaining = Math.max(0, 200_000 - tokens);
+    const remaining = Math.max(0, CONTEXT_CAP - tokens);
     const msg = [
       `CONTEXT AT ${tokens.toLocaleString()} TOKENS — /precompact REQUIRED (soft threshold ${SOFT.toLocaleString()})`,
-      `Remaining buffer: ~${remaining.toLocaleString()} tokens before 200K cap.`,
+      `Remaining buffer: ~${remaining.toLocaleString()} tokens before 1M cap.`,
       `Finish the current step, then invoke the precompact skill (Skill tool, skill="precompact").`,
       `After /precompact writes the handoff, run /compact. /startup will resume cleanly.`,
     ].join(" ");
@@ -208,3 +209,4 @@ function main() {
 }
 
 try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }
+
