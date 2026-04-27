@@ -197,7 +197,15 @@ export const JM_DIE_COMPANY = {
   id: "jm-die",
   name: "JM Die Company",
   industry: "Cold-heading dies & tooling (fastener industry)",
-  location: "Machesney Park, IL",
+  location: {
+    city: "Machesney Park",
+    state: "IL",
+    full: "Machesney Park, IL",
+    timezone: "America/Chicago",
+  },
+  file_archive_path: "H:\PRISM\JM DIE",
+  cad_systems: ["Mastercam", "Solidworks", "Fusion 360"] as readonly string[],
+  cam_systems: ["Mastercam", "hyperMILL", "GibbsCAM"] as readonly string[],
 } as const;
 
 export const JM_DIE_SOURCE_ROOTS = {

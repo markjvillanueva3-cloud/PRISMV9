@@ -4,10 +4,12 @@
       "type": "stdio",
       "command": "node",
       "args": [
-        "H:/PRISM/mcp-server/dist/index.js"
+        "H:/prism/.claude/helpers/mcp-http-bridge.mjs"
       ],
       "env": {
-        "TRANSPORT": "stdio",
+        "MCP_HTTP_URL": "http://127.0.0.1:3100/mcp",
+        "MCP_MAX_CONCURRENT": "3",
+        "MCP_TIMEOUT": "120000",
         "LOG_LEVEL": "info"
       }
     },

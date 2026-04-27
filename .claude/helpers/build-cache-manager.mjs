@@ -36,7 +36,6 @@ const CRITICAL_FILES = [
 // Build artifacts to track
 const BUILD_ARTIFACTS = [
   path.join(MCP, "dist", "index.js"),
-  path.join(MCP, "dist", "index.cjs"),
 ];
 
 /**
