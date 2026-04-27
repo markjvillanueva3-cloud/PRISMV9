@@ -1,0 +1,656 @@
+{
+  "schemaVersion": 1,
+  "system_id": "catia",
+  "section_key": "machining",
+  "version": "V5-6R2024 / 3DEXPERIENCE R2024x",
+  "extracted_from": "Dassault Systèmes CATIA V5 Machining Documentation — Prismatic Machining, Surface Machining, Advanced Machining, DELMIA Integration",
+  "categories": [
+    "prismatic_machining",
+    "surface_machining",
+    "advanced_machining",
+    "drilling",
+    "lathe_machining",
+    "delmia_integration"
+  ],
+  "operations": {
+    "facing": {
+      "category": "prismatic_machining",
+      "display_name": "Facing Operation",
+      "description": "Removes material from a planar face on the top of the workpiece. Generates parallel passes across the defined face boundary.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "strategy", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true, "description": "Reference part body" },
+          "face": { "type": "geometry_ref", "required": true, "description": "Planar face to machine" },
+          "stock": { "type": "geometry_ref", "required": false, "description": "Stock model reference" },
+          "offset_on_part_mm": { "type": "number", "min": 0, "max": 10, "default": 0 }
+        },
+        "strategy": {
+          "machining_mode": { "type": "enum", "values": ["one_way", "zigzag", "spiral_in", "spiral_out"], "default": "zigzag" },
+          "stepover_mode": { "type": "enum", "values": ["constant", "scallop_height"], "default": "constant" },
+          "stepover_mm": { "type": "number", "min": 0.1, "max": 100, "default": 10 },
+          "number_of_levels": { "type": "number", "min": 1, "max": 50, "default": 1 },
+          "depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 20, "default": 2 },
+          "finishing_pass": { "type": "boolean", "default": false }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0.8 },
+          "tool_compensation": { "type": "enum", "values": ["none", "computer", "control"], "default": "computer" }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true },
+          "approach_feedrate_mm_per_min": { "type": "number", "default": 1000 }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["plunge", "ramping", "helical", "predrill"], "default": "ramping" },
+          "retract_type": { "type": "enum", "values": ["axial", "along_tool_axis", "radial"], "default": "axial" },
+          "clearance_mm": { "type": "number", "min": 1, "max": 100, "default": 5 }
+        }
+      }
+    },
+    "pocketing": {
+      "category": "prismatic_machining",
+      "display_name": "Pocketing Operation",
+      "description": "Machines closed or open pocket geometries with roughing and optional finishing passes. Supports island avoidance.",
+      "parameter_count": 26,
+      "dialog_tabs": ["geometry", "strategy", "radial", "axial", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "bottom_plane": { "type": "geometry_ref", "required": true },
+          "contour": { "type": "geometry_ref", "required": true, "description": "Pocket boundary contour" },
+          "islands": { "type": "geometry_ref_array", "required": false, "description": "Island contours to avoid" },
+          "offset_on_bottom_mm": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "offset_on_contour_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "strategy": {
+          "machining_mode": { "type": "enum", "values": ["inward_helical", "outward_helical", "back_and_forth", "spiral", "one_way"], "default": "inward_helical" },
+          "pocket_type": { "type": "enum", "values": ["closed", "open"], "default": "closed" },
+          "hsk_ordering": { "type": "enum", "values": ["depth_first", "level_first"], "default": "depth_first" },
+          "multipass_enabled": { "type": "boolean", "default": true }
+        },
+        "radial": {
+          "stepover_mode": { "type": "enum", "values": ["constant", "scallop_height", "number_of_passes"], "default": "constant" },
+          "stepover_mm": { "type": "number", "min": 0.1, "max": 50, "default": 5 },
+          "scallop_height_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 }
+        },
+        "axial": {
+          "max_depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 30, "default": 3 },
+          "number_of_levels": { "type": "number", "min": 1, "max": 100, "default": 5 },
+          "finishing_allowance_mm": { "type": "number", "min": 0, "max": 2, "default": 0.3 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0 },
+          "flute_length_mm": { "type": "number", "required": true }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true },
+          "finishing_feedrate_mm_per_min": { "type": "number" }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["plunge", "ramping", "helical"], "default": "helical" },
+          "ramp_angle_deg": { "type": "number", "min": 0.5, "max": 45, "default": 3 },
+          "helix_diameter_mm": { "type": "number", "min": 1, "max": 50 },
+          "retract_mode": { "type": "enum", "values": ["previous_plane", "clearance_plane"], "default": "clearance_plane" }
+        }
+      }
+    },
+    "profile_contouring": {
+      "category": "prismatic_machining",
+      "display_name": "Profile Contouring",
+      "description": "Machines vertical or drafted walls following a 2D contour. Supports multi-level passes with stock allowance.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "strategy", "axial", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "guiding_contour": { "type": "geometry_ref", "required": true },
+          "top_plane": { "type": "geometry_ref", "required": true },
+          "bottom_plane": { "type": "geometry_ref", "required": true },
+          "offset_on_contour_mm": { "type": "number", "min": -5, "max": 5, "default": 0 }
+        },
+        "strategy": {
+          "profile_type": { "type": "enum", "values": ["vertical", "drafted", "between_planes"], "default": "vertical" },
+          "contour_direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb" },
+          "draft_angle_deg": { "type": "number", "min": 0, "max": 45, "default": 0 }
+        },
+        "axial": {
+          "max_depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 30, "default": 3 },
+          "number_of_levels": { "type": "number", "min": 1, "max": 100, "default": 5 },
+          "multipass_mode": { "type": "enum", "values": ["depth_first", "level_first"], "default": "depth_first" }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["tangent_arc", "perpendicular", "along_contour"], "default": "tangent_arc" },
+          "approach_distance_mm": { "type": "number", "min": 0.5, "max": 50, "default": 5 },
+          "retract_type": { "type": "enum", "values": ["tangent_arc", "perpendicular", "axial"], "default": "tangent_arc" }
+        }
+      }
+    },
+    "sweeping": {
+      "category": "surface_machining",
+      "display_name": "Sweeping (Parallel Contour)",
+      "description": "3D surface machining with parallel passes following a drive direction. Primary finishing strategy for sculptured surfaces.",
+      "parameter_count": 24,
+      "dialog_tabs": ["geometry", "strategy", "tool_axis", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "check_surfaces": { "type": "geometry_ref_array", "required": false },
+          "limiting_contour": { "type": "geometry_ref", "required": false },
+          "offset_on_part_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "strategy": {
+          "machining_mode": { "type": "enum", "values": ["one_way", "zigzag"], "default": "zigzag" },
+          "sweeping_direction": { "type": "enum", "values": ["along_u", "along_v", "custom_vector"], "default": "along_u" },
+          "custom_vector": { "type": "vector3", "required": false },
+          "stepover_mode": { "type": "enum", "values": ["constant", "scallop_height"], "default": "scallop_height" },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 20, "default": 1 },
+          "scallop_height_mm": { "type": "number", "min": 0.001, "max": 0.5, "default": 0.01 }
+        },
+        "tool_axis": {
+          "tool_axis_mode": { "type": "enum", "values": ["normal_to_surface", "fixed", "lead_lag", "interpolated"], "default": "normal_to_surface" },
+          "lead_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "tilt_angle_deg": { "type": "number", "min": -30, "max": 30, "default": 0 },
+          "max_tool_axis_variation_deg": { "type": "number", "min": 0.1, "max": 45, "default": 5 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_type": { "type": "enum", "values": ["ball_end", "bull_nose", "flat_end", "taper_ball"], "default": "ball_end" },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["axial", "tangent", "normal"], "default": "tangent" },
+          "retract_type": { "type": "enum", "values": ["axial", "tangent", "normal"], "default": "tangent" },
+          "linking_mode": { "type": "enum", "values": ["direct", "high_speed", "clearance_plane"], "default": "high_speed" }
+        }
+      }
+    },
+    "zlevel": {
+      "category": "surface_machining",
+      "display_name": "Z-Level (Contour Driving)",
+      "description": "Machines 3D surfaces at constant Z heights. Ideal for steep walls and near-vertical faces.",
+      "parameter_count": 22,
+      "dialog_tabs": ["geometry", "strategy", "tool_axis", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "check_surfaces": { "type": "geometry_ref_array", "required": false },
+          "limiting_contour": { "type": "geometry_ref", "required": false },
+          "offset_on_part_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "strategy": {
+          "machining_direction": { "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb" },
+          "vertical_mode": { "type": "enum", "values": ["top_down", "bottom_up"], "default": "top_down" },
+          "stepdown_mode": { "type": "enum", "values": ["constant", "scallop_height"], "default": "constant" },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 10, "default": 0.5 },
+          "scallop_height_mm": { "type": "number", "min": 0.001, "max": 0.5, "default": 0.01 },
+          "top_plane": { "type": "geometry_ref", "required": true },
+          "bottom_plane": { "type": "geometry_ref", "required": true }
+        },
+        "tool_axis": {
+          "tool_axis_mode": { "type": "enum", "values": ["vertical", "normal_to_surface", "lead_lag"], "default": "vertical" },
+          "tilt_angle_deg": { "type": "number", "min": -15, "max": 15, "default": 0 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_type": { "type": "enum", "values": ["ball_end", "bull_nose", "flat_end"], "default": "ball_end" },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["tangent_arc", "ramping", "axial"], "default": "tangent_arc" },
+          "retract_type": { "type": "enum", "values": ["tangent_arc", "axial"], "default": "tangent_arc" },
+          "clearance_mm": { "type": "number", "min": 1, "max": 100, "default": 5 }
+        }
+      }
+    },
+    "pencil_tracing": {
+      "category": "surface_machining",
+      "display_name": "Pencil Tracing",
+      "description": "Cleans up internal corners and fillets where larger tools cannot reach. Traces concave edges automatically.",
+      "parameter_count": 16,
+      "dialog_tabs": ["geometry", "strategy", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "check_surfaces": { "type": "geometry_ref_array", "required": false },
+          "offset_on_part_mm": { "type": "number", "min": 0, "max": 2, "default": 0 }
+        },
+        "strategy": {
+          "detection_mode": { "type": "enum", "values": ["automatic", "user_defined"], "default": "automatic" },
+          "min_fillet_radius_mm": { "type": "number", "min": 0.1, "max": 20, "default": 1 },
+          "max_fillet_radius_mm": { "type": "number", "min": 0.5, "max": 50, "default": 10 },
+          "number_of_passes": { "type": "number", "min": 1, "max": 10, "default": 1 },
+          "pass_offset_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.2 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_type": { "type": "enum", "values": ["ball_end", "taper_ball"], "default": "ball_end" },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["tangent", "normal"], "default": "tangent" },
+          "linking_mode": { "type": "enum", "values": ["high_speed", "clearance_plane"], "default": "high_speed" }
+        }
+      }
+    },
+    "spiral_milling": {
+      "category": "surface_machining",
+      "display_name": "Spiral Milling",
+      "description": "Generates continuous spiral toolpath from center outward or boundary inward. Minimizes tool lifts and provides smooth surface finish.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "strategy", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": true },
+          "offset_on_part_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "strategy": {
+          "spiral_direction": { "type": "enum", "values": ["inward", "outward"], "default": "inward" },
+          "machining_direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb" },
+          "stepover_mode": { "type": "enum", "values": ["constant", "scallop_height"], "default": "scallop_height" },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 20, "default": 1 },
+          "scallop_height_mm": { "type": "number", "min": 0.001, "max": 0.5, "default": 0.01 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_type": { "type": "enum", "values": ["ball_end", "bull_nose", "flat_end"], "default": "ball_end" },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true }
+        },
+        "macros": {
+          "start_point": { "type": "enum", "values": ["center", "boundary"], "default": "center" },
+          "retract_mode": { "type": "enum", "values": ["along_spiral", "clearance_plane"], "default": "along_spiral" }
+        }
+      }
+    },
+    "multi_axis_sweeping": {
+      "category": "advanced_machining",
+      "display_name": "Multi-Axis Sweeping",
+      "description": "5-axis sweeping with continuous tool axis interpolation. For complex sculptured surfaces requiring undercut access.",
+      "parameter_count": 28,
+      "dialog_tabs": ["geometry", "strategy", "tool_axis", "collision", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part": { "type": "geometry_ref", "required": true },
+          "drive_surface": { "type": "geometry_ref", "required": false },
+          "check_surfaces": { "type": "geometry_ref_array", "required": false },
+          "limiting_contour": { "type": "geometry_ref", "required": false }
+        },
+        "strategy": {
+          "machining_mode": { "type": "enum", "values": ["one_way", "zigzag"], "default": "zigzag" },
+          "sweeping_direction": { "type": "enum", "values": ["along_u", "along_v", "custom"], "default": "along_u" },
+          "stepover_mode": { "type": "enum", "values": ["constant", "scallop_height"], "default": "scallop_height" },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 20, "default": 0.5 },
+          "scallop_height_mm": { "type": "number", "min": 0.001, "max": 0.2, "default": 0.005 }
+        },
+        "tool_axis": {
+          "tool_axis_strategy": { "type": "enum", "values": ["normal_to_part", "normal_to_drive", "interpolated", "relative_to_surface"], "default": "normal_to_part" },
+          "lead_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 5 },
+          "tilt_angle_deg": { "type": "number", "min": -45, "max": 45, "default": 0 },
+          "max_axis_variation_deg_per_mm": { "type": "number", "min": 0.01, "max": 10, "default": 1 },
+          "smoothing_tolerance_deg": { "type": "number", "min": 0.01, "max": 5, "default": 0.5 }
+        },
+        "collision": {
+          "collision_checking": { "type": "boolean", "default": true },
+          "gouge_checking": { "type": "boolean", "default": true },
+          "holder_clearance_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 },
+          "shank_clearance_mm": { "type": "number", "min": 0.5, "max": 20, "default": 1 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_type": { "type": "enum", "values": ["ball_end", "bull_nose", "lollipop", "taper_ball"], "default": "ball_end" },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "reduced_feedrate_mm_per_min": { "type": "number", "description": "Feedrate when near collision limits" }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["tangent", "normal", "along_axis"], "default": "tangent" },
+          "linking_mode": { "type": "enum", "values": ["direct", "high_speed", "retract"], "default": "high_speed" }
+        }
+      }
+    },
+    "swarf_cutting": {
+      "category": "advanced_machining",
+      "display_name": "Swarf Cutting (Flank Milling)",
+      "description": "5-axis machining using the side of the tool tangent to ruled surfaces. Efficient for blade and impeller machining.",
+      "parameter_count": 22,
+      "dialog_tabs": ["geometry", "strategy", "tool_axis", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "swarf_surface": { "type": "geometry_ref", "required": true, "description": "Ruled surface for flank contact" },
+          "drive_curve": { "type": "geometry_ref", "required": true },
+          "check_surfaces": { "type": "geometry_ref_array", "required": false }
+        },
+        "strategy": {
+          "machining_direction": { "type": "enum", "values": ["along_curve", "across_surface"], "default": "along_curve" },
+          "number_of_passes": { "type": "number", "min": 1, "max": 20, "default": 1 },
+          "radial_depth_mm": { "type": "number", "min": 0.1, "max": 20, "default": 2 },
+          "axial_depth_mm": { "type": "number", "min": 1, "max": 100, "default": 20 }
+        },
+        "tool_axis": {
+          "contact_type": { "type": "enum", "values": ["tangent_to_surface", "two_curves", "drive_and_check"], "default": "tangent_to_surface" },
+          "tilt_angle_deg": { "type": "number", "min": -15, "max": 15, "default": 0 },
+          "lean_angle_deg": { "type": "number", "min": -15, "max": 15, "default": 0 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_type": { "type": "enum", "values": ["flat_end", "taper_flat", "ball_end"], "default": "flat_end" },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "flute_length_mm": { "type": "number", "required": true }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_min": { "type": "number", "required": true }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["ramping", "tangent", "direct"], "default": "ramping" },
+          "retract_type": { "type": "enum", "values": ["tangent", "direct"], "default": "tangent" }
+        }
+      }
+    },
+    "drilling": {
+      "category": "drilling",
+      "display_name": "Drilling Operation",
+      "description": "Point-to-point drilling with support for peck, chip-break, and deep-hole cycles.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "cycle", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "hole_positions": { "type": "geometry_ref_array", "required": true, "description": "Points or hole features" },
+          "top_plane": { "type": "geometry_ref", "required": true },
+          "bottom_type": { "type": "enum", "values": ["through", "blind_depth", "blind_plane"], "default": "blind_depth" },
+          "hole_depth_mm": { "type": "number", "min": 0.1, "max": 500, "default": 20 },
+          "hole_diameter_mm": { "type": "number", "required": true }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["drilling", "peck_drilling", "chip_break", "deep_hole", "tapping", "boring", "reaming"], "default": "drilling" },
+          "peck_depth_mm": { "type": "number", "min": 0.5, "max": 50, "default": 5 },
+          "dwell_time_sec": { "type": "number", "min": 0, "max": 10, "default": 0 },
+          "retract_mode": { "type": "enum", "values": ["rapid", "feed"], "default": "rapid" },
+          "break_through_mm": { "type": "number", "min": 0, "max": 10, "default": 1 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "point_angle_deg": { "type": "number", "min": 90, "max": 180, "default": 118 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "feedrate_mm_per_min": { "type": "number", "required": true },
+          "retract_feedrate_mm_per_min": { "type": "number" }
+        },
+        "macros": {
+          "clearance_mm": { "type": "number", "min": 1, "max": 50, "default": 5 },
+          "approach_distance_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 },
+          "sequence_optimization": { "type": "enum", "values": ["none", "shortest_path", "by_diameter"], "default": "shortest_path" }
+        }
+      }
+    },
+    "tapping": {
+      "category": "drilling",
+      "display_name": "Tapping Operation",
+      "description": "Thread cutting using tap tools. Supports rigid tapping, floating holder, and synchronous spindle.",
+      "parameter_count": 16,
+      "dialog_tabs": ["geometry", "thread", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "hole_positions": { "type": "geometry_ref_array", "required": true },
+          "top_plane": { "type": "geometry_ref", "required": true },
+          "thread_depth_mm": { "type": "number", "required": true }
+        },
+        "thread": {
+          "thread_type": { "type": "enum", "values": ["metric", "unified_coarse", "unified_fine", "bsp", "npt"], "default": "metric" },
+          "thread_size": { "type": "string", "required": true, "description": "e.g., M8x1.25, 1/4-20" },
+          "pitch_mm": { "type": "number", "required": true },
+          "hand": { "type": "enum", "values": ["right", "left"], "default": "right" },
+          "chamfer_threads": { "type": "number", "min": 0, "max": 5, "default": 2 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "tap_type": { "type": "enum", "values": ["cut", "form", "thread_mill"], "default": "cut" }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number", "required": true },
+          "tapping_mode": { "type": "enum", "values": ["rigid", "floating", "synchronous"], "default": "rigid" }
+        },
+        "macros": {
+          "clearance_mm": { "type": "number", "min": 1, "max": 50, "default": 5 },
+          "retract_spindle_multiplier": { "type": "number", "min": 1, "max": 2, "default": 1 }
+        }
+      }
+    },
+    "lathe_roughing": {
+      "category": "lathe_machining",
+      "display_name": "Lathe Roughing",
+      "description": "OD/ID turning roughing with stock removal. Supports longitudinal and facing cuts.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "strategy", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part_profile": { "type": "geometry_ref", "required": true },
+          "stock_profile": { "type": "geometry_ref", "required": false },
+          "machining_area": { "type": "enum", "values": ["od", "id", "face"], "default": "od" }
+        },
+        "strategy": {
+          "roughing_mode": { "type": "enum", "values": ["longitudinal", "facing", "plunge", "adaptive"], "default": "longitudinal" },
+          "depth_of_cut_mm": { "type": "number", "min": 0.1, "max": 15, "default": 2 },
+          "number_of_passes": { "type": "number", "min": 1, "max": 100 },
+          "stock_to_leave_radial_mm": { "type": "number", "min": 0, "max": 2, "default": 0.3 },
+          "stock_to_leave_axial_mm": { "type": "number", "min": 0, "max": 2, "default": 0.15 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "insert_shape": { "type": "enum", "values": ["C", "D", "R", "S", "T", "V", "W"], "default": "C" },
+          "nose_radius_mm": { "type": "number", "required": true },
+          "lead_angle_deg": { "type": "number", "min": -45, "max": 90, "default": 0 }
+        },
+        "feeds_speeds": {
+          "spindle_rpm": { "type": "number" },
+          "surface_speed_m_per_min": { "type": "number", "required": true },
+          "feedrate_mm_per_rev": { "type": "number", "required": true },
+          "css_enabled": { "type": "boolean", "default": true },
+          "max_rpm": { "type": "number", "default": 4000 }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["direct", "tangent", "45_deg"], "default": "45_deg" },
+          "clearance_radial_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 },
+          "clearance_axial_mm": { "type": "number", "min": 0.5, "max": 20, "default": 2 }
+        }
+      }
+    },
+    "lathe_finishing": {
+      "category": "lathe_machining",
+      "display_name": "Lathe Finishing",
+      "description": "Finish turning pass following the part profile with controlled surface finish.",
+      "parameter_count": 16,
+      "dialog_tabs": ["geometry", "strategy", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "part_profile": { "type": "geometry_ref", "required": true },
+          "machining_area": { "type": "enum", "values": ["od", "id", "face"], "default": "od" }
+        },
+        "strategy": {
+          "finishing_mode": { "type": "enum", "values": ["contour", "plunge", "combined"], "default": "contour" },
+          "number_of_spring_passes": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "compensation_mode": { "type": "enum", "values": ["computer", "control", "wear"], "default": "control" }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "insert_shape": { "type": "enum", "values": ["C", "D", "R", "S", "T", "V", "W"], "default": "D" },
+          "nose_radius_mm": { "type": "number", "required": true }
+        },
+        "feeds_speeds": {
+          "surface_speed_m_per_min": { "type": "number", "required": true },
+          "feedrate_mm_per_rev": { "type": "number", "required": true },
+          "css_enabled": { "type": "boolean", "default": true },
+          "max_rpm": { "type": "number", "default": 4000 }
+        },
+        "macros": {
+          "approach_type": { "type": "enum", "values": ["direct", "tangent"], "default": "tangent" },
+          "retract_type": { "type": "enum", "values": ["direct", "tangent"], "default": "tangent" }
+        }
+      }
+    },
+    "grooving": {
+      "category": "lathe_machining",
+      "display_name": "Grooving Operation",
+      "description": "Creates external/internal grooves and undercuts. Supports peck grooving for wide grooves.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "strategy", "tool", "feeds_speeds", "macros"],
+      "parameters": {
+        "geometry": {
+          "groove_profile": { "type": "geometry_ref", "required": true },
+          "machining_area": { "type": "enum", "values": ["od", "id", "face"], "default": "od" },
+          "groove_width_mm": { "type": "number", "required": true },
+          "groove_depth_mm": { "type": "number", "required": true }
+        },
+        "strategy": {
+          "grooving_mode": { "type": "enum", "values": ["plunge", "peck", "pattern"], "default": "plunge" },
+          "peck_depth_mm": { "type": "number", "min": 0.1, "max": 10, "default": 1 },
+          "dwell_time_sec": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "finishing_pass": { "type": "boolean", "default": true },
+          "finishing_allowance_mm": { "type": "number", "min": 0, "max": 0.5, "default": 0.1 }
+        },
+        "tool": {
+          "tool_number": { "type": "number", "required": true },
+          "insert_width_mm": { "type": "number", "required": true },
+          "corner_radius_mm": { "type": "number", "default": 0.2 }
+        },
+        "feeds_speeds": {
+          "surface_speed_m_per_min": { "type": "number", "required": true },
+          "feedrate_mm_per_rev": { "type": "number", "required": true },
+          "plunge_feedrate_mm_per_rev": { "type": "number", "required": true }
+        },
+        "macros": {
+          "approach_clearance_mm": { "type": "number", "min": 0.5, "max": 10, "default": 1 },
+          "retract_clearance_mm": { "type": "number", "min": 0.5, "max": 10, "default": 2 }
+        }
+      }
+    },
+    "nc_simulation": {
+      "category": "delmia_integration",
+      "display_name": "NC Machine Simulation",
+      "description": "DELMIA NC machine simulation for collision detection, cycle time estimation, and machine validation.",
+      "parameter_count": 14,
+      "dialog_tabs": ["machine", "simulation", "validation", "output"],
+      "parameters": {
+        "machine": {
+          "machine_model": { "type": "geometry_ref", "required": true, "description": "DELMIA machine resource" },
+          "kinematics_model": { "type": "string", "required": true },
+          "controller_type": { "type": "enum", "values": ["fanuc", "siemens", "heidenhain", "mazak", "okuma"], "default": "fanuc" }
+        },
+        "simulation": {
+          "simulation_mode": { "type": "enum", "values": ["rapid", "cutting_only", "full"], "default": "full" },
+          "collision_detection": { "type": "boolean", "default": true },
+          "stock_update": { "type": "boolean", "default": true },
+          "tool_wear_simulation": { "type": "boolean", "default": false }
+        },
+        "validation": {
+          "travel_limit_check": { "type": "boolean", "default": true },
+          "overtravel_action": { "type": "enum", "values": ["stop", "warn", "ignore"], "default": "stop" },
+          "singularity_check": { "type": "boolean", "default": true }
+        },
+        "output": {
+          "generate_video": { "type": "boolean", "default": false },
+          "cycle_time_report": { "type": "boolean", "default": true },
+          "collision_report": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "post_processor": {
+      "category": "delmia_integration",
+      "display_name": "Post Processor Configuration",
+      "description": "Configure NC code generation settings for specific machine controllers.",
+      "parameter_count": 16,
+      "dialog_tabs": ["controller", "format", "options", "output"],
+      "parameters": {
+        "controller": {
+          "pp_name": { "type": "string", "required": true },
+          "controller_family": { "type": "enum", "values": ["fanuc", "siemens_840d", "heidenhain_tnc", "mazak", "okuma_osp", "haas", "brother", "makino"], "default": "fanuc" },
+          "nc_format": { "type": "enum", "values": ["iso", "conversational", "apt"], "default": "iso" }
+        },
+        "format": {
+          "coordinate_format": { "type": "string", "default": "X#####.###" },
+          "modal_codes": { "type": "boolean", "default": true },
+          "line_numbers": { "type": "boolean", "default": true },
+          "line_number_increment": { "type": "number", "min": 1, "max": 100, "default": 10 }
+        },
+        "options": {
+          "tool_change_mode": { "type": "enum", "values": ["manual", "automatic", "carousel"], "default": "automatic" },
+          "coolant_codes": { "type": "boolean", "default": true },
+          "canned_cycles": { "type": "boolean", "default": true },
+          "high_speed_mode": { "type": "boolean", "default": false },
+          "inverse_time_feed": { "type": "boolean", "default": false }
+        },
+        "output": {
+          "file_extension": { "type": "string", "default": ".nc" },
+          "header_comments": { "type": "boolean", "default": true },
+          "operation_comments": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "total_operations": 16,
+    "total_parameters": 316,
+    "coverage": {
+      "prismatic_machining": ["facing", "pocketing", "profile_contouring"],
+      "surface_machining": ["sweeping", "zlevel", "pencil_tracing", "spiral_milling"],
+      "advanced_machining": ["multi_axis_sweeping", "swarf_cutting"],
+      "drilling": ["drilling", "tapping"],
+      "lathe_machining": ["lathe_roughing", "lathe_finishing", "grooving"],
+      "delmia_integration": ["nc_simulation", "post_processor"]
+    },
+    "delmia_modules": [
+      "DELMIA Machining",
+      "DELMIA NC Machine Simulation",
+      "DELMIA Manufacturing Hub"
+    ]
+  }
+}
