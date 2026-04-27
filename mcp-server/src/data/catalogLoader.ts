@@ -10,15 +10,16 @@
  * The JSON files are generated at build time by scripts/build-catalog-json.mjs.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const cache = new Map<string, unknown>();
 
-/** Resolve path to the data directory adjacent to the bundle */
 function dataDir(): string {
-  // __dirname is provided by the esbuild banner in dist/index.js
-  // Data files live in dist/data/
+  // dist/index.js → __dirname/data; dist/chunks/*.js → __dirname/../data.
+  for (const c of [join(__dirname, "data"), join(__dirname, "..", "data")]) {
+    if (existsSync(c)) return c;
+  }
   return join(__dirname, "data");
 }
 
