@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-WIRE-MS0",
+  "version": "1.0.0",
+  "title": "PPG-WIRE-MS0 — Wire JM Die master post engines + frontend wizard to camDispatcher",
+  "track": "PPG",
+  "parent_roadmap": "PSAU-MASTER",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "in_progress",
+  "created_at": "2026-04-25T22:32:16.000Z",
+  "last_updated": "2026-04-27T03:30:00.000Z",
+  "total_units": 11,
+  "completed_units": 10,
+  "description": "Wires the JM Die canonical master post engines (Hurco V11 mill, Okuma B250 lathe, Mitsubishi MV1200R wire EDM) and the post-processor wizard frontend (PostProcessorGeneratorPage + PhysicsDetailsPanel) to the camDispatcher action surface. Without this envelope the master post engines existed as standalone TypeScript classes but no MCP action could invoke them, so the post-processor wizard could not generate code on real customer hardware. PPG-WIRE-MS0 closes that gap end-to-end: dispatcher schema → action handler → REST route → web API client → wizard UI → physics overlay.",
+  "rationale": "PSAU-PPG-SFC delivered the closed-loop substrate (provenance, outcome capture, inference gates, RAG warm-start, drift canary, ProtoMAML new-material). PPG-WIRE-MS0 is the orthogonal capability axis — turning on the actual G-code emission path for the 3 highest-volume JM Die machine families. Without this work, every closed-loop signal in PSAU-PPG-SFC has nothing to emit through.",
+  "leverage_existing": [
+    "HurcoV11MillMasterPostEngine — 9 operation types, UltiMotion, G65 conversational macros, TSC coolant",
+    "OkumaB250LatheMasterPostEngine — Okuma OSP-P300L lathe, sub-spindle, live tooling, C-axis",
+    "MitsubishiMV1200RWireEDMMasterPostEngine — M700V/M800 dialects, 5-pass skim, taper, no-core",
+    "PostProcessorFeedOptimizerEngine — feed optimization with chatter + tool life propagation",
+    "ChatterStabilityLobeEngine + BayesianToolLifeEngine — physics confidence overlays",
+    "camDispatcher action enum + Zod schema layer (mcp-server/src/schemas/camActionSchemas.ts)",
+    "Web wizard PostProcessorGeneratorPage (mcp-server/web/src/pages/)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Programmer at JM Die loads a D2 die plate program for the Mitsubishi MV1200R and clicks 'Generate' in the post processor wizard. Operations: 4 skim passes profile + taper finish.",
+    "today_pre_ppg_wire": "Wizard renders, but 'Generate' has no dispatcher route to the master post engine. The standalone MitsubishiMV1200RWireEDMMasterPostEngine class exists and has tests, but cannot be reached from MCP. Programmer falls back to manual editing.",
+    "should_be_post_ppg_wire": "POST /ppg/master/mitsubishi-mv1200r → master_post_mitsubishi_mv1200r action → engine.generateProgram() → M700V dialect G-code returned with full physics overlay (chatter stability lobes, tool life, Kienzle force estimate) shown in PhysicsDetailsPanel. Programmer accepts/edits → outcome captured by PSAU-PPG-SFC closed loop.",
+    "gap_now_closed": "10 of 11 PPG-WIRE units are shipped. Remaining: U-PPGW10 — Hurco V11 case in master_post_by_machine auto-router (currently the auto-router only branches OKUMA + MITSUBISHI, even though Hurco V11 exists as its own case)."
+  },
+  "shipped": [
+    {
+      "id": "U-PPGW02",
+      "title": "Wire master_post_okuma_b250 to camDispatcher",
+      "shipped_at": "2026-04-26T03:32:16.000Z",
+      "commit": "d973d655f",
+      "commit_subject": "[PPG-WIRE-MS0] U-PPGW02: Wire master_post_okuma_b250 to camDispatcher",
+      "summary": "First master post wired. Adds Zod schema for Okuma LB250II-M lathe operations, lazy-imported case handler in camDispatcher, integration test (19 tests).",
+      "files_modified": [
+        "mcp-server/src/schemas/camActionSchemas.ts",
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts"
+      ],
+      "files_created": [
+        "mcp-server/src/__tests__/MasterPostOkumaB250.integration.test.ts"
+      ],
+      "tests": "MasterPostOkumaB250.integration.test.ts (19 tests, all green)"
+    },
+    {
+      "id": "U-PPGW01",
+      "title": "Wire Hurco V11 Mill master post to camDispatcher",
+      "shipped_at": "2026-04-26T17:02:10.000Z",
+      "commit": "943f55ccc",
+      "commit_subject": "[PPG-WIRE-MS0]/U-PPGW01: Wire Hurco V11 Mill master post to camDispatcher",
+      "summary": "Adds master_post_hurco_v11 action with 9 operation types, UltiMotion support, G65 conversational macros, TSC coolant.",
+      "files_modified": [
+        "mcp-server/src/schemas/camActionSchemas.ts",
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts"
+      ],
+      "tests": "verified via MasterPostHurcoV11 integration tests"
+    },
+    {
+      "id": "U-PPGW03",
+      "title": "Wire Mitsubishi MV1200R + auto-router to camDispatcher",
+      "shipped_at": "2026-04-26T15:11:38.000Z",
+      "commit": "eb21d2ee4",
+      "commit_subject": "[PPG-WIRE-MS0]/U-PPGW03: Wire Mitsubishi MV1200R + auto-router to camDispatcher",
+      "summary": "Adds master_post_mitsubishi_mv1200r (Wire EDM, M700V/M800 dialects, 5-pass skim, taper) and master_post_by_machine auto-router. Note: auto-router currently only branches OKUMA and MITSUBISHI — Hurco V11 not yet routed. See U-PPGW10.",
+      "files_modified": [
+        "mcp-server/src/schemas/camActionSchemas.ts",
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts"
+      ],
+      "files_created": [
+        "mcp-server/src/__tests__/MasterPostMitsubishiMV1200R.integration.test.ts"
+      ],
+      "tests": "26 integration tests covering schema, dispatcher wiring, engine behavior",
+      "known_gap": "master_post_by_machine auto-router missing Hurco V11 branch — tracked as U-PPGW10"
+    },
+    {
+      "id": "U-PPGW04",
+      "title": "Add /ppg/master/* API routes",
+      "shipped_at": "2026-04-26T17:57:43.000Z",
+      "commit": "c15fc166a",
+      "commit_subject": "[PPG-WIRE-MS0] U-PPGW04: Add /ppg/master/* API routes",
+      "summary": "Wires 4 master post API routes (Hurco V11, Okuma B250, Mitsubishi MV1200R, by-machine) to camDispatcher.",
+      "files_created": [
+        "mcp-server/src/routes/ppg.ts",
+        "mcp-server/src/__tests__/routes/ppg-master-routes.test.ts"
+      ],
+      "tests": "ppg-master-routes.test.ts (~30 tests covering route → dispatcher → engine round-trip)"
+    },
+    {
+      "id": "U-PPGW05",
+      "title": "Frontend API client — web/src/api/ppg.ts",
+      "shipped_at": "2026-04-26T19:09:15.000Z",
+      "commit": "904eb9fea",
+      "commit_subject": "[MAIN] PPG-WIRE-MS0/U-PPGW05+06: Frontend API client + tests",
+      "summary": "Adds 4 master post functions (masterHurcoV11, masterOkumaB250, masterMitsubishiMV1200R, masterByMachine) consumed by the post-processor wizard.",
+      "files_created": [
+        "mcp-server/web/src/api/ppg.ts"
+      ]
+    },
+    {
+      "id": "U-PPGW06",
+      "title": "Frontend API client tests",
+      "shipped_at": "2026-04-26T19:09:15.000Z",
+      "commit": "904eb9fea",
+      "commit_subject": "[MAIN] PPG-WIRE-MS0/U-PPGW05+06: Frontend API client + tests",
+      "summary": "20 tests covering happy-path and error-path of each web/src/api/ppg.ts function.",
+      "files_created": [
+        "mcp-server/src/__tests__/web-api/ppg-api.test.ts"
+      ],
+      "tests": "ppg-api.test.ts (20 tests, all green)"
+    },
+    {
+      "id": "U-PPGW07",
+      "title": "Baseline regression test — chatter stability integration",
+      "shipped_at": "2026-04-26T19:29:38.000Z",
+      "commit": "6349baf75",
+      "commit_subject": "[MAIN] PPG-WIRE-MS0/U-PPGW07: Baseline regression test for chatter stability integration",
+      "summary": "21 tests locking in PostProcessorFeedOptimizerEngine + ChatterStabilityLobeEngine behavior before physics integration in U-PPGW08.",
+      "files_created": [
+        "mcp-server/src/__tests__/PostProcessorFeedOptimizer.baseline.test.ts"
+      ],
+      "tests": "PostProcessorFeedOptimizer.baseline.test.ts (21 tests, all green)"
+    },
+    {
+      "id": "U-PPGW08",
+      "title": "Physics engine integration + confidence propagation",
+      "shipped_at": "2026-04-26T18:17:45.000Z",
+      "commit": "8363094b6",
+      "commit_subject": "PPG-WIRE-MS0/U-PPGW07-09: Physics engine integration + confidence propagation",
+      "summary": "Integrates ChatterStabilityLobeEngine + BayesianToolLifeEngine into PostProcessorFeedOptimizerEngine via stabilityCheck() and toolLifeCheck() with caching. Creates PhysicsDetailsPanel.tsx (Kienzle, Taylor, Chatter, Forces display).",
+      "files_modified": [
+        "mcp-server/src/engines/PostProcessorFeedOptimizerEngine.ts"
+      ],
+      "files_created": [
+        "mcp-server/src/__tests__/PostProcessorFeedOptimizerEngine.test.ts",
+        "mcp-server/web/src/components/ppg/PhysicsDetailsPanel.tsx"
+      ],
+      "tests": "PostProcessorFeedOptimizerEngine.test.ts (covers physics integration, caching, confidence propagation)"
+    },
+    {
+      "id": "U-PPGW09",
+      "title": "Wire PhysicsDetailsPanel into PostProcessorGeneratorPage",
+      "shipped_at": "2026-04-26T19:47:29.000Z",
+      "commit": "7053ffd78",
+      "commit_subject": "[MAIN] PPG-WIRE-MS0/U-PPGW09: Wire PhysicsDetailsPanel into PostProcessorGeneratorPage",
+      "summary": "Integrates PhysicsDetailsPanel into wizard step 3 (tool configuration), exposing chatter, tool life, and Kienzle force overlays to the operator.",
+      "files_modified": [
+        "mcp-server/web/src/pages/PostProcessorGeneratorPage.tsx"
+      ]
+    },
+    {
+      "id": "U-PPGW-TEST",
+      "title": "Mitsubishi test maintenance — schema fix + scenarios 8-10",
+      "shipped_at": "2026-04-26T20:03:26.000Z",
+      "commits": ["f09b7bd5e", "84330a888"],
+      "commit_subjects": [
+        "[MAIN] PPG-WIRE-MS0/U-PPGW-TEST: Fix Mitsubishi feedOpOps schema",
+        "[MAIN] PPG-WIRE-MS0/U-PPGW-TEST: Add scenarios 8-10 to Mitsubishi tests"
+      ],
+      "summary": "f09b7bd5e: corrects operation_type to 'profile' and pass to 'skim3' (valid WireEDMOperation/Pass enum values). 84330a888: adds 3 scenarios — cross-controller M700V vs M800 dialect, download package structure validation, end-to-end profile + taper hybrid.",
+      "files_modified": [
+        "mcp-server/src/__tests__/MasterPostMitsubishiMV1200R.integration.test.ts"
+      ]
+    }
+  ],
+  "pending": [
+    {
+      "id": "U-PPGW10",
+      "title": "Add Hurco V11 branch to master_post_by_machine auto-router",
+      "summary": "The master_post_by_machine auto-router (camDispatcher.ts:5269) currently only branches on OKUMA/LB250 and MITSUBISHI/MV1200. Even though master_post_hurco_v11 was wired in U-PPGW01, the auto-router error message advertises only 'OKUMA_LB250, MITSUBISHI_MV1200R' as supported. This unit adds the HURCO/VMX24/V11 branch and updates the error message.",
+      "files_to_modify": [
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts"
+      ],
+      "tests_to_add": [
+        "MasterPostByMachine.integration.test.ts — Hurco routing scenario"
+      ],
+      "scope": "small (~30 min, mechanical)"
+    }
+  ],
+  "completion_criteria": [
+    "All 3 JM Die master post engines (Hurco V11, Okuma B250, Mitsubishi MV1200R) reachable via camDispatcher action enum",
+    "All 3 reachable via /ppg/master/* REST routes with happy-path + error tests",
+    "Frontend post-processor wizard generates code end-to-end via masterByMachine() and per-machine functions",
+    "PhysicsDetailsPanel surfaces chatter, tool life, Kienzle force overlays in wizard step 3",
+    "master_post_by_machine auto-router routes EVERY wired master post (currently missing Hurco V11 — U-PPGW10)"
+  ],
+  "tests_summary": {
+    "integration_tests_added": [
+      "MasterPostOkumaB250.integration.test.ts (19 tests)",
+      "MasterPostMitsubishiMV1200R.integration.test.ts (26 base + 3 maintenance scenarios)",
+      "ppg-master-routes.test.ts (~30 tests)",
+      "ppg-api.test.ts (20 tests)",
+      "PostProcessorFeedOptimizer.baseline.test.ts (21 tests)",
+      "PostProcessorFeedOptimizerEngine.test.ts (physics integration)"
+    ],
+    "approx_total_tests": "~120 tests across the milestone"
+  },
+  "depends_on": [
+    "PSAU-PPG-SFC (closed-loop substrate — emits through these wired master posts)"
+  ],
+  "blocks": [
+    "JM-PRODUCTION-CUTOVER (cannot ship to JM Die without these wired posts)"
+  ]
+}
