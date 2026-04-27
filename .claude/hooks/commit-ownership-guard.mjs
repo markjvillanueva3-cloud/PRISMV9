@@ -26,13 +26,20 @@ const REPO = "H:/prism";
 const STATE_FILE = join(REPO, "mcp-server/data/state/session-file-ownership.json");
 const STALE_THRESHOLD_MS = 4 * 60 * 60 * 1000; // 4 hours — files older than this are fair game
 
-// Get stable session ID from environment or generate one
-function getSessionId() {
-  // Try environment first (set by Claude Code)
-  if (process.env.CLAUDE_SESSION_ID) {
-    return process.env.CLAUDE_SESSION_ID;
+// Get stable session ID. Prefer the hook payload's session_id (Claude Code's own
+// stable conversation ID), then env, then PID. The PID fallback is the bug:
+// each Bash subprocess gets a new PID, so "my own" prior edit is attributed
+// to a phantom "MarkV-XXXXX" different from the current call, false-positive
+// blocking my own commits. Same identity-scheme bug we fixed in file-claim-guard.
+function getSessionId(hookInput) {
+  // 1) Hook payload session_id — most stable, anchors to the conversation
+  const sid = hookInput?.session_id;
+  if (typeof sid === "string" && sid.length >= 8) {
+    return sid.startsWith("claude-") ? sid : ("claude-" + sid.slice(0, 8));
   }
-  // Fall back to PID-based ID
+  // 2) Env override
+  if (process.env.CLAUDE_SESSION_ID) return process.env.CLAUDE_SESSION_ID;
+  // 3) PID-based fallback (unstable across subprocess invocations)
   const ppid = process.ppid || process.pid;
   return `${hostname()}-${ppid}`;
 }
@@ -93,7 +100,7 @@ function main() {
     return;
   }
 
-  const sessionId = getSessionId();
+  const sessionId = getSessionId(hookInput);
   const state = loadOwnership();
   const now = Date.now();
 
@@ -179,7 +186,7 @@ function main() {
     ].join("\n");
 
     console.log(JSON.stringify({
-      continue: false,
+      decision: "block",
       reason: msg,
     }));
     return;
