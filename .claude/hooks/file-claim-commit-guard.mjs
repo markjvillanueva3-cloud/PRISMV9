@@ -148,7 +148,7 @@ function resolveGitPathToAbs(repoRoot, relPath) {
   return path.resolve(repoRoot, relPath);
 }
 
-function findForeignClaimsForPaths(sessionId, absPaths) {
+function findForeignClaimsForPaths(sessionId, absPaths, agentInstance) {
   const now = Date.now();
   const conflicts = [];
   for (const abs of absPaths) {
@@ -156,7 +156,7 @@ function findForeignClaimsForPaths(sessionId, absPaths) {
     const claimFile = path.join(CLAIMS_DIR, `${key}.json`);
     const claim = readJsonSafe(claimFile);
     if (!claim) continue;
-    if (claim.sessionId === sessionId) continue;
+    if (claim.sessionId === sessionId || (agentInstance && claim.agentInstance === agentInstance)) continue;
     const expMs = Date.parse(claim.expiresAt);
     if (Number.isFinite(expMs) && expMs < now) continue;
     if (!peerIsLive(claim.sessionId)) continue;
@@ -247,7 +247,8 @@ async function main() {
     return;
   }
 
-  const conflicts = findForeignClaimsForPaths(sessionId, allAbs);
+  const agentInstance = payload.agent_instance || payload.agentInstance || (process.env.AGENT_INSTANCE || null);
+  const conflicts = findForeignClaimsForPaths(sessionId, allAbs, agentInstance);
   if (conflicts.length === 0) {
     console.log(JSON.stringify({ continue: true }));
     return;

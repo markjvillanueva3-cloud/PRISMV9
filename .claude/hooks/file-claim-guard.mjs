@@ -128,7 +128,7 @@ function getIntent(toolName) {
   return "edit";
 }
 
-function attemptClaim({ sessionId, pcName, targetPath, intent }) {
+function attemptClaim({ sessionId, pcName, targetPath, intent, agentInstance }) {
   const canonical = canonicalPath(targetPath);
   const claimFile = path.join(CLAIMS_DIR, `${claimKey(canonical)}.json`);
   const existing = readJsonSafe(claimFile);
@@ -139,7 +139,8 @@ function attemptClaim({ sessionId, pcName, targetPath, intent }) {
   if (existing) {
     const expMs = Date.parse(existing.expiresAt);
     const isExpired = Number.isFinite(expMs) && expMs < now;
-    const isOwn = existing.sessionId === sessionId;
+    const isOwn = existing.sessionId === sessionId
+      || (agentInstance && existing.agentInstance === agentInstance);
     const holderLive = peerIsLive(existing.sessionId);
 
     if (!isOwn && !isExpired && holderLive) {
@@ -160,16 +161,17 @@ function attemptClaim({ sessionId, pcName, targetPath, intent }) {
   }
 
   const claim = {
-    schemaVersion: "1.0.0",
+    schemaVersion: "1.1.0",
     path: canonical,
     sessionId,
+    agentInstance: agentInstance || sessionId,
     pcName,
-    acquiredAt: existing && existing.sessionId === sessionId ? existing.acquiredAt : nowIso,
+    acquiredAt: existing && (existing.sessionId === sessionId || (agentInstance && existing.agentInstance === agentInstance)) ? existing.acquiredAt : nowIso,
     expiresAt,
     intent,
   };
   writeJsonAtomic(claimFile, claim);
-  if (!existing || existing.sessionId !== sessionId) {
+  if (!existing || (existing.sessionId !== sessionId && (!agentInstance || existing.agentInstance !== agentInstance))) {
     postAuditMessage({ sessionId, pcName, kind: "claim", p: canonical, intent });
   }
   return { ok: true };
@@ -227,7 +229,9 @@ async function main() {
   const pcName = os.hostname();
   const intent = getIntent(toolName);
 
-  const result = attemptClaim({ sessionId, pcName, targetPath, intent });
+  // DUAL-IDENTITY support — Agent@MARKV/pid-X scheme (used by chat-bus via inferAgentIdentity) must match against claude-XXXXXXXX scheme (used here via stable-session-id.mjs). Fixes 2026-04-27 namespace race.
+  const agentInstance = payload.agent_instance || payload.agentInstance || (process.env.AGENT_INSTANCE || null);
+  const result = attemptClaim({ sessionId, pcName, targetPath, intent, agentInstance });
 
   if (result.ok) {
     console.log(JSON.stringify({ continue: true }));
