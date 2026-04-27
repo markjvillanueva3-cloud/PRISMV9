@@ -1,0 +1,75 @@
+{
+  "milestone_id": "TSC-CLEANUP-MS0",
+  "title": "TypeScript Error Cleanup — Engine-Rename Migration Completion",
+  "owner": "TBD (recommend dedicated worktree + 3-agent team)",
+  "scope_branch_suggestion": "work/tsc-cleanup-ms0",
+  "baseline": {
+    "as_of": "2026-04-27",
+    "total_errors": 954,
+    "total_files": 230,
+    "top_codes": {
+      "TS2339": 282,
+      "TS2322": 142,
+      "TS2307": 81,
+      "TS2554": 77,
+      "TS2345": 76,
+      "TS2353": 68,
+      "TS18048": 33,
+      "TS2739": 20,
+      "TS2305": 17,
+      "TS2484": 15
+    }
+  },
+  "target": "0 tsc errors with --noEmit",
+  "rationale": "Esbuild compiles fine (build:fast works, tests pass via tsx loader), but tsc --noEmit fails. The errors are concentrated in dispatcher case statements that reference engines from a partial rename migration: 30+ engines were renamed and/or restructured but the dispatcher cases were never updated. Fixing requires API reconciliation, not just import-path edits.",
+  "phases": [
+    {
+      "phase": "P1 — Quick wins (target ~80 errors / 1 day)",
+      "tasks": [
+        "U-CL01: Sweep TS2305 unused-import errors across all dispatchers (~17 cases). camDispatcher.ts U-TSC-CLEANUP-01 already done — pattern proven.",
+        "U-CL02: Re-export shims for the 3 confirmed renames (MaterialDatabaseEngine -> Bridge, CAMDeepLearningEngine -> Mastercam, ControllerKnowledgeEngine -> DB) WITH compat method delegation. Adds ~15 small shim files.",
+        "U-CL03: Drop dispatcher cases pointing at engines that genuinely don't exist (verify each via duplicationGuardEngine first). May be ~25 cases."
+      ]
+    },
+    {
+      "phase": "P2 — Engine API reconciliation (target ~400 errors / 3-5 days)",
+      "tasks": [
+        "U-CL04: TS2339 cluster (282 errors) — for each property-not-found error, decide: add the property to the engine, or rewrite the call. Group by engine, fix all calls together.",
+        "U-CL05: TS2554 + TS2345 cluster (153 errors) — engine method signature drift. Update callers to match current signatures.",
+        "U-CL06: TS18048 cluster (33 errors) — undefined-handling. Add narrowing guards or default values."
+      ]
+    },
+    {
+      "phase": "P3 — Schema shape drift (target ~210 errors / 2 days)",
+      "tasks": [
+        "U-CL07: TS2353 cluster (68 errors) — Zod schemas allow excess properties that runtime payloads don't have. Either tighten the schemas or use .passthrough().",
+        "U-CL08: TS2322 cluster (142 errors) — type assignment shape mismatches. Often Dirent<string> vs Dirent<NonSharedBuffer> (Node 22 type widening). Add explicit type annotations to readdirSync calls."
+      ]
+    },
+    {
+      "phase": "P4 — Final pass (~100 errors / 1 day)",
+      "tasks": [
+        "U-CL09: Remaining TS2739 (20), TS2305 (17), TS2484 (15) and tail of long-tail codes.",
+        "U-CL10: Re-run audit; commit baseline if anything still genuinely needs deferral."
+      ]
+    }
+  ],
+  "team_spec": {
+    "shape": "3-agent team via /forge-team or /team-dispatch",
+    "agents": [
+      {"role": "architect", "subagent_type": "system-architect", "task": "For each phase, decide: fix-in-place vs delete vs migrate. Produce per-task batched fix list."},
+      {"role": "implementer", "subagent_type": "implementer", "task": "Apply fixes. Confirm no test regressions per batch."},
+      {"role": "reviewer", "subagent_type": "code-archaeologist", "task": "After each batch, verify error count dropped + no semantic regression in dispatcher routing behavior."}
+    ]
+  },
+  "guardrails": [
+    "Worktree-isolated branch (`work/tsc-cleanup-ms0`) — must not conflict with active feature branches.",
+    "Run `npx vitest run` after each phase; total tests must not drop.",
+    "Do NOT delete engines based on tsc errors alone — confirm via grep across .claude/commands and dispatchers that they're truly unused.",
+    "Per-batch commits with `[MAIN] TSC-CLEANUP-MS0/U-CL##: <description>` so reverts are surgical.",
+    "scrutinize-before-stop gate already enforces parallel-agent review per stop."
+  ],
+  "launch_command": "/team-dispatch architect+implementer+reviewer with brief='Execute TSC-CLEANUP-MS0 phase 1 — see mcp-server/data/milestones/TSC-CLEANUP-MS0.json'",
+  "created_at": "2026-04-27",
+  "created_by": "claude-2a125756"
+}
