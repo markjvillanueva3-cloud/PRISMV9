@@ -90,10 +90,16 @@ export class ForesightOrchestratorEngine {
     const disclosed = this.safeCall(() =>
       progressiveDisclosureEngine.disclose({
         sections: [
-          { key: "verdict", severity: severity === "block" ? 5 : severity === "warn" ? 3 : 1, body: `verdict=${verdict}` },
-          { key: "risk", severity: 3, body: JSON.stringify(risk ?? {}) },
-          { key: "knowledgeGap", severity: 2, body: JSON.stringify(knowledgeGap ?? {}) },
-          { key: "contextBudget", severity: 4, body: JSON.stringify(contextBudget ?? {}) },
+          {
+            key: "verdict",
+            title: "Verdict",
+            tokens: 16,
+            severity: severity === "block" ? 5 : severity === "warn" ? 3 : 1,
+            body: `verdict=${verdict}`,
+          },
+          { key: "risk", title: "Risk", tokens: 64, severity: 3, body: JSON.stringify(risk ?? {}) },
+          { key: "knowledgeGap", title: "Knowledge Gap", tokens: 64, severity: 2, body: JSON.stringify(knowledgeGap ?? {}) },
+          { key: "contextBudget", title: "Context Budget", tokens: 64, severity: 4, body: JSON.stringify(contextBudget ?? {}) },
         ],
       }),
     );
@@ -103,13 +109,15 @@ export class ForesightOrchestratorEngine {
   }
 
   private computeSeverity(risk: unknown, knowledgeGap: unknown, contextBudget: unknown): "ok" | "warn" | "block" {
-    let score: "ok" | "warn" | "block" = "ok";
+    type Sev = "ok" | "warn" | "block";
+    let score: Sev = "ok";
     const riskRec = risk as { topK?: Array<{ warn?: boolean }> } | undefined;
     const warnCount = Array.isArray(riskRec?.topK) ? riskRec!.topK!.filter((g) => g.warn === true).length : 0;
     if (warnCount >= 2) score = "warn";
     const gapRec = knowledgeGap as { topRelevance?: number } | undefined;
     if (gapRec && typeof gapRec.topRelevance === "number" && gapRec.topRelevance < 0.5) {
-      score = score === "block" ? "block" : "warn";
+      // Preserve a stronger "block" if it was set earlier; otherwise escalate ok→warn.
+      score = (score as Sev) === "block" ? "block" : "warn";
     }
     const ctxRec = contextBudget as { recommendation?: string } | undefined;
     if (ctxRec?.recommendation === "handoff_now" || ctxRec?.recommendation === "compact_now") {
