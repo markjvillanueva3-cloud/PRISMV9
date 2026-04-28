@@ -77,6 +77,11 @@ export const AI_REASONING_ACTIONS = [
   "belief_query",         // U-WIRE20 → get + topK + entropy + probabilityOf
   "belief_list",          // U-WIRE20 → list all beliefs + size
   "belief_delete",        // U-WIRE20 → delete by id
+  // ENGINE-WIRE-MS0/U-WIRE21: ChainOfThoughtEngine — explicit step-by-step reasoning
+  "cot_reason",           // U-WIRE21 → linear/adversarial/iterative reasoning chain
+  "cot_reason_tree",      // U-WIRE21 → tree-of-thought beam search
+  "cot_explain",          // U-WIRE21 → format a chain into human-readable trace
+  "cot_apply_heuristics", // U-WIRE21 → manufacturing-domain heuristics for a context
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -857,5 +862,39 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   belief_list: z.object({}).passthrough().describe("No params; lists all beliefs and total count"),
   belief_delete: z.object({
     id: z.string().min(1).describe("Belief id to delete"),
+  }).passthrough(),
+  // ENGINE-WIRE-MS0/U-WIRE21: ChainOfThoughtEngine — step-by-step reasoning
+  cot_reason: z.object({
+    problem: z.string().min(1).describe("Problem statement"),
+    goal: z.string().min(1).describe("What success looks like"),
+    context: z.record(z.string(), z.unknown()).optional().describe(
+      "Free-form context (material, operation, etc.) — also feeds heuristics",
+    ),
+    constraints: z.array(z.string()).optional().describe("Hard constraints"),
+    known_facts: z.array(z.string()).optional().describe("Known/given facts"),
+    strategy: z.enum(["linear", "branching", "iterative", "adversarial", "analogical"])
+      .optional().describe("Reasoning strategy (default: linear)"),
+    max_steps: z.number().int().positive().optional().describe("Max reasoning steps (default 20)"),
+    confidence_threshold: z.number().min(0).max(1).optional()
+      .describe("Stop when confidence reaches this (default 0.7)"),
+  }).passthrough(),
+  cot_reason_tree: z.object({
+    problem: z.string().min(1).describe("Problem statement"),
+    goal: z.string().min(1).describe("What success looks like"),
+    context: z.record(z.string(), z.unknown()).optional(),
+    constraints: z.array(z.string()).optional(),
+    known_facts: z.array(z.string()).optional(),
+    max_steps: z.number().int().positive().optional(),
+    beam_width: z.number().int().positive().optional()
+      .describe("Tree-of-thought beam width (default 3)"),
+  }).passthrough(),
+  cot_explain: z.object({
+    chain: z.unknown().describe("ReasoningChain object returned by cot_reason"),
+  }).passthrough(),
+  cot_apply_heuristics: z.object({
+    problem: z.string().optional()
+      .describe("Free-form problem statement (used to keyword-match heuristics)"),
+    context: z.record(z.string(), z.unknown()).optional()
+      .describe("Manufacturing context (material, operation, etc.) for context-specific heuristics"),
   }).passthrough(),
 };
