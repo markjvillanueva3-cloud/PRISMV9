@@ -85,6 +85,18 @@ export function recordEvent(event) {
   } catch {
     // Best-effort — don't crash the hook
   }
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U02: also mirror to unified ledger via MCP.
+  // Lazy import keeps the helper fast when MCP is down (timeout=4s).
+  import("./unified-ledger-mirror.mjs").then((mod) => {
+    mod.mirrorToUnifiedLedgerAsync({
+      source: "hook_block",
+      tool: entry.tool,
+      errorClass: entry.error_class,
+      message: entry.snippet,
+      context: { hook_id: entry.hook_id, file_suffix: entry.file_suffix, trigger: entry.trigger, fingerprint: entry.fingerprint },
+      ts: entry.ts,
+    });
+  }).catch(() => { /* mirror is best-effort */ });
   return entry;
 }
 

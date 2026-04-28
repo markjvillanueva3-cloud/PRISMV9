@@ -91,6 +91,7 @@ export type MemoryResult<T> =
 const DEFAULT_VECTOR_SIZE = 768; // nomic-embed-text output dim
 const DEFAULT_PREFIX = "prism_memory";
 
+// WIRE-EXEMPT: indirect dispatcher access — wrapped by QdrantMemoryEngineSingleton, which is imported by memoryDispatcher and UnifiedErrorLedgerEngine. Direct import would bypass the singleton's lazy-init + embedder factory.
 export class QdrantMemoryEngine {
   private store: QdrantVectorStoreEngine;
   private embedder: Embedder | null;

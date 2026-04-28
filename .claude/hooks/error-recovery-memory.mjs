@@ -102,6 +102,20 @@ memory.errors[errorHash] = {
   context: tool_input?.file_path || tool_input?.command?.substring(0, 50) || ''
 };
 
+// INTEL-OLLAMA-OBSIDIAN-MS0/P2-U02: mirror to unified ledger (best-effort)
+import("../helpers/unified-ledger-mirror.mjs").then((mod) => {
+  mod.mirrorToUnifiedLedgerAsync({
+    source: "recovery",
+    tool: tool_name,
+    message: errorSignature.substring(0, 200),
+    context: {
+      hash: errorHash,
+      file: tool_input?.file_path,
+      command_prefix: tool_input?.command?.substring(0, 50),
+    },
+  });
+}).catch(() => { /* mirror is best-effort */ });
+
 memory.stats.total++;
 
 // Limit memory size
