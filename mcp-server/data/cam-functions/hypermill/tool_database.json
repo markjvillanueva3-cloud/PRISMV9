@@ -1,0 +1,410 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "tool_database",
+  "module_name": "hyperMILL Tool Database",
+  "description": "Complete tool database UI surface — holder, geometry, cutting data, wear limits, coating, metadata. Source: hyperMILL 2024 reference + JM Die shop-floor calibrations. Inputs to KIENZLE_FORCE and TAYLOR_TOOL_LIFE.",
+  "parameter_count": 39,
+  "menus": [
+    {
+      "id": "tool_holder",
+      "name": "Tool Holder Assembly",
+      "operation_class": "tool_setup",
+      "dialogs": [
+        {
+          "id": "holder_geometry",
+          "name": "Holder Geometry",
+          "type": "tabbed",
+          "dialog_purpose": "Define holder taper, length, runout for collision and deflection models",
+          "parameters": [
+            {
+              "id": "holder_id",
+              "name": "Holder Identifier",
+              "category": "identifier",
+              "value": { "type": "string", "default_value": "BT40-ER32-100" }
+            },
+            {
+              "id": "taper",
+              "name": "Tool Taper",
+              "category": "interface",
+              "value": { "type": "enum", "default_value": "BT40", "constraints": { "enum_values": ["BT30", "BT40", "BT50", "HSK-A63", "HSK-A100", "CAT40", "CAT50"] } }
+            },
+            {
+              "id": "overhang",
+              "name": "Tool Overhang from Holder Face",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 50, "constraints": { "min": 5, "max": 300 } },
+              "physics_links": [
+                { "formula_id": "DEFLECTION_BEAM", "role": "input", "affects": ["delta_max"] }
+              ],
+              "tribal_tips": [
+                { "id": "tt_overhang_ld_4", "text": "Keep overhang/diameter ratio under 4 to avoid chatter; use stub holders when possible.", "source": "open_mind_docs", "confidence": 0.9 },
+                { "id": "tt_overhang_jmdie", "text": "JM Die runs Roku-Roku finishing at L/D = 6 with 0.05mm runout — anything sloppier and surface walks.", "source": "jm_die", "confidence": 0.85 }
+              ]
+            },
+            {
+              "id": "holder_runout_tir",
+              "name": "Holder Runout (TIR)",
+              "category": "quality",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.005, "constraints": { "min": 0, "max": 0.05 } },
+              "tribal_tips": [
+                { "id": "tt_runout_5um", "text": "Below 0.005mm TIR is the threshold for HSM finishing on aerospace alloys.", "source": "open_mind_docs", "confidence": 0.85 }
+              ]
+            },
+            {
+              "id": "holder_pullout_force_n",
+              "name": "Holder Pull-Out Force",
+              "category": "interface",
+              "value": { "type": "number", "unit": "N", "default_value": 8000, "constraints": { "min": 100, "max": 50000 } }
+            },
+            {
+              "id": "holder_balance_grade_g",
+              "name": "Holder Balance Grade (G-class)",
+              "category": "quality",
+              "value": { "type": "number", "unit": "g_mm_per_kg", "default_value": 2.5, "constraints": { "min": 0.4, "max": 16 } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cutting_data",
+      "name": "Cutting Data",
+      "operation_class": "speeds_feeds",
+      "dialogs": [
+        {
+          "id": "primary_speeds_feeds",
+          "name": "Primary Speeds & Feeds",
+          "type": "tabbed",
+          "dialog_purpose": "Cutting velocity, chip load, depth/width of cut — direct inputs to KIENZLE_FORCE",
+          "parameters": [
+            {
+              "id": "cutting_speed_vc",
+              "name": "Cutting Velocity (Vc)",
+              "category": "kinematics",
+              "value": { "type": "number", "unit": "m_per_min", "default_value": 200, "constraints": { "min": 5, "max": 3000 } },
+              "physics_links": [
+                { "formula_id": "KIENZLE_FORCE", "role": "input", "affects": ["F_c", "F_t"] },
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "input", "affects": ["T"] }
+              ],
+              "tribal_tips": [
+                { "id": "tt_vc_ti6al4v", "text": "For Ti-6Al-4V keep Vc under 80 m/min with carbide and trochoidal toolpath.", "source": "open_mind_docs", "confidence": 0.9 },
+                { "id": "tt_vc_jmdie_d2", "text": "JM Die D2 hard-die work: 60 m/min finishing, 90 m/min roughing with TiAlN coating.", "source": "jm_die", "confidence": 0.88 }
+              ],
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "auto_speed_feed_optimize", "parameter_mapping": { "input": "cutting_speed_vc" } },
+                { "dispatcher": "prism_calc", "action": "kienzle_force", "parameter_mapping": { "vc_m_per_min": "cutting_speed_vc" } }
+              ]
+            },
+            {
+              "id": "feed_per_tooth_fz",
+              "name": "Feed per Tooth (fz)",
+              "category": "kinematics",
+              "value": { "type": "number", "unit": "mm_per_tooth", "default_value": 0.1, "constraints": { "min": 0.001, "max": 1.0 } },
+              "physics_links": [
+                { "formula_id": "KIENZLE_FORCE", "role": "input", "affects": ["F_c"] }
+              ],
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "auto_speed_feed_optimize" }
+              ]
+            },
+            {
+              "id": "axial_depth_ap",
+              "name": "Axial Depth of Cut (ap)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 1.5, "constraints": { "min": 0.001, "max": 50 } },
+              "physics_links": [
+                { "formula_id": "KIENZLE_FORCE", "role": "input", "affects": ["F_c"] }
+              ],
+              "ai_actions": [{ "dispatcher": "prism_cam", "action": "stability_rpm_analyze" }]
+            },
+            {
+              "id": "radial_depth_ae",
+              "name": "Radial Depth (ae)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 8, "constraints": { "min": 0.01, "max": 100 } },
+              "physics_links": [
+                { "formula_id": "KIENZLE_FORCE", "role": "input", "affects": ["F_c"] }
+              ]
+            },
+            {
+              "id": "spindle_rpm",
+              "name": "Spindle RPM",
+              "category": "kinematics",
+              "value": { "type": "number", "unit": "rpm", "default_value": 6000, "constraints": { "min": 100, "max": 60000 } },
+              "ai_actions": [{ "dispatcher": "prism_cam", "action": "stability_rpm_rewrite" }]
+            },
+            {
+              "id": "feed_rate_vf",
+              "name": "Table Feed Rate (Vf)",
+              "category": "kinematics",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 1500 }
+            },
+            {
+              "id": "chip_load_target",
+              "name": "Target Chip Load",
+              "category": "performance",
+              "value": { "type": "number", "unit": "mm_per_tooth", "default_value": 0.08 }
+            },
+            {
+              "id": "stepover_pct",
+              "name": "Stepover (% of tool diameter)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "pct", "default_value": 50, "constraints": { "min": 1, "max": 100 } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wear_limits",
+      "name": "Wear Limits",
+      "operation_class": "tool_life_management",
+      "dialogs": [
+        {
+          "id": "wear_thresholds",
+          "name": "Wear Thresholds",
+          "type": "tabbed",
+          "dialog_purpose": "Tool wear monitoring + replacement triggers — Taylor model inputs",
+          "parameters": [
+            {
+              "id": "flank_wear_limit_vb",
+              "name": "Flank Wear Limit (VBmax)",
+              "category": "tool_life",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.3, "constraints": { "min": 0.05, "max": 1.0 } },
+              "physics_links": [
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "input", "affects": ["T"] }
+              ],
+              "tribal_tips": [
+                { "id": "tt_vb_finish", "text": "Use VBmax = 0.15mm for finishing operations to maintain Ra spec.", "source": "open_mind_docs", "confidence": 0.9 },
+                { "id": "tt_vb_jmdie", "text": "JM Die replaces Sandvik R390 inserts at VBmax = 0.25mm — beyond that, surface degrades.", "source": "jm_die", "confidence": 0.92 }
+              ]
+            },
+            {
+              "id": "crater_wear_limit_kt",
+              "name": "Crater Wear Depth (KT)",
+              "category": "tool_life",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.06, "constraints": { "min": 0.01, "max": 0.5 } },
+              "physics_links": [
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "input" }
+              ]
+            },
+            {
+              "id": "taylor_constant_C",
+              "name": "Taylor Constant C",
+              "category": "tool_life",
+              "value": { "type": "number", "unit": "m_per_min", "default_value": 350 },
+              "physics_links": [
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "input", "affects": ["T"] }
+              ]
+            },
+            {
+              "id": "taylor_exponent_n",
+              "name": "Taylor Exponent n",
+              "category": "tool_life",
+              "value": { "type": "number", "unit": "dimensionless", "default_value": 0.25 },
+              "physics_links": [
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "input" }
+              ]
+            },
+            {
+              "id": "expected_tool_life",
+              "name": "Expected Tool Life",
+              "category": "tool_life",
+              "value": { "type": "number", "unit": "min", "default_value": 60, "constraints": { "min": 1, "max": 1000 } },
+              "physics_links": [
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "output" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tool_geometry",
+      "name": "Tool Geometry",
+      "operation_class": "tool_definition",
+      "dialogs": [
+        {
+          "id": "primary_geometry",
+          "name": "Primary Geometry",
+          "type": "tabbed",
+          "dialog_purpose": "Cutter dimensions — diameter, length, flute count, corner radius",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Tool Diameter (D)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 12, "constraints": { "min": 0.1, "max": 200 } },
+              "physics_links": [
+                { "formula_id": "DEFLECTION_BEAM", "role": "input" }
+              ]
+            },
+            {
+              "id": "flute_count",
+              "name": "Number of Flutes (z)",
+              "category": "geometry",
+              "value": { "type": "integer", "default_value": 4, "constraints": { "min": 1, "max": 24 } },
+              "physics_links": [
+                { "formula_id": "KIENZLE_FORCE", "role": "input" }
+              ]
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius (rε)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.4, "constraints": { "min": 0, "max": 25 } },
+              "physics_links": [
+                { "formula_id": "SURFACE_FINISH_BRAMMERTZ", "role": "input", "affects": ["Ra"] }
+              ]
+            },
+            {
+              "id": "helix_angle",
+              "name": "Helix Angle",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "deg", "default_value": 30, "constraints": { "min": 0, "max": 60 } }
+            },
+            {
+              "id": "flute_length_LOC",
+              "name": "Flute / Length of Cut (LOC)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 30 }
+            },
+            {
+              "id": "overall_length",
+              "name": "Overall Length (OAL)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 75 }
+            },
+            {
+              "id": "rake_angle",
+              "name": "Rake Angle",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "deg", "default_value": 8 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coating",
+      "name": "Coating & Substrate",
+      "operation_class": "tool_definition",
+      "dialogs": [
+        {
+          "id": "coating_spec",
+          "name": "Coating Specification",
+          "type": "tabbed",
+          "dialog_purpose": "Coating chemistry and substrate carbide grade",
+          "parameters": [
+            {
+              "id": "coating_type",
+              "name": "Coating Type",
+              "category": "material",
+              "value": { "type": "enum", "default_value": "TiAlN", "constraints": { "enum_values": ["uncoated", "TiN", "TiCN", "TiAlN", "AlTiN", "AlCrN", "DLC", "Diamond"] } },
+              "tribal_tips": [
+                { "id": "tt_coating_d2", "text": "TiAlN excels on D2 tool steel above 50 HRC; switch to AlTiN above 60 HRC.", "source": "open_mind_docs", "confidence": 0.85 }
+              ]
+            },
+            {
+              "id": "carbide_grade",
+              "name": "Carbide Grade (ISO)",
+              "category": "material",
+              "value": { "type": "enum", "default_value": "K20", "constraints": { "enum_values": ["K10", "K20", "K30", "P10", "P20", "P30", "M20", "H10"] } }
+            },
+            {
+              "id": "coating_thickness",
+              "name": "Coating Thickness",
+              "category": "material",
+              "value": { "type": "number", "unit": "um", "default_value": 3.5, "constraints": { "min": 0.5, "max": 12 } }
+            },
+            {
+              "id": "substrate_hardness",
+              "name": "Substrate Hardness",
+              "category": "material",
+              "value": { "type": "number", "unit": "HRC", "default_value": 92 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tool_metadata",
+      "name": "Tool Metadata",
+      "operation_class": "tool_definition",
+      "dialogs": [
+        {
+          "id": "metadata_general",
+          "name": "Tool Metadata",
+          "type": "tabbed",
+          "dialog_purpose": "Vendor, part number, ID, magazine slot, cost",
+          "parameters": [
+            {
+              "id": "tool_vendor",
+              "name": "Manufacturer",
+              "category": "metadata",
+              "value": { "type": "string", "default_value": "Sandvik" }
+            },
+            {
+              "id": "vendor_part_number",
+              "name": "Vendor Part Number",
+              "category": "metadata",
+              "value": { "type": "string", "default_value": "R390-012A12-11M" }
+            },
+            {
+              "id": "tool_number_T",
+              "name": "Tool Number (T-code)",
+              "category": "machine_setup",
+              "value": { "type": "integer", "default_value": 1, "constraints": { "min": 1, "max": 9999 } }
+            },
+            {
+              "id": "magazine_slot",
+              "name": "Magazine Slot",
+              "category": "machine_setup",
+              "value": { "type": "integer", "default_value": 1, "constraints": { "min": 1, "max": 240 } }
+            },
+            {
+              "id": "tool_cost",
+              "name": "Tool Cost (replacement)",
+              "category": "metadata",
+              "value": { "type": "number", "unit": "USD", "default_value": 145, "constraints": { "min": 0, "max": 5000 } }
+            },
+            {
+              "id": "regrind_count",
+              "name": "Regrind Count",
+              "category": "tool_life",
+              "value": { "type": "integer", "default_value": 0, "constraints": { "min": 0, "max": 20 } }
+            },
+            {
+              "id": "tool_class",
+              "name": "Tool Class",
+              "category": "metadata",
+              "value": { "type": "enum", "default_value": "endmill_carbide", "constraints": { "enum_values": ["endmill_carbide", "endmill_hss", "facemill", "drill", "tap", "reamer", "boring_bar", "thread_mill", "ball_nose"] } }
+            },
+            {
+              "id": "purchase_date",
+              "name": "Purchase Date",
+              "category": "metadata",
+              "value": { "type": "string", "default_value": "2026-01-15" }
+            },
+            {
+              "id": "preset_dimensions_verified",
+              "name": "Preset Dimensions Verified",
+              "category": "quality",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dispatcher_bindings": [
+    { "dispatcher": "prism_cam", "actions": ["auto_speed_feed_optimize", "stability_rpm_rewrite", "stability_rpm_analyze"] },
+    { "dispatcher": "prism_calc", "actions": ["kienzle_force", "tool_life_predict"] }
+  ],
+  "cross_references": {
+    "engines": ["KienzleForceModelEngine", "TaylorToolLifeEngine", "ToolHolderRegistryEngine"],
+    "registries": ["materials_registry", "tools_registry"],
+    "physics_constants": ["kc1.1", "Taylor_C", "Taylor_n"]
+  }
+}

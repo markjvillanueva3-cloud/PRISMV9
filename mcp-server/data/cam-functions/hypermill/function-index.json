@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "function_index",
+  "module_name": "hyperMILL CAM Unified Function Index",
+  "description": "Top-level index cross-referencing extracted hyperMILL modules — tool database, stock + fixture, simulation, automation center, post processor. Consumed by HyperMillFunctionIndexEngine for parameter discovery, dependency tracing, and AI orchestration.",
+  "indexed_at": "2026-04-28T00:00:00Z",
+  "modules": [
+    {
+      "module_id": "tool_database",
+      "path": "cam-functions/hypermill/tool_database.json",
+      "covered_units": ["U-CAM08"],
+      "parameter_count_estimate": 39,
+      "description": "Tool holder, cutter geometry, cutting data, wear limits, coating, and metadata fields surfaced in the hyperMILL tool database UI. Inputs to Kienzle force model and Taylor tool life.",
+      "dependencies": []
+    },
+    {
+      "module_id": "stock_fixture",
+      "path": "cam-functions/hypermill/stock_fixture.json",
+      "covered_units": ["U-CAM09"],
+      "parameter_count_estimate": 24,
+      "description": "Stock model definition and workholding/fixture catalog parameters including clamping force, jaw geometry, and pull-out resistance. Feeds prism_safety workholding gate.",
+      "dependencies": []
+    },
+    {
+      "module_id": "simulation",
+      "path": "cam-functions/hypermill/simulation.json",
+      "covered_units": ["U-CAM10"],
+      "parameter_count_estimate": 22,
+      "description": "Material removal simulation, collision check, and machine kinematic verification settings. Consumes tool_database geometry and stock_fixture clamps.",
+      "dependencies": ["tool_database", "stock_fixture"]
+    },
+    {
+      "module_id": "automation_center",
+      "path": "cam-functions/hypermill/automation_center.json",
+      "covered_units": ["U-CAM11"],
+      "parameter_count_estimate": 20,
+      "description": "hyperMILL Automation Center (AC) macro library, template inheritance, and feature recognition rules. Drives autonomous toolpath generation.",
+      "dependencies": ["tool_database", "stock_fixture"]
+    },
+    {
+      "module_id": "post_processor",
+      "path": "cam-functions/hypermill/post_processor.json",
+      "covered_units": ["U-CAM12"],
+      "parameter_count_estimate": 18,
+      "description": "PPG (Post Processor Generator) configuration: controller dialect, kinematic chain, NC code emit options, RTCP/G68.2 enable flags.",
+      "dependencies": ["simulation"]
+    }
+  ],
+  "global_cross_references": {
+    "physics_formulas": ["KIENZLE_FORCE", "TAYLOR_TOOL_LIFE", "DEFLECTION_BEAM", "SURFACE_FINISH_BRAMMERTZ"],
+    "dispatchers_touched": ["prism_cam", "prism_calc", "prism_safety", "prism_machine_setup"],
+    "engines_linked": ["KienzleForceModelEngine", "TaylorToolLifeEngine", "ToolHolderRegistryEngine", "StockFixtureEngine", "PostProcessorPipelineEngine"]
+  },
+  "coverage_summary": {
+    "total_modules": 5,
+    "total_units_covered": ["U-CAM08", "U-CAM09", "U-CAM10", "U-CAM11", "U-CAM12"],
+    "estimated_parameter_total": 123,
+    "pdf_sources_bound": ["hyperMILL_2024_Tool_Database_Reference.pdf", "hyperMILL_AC_User_Guide.pdf", "OpenMind_PPG_Reference.pdf"]
+  }
+}

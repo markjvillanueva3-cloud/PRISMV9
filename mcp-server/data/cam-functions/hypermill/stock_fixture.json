@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "stock_fixture",
+  "module_name": "hyperMILL Stock & Fixture",
+  "description": "Stock model definition and workholding/fixture catalog. Drives prism_safety workholding-adequacy gate.",
+  "parameter_count": 24,
+  "menus": [
+    {
+      "id": "stock_definition",
+      "name": "Stock Definition",
+      "operation_class": "stock_setup",
+      "dialogs": [
+        {
+          "id": "stock_geometry",
+          "name": "Stock Geometry",
+          "type": "tabbed",
+          "dialog_purpose": "Initial workpiece blank shape and material",
+          "parameters": [
+            {
+              "id": "stock_type",
+              "name": "Stock Type",
+              "category": "geometry",
+              "value": { "type": "enum", "default_value": "rectangular", "constraints": { "enum_values": ["rectangular", "cylindrical", "casting", "near_net_forging", "from_step", "from_stl"] } }
+            },
+            {
+              "id": "stock_length_x",
+              "name": "Stock Length (X)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 200 }
+            },
+            {
+              "id": "stock_width_y",
+              "name": "Stock Width (Y)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 120 }
+            },
+            {
+              "id": "stock_height_z",
+              "name": "Stock Height (Z)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 50 }
+            },
+            {
+              "id": "stock_material",
+              "name": "Stock Material",
+              "category": "material",
+              "value": { "type": "enum", "default_value": "AISI_4140", "constraints": { "enum_values": ["AISI_4140", "AISI_1018", "AISI_D2", "AISI_S7", "Ti6Al4V", "Inconel_718", "Al_6061", "Al_7075", "graphite_EDM", "tungsten_carbide"] } }
+            },
+            {
+              "id": "stock_oversize_x",
+              "name": "Oversize on X",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 1.0, "constraints": { "min": 0, "max": 25 } }
+            },
+            {
+              "id": "stock_oversize_y",
+              "name": "Oversize on Y",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 1.0 }
+            },
+            {
+              "id": "stock_oversize_z",
+              "name": "Oversize on Z",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 2.0 }
+            },
+            {
+              "id": "near_net_step_path",
+              "name": "Near-Net STEP Reference",
+              "category": "import",
+              "value": { "type": "string", "default_value": "" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fixture_catalog",
+      "name": "Fixture / Workholding",
+      "operation_class": "workholding",
+      "dialogs": [
+        {
+          "id": "clamping",
+          "name": "Clamping",
+          "type": "tabbed",
+          "dialog_purpose": "Clamp count, clamp force, jaw geometry — feeds prism_safety workholding gate",
+          "parameters": [
+            {
+              "id": "fixture_type",
+              "name": "Fixture Type",
+              "category": "workholding",
+              "value": { "type": "enum", "default_value": "machine_vise", "constraints": { "enum_values": ["machine_vise", "chuck_3jaw", "chuck_4jaw", "fixture_plate", "vacuum_table", "magnetic_chuck", "soft_jaw", "tombstone"] } }
+            },
+            {
+              "id": "clamping_force_n",
+              "name": "Clamping Force per Clamp",
+              "category": "workholding",
+              "value": { "type": "number", "unit": "N", "default_value": 12000, "constraints": { "min": 100, "max": 100000 } },
+              "physics_links": [
+                { "formula_id": "WORKHOLDING_PULLOUT_GATE", "role": "input", "affects": ["safety_margin"] }
+              ],
+              "tribal_tips": [
+                { "id": "tt_clamp_jmdie", "text": "JM Die uses 8-12 kN per clamp on D2 dies; below 6 kN risks lift-off in heavy cuts.", "source": "jm_die", "confidence": 0.95 },
+                { "id": "tt_clamp_om", "text": "Hydraulic vises typically deliver 25 kN; manual screw vises 15-20 kN.", "source": "open_mind_docs", "confidence": 0.85 }
+              ],
+              "ai_actions": [
+                { "dispatcher": "prism_safety", "action": "calculate_clamp_force_required", "parameter_mapping": { "current_force_n": "clamping_force_n" } },
+                { "dispatcher": "prism_safety", "action": "validate_workholding_setup" }
+              ]
+            },
+            {
+              "id": "clamp_count",
+              "name": "Number of Active Clamps",
+              "category": "workholding",
+              "value": { "type": "integer", "default_value": 2, "constraints": { "min": 1, "max": 12 } },
+              "ai_actions": [
+                { "dispatcher": "prism_safety", "action": "validate_workholding_setup" }
+              ]
+            },
+            {
+              "id": "jaw_height",
+              "name": "Jaw Height (engagement)",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 25 }
+            },
+            {
+              "id": "jaw_width",
+              "name": "Jaw Width",
+              "category": "geometry",
+              "value": { "type": "number", "unit": "mm", "default_value": 150 }
+            },
+            {
+              "id": "friction_coefficient",
+              "name": "Jaw-Stock Friction Coefficient",
+              "category": "workholding",
+              "value": { "type": "number", "unit": "dimensionless", "default_value": 0.15, "constraints": { "min": 0.05, "max": 0.5 } },
+              "physics_links": [
+                { "formula_id": "WORKHOLDING_PULLOUT_GATE", "role": "input" }
+              ]
+            },
+            {
+              "id": "soft_jaw_compensation",
+              "name": "Soft-Jaw Compensation",
+              "category": "workholding",
+              "value": { "type": "boolean", "default_value": false }
+            }
+          ]
+        },
+        {
+          "id": "fixture_collision",
+          "name": "Fixture Collision Zones",
+          "type": "tabbed",
+          "dialog_purpose": "Define no-fly zones for collision avoidance",
+          "parameters": [
+            {
+              "id": "fixture_step_model",
+              "name": "Fixture STEP Model Path",
+              "category": "import",
+              "value": { "type": "string", "default_value": "" }
+            },
+            {
+              "id": "fixture_safety_offset",
+              "name": "Safety Offset from Fixture",
+              "category": "safety",
+              "value": { "type": "number", "unit": "mm", "default_value": 5, "constraints": { "min": 0, "max": 50 } },
+              "ai_actions": [
+                { "dispatcher": "prism_safety", "action": "check_fixture_clearance" }
+              ]
+            },
+            {
+              "id": "rapid_speed_above_fixture",
+              "name": "Rapid Speed Limit Above Fixture",
+              "category": "safety",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 5000 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "machine_setup",
+      "name": "Machine Setup",
+      "operation_class": "setup",
+      "dialogs": [
+        {
+          "id": "machine_zeros",
+          "name": "Machine Zeros",
+          "type": "tabbed",
+          "dialog_purpose": "G54 etc work offsets",
+          "parameters": [
+            {
+              "id": "wcs_id",
+              "name": "Work Coordinate System",
+              "category": "machine_setup",
+              "value": { "type": "enum", "default_value": "G54", "constraints": { "enum_values": ["G54", "G55", "G56", "G57", "G58", "G59", "G54.1_P1", "G54.1_P2"] } }
+            },
+            {
+              "id": "wcs_x_offset",
+              "name": "WCS X Offset",
+              "category": "machine_setup",
+              "value": { "type": "number", "unit": "mm", "default_value": 0 }
+            },
+            {
+              "id": "wcs_y_offset",
+              "name": "WCS Y Offset",
+              "category": "machine_setup",
+              "value": { "type": "number", "unit": "mm", "default_value": 0 }
+            },
+            {
+              "id": "wcs_z_offset",
+              "name": "WCS Z Offset",
+              "category": "machine_setup",
+              "value": { "type": "number", "unit": "mm", "default_value": 0 }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dispatcher_bindings": [
+    { "dispatcher": "prism_safety", "actions": ["calculate_clamp_force_required", "validate_workholding_setup", "check_fixture_clearance"] }
+  ],
+  "cross_references": {
+    "engines": ["StockFixtureEngine", "WorkholdingValidatorEngine"],
+    "physics_constants": ["mu_friction_steel_steel"]
+  }
+}

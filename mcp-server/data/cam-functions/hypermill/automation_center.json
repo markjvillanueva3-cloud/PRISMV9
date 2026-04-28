@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "automation_center",
+  "module_name": "hyperMILL Automation Center (AC)",
+  "description": "AC macro library, template inheritance, feature recognition rules. Drives autonomous toolpath generation from feature taxonomy. Depends on tool_database + stock_fixture for resource resolution.",
+  "parameter_count": 20,
+  "menus": [
+    {
+      "id": "macro_library",
+      "name": "Macro Library",
+      "operation_class": "automation",
+      "dialogs": [
+        {
+          "id": "macro_settings",
+          "name": "Macro Settings",
+          "type": "tabbed",
+          "dialog_purpose": "Macro selection + parameter binding",
+          "parameters": [
+            {
+              "id": "macro_id",
+              "name": "Macro Identifier",
+              "category": "automation",
+              "value": { "type": "string", "default_value": "ROUGH_3D_HSC" }
+            },
+            {
+              "id": "macro_template_path",
+              "name": "Template Path",
+              "category": "automation",
+              "value": { "type": "string", "default_value": "templates/3d_rough_default.hmm" }
+            },
+            {
+              "id": "macro_inheritance",
+              "name": "Inheritance Mode",
+              "category": "automation",
+              "value": { "type": "enum", "default_value": "deep_copy", "constraints": { "enum_values": ["deep_copy", "reference", "override"] } }
+            },
+            {
+              "id": "macro_chain",
+              "name": "Macro Chain (sequence)",
+              "category": "automation",
+              "value": { "type": "string", "default_value": "ROUGH,SEMI_FINISH,FINISH,DEBURR" }
+            },
+            {
+              "id": "auto_apply_default_speeds",
+              "name": "Auto Apply Default Speeds/Feeds",
+              "category": "automation",
+              "value": { "type": "boolean", "default_value": true },
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "auto_speed_feed_optimize" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature_recognition",
+      "name": "Feature Recognition",
+      "operation_class": "automation",
+      "dialogs": [
+        {
+          "id": "fr_rules",
+          "name": "Feature Recognition Rules",
+          "type": "tabbed",
+          "dialog_purpose": "What features to detect + how",
+          "parameters": [
+            {
+              "id": "detect_holes",
+              "name": "Detect Holes",
+              "category": "feature_recognition",
+              "value": { "type": "boolean", "default_value": true },
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "cam_feature_recognize" }
+              ]
+            },
+            {
+              "id": "detect_pockets",
+              "name": "Detect Pockets",
+              "category": "feature_recognition",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "detect_slots",
+              "name": "Detect Slots",
+              "category": "feature_recognition",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "detect_chamfers",
+              "name": "Detect Chamfers",
+              "category": "feature_recognition",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "detect_threads",
+              "name": "Detect Threads",
+              "category": "feature_recognition",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "detect_3d_pockets",
+              "name": "Detect 3D Pockets / Surfaces",
+              "category": "feature_recognition",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "feature_min_size_mm",
+              "name": "Minimum Feature Size",
+              "category": "feature_recognition",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.5, "constraints": { "min": 0.01, "max": 50 } }
+            },
+            {
+              "id": "feature_grouping_strategy",
+              "name": "Feature Grouping Strategy",
+              "category": "feature_recognition",
+              "value": { "type": "enum", "default_value": "by_diameter", "constraints": { "enum_values": ["by_diameter", "by_feature_type", "by_zone", "single_setup"] } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tool_resolution",
+      "name": "Tool Resolution",
+      "operation_class": "automation",
+      "dialogs": [
+        {
+          "id": "tool_picking",
+          "name": "Tool Picking Strategy",
+          "type": "tabbed",
+          "dialog_purpose": "How AC selects tools from the crib",
+          "parameters": [
+            {
+              "id": "tool_selection_strategy",
+              "name": "Tool Selection Strategy",
+              "category": "automation",
+              "value": { "type": "enum", "default_value": "smallest_fit", "constraints": { "enum_values": ["smallest_fit", "fastest_cycle", "longest_life", "shop_default"] } },
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "smart_tool_select" }
+              ]
+            },
+            {
+              "id": "prefer_existing_in_magazine",
+              "name": "Prefer Tools Already in Magazine",
+              "category": "automation",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "max_tools_per_setup",
+              "name": "Max Tools per Setup",
+              "category": "automation",
+              "value": { "type": "integer", "default_value": 24, "constraints": { "min": 1, "max": 240 } }
+            },
+            {
+              "id": "tool_change_time_s",
+              "name": "Tool Change Time",
+              "category": "performance",
+              "value": { "type": "number", "unit": "s", "default_value": 4.5 }
+            },
+            {
+              "id": "min_tool_engagement_pct",
+              "name": "Minimum Tool Engagement",
+              "category": "performance",
+              "value": { "type": "number", "unit": "pct", "default_value": 8 }
+            },
+            {
+              "id": "ac_validate_against_crib",
+              "name": "Validate Against Tool Crib Inventory",
+              "category": "validation",
+              "value": { "type": "boolean", "default_value": true },
+              "tribal_tips": [
+                { "id": "tt_ac_jmdie", "text": "JM Die runs AC nightly to pre-stage tools for next-day work; reduces idle time 30%.", "source": "jm_die", "confidence": 0.85 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dispatcher_bindings": [
+    { "dispatcher": "prism_cam", "actions": ["cam_feature_recognize", "smart_tool_select", "auto_speed_feed_optimize"] }
+  ],
+  "cross_references": {
+    "engines": ["FeatureRecognitionEngine", "ToolSelectionEngine", "AutomationCenterEngine"]
+  }
+}
