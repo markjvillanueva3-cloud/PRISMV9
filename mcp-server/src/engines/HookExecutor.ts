@@ -99,7 +99,7 @@ export type HookPhase =
 export type HookMode = "blocking" | "warning" | "logging" | "silent";
 
 /** Hook priority levels */
-export type HookPriority = "critical" | "high" | "normal" | "low";
+export type HookPriority = "critical" | "high" | "normal" | "low" | "background" | "medium";
 
 /** Hook categories for organization */
 export type HookCategory =
@@ -117,7 +117,11 @@ export type HookCategory =
   | "orchestration"
   | "schema"
   | "controller"
-  | "cadence";
+  | "cadence"
+  | "quality"
+  | "knowledge"
+  | "awareness"
+  | "data-quality";
 
 /** Context passed to hook handlers */
 export interface HookContext {
@@ -153,9 +157,9 @@ export interface HookContext {
    */
   session?: {
     id?: string;
-    toolCalls?: unknown;
-    checkpoints?: unknown;
-    bufferZone?: unknown;
+    toolCalls?: number;
+    checkpoints?: number;
+    bufferZone?: string;
     [key: string]: unknown;
   };
   /** Timestamp */
@@ -168,6 +172,19 @@ export interface HookContext {
   material?: string;
   /** Tool being used */
   tool?: string;
+  /** Quality scoring data attached by upstream gates (Omega R/C/P/S/L breakdown). */
+  quality?: {
+    score?: number;
+    reasoning?: number;
+    code?: number;
+    process?: number;
+    safety?: number;
+    learning?: number;
+    breakdown?: Record<string, unknown>;
+    [key: string]: unknown;
+  };
+  /** Outputs from previously-run hooks in the same chain */
+  previousResults?: HookResult[];
 }
 
 /** Result returned from hook execution */
@@ -214,6 +231,19 @@ export interface HookDefinition {
   tags?: string[];
   /** The handler function */
   handler: (context: HookContext) => HookResult | Promise<HookResult>;
+  /**
+   * Optional pre-handler gate. When present and returning false, the
+   * runner skips the handler entirely. Older hooks declared this as a
+   * top-level field; newer ones gate inside the handler. Both styles
+   * are supported.
+   */
+  condition?: (context: HookContext) => boolean;
+  /**
+   * Optional event identifier for cadence/scheduling hooks (e.g.
+   * 'session:start', 'cadence:hourly'). Distinct from `phase`, which
+   * is the lifecycle phase the runner uses to filter execution.
+   */
+  event?: string;
 }
 
 // ============================================================================
