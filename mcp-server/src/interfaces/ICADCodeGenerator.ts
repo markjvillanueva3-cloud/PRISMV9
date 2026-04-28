@@ -177,10 +177,21 @@ export type CADOperationKind = (typeof CAD_OPERATION_KINDS)[number];
 
 // ── Operation payload ──────────────────────────────────────────────────────
 
-/** Free-form scalar map for operation arguments. */
+/**
+ * Free-form scalar map for operation arguments. Accepts 1D and 2D number
+ * arrays so spline / control-point lists can be passed directly without
+ * upstream flattening (each tuple = a 3D point).
+ */
 export type CADOperationArgs = Record<
   string,
-  string | number | boolean | null | undefined | ReadonlyArray<number> | ReadonlyArray<string>
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | ReadonlyArray<number>
+  | ReadonlyArray<string>
+  | ReadonlyArray<ReadonlyArray<number>>
 >;
 
 /**
