@@ -57,8 +57,8 @@ export const CorpusStatsSchema = z.object({
   total_operations: z.number().int().nonnegative(),
   training_examples: z.number().int().nonnegative(),
   customers: z.array(z.string()),
-  by_machine_type: z.record(z.number().int()),
-  by_operation_kind: z.record(z.number().int()),
+  by_machine_type: z.record(z.string(), z.number().int()),
+  by_operation_kind: z.record(z.string(), z.number().int()),
   parse_time_ms: z.number().nonnegative(),
 }).describe("Corpus processing statistics");
 export type CorpusStats = z.infer<typeof CorpusStatsSchema>;
@@ -213,7 +213,7 @@ export class JMDieTrainingCorpusEngine {
         const text = fs.readFileSync(file.path, "utf-8");
 
         if (typeUpper === ".MIN") {
-          const result = minFileParserEngine.parse({ text, source_path: file.path });
+          const result = minFileParserEngine.parse({ text, source_path: file.path, max_lines: 100000 });
           if (result.ok) {
             minPrograms.push(result.program);
             stats.min_files++;
@@ -228,7 +228,7 @@ export class JMDieTrainingCorpusEngine {
             warnings.push(`MIN parse failed: ${file.path} - ${result.warnings.join(", ")}`);
           }
         } else if (typeUpper === ".NC") {
-          const result = ncFileParserEngine.parse({ text, source_path: file.path });
+          const result = ncFileParserEngine.parse({ text, source_path: file.path, max_lines: 100000 });
           if (result.ok) {
             ncPrograms.push(result.program);
             stats.nc_files++;
@@ -247,6 +247,8 @@ export class JMDieTrainingCorpusEngine {
             text,
             source_path: file.path,
             machine_id: machineId,
+            controller: "okuma",
+            max_entries: 100000,
           });
           if (result.ok) {
             runLogs.push(result.log);
