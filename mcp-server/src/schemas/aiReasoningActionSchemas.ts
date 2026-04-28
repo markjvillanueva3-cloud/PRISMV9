@@ -449,6 +449,11 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   pattern_reinforce,
   pattern_stats,
   iterate_retrieve,
+  // U-WIRE04 fix: stub schemas for pre-existing orphan actions (no real schema, accept any params)
+  sfc_drift_canary_check: z.object({}).passthrough(),
+  ppg_drift_canary_check: z.object({}).passthrough(),
+  sfc_fewshot_predict: z.object({}).passthrough(),
+  ppg_sfc_closed_loop: z.object({}).passthrough(),
   // ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines
   ai_explain_decision,
   ai_extract_classify,
