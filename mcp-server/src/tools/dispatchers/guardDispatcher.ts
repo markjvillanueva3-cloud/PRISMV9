@@ -360,10 +360,13 @@ function readJsonl<T>(filePath: string): T[] {
 async function fireHook(hookId: string, data: Record<string, any>): Promise<any> {
   const startTime = Date.now();
   try {
+    // HookContext doesn't carry a `phase` field — that's a separate
+    // argument to hookExecutor.execute() (passed explicitly below). The
+    // pre-existing `phase` key here was redundant; drop it to satisfy
+    // Partial<HookContext>'s known-property constraint.
     const hookContext: Partial<HookContext> = {
       operation: data.tool_name || 'unknown',
-      phase: 'pre-calculation' as HookPhase,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       target: { type: 'calculation', data: data },
       metadata: { hookId, ...data },
     };
@@ -659,14 +662,19 @@ export function registerGuardDispatcher(server: any): void {
 
           case "autohook_status": {
             const limit = params.last_n ?? 20;
-            // Read from autoHookWrapper's shared history (where universal hooks log)
-            const universalHistory = getHookHistory(limit);
+            // autoHookWrapper.getHookHistory is a no-op stub today — it
+            // takes no args and returns []. Cast to HookExecution[] so
+            // the downstream merge with the local hookHistory (which IS
+            // typed as HookExecution[]) keeps a single, fully-typed shape.
+            // Once the stub is replaced with a real implementation the cast
+            // becomes a no-op.
+            const universalHistory = getHookHistory() as unknown as HookExecution[];
             // Also include local guard dispatcher history
             const localHistory = hookHistory.slice(0, limit);
             const combined = [...universalHistory, ...localHistory]
               .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
               .slice(0, limit);
-            const allUniversal = getHookHistory(1000);
+            const allUniversal = getHookHistory() as unknown as HookExecution[];
             return ok({
               enabled: true,
               global_dispatch_count: getDispatchCount(),
