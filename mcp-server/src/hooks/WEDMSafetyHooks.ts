@@ -389,9 +389,9 @@ const wedmCostConfidence: HookDefinition = {
   name: "WEDM Cost Estimate Confidence",
   description: "Warns if cost estimate confidence < 70%. Suggests manual review.",
   phase: "post-tool",
-  category: "quality",
+  category: "validation",
   mode: "warning",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "cost", "confidence", "warning"],
   handler: (ctx: HookContext): HookResult => {
@@ -560,9 +560,9 @@ const wedmDriftAlert: HookDefinition = {
   name: "WEDM Model Drift Alert",
   description: "Alerts when neural model predictions drift significantly from actual outcomes.",
   phase: "post-tool",
-  category: "quality",
+  category: "validation",
   mode: "warning",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "drift", "neural", "warning"],
   handler: (ctx: HookContext): HookResult => {
@@ -601,9 +601,9 @@ const wedmOodDetector: HookDefinition = {
   name: "WEDM Out-of-Distribution Detector",
   description: "Flags materials or parameters outside the training distribution.",
   phase: "pre-tool",
-  category: "quality",
+  category: "validation",
   mode: "warning",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "ood", "material", "warning"],
   handler: (ctx: HookContext): HookResult => {
@@ -668,7 +668,7 @@ const wedmQualityAudit: HookDefinition = {
   name: "WEDM Quality Override Audit",
   description: "Logs all quality gate overrides to audit trail. Never blocks.",
   phase: "post-tool",
-  category: "audit",
+  category: "observability",
   mode: "logging",
   priority: "low",
   enabled: true,
@@ -678,7 +678,7 @@ const wedmQualityAudit: HookDefinition = {
     const action = ctx.target?.action ?? "";
 
     if (action.includes("override") || d.override || d.bypass) {
-      log.info("wedm-quality-audit", `Quality override: action=${action}`, {
+      log.info(`[wedm-quality-audit] Quality override: action=${action}`, {
         operator: d.operator ?? ctx.session?.userId ?? "unknown",
         reason: d.reason ?? d.overrideReason ?? "not specified",
         timestamp: new Date().toISOString(),
@@ -710,7 +710,7 @@ const wedmWorkflowMonitor: HookDefinition = {
     const workflowId = ctx.session?.workflowId ?? ctx.target?.data?.workflowId;
 
     if (action.startsWith("wedm_") && workflowId) {
-      log.debug("wedm-workflow-monitor", `Workflow step: ${action}`, {
+      log.debug(`[wedm-workflow-monitor] Workflow step: ${action}`, {
         workflowId,
         step: action,
         timestamp: new Date().toISOString(),
@@ -799,7 +799,7 @@ const wedmLearningTrigger: HookDefinition = {
   phase: "post-tool",
   category: "automation",
   mode: "logging",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "learning", "trigger", "automation"],
   handler: (ctx: HookContext): HookResult => {
@@ -850,7 +850,11 @@ const wedmSyntheticBlock: HookDefinition = {
   enabled: true,
   tags: ["wedm", "citation", "synthetic", "blocking", "ci"],
   handler: async (ctx: HookContext): Promise<HookResult> => {
-    const files = (ctx.target?.files ?? []) as string[];
+    // Pre-commit hooks receive the changed-file list via ctx.target.data.files
+    // (HookContext.target.data is typed as Record<string, unknown> for
+    // dispatcher payloads — pre-commit harnesses populate it with the
+    // staged file array).
+    const files = ((ctx.target?.data?.files ?? []) as string[]);
 
     // Only check WEDM/EDM engine files
     const wedmFiles = files.filter(
@@ -1090,9 +1094,9 @@ const wedmProgramSafetyGate: HookDefinition = {
           result = {
             pass: r.pass,
             s_of_x: r.s_of_x,
-            threshold: r.threshold,
+            threshold: r.audit.threshold_used,
             hard_block: r.hard_block,
-            failing_components: r.failing_components,
+            failing_components: r.mandatory_failures.length,
             failure_reasons: r.failure_reasons,
             summary: r.summary,
           };
@@ -1288,9 +1292,9 @@ const wedmAwarenessInject: HookDefinition = {
   name: "WEDM Session Awareness Injection",
   description: "Injects WEDM context into session when Wire EDM topics detected.",
   phase: "session-start",
-  category: "awareness",
+  category: "cognitive",
   mode: "logging",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "session", "awareness", "injection"],
   handler: (ctx: HookContext): HookResult => {
@@ -1308,8 +1312,8 @@ const wedmAwarenessInject: HookDefinition = {
       return hookSuccess(wedmAwarenessInject, "WEDM awareness injected", {
         injected: true,
         keywords: wedmKeywords.filter((kw) => combined.includes(kw)),
-        engines: 119,
-        actions: 256,
+        engine_count: 119,
+        action_count: 256,
       });
     }
 
