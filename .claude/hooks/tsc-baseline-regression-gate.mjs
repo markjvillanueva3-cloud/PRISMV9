@@ -2,28 +2,8 @@
 /**
  * tsc-baseline-regression-gate — PreToolUse hook on Bash.
  *
- * Bounds compounding type-error damage at exactly 1 commit. Before any
- * `git commit` shell invocation, runs `tsc --noEmit` in the mcp-server
- * subtree, counts errors, and compares against
- * state/shared/TSC_BASELINE_ERRORS.json.
- *
- * BLOCKING when:
- *   - new error count > baseline AND running autonomously (PRISM_AUTONOMOUS=1)
- *   - in non-autonomous mode this is advisory (warns via additionalContext)
- *
- * NON-BLOCKING when:
- *   - new errors <= baseline
- *   - tsc fails to run (timeout, missing) — fail-OPEN with warning
- *   - command is not a git commit
- *
- * Baseline behaviour:
- *   - Missing baseline file → initialize to current count, do NOT block
- *   - Caller can lower the baseline by editing the file (intentional cleanups)
- *   - Caller can never raise the baseline implicitly — only via explicit
- *     PRISM_TSC_ALLOW_REGRESSION=1 override
- *
- * Pure error-count comparison logic exported as decideTscRegressionGate
- * for testability.
+ * Bounds compounding type-error damage at exactly 1 commit. Pure decision
+ * logic lives in ./lib/autonomous-foolproof-logic.mjs.
  *
  * U-AF02 of AUTONOMOUS-FOOLPROOF-MS0.
  */
@@ -31,6 +11,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { execSync } from "node:child_process";
+import {
+  isGitCommitCommand,
+  decideTscRegressionGate,
+} from "./lib/autonomous-foolproof-logic.mjs";
 
 const BASELINE_RELATIVE = "state/shared/TSC_BASELINE_ERRORS.json";
 const TSC_TIMEOUT_MS = 90 * 1000;
@@ -55,81 +39,10 @@ function findProjectRoot(startCwd = process.cwd()) {
   return startCwd;
 }
 
-/** Detect git-commit-like commands (covers `git commit -m ...`, `git commit --amend`, etc.). */
-export function isGitCommitCommand(cmd) {
-  if (typeof cmd !== "string") return false;
-  // Match `git commit` as a top-level token, not e.g. `git committed` or
-  // `git status; git commit`. Allow leading whitespace and chained shell.
-  return /(?:^|\s|;|&&|\|\|)\s*git\s+commit(?:\s|$)/.test(cmd);
-}
-
-/** Pure decision function — exported for tests.
- *
- * @param {object} input
- * @param {boolean} input.isAutonomous
- * @param {boolean} input.isCommit
- * @param {boolean} input.allowRegression
- * @param {number|null} input.baseline   - null if missing
- * @param {number|null} input.current    - null if tsc failed (fail-OPEN)
- */
-export function decideTscRegressionGate({
-  isAutonomous,
-  isCommit,
-  allowRegression,
-  baseline,
-  current,
-}) {
-  if (!isCommit) {
-    return { continue: true, reason: "not-a-commit" };
-  }
-  if (allowRegression) {
-    return { continue: true, reason: "regression-explicitly-allowed" };
-  }
-  if (current === null || current === undefined) {
-    return { continue: true, reason: "tsc-unavailable" };
-  }
-  if (baseline === null || baseline === undefined) {
-    // First run — initialize, do not block.
-    return {
-      continue: true,
-      reason: "baseline-initialized",
-      initialize_to: current,
-    };
-  }
-  if (current > baseline) {
-    if (isAutonomous) {
-      return {
-        continue: false,
-        decision: "block",
-        reason: "regression",
-        baseline,
-        current,
-        delta: current - baseline,
-      };
-    }
-    // Manual mode — warn loudly but do not block.
-    return {
-      continue: true,
-      reason: "regression-warned",
-      baseline,
-      current,
-      delta: current - baseline,
-    };
-  }
-  // current <= baseline — fine. If lower, suggest baseline update.
-  return {
-    continue: true,
-    reason: current < baseline ? "improvement" : "stable",
-    baseline,
-    current,
-  };
-}
-
 function loadBaseline(baselinePath) {
   try {
     if (!fs.existsSync(baselinePath)) return null;
-    const raw = fs.readFileSync(baselinePath, "utf8");
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
     if (typeof parsed.error_count === "number" && Number.isFinite(parsed.error_count)) {
       return parsed.error_count;
     }
@@ -156,11 +69,10 @@ function writeBaseline(baselinePath, count) {
       "utf8",
     );
   } catch {
-    // best-effort; do not crash the hook
+    /* best-effort */
   }
 }
 
-/** Count tsc errors. Returns null if tsc fails (fail-OPEN policy). */
 function countTscErrors(projectRoot) {
   try {
     const mcpServer = path.join(projectRoot, "mcp-server");
@@ -175,14 +87,12 @@ function countTscErrors(projectRoot) {
         maxBuffer: 16 * 1024 * 1024,
       }).toString();
     } catch (err) {
-      // tsc exits non-zero when there are errors — that's expected.
       output = (err.stdout?.toString() ?? "") + (err.stderr?.toString() ?? "");
       if (!output) return null;
     }
 
     const lines = output.split("\n");
-    const errorLines = lines.filter((l) => /\): error TS\d+/.test(l));
-    return errorLines.length;
+    return lines.filter((l) => /\): error TS\d+/.test(l)).length;
   } catch {
     return null;
   }
@@ -221,7 +131,6 @@ async function main() {
     current,
   });
 
-  // Initialize baseline on first run.
   if (result.initialize_to !== undefined) {
     writeBaseline(baselinePath, result.initialize_to);
   }
@@ -257,7 +166,6 @@ async function main() {
     return;
   }
 
-  // Non-blocking: emit advisory context if we have a regression in non-autonomous mode.
   if (result.reason === "regression-warned") {
     const warning = `⚠️ TSC regression detected: ${result.baseline} → ${result.current} (+${result.delta}). Not blocking (non-autonomous mode). Set PRISM_AUTONOMOUS=1 to enforce.`;
     console.log(JSON.stringify({

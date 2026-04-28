@@ -2,35 +2,16 @@
 /**
  * autonomous-loop-watchdog — Stop hook for autonomous yolo-mode runs.
  *
- * Bounds the worst-case "stuck loop" damage at 15 minutes. When the
- * agent runs autonomously (PRISM_AUTONOMOUS=1) but produces no commits
- * for 15+ minutes, this hook blocks Stop and writes the reason to
- * AUTONOMOUS_STATE.last_block_reason so the loop driver can shut down
- * cleanly instead of looping forever.
- *
- * FIRES ON: Stop event.
- * BLOCKING: yes (decision:block) when idle threshold exceeded; otherwise pass-through.
- * NON-AUTONOMOUS: pass-through (no PRISM_AUTONOMOUS=1).
- *
- * State contract (state/shared/AUTONOMOUS_STATE.json):
- *   {
- *     schemaVersion: "1.0.0",
- *     session_id: string,
- *     started_at: ISO timestamp,
- *     last_commit_at: ISO timestamp | null,
- *     commits_made: number,
- *     fail_count: number,
- *     caps: { idle_threshold_ms: number, ... },
- *     last_block_reason?: string,
- *   }
+ * Bounds the worst-case "stuck loop" damage at 15 minutes. Pure decision
+ * logic lives in ./lib/autonomous-foolproof-logic.mjs (decideWatchdog).
  *
  * U-AF01 of AUTONOMOUS-FOOLPROOF-MS0.
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { decideWatchdog } from "./lib/autonomous-foolproof-logic.mjs";
 
-const DEFAULT_IDLE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
 const STATE_RELATIVE = "state/shared/AUTONOMOUS_STATE.json";
 
 function readStdinSafe() {
@@ -53,63 +34,10 @@ function findProjectRoot(startCwd = process.cwd()) {
   return startCwd;
 }
 
-/** Pure decision function — exported for tests. */
-export function decideWatchdog({
-  isAutonomous,
-  state,
-  nowMs = Date.now(),
-}) {
-  // Non-autonomous: hook is a no-op.
-  if (!isAutonomous) {
-    return { continue: true, reason: "non-autonomous" };
-  }
-
-  // No state yet (loop hasn't initialized): allow stop.
-  if (!state || typeof state !== "object") {
-    return { continue: true, reason: "no-state" };
-  }
-
-  // No commit ever in this autonomous session — measure from started_at.
-  const lastTs = state.last_commit_at || state.started_at;
-  if (!lastTs) {
-    return { continue: true, reason: "no-timestamp" };
-  }
-
-  let lastMs;
-  try {
-    lastMs = new Date(lastTs).getTime();
-  } catch {
-    return { continue: true, reason: "bad-timestamp" };
-  }
-  if (!Number.isFinite(lastMs)) {
-    return { continue: true, reason: "bad-timestamp" };
-  }
-
-  const threshold =
-    (state.caps && Number.isFinite(state.caps.idle_threshold_ms))
-      ? Number(state.caps.idle_threshold_ms)
-      : DEFAULT_IDLE_THRESHOLD_MS;
-
-  const elapsed = nowMs - lastMs;
-  if (elapsed > threshold) {
-    return {
-      continue: false,
-      decision: "block",
-      reason: "idle-exceeded",
-      elapsed_ms: elapsed,
-      threshold_ms: threshold,
-      last_commit_at: lastTs,
-    };
-  }
-
-  return { continue: true, reason: "active", elapsed_ms: elapsed };
-}
-
 function loadState(statePath) {
   try {
     if (!fs.existsSync(statePath)) return null;
-    const raw = fs.readFileSync(statePath, "utf8");
-    return JSON.parse(raw);
+    return JSON.parse(fs.readFileSync(statePath, "utf8"));
   } catch {
     return null;
   }
@@ -123,14 +51,12 @@ function writeBlockReason(statePath, reason) {
     state.last_block_at = new Date().toISOString();
     fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf8");
   } catch {
-    // best-effort, do not crash the hook
+    /* best-effort */
   }
 }
 
 async function main() {
   const isAutonomous = process.env.PRISM_AUTONOMOUS === "1";
-
-  // Drain stdin so the parent process doesn't hang.
   readStdinSafe();
 
   const root = findProjectRoot();
@@ -173,9 +99,6 @@ async function main() {
   console.log(JSON.stringify({ continue: true }));
 }
 
-// Only run main when invoked as a script (not when imported by tests).
-const isDirectInvocation =
-  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\//, ""));
-if (isDirectInvocation || process.argv[1]?.endsWith("autonomous-loop-watchdog.mjs")) {
+if (process.argv[1]?.endsWith("autonomous-loop-watchdog.mjs")) {
   main();
 }

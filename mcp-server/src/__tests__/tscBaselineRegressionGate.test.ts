@@ -9,11 +9,11 @@
  */
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error - importing from .mjs hook for test isolation
+// @ts-expect-error - importing decision logic from sibling .mjs lib (no shebang, vitest-safe)
 import {
   decideTscRegressionGate,
   isGitCommitCommand,
-} from "../../../.claude/hooks/tsc-baseline-regression-gate.mjs";
+} from "../../../.claude/hooks/lib/autonomous-foolproof-logic.mjs";
 
 describe("U-AF02 isGitCommitCommand", () => {
   it("matches plain `git commit -m`", () => {

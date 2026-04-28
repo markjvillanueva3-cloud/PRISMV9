@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error - importing from .mjs hook file for test isolation
-import { decideWatchdog } from "../../../.claude/hooks/autonomous-loop-watchdog.mjs";
+// @ts-expect-error - importing decision logic from sibling .mjs lib (no shebang, vitest-safe)
+import { decideWatchdog } from "../../../.claude/hooks/lib/autonomous-foolproof-logic.mjs";
 
 const FIVE_MIN_MS = 5 * 60 * 1000;
 const TWENTY_MIN_MS = 20 * 60 * 1000;
