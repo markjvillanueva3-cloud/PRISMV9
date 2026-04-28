@@ -39,8 +39,69 @@ import {
   CANONICAL_TAYLOR,
   AISI_ALIAS,
   type ISOGroup,
+  CANONICAL_TURNING_SPEEDS,
+  type MaterialEntry,
   type MaterialPhysics,
 } from "../physics/constants.js";
+
+// ── Internal Extended Material Type ─────────────────────────────────────────
+//
+// `MaterialPhysics` from constants.ts is the minimal canonical shape. This
+// engine needs additional turning-specific fields (vc_base_*, machinability,
+// hardness_HB, etc.) that are not on the canonical type. We define a local
+// extension and convert from `MaterialEntry` (the registry shape) via
+// `entryToPhysics`. Keeps the canonical contract narrow while letting this
+// facade carry richer derived state.
+
+interface ResolvedMaterialPhysics extends MaterialPhysics {
+  k_thermal: number;
+  sigma_y_MPa: number;
+  density_kg_m3: number;
+  hardness_HB: number;
+  vc_base_roughing: number;
+  vc_base_finishing: number;
+  machinability_factor: number;
+  cp_J_kgK: number;
+  E_GPa: number;
+}
+
+function entryToPhysics(entry: MaterialEntry): ResolvedMaterialPhysics {
+  const kienzle = CANONICAL_KIENZLE[entry.iso_group];
+  const speeds = CANONICAL_TURNING_SPEEDS[entry.iso_group];
+  // Brinell from Rockwell C: HB ≈ 10*HRC + 100 (rough conversion).
+  // From UTS: HB ≈ 0.3*UTS_MPa (mild-steel range approximation).
+  const hardness_HB = entry.hardness_HRC !== undefined
+    ? Math.round(entry.hardness_HRC * 10 + 100)
+    : entry.tensile_strength_MPa !== undefined
+      ? Math.round(entry.tensile_strength_MPa * 0.3)
+      : 200;
+  // Yield ≈ 0.85 × UTS for ductile metals (typical mild steel range).
+  const sigma_y_MPa = entry.tensile_strength_MPa !== undefined
+    ? entry.tensile_strength_MPa * 0.85
+    : 400;
+  return {
+    name: entry.name,
+    iso_group: entry.iso_group,
+    kc1_1: kienzle.kc1_1,
+    mc: kienzle.mc,
+    taylor_C: entry.taylor_C,
+    taylor_n: entry.taylor_n,
+    density_kg_m3: entry.density_kg_m3,
+    thermal_conductivity_W_mK: entry.thermal_conductivity_W_mK,
+    specific_heat_J_kgK: entry.specific_heat_J_kgK,
+    hardness_HRC: entry.hardness_HRC,
+    hardness_HB,
+    tensile_strength_MPa: entry.tensile_strength_MPa,
+    yield_strength_MPa: sigma_y_MPa,
+    k_thermal: entry.thermal_conductivity_W_mK,
+    sigma_y_MPa,
+    vc_base_roughing: speeds.rough,
+    vc_base_finishing: speeds.finish,
+    machinability_factor: 1.0,
+    cp_J_kgK: entry.specific_heat_J_kgK,
+    E_GPa: 210, // canonical default; non-ferrous overrides come from registry layer
+  };
+}
 
 // ── Input Schema ────────────────────────────────────────────────────────────
 
@@ -167,7 +228,7 @@ export interface LatheSpeedFeedResult {
   /** Reasoning chain */
   reasoning: ReasoningStep[];
   /** Material properties used */
-  material_properties: Partial<MaterialPhysics>;
+  material_properties: Partial<ResolvedMaterialPhysics>;
   /** Warnings */
   warnings: string[];
   /** Predicted tool life [min] */
@@ -192,11 +253,11 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
   private static resolveMaterial(
     materialId: string,
     isoOverride?: ISOGroup
-  ): { props: MaterialPhysics; key: string; resolved_via: string } | null {
+  ): { props: ResolvedMaterialPhysics; key: string; resolved_via: string } | null {
     // Try direct canonical lookup
     if (CANONICAL_MATERIAL_DB[materialId]) {
       return {
-        props: CANONICAL_MATERIAL_DB[materialId],
+        props: entryToPhysics(CANONICAL_MATERIAL_DB[materialId]),
         key: materialId,
         resolved_via: "direct_canonical",
       };
@@ -206,7 +267,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
     const aliasKey = AISI_ALIAS[materialId];
     if (aliasKey && CANONICAL_MATERIAL_DB[aliasKey]) {
       return {
-        props: CANONICAL_MATERIAL_DB[aliasKey],
+        props: entryToPhysics(CANONICAL_MATERIAL_DB[aliasKey]),
         key: aliasKey,
         resolved_via: `aisi_alias:${materialId}→${aliasKey}`,
       };
@@ -216,14 +277,14 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
     const lowerMat = materialId.toLowerCase();
     for (const [key, props] of Object.entries(CANONICAL_MATERIAL_DB)) {
       if (key.toLowerCase() === lowerMat) {
-        return { props, key, resolved_via: "case_insensitive" };
+        return { props: entryToPhysics(props), key, resolved_via: "case_insensitive" };
       }
     }
 
     // Try partial match on name
     for (const [key, props] of Object.entries(CANONICAL_MATERIAL_DB)) {
       if (props.name.toLowerCase().includes(lowerMat)) {
-        return { props, key, resolved_via: `name_contains:${props.name}` };
+        return { props: entryToPhysics(props), key, resolved_via: `name_contains:${props.name}` };
       }
     }
 
@@ -267,7 +328,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
    * calibrated to keep results within +/- 5% of catalog ranges.
    */
   private static calculateBaseCuttingSpeed(
-    material: MaterialPhysics,
+    material: ResolvedMaterialPhysics,
     operation: LatheSpeedFeedInput["operation"],
     coolant?: string
   ): { vc: number; reasoning: ReasoningStep } {
@@ -412,7 +473,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
    */
   private static calculateDepthOfCut(
     operation: LatheSpeedFeedInput["operation"],
-    material: MaterialPhysics,
+    material: ResolvedMaterialPhysics,
     machine?: LatheSpeedFeedInput["machine"],
     strategy?: string
   ): { doc: number; reasoning: ReasoningStep } {
@@ -503,7 +564,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
    */
   private static estimateToolLife(
     vc: number,
-    material: MaterialPhysics
+    material: ResolvedMaterialPhysics
   ): { life_min: number; reasoning: ReasoningStep } {
     const C = material.taylor_C;
     const n = material.taylor_n;
@@ -529,7 +590,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
   private static estimateCuttingForce(
     feed: number,
     doc: number,
-    material: MaterialPhysics
+    material: ResolvedMaterialPhysics
   ): { force_N: number; reasoning: ReasoningStep } {
     const kc1_1 = material.kc1_1;
     const mc = material.mc;
@@ -602,7 +663,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
    */
   private static buildOperatingBand(
     recommendation: SpeedFeedRecommendation,
-    material: MaterialPhysics,
+    material: ResolvedMaterialPhysics,
     strategy?: string
   ): SpeedFeedBand {
     const bandWidth = strategy === "conservative" ? 0.15 : strategy === "aggressive" ? 0.3 : 0.2;
