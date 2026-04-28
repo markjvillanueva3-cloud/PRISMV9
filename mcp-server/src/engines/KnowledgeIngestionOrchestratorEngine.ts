@@ -7,7 +7,7 @@
  * Can be triggered by hooks, dispatchers, or scheduled tasks.
  */
 
-import { BaseEngine } from "./BaseEngine.js";
+import { BaseEngine, type EngineCapability } from "./BaseEngine.js";
 import { logger } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
@@ -131,8 +131,34 @@ export class KnowledgeIngestionOrchestratorEngine extends BaseEngine {
   private resourcesRoot: string;
 
   constructor(resourcesPath?: string) {
-    super();
+    super({
+      name: "KnowledgeIngestionOrchestratorEngine",
+      version: "1.0.0",
+      domain: "knowledge",
+      description: "Coordinated ingestion of formulas/materials/strategies from PRISM resources directory.",
+    });
     this.resourcesRoot = resourcesPath || "H:/prism/resources";
+  }
+
+  getCapabilities(): EngineCapability[] {
+    return [
+      { name: "detect_category", description: "Classify a resource path into a knowledge category" },
+      { name: "ingest_resource", description: "Run extraction pipeline against a single resource path" },
+      { name: "ingest_directory", description: "Walk a directory and ingest every recognised resource" },
+      { name: "summarize", description: "Produce a coverage summary of ingested resources" },
+    ];
+  }
+
+  validate(input: unknown): string | null {
+    if (input == null) return "input is required";
+    if (typeof input !== "object") return "input must be an object";
+    return null;
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    // The engine's primary surface is its named methods (ingestResource etc.) —
+    // executeImpl is the BaseEngine contract entry, kept intentionally thin.
+    return { ok: true, input };
   }
 
   /**
@@ -323,8 +349,8 @@ export class KnowledgeIngestionOrchestratorEngine extends BaseEngine {
     const { pdfMaterialPropertyExtractionEngine } = await import("./PDFMaterialPropertyExtractionEngine.js");
 
     // Track for extraction (would need actual PDF text extraction)
-    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().formulasFound;
-    result.extracted.materials = pdfMaterialPropertyExtractionEngine.getStats().materialsFound;
+    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().totalExtracted;
+    result.extracted.materials = pdfMaterialPropertyExtractionEngine.getStats().totalExtracted;
   }
 
   private async ingestMITCourse(resource: DiscoveredResource, result: ExtractionResult): Promise<void> {
@@ -351,7 +377,7 @@ export class KnowledgeIngestionOrchestratorEngine extends BaseEngine {
   private async ingestAcademicPaper(resource: DiscoveredResource, result: ExtractionResult): Promise<void> {
     // Academic paper extraction (would need PDF parsing)
     const { pdfFormulaExtractionEngine } = await import("./PDFFormulaExtractionEngine.js");
-    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().formulasFound;
+    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().totalExtracted;
   }
 
   private async ingestMachineManual(resource: DiscoveredResource, result: ExtractionResult): Promise<void> {
