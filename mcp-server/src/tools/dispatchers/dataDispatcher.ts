@@ -32,6 +32,8 @@ const DataDispatcherSchema = z.object({
     "material_get", "material_search", "material_compare",
     "machine_get", "machine_search", "machine_capabilities",
     "tool_get", "tool_search", "tool_recommend", "tool_facets",
+    "tool_holder_catalog_search", "tool_holder_registry_query",
+    "tool_geometry_select", "tool_coating_select", "tool_assembly_build",
     "alarm_decode", "alarm_search", "alarm_fix",
     "formula_get", "formula_calculate",
     "cross_query", "machine_toolholder_match", "alarm_diagnose",
@@ -2219,6 +2221,46 @@ export function registerDataDispatcher(server: any): void {
           case "grinding_replacement_stats": {
             const { grindingReplacementEngine } = await import("../../engines/GrindingReplacementEngine.js");
             result = grindingReplacementEngine.getStats();
+            break;
+          }
+
+          // ENGINE-WIRE-MS0/U-WIRE06: 5 tool data plane engines
+          case "tool_holder_catalog_search": {
+            const { toolHolderCatalogEngine } = await import("../../engines/ToolHolderCatalogEngine.js");
+            result = toolHolderCatalogEngine.search(
+              params as unknown as Parameters<typeof toolHolderCatalogEngine.search>[0],
+            );
+            break;
+          }
+          case "tool_holder_registry_query": {
+            const { toolHolderRegistryEngine } = await import("../../engines/ToolHolderRegistryEngine.js");
+            result = toolHolderRegistryEngine.query(
+              params as unknown as Parameters<typeof toolHolderRegistryEngine.query>[0],
+            );
+            break;
+          }
+          case "tool_geometry_select": {
+            const { toolGeometrySelectionEngine } = await import("../../engines/ToolGeometrySelectionEngine.js");
+            result = toolGeometrySelectionEngine.calculate(
+              params as unknown as Parameters<typeof toolGeometrySelectionEngine.calculate>[0],
+            );
+            break;
+          }
+          case "tool_coating_select": {
+            const { toolCoatingSelectionEngine } = await import("../../engines/ToolCoatingSelectionEngine.js");
+            result = toolCoatingSelectionEngine.calculate(
+              params as unknown as Parameters<typeof toolCoatingSelectionEngine.calculate>[0],
+            );
+            break;
+          }
+          case "tool_assembly_build": {
+            const { toolAssemblyModelEngine } = await import("../../engines/ToolAssemblyModelEngine.js");
+            const p = params as { tool: unknown; holder?: unknown; spindle?: unknown };
+            result = toolAssemblyModelEngine.buildAssembly(
+              p.tool as Parameters<typeof toolAssemblyModelEngine.buildAssembly>[0],
+              p.holder as Parameters<typeof toolAssemblyModelEngine.buildAssembly>[1],
+              p.spindle as Parameters<typeof toolAssemblyModelEngine.buildAssembly>[2],
+            );
             break;
           }
 
