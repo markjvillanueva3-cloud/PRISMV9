@@ -97,8 +97,12 @@ class BarStockCutPlanEngineImpl {
     });
 
     let barIdx = 0;
-    let barInFlight: CutAssignment | null = null;
-    let currentBar: BarStockOption | null = null;
+    // Cast preserves the union type so post-null-check narrowing yields
+    // CutAssignment / BarStockOption instead of `never`. Without the cast,
+    // TypeScript narrows these to `null` (their only outer-flow assignment)
+    // because flow analysis can't see the `openNewBar` closure mutate them.
+    let barInFlight = null as CutAssignment | null;
+    let currentBar = null as BarStockOption | null;
     let availableOnBar = 0;
 
     const openNewBar = () => {
