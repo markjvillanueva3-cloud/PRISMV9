@@ -77,7 +77,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       const { fileName, fileData, fileType } = req.body;
 
       if (!fileName || !fileData) {
-        return res.status(400).json({
+        res.status(400).json({
           error: "Missing fileName or fileData",
           code: "INVALID_INPUT",
         });
@@ -96,12 +96,12 @@ export function createMillingRouter(callTool: CallToolFn): Router {
           envelope_mm: { x: 100, y: 75, z: 40 },
           confidence: 0.85,
         };
-        return res.json(extraction);
+        res.json(extraction);
       }
 
       // For photos/PDFs, use OCR/vision (placeholder response)
       if (fileType === "photo" || fileType === "pdf") {
-        return res.json({
+        res.json({
           features: [
             { type: "dimension", label: "OD", value_mm: 50 },
             { type: "dimension", label: "length", value_mm: 100 },
@@ -113,9 +113,9 @@ export function createMillingRouter(callTool: CallToolFn): Router {
         });
       }
 
-      return res.json({ features: [], confidence: 0.5, message: "Unknown file type" });
+      res.json({ features: [], confidence: 0.5, message: "Unknown file type" });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -284,7 +284,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
         redirect: `/milling/results`,
       });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -295,11 +295,12 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       const job = jobStore.get(jobId);
 
       if (!job) {
-        return res.status(404).json({
+        res.status(404).json({
           error: "Job not found",
           code: "JOB_NOT_FOUND",
           jobId,
         });
+        return;
       }
 
       res.json({
@@ -308,7 +309,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
         created: job.created.toISOString(),
       });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -321,7 +322,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       });
       res.json({ ok: true, result });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -331,7 +332,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       const result = await callTool("prism_cam", "print_to_program_validate", req.body);
       res.json({ ok: true, result });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -344,7 +345,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       });
       res.json({ ok: true, result });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -365,7 +366,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
           operation: req.body.operation,
           include_tribal: true,
         });
-        return res.json({
+        res.json({
           ok: true,
           wisdom: result.primary_result,
           tribal_tips: result.supplemental?.tribal_tips,
@@ -376,7 +377,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       const result = await callTool("prism_knowledge", "tribal_search", req.body);
       res.json({ ok: true, wisdom: result });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -396,7 +397,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
           axial_depth_mm: req.body.axial_depth_mm,
           radial_depth_mm: req.body.radial_depth_mm,
         });
-        return res.json({
+        res.json({
           ok: true,
           scientific: result.primary_result,
           provenance: result.provenance,
@@ -404,7 +405,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       }
       res.json({ ok: false, error: "Scientific orchestration unavailable" });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -423,7 +424,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
           include_formulas: req.body.include_formulas ?? true,
           include_alternatives: req.body.include_alternatives ?? true,
         });
-        return res.json({
+        res.json({
           ok: true,
           reasoning: result.reasoning_chain,
           conclusion: result.conclusion,
@@ -434,7 +435,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       }
       res.json({ ok: false, error: "AGI reasoning unavailable" });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -451,7 +452,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
           sensor_data: req.body.sensor_data,
           target_optimization: req.body.target ?? "balanced", // tool_life | mrr | surface | balanced
         });
-        return res.json({
+        res.json({
           ok: true,
           adaptive: result.primary_result,
           recommended_adjustments: result.supplemental,
@@ -460,7 +461,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       }
       res.json({ ok: false, error: "Adaptive optimization unavailable" });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
@@ -476,7 +477,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       });
       res.json({ ok: true, optimization: result });
     } catch (e) {
-      next(e);
+      next(e); return;
     }
   });
 
