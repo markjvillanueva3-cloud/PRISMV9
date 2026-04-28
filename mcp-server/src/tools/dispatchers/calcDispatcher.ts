@@ -1005,6 +1005,9 @@ const ACTIONS = [
   "tribal_playbook_validate", "tribal_playbook_ranges", "tribal_playbook_guidance",
   // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
   "sfc_calculate", "sfc_feed_for_target",
+  // -- ENGINE-WIRE-MS0/U-WIRE09: 5 leaf physics engines --
+  "engagement_dynamics_calc", "engagement_optimize_adapter",
+  "cutting_fluid_lifecycle_calc", "chip_formation_predict", "surface_measure_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -8589,6 +8592,58 @@ export function registerCalcDispatcher(server: any): void {
           case "chip_thinning_compensation": {
             const { chipThinningCompensationEngine } = await import("../../engines/ChipThinningCompensationEngine.js");
             result = chipThinningCompensationEngine.calculate(params as Parameters<typeof chipThinningCompensationEngine.calculate>[0]);
+            break;
+          }
+          case "engagement_dynamics_calc": {
+            const { engagementDynamicsEngine } = await import("../../engines/EngagementDynamicsEngine.js");
+            result = engagementDynamicsEngine.calculateSegmentProfile(
+              (params as any).segment,
+              (params as any).feed_per_tooth ?? 0.1,
+              (params as any).flutes ?? 4,
+            );
+            break;
+          }
+          case "engagement_optimize_adapter": {
+            const { engagementOptimizerAdapter } = await import("../../engines/EngagementOptimizerAdapter.js");
+            result = engagementOptimizerAdapter.selectEngagementOrchestrated(
+              params as unknown as Parameters<typeof engagementOptimizerAdapter.selectEngagementOrchestrated>[0],
+            );
+            break;
+          }
+          case "cutting_fluid_lifecycle_calc": {
+            const { cuttingFluidLifecycleEngine } = await import("../../engines/CuttingFluidLifecycleEngine.js");
+            result = cuttingFluidLifecycleEngine.simulate(
+              params as unknown as Parameters<typeof cuttingFluidLifecycleEngine.simulate>[0],
+            );
+            break;
+          }
+          case "chip_formation_predict": {
+            const { chipFormationPredictionEngine } = await import("../../engines/ChipFormationPredictionEngine.js");
+            result = chipFormationPredictionEngine.calculate(
+              params as unknown as Parameters<typeof chipFormationPredictionEngine.calculate>[0],
+            );
+            break;
+          }
+          case "surface_measure_calc": {
+            const { SurfaceMeasureEngine } = await import("../../engines/SurfaceMeasureEngine.js");
+            const p = params as Record<string, unknown>;
+            const subAction = typeof p.action_type === "string" ? p.action_type : "get_standard_specs";
+            if (subAction === "record") {
+              result = SurfaceMeasureEngine.recordMeasurement(p as Parameters<typeof SurfaceMeasureEngine.recordMeasurement>[0]);
+            } else if (subAction === "list") {
+              result = SurfaceMeasureEngine.listByPart(
+                typeof p.partNumber === "string" ? p.partNumber : "",
+                typeof p.featureName === "string" ? p.featureName : undefined,
+              );
+            } else if (subAction === "statistics") {
+              result = SurfaceMeasureEngine.getStatistics(
+                typeof p.partNumber === "string" ? p.partNumber : "",
+                typeof p.featureName === "string" ? p.featureName : "",
+                (typeof p.parameter === "string" ? p.parameter : "Ra") as Parameters<typeof SurfaceMeasureEngine.getStatistics>[2],
+              );
+            } else {
+              result = { specifications: SurfaceMeasureEngine.getStandardSpecifications() };
+            }
             break;
           }
           default:
