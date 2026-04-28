@@ -538,6 +538,94 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ENGINE-WIRE-MS0/U-WIRE13: 5 Lathe AI engines
+      case "ai_lathe_orchestrate": {
+        const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+        const p = params as {
+          program: string | Record<string, unknown>;
+          context?: { material?: string; machineId?: string; controller?: string; constraints?: Record<string, unknown> };
+          strategy?: "sequential" | "parallel" | "adaptive" | "fast" | "comprehensive";
+        };
+        result = await latheAIOrchestrationEngine.orchestrateFullAnalysis(
+          p.program as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[0],
+          (p.context ?? {}) as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[1],
+          p.strategy as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[2],
+        );
+        break;
+      }
+      case "ai_lathe_active_learn_select": {
+        const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+        const p = params as {
+          labeled_data: unknown[];
+          pool_data?: unknown[];
+          n_samples?: number;
+          query_strategy?: string;
+          budget?: Record<string, unknown>;
+        };
+        latheActiveLearningEngine.initialize(
+          p.labeled_data as Parameters<typeof latheActiveLearningEngine.initialize>[0],
+          p.pool_data as Parameters<typeof latheActiveLearningEngine.initialize>[1],
+          p.budget as Parameters<typeof latheActiveLearningEngine.initialize>[2],
+        );
+        result = latheActiveLearningEngine.selectSamples(
+          p.pool_data as Parameters<typeof latheActiveLearningEngine.selectSamples>[0],
+          p.n_samples,
+          p.query_strategy as Parameters<typeof latheActiveLearningEngine.selectSamples>[2],
+        );
+        break;
+      }
+      case "ai_lathe_bayesian_fit_gp": {
+        const { latheBayesianOptimizationEngine } = await import("../../engines/LatheBayesianOptimizationEngine.js");
+        const p = params as {
+          observations: Array<{ x: number[]; y: number; timestamp?: number }>;
+          kernel_config: { type: string; length_scales?: number[]; signal_variance?: number; noise_variance?: number; matern_nu?: 1.5 | 2.5; alpha?: number };
+        };
+        const obs = p.observations.map(o => ({ x: o.x, y: o.y, timestamp: o.timestamp ?? Date.now() }));
+        // Engine requires length_scales[]; broadcast a unit length-scale per input dimension if caller omitted it.
+        const dim = obs[0]?.x.length ?? 1;
+        const kernelConfig = {
+          ...p.kernel_config,
+          length_scales: p.kernel_config.length_scales ?? Array.from({ length: dim }, () => 1.0),
+        };
+        result = latheBayesianOptimizationEngine.fitGP(
+          obs as Parameters<typeof latheBayesianOptimizationEngine.fitGP>[0],
+          kernelConfig as Parameters<typeof latheBayesianOptimizationEngine.fitGP>[1],
+        );
+        break;
+      }
+      case "ai_lathe_attention_compute": {
+        const { latheAttentionMechanismEngine } = await import("../../engines/LatheAttentionMechanismEngine.js");
+        const p = params as {
+          tokens: Array<{ id: number; token: string; type: string; position: number; embedding: number[]; value?: number; line_number?: number; semantic_role?: string }>;
+        };
+        result = latheAttentionMechanismEngine.computeManufacturingAttention(
+          p.tokens as Parameters<typeof latheAttentionMechanismEngine.computeManufacturingAttention>[0],
+        );
+        break;
+      }
+      case "ai_lathe_adaptive_engagement": {
+        const { latheAdaptiveMachiningEngine } = await import("../../engines/LatheAdaptiveMachiningEngine.js");
+        const p = params as {
+          operation_type: string;
+          diameter: number;
+          depth_of_cut: number;
+          feed_per_rev: number;
+          lead_angle: number;
+          nose_radius: number;
+          cutting_speed: number;
+        };
+        result = latheAdaptiveMachiningEngine.calculateTurningEngagement({
+          operationType: p.operation_type as Parameters<typeof latheAdaptiveMachiningEngine.calculateTurningEngagement>[0]["operationType"],
+          diameter: p.diameter,
+          depthOfCut: p.depth_of_cut,
+          feedPerRev: p.feed_per_rev,
+          leadAngle: p.lead_angle,
+          noseRadius: p.nose_radius,
+          cuttingSpeed: p.cutting_speed,
+        });
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
