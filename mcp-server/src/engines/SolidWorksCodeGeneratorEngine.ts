@@ -28,6 +28,7 @@ import type {
   CADOperation,
   CADOperationKind,
   CADExecutionResult,
+  CADScript,
   CADSystemId,
 } from "../interfaces/ICADCodeGenerator.js";
 import { log } from "../utils/Logger.js";
@@ -222,6 +223,7 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
   readonly cadSystem: CADSystemId = "solidworks";
   readonly capabilities: CADCapabilityMatrix = {
     ...SOLIDWORKS_CAPABILITY_DETAILS,
+    cadSystem: "solidworks",
     supportedOps: new Set<CADOperationKind>(SOLIDWORKS_SUPPORTED_OPS),
     nativeLengthUnit: "m",
     nativeAngleUnit: "deg",
@@ -536,7 +538,7 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
     const p = op.params as any;
     const cx = (p.centerX ?? p.x ?? 0) / 1000;
     const cy = (p.centerY ?? p.y ?? 0) / 1000;
-    const r = (p.radius ?? p.diameter / 2 ?? 5) / 1000;
+    const r = (p.radius ?? (p.diameter != null ? p.diameter / 2 : 5)) / 1000;
     em.line(`Set swSketchSeg = swSketchMgr.CreateCircle(${cx}, ${cy}, 0, ${cx + r}, ${cy}, 0)`);
     em.parameter("circle_radius", r * 1000, "mm", "Circle radius");
   }
@@ -1124,37 +1126,29 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
 
   // ── Execution (mock or real) ────────────────────────────────────────────────
 
-  protected async runScriptBody(script: string, context?: SolidWorksGenerationContext): Promise<CADExecutionResult> {
+  protected async runScriptBody(script: CADScript<string>): Promise<CADExecutionResult> {
     const isMock = process.env.PRISM_CAD_MOCK === "1" || process.env.NODE_ENV === "test";
+    const start = Date.now();
 
     if (isMock) {
       log.debug("[SolidWorksCodeGeneratorEngine] Mock execution mode");
       return {
-        success: true,
-        outputPath: context?.outputDir ?? "C:\\Temp\\mock_output.SLDPRT",
-        executionTime: 0.5,
-        logs: ["Mock execution completed successfully"],
+        ok: true,
+        durationMs: Date.now() - start,
+        outputs: [{ path: "C:\\Temp\\mock_output.SLDPRT", kind: "sldprt" }],
+        log: "Mock execution completed successfully",
       };
     }
 
-    try {
-      const { solidWorksAutomationBridge } = await import("./SolidWorksAutomationBridge.js");
-      const result = await solidWorksAutomationBridge.executeVBA(script);
-      return {
-        success: result.ok,
-        outputPath: result.result?.outputPath,
-        executionTime: result.result?.executionTime ?? 1.0,
-        logs: result.result?.logs ?? [],
-        errors: result.error ? [result.error] : undefined,
-      };
-    } catch (err: any) {
-      log.error("[SolidWorksCodeGeneratorEngine] Execution failed:", err);
-      return {
-        success: false,
-        errors: [err.message ?? String(err)],
-        executionTime: 0,
-      };
-    }
+    // Real-mode COM/VBA execution is not yet plumbed through SolidWorksAutomationBridge.
+    // Return a structured failure so callers can fall back to mock mode.
+    void script;
+    log.warn("[SolidWorksCodeGeneratorEngine] Real-mode VBA execution not implemented — returning ok:false");
+    return {
+      ok: false,
+      durationMs: Date.now() - start,
+      error: "SolidWorks VBA bridge does not expose executeVBA — set PRISM_CAD_MOCK=1 for now",
+    };
   }
 }
 
