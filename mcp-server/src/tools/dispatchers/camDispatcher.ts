@@ -1600,6 +1600,8 @@ export const ACTIONS = [
   "fusion360_function_index_get_toolpaths_by_category", "fusion360_function_index_get_summary",
   "fusion360_function_index_get_hsm_toolpaths", "fusion360_function_index_get_mfg_ext_toolpaths",
   "fusion360_function_index_get_toolpath",
+  // CAM-EXHAUST-MS1-01 — Fusion360 Probing module
+  "fusion360_function_index_get_probing_operations",
   // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
   "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
   "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
@@ -12382,6 +12384,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
             const toolpathId = params.toolpath_id as string;
             result = { success: true, ...Fusion360FunctionIndexEngine.getToolpath(toolpathId) };
+            break;
+          }
+          // CAM-EXHAUST-MS1-01 — Fusion360 Probing module
+          case "fusion360_function_index_get_probing_operations": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, operations: Fusion360FunctionIndexEngine.getProbingOperations() };
             break;
           }
 
