@@ -974,6 +974,38 @@ export async function executeAIReasoningAction(
         result = { size: peerLearningCoordinatorEngine.size() };
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE27: NeuralIntegrationEngine — neural cortex routing
+      // Singleton holds learningHistory across calls (capped at 100).
+      // ─────────────────────────────────────────────────────────────────────
+      case "neural_route": {
+        const { neuralIntegrationEngine } = await import("../../engines/NeuralIntegrationEngine.js");
+        type QueryArg = Parameters<typeof neuralIntegrationEngine.route>[0];
+        const p = params as unknown as QueryArg;
+        const route = neuralIntegrationEngine.route(p);
+        result = route;
+        break;
+      }
+      case "neural_recommend": {
+        const { neuralIntegrationEngine } = await import("../../engines/NeuralIntegrationEngine.js");
+        const p = params as { query: string };
+        const recommendations = neuralIntegrationEngine.recommendCommands(p.query);
+        result = { recommendations, count: recommendations.length };
+        break;
+      }
+      case "neural_synthesize": {
+        const { neuralIntegrationEngine } = await import("../../engines/NeuralIntegrationEngine.js");
+        const p = params as { query: string };
+        const synthesis = neuralIntegrationEngine.synthesize(p.query);
+        result = synthesis;
+        break;
+      }
+      case "neural_stats": {
+        const { neuralIntegrationEngine } = await import("../../engines/NeuralIntegrationEngine.js");
+        const stats = neuralIntegrationEngine.getLearningStats();
+        result = stats;
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
