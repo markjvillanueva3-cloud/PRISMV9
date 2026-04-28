@@ -276,6 +276,51 @@ const tool_assembly_build = z.object({
   spindle: z.object({}).passthrough().optional(),
 }).passthrough();
 
+// ENGINE-WIRE-MS0/U-WIRE07: inline schemas for 5 material+tool engines
+const MATERIAL_STANDARDS = ["AISI", "DIN", "EN", "JIS", "BS", "UNS", "GOST", "ISO"] as const;
+const ADAPTIVE_MATERIALS = ["steel", "stainless", "cast_iron", "aluminum", "titanium", "superalloy"] as const;
+
+const material_equivalent_lookup = z.object({
+  designation: z.string().min(1).describe("Material designation to look up (e.g. '4140', 'X5CrNi18-10')"),
+  standard: z.enum(MATERIAL_STANDARDS).describe("Source standard of the designation"),
+  target_standards: z.array(z.enum(MATERIAL_STANDARDS)).optional().describe("Standards to return equivalents in"),
+}).passthrough();
+
+const material_selection_recommend = z.object({
+  application: z.string().optional().describe("Application context (e.g. 'aerospace', 'medical', 'automotive')"),
+  iso_group_preference: z.string().optional().describe("Preferred ISO material group (P, M, K, N, S, H)"),
+  min_tensile_MPa: z.number().optional().describe("Minimum tensile strength in MPa"),
+  max_cost_relative: z.number().optional().describe("Maximum relative cost factor"),
+}).passthrough();
+
+const material_interpolation_find = z.object({
+  material_name: z.string().min(1).describe("Name or description of material to interpolate"),
+  known_tensile_MPa: z.number().optional().describe("Known tensile strength in MPa"),
+  known_hardness_HRC: z.number().optional().describe("Known hardness in HRC"),
+  safety_factor: z.number().min(0.5).max(1.0).optional().describe("Safety factor 0.5–1.0 (default 0.85)"),
+  top_n: z.number().int().min(1).max(20).optional().describe("Number of similar materials to return"),
+}).passthrough();
+
+const tool_db_bridge_query = z.object({
+  type: optStr.describe("Tool type filter (endmill, drill, insert, tap, reamer, boring-bar)"),
+  manufacturer: optStr.describe("Manufacturer name filter (Sandvik, Kennametal, Iscar, Seco, Walter…)"),
+  min_diameter: optPosNum.describe("Minimum diameter in mm"),
+  max_diameter: optPosNum.describe("Maximum diameter in mm"),
+  limit: z.number().int().min(1).max(500).optional().describe("Max results (default 50)"),
+}).passthrough();
+
+const tool_catalog_adaptive_recommend = z.object({
+  material: z.enum(ADAPTIVE_MATERIALS).describe("Workpiece material"),
+  operation: z.enum(["roughing", "finishing"]).describe("Machining operation type"),
+  target_capability_score: z.number().min(0).max(100).describe("Target adaptive capability score 0–100"),
+  current_tool_diameter_mm: z.number().positive().optional().describe("Current tool diameter in mm"),
+  current_tool_flutes: z.number().int().min(1).max(12).optional().describe("Current tool flute count"),
+  current_tool_coating: optStr.describe("Current tool coating (e.g. TiAlN, AlTiN)"),
+  max_diameter_mm: optPosNum.describe("Maximum allowed diameter constraint"),
+  min_diameter_mm: optPosNum.describe("Minimum allowed diameter constraint"),
+  required_coating: optStr.describe("Required coating constraint"),
+}).passthrough();
+
 /** A C T I O N_ D A T A_ S C H E M A S constant.
  */
 export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
@@ -330,4 +375,10 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   tool_geometry_select,
   tool_coating_select,
   tool_assembly_build,
+  // ENGINE-WIRE-MS0/U-WIRE07: 5 material+tool engines
+  material_equivalent_lookup,
+  material_selection_recommend,
+  material_interpolation_find,
+  tool_db_bridge_query,
+  tool_catalog_adaptive_recommend,
 };
