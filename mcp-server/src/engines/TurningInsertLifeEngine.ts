@@ -23,11 +23,24 @@
 import {
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  CANONICAL_TURNING_SPEEDS,
   taylorLife,
   type ISOGroup,
 } from "../physics/constants.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
+
+/**
+ * Single turning operation spec used by the multi-op planning engines
+ * (sensitivity, robust optimisation, stochastic plan). One OpSpec packages
+ * a cutting-condition snapshot with its duration so they can be sequenced
+ * and integrated for tool-life budgeting.
+ */
+export interface OpSpec {
+  conditions: InsertLifeInput;
+  duration_min: number;
+  label?: string;
+}
 
 export interface InsertLifeInput {
   material_name?: string;
@@ -228,13 +241,61 @@ class TurningInsertLifeEngine {
    *
    * Ref: ISO 3685:1993, Kronenberg "Machining Science", Taylor (1907)
    */
+  /**
+   * Plan how many insert edges a batch will burn. Sums per-op tool-life
+   * requirements derived from `predictLife`, returns the smallest integer
+   * count of edges that keeps every op above the reliability threshold.
+   */
+  insertChangeSchedule(input: {
+    ops: OpSpec[];
+    batch_size: number;
+    reliability_threshold: number;
+  }): { edges_needed: number; parts_per_edge: number; total_minutes: number } {
+    const totalMinutes = input.ops.reduce((sum, op) => sum + op.duration_min, 0);
+    // Use the worst-case op for life-per-edge (Taylor at its conditions).
+    let minLife = Infinity;
+    for (const op of input.ops) {
+      const life = this.predictLife(op.conditions).tool_life_min;
+      if (life < minLife) minLife = life;
+    }
+    const safeLife = isFinite(minLife) ? minLife * Math.max(0.1, 1 - input.reliability_threshold) : 1;
+    const edgesNeeded = Math.max(1, Math.ceil(totalMinutes / Math.max(safeLife, 1)));
+    const partsPerEdge = Math.max(1, Math.floor(input.batch_size / edgesNeeded));
+    return { edges_needed: edgesNeeded, parts_per_edge: partsPerEdge, total_minutes: totalMinutes };
+  }
+
+  /**
+   * Accumulate fractional wear across an op sequence. Returns the final wear
+   * fraction reached and the per-op contribution. Uses Miner's rule of summed
+   * lifetime fractions: failure when sum approaches `failure_wear_fraction`.
+   */
+  wearAccumulation(input: {
+    ops: OpSpec[];
+    current_wear_fraction: number;
+    failure_wear_fraction: number;
+  }): { final_wear: number; per_op: number[]; failed: boolean } {
+    let wear = input.current_wear_fraction;
+    const perOp: number[] = [];
+    for (const op of input.ops) {
+      const life = this.predictLife(op.conditions).tool_life_min;
+      const frac = life > 0 ? op.duration_min / life : 1;
+      wear += frac;
+      perOp.push(frac);
+    }
+    return {
+      final_wear: wear,
+      per_op: perOp,
+      failed: wear >= input.failure_wear_fraction,
+    };
+  }
+
   predictLife(input: InsertLifeInput): InsertLifeResult {
     const iso = input.iso_group;
     const taylor = CANONICAL_TAYLOR[iso] ?? CANONICAL_TAYLOR.P;
     const extended = EXTENDED_TAYLOR[iso] ?? EXTENDED_TAYLOR.P;
 
     // ── Base Taylor life (speed only) ──
-    const baseLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min, input.coating);
+    const baseLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min);
 
     // ── Coating multiplier ──
     const COATING_MULT: Record<string, number> = {
@@ -268,7 +329,7 @@ class TurningInsertLifeEngine {
     const notchLife = flankLife * (NOTCH_RATIO[iso] ?? 1.0);
 
     // BUE life: inversely related to cutting speed (BUE forms at LOW Vc)
-    const vc_base = CANONICAL_MATERIAL_DB[this.resolveMatKey(iso)]?.vc_base_roughing ?? 200;
+    const vc_base = CANONICAL_TURNING_SPEEDS[iso]?.rough ?? 200;
     const vcRatio = input.Vc_m_min / vc_base;
     // Below 0.6× recommended Vc, BUE becomes dominant
     const bueFactor = vcRatio < 0.6 ? (BUE_RATIO[iso] ?? 1.0) * vcRatio / 0.6
@@ -423,7 +484,7 @@ class TurningInsertLifeEngine {
     const { d_start, d_end } = input.css_diameters_mm!;
     const steps = 20;
     const dStep = (d_start - d_end) / steps;
-    if (dStep <= 0) return taylorLife(taylor.C, taylor.n, input.Vc_m_min, input.coating);
+    if (dStep <= 0) return taylorLife(taylor.C, taylor.n, input.Vc_m_min);
 
     // Assume constant CSS = input.Vc_m_min, with RPM clamp at max_rpm
     const maxRPM = 4000; // typical lathe max
@@ -437,7 +498,7 @@ class TurningInsertLifeEngine {
       const actualVc = (Math.PI * D * actualRPM) / 1000;
 
       // Life at this Vc
-      const lifeAtVc = taylorLife(taylor.C, taylor.n, actualVc, input.coating);
+      const lifeAtVc = taylorLife(taylor.C, taylor.n, actualVc);
       const f_ref = 0.30;
       const ap_ref = 2.0;
       const feedFactor = Math.pow(input.f_mm_rev / f_ref, extended.a);
@@ -451,7 +512,7 @@ class TurningInsertLifeEngine {
     }
 
     // CSS-integrated life = 1 / totalWearFraction (normalized to base life units)
-    const baseExtLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min, input.coating);
+    const baseExtLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min);
     const f_ref = 0.30;
     const ap_ref = 2.0;
     const baseFeedFactor = Math.pow(input.f_mm_rev / f_ref, extended.a);
