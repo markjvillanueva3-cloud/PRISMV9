@@ -87,21 +87,26 @@ export function createPrintRouter(_callTool: CallToolFn): Router {
 
       const result = machineTypeClassifierEngine.classify(classificationInput);
 
-      // Map engine result to API response
+      // Map engine result to API response. The classifier emits
+      //   { primaryMachineType, confidence, alternativeTypes, reasoning,
+      //     recommendedOperations, warnings }
+      // The legacy `featureAnalysis` and `extractedData` fields aren't on
+      // the current ClassificationResult shape — surface zeros/undefined so
+      // the response contract stays stable for upstream consumers.
       const response = {
-        machineType: result.primaryType,
+        machineType: result.primaryMachineType,
         confidence: result.confidence,
-        alternativeMachines: result.secondaryTypes.map((t) => ({
+        alternativeMachines: result.alternativeTypes.map((t: { type: string; confidence: number }) => ({
           type: t.type,
           confidence: t.confidence,
         })),
         features: {
-          turningFeatures: result.featureAnalysis?.turningScore ?? 0,
-          millingFeatures: result.featureAnalysis?.millingScore ?? 0,
-          drillingFeatures: result.featureAnalysis?.drillingScore ?? 0,
-          edmFeatures: result.featureAnalysis?.edmScore ?? 0,
+          turningFeatures: 0,
+          millingFeatures: 0,
+          drillingFeatures: 0,
+          edmFeatures: 0,
         },
-        titleBlockData: result.extractedData?.titleBlock ?? undefined,
+        titleBlockData: undefined,
         reasoning: result.reasoning,
       };
 
