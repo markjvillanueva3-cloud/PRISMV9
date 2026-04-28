@@ -1,5 +1,5 @@
 /**
- * Zod action schemas for prism_memory dispatcher (10 actions)
+ * Zod action schemas for prism_memory dispatcher (11 actions)
  *
  * - `.passthrough()` on all schemas: extra params flow through (hooks, metadata, debug)
  * - Only enforce fields the engine actually reads
@@ -60,6 +60,13 @@ const MEMORY_KIND_VALUES = [
   "note",
 ] as const;
 
+
+const remember = z.object({
+  kind: z.enum(MEMORY_KIND_VALUES).describe("Memory kind/collection"),
+  id: z.union([z.string(), z.number()]).describe("Stable id (use file path or hash)"),
+  text: z.string().min(1).max(32768).describe("Text to embed and store"),
+  metadata: z.record(z.string(), z.unknown()).optional().describe("Extra payload (source, tags, etc)"),
+}).passthrough();
 const semantic_search = z.object({
   query: z.string().min(1).describe("Free-text query embedded via Ollama nomic-embed-text"),
   kind: z.enum(MEMORY_KIND_VALUES).optional().describe("Memory kind to search; defaults to note"),
@@ -78,4 +85,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   consolidation_stats,
   consolidation_patterns,
   semantic_search,
+  remember,
 };

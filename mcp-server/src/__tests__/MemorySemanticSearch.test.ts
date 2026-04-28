@@ -188,10 +188,11 @@ describe("prism_memory:semantic_search — engine round-trip (P0-U02)", () => {
 });
 
 describe("prism_memory:semantic_search — wiring sanity (P0-U02)", () => {
-  it("schema map exposes semantic_search alongside the original 9 actions", () => {
+  it("schema map exposes semantic_search and remember alongside the original 9 actions", () => {
     const keys = Object.keys(ACTION_MEMORY_SCHEMAS).sort();
     expect(keys).toContain("semantic_search");
-    expect(keys.length).toBe(10);
+    expect(keys).toContain("remember");
+    expect(keys.length).toBe(11);
   });
 
   it("each canonical kind is accepted by the schema", () => {

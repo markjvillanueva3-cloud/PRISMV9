@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, semantic_search",
+    "Cross-session memory graph + semantic vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, semantic_search, remember",
     {
       action: z.enum([
         "get_health",
@@ -50,7 +50,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "run_integrity",
         "consolidate",
         "consolidation_stats",
-        "consolidation_patterns","semantic_search",]).describe("Memory graph action"),
+        "consolidation_patterns","semantic_search","remember",]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -241,8 +241,22 @@ export function registerMemoryDispatcher(server: McpServer): void {
             };
             break;
           }
+          case "remember": {
+            const { QdrantMemoryEngineSingleton } = await import("../../engines/QdrantMemoryEngineSingleton.js");
+            const kind = (typeof params.kind === "string" ? params.kind : "note") as any;
+            const id = params.id ?? "";
+            const text = typeof params.text === "string" ? params.text : "";
+            if (!text || (typeof id !== "string" && typeof id !== "number") || id === "") {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing required 'kind', 'id', or 'text' parameter" }) }] };
+            }
+            const metadata = (params.metadata && typeof params.metadata === "object") ? params.metadata : undefined;
+            const engine = QdrantMemoryEngineSingleton.getInstance();
+            const r = await engine.remember({ kind, id, text, metadata });
+            result = r.ok ? { ok: true, kind, id } : { ok: false, error: r.error, kind, id };
+            break;
+          }
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'semantic_search'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'semantic_search', 'remember'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -258,5 +272,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (10 actions)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (11 actions)");
 }
