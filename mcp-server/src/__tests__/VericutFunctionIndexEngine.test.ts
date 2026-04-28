@@ -438,4 +438,121 @@ describe("VericutFunctionIndexEngine", () => {
       }
     });
   });
+
+  describe("dispatcher round-trip (E2E) — U-CAM-FIDX-25 + 25b", () => {
+    type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+    let camHandler: Handler | null = null;
+
+    const captureHandler = async () => {
+      if (camHandler) return camHandler;
+      const { registerCamDispatcher } = await import("../tools/dispatchers/camDispatcher.js");
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      registerCamDispatcher(fakeServer);
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      camHandler = captured;
+      return camHandler;
+    };
+
+    const callCam = async (action: string, params: Record<string, unknown>) => {
+      const handler = await captureHandler();
+      const raw = await handler({ action, params });
+      const r = raw as { content?: Array<{ text: string }> };
+      if (r.content?.[0]?.text) return JSON.parse(r.content[0].text) as Record<string, unknown>;
+      return raw as Record<string, unknown>;
+    };
+
+    it("camDispatcher exposes all 11 vericut_function_index_* actions in ACTIONS enum", async () => {
+      const { ACTIONS } = await import("../tools/dispatchers/camDispatcher.js");
+      const expected = [
+        "vericut_function_index_get",
+        "vericut_function_index_list_sections",
+        "vericut_function_index_get_section",
+        "vericut_function_index_list_operations",
+        "vericut_function_index_find_parameter",
+        "vericut_function_index_search_parameters",
+        "vericut_function_index_get_operations_by_category",
+        "vericut_function_index_get_summary",
+        "vericut_function_index_get_verification_operations",
+        "vericut_function_index_get_optimization_operations",
+        "vericut_function_index_get_operation",
+      ];
+      for (const a of expected) {
+        expect(ACTIONS).toContain(a);
+      }
+    });
+
+    it("camDispatcher routes get_summary to engine", async () => {
+      const res = await callCam("vericut_function_index_get_summary", {});
+      expect(res.success).toBe(true);
+      expect(res.system_id).toBe("vericut");
+      expect(res.total_operations).toBe(16);
+      expect(res.total_parameters).toBe(240);
+    });
+
+    it("camDispatcher routes get_verification_operations", async () => {
+      const res = (await callCam(
+        "vericut_function_index_get_verification_operations",
+        {}
+      )) as { success: boolean; operations: Array<{ operation_id: string }> };
+      expect(res.success).toBe(true);
+      expect(res.operations).toHaveLength(4);
+      const ids = res.operations.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "collision_detect",
+        "fixture_collision",
+        "gouge_check",
+        "holder_collision",
+      ]);
+    });
+
+    it("camDispatcher routes get_operation with operation_id", async () => {
+      const res = (await callCam("vericut_function_index_get_operation", {
+        operation_id: "optipath",
+      })) as { success: boolean; section: string };
+      expect(res.success).toBe(true);
+      expect(res.section).toBe("optimization");
+    });
+
+    it("camDispatcher routes get_optimization_operations (U-CAM-FIDX-25b OptiPath surface)", async () => {
+      const res = (await callCam(
+        "vericut_function_index_get_optimization_operations",
+        {}
+      )) as {
+        success: boolean;
+        operations: Array<{ operation_id: string; section: string }>;
+      };
+      expect(res.success).toBe(true);
+      expect(res.operations).toHaveLength(4);
+      const ids = res.operations.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "feed_optimize",
+        "force_optimize",
+        "optipath",
+        "surface_finish_optimize",
+      ]);
+      const sections = new Set(res.operations.map((o) => o.section));
+      expect(sections.size).toBe(1);
+      expect(sections.has("optimization")).toBe(true);
+    });
+
+    it("camDispatcher routes get_operations_by_category for case-insensitive 'COLLISION'", async () => {
+      const res = (await callCam(
+        "vericut_function_index_get_operations_by_category",
+        { category: "COLLISION" }
+      )) as {
+        success: boolean;
+        operations: Array<{ operation_id: string }>;
+      };
+      expect(res.success).toBe(true);
+      const ids = res.operations.map((o) => o.operation_id);
+      expect(ids).toContain("collision_detect");
+      expect(ids).toContain("holder_collision");
+      expect(ids).toContain("fixture_collision");
+    });
+  });
 });

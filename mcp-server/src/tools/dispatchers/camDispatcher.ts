@@ -1693,7 +1693,8 @@ export const ACTIONS = [
     "vericut_function_index_get_section", "vericut_function_index_list_operations",
     "vericut_function_index_find_parameter", "vericut_function_index_search_parameters",
     "vericut_function_index_get_operations_by_category", "vericut_function_index_get_summary",
-    "vericut_function_index_get_verification_operations", "vericut_function_index_get_operation",
+    "vericut_function_index_get_verification_operations", "vericut_function_index_get_optimization_operations",
+    "vericut_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -13243,6 +13244,11 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "vericut_function_index_get_verification_operations": {
             const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
             result = { success: true, operations: VericutFunctionIndexEngine.getVerificationOperations() };
+            break;
+          }
+          case "vericut_function_index_get_optimization_operations": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            result = { success: true, operations: VericutFunctionIndexEngine.getOptimizationOperations() };
             break;
           }
           case "vericut_function_index_get_operation": {
