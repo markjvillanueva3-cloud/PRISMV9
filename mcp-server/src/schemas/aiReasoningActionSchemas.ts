@@ -60,6 +60,12 @@ export const AI_REASONING_ACTIONS = [
   "ai_lathe_bayesian_fit_gp",
   "ai_lathe_attention_compute",
   "ai_lathe_adaptive_engagement",
+  // ENGINE-WIRE-MS0/U-WIRE18: 5 code-gen + approval engines
+  "ai_code_gate_pending",
+  "ai_self_mod_propose_batch",
+  "ai_self_mod_is_approved",
+  "ai_intelligence_maximize",
+  "ai_hook_rule_match",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -685,6 +691,55 @@ const ai_lathe_adaptive_engagement = z.object({
   cutting_speed: z.number().positive().describe("Cutting speed Vc (m/min)"),
 }).passthrough();
 
+
+// ─── ENGINE-WIRE-MS0/U-WIRE18: 5 code-gen + approval engines ──────────
+const ai_code_gate_pending = z.object({
+  status: z.string().optional().describe("Filter by gate status (e.g. 'pending', 'escalated')"),
+  approver: z.string().optional().describe("Filter by approver"),
+  request_type: z.string().optional().describe("Filter by request type"),
+}).passthrough();
+
+const ai_self_mod_propose_batch = z.object({
+  observations: z.array(z.object({
+    kind: z.enum(["extract-abstraction","remove-orphan","split-high-fan-in","merge-duplicates","deprecate-low-usage"]).describe("Proposal kind"),
+    targets: z.array(z.string().min(1)).min(1).describe("Files or symbols to modify"),
+    evidence: z.string().min(1).describe("Why this proposal is justified"),
+    confidence: z.number().min(0).max(1).describe("Confidence in [0,1]"),
+    estimatedEffortHours: z.number().nonnegative().optional().describe("Estimated effort in hours"),
+    psiImpactEstimate: z.number().optional().describe("Estimated impact on system Psi"),
+  })).min(1).max(100).describe("Pattern observations to convert into proposals"),
+  at: z.string().optional().describe("ISO timestamp override (test reproducibility)"),
+}).passthrough();
+
+const ai_self_mod_is_approved = z.object({
+  proposal_id: z.string().min(1).describe("Proposal id"),
+  proposal_hash: z.string().min(1).describe("Proposal content hash"),
+  now_ms: z.number().int().positive().optional().describe("Override 'now' timestamp"),
+}).passthrough();
+
+const ai_intelligence_maximize = z.object({
+  operation: z.enum(["roughing","finishing","semi_finishing","drilling","boring","reaming","tapping","turning_od","turning_id","facing","grooving","threading","milling_pocket","milling_contour","milling_slot","milling_face","5axis_swarf","5axis_multiaxis","5axis_positioning","grinding","edm_wire","edm_sinker","adaptive","trochoidal","hsm"]).describe("Operation type"),
+  material: z.string().min(1).describe("Material identifier"),
+  hardness_hrc: z.number().nonnegative().optional().describe("Hardness in HRC"),
+  feature: z.string().optional().describe("Feature type"),
+  tolerance_mm: z.number().positive().optional().describe("Tolerance (mm)"),
+  surface_finish_ra: z.number().positive().optional().describe("Surface finish target Ra (µm)"),
+  machine_type: z.string().optional().describe("Machine type"),
+  controller: z.string().optional().describe("CNC controller"),
+  spindle_max_rpm: z.number().positive().optional().describe("Max spindle RPM"),
+  spindle_power_kw: z.number().positive().optional().describe("Spindle power (kW)"),
+  tool_type: z.string().optional().describe("Tool type"),
+  tool_diameter_mm: z.number().positive().optional().describe("Tool diameter (mm)"),
+  tool_material: z.string().optional().describe("Tool material"),
+  coating: z.string().optional().describe("Tool coating"),
+  flutes: z.number().int().positive().optional().describe("Flute count"),
+}).passthrough();
+
+const ai_hook_rule_match = z.object({
+  tool: z.string().min(1).describe("Tool name (e.g. 'Bash', 'Write', 'Edit')"),
+  params: z.record(z.string(), z.unknown()).describe("Tool parameters object"),
+}).passthrough();
+
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
   ai_mill_agi_reason,
@@ -726,6 +781,12 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_wedm_print_to_program,
   ai_wedm_cam_knowledge,
   ai_wedm_synthesize_knowledge,
+  // ENGINE-WIRE-MS0/U-WIRE18: 5 code-gen + approval engines
+  ai_code_gate_pending,
+  ai_self_mod_propose_batch,
+  ai_self_mod_is_approved,
+  ai_intelligence_maximize,
+  ai_hook_rule_match,
   // ENGINE-WIRE-MS0/U-WIRE13: 5 Lathe AI engines
   ai_lathe_orchestrate,
   ai_lathe_active_learn_select,
