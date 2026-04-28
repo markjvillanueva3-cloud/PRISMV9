@@ -12,7 +12,7 @@ import { z } from "zod";
 // ── Geometry Actions ──────────────────────────────────────────────────────────
 const geometryCreateSchema = z.object({
   type: z.enum(["box", "cylinder", "sphere", "cone", "torus"]).optional(),
-  dimensions: z.record(z.number()).optional(),
+  dimensions: z.record(z.string(), z.number()).optional(),
 });
 
 const geometryTransformSchema = z.object({
@@ -48,13 +48,13 @@ const featureRecognizeSchema = z.object({
 
 const featureEditSchema = z.object({
   feature_id: z.string().optional(),
-  modifications: z.record(z.any()).optional(),
+  modifications: z.record(z.string(), z.any()).optional(),
 });
 
 // ── Stock/WCS/DfM Actions ─────────────────────────────────────────────────────
 const stockModelSchema = z.object({
   material: z.string().optional(),
-  dimensions: z.record(z.number()).optional(),
+  dimensions: z.record(z.string(), z.number()).optional(),
 });
 
 const wcsSetupSchema = z.object({
@@ -100,7 +100,7 @@ const geometryCompareFilesSchema = z.object({
   originalPath: z.string().optional(),
   generated_path: z.string().optional(),
   generatedPath: z.string().optional(),
-  thresholds: z.record(z.number()).optional(),
+  thresholds: z.record(z.string(), z.number()).optional(),
 });
 
 const geometryExtractMetricsSchema = z.object({
@@ -114,11 +114,11 @@ const geometryBatchCompareSchema = z.object({
     original: z.string(),
     generated: z.string(),
   })).optional(),
-  thresholds: z.record(z.number()).optional(),
+  thresholds: z.record(z.string(), z.number()).optional(),
 });
 
 const geometrySetThresholdsSchema = z.object({
-  thresholds: z.record(z.number()).optional(),
+  thresholds: z.record(z.string(), z.number()).optional(),
 });
 
 const geometryFormatDetectSchema = z.object({
@@ -140,11 +140,11 @@ const cadRegenBatchSchema = z.object({
 const cadRegenCompareSchema = z.object({
   original: z.any().optional(),
   generated: z.any().optional(),
-  thresholds: z.record(z.number()).optional(),
+  thresholds: z.record(z.string(), z.number()).optional(),
 });
 
 const cadRegenThresholdsSchema = z.object({
-  set: z.record(z.number()).optional(),
+  set: z.record(z.string(), z.number()).optional(),
 });
 
 // ── CAD Trial-Error Learning Actions (U-CADC29) ───────────────────────────────
