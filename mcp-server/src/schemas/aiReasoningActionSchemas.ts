@@ -100,6 +100,12 @@ export const AI_REASONING_ACTIONS = [
   "neural_recommend",   // U-WIRE27 → recommend slash commands for a query string
   "neural_synthesize",  // U-WIRE27 → multi-source synthesis (engines+wisdom+commands)
   "neural_stats",       // U-WIRE27 → learning stats (totalQueries, successRate, topRoutes)
+  // ENGINE-WIRE-MS0/U-WIRE28: CNCControllerDeepLearningEngine — controller knowledge
+  "controller_select",      // U-WIRE28 → pick best controller family for job requirements
+  "controller_translate",   // U-WIRE28 → translate G-code from source dialect to target
+  "controller_compare",     // U-WIRE28 → compare two controllers head-to-head
+  "controller_macro",       // U-WIRE28 → generate macro skeleton for task + controller
+  "controller_debug",       // U-WIRE28 → debug post-processor / G-code error message
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -993,4 +999,32 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     query: z.string().min(1).describe("Query to synthesize across multiple sources"),
   }).passthrough(),
   neural_stats: z.object({}).passthrough(),
+  // U-WIRE28 — CNCControllerDeepLearningEngine
+  // ControllerFamily values are validated by the engine itself; the schema
+  // accepts any string here so new families don't require schema updates.
+  controller_select: z.object({
+    operation_type: z.string().min(1).describe("Operation kind (e.g. 'roughing', 'finishing', 'thread', 'edm')"),
+    axes_needed: z.number().int().positive().describe("Required number of CNC axes (3, 4, 5, ...)"),
+    max_rpm_needed: z.number().int().positive().optional().describe("Required spindle RPM (optional)"),
+    macro_required: z.boolean().optional().describe("Job needs macro programming (default false)"),
+    conversational_preferred: z.boolean().optional().describe("Operator prefers conversational programming"),
+    jm_die_only: z.boolean().optional().describe("Restrict to JM Die shop floor machines"),
+  }).passthrough(),
+  controller_translate: z.object({
+    sourceController: z.string().min(1).describe("Source controller family (e.g. 'fanuc_31i', 'okuma_osp')"),
+    targetController: z.string().min(1).describe("Target controller family"),
+    code: z.string().min(1).describe("G-code body to translate"),
+  }).passthrough(),
+  controller_compare: z.object({
+    a: z.string().min(1).describe("First controller family"),
+    b: z.string().min(1).describe("Second controller family"),
+  }).passthrough(),
+  controller_macro: z.object({
+    taskDescription: z.string().min(1).describe("Task to generate macro for (e.g. 'probe corner and set WCS')"),
+    controller: z.string().min(1).describe("Controller family"),
+  }).passthrough(),
+  controller_debug: z.object({
+    errorMessage: z.string().min(1).describe("Error / alarm message text"),
+    controller: z.string().min(1).describe("Controller family that produced the error"),
+  }).passthrough(),
 };

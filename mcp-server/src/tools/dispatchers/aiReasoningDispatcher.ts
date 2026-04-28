@@ -1006,6 +1006,56 @@ export async function executeAIReasoningAction(
         result = stats;
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE28: CNCControllerDeepLearningEngine — controller
+      // knowledge: selection, dialect translation, comparison, macro gen,
+      // post-debug. Pure (no I/O) — singleton OK but per-call is also fine.
+      // ─────────────────────────────────────────────────────────────────────
+      case "controller_select": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        type ReqArg = Parameters<typeof cncControllerDeepLearning.selectControllerForJob>[0];
+        const p = params as unknown as ReqArg;
+        const recommendation = cncControllerDeepLearning.selectControllerForJob(p);
+        result = recommendation;
+        break;
+      }
+      case "controller_translate": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        type SrcArg = Parameters<typeof cncControllerDeepLearning.translateGCode>[0];
+        type TgtArg = Parameters<typeof cncControllerDeepLearning.translateGCode>[1];
+        const p = params as { sourceController: SrcArg; targetController: TgtArg; code: string };
+        const translation = cncControllerDeepLearning.translateGCode(
+          p.sourceController,
+          p.targetController,
+          p.code,
+        );
+        result = translation;
+        break;
+      }
+      case "controller_compare": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        type CtrlArg = Parameters<typeof cncControllerDeepLearning.compareControllers>[0];
+        const p = params as { a: CtrlArg; b: CtrlArg };
+        const comparison = cncControllerDeepLearning.compareControllers(p.a, p.b);
+        result = comparison;
+        break;
+      }
+      case "controller_macro": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        type CtrlArg = Parameters<typeof cncControllerDeepLearning.generateMacro>[1];
+        const p = params as { taskDescription: string; controller: CtrlArg };
+        const macro = cncControllerDeepLearning.generateMacro(p.taskDescription, p.controller);
+        result = macro;
+        break;
+      }
+      case "controller_debug": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        type CtrlArg = Parameters<typeof cncControllerDeepLearning.debugPostIssue>[1];
+        const p = params as { errorMessage: string; controller: CtrlArg };
+        const debug = cncControllerDeepLearning.debugPostIssue(p.errorMessage, p.controller);
+        result = debug;
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
