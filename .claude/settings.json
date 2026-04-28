@@ -170,6 +170,12 @@
           },
           {
             "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-schema-engine-sync-gate.mjs",
+            "timeout": 5000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pretool-gap-predictor.mjs",
             "timeout": 2000,
             "continueOnError": true
@@ -261,6 +267,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/read-already-have.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-engine-api-extractor.mjs",
+            "timeout": 10000,
+            "continueOnError": true
           }
         ]
       },
@@ -295,6 +307,18 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-claim-commit-guard.mjs",
             "timeout": 3000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tsc-baseline-regression-gate.mjs",
+            "timeout": 60000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-reviewer-second-opinion.mjs",
+            "timeout": 15000,
             "continueOnError": false
           }
         ]
@@ -434,6 +458,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-terminal-watcher.mjs",
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-regression-auto-sweep.mjs",
+            "timeout": 130000,
+            "continueOnError": true
           }
         ]
       },
@@ -517,6 +547,24 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/duplication-guard-stop.mjs"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-watchdog.mjs",
+            "timeout": 3000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/reviewer-fail-latch.mjs",
+            "timeout": 3000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cost-ceiling-stop.mjs",
+            "timeout": 3000,
+            "continueOnError": false
           },
           {
             "type": "command",
