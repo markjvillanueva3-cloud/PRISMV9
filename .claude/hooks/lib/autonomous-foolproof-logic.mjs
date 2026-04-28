@@ -696,3 +696,148 @@ export function decideSchemaSyncGate({
     drift_count: drifts.length,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// U-AF08: ollama-reviewer-second-opinion
+// PreToolUse on `git commit`. Runs Ollama against the staged diff, parses a
+// PASS/CONCERN/FAIL verdict, and blocks the commit on FAIL when autonomous.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const REVIEW_DIFF_MIN_LINES = 5;       // skip trivially tiny diffs
+const REVIEW_DIFF_MAX_LINES = 5000;    // skip mega-diffs (Ollama can't reason)
+const REVIEW_VALID_VERDICTS = new Set(["PASS", "CONCERN", "FAIL"]);
+
+/**
+ * Parse Ollama's review response into a structured verdict. The system prompt
+ * (defined in the hook script) asks Ollama to return JSON of shape:
+ *   { "verdict": "PASS"|"CONCERN"|"FAIL", "reason": string, "confidence": 0..1 }
+ *
+ * Tolerates markdown fences and prose-wrapped output. Defaults reason and
+ * confidence to safe values when missing. Returns:
+ *   { ok: true,  verdict, reason, confidence }
+ *   { ok: false, reason: "empty-response"|"no-json-object"|"invalid-json"|"invalid-verdict" }
+ *
+ * @param {string|null|undefined} rawResponse
+ */
+export function parseOllamaReviewVerdict(rawResponse) {
+  if (rawResponse == null) return { ok: false, reason: "empty-response" };
+  const raw = String(rawResponse).trim();
+  if (raw.length === 0) return { ok: false, reason: "empty-response" };
+
+  // Strip ```json … ``` fences if present
+  let candidate = raw;
+  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) candidate = fenceMatch[1].trim();
+
+  // Pull the first balanced { … } block out of free-form prose
+  const start = candidate.indexOf("{");
+  const end = candidate.lastIndexOf("}");
+  if (start === -1 || end === -1 || end <= start) {
+    return { ok: false, reason: "no-json-object" };
+  }
+  const jsonText = candidate.slice(start, end + 1);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    return { ok: false, reason: "invalid-json" };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return { ok: false, reason: "no-json-object" };
+  }
+
+  const verdict = typeof parsed.verdict === "string" ? parsed.verdict.toUpperCase() : "";
+  if (!REVIEW_VALID_VERDICTS.has(verdict)) {
+    return { ok: false, reason: "invalid-verdict" };
+  }
+
+  const reason = typeof parsed.reason === "string" && parsed.reason.length > 0
+    ? parsed.reason.slice(0, 500)
+    : "(no reason provided)";
+
+  let confidence = Number.isFinite(parsed.confidence) ? Number(parsed.confidence) : 0.5;
+  if (confidence < 0) confidence = 0;
+  if (confidence > 1) confidence = 1;
+
+  return { ok: true, verdict, reason, confidence };
+}
+
+/**
+ * Decide whether to block a `git commit` based on Ollama's review verdict.
+ *
+ * Block matrix:
+ *   isAutonomous=false              → continue ("non-autonomous")
+ *   isCommit=false                  → continue ("not-a-commit")
+ *   overrideEnabled=true            → continue ("override-active")
+ *   diffLineCount < MIN             → continue ("diff-trivially-small")
+ *   diffLineCount > MAX             → continue ("diff-too-large")
+ *   ollamaVerdict.ok=false          → continue ("ollama-unavailable" or "ollama-parse-failed")
+ *   verdict=PASS                    → continue ("review-pass")
+ *   verdict=CONCERN                 → continue ("review-concern") + record verdict
+ *   verdict=FAIL                    → BLOCK ("review-fail")
+ *
+ * @param {object} input
+ * @param {boolean} input.isAutonomous
+ * @param {boolean} input.isCommit
+ * @param {boolean} input.overrideEnabled
+ * @param {number}  input.diffLineCount
+ * @param {{ok:boolean, verdict?:string, reason?:string, confidence?:number, reason?:string}|null} input.ollamaVerdict
+ */
+export function decideOllamaReviewSecondOpinion({
+  isAutonomous,
+  isCommit,
+  overrideEnabled,
+  diffLineCount,
+  ollamaVerdict,
+}) {
+  if (!isCommit) return { continue: true, reason: "not-a-commit" };
+  if (!isAutonomous) return { continue: true, reason: "non-autonomous" };
+  if (overrideEnabled) return { continue: true, reason: "override-active" };
+
+  const lines = Number.isFinite(diffLineCount) ? Number(diffLineCount) : 0;
+  if (lines < REVIEW_DIFF_MIN_LINES) {
+    return { continue: true, reason: "diff-trivially-small", diff_line_count: lines };
+  }
+  if (lines > REVIEW_DIFF_MAX_LINES) {
+    return { continue: true, reason: "diff-too-large", diff_line_count: lines };
+  }
+
+  if (!ollamaVerdict || ollamaVerdict.ok !== true) {
+    const reasonKey = ollamaVerdict == null
+      ? "ollama-unavailable"
+      : `ollama-parse-failed:${ollamaVerdict.reason ?? "unknown"}`;
+    return { continue: true, reason: reasonKey };
+  }
+
+  const verdict = ollamaVerdict.verdict;
+  if (verdict === "PASS") {
+    return {
+      continue: true,
+      reason: "review-pass",
+      verdict,
+      review_reason: ollamaVerdict.reason,
+      confidence: ollamaVerdict.confidence,
+    };
+  }
+  if (verdict === "CONCERN") {
+    return {
+      continue: true,
+      reason: "review-concern",
+      verdict,
+      review_reason: ollamaVerdict.reason,
+      confidence: ollamaVerdict.confidence,
+      record_verdict: true,
+    };
+  }
+  // verdict === "FAIL"
+  return {
+    continue: false,
+    decision: "block",
+    reason: "review-fail",
+    verdict,
+    review_reason: ollamaVerdict.reason,
+    confidence: ollamaVerdict.confidence,
+    record_verdict: true,
+  };
+}
