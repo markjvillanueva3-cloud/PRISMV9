@@ -8,7 +8,7 @@
  * NO I/O. NO process.* access (except input args). Pure logic.
  *
  * @milestone AUTONOMOUS-FOOLPROOF-MS0
- * @units U-AF01, U-AF02, U-AF03, U-AF04, U-AF05
+ * @units U-AF01..U-AF06
  */
 
 const DEFAULT_IDLE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
@@ -384,4 +384,137 @@ export function decideAntiRegressionSweep({
     total_tests: totalTests,
     passed,
   };
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// U-AF06: ollama-engine-api-extractor
+// ──────────────────────────────────────────────────────────────────────
+
+const CONTRACT_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const ENGINE_FILE_PATTERN = /[\\/]engines[\\/][A-Z][A-Za-z0-9_]*Engine\.ts$/;
+
+/**
+ * Detect whether a file path is a PRISM engine source file.
+ * Engine convention: src/engines/PascalCaseEngine.ts.
+ */
+export function isEngineSourceFile(filePath) {
+  if (typeof filePath !== "string" || filePath.length === 0) return false;
+  return ENGINE_FILE_PATTERN.test(filePath);
+}
+
+/**
+ * Parse Ollama's structured-extraction response into a typed contract.
+ * Tolerates JSON wrapped in markdown fences, leading prose, etc.
+ *
+ * @param {string|null} rawResponse - Raw text from ollamaHookBridgeEngine.query
+ * @returns {{ok:true, contract:object} | {ok:false, reason:string}}
+ */
+export function parseOllamaEngineContract(rawResponse) {
+  if (typeof rawResponse !== "string" || rawResponse.trim().length === 0) {
+    return { ok: false, reason: "empty-response" };
+  }
+
+  // Strip markdown fences if present
+  let text = rawResponse.trim();
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) {
+    text = fenceMatch[1].trim();
+  }
+
+  // Locate the first {...} JSON object
+  const firstBrace = text.indexOf("{");
+  const lastBrace = text.lastIndexOf("}");
+  if (firstBrace < 0 || lastBrace <= firstBrace) {
+    return { ok: false, reason: "no-json-object" };
+  }
+  const jsonText = text.slice(firstBrace, lastBrace + 1);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    return { ok: false, reason: "invalid-json" };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return { ok: false, reason: "not-an-object" };
+  }
+
+  // Normalize shape — accept loose responses, fill defaults
+  const contract = {
+    methods: Array.isArray(parsed.methods) ? parsed.methods : [],
+    required_fields: Array.isArray(parsed.required_fields)
+      ? parsed.required_fields
+      : [],
+    enums:
+      parsed.enums && typeof parsed.enums === "object" && !Array.isArray(parsed.enums)
+        ? parsed.enums
+        : {},
+  };
+
+  return { ok: true, contract };
+}
+
+/**
+ * Merge a freshly-extracted contract into the cache payload.
+ * Cache entries are keyed by absolute file path.
+ *
+ * @param {object|null} existing - Prior cache contents
+ * @param {string} filePath
+ * @param {object} contract
+ * @param {number} [nowMs]
+ */
+export function mergeContractCache(existing, filePath, contract, nowMs = Date.now()) {
+  const cache =
+    existing && typeof existing === "object" && existing.entries && typeof existing.entries === "object"
+      ? { ...existing }
+      : { schemaVersion: "1.0.0", entries: {} };
+
+  cache.entries = { ...cache.entries };
+  cache.entries[filePath] = {
+    contract,
+    extracted_at: new Date(nowMs).toISOString(),
+  };
+  cache.last_updated = new Date(nowMs).toISOString();
+
+  return cache;
+}
+
+/**
+ * Decide whether the extractor should run for this file.
+ *
+ * @param {object} input
+ * @param {string} input.filePath
+ * @param {boolean} input.isAutonomous
+ * @param {object|null} input.cache
+ * @param {number} [input.nowMs]
+ */
+export function decideExtractRun({ filePath, isAutonomous, cache, nowMs = Date.now() }) {
+  if (!isEngineSourceFile(filePath)) {
+    return { run: false, reason: "not-an-engine-file" };
+  }
+  if (!isAutonomous) {
+    return { run: false, reason: "non-autonomous" };
+  }
+
+  const entry = cache?.entries?.[filePath];
+  if (!entry) {
+    return { run: true, reason: "cache-miss" };
+  }
+
+  let extractedMs;
+  try {
+    extractedMs = new Date(entry.extracted_at).getTime();
+  } catch {
+    return { run: true, reason: "cache-bad-timestamp" };
+  }
+  if (!Number.isFinite(extractedMs)) {
+    return { run: true, reason: "cache-bad-timestamp" };
+  }
+
+  const age = nowMs - extractedMs;
+  if (age > CONTRACT_CACHE_TTL_MS) {
+    return { run: true, reason: "cache-stale", age_ms: age };
+  }
+
+  return { run: false, reason: "cache-fresh", age_ms: age };
 }
