@@ -45,6 +45,22 @@
       "parameter_count_estimate": 18,
       "description": "PPG (Post Processor Generator) configuration: controller dialect, kinematic chain, NC code emit options, RTCP/G68.2 enable flags.",
       "dependencies": ["simulation"]
+    },
+    {
+      "module_id": "2d_operations",
+      "path": "cam-functions/hypermill/2d-operations.json",
+      "covered_units": ["U-CAM-FIDX-31"],
+      "parameter_count_estimate": 75,
+      "description": "Complete 2D milling operations: face milling, pocket, contour, slot, thread, chamfer, rest machining. Sourced from hyperMILL CAM Manual.",
+      "dependencies": ["tool_database"]
+    },
+    {
+      "module_id": "3d_operations",
+      "path": "cam-functions/hypermill/3d-operations.json",
+      "covered_units": ["U-CAM-FIDX-31"],
+      "parameter_count_estimate": 79,
+      "description": "Complete 3D milling operations: roughing/finishing strategies, equidistant, parallel, scallop, contour-line, pencil. Sourced from hyperMILL CAM Manual.",
+      "dependencies": ["tool_database", "stock_fixture"]
     }
   ],
   "global_cross_references": {
