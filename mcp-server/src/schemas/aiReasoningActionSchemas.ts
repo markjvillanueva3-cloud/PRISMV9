@@ -95,6 +95,11 @@ export const AI_REASONING_ACTIONS = [
   "peer_query",       // U-WIRE26 → fetch insights with tag/confidence/exclude filters
   "peer_get",         // U-WIRE26 → get one insight by id
   "peer_size",        // U-WIRE26 → current number of accepted insights
+  // ENGINE-WIRE-MS0/U-WIRE27: NeuralIntegrationEngine — neural cortex routing
+  "neural_route",       // U-WIRE27 → route NeuralQuery to top engine+action+confidence
+  "neural_recommend",   // U-WIRE27 → recommend slash commands for a query string
+  "neural_synthesize",  // U-WIRE27 → multi-source synthesis (engines+wisdom+commands)
+  "neural_stats",       // U-WIRE27 → learning stats (totalQueries, successRate, topRoutes)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -974,4 +979,18 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     id: z.string().min(1).describe("Insight id to fetch"),
   }).passthrough(),
   peer_size: z.object({}).passthrough(),
+  // U-WIRE27 — NeuralIntegrationEngine
+  neural_route: z.object({
+    input: z.string().min(1).describe("User query / prompt string"),
+    context: z.string().optional().describe("Optional surrounding context"),
+    domain: z.string().optional().describe("Optional domain hint (machining, edm, lathe, ...)"),
+    urgency: z.enum(["low", "medium", "high", "critical"]).optional().describe("Urgency level"),
+  }).passthrough(),
+  neural_recommend: z.object({
+    query: z.string().min(1).describe("Query to recommend slash commands for"),
+  }).passthrough(),
+  neural_synthesize: z.object({
+    query: z.string().min(1).describe("Query to synthesize across multiple sources"),
+  }).passthrough(),
+  neural_stats: z.object({}).passthrough(),
 };
