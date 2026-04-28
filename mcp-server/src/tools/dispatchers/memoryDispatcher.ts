@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity",
+    "Cross-session memory graph + semantic vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, semantic_search",
     {
       action: z.enum([
         "get_health",
@@ -50,8 +50,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "run_integrity",
         "consolidate",
         "consolidation_stats",
-        "consolidation_patterns",
-      ]).describe("Memory graph action"),
+        "consolidation_patterns","semantic_search",]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -206,8 +205,44 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          case "semantic_search": {
+            const { QdrantMemoryEngineSingleton } = await import("../../engines/QdrantMemoryEngineSingleton.js");
+            const query = typeof params.query === "string" ? params.query : "";
+            if (!query) {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing or empty 'query' parameter" }) }] };
+            }
+            const kind = (typeof params.kind === "string" ? params.kind : "note") as any;
+            const limit = typeof params.limit === "number" ? params.limit : 10;
+            const threshold = typeof params.threshold === "number" ? params.threshold : undefined;
+            const filter = (params.filter && typeof params.filter === "object") ? params.filter : undefined;
+            const engine = QdrantMemoryEngineSingleton.getInstance();
+            const recalled = await engine.recall({ kind, query, limit, filter });
+            if (!recalled.ok) {
+              result = { ok: false, error: recalled.error, query, kind, limit };
+              break;
+            }
+            let items = recalled.value;
+            if (threshold !== undefined) {
+              items = items.filter((it) => (it.score ?? 0) >= threshold);
+            }
+            result = {
+              ok: true,
+              query,
+              kind,
+              count: items.length,
+              items: items.map((it) => ({
+                id: it.id,
+                kind: it.kind,
+                text: it.text,
+                score: it.score,
+                metadata: it.metadata,
+                createdAt: it.createdAt,
+              })),
+            };
+            break;
+          }
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'semantic_search'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -223,5 +258,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (9 actions)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (10 actions)");
 }
