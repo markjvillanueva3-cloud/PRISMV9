@@ -19,7 +19,6 @@
 import { log } from "../utils/Logger.js";
 import { hyperMillDeepLearningEngine } from "./HyperMillDeepLearningEngine.js";
 import { hyperMillStrategyEngine } from "./HyperMillStrategyEngine.js";
-import { hyperMillMaterialBridgeEngine } from "./HyperMillMaterialBridgeEngine.js";
 import { hyperMillMaterialPhysicsBridge } from "./HyperMillMaterialPhysicsBridge.js";
 import { hyperMillStrategyKnowledgeEngine } from "./HyperMillStrategyKnowledgeEngine.js";
 
@@ -249,8 +248,8 @@ export class HyperMillAIOrchestrationEngine {
       });
 
       if (request.material_id) {
-        materialProfile = hyperMillMaterialBridgeEngine.getPhysicsProfile(request.material_id);
-        enginesInvoked.push("HyperMillMaterialBridgeEngine");
+        materialProfile = hyperMillMaterialPhysicsBridge.resolve(request.material_id);
+        enginesInvoked.push("HyperMillMaterialPhysicsBridge");
       }
     }
 
@@ -270,26 +269,28 @@ export class HyperMillAIOrchestrationEngine {
       });
 
       try {
-        const deepResult = hyperMillDeepLearningEngine.selectOptimalStrategy({
-          feature_type: this.mapFeatureType(request.feature_type),
-          material_group: (materialProfile?.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H",
-          machine_type: this.mapMachineType(request.machine_type || "3axis"),
-          tool_diameter_mm: request.tool_diameter_mm || 12,
-          depth_mm: request.axial_depth_mm || 10,
-          width_mm: request.radial_depth_mm ? request.radial_depth_mm * 2 : 20,
-          tolerance_mm: request.tolerance_mm || 0.025
-        });
+        const featureType = this.mapFeatureType(request.feature_type);
+        const materialGroup = (materialProfile?.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H";
+        const machineKinematics = this.mapMachineType(request.machine_type || "3axis");
+        const deepResult = hyperMillDeepLearningEngine.selectOptimalStrategy(
+          featureType,
+          materialGroup,
+          machineKinematics,
+        );
 
+        const params = deepResult.parameter_suggestions;
+        const speedSuggestion = typeof params.speed_m_min === "number" ? params.speed_m_min : Number(params.speed_m_min ?? 0);
+        const feedSuggestion = typeof params.feed_mm_tooth === "number" ? params.feed_mm_tooth : Number(params.feed_mm_tooth ?? 0);
         strategy = {
-          name: deepResult.primary_strategy.id,
-          hypermill_cycle: deepResult.primary_strategy.cycle_name,
+          name: deepResult.selected_strategy.id,
+          hypermill_cycle: deepResult.selected_strategy.cycle_name,
           parameters: {
-            ae_pct: (deepResult.primary_strategy.ae_factor || 0.1) * 100,
-            ap_factor: deepResult.primary_strategy.ap_factor || 2.0,
-            speed_m_min: deepResult.cutting_parameters.speed_m_min,
-            feed_mm_tooth: deepResult.cutting_parameters.feed_mm_tooth
+            ae_pct: (deepResult.selected_strategy.ae_factor || 0.1) * 100,
+            ap_factor: deepResult.selected_strategy.ap_factor || 2.0,
+            speed_m_min: speedSuggestion,
+            feed_mm_tooth: feedSuggestion,
           },
-          rationale: deepResult.reasoning_chain.join(" → ")
+          rationale: deepResult.reasoning_summary,
         };
         enginesInvoked.push("HyperMillDeepLearningEngine");
       } catch {
@@ -613,17 +614,18 @@ export class HyperMillAIOrchestrationEngine {
   /**
    * Map feature type to hyperMILL format
    */
-  private mapFeatureType(feature: string): "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity" {
-    const mapping: Record<string, "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity"> = {
+  private mapFeatureType(feature: string): import("./HyperMillDeepLearningEngine.js").HyperMillFeatureType {
+    type FT = import("./HyperMillDeepLearningEngine.js").HyperMillFeatureType;
+    const mapping: Record<string, FT> = {
       "pocket": "closed_pocket",
       "contour": "open_pocket",
-      "slot": "slot",
+      "slot": "slot_through",
       "freeform": "freeform_surface",
       "surface": "freeform_surface",
       "steep": "steep_wall",
-      "flat": "flat_area",
+      "flat": "flat_land",
       "cavity": "deep_cavity",
-      "mold": "deep_cavity"
+      "mold": "deep_cavity",
     };
     return mapping[feature.toLowerCase()] || "closed_pocket";
   }
