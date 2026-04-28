@@ -30,7 +30,7 @@ import { safeWriteSync } from "../utils/atomicWrite.js";
 // EVENT PAYLOAD TYPES (INTEG-MS3)
 // ============================================================================
 
-export interface EstimateCalculatedPayload {
+export interface EstimateCalculatedPayload extends Record<string, unknown> {
   job_id: string;
   machine_id: string;
   machine_name?: string;
@@ -49,7 +49,7 @@ export interface EstimateCalculatedPayload {
   quantity?: number;
 }
 
-export interface CapacityUpdatedPayload {
+export interface CapacityUpdatedPayload extends Record<string, unknown> {
   machine_id: string;
   machine_name: string;
   period: string;               // e.g., "2026-W16"
@@ -61,7 +61,7 @@ export interface CapacityUpdatedPayload {
   trigger_job_id?: string;
 }
 
-export interface ScheduleUpdatedPayload {
+export interface ScheduleUpdatedPayload extends Record<string, unknown> {
   trigger: "estimate" | "capacity" | "manual" | "job_complete";
   affected_machines: string[];
   jobs_rescheduled: number;
@@ -69,7 +69,7 @@ export interface ScheduleUpdatedPayload {
   optimization_time_ms: number;
 }
 
-export interface ActualDurationPayload {
+export interface ActualDurationPayload extends Record<string, unknown> {
   job_id: string;
   machine_id: string;
   estimated_seconds: number;
@@ -319,7 +319,10 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
     const startTime = Date.now();
 
     // Get current jobs for the affected machine
-    const slots = schedulingEngine.getSlots?.() || [];
+    // SchedulingEngine doesn't expose getSlots() in the current API surface;
+    // empty fallback keeps the chain working until a slot lookup is wired in.
+    const slots = (schedulingEngine as unknown as { getSlots?: () => Array<{ machine_id: string }> })
+      .getSlots?.() ?? [];
     const affectedJobs = slots.filter((s: any) => s.machine_id === machine_id);
 
     // Trigger schedule optimization
