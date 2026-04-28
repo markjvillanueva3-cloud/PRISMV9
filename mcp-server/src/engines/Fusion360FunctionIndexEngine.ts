@@ -523,6 +523,29 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get a single toolpath by id (matches getOperation parity from peer
+   * FunctionIndex engines). Scans every module catalog. Returns the
+   * toolpath info plus the module it lives in, or `null` when not found.
+   */
+  static getToolpath(toolpathId: string):
+    | { toolpath_id: string; module_id: string; toolpath: Fusion360ToolpathInfo }
+    | { error: string } {
+    if (!toolpathId || typeof toolpathId !== "string") {
+      throw new Error("getToolpath: toolpathId must be a non-empty string");
+    }
+    const all = this.listAllToolpaths();
+    const hit = all.find((t) => t.toolpath_id === toolpathId);
+    if (!hit) {
+      return { error: `Toolpath '${toolpathId}' not found` };
+    }
+    return {
+      toolpath_id: hit.toolpath_id,
+      module_id: hit.module_id,
+      toolpath: hit,
+    };
+  }
+
+  /**
    * Get Manufacturing Extension toolpaths.
    */
   static getManufacturingExtensionToolpaths(): Fusion360ToolpathInfo[] {
