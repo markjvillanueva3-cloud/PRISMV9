@@ -1499,6 +1499,12 @@ export const ACTIONS = [
   "hypermill_data_extract_all",
   "hypermill_data_status",
   "hypermill_data_freshness_check",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-28 — HyperMILL FunctionIndex (10 actions)
+  "hypermill_function_index_get", "hypermill_function_index_list_modules",
+  "hypermill_function_index_get_module", "hypermill_function_index_find_parameter",
+  "hypermill_function_index_get_parameters_by_formula", "hypermill_function_index_get_parameters_by_dispatcher",
+  "hypermill_function_index_get_tribal_tips_by_source", "hypermill_function_index_resolve_dependencies",
+  "hypermill_function_index_total_parameter_count", "hypermill_function_index_get_load_errors",
   // HM-REV-MS9: AC Bridge + Deployment (U-HMR46/47/48/49/50)
   "hypermill_ac_status",
   "hypermill_ppp_write",
@@ -10709,6 +10715,70 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             // U-HMR48: Standalone freshness check.
             _hmExtractionOrch ??= (await import("../../engines/HyperMillDataExtractionOrchestrator.js")).hyperMillDataExtractionOrchestrator;
             result = _hmExtractionOrch.checkFreshness(params.output_dir ?? "data/hypermill-extracted");
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM-FIDX-28: HyperMILL FunctionIndex (10 actions) ──
+          case "hypermill_function_index_get": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            result = { success: true, index: HyperMillFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "hypermill_function_index_list_modules": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            result = { success: true, modules: HyperMillFunctionIndexEngine.listModules() };
+            break;
+          }
+          case "hypermill_function_index_get_module": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            const moduleId = params.module_id as string;
+            const mod = HyperMillFunctionIndexEngine.getModule(moduleId);
+            result = mod
+              ? { success: true, module_id: moduleId, module: mod }
+              : { success: false, error: `Module '${moduleId}' not found` };
+            break;
+          }
+          case "hypermill_function_index_find_parameter": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            const paramId = params.parameter_id as string;
+            const located = HyperMillFunctionIndexEngine.findParameter(paramId);
+            result = located
+              ? { success: true, parameter: located }
+              : { success: false, error: `Parameter '${paramId}' not found` };
+            break;
+          }
+          case "hypermill_function_index_get_parameters_by_formula": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            const formulaId = params.formula_id as string;
+            result = { success: true, parameters: HyperMillFunctionIndexEngine.getParametersByFormula(formulaId) };
+            break;
+          }
+          case "hypermill_function_index_get_parameters_by_dispatcher": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            const dispatcherName = params.dispatcher_name as string;
+            result = { success: true, parameters: HyperMillFunctionIndexEngine.getParametersByDispatcher(dispatcherName) };
+            break;
+          }
+          case "hypermill_function_index_get_tribal_tips_by_source": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            const source = params.source as string;
+            result = { success: true, tips: HyperMillFunctionIndexEngine.getTribalTipsBySource(source) };
+            break;
+          }
+          case "hypermill_function_index_resolve_dependencies": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            const moduleId = params.module_id as string;
+            result = { success: true, ...HyperMillFunctionIndexEngine.resolveDependencies(moduleId) };
+            break;
+          }
+          case "hypermill_function_index_total_parameter_count": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            result = { success: true, ...HyperMillFunctionIndexEngine.totalParameterCount() };
+            break;
+          }
+          case "hypermill_function_index_get_load_errors": {
+            const { HyperMillFunctionIndexEngine } = await import("../../engines/HyperMillFunctionIndexEngine.js");
+            result = { success: true, load_errors: HyperMillFunctionIndexEngine.getLoadErrors() };
             break;
           }
 

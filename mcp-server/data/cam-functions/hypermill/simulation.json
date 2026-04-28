@@ -1,0 +1,214 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "simulation",
+  "module_name": "hyperMILL Simulation & Verification",
+  "description": "Material removal simulation, collision check, machine kinematic verification. Depends on tool_database and stock_fixture for geometry.",
+  "parameter_count": 22,
+  "menus": [
+    {
+      "id": "material_removal",
+      "name": "Material Removal Simulation",
+      "operation_class": "verification",
+      "dialogs": [
+        {
+          "id": "voxel_settings",
+          "name": "Voxel Settings",
+          "type": "tabbed",
+          "dialog_purpose": "Voxel resolution + render quality",
+          "parameters": [
+            {
+              "id": "voxel_resolution_mm",
+              "name": "Voxel Resolution",
+              "category": "simulation",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.1, "constraints": { "min": 0.001, "max": 5 } }
+            },
+            {
+              "id": "render_quality",
+              "name": "Render Quality",
+              "category": "simulation",
+              "value": { "type": "enum", "default_value": "medium", "constraints": { "enum_values": ["low", "medium", "high", "photorealistic"] } }
+            },
+            {
+              "id": "playback_speed",
+              "name": "Playback Speed Multiplier",
+              "category": "simulation",
+              "value": { "type": "number", "unit": "x_real_time", "default_value": 10 }
+            },
+            {
+              "id": "show_chip_visualization",
+              "name": "Show Chip Visualization",
+              "category": "simulation",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "save_simulation_video",
+              "name": "Save Simulation Video",
+              "category": "simulation",
+              "value": { "type": "boolean", "default_value": false }
+            },
+            {
+              "id": "simulation_step_count",
+              "name": "Simulation Step Count",
+              "category": "simulation",
+              "value": { "type": "integer", "default_value": 1000, "constraints": { "min": 100, "max": 100000 } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collision_detection",
+      "name": "Collision Detection",
+      "operation_class": "safety",
+      "dialogs": [
+        {
+          "id": "collision_scope",
+          "name": "Collision Scope",
+          "type": "tabbed",
+          "dialog_purpose": "What to check for collisions",
+          "parameters": [
+            {
+              "id": "check_tool_to_stock",
+              "name": "Check Tool ↔ Stock Collision",
+              "category": "safety",
+              "value": { "type": "boolean", "default_value": true },
+              "ai_actions": [
+                { "dispatcher": "prism_safety", "action": "check_toolpath_collision" }
+              ]
+            },
+            {
+              "id": "check_holder_to_stock",
+              "name": "Check Holder ↔ Stock",
+              "category": "safety",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "check_holder_to_fixture",
+              "name": "Check Holder ↔ Fixture",
+              "category": "safety",
+              "value": { "type": "boolean", "default_value": true },
+              "ai_actions": [
+                { "dispatcher": "prism_safety", "action": "check_fixture_clearance" }
+              ]
+            },
+            {
+              "id": "check_spindle_to_workpiece",
+              "name": "Check Spindle ↔ Workpiece",
+              "category": "safety",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "rapid_collision_clearance_mm",
+              "name": "Rapid Collision Clearance",
+              "category": "safety",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.001 }
+            },
+            {
+              "id": "feed_collision_clearance_mm",
+              "name": "Feed Collision Clearance",
+              "category": "safety",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.0 }
+            },
+            {
+              "id": "collision_action",
+              "name": "Action on Collision",
+              "category": "safety",
+              "value": { "type": "enum", "default_value": "stop_immediately", "constraints": { "enum_values": ["continue", "stop_immediately", "stop_at_step_end", "log_only"] } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kinematic_verify",
+      "name": "Kinematic Verification",
+      "operation_class": "verification",
+      "dialogs": [
+        {
+          "id": "machine_envelope",
+          "name": "Machine Envelope",
+          "type": "tabbed",
+          "dialog_purpose": "Verify program respects machine kinematics",
+          "parameters": [
+            {
+              "id": "machine_kinematic_model",
+              "name": "Machine Kinematic Model",
+              "category": "machine",
+              "value": { "type": "enum", "default_value": "5axis_table_table", "constraints": { "enum_values": ["3axis", "3plus2", "4axis", "5axis_head_head", "5axis_head_table", "5axis_table_table"] } }
+            },
+            {
+              "id": "axis_limit_x_min",
+              "name": "X Travel Min",
+              "category": "machine",
+              "value": { "type": "number", "unit": "mm", "default_value": -500 }
+            },
+            {
+              "id": "axis_limit_x_max",
+              "name": "X Travel Max",
+              "category": "machine",
+              "value": { "type": "number", "unit": "mm", "default_value": 500 }
+            },
+            {
+              "id": "verify_rapid_speed",
+              "name": "Verify Rapid Speed",
+              "category": "machine",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 30000 }
+            },
+            {
+              "id": "verify_singularity_zones",
+              "name": "Detect Singularity Zones",
+              "category": "verification",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "verify_jerk_limits",
+              "name": "Enforce Jerk Limits",
+              "category": "machine",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "report_max_axis_load_pct",
+              "name": "Max Axis Load Reported",
+              "category": "verification",
+              "value": { "type": "number", "unit": "pct", "default_value": 85 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verification_report",
+      "name": "Verification Report",
+      "operation_class": "reporting",
+      "dialogs": [
+        {
+          "id": "report_options",
+          "name": "Report Options",
+          "type": "tabbed",
+          "dialog_purpose": "What to include in verification report",
+          "parameters": [
+            {
+              "id": "include_3d_screenshots",
+              "name": "Include 3D Screenshots",
+              "category": "reporting",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "report_format",
+              "name": "Report Format",
+              "category": "reporting",
+              "value": { "type": "enum", "default_value": "html", "constraints": { "enum_values": ["html", "pdf", "json"] } }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dispatcher_bindings": [
+    { "dispatcher": "prism_safety", "actions": ["check_toolpath_collision", "check_fixture_clearance"] }
+  ],
+  "cross_references": {
+    "engines": ["CollisionPreventionEngine", "MachineKinematicsEngine"]
+  }
+}

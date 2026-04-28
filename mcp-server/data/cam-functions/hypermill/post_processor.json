@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "post_processor",
+  "module_name": "hyperMILL Post Processor (PPG)",
+  "description": "PPG configuration: controller dialect, kinematic chain, NC code emit options, RTCP / G68.2 enable. Depends on simulation (kinematic model) for verification context.",
+  "parameter_count": 18,
+  "menus": [
+    {
+      "id": "controller_dialect",
+      "name": "Controller Dialect",
+      "operation_class": "post_processing",
+      "dialogs": [
+        {
+          "id": "dialect_selection",
+          "name": "Dialect Selection",
+          "type": "tabbed",
+          "dialog_purpose": "Which controller dialect to emit",
+          "parameters": [
+            {
+              "id": "controller_family",
+              "name": "Controller Family",
+              "category": "post_processing",
+              "value": { "type": "enum", "default_value": "fanuc_31i", "constraints": { "enum_values": ["fanuc_30i", "fanuc_31i", "siemens_840d", "haas_ngc", "okuma_osp", "heidenhain_tnc640", "mazak_smooth", "hurco_winmax"] } },
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "post_process" }
+              ]
+            },
+            {
+              "id": "dialect_variant",
+              "name": "Dialect Variant",
+              "category": "post_processing",
+              "value": { "type": "string", "default_value": "default" }
+            },
+            {
+              "id": "units_emit",
+              "name": "Output Units",
+              "category": "post_processing",
+              "value": { "type": "enum", "default_value": "metric", "constraints": { "enum_values": ["metric", "imperial"] } }
+            },
+            {
+              "id": "decimal_precision",
+              "name": "Decimal Precision",
+              "category": "post_processing",
+              "value": { "type": "integer", "default_value": 4, "constraints": { "min": 1, "max": 6 } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kinematic_chain",
+      "name": "Kinematic Chain",
+      "operation_class": "post_processing",
+      "dialogs": [
+        {
+          "id": "rtcp_settings",
+          "name": "RTCP / TCPC Settings",
+          "type": "tabbed",
+          "dialog_purpose": "Tool centerpoint compensation",
+          "parameters": [
+            {
+              "id": "enable_g43_4",
+              "name": "Enable G43.4 (Fanuc TCPC)",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "enable_g68_2",
+              "name": "Enable G68.2 (Tilted Work Plane)",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "rotary_unwind_strategy",
+              "name": "Rotary Unwind Strategy",
+              "category": "post_processing",
+              "value": { "type": "enum", "default_value": "shortest_path", "constraints": { "enum_values": ["shortest_path", "always_positive", "preserve_sign"] } }
+            },
+            {
+              "id": "linearize_simultaneous",
+              "name": "Linearize Simultaneous Moves",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": false }
+            },
+            {
+              "id": "rotary_axis_limit_deg",
+              "name": "Rotary Axis Limit",
+              "category": "post_processing",
+              "value": { "type": "number", "unit": "deg", "default_value": 360 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nc_emit_options",
+      "name": "NC Code Emit Options",
+      "operation_class": "post_processing",
+      "dialogs": [
+        {
+          "id": "code_emit",
+          "name": "Code Emit",
+          "type": "tabbed",
+          "dialog_purpose": "Output formatting + safety blocks",
+          "parameters": [
+            {
+              "id": "block_numbering",
+              "name": "Block Numbering",
+              "category": "post_processing",
+              "value": { "type": "enum", "default_value": "every_block", "constraints": { "enum_values": ["off", "every_block", "every_5", "every_10"] } }
+            },
+            {
+              "id": "include_setup_sheet_header",
+              "name": "Include Setup Sheet Header",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "include_tool_list_block",
+              "name": "Include Tool List Block",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "safety_g_codes_at_start",
+              "name": "Emit Safety G-Codes at Program Start",
+              "category": "safety",
+              "value": { "type": "string", "default_value": "G17 G21 G40 G49 G80 G90 G94" }
+            },
+            {
+              "id": "comment_style",
+              "name": "Comment Style",
+              "category": "post_processing",
+              "value": { "type": "enum", "default_value": "parentheses", "constraints": { "enum_values": ["parentheses", "semicolon", "off"] } }
+            },
+            {
+              "id": "spindle_warmup_block",
+              "name": "Insert Spindle Warmup Block",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": false }
+            },
+            {
+              "id": "M30_at_program_end",
+              "name": "Emit M30 (or M02) at Program End",
+              "category": "post_processing",
+              "value": { "type": "enum", "default_value": "M30", "constraints": { "enum_values": ["M30", "M02", "off"] } }
+            },
+            {
+              "id": "ppg_validate_nc_envelope",
+              "name": "Validate NC Against Machine Envelope",
+              "category": "validation",
+              "value": { "type": "boolean", "default_value": true },
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "gcode_envelope" }
+              ]
+            },
+            {
+              "id": "ppg_optimize_rapids",
+              "name": "Optimize Rapid Moves",
+              "category": "post_processing",
+              "value": { "type": "boolean", "default_value": true },
+              "ai_actions": [
+                { "dispatcher": "prism_cam", "action": "post_optimize_rapids" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dispatcher_bindings": [
+    { "dispatcher": "prism_cam", "actions": ["post_process", "gcode_envelope", "post_optimize_rapids"] }
+  ],
+  "cross_references": {
+    "engines": ["PostProcessorPipelineEngine", "ControllerKnowledgeEngine"]
+  }
+}
