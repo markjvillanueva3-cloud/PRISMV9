@@ -593,7 +593,136 @@ describe("Fusion360FunctionIndexEngine", () => {
       const moduleIds = idx.modules.map((m) => m.module_id);
       expect(moduleIds).toContain("probing");
       const probingEntry = idx.modules.find((m) => m.module_id === "probing");
-      expect(probingEntry?.parameter_count_estimate).toBeGreaterThan(200);
+      expect(probingEntry?.parameter_count_estimate).toBe(256);
+    });
+  });
+
+  // CAM-EXHAUST-MS1-02 — Fusion 360 Additive module
+  describe("getAdditiveOperations (CAM-EXHAUST-MS1-02)", () => {
+    it("returns exactly 12 additive toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      expect(ops.length).toBe(12);
+    });
+
+    it("DED category contains exactly 4 ops with sorted ids matching catalog", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const dedIds = ops.filter((o) => o.category === "DED").map((o) => o.toolpath_id).sort();
+      expect(dedIds).toEqual([
+        "DED_MULTI_AXIS_LATTICE",
+        "DED_REPAIR",
+        "DED_THIN_WALL",
+        "DED_WIDE_AREA",
+      ]);
+    });
+
+    it("PBF category contains exactly 3 SLM ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const pbfIds = ops.filter((o) => o.category === "PBF").map((o) => o.toolpath_id).sort();
+      expect(pbfIds).toEqual([
+        "PBF_LATTICE_INFILL",
+        "PBF_SLM_PART",
+        "PBF_SLM_SUPPORT",
+      ]);
+    });
+
+    it("FDM category contains exactly 3 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const fdmIds = ops.filter((o) => o.category === "FDM").map((o) => o.toolpath_id).sort();
+      expect(fdmIds).toEqual([
+        "FDM_INFILL_PATTERN",
+        "FDM_PART",
+        "FDM_SUPPORT",
+      ]);
+    });
+
+    it("Hybrid category contains exactly 2 additive+subtractive ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const hybridIds = ops.filter((o) => o.category === "Hybrid").map((o) => o.toolpath_id).sort();
+      expect(hybridIds).toEqual([
+        "HYBRID_CYCLE_DED_THEN_MILL",
+        "HYBRID_NEAR_NET_FINISH",
+      ]);
+    });
+
+    it("DED_THIN_WALL has exactly 22 parameters and DED category", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const op = ops.find((o) => o.toolpath_id === "DED_THIN_WALL");
+      expect(op?.parameter_count).toBe(22);
+      expect(op?.category).toBe("DED");
+    });
+
+    it("PBF_SLM_PART has exactly 22 parameters and PBF category", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const op = ops.find((o) => o.toolpath_id === "PBF_SLM_PART");
+      expect(op?.parameter_count).toBe(22);
+      expect(op?.category).toBe("PBF");
+    });
+
+    it("FDM_INFILL_PATTERN has exactly 14 parameters (smallest in catalog)", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const op = ops.find((o) => o.toolpath_id === "FDM_INFILL_PATTERN");
+      expect(op?.parameter_count).toBe(14);
+    });
+
+    it("HYBRID_CYCLE_DED_THEN_MILL has exactly 22 parameters and Hybrid category", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const op = ops.find((o) => o.toolpath_id === "HYBRID_CYCLE_DED_THEN_MILL");
+      expect(op?.parameter_count).toBe(22);
+      expect(op?.category).toBe("Hybrid");
+    });
+
+    it("DED_REPAIR description references the word 'repair'", () => {
+      const ops = Fusion360FunctionIndexEngine.getAdditiveOperations();
+      const op = ops.find((o) => o.toolpath_id === "DED_REPAIR");
+      expect(op?.description.toLowerCase().includes("repair")).toBe(true);
+    });
+
+    it("dispatcher round-trip: get_additive_operations returns 12 ops with DED_REPAIR @ 22 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_additive_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(12);
+      const dedRepair = result.operations.find((o) => o.toolpath_id === "DED_REPAIR");
+      expect(dedRepair?.category).toBe("DED");
+      expect(dedRepair?.parameter_count).toBe(22);
+    });
+
+    it("additive module is registered in fusion360 function-index with 264 estimated params", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const additiveEntry = idx.modules.find((m) => m.module_id === "additive");
+      expect(additiveEntry?.parameter_count_estimate).toBe(264);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_additive_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_additive_operations");
     });
   });
 });

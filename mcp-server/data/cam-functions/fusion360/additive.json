@@ -1,0 +1,665 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Additive Toolpath Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for all Fusion 360 additive manufacturing operations: DED (Directed Energy Deposition), PBF (Powder Bed Fusion / SLM), FDM (Fused Deposition Modelling), and Hybrid additive+subtractive cycles. Manufacturing Extension surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-28",
+    "milestone": "CAM-EXHAUST-MS1-02",
+    "source": "Autodesk Fusion 360 Help — Additive Workspace + Manufacturing Extension DED/Hybrid reference",
+    "totalParameters": 264,
+    "toolpathCount": 12,
+    "physics_links": [
+      "MELT_POOL_THERMAL",
+      "DEPOSITION_VOLUME_RATE",
+      "POWDER_FLOW_GRAVITY",
+      "RESIDUAL_STRESS_LAYER",
+      "COOLING_RATE_THERMAL_GRADIENT"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across additive operations",
+    "tabs": ["Process", "Geometry", "Layers", "Path", "Quality", "Output"]
+  },
+  "toolpaths": {
+    "DED_THIN_WALL": {
+      "description": "Directed Energy Deposition single-bead thin-wall build. Used for repair pads, bosses, and single-pass features. Wire-fed or blown-powder.",
+      "category": "DED",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Deposition Source", "type": "dropdown", "description": "Energy source", "options": ["laser_blown_powder", "laser_wire", "arc_GMAW", "arc_GTAW", "electron_beam_wire"], "default": "laser_blown_powder"},
+            {"name": "Laser Power", "type": "numeric", "description": "Laser power (laser sources only)", "default": 1500, "unit": "W", "min": 100, "max": 10000},
+            {"name": "Arc Voltage", "type": "numeric", "description": "Arc voltage (arc sources only)", "default": 22, "unit": "V", "min": 10, "max": 40},
+            {"name": "Arc Current", "type": "numeric", "description": "Arc current", "default": 150, "unit": "A", "min": 50, "max": 400},
+            {"name": "Material Feed Rate", "type": "numeric", "description": "Powder/wire feed rate", "default": 25, "unit": "g/min", "min": 1, "max": 200},
+            {"name": "Material Type", "type": "dropdown", "description": "Feedstock material", "options": ["Inconel_718", "Ti6Al4V", "AISI_316L", "Tool_Steel_H13", "AlSi10Mg", "Stellite_6"], "default": "Inconel_718"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Build Surface", "type": "selection", "description": "Surface or path on which to deposit", "required": true},
+            {"name": "Substrate Material", "type": "string", "description": "Existing-part material if repairing", "default": "Inconel_718"},
+            {"name": "Tool Orientation", "type": "dropdown", "options": ["Setup_WCS", "Surface_normal", "5_axis_continuous"], "default": "Surface_normal"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness", "type": "numeric", "description": "Per-layer height", "default": 0.6, "unit": "mm", "min": 0.05, "max": 5.0},
+            {"name": "Total Build Height", "type": "numeric", "default": 25, "unit": "mm"},
+            {"name": "Layer Count Override", "type": "numeric", "description": "Manual layer count (0 = auto from thickness)", "default": 0}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Travel Speed", "type": "numeric", "description": "Linear deposition speed", "default": 600, "unit": "mm/min", "min": 50, "max": 5000},
+            {"name": "Bead Width Target", "type": "numeric", "description": "Target single-bead width", "default": 2.5, "unit": "mm"},
+            {"name": "Stepover Within Layer", "type": "numeric", "description": "% bead overlap if multi-bead", "default": 35, "unit": "pct"},
+            {"name": "Inter-Layer Cooling Time", "type": "numeric", "description": "Pause between layers", "default": 0, "unit": "s"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Melt Pool Monitoring", "type": "checkbox", "description": "Closed-loop control via thermal cam", "default": true},
+            {"name": "Inert Gas Shielding", "type": "dropdown", "options": ["Argon", "Helium", "Argon_Helium_mix", "Nitrogen", "none"], "default": "Argon"},
+            {"name": "Gas Flow Rate", "type": "numeric", "default": 12, "unit": "L/min"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_DED", "AMF", "3MF", "STEP_AP242"], "default": "G_code_DED"},
+            {"name": "Track Cumulative Energy", "type": "checkbox", "description": "Log total energy deposited per layer", "default": true},
+            {"name": "Estimate Build Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "DED_WIDE_AREA": {
+      "description": "DED multi-bead area fill for cladding, repair patches, near-net builds.",
+      "category": "DED",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Deposition Source", "type": "dropdown", "options": ["laser_blown_powder", "laser_wire", "arc_GMAW", "arc_CMT"], "default": "laser_blown_powder"},
+            {"name": "Laser Power", "type": "numeric", "default": 2500, "unit": "W"},
+            {"name": "Material Feed Rate", "type": "numeric", "default": 50, "unit": "g/min"},
+            {"name": "Material Type", "type": "dropdown", "options": ["Inconel_718", "Stellite_6", "AISI_316L", "Bronze", "Tool_Steel_H13"], "default": "Stellite_6"},
+            {"name": "Multi-Track Strategy", "type": "dropdown", "options": ["raster", "hatched_alternating", "spiral", "contour_first"], "default": "hatched_alternating"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Fill Region", "type": "selection", "required": true},
+            {"name": "Region Boundary", "type": "selection", "description": "Outer contour"},
+            {"name": "Track Direction", "type": "dropdown", "options": ["X_axis", "Y_axis", "auto_optimal", "rotate_per_layer"], "default": "rotate_per_layer"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness", "type": "numeric", "default": 0.8, "unit": "mm"},
+            {"name": "Total Build Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Rotate Track Angle Each Layer", "type": "numeric", "description": "Rotation between successive layers (e.g. 67° for variability)", "default": 67, "unit": "deg"}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Travel Speed", "type": "numeric", "default": 800, "unit": "mm/min"},
+            {"name": "Bead Width Target", "type": "numeric", "default": 3.5, "unit": "mm"},
+            {"name": "Track Stepover", "type": "numeric", "description": "% bead overlap between adjacent tracks", "default": 35, "unit": "pct"},
+            {"name": "End-of-Track Lift", "type": "numeric", "description": "Z lift before reposition", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Melt Pool Monitoring", "type": "checkbox", "default": true},
+            {"name": "Inter-Layer Inspection", "type": "checkbox", "description": "Pause for thermal scan or probe per N layers", "default": false},
+            {"name": "Inspection Cadence", "type": "numeric", "description": "Layers between inspections", "default": 5, "min": 1, "max": 100},
+            {"name": "Inert Gas Shielding", "type": "dropdown", "options": ["Argon", "Helium", "Argon_Helium_mix", "Nitrogen"], "default": "Argon"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_DED", "AMF", "3MF"], "default": "G_code_DED"},
+            {"name": "Estimate Powder Consumption", "type": "checkbox", "default": true},
+            {"name": "Estimate Build Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "DED_MULTI_AXIS_LATTICE": {
+      "description": "DED 5-axis lattice deposition for non-planar / 3D-curved / overhang structures. Robotic arm or 5-axis hybrid machine.",
+      "category": "DED",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Deposition Source", "type": "dropdown", "options": ["laser_blown_powder", "laser_wire"], "default": "laser_wire"},
+            {"name": "Laser Power", "type": "numeric", "default": 2000, "unit": "W"},
+            {"name": "Wire Feed Rate", "type": "numeric", "default": 1500, "unit": "mm/min"},
+            {"name": "Wire Diameter", "type": "numeric", "default": 1.2, "unit": "mm"},
+            {"name": "Material Type", "type": "dropdown", "options": ["Ti6Al4V", "Inconel_718", "AISI_316L"], "default": "Ti6Al4V"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Build Surface", "type": "selection", "required": true},
+            {"name": "Tool Axis Strategy", "type": "dropdown", "options": ["normal_to_surface", "tilted_lead", "fixed_world_Z", "axis_minimization"], "default": "normal_to_surface"},
+            {"name": "Lead Angle", "type": "numeric", "description": "Forward tilt angle", "default": 5, "unit": "deg"},
+            {"name": "Lattice Pattern", "type": "dropdown", "options": ["honeycomb", "gyroid", "tetra", "octet_truss", "BCC", "FCC"], "default": "gyroid"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Slice Method", "type": "dropdown", "options": ["uniform_Z", "adaptive_curvature", "perpendicular_to_axis"], "default": "adaptive_curvature"},
+            {"name": "Min Layer Count", "type": "numeric", "default": 5}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Travel Speed", "type": "numeric", "default": 700, "unit": "mm/min"},
+            {"name": "Bead Width", "type": "numeric", "default": 2.0, "unit": "mm"},
+            {"name": "Lattice Stepover", "type": "numeric", "default": 4, "unit": "mm"},
+            {"name": "Singularity Avoidance", "type": "checkbox", "description": "Detect 5-axis singularities and reroute", "default": true}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Melt Pool Monitoring", "type": "checkbox", "default": true},
+            {"name": "Collision Check Each Layer", "type": "checkbox", "default": true},
+            {"name": "Tool Reach Verification", "type": "checkbox", "description": "Verify nozzle/torch reaches all points", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_5axis_DED", "URDF_robot", "RAPID_ABB", "KRL_KUKA"], "default": "G_code_5axis_DED"},
+            {"name": "Verify with Sim Before Post", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "DED_REPAIR": {
+      "description": "DED repair operation for damaged components: turbine blades, die cavities, worn shafts. Scans existing geometry, computes deficit volume, deposits replacement.",
+      "category": "DED",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Deposition Source", "type": "dropdown", "options": ["laser_blown_powder", "laser_wire"], "default": "laser_blown_powder"},
+            {"name": "Laser Power", "type": "numeric", "default": 1200, "unit": "W"},
+            {"name": "Material Feed Rate", "type": "numeric", "default": 18, "unit": "g/min"},
+            {"name": "Repair Material Match", "type": "dropdown", "description": "Auto-match substrate material", "options": ["auto_match_substrate", "user_specified", "graded_blend"], "default": "auto_match_substrate"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Damaged Region Scan", "type": "selection", "description": "Probed/scanned mesh of damaged area", "required": true},
+            {"name": "Reference CAD Model", "type": "selection", "description": "Original part geometry for deficit calc"},
+            {"name": "Deficit Tolerance", "type": "numeric", "description": "Min deviation to trigger deposition", "default": 0.1, "unit": "mm"},
+            {"name": "Overbuild Allowance", "type": "numeric", "description": "Extra material for finish machining", "default": 0.5, "unit": "mm"},
+            {"name": "Repair Boundary Strategy", "type": "dropdown", "options": ["chamfer_edge_blend", "stepped_overlap", "instant_transition"], "default": "chamfer_edge_blend"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness", "type": "numeric", "default": 0.4, "unit": "mm"},
+            {"name": "Substrate Preheat Required", "type": "checkbox", "description": "Preheat substrate to avoid thermal shock", "default": true},
+            {"name": "Preheat Temperature", "type": "numeric", "default": 300, "unit": "C"}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Travel Speed", "type": "numeric", "default": 500, "unit": "mm/min"},
+            {"name": "Bead Width", "type": "numeric", "default": 2.0, "unit": "mm"},
+            {"name": "Multi-Pass Buildup", "type": "checkbox", "description": "Multiple thin passes vs single thick", "default": true},
+            {"name": "Stepover", "type": "numeric", "default": 35, "unit": "pct"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Melt Pool Monitoring", "type": "checkbox", "default": true},
+            {"name": "In-Process Probing", "type": "checkbox", "description": "Re-scan after each layer to verify deposit accuracy", "default": true},
+            {"name": "Probe Frequency", "type": "numeric", "description": "Layers between probes", "default": 3, "min": 1, "max": 20}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_DED", "RAPID_ABB", "KRL_KUKA"], "default": "G_code_DED"},
+            {"name": "Generate Repair Report", "type": "checkbox", "description": "PDF report with before/after geometry, energy log", "default": true}
+          ]
+        }
+      }
+    },
+    "PBF_SLM_PART": {
+      "description": "Selective Laser Melting (SLM) build prep: orient, slice, hatch, generate scan vectors for laser PBF machine.",
+      "category": "PBF",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Machine Type", "type": "dropdown", "options": ["EOS_M290", "SLM_Solutions_280", "Renishaw_AM400", "GE_Concept_M2", "Trumpf_TruPrint_3000"], "default": "EOS_M290"},
+            {"name": "Material Type", "type": "dropdown", "options": ["AlSi10Mg", "Ti6Al4V", "Inconel_718", "Inconel_625", "AISI_316L", "Tool_Steel_H13", "CoCrMo"], "default": "AlSi10Mg"},
+            {"name": "Laser Power", "type": "numeric", "default": 280, "unit": "W"},
+            {"name": "Number of Lasers", "type": "numeric", "description": "Multi-laser machines split build area", "default": 1, "min": 1, "max": 4}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Part Body", "type": "selection", "required": true},
+            {"name": "Build Plate Size", "type": "dropdown", "options": ["250x250x325", "280x280x365", "400x400x400", "500x280x365"], "default": "250x250x325"},
+            {"name": "Build Orientation", "type": "dropdown", "options": ["auto_optimize_supports", "auto_optimize_finish", "user_specified"], "default": "auto_optimize_supports"},
+            {"name": "Down-Skin Angle Threshold", "type": "numeric", "description": "Angle below which surface is 'down-skin' (typically needs supports)", "default": 45, "unit": "deg"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness", "type": "numeric", "default": 30, "unit": "um", "min": 20, "max": 100},
+            {"name": "Powder Recoat Speed", "type": "numeric", "default": 200, "unit": "mm/s"},
+            {"name": "Pre-Heat Build Plate Temperature", "type": "numeric", "default": 80, "unit": "C"}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Hatch Strategy", "type": "dropdown", "options": ["meander_alternating", "stripes", "chessboard", "island", "spiral"], "default": "meander_alternating"},
+            {"name": "Hatch Spacing", "type": "numeric", "default": 0.10, "unit": "mm"},
+            {"name": "Hatch Rotation per Layer", "type": "numeric", "default": 67, "unit": "deg"},
+            {"name": "Scan Speed", "type": "numeric", "default": 1200, "unit": "mm/s"},
+            {"name": "Contour First", "type": "checkbox", "description": "Trace part boundary before hatching", "default": true},
+            {"name": "Skin Thickness", "type": "numeric", "default": 1.0, "unit": "mm"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Melt Pool Monitoring", "type": "checkbox", "default": false},
+            {"name": "OT Camera Per Layer", "type": "checkbox", "description": "Optical tomography per layer", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["EOS_OPENJZ", "SLM_SLI", "Renishaw_QM_AM", "AMF", "3MF"], "default": "AMF"},
+            {"name": "Estimate Build Time", "type": "checkbox", "default": true},
+            {"name": "Estimate Powder Consumption", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PBF_SLM_SUPPORT": {
+      "description": "Support structure generation for SLM: lattice supports, cone/tree supports, block supports under overhangs.",
+      "category": "PBF",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Support Strategy", "type": "dropdown", "options": ["block_perforated", "tree_branching", "lattice_octet", "cone_columnar", "edge_only"], "default": "block_perforated"},
+            {"name": "Support Material", "type": "dropdown", "description": "Same as part for metal SLM", "options": ["match_part_material"], "default": "match_part_material"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Down-Skin Angle Threshold", "type": "numeric", "description": "Surfaces below this angle need supports", "default": 45, "unit": "deg"},
+            {"name": "Min Support Distance From Boundary", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Auto-Add Supports", "type": "checkbox", "default": true},
+            {"name": "Manual Support Regions", "type": "selection", "description": "User-specified support areas"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness Match Part", "type": "checkbox", "default": true},
+            {"name": "Layer Thickness Override", "type": "numeric", "default": 30, "unit": "um"}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Support Wall Thickness", "type": "numeric", "default": 0.4, "unit": "mm"},
+            {"name": "Support Spacing X", "type": "numeric", "description": "Center-to-center spacing", "default": 2.5, "unit": "mm"},
+            {"name": "Support Spacing Y", "type": "numeric", "default": 2.5, "unit": "mm"},
+            {"name": "Tooth Profile", "type": "dropdown", "description": "Sawtooth at part interface for easier removal", "options": ["square", "sawtooth", "rounded", "perforated"], "default": "sawtooth"},
+            {"name": "Tooth Pitch", "type": "numeric", "default": 0.6, "unit": "mm"},
+            {"name": "Tooth Height", "type": "numeric", "default": 0.4, "unit": "mm"},
+            {"name": "Perforation Pattern", "type": "dropdown", "options": ["holes_grid", "honeycomb", "diagonal_slots"], "default": "honeycomb"},
+            {"name": "Perforation Size", "type": "numeric", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Removability Check", "type": "checkbox", "description": "Verify supports can be reached for removal", "default": true},
+            {"name": "Stress Concentration Check", "type": "checkbox", "description": "Flag supports likely to leave defects", "default": true},
+            {"name": "Min Distance Between Supports", "type": "numeric", "default": 1.0, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output as Separate Body", "type": "checkbox", "description": "Keep supports geometrically separate", "default": true},
+            {"name": "Support Removal Time Estimate", "type": "checkbox", "default": true},
+            {"name": "Output Format", "type": "dropdown", "options": ["AMF", "3MF", "STL_supports_separate"], "default": "AMF"}
+          ]
+        }
+      }
+    },
+    "PBF_LATTICE_INFILL": {
+      "description": "Internal lattice infill for weight reduction in metal PBF parts. Gyroid, octet-truss, BCC, FCC patterns sized to load case.",
+      "category": "PBF",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Lattice Pattern", "type": "dropdown", "options": ["gyroid", "honeycomb", "octet_truss", "BCC", "FCC", "diamond", "schwarz_P"], "default": "gyroid"},
+            {"name": "Lattice Density Mode", "type": "dropdown", "options": ["uniform", "graded_by_load", "FEA_optimized", "shell_only"], "default": "uniform"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Infill Region", "type": "selection", "required": true},
+            {"name": "Outer Skin Thickness", "type": "numeric", "default": 1.5, "unit": "mm"},
+            {"name": "Reserve Mounting Bosses", "type": "checkbox", "description": "Solid material around bosses, holes", "default": true}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness Match Part", "type": "checkbox", "default": true}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Cell Size", "type": "numeric", "default": 5, "unit": "mm", "min": 1, "max": 50},
+            {"name": "Strut Thickness", "type": "numeric", "default": 0.6, "unit": "mm"},
+            {"name": "Volume Fraction Target", "type": "numeric", "description": "Solid volume / total volume", "default": 0.25, "unit": "fraction"},
+            {"name": "Powder Removal Hole Diameter", "type": "numeric", "description": "Drainage hole size for unfused powder", "default": 3, "unit": "mm"},
+            {"name": "Powder Removal Hole Count", "type": "numeric", "default": 2, "min": 0, "max": 20}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Min Strut Thickness Check", "type": "checkbox", "description": "Flag struts thinner than process minimum", "default": true},
+            {"name": "Process Minimum", "type": "numeric", "description": "Material+machine min strut", "default": 0.3, "unit": "mm"},
+            {"name": "Powder Trap Detection", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Mass Reduction Estimate", "type": "checkbox", "default": true},
+            {"name": "Stiffness Estimate", "type": "checkbox", "description": "Approximate via volume fraction / pattern stiffness", "default": true},
+            {"name": "Output Format", "type": "dropdown", "options": ["AMF", "3MF", "STL"], "default": "AMF"}
+          ]
+        }
+      }
+    },
+    "FDM_PART": {
+      "description": "Fused Deposition Modelling (FDM/FFF) main part toolpath. Polymer extrusion 3D print.",
+      "category": "FDM",
+      "parameterCount": 20,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Machine Type", "type": "dropdown", "options": ["Stratasys_F900", "Stratasys_F370", "Markforged_X7", "Ultimaker_S5", "Bambu_X1C", "Generic_RepRap"], "default": "Generic_RepRap"},
+            {"name": "Filament Material", "type": "dropdown", "options": ["PLA", "ABS", "PETG", "PC", "ULTEM_9085", "PEEK", "Nylon_PA12", "TPU", "ASA"], "default": "PLA"},
+            {"name": "Nozzle Temperature", "type": "numeric", "default": 215, "unit": "C"},
+            {"name": "Bed Temperature", "type": "numeric", "default": 60, "unit": "C"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Part Body", "type": "selection", "required": true},
+            {"name": "Build Orientation", "type": "dropdown", "options": ["auto_optimize_strength", "auto_optimize_speed", "auto_minimize_supports", "user_specified"], "default": "auto_minimize_supports"},
+            {"name": "Bed Adhesion", "type": "dropdown", "options": ["raft", "brim", "skirt", "none"], "default": "brim"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Thickness", "type": "numeric", "default": 0.2, "unit": "mm", "min": 0.05, "max": 0.8},
+            {"name": "First Layer Thickness", "type": "numeric", "description": "Often thicker for adhesion", "default": 0.3, "unit": "mm"}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Print Speed", "type": "numeric", "default": 60, "unit": "mm/s"},
+            {"name": "First Layer Speed", "type": "numeric", "default": 20, "unit": "mm/s"},
+            {"name": "Wall Count", "type": "numeric", "description": "Number of perimeter walls", "default": 3, "min": 1, "max": 10},
+            {"name": "Top/Bottom Layers", "type": "numeric", "default": 4},
+            {"name": "Retraction Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Retraction Speed", "type": "numeric", "default": 40, "unit": "mm/s"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Cooling Fan Speed", "type": "numeric", "default": 100, "unit": "pct"},
+            {"name": "Z Hop", "type": "numeric", "description": "Lift before travel to avoid scarring", "default": 0.4, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_Marlin", "G_code_RepRap", "G_code_GRBL", "AMF", "3MF"], "default": "G_code_Marlin"},
+            {"name": "Estimate Filament Length", "type": "checkbox", "default": true},
+            {"name": "Estimate Print Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FDM_SUPPORT": {
+      "description": "Support structures for FDM: soluble (PVA, HIPS, BVOH), breakaway, or same-material.",
+      "category": "FDM",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Support Material Type", "type": "dropdown", "options": ["soluble_PVA", "soluble_HIPS", "soluble_BVOH", "breakaway_same_material", "dissolvable_BASF_BVOH"], "default": "soluble_PVA"},
+            {"name": "Dual-Extruder Support", "type": "checkbox", "description": "Support uses second extruder", "default": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Down-Skin Angle Threshold", "type": "numeric", "default": 45, "unit": "deg"},
+            {"name": "Auto-Add Supports", "type": "checkbox", "default": true},
+            {"name": "Min Overhang for Supports", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "Layer Match Part", "type": "checkbox", "default": true}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Support Pattern", "type": "dropdown", "options": ["lines", "grid", "tree", "concentric", "zig_zag"], "default": "tree"},
+            {"name": "Support Density", "type": "numeric", "default": 15, "unit": "pct"},
+            {"name": "Support-to-Part Z Gap", "type": "numeric", "description": "Air gap between support and part for easy removal", "default": 0.2, "unit": "mm"},
+            {"name": "Support Wall Count", "type": "numeric", "default": 1}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Bridge Detection", "type": "checkbox", "description": "Detect bridges and skip support", "default": true},
+            {"name": "Max Bridgeable Span", "type": "numeric", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output as Separate Tool Path", "type": "checkbox", "default": true},
+            {"name": "Estimate Removal Time", "type": "checkbox", "default": true},
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_Marlin", "AMF", "3MF"], "default": "G_code_Marlin"}
+          ]
+        }
+      }
+    },
+    "FDM_INFILL_PATTERN": {
+      "description": "Internal infill pattern for FDM parts: gyroid, honeycomb, grid, lines, concentric. Affects strength, weight, print time.",
+      "category": "FDM",
+      "parameterCount": 14,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Infill Pattern", "type": "dropdown", "options": ["lines", "grid", "triangles", "tri_hexagon", "cubic", "gyroid", "honeycomb", "concentric", "lightning", "octet"], "default": "gyroid"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Infill Region", "type": "selection", "required": true}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "Infill Density", "type": "numeric", "default": 20, "unit": "pct", "min": 0, "max": 100},
+            {"name": "Infill Line Width", "type": "numeric", "default": 0.4, "unit": "mm"},
+            {"name": "Infill Speed", "type": "numeric", "default": 80, "unit": "mm/s"},
+            {"name": "Infill Direction", "type": "numeric", "default": 45, "unit": "deg"},
+            {"name": "Infill Angle Per Layer", "type": "numeric", "description": "Rotation between layers", "default": 90, "unit": "deg"},
+            {"name": "Connect Infill Lines", "type": "checkbox", "description": "Avoid retractions at infill ends", "default": true}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Wall-Infill Overlap", "type": "numeric", "default": 25, "unit": "pct"},
+            {"name": "Top/Bottom Pattern", "type": "dropdown", "options": ["lines", "concentric", "zig_zag"], "default": "lines"},
+            {"name": "Min Infill Area", "type": "numeric", "default": 0, "unit": "mm2"},
+            {"name": "Skin Removal Width", "type": "numeric", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Estimate Strength Properties", "type": "checkbox", "description": "Approximate UTS / E from pattern + density", "default": false}
+          ]
+        }
+      }
+    },
+    "HYBRID_CYCLE_DED_THEN_MILL": {
+      "description": "Hybrid additive+subtractive: alternating DED layers and milling passes. Used for high-precision builds where finish-machining cannot reach internal features after full build.",
+      "category": "Hybrid",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Machine Type", "type": "dropdown", "options": ["DMG_Lasertec_65_Hybrid", "Mazak_VC500A_AM_HWD", "Optomec_LENS_Hybrid", "Hermle_C42UMT", "custom_5axis_DED"], "default": "DMG_Lasertec_65_Hybrid"},
+            {"name": "DED Source", "type": "dropdown", "options": ["laser_blown_powder", "laser_wire"], "default": "laser_blown_powder"},
+            {"name": "Mill Spindle", "type": "string", "description": "Subtractive spindle ID", "default": "spindle_main"},
+            {"name": "Material Type", "type": "dropdown", "options": ["Inconel_718", "Ti6Al4V", "Tool_Steel_H13", "AISI_316L"], "default": "Inconel_718"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Build Region", "type": "selection", "required": true},
+            {"name": "Internal Features Requiring Mill", "type": "selection", "description": "Holes, pockets reachable only mid-build"},
+            {"name": "Cycle Trigger Strategy", "type": "dropdown", "options": ["every_N_layers", "after_each_internal_feature", "user_marked", "FEA_residual_stress_threshold"], "default": "every_N_layers"},
+            {"name": "Layers Per Cycle", "type": "numeric", "default": 5, "min": 1, "max": 100}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "DED Layer Thickness", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Mill Stock Allowance", "type": "numeric", "description": "Oversize material left for finish mill pass", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "DED Travel Speed", "type": "numeric", "default": 600, "unit": "mm/min"},
+            {"name": "Mill Cycle Strategy", "type": "dropdown", "options": ["finish_only", "rough_then_finish", "single_skim_pass"], "default": "single_skim_pass"},
+            {"name": "Mill Cutting Feedrate", "type": "numeric", "default": 1500, "unit": "mm/min"},
+            {"name": "Inter-Stage Cooling Time", "type": "numeric", "description": "Pause for thermal stabilization between DED and mill", "default": 30, "unit": "s"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Probe Between Stages", "type": "checkbox", "description": "Verify deposit before milling", "default": true},
+            {"name": "Re-Calibrate WCS After DED", "type": "checkbox", "description": "Thermal growth shifts WCS", "default": true},
+            {"name": "Tool Length Probe Between Stages", "type": "checkbox", "default": true},
+            {"name": "Generate Hybrid Build Report", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_Hybrid", "AMF_with_subtractive_layers", "3MF_hybrid"], "default": "G_code_Hybrid"},
+            {"name": "Output Cycle Schedule", "type": "checkbox", "description": "Emit per-layer DED/mill schedule", "default": true},
+            {"name": "Estimate Total Build Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "HYBRID_NEAR_NET_FINISH": {
+      "description": "Near-net DED build with full 5-axis finish-mill pass at end. Fastest hybrid path: rough deposit + final finishing only.",
+      "category": "Hybrid",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Machine Type", "type": "dropdown", "options": ["DMG_Lasertec_65_Hybrid", "Mazak_INTEGREX_e_AM", "Hermle_C42UMT_Hybrid"], "default": "DMG_Lasertec_65_Hybrid"},
+            {"name": "DED Source", "type": "dropdown", "options": ["laser_blown_powder", "laser_wire"], "default": "laser_blown_powder"},
+            {"name": "Material Type", "type": "dropdown", "options": ["Inconel_718", "Ti6Al4V", "Tool_Steel_H13"], "default": "Inconel_718"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Final Finish Surfaces", "type": "selection", "description": "Surfaces requiring finish-mill pass", "required": true},
+            {"name": "Near-Net Oversize", "type": "numeric", "default": 1.0, "unit": "mm"}
+          ]
+        },
+        "Layers": {
+          "parameters": [
+            {"name": "DED Layer Thickness", "type": "numeric", "default": 0.8, "unit": "mm"},
+            {"name": "Auto-Slice", "type": "checkbox", "default": true}
+          ]
+        },
+        "Path": {
+          "parameters": [
+            {"name": "DED Travel Speed", "type": "numeric", "default": 800, "unit": "mm/min"},
+            {"name": "Mill Stepover", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Mill Tool Selection", "type": "dropdown", "options": ["ball_end", "bull_nose", "end_mill", "auto_select"], "default": "auto_select"},
+            {"name": "Mill Stepdown Per Pass", "type": "numeric", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Quality": {
+          "parameters": [
+            {"name": "Cooling Time Before Finish", "type": "numeric", "description": "Pause for thermal stabilization before finishing", "default": 600, "unit": "s"},
+            {"name": "Probe Final Geometry Before Finish", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_Hybrid", "G_code_split_DED_then_mill"], "default": "G_code_split_DED_then_mill"},
+            {"name": "Output 5-Axis Tool Axis Plan", "type": "checkbox", "default": true},
+            {"name": "Estimate Total Build Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    }
+  },
+  "physics_formulas_linked": [
+    {
+      "formula_id": "MELT_POOL_THERMAL",
+      "description": "Rosenthal solution for moving heat source: T(r) = T0 + (P/(2*pi*k*r)) * exp(-v*(r+xi)/(2*alpha)). Predicts melt pool depth/width from laser power, scan speed, material conductivity.",
+      "engines_linked": ["ThermalSimulationEngine", "MeltPoolPredictionEngine"]
+    },
+    {
+      "formula_id": "DEPOSITION_VOLUME_RATE",
+      "description": "DED volumetric build rate: VBR = bead_width * layer_thickness * travel_speed (typical 50-300 cm3/hr DED, 5-50 cm3/hr SLM).",
+      "engines_linked": ["DEDBuildPlannerEngine"]
+    },
+    {
+      "formula_id": "POWDER_FLOW_GRAVITY",
+      "description": "Powder feed: m_dot = rho_packed * A_nozzle * v_carrier. Bound by carrier gas flow and nozzle geometry.",
+      "engines_linked": ["DEDFlowControlEngine"]
+    },
+    {
+      "formula_id": "RESIDUAL_STRESS_LAYER",
+      "description": "Layer-induced residual stress: sigma_res ~ E * alpha * delta_T * f(constraint). Drives part distortion + cracking risk.",
+      "engines_linked": ["AMResidualStressEngine"]
+    },
+    {
+      "formula_id": "COOLING_RATE_THERMAL_GRADIENT",
+      "description": "Cooling rate G*R determines microstructure (columnar vs equiaxed). G = thermal gradient, R = solidification velocity.",
+      "engines_linked": ["AMSolidificationEngine"]
+    }
+  ],
+  "tribal_knowledge_summary": {
+    "tip_count": 6,
+    "sources": ["jm_die", "open_mind_docs", "shop_floor", "fusion_help"],
+    "highlights": [
+      {"id": "tt_ded_preheat", "text": "Always preheat substrate to 250-400C before DED repair on H13 die steel — prevents thermal-shock cracking at boundary.", "source": "shop_floor", "confidence": 0.92},
+      {"id": "tt_ded_argon_purity", "text": "DED on Ti-6Al-4V requires Argon shielding gas at >= 99.998% purity to prevent oxide inclusions; even brief atmospheric exposure ruins the part.", "source": "fusion_help", "confidence": 0.95},
+      {"id": "tt_pbf_orientation", "text": "Orient parts with critical surfaces facing +Z (up-skin) — down-skin surfaces are always rougher (Ra 8-15 um) due to support interface.", "source": "open_mind_docs", "confidence": 0.9},
+      {"id": "tt_pbf_powder_drainage", "text": "Hollow PBF parts MUST have powder drainage holes (>= 3mm) at lowest points — trapped powder = scrap part + cleaning headache.", "source": "shop_floor", "confidence": 0.93},
+      {"id": "tt_hybrid_cooling", "text": "Hybrid DED+mill: wait at least 30s + probe before milling — thermal growth in build can be 0.2-0.5mm; milling hot causes scrap.", "source": "shop_floor", "confidence": 0.88},
+      {"id": "tt_fdm_layer_orientation", "text": "FDM tensile strength is 30-50% weaker in Z direction than X/Y — orient parts so principal stress is in print plane.", "source": "fusion_help", "confidence": 0.9}
+    ]
+  }
+}
