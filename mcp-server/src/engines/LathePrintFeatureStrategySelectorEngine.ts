@@ -88,7 +88,7 @@ export const StrategyRecommendationSchema = z.object({
   strategy_name: z.string(),
   score: z.number().min(0).max(100),
   reasoning_chain: z.array(ReasoningStepSchema),
-  parameters: z.record(z.union([z.number(), z.string(), z.boolean()])),
+  parameters: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
   trade_offs: z.object({
     pros: z.array(z.string()),
     cons: z.array(z.string()),
