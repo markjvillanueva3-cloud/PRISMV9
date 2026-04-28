@@ -1731,6 +1731,12 @@ export const ACTIONS = [
   "mastercam_cycle_search", "mastercam_cycle_lookup_code", "mastercam_cycle_stats",
   "mastercam_deep_select_strategy",
   "mastercam_function_index_summary",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-27 — Mastercam full FunctionIndex wiring (9 new actions)
+  "mastercam_function_index_get", "mastercam_function_index_list_modules",
+  "mastercam_function_index_get_module", "mastercam_function_index_list_toolpaths",
+  "mastercam_function_index_find_parameter", "mastercam_function_index_search_parameters",
+  "mastercam_function_index_get_toolpaths_by_category", "mastercam_function_index_get_toolpath",
+  "mastercam_function_index_get_total_parameter_count",
   "mastercam_multiaxis_recommend", "mastercam_multiaxis_list_strategies",
 ] as const;
 
@@ -13863,6 +13869,64 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "mastercam_function_index_summary": {
             const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
             result = MFIE.getSummary();
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-27 — Mastercam full FunctionIndex wiring (9 actions)
+          case "mastercam_function_index_get": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            result = { success: true, index: MFIE.getIndex() };
+            break;
+          }
+          case "mastercam_function_index_list_modules": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            result = { success: true, modules: MFIE.listModules() };
+            break;
+          }
+          case "mastercam_function_index_get_module": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            const moduleId = params.module_id as string;
+            const module_ = MFIE.getModule(moduleId);
+            result = module_
+              ? { success: true, module_id: moduleId, module: module_ }
+              : { success: false, error: `Module '${moduleId}' not found` };
+            break;
+          }
+          case "mastercam_function_index_list_toolpaths": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            result = { success: true, toolpaths: MFIE.listAllToolpaths() };
+            break;
+          }
+          case "mastercam_function_index_find_parameter": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            const paramId = params.parameter_id as string;
+            const located = MFIE.findParameter(paramId);
+            result = located
+              ? { success: true, parameter: located }
+              : { success: false, error: `Parameter '${paramId}' not found` };
+            break;
+          }
+          case "mastercam_function_index_search_parameters": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: MFIE.searchParameters(query, limit) };
+            break;
+          }
+          case "mastercam_function_index_get_toolpaths_by_category": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            const category = params.category as string;
+            result = { success: true, toolpaths: MFIE.getToolpathsByCategory(category) };
+            break;
+          }
+          case "mastercam_function_index_get_toolpath": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            const toolpathId = params.toolpath_id as string;
+            result = { success: true, ...MFIE.getToolpath(toolpathId) };
+            break;
+          }
+          case "mastercam_function_index_get_total_parameter_count": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            result = { success: true, total_parameter_count: MFIE.getTotalParameterCount() };
             break;
           }
           case "mastercam_multiaxis_recommend": {

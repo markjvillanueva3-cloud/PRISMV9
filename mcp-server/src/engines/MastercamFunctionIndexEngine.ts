@@ -375,6 +375,30 @@ export class MastercamFunctionIndexEngine {
   }
 
   /**
+   * Get a single toolpath by id (parity with peer FunctionIndex engines).
+   * Scans every module catalog. Returns the toolpath info plus its module,
+   * or { error } when not found. Throws on empty/invalid input.
+   * @param toolpathId Toolpath identifier (e.g. "dynamic_mill")
+   */
+  static getToolpath(toolpathId: string):
+    | { toolpath_id: string; module_id: string; toolpath: MastercamToolpathInfo }
+    | { error: string } {
+    if (!toolpathId || typeof toolpathId !== "string") {
+      throw new Error("getToolpath: toolpathId must be a non-empty string");
+    }
+    const all = this.listAllToolpaths();
+    const hit = all.find((t) => t.toolpath_id === toolpathId);
+    if (!hit) {
+      return { error: `Toolpath '${toolpathId}' not found` };
+    }
+    return {
+      toolpath_id: hit.toolpath_id,
+      module_id: hit.module_id,
+      toolpath: hit,
+    };
+  }
+
+  /**
    * Get toolpaths by type/category.
    * @param category e.g. "dynamic", "hst", "multiaxis", "lathe", "wire"
    * @returns Array of toolpath info objects
