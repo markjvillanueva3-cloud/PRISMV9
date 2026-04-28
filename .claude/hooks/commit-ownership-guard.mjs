@@ -135,7 +135,14 @@ function main() {
       continue;
     }
 
-    if (ownership.session === sessionId) {
+    // HOOK-FIX-5/C: file-ownership-tracker tags by `host-${hostname()}`
+    // but the commit guard prefers Claude's stable conversation id. Treat
+    // anything tagged with this machine's host fallback as "us" so an
+    // edit from this same Claude instance written through the tracker is
+    // not flagged as foreign.
+    const hostFallback = `host-${hostname()}`;
+    const isOurs = ownership.session === sessionId || ownership.session === hostFallback;
+    if (isOurs) {
       // We own it
       ownFiles.push(file);
     } else {
