@@ -137,7 +137,7 @@ export const FusionRPCRequestSchema = z.object({
     "postprocess.complete",
     "analysis.request"
   ]),
-  params: z.record(z.unknown()),
+  params: z.record(z.string(), z.unknown()),
   id: z.union([z.string(), z.number()]),
 });
 

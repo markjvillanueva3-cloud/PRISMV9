@@ -262,7 +262,7 @@ export const RhinoObjectAttributesSchema = z.object({
   materialIndex: z.number().int().optional(),
   linetype: z.string().optional(),
   mode: z.enum(RHINO_OBJECT_MODES),
-  userStrings: z.record(z.string()).default({}),
+  userStrings: z.record(z.string(), z.string()).default({}),
 });
 export type RhinoObjectAttributes = z.infer<typeof RhinoObjectAttributesSchema>;
 
@@ -386,7 +386,7 @@ export type RhinoResponse = z.infer<typeof RhinoResponseSchema>;
 
 export const RhinoCallLogEntrySchema = z.object({
   command: z.enum(RHINO_COMMANDS),
-  args: z.record(z.unknown()),
+  args: z.record(z.string(), z.unknown()),
   ok: z.boolean(),
   error: z.string().optional(),
   durationMs: z.number().nonnegative(),

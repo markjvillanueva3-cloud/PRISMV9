@@ -74,7 +74,7 @@ export const HSMFixtureSchema = z.object({
   fixture_type: z.enum(["vise", "chuck", "collet", "plate", "custom"]),
   model_reference: z.string().optional().describe("iPart/iAssembly reference"),
   /** iLogic parameter bindings — fixture dimensions driven by part params */
-  ilogic_params: z.record(z.union([z.string(), z.number()])).optional(),
+  ilogic_params: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
 });
 
 export const HSMSetupSchema = z.object({
@@ -156,7 +156,7 @@ export const HSMProjectSchema = z.object({
   setups: z.array(HSMSetupSchema),
   operations: z.array(HSMOperationSchema),
   /** Global iLogic parameters (drive fixture/part/operation dimensions) */
-  ilogic_parameters: z.record(z.union([z.string(), z.number()])).optional(),
+  ilogic_parameters: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
 });
 
 // ── Type exports ────────────────────────────────────────────────────────────
@@ -185,7 +185,7 @@ export const HSMCOMRequestSchema = z.object({
     "ipart.member_changed",
     "analysis.request"
   ]),
-  params: z.record(z.unknown()),
+  params: z.record(z.string(), z.unknown()),
   sequence_id: z.number(),
 });
 

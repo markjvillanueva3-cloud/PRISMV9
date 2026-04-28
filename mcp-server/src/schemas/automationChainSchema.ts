@@ -154,7 +154,7 @@ export const TelemetryEventSchema = z.object({
   latency_ms: z.number().int().nonnegative().describe("Execution time in milliseconds"),
   budget_remaining: z.number().int().optional().describe("Tokens remaining in budget"),
   error: z.string().optional().describe("Error message if failed"),
-  metadata: z.record(z.unknown()).optional().describe("Additional telemetry data"),
+  metadata: z.record(z.string(), z.unknown()).optional().describe("Additional telemetry data"),
 }).describe("Telemetry event for chain execution tracking");
 
 // ============================================================================
@@ -165,7 +165,7 @@ export const CommandMappingSchema = z.object({
   command: z.string().describe("Slash command (without /)"),
   chain_id: z.string().describe("Chain to execute"),
   priority: z.number().int().default(50).describe("Mapping priority"),
-  params_transform: z.record(z.string()).optional().describe("Parameter name transformations"),
+  params_transform: z.record(z.string(), z.string()).optional().describe("Parameter name transformations"),
 }).describe("Slash command to chain mapping");
 
 export const EventMappingSchema = z.object({

@@ -36,7 +36,7 @@ export const ReasoningStepSchema = z.object({
   alternative_considered: z.string().optional(),
   confidence: z.number().min(0).max(1),
   citations: z.array(z.string()),
-  evidence: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+  evidence: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
 });
 export type ReasoningStep = z.infer<typeof ReasoningStepSchema>;
 

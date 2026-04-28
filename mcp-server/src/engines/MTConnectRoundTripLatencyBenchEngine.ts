@@ -52,8 +52,8 @@ export const BenchmarkResultSchema = z.object({
     concurrent: z.boolean(),
   }),
   stats: LatencyStatsSchema,
-  per_machine_stats: z.record(LatencyStatsSchema),
-  per_endpoint_stats: z.record(LatencyStatsSchema),
+  per_machine_stats: z.record(z.string(), LatencyStatsSchema),
+  per_endpoint_stats: z.record(z.string(), LatencyStatsSchema),
   slo_checks: z.object({
     p95_under_200ms: z.boolean(),
     p99_under_350ms: z.boolean(),

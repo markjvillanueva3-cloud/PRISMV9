@@ -127,7 +127,7 @@ export const HMPluginMessageSchema = z.object({
     "request_overlay"
   ]),
   timestamp: z.string(),
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
 });
 
 export type HMPluginMessage = z.infer<typeof HMPluginMessageSchema>;
