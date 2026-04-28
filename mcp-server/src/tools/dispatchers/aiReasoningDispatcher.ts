@@ -544,7 +544,7 @@ export async function executeAIReasoningAction(
         const p = params as {
           program: string | Record<string, unknown>;
           context?: { material?: string; machineId?: string; controller?: string; constraints?: Record<string, unknown> };
-          strategy?: "sequential" | "parallel" | "adaptive" | "fast" | "comprehensive";
+          strategy?: "full_coverage" | "fast_path" | "quality_optimized" | "cost_optimized" | "safety_first" | "learning_focused" | "adaptive";
         };
         result = await latheAIOrchestrationEngine.orchestrateFullAnalysis(
           p.program as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[0],

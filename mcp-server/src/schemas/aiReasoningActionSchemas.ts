@@ -655,17 +655,28 @@ const ai_lathe_attention_compute = z.object({
   tokens: z.array(z.object({
     id: z.number().int().nonnegative().describe("Token id"),
     token: z.string().min(1).describe("Token text"),
-    type: z.string().min(1).describe("Token type tag"),
+    type: z.enum([
+      "G_CODE", "M_CODE", "T_CODE", "S_CODE", "F_CODE",
+      "X_COORD", "Z_COORD", "I_COORD", "K_COORD",
+      "R_CODE", "P_CODE", "Q_CODE", "U_CODE", "W_CODE",
+      "N_LINE", "NAT_BLOCK", "COMMENT", "SPECIAL",
+      "NUMBER", "UNKNOWN",
+    ]).describe("G-code token type (matches engine GCodeTokenType union)"),
     position: z.number().int().nonnegative().describe("Position in sequence"),
     embedding: z.array(z.number()).min(1).describe("Pre-computed embedding"),
     value: z.number().optional().describe("Numeric value if applicable"),
     line_number: z.number().int().nonnegative().optional().describe("Source line number"),
-    semantic_role: z.string().optional().describe("Manufacturing semantic role"),
+    semantic_role: z.enum([
+      "motion_command", "cycle_command", "spindle_control", "feed_control",
+      "tool_selection", "positioning", "arc_definition", "dwell",
+      "safety_critical", "coolant_control", "program_control",
+      "operation_boundary", "work_offset", "compensation", "unknown",
+    ]).optional().describe("Manufacturing semantic role (matches engine SemanticRole union)"),
   })).min(2).max(2048).describe("Pre-tokenized G-code with embeddings"),
 }).passthrough();
 
 const ai_lathe_adaptive_engagement = z.object({
-  operation_type: z.enum(["roughing", "finishing", "threading", "grooving", "parting", "facing", "boring", "drilling"]).describe("Turning operation type"),
+  operation_type: z.enum(["od_turning", "id_boring", "facing", "grooving", "threading", "parting"]).describe("Turning operation type (matches engine TurningEngagement.operationType)"),
   diameter: z.number().positive().describe("Workpiece diameter (mm)"),
   depth_of_cut: z.number().positive().describe("Depth of cut ap (mm)"),
   feed_per_rev: z.number().positive().describe("Feed per revolution fn (mm/rev)"),

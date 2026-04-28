@@ -179,7 +179,7 @@ describe("U-WIRE13 happy paths — round-trip via prism_ai", () => {
 
   it("ai_lathe_adaptive_engagement — computes engagement geometry for turning op", async () => {
     const r = await call(server, "ai_lathe_adaptive_engagement", {
-      operation_type: "roughing",
+      operation_type: "od_turning",
       diameter: 50,
       depth_of_cut: 2.5,
       feed_per_rev: 0.3,
@@ -243,14 +243,14 @@ describe("U-WIRE13 variability spans (≥3 configs per dimension)", () => {
     });
   }
 
-  const operations = ["roughing", "finishing", "boring"] as const;
+  const operations = ["od_turning", "id_boring", "facing"] as const;
   for (const op of operations) {
     it(`ai_lathe_adaptive_engagement spans operation_type=${op}`, async () => {
       const r = await call(server, "ai_lathe_adaptive_engagement", {
         operation_type: op,
         diameter: 40,
-        depth_of_cut: op === "finishing" ? 0.3 : 2.0,
-        feed_per_rev: op === "finishing" ? 0.1 : 0.25,
+        depth_of_cut: 2.0,
+        feed_per_rev: 0.25,
         lead_angle: 95,
         nose_radius: 0.4,
         cutting_speed: 180,
@@ -323,7 +323,7 @@ describe("U-WIRE13 input rejection (validation must trip)", () => {
 
   it("ai_lathe_adaptive_engagement missing diameter → rejects", async () => {
     const r = await call(server, "ai_lathe_adaptive_engagement", {
-      operation_type: "roughing",
+      operation_type: "od_turning",
       depth_of_cut: 2.5,
       feed_per_rev: 0.3,
       lead_angle: 95,
@@ -345,6 +345,37 @@ describe("U-WIRE13 input rejection (validation must trip)", () => {
     });
     expect(r.ok).toBe(false);
   });
+
+  // Reviewer-flagged enum boundaries — these values were previously laundered
+  // through to the engine; lock the fix so we don't regress.
+  it("ai_lathe_adaptive_engagement rejects 'roughing' (not in engine union)", async () => {
+    const r = await call(server, "ai_lathe_adaptive_engagement", {
+      operation_type: "roughing",
+      diameter: 50, depth_of_cut: 2.5, feed_per_rev: 0.3,
+      lead_angle: 95, nose_radius: 0.8, cutting_speed: 200,
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("ai_lathe_attention_compute rejects bogus token type string", async () => {
+    const r = await call(server, "ai_lathe_attention_compute", {
+      tokens: [
+        { id: 0, token: "G00", type: "TOTALLY_BOGUS", position: 0, embedding: [0.1, 0.2] },
+        { id: 1, token: "X10", type: "X_COORD", position: 1, embedding: [0.3, 0.4] },
+      ],
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("ai_lathe_attention_compute rejects bogus semantic_role string", async () => {
+    const r = await call(server, "ai_lathe_attention_compute", {
+      tokens: [
+        { id: 0, token: "G00", type: "G_CODE", position: 0, embedding: [0.1, 0.2], semantic_role: "made_up_role" },
+        { id: 1, token: "X10", type: "X_COORD", position: 1, embedding: [0.3, 0.4] },
+      ],
+    });
+    expect(r.ok).toBe(false);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────
@@ -353,7 +384,7 @@ describe("U-WIRE13 input rejection (validation must trip)", () => {
 describe("U-WIRE13 adversarial inputs", () => {
   it("ai_lathe_adaptive_engagement with NaN diameter → rejects", async () => {
     const r = await call(server, "ai_lathe_adaptive_engagement", {
-      operation_type: "roughing",
+      operation_type: "od_turning",
       diameter: Number.NaN,
       depth_of_cut: 2.5,
       feed_per_rev: 0.3,
@@ -366,7 +397,7 @@ describe("U-WIRE13 adversarial inputs", () => {
 
   it("ai_lathe_adaptive_engagement with negative depth_of_cut → rejects (positive)", async () => {
     const r = await call(server, "ai_lathe_adaptive_engagement", {
-      operation_type: "roughing",
+      operation_type: "od_turning",
       diameter: 50,
       depth_of_cut: -1.0,
       feed_per_rev: 0.3,
@@ -379,7 +410,7 @@ describe("U-WIRE13 adversarial inputs", () => {
 
   it("ai_lathe_adaptive_engagement with lead_angle > 180 → rejects", async () => {
     const r = await call(server, "ai_lathe_adaptive_engagement", {
-      operation_type: "roughing",
+      operation_type: "od_turning",
       diameter: 50,
       depth_of_cut: 2.5,
       feed_per_rev: 0.3,
