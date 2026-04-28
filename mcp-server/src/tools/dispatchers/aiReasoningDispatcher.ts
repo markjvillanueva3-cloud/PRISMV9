@@ -664,6 +664,152 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ───────────────────────────────────────────────────────────────────────
+      // INTEL-OLLAMA-OBSIDIAN-MS0/P5: 4 orphan reasoning engines
+      // ───────────────────────────────────────────────────────────────────────
+      case "creative_solve": {
+        const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+        const p = params as {
+          problem: Parameters<typeof prismCreativeReasoningEngine.explore>[0];
+          mode?: Parameters<typeof prismCreativeReasoningEngine.explore>[1];
+        };
+        result = prismCreativeReasoningEngine.explore(p.problem, p.mode);
+        break;
+      }
+      case "causal_analyze": {
+        const { CausalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+        type CausalEdge = Parameters<InstanceType<typeof CausalReasoningEngine>["addEdges"]>[0][number];
+        const p = params as {
+          edges: ReadonlyArray<CausalEdge>;
+          target?: string;
+          source?: string;
+          maxHops?: number;
+        };
+        const engine: InstanceType<typeof CausalReasoningEngine> = new CausalReasoningEngine();
+        if (p.edges) engine.addEdges(p.edges);
+        const out: Record<string, unknown> = {
+          nodeCount: engine.nodeCount(),
+          edgeCount: engine.edgeCount(),
+        };
+        if (p.target) out.rootCauses = engine.rootCauses(p.target, p.maxHops ?? 3);
+        if (p.source) out.impact = engine.traceImpact(p.source, p.maxHops ?? 3);
+        result = out;
+        break;
+      }
+      case "counterfactual_predict": {
+        const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+        type GraphVariables = Parameters<typeof counterfactualReasoningEngine.createCausalGraph>[0];
+        type GraphDomain = Parameters<typeof counterfactualReasoningEngine.createCausalGraph>[1];
+        const p = params as {
+          // Schema declares graphSpec as { domain, variables, relations } wrapper — unpack
+          // for the engine which takes (variables[], domain) directly.
+          graphSpec: { domain?: GraphDomain; variables: GraphVariables; relations?: unknown[] };
+          intervention: { variable: string; value: number | string | boolean };
+        };
+        const graph = counterfactualReasoningEngine.createCausalGraph(
+          p.graphSpec.variables,
+          p.graphSpec.domain ?? "machining",
+        );
+        const counterfactual = counterfactualReasoningEngine.generateCounterfactual(
+          graph.id,
+          p.intervention.variable,
+          p.intervention.value,
+        );
+        result = { graphId: graph.id, counterfactual };
+        break;
+      }
+      case "scientific_reason": {
+        const { ScientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+        type ScientificEngineInstance = InstanceType<typeof ScientificReasoningEngine>;
+        type ReasonInputs = Parameters<ScientificEngineInstance["reason"]>[1];
+        const p = params as {
+          problem: string;
+          inputs: ReasonInputs;
+          calculationType: string;
+        };
+        const engine: ScientificEngineInstance = new ScientificReasoningEngine();
+        result = engine.reason(p.problem, p.inputs, p.calculationType);
+        break;
+      }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE20: BeliefStateReasoningEngine — Bayesian beliefs
+      // ─────────────────────────────────────────────────────────────────────
+      case "belief_set": {
+        const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+        const p = params as {
+          id: string;
+          distribution: Record<string, number>;
+          description?: string;
+        };
+        const entry = beliefStateReasoningEngine.set(p.id, p.distribution, p.description);
+        result = {
+          id: entry.id,
+          description: entry.description,
+          distribution: entry.distribution,
+          updatedAt: entry.updatedAt,
+        };
+        break;
+      }
+      case "belief_update": {
+        const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+        const p = params as { id: string; likelihood: Record<string, number> };
+        const entry = beliefStateReasoningEngine.update(p.id, p.likelihood);
+        result = {
+          id: entry.id,
+          distribution: entry.distribution,
+          updatedAt: entry.updatedAt,
+        };
+        break;
+      }
+      case "belief_query": {
+        const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+        const p = params as {
+          id: string;
+          topK?: number;
+          state?: string;
+          includeEntropy?: boolean;
+        };
+        const entry = beliefStateReasoningEngine.get(p.id);
+        if (!entry) {
+          return dispatcherError(`Unknown belief id: ${p.id}`, action, "prism_ai");
+        }
+        const out: Record<string, unknown> = {
+          id: entry.id,
+          distribution: entry.distribution,
+          updatedAt: entry.updatedAt,
+          topK: beliefStateReasoningEngine.topK(p.id, p.topK ?? 3),
+        };
+        if (p.includeEntropy !== false) {
+          out.entropy_bits = beliefStateReasoningEngine.entropy(p.id);
+        }
+        if (typeof p.state === "string" && p.state.length > 0) {
+          out.probability_of_state = beliefStateReasoningEngine.probabilityOf(p.id, p.state);
+        }
+        result = out;
+        break;
+      }
+      case "belief_list": {
+        const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+        const all = beliefStateReasoningEngine.list();
+        result = {
+          count: beliefStateReasoningEngine.size(),
+          beliefs: all.map(e => ({
+            id: e.id,
+            description: e.description,
+            stateCount: Object.keys(e.distribution).length,
+            updatedAt: e.updatedAt,
+          })),
+        };
+        break;
+      }
+      case "belief_delete": {
+        const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+        const p = params as { id: string };
+        const removed = beliefStateReasoningEngine.delete(p.id);
+        result = { ok: removed, id: p.id };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

@@ -66,6 +66,17 @@ export const AI_REASONING_ACTIONS = [
   "ai_self_mod_is_approved",
   "ai_intelligence_maximize",
   "ai_hook_rule_match",
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P5: 4 orphan reasoning engines wired
+  "creative_solve",       // P5-U01 → PRISMCreativeReasoningEngine.explore
+  "causal_analyze",       // P5-U02 → CausalReasoningEngine.{addEdges,traceImpact,rootCauses}
+  "counterfactual_predict", // P5-U03 → CounterfactualReasoningEngine.{createCausalGraph,generateCounterfactual}
+  "scientific_reason",    // P5-U04 → ScientificReasoningEngine.reason (independent of mill alias)
+  // ENGINE-WIRE-MS0/U-WIRE20: BeliefStateReasoningEngine — Bayesian belief tracking
+  "belief_set",           // U-WIRE20 → set named distribution
+  "belief_update",        // U-WIRE20 → Bayesian update via likelihood
+  "belief_query",         // U-WIRE20 → get + topK + entropy + probabilityOf
+  "belief_list",          // U-WIRE20 → list all beliefs + size
+  "belief_delete",        // U-WIRE20 → delete by id
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -793,4 +804,58 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_lathe_bayesian_fit_gp,
   ai_lathe_attention_compute,
   ai_lathe_adaptive_engagement,
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P5: lenient passthrough schemas — engines own
+  // their own input typing; the dispatcher just forwards the params object.
+  creative_solve: z.object({
+    problem: z.unknown().describe("ProblemDefinition object — see PRISMCreativeReasoningEngine"),
+    mode: z.enum(["conventional", "exploratory", "hybrid", "innovative", "optimal"]).optional()
+      .describe("Creative reasoning mode (default: exploratory)"),
+    constraints: z.unknown().optional().describe("Optional constraint set"),
+  }).passthrough(),
+  causal_analyze: z.object({
+    edges: z.array(z.unknown()).describe("CausalEdge array to add to the graph before query"),
+    target: z.string().optional().describe("Node id to find root causes of (calls rootCauses)"),
+    source: z.string().optional().describe("Node id to trace impact from (calls traceImpact)"),
+    maxHops: z.number().int().positive().optional().describe("Max BFS depth (default 3)"),
+  }).passthrough(),
+  counterfactual_predict: z.object({
+    graphSpec: z.object({
+      domain: z.string(),
+      variables: z.array(z.unknown()),
+      relations: z.array(z.unknown()),
+    }).describe("CausalGraph specification consumed by createCausalGraph"),
+    intervention: z.object({
+      variable: z.string(),
+      value: z.union([z.number(), z.string(), z.boolean()]),
+    }).describe("Variable + counterfactual value for the 'what if' query"),
+  }).passthrough(),
+  scientific_reason: z.object({
+    problem: z.string().describe("Problem statement"),
+    inputs: z.record(z.string(), z.unknown()).describe("PhysicalQuantity inputs keyed by name"),
+    calculationType: z.string().describe("Calculation/formula identifier"),
+  }).passthrough(),
+  // ENGINE-WIRE-MS0/U-WIRE20: BeliefStateReasoningEngine — Bayesian belief tracking
+  belief_set: z.object({
+    id: z.string().min(1).describe("Belief id (unique key)"),
+    distribution: z.record(z.string(), z.number().nonnegative()).describe(
+      "State→probability map. Auto-normalized; need not sum to 1.",
+    ),
+    description: z.string().optional().describe("Human-readable description of what this belief tracks"),
+  }).passthrough(),
+  belief_update: z.object({
+    id: z.string().min(1).describe("Existing belief id to update"),
+    likelihood: z.record(z.string(), z.number().nonnegative()).describe(
+      "Likelihood vector P(observation|state). States omitted default to 1.",
+    ),
+  }).passthrough(),
+  belief_query: z.object({
+    id: z.string().min(1).describe("Belief id to query"),
+    topK: z.number().int().positive().optional().describe("Top-K most likely states (default 3)"),
+    state: z.string().optional().describe("Specific state to return probability for"),
+    includeEntropy: z.boolean().optional().describe("Include Shannon entropy in bits (default true)"),
+  }).passthrough(),
+  belief_list: z.object({}).passthrough().describe("No params; lists all beliefs and total count"),
+  belief_delete: z.object({
+    id: z.string().min(1).describe("Belief id to delete"),
+  }).passthrough(),
 };
