@@ -24,8 +24,63 @@ import {
   predictedRa,
   cuttingPower,
   rpmFromVc,
+  CANONICAL_KIENZLE,
+  CANONICAL_MILLING_SPEEDS,
+  CANONICAL_MATERIAL_DB,
+  type MaterialEntry,
   type MaterialPhysics,
 } from "../physics/constants.js";
+
+// Local extended view (same shape as the lathe engines' helper) — adds the
+// turning/milling-specific fields not on the canonical MaterialPhysics so
+// the per-path verification helpers can read vc_base_*, machinability, etc.
+// directly without each one re-deriving from CANONICAL tables.
+interface ResolvedMaterialPhysics extends MaterialPhysics {
+  k_thermal: number;
+  sigma_y_MPa: number;
+  density_kg_m3: number;
+  hardness_HB: number;
+  vc_base_roughing: number;
+  vc_base_finishing: number;
+  machinability_factor: number;
+  cp_J_kgK: number;
+  E_GPa: number;
+}
+
+function entryToPhysics(entry: MaterialEntry): ResolvedMaterialPhysics {
+  const kienzle = CANONICAL_KIENZLE[entry.iso_group];
+  const speeds = CANONICAL_MILLING_SPEEDS[entry.iso_group];
+  const hardness_HB = entry.hardness_HRC !== undefined
+    ? Math.round(entry.hardness_HRC * 10 + 100)
+    : entry.tensile_strength_MPa !== undefined
+      ? Math.round(entry.tensile_strength_MPa * 0.3)
+      : 200;
+  const sigma_y_MPa = entry.tensile_strength_MPa !== undefined
+    ? entry.tensile_strength_MPa * 0.85
+    : 400;
+  return {
+    name: entry.name,
+    iso_group: entry.iso_group,
+    kc1_1: kienzle.kc1_1,
+    mc: kienzle.mc,
+    taylor_C: entry.taylor_C,
+    taylor_n: entry.taylor_n,
+    density_kg_m3: entry.density_kg_m3,
+    thermal_conductivity_W_mK: entry.thermal_conductivity_W_mK,
+    specific_heat_J_kgK: entry.specific_heat_J_kgK,
+    hardness_HRC: entry.hardness_HRC,
+    hardness_HB,
+    tensile_strength_MPa: entry.tensile_strength_MPa,
+    yield_strength_MPa: sigma_y_MPa,
+    k_thermal: entry.thermal_conductivity_W_mK,
+    sigma_y_MPa,
+    vc_base_roughing: speeds.rough,
+    vc_base_finishing: speeds.finish,
+    machinability_factor: 1.0,
+    cp_J_kgK: entry.specific_heat_J_kgK,
+    E_GPa: 210,
+  };
+}
 
 // ── Interfaces ──
 
@@ -133,7 +188,12 @@ export class UnifiedPhysicsVerifierEngine {
   verify(input: VerificationInput): VerificationResult {
     log.info("[UnifiedPhysicsVerifier] Starting cross-pipeline verification");
 
-    const mat = resolveMaterial(input.material);
+    // Fallback to AISI 1045 keeps verification math defined when the material
+    // name doesn't resolve. Convert MaterialEntry to the rich shape expected
+    // by the per-path helpers (each helper reads vc_base_*, machinability,
+    // hardness_HB which aren't on the canonical entry).
+    const matEntry = resolveMaterial(input.material) ?? CANONICAL_MATERIAL_DB["1045"]!;
+    const mat = entryToPhysics(matEntry);
     const D = input.tool_diameter_mm;
     const z = input.flutes;
     const ap = input.ap_mm ?? (input.cut_type === "finishing" ? 0.5 : D * 0.5);
@@ -282,7 +342,7 @@ export class UnifiedPhysicsVerifierEngine {
   // ── Path 1: Canonical (direct physics/constants.ts) ──
 
   private runCanonical(
-    mat: MaterialPhysics, D: number, z: number,
+    mat: ResolvedMaterialPhysics, D: number, z: number,
     ap: number, ae: number, fz: number, Vc: number,
     rpm: number, stickout: number, re: number
   ): PathResult {
@@ -317,7 +377,7 @@ export class UnifiedPhysicsVerifierEngine {
   // ── Path 2: SpeedFeedOrchestrator ──
 
   private runSpeedFeedOrchestrator(
-    input: VerificationInput, mat: MaterialPhysics,
+    input: VerificationInput, mat: ResolvedMaterialPhysics,
     D: number, z: number, ap: number, ae: number, isFinishing: boolean
   ): PathResult {
     try {
@@ -360,7 +420,7 @@ export class UnifiedPhysicsVerifierEngine {
   // ── Path 3: CNCSimulation ──
 
   private runCNCSimulation(
-    mat: MaterialPhysics, D: number, z: number,
+    mat: ResolvedMaterialPhysics, D: number, z: number,
     ap: number, ae: number, fz: number, rpm: number,
     Vf: number, stickout: number
   ): PathResult {
@@ -423,7 +483,7 @@ export class UnifiedPhysicsVerifierEngine {
   // ── Path 4: KienzleForceModel ──
 
   private runKienzleForceModel(
-    mat: MaterialPhysics, D: number, z: number,
+    mat: ResolvedMaterialPhysics, D: number, z: number,
     ap: number, ae: number, fz: number, rpm: number
   ): PathResult {
     try {
@@ -468,7 +528,7 @@ export class UnifiedPhysicsVerifierEngine {
   // ── Path 5: PostProcessor ──
 
   private runPostProcessor(
-    mat: MaterialPhysics, D: number, z: number,
+    mat: ResolvedMaterialPhysics, D: number, z: number,
     ap: number, ae: number, fz: number, rpm: number, Vf: number
   ): PathResult {
     try {
