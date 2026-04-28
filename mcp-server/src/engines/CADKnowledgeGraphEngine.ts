@@ -178,12 +178,12 @@ export class CADKnowledgeGraphEngine extends BaseEngine {
 
   getCapabilities(): EngineCapability[] {
     return [
-      { name: "build_graph", description: "Construct CAD dependency graph from op list", input: "CADOperationInput[]", output: "CADGraph" },
-      { name: "detect_cycles", description: "Find cycles (Johnson DFS)", input: "CADGraph", output: "CycleReport" },
-      { name: "find_orphans", description: "Detect unconnected nodes", input: "CADGraph", output: "OrphanReport" },
-      { name: "ancestors", description: "Transitive upstream nodes", input: "CADGraph+nodeId", output: "string[]" },
-      { name: "descendants", description: "Transitive downstream nodes", input: "CADGraph+nodeId", output: "string[]" },
-      { name: "to_jsonld", description: "Emit W3C JSON-LD for interop", input: "CADGraph", output: "JSON-LD document" },
+      { name: "build_graph", description: "Construct CAD dependency graph from op list (input: CADOperationInput[], output: CADGraph)" },
+      { name: "detect_cycles", description: "Find cycles via Johnson DFS (input: CADGraph, output: CycleReport)" },
+      { name: "find_orphans", description: "Detect unconnected nodes (input: CADGraph, output: OrphanReport)" },
+      { name: "ancestors", description: "Transitive upstream nodes (input: CADGraph+nodeId, output: string[])" },
+      { name: "descendants", description: "Transitive downstream nodes (input: CADGraph+nodeId, output: string[])" },
+      { name: "to_jsonld", description: "Emit W3C JSON-LD for interop (input: CADGraph, output: JSON-LD document)" },
     ];
   }
 
@@ -504,4 +504,11 @@ export class CADKnowledgeGraphEngine extends BaseEngine {
   }
 }
 
-export const cadKnowledgeGraphEngine = new CADKnowledgeGraphEngine();
+export const cadKnowledgeGraphEngine = new CADKnowledgeGraphEngine({
+  name: "CADKnowledgeGraphEngine",
+  version: "1.0.0",
+  domain: "cad_neural",
+  description:
+    "CAD operation dependency graph — nodes: Sketch/Plane/Feature/Body/Assembly; " +
+    "edges: references/modifies/constrains/contains. Topology-aware for neural CAD.",
+});
