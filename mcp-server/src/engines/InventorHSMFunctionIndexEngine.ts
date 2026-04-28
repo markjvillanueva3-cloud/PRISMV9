@@ -479,4 +479,29 @@ export class InventorHSMFunctionIndexEngine {
     if ("error" in section) return [];
     return section.training_topics || [];
   }
+
+  /**
+   * Get a single operation by id (parity with peer FunctionIndex engines).
+   * Scans every section. Returns the operation plus its section, or an
+   * error object if not found.
+   */
+  static getOperation(operationId: string):
+    | { operation_id: string; section: string; operation: InventorHSMOperation }
+    | { error: string } {
+    if (!operationId || typeof operationId !== "string") {
+      throw new Error("getOperation: operationId must be a non-empty string");
+    }
+    const idx = this.loadIndex();
+    for (const [sectionKey, section] of Object.entries(idx.sections)) {
+      const op = section.operations?.[operationId];
+      if (op) {
+        return {
+          operation_id: operationId,
+          section: sectionKey,
+          operation: op,
+        };
+      }
+    }
+    return { error: `Operation '${operationId}' not found` };
+  }
 }

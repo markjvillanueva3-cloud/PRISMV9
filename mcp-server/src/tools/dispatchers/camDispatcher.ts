@@ -1586,12 +1586,14 @@ export const ACTIONS = [
   "fusion360_function_index_find_parameter", "fusion360_function_index_search_parameters",
   "fusion360_function_index_get_toolpaths_by_category", "fusion360_function_index_get_summary",
   "fusion360_function_index_get_hsm_toolpaths", "fusion360_function_index_get_mfg_ext_toolpaths",
+  "fusion360_function_index_get_toolpath",
   // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
   "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
   "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
   "inventor_hsm_function_index_find_parameter", "inventor_hsm_function_index_search_parameters",
   "inventor_hsm_function_index_get_operations_by_category", "inventor_hsm_function_index_get_summary",
   "inventor_hsm_function_index_get_hsm_operations", "inventor_hsm_function_index_get_25d_operations",
+  "inventor_hsm_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM-FIDX-09 — Edgecam Function Index
     "edgecam_function_index_get", "edgecam_function_index_list_sections",
     "edgecam_function_index_get_section", "edgecam_function_index_list_operations",
@@ -12226,6 +12228,13 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = { success: true, toolpaths: Fusion360FunctionIndexEngine.getManufacturingExtensionToolpaths() };
             break;
           }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-26 — Fusion360 singular toolpath getter
+          case "fusion360_function_index_get_toolpath": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            const toolpathId = params.toolpath_id as string;
+            result = { success: true, ...Fusion360FunctionIndexEngine.getToolpath(toolpathId) };
+            break;
+          }
 
           // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
           case "inventor_hsm_function_index_get": {
@@ -12281,6 +12290,13 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "inventor_hsm_function_index_get_25d_operations": {
             const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
             result = { success: true, operations: InventorHSMFunctionIndexEngine.get25DOperations() };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-29 — Inventor HSM singular operation getter
+          case "inventor_hsm_function_index_get_operation": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...InventorHSMFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM-FIDX-09 — Edgecam Function Index (10 actions)
