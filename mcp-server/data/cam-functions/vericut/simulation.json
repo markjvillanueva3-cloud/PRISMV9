@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "vericut",
+  "section_key": "simulation",
+  "extraction_source": "CGTech VERICUT 9.4 Simulation Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-25",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["rapid_verify", "full_machine_sim", "post_verify", "virtual_machine"]
+  },
+  "operations": {
+    "rapid_verify": {
+      "display_name": "Rapid Verify",
+      "category": "rapid_verify",
+      "description": "Fast NC simulation for high-level checks. Uses simplified machine kinematics — runs full program in seconds vs minutes for full sim.",
+      "dialog_tabs": ["Speed", "Detail", "Output", "Limits"],
+      "parameter_count": 14,
+      "parameters": {
+        "speed": {
+          "playback_speed": { "type": "enum", "values": ["realtime", "max_speed", "10x", "100x", "1000x"], "default": "max_speed", "tab": "Speed" },
+          "skip_in_air_motion": { "type": "boolean", "default": true, "description": "Skip simulating non-cutting rapids", "tab": "Speed" },
+          "max_run_time_s": { "type": "number", "unit": "s", "default": 60, "description": "Abort if exceeds wall-clock budget", "tab": "Speed" },
+          "voxel_size_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Coarse voxel for rapid verify", "tab": "Speed" }
+        },
+        "detail": {
+          "include_stock_changes": { "type": "boolean", "default": true, "tab": "Detail" },
+          "include_collision_check": { "type": "boolean", "default": false, "description": "Skip for speed — use full_machine_sim instead", "tab": "Detail" },
+          "include_part_gouge_check": { "type": "boolean", "default": false, "tab": "Detail" }
+        },
+        "output": {
+          "render_3d": { "type": "boolean", "default": false, "tab": "Output" },
+          "log_program_lines": { "type": "boolean", "default": true, "tab": "Output" },
+          "save_voxel_state": { "type": "boolean", "default": true, "description": "Stock state at end-of-run for next op", "tab": "Output" },
+          "summary_report_only": { "type": "boolean", "default": true, "tab": "Output" }
+        },
+        "limits": {
+          "max_program_lines": { "type": "integer", "default": 1000000, "tab": "Limits" },
+          "max_memory_GB": { "type": "number", "unit": "GB", "default": 4.0, "tab": "Limits" },
+          "abort_on_first_error": { "type": "boolean", "default": false, "tab": "Limits" }
+        }
+      }
+    },
+    "full_machine_sim": {
+      "display_name": "Full Machine Simulation",
+      "category": "full_machine_sim",
+      "description": "Complete kinematic simulation including machine envelope, axis limits, controller behaviour, look-ahead. Catches issues no other tool can.",
+      "dialog_tabs": ["Machine", "Kinematics", "Verify", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "machine": {
+          "machine_model_ref": { "type": "selection", "tab": "Machine", "required": true, "description": "VRC machine model file" },
+          "controller_model": { "type": "enum", "values": ["fanuc_31i", "siemens_840d", "heidenhain_i_TNC", "mazatrol_smooth", "okuma_OSP", "fagor_8070"], "default": "fanuc_31i", "tab": "Machine" },
+          "post_processor_ref": { "type": "selection", "tab": "Machine", "required": true },
+          "fixture_setup_ref": { "type": "selection", "tab": "Machine" }
+        },
+        "kinematics": {
+          "include_axis_limits": { "type": "boolean", "default": true, "tab": "Kinematics" },
+          "include_axis_speed_limits": { "type": "boolean", "default": true, "tab": "Kinematics" },
+          "include_acceleration_limits": { "type": "boolean", "default": true, "tab": "Kinematics" },
+          "include_jerk_limits": { "type": "boolean", "default": true, "description": "Most accurate — matches real machine motion", "tab": "Kinematics" }
+        },
+        "verify": {
+          "verify_all_collisions": { "type": "boolean", "default": true, "tab": "Verify" },
+          "verify_all_gouges": { "type": "boolean", "default": true, "tab": "Verify" },
+          "verify_axis_overrun": { "type": "boolean", "default": true, "tab": "Verify" },
+          "verify_singularity_zones": { "type": "boolean", "default": true, "description": "Detect 5-axis singularity (gimbal lock)", "tab": "Verify" }
+        },
+        "output": {
+          "render_3d_during_sim": { "type": "boolean", "default": true, "tab": "Output" },
+          "save_animation_video": { "type": "boolean", "default": false, "description": "MP4/AVI replay", "tab": "Output" },
+          "save_full_log": { "type": "boolean", "default": true, "tab": "Output" },
+          "estimate_total_cycle_time": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "post_verify": {
+      "display_name": "Post-Processor Verification",
+      "category": "post_verify",
+      "description": "Verify post-processor output matches APT/CL data. Catches post bugs before machine.",
+      "dialog_tabs": ["Inputs", "Comparison", "Tolerance", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "inputs": {
+          "apt_cl_file_ref": { "type": "selection", "tab": "Inputs", "required": true, "description": "APT/CL upstream of post" },
+          "nc_output_ref": { "type": "selection", "tab": "Inputs", "required": true },
+          "post_processor_ref": { "type": "selection", "tab": "Inputs", "required": true },
+          "machine_model_ref": { "type": "selection", "tab": "Inputs" }
+        },
+        "comparison": {
+          "compare_method": { "type": "enum", "values": ["coordinate_diff", "feature_diff", "trajectory_diff", "all_three"], "default": "all_three", "tab": "Comparison" },
+          "match_tolerance_um": { "type": "number", "unit": "um", "default": 1.0, "description": "Position matching tolerance", "tab": "Comparison" },
+          "feed_speed_diff_pct": { "type": "number", "unit": "pct", "default": 0.1, "description": "F/S match tolerance", "tab": "Comparison" }
+        },
+        "tolerance": {
+          "max_position_error_mm": { "type": "number", "unit": "mm", "default": 0.001, "tab": "Tolerance" },
+          "max_orientation_error_deg": { "type": "number", "unit": "deg", "default": 0.01, "tab": "Tolerance" },
+          "max_feed_error_pct": { "type": "number", "unit": "pct", "default": 1.0, "tab": "Tolerance" },
+          "report_first_n_errors": { "type": "integer", "default": 10, "tab": "Tolerance" }
+        },
+        "output": {
+          "side_by_side_view": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlight_modal_code_changes": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlight_subroutine_expansions": { "type": "boolean", "default": true, "tab": "Output" },
+          "save_diff_report_html": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "virtual_machine": {
+      "display_name": "Virtual Machine (Digital Twin)",
+      "category": "virtual_machine",
+      "description": "VERICUT virtual machine — runs full machine controller emulation. Validates code on virtual hardware before real machine touches it.",
+      "dialog_tabs": ["VM_Setup", "Controller", "Validation", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "vm_setup": {
+          "vm_machine_ref": { "type": "selection", "tab": "VM_Setup", "required": true, "description": "VERICUT virtual machine bundle" },
+          "vm_kinematic_fidelity": { "type": "enum", "values": ["axis_only", "with_dynamics", "full_drive_emulation"], "default": "with_dynamics", "tab": "VM_Setup" },
+          "thermal_compensation": { "type": "boolean", "default": false, "tab": "VM_Setup" },
+          "ball_screw_compensation": { "type": "boolean", "default": false, "tab": "VM_Setup" }
+        },
+        "controller": {
+          "controller_emulation": { "type": "enum", "values": ["fanuc_full_emu", "siemens_full_emu", "heidenhain_full_emu", "look_ahead_only"], "default": "fanuc_full_emu", "tab": "Controller" },
+          "look_ahead_blocks": { "type": "integer", "default": 200, "description": "Look-ahead buffer depth", "tab": "Controller" },
+          "macro_expansion": { "type": "boolean", "default": true, "tab": "Controller" },
+          "subprogram_expansion": { "type": "boolean", "default": true, "tab": "Controller" }
+        },
+        "validation": {
+          "verify_all_axes": { "type": "boolean", "default": true, "tab": "Validation" },
+          "verify_modal_state": { "type": "boolean", "default": true, "tab": "Validation" },
+          "verify_tool_compensation": { "type": "boolean", "default": true, "description": "G41/G42/G43 in correct state", "tab": "Validation" },
+          "verify_coordinate_systems": { "type": "boolean", "default": true, "description": "G54-G59 selection correct", "tab": "Validation" }
+        },
+        "output": {
+          "save_machine_state_snapshot": { "type": "boolean", "default": true, "tab": "Output" },
+          "estimate_real_cycle_time": { "type": "boolean", "default": true, "description": "With acceleration + look-ahead — most accurate estimate available", "tab": "Output" },
+          "emit_warnings_for_modal_errors": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Digital Twin vs Geometric Sim",
+      "key_concepts": ["Geometric sim only checks geometry", "Virtual machine checks controller behavior", "Cycle time accurate only with VM"],
+      "best_practices": ["Use rapid_verify for fast iterations", "Use full_machine_sim before machine", "Use virtual_machine for first article"]
+    }
+  ]
+}

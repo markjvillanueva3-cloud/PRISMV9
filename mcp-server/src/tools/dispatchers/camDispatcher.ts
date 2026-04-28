@@ -1688,6 +1688,12 @@ export const ACTIONS = [
     "featurecam_function_index_find_parameter", "featurecam_function_index_search_parameters",
     "featurecam_function_index_get_operations_by_category", "featurecam_function_index_get_summary",
     "featurecam_function_index_get_afr_operations", "featurecam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-25 — VERICUT (CGTech NC verification + OptiPath) Function Index
+    "vericut_function_index_get", "vericut_function_index_list_sections",
+    "vericut_function_index_get_section", "vericut_function_index_list_operations",
+    "vericut_function_index_find_parameter", "vericut_function_index_search_parameters",
+    "vericut_function_index_get_operations_by_category", "vericut_function_index_get_summary",
+    "vericut_function_index_get_verification_operations", "vericut_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
   "cam_param_optimize",
   "cam_cross_translate",
@@ -13186,6 +13192,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { FeatureCAMFunctionIndexEngine } = await import("../../engines/FeatureCAMFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...FeatureCAMFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-25 — VERICUT (CGTech NC verification + OptiPath) Function Index (10 actions)
+          case "vericut_function_index_get": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            result = { success: true, index: VericutFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "vericut_function_index_list_sections": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            result = { success: true, sections: VericutFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "vericut_function_index_get_section": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: VericutFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "vericut_function_index_list_operations": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            result = { success: true, operations: VericutFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "vericut_function_index_find_parameter": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: VericutFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "vericut_function_index_search_parameters": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: VericutFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "vericut_function_index_get_operations_by_category": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: VericutFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "vericut_function_index_get_summary": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            result = { success: true, ...VericutFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "vericut_function_index_get_verification_operations": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            result = { success: true, operations: VericutFunctionIndexEngine.getVerificationOperations() };
+            break;
+          }
+          case "vericut_function_index_get_operation": {
+            const { VericutFunctionIndexEngine } = await import("../../engines/VericutFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...VericutFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM74..U-CAM78 - Phase-5 production engines
