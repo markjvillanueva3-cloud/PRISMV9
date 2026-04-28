@@ -218,6 +218,64 @@ const insert_search = z.object({ query: optStr, type: optStr, ...pagination }).p
 // EXPORT: ACTION_DATA_SCHEMAS
 // ============================================================================
 
+// --- ENGINE-WIRE-MS0/U-WIRE06: 5 tool data plane engines ---
+
+const tool_holder_catalog_search = z.object({
+  query: optStr.describe("Free-text query"),
+  type: optStr.describe("Holder type"),
+  taper: optStr.describe("Taper interface (BT40/CAT40/HSK63A/etc.)"),
+  brand: optStr.describe("Manufacturer brand"),
+  machine_id: optStr.describe("Restrict to holders for this machine"),
+  bore_min_mm: optPosNum.describe("Minimum bore diameter mm"),
+  bore_max_mm: optPosNum.describe("Maximum bore diameter mm"),
+  coolant_through: optBool.describe("Through-spindle coolant required"),
+  in_stock_only: optBool.describe("Restrict to in-stock items"),
+  status: optStr.describe("Holder lifecycle status"),
+  limit: z.number().int().positive().optional().describe("Max records"),
+}).passthrough();
+
+const tool_holder_registry_query = z.object({
+  taper: optStr.describe("Taper interface"),
+  holder_type: optStr.describe("Holder type"),
+  shank_diameter_mm: optPosNum.describe("Shank/bore diameter mm"),
+  min_rpm: optPosNum.describe("Minimum balanced RPM"),
+  max_runout_um: optPosNum.describe("Maximum runout TIR um"),
+  coolant_through: optBool.describe("Through-spindle coolant required"),
+}).passthrough();
+
+const tool_geometry_select = z.object({
+  workpiece_material: z.string().min(1).describe("Material class"),
+  operation: z.string().min(1).describe("Milling operation"),
+  tool_diameter_mm: z.number().positive().describe("Tool diameter mm"),
+  axial_depth_mm: optPosNum.describe("Axial depth ap mm"),
+  radial_depth_mm: optPosNum.describe("Radial depth ae mm"),
+  machine_rigidity: z.enum(["low","medium","high"]).optional().describe("Machine rigidity"),
+  is_long_reach: optBool.describe("L/D > 4"),
+  requires_chip_breaking: optBool.describe("Chip breaking geometry required"),
+}).passthrough();
+
+const tool_coating_select = z.object({
+  material_class: z.string().min(1).describe("Material class"),
+  operation_type: z.string().min(1).describe("Operation type"),
+  cutting_speed_m_min: optPosNum.describe("Cutting speed Vc m/min"),
+  coolant_strategy: optStr.describe("Coolant strategy"),
+  workpiece_hardness_hrc: optNum.describe("Workpiece hardness HRC"),
+  tool_substrate: z.enum(["carbide","hss","cermet","cbn","pcd"]).optional().describe("Tool substrate"),
+  is_interrupted_cut: optBool.describe("Interrupted cut"),
+  requires_re_grind: optBool.describe("Re-grind support required"),
+}).passthrough();
+
+const tool_assembly_build = z.object({
+  tool: z.object({
+    cutting_diameter_mm: z.number().positive(),
+    cutting_length_mm: z.number().positive(),
+    shank_diameter_mm: z.number().positive(),
+    overall_length_mm: z.number().positive(),
+  }).passthrough(),
+  holder: z.object({}).passthrough().optional(),
+  spindle: z.object({}).passthrough().optional(),
+}).passthrough();
+
 /** A C T I O N_ D A T A_ S C H E M A S constant.
  */
 export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
@@ -266,4 +324,10 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   workholding_search,
   insert_get,
   insert_search,
+  // ENGINE-WIRE-MS0/U-WIRE06: 5 tool data plane engines
+  tool_holder_catalog_search,
+  tool_holder_registry_query,
+  tool_geometry_select,
+  tool_coating_select,
+  tool_assembly_build,
 };
