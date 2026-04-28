@@ -22,7 +22,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
+// OLLAMA-DEV-01: prefer 127.0.0.1 over `localhost` — on Windows the latter
+// often resolves to ::1 (IPv6) but Ollama binds IPv4 by default, causing
+// a silent 2s timeout that masquerades as "Ollama not installed".
+const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const STATS_PATH = "H:/prism/mcp-server/data/state/ollama-offload-stats.json";
 
 // P0-U03: per-hook fire counts + rolling 24h event log
@@ -52,7 +55,9 @@ function pushEvent(stats, decision, extras = {}) {
   });
 }
 const RATE_LIMIT_PATH = "H:/prism/mcp-server/data/state/ollama-rate-limits.json";
-const TIMEOUT_MS = 2000;
+// OLLAMA-DEV-01: bumped from 2s to 4s — qwen2.5-coder:32b cold-load can
+// take 3+s, and the /api/tags probe should never be the bottleneck.
+const TIMEOUT_MS = 4000;
 const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes per category
 const CONFIDENCE_THRESHOLD = 0.80;
 const INJECT_THRESHOLD = 0.90; // Only inject context above this score
@@ -67,13 +72,26 @@ const OFFLOADABLE_PATTERNS = [
   { pattern: /list\s+(all|the)|show\s+(me|all)/i, category: "summary", savings: 0.75 },
 ];
 
+// OLLAMA-DEV-01 fix: previous patterns were too broad (every dev prompt
+// contains "add" / "fix" / "implement"), so 14/14 prompts were KEPT on
+// Claude even when they were perfectly explainable. Two changes:
+//   1. Tightened patterns to genuinely Claude-only signals (safety,
+//      physics constants, multi-file changes, deep reasoning).
+//   2. Order inverted in classifyPrompt: a positive OFFLOADABLE match
+//      now wins over KEEP_ON_CLAUDE — the keep list is the FALLBACK
+//      for prompts with no clear offload signal, not a veto.
 const KEEP_ON_CLAUDE = [
-  /create|build|implement|write|add|fix|refactor/i,
-  /edit|modify|change|update|replace/i,
-  /safety|critical|collision|force|stress/i,
-  /kienzle|taylor|physics|thermal/i,
-  /commit|push|deploy|merge/i,
-  /forge|scrutinize|verify/i,
+  // Safety + physics — never offload
+  /\b(safety[-\s]critical|collision[-\s]check|kienzle|taylor|johnson[-\s]cook)\b/i,
+  /\b(force|stress|thermal|deflection)\s+(calculation|model|verify|validate)/i,
+  // Multi-file or codebase-wide work
+  /\b(refactor|restructure|reorganize)\s+(the|this|entire|whole|all)/i,
+  /\b(across|throughout|all)\s+(files|the\s+codebase|the\s+repo)/i,
+  // Git ops that must run locally with full context
+  /\b(commit|push|deploy|merge|rebase)\s+(this|the|now|to|from)/i,
+  // Deep reasoning that needs Claude's chain-of-thought
+  /\b(root\s+cause|deep\s+(analysis|dive)|trace\s+through)\b/i,
+  /\b(forge|scrutinize)\b/i,
 ];
 
 function loadStats() {
@@ -88,6 +106,8 @@ function loadStats() {
     estimatedTokensSaved: 0,
     lastUpdated: null,
     byCategory: {},
+    byHook: {},
+    events: [],
     silentSuggestions: 0, // Suggestions logged but not injected
     injectedSuggestions: 0, // Suggestions actually injected into context
   };
@@ -152,15 +172,19 @@ async function isOllamaAvailable() {
 function classifyPrompt(prompt) {
   const p = prompt.toLowerCase();
 
-  for (const re of KEEP_ON_CLAUDE) {
-    if (re.test(p)) {
-      return { offloadable: false, category: "complex", savings: 0 };
-    }
-  }
-
+  // OLLAMA-DEV-01: positive offload signal wins. If a prompt explicitly
+  // says "explain X" or "summarize Y", offload even if it incidentally
+  // contains "fix" or "add" elsewhere.
   for (const { pattern, category, savings } of OFFLOADABLE_PATTERNS) {
     if (pattern.test(p)) {
       return { offloadable: true, category, savings };
+    }
+  }
+
+  // No positive offload signal — apply the keep-list as a final filter.
+  for (const re of KEEP_ON_CLAUDE) {
+    if (re.test(p)) {
+      return { offloadable: false, category: "complex", savings: 0 };
     }
   }
 
@@ -200,7 +224,8 @@ async function main() {
   const stats = loadStats();
 
   if (!classification.offloadable) {
-    stats.keptOnClaude++; bumpHookCounter(stats, "keep"); pushEvent(stats, "keep");
+    stats.keptOnClaude++; bumpHookCounter(stats, "keep");
+    pushEvent(stats, "keep", { category: classification.category, snippet: prompt.slice(0, 80) });
     saveStats(stats);
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -224,6 +249,18 @@ async function main() {
 
   const ollama = await isOllamaAvailable();
   if (!ollama.available) {
+    // OLLAMA-DEV-01: record the would-be-offloaded event so dashboards
+    // show the lost-opportunity volume. Previously this branch returned
+    // silently, hiding the most common failure mode (Ollama daemon not
+    // running) from operators.
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    bumpHookCounter(stats, "suggest");
+    pushEvent(stats, "suggest", {
+      mode: "ollama-down",
+      category: classification.category,
+      snippet: prompt.slice(0, 80),
+    });
+    saveStats(stats);
     console.log(JSON.stringify({ continue: true }));
     return;
   }
@@ -235,9 +272,13 @@ async function main() {
   // Record the suggestion for rate limiting
   recordSuggestion(classification.category);
 
-  // Update stats
+  // Update stats. OLLAMA-DEV-01: defensive guard for byCategory — older
+  // stats files (before 2026-04-28) lacked the field, and assigning into
+  // undefined.byCategory[...] threw silently into main().catch(), losing
+  // the offload event AND masking 14/14 prompts as "kept".
   stats.offloaded++;
   stats.estimatedTokensSaved += savedTokens;
+  if (!stats.byCategory) stats.byCategory = {};
   stats.byCategory[classification.category] = (stats.byCategory[classification.category] || 0) + 1;
   bumpHookCounter(stats, "offload", savedTokens);
   pushEvent(stats, "offload", { category: classification.category, tokensSaved: savedTokens });
