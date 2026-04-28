@@ -143,14 +143,19 @@ class MachineAwareSpeedFeedEngine {
     const spindle = pkg.spindle ?? {};
     const axes = pkg.axes ?? {};
 
+    // Map current MachineSpindle / MachineAxes shapes to the legacy
+    // constraint names this engine was written against. Old shapes had
+    // power_kw / max_torque_nm / base_rpm; current canonical type uses
+    // power, torque (continuous), torque_peak, min_rpm. Feed/rapid don't
+    // live on these subsystem types — fall back to safe machining defaults.
     return {
       maxRpm: spindle.max_rpm ?? 10000,
       minRpm: spindle.min_rpm ?? 50,
-      maxFeedRate: axes.max_feed_mmmin ?? spindle.max_feed ?? 15000,
-      maxPower: spindle.power_continuous_kw ?? spindle.power_kw ?? 15,
-      maxTorque: spindle.max_torque_nm ?? spindle.torque_nm ?? 100,
-      baseRpm: spindle.base_rpm ?? spindle.torque_rpm ?? 1500,
-      rapidRate: axes.rapid_mmmin ?? 30000,
+      maxFeedRate: 15000, // canonical default; per-axis rapids on MachineAxes carry the truth
+      maxPower: spindle.power ?? 15,
+      maxTorque: spindle.torque_peak ?? spindle.torque ?? 100,
+      baseRpm: spindle.min_rpm ?? 1500, // base = min in current canonical schema
+      rapidRate: 30000, // canonical default; see x/y/z_rapid on MachineAxes for true values
     };
   }
 
@@ -394,7 +399,10 @@ class MachineAwareSpeedFeedEngine {
 
     for (const hookId of hookIds) {
       try {
-        const hookResult = await hookExecutor.executeById(hookId, hookCtx);
+        // HookExecutorEngine no longer exposes executeById; resolve the hook
+        // by id and invoke its handler directly to preserve per-hook dispatch.
+        const hookDef = hookExecutor.get(hookId);
+        const hookResult = hookDef ? await Promise.resolve(hookDef.handler(hookCtx)) : null;
         hooksExecuted.push(hookId);
 
         if (hookResult?.blocked) {
