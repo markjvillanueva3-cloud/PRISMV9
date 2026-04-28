@@ -327,7 +327,7 @@ export async function executeAIReasoningAction(
       case "ai_explain_decision": {
         const { aiDecisionExplanationEngine } = await import("../../engines/AIDecisionExplanationEngine.js");
         result = aiDecisionExplanationEngine.explainDecision(
-          params as Parameters<typeof aiDecisionExplanationEngine.explainDecision>[0],
+          params as unknown as Parameters<typeof aiDecisionExplanationEngine.explainDecision>[0],
         );
         break;
       }
@@ -339,14 +339,14 @@ export async function executeAIReasoningAction(
       case "ai_physics_optimize": {
         const { aiPhysicsOptimizationEngine } = await import("../../engines/AIPhysicsOptimizationEngine.js");
         result = await aiPhysicsOptimizationEngine.optimize(
-          params as Parameters<typeof aiPhysicsOptimizationEngine.optimize>[0],
+          params as unknown as Parameters<typeof aiPhysicsOptimizationEngine.optimize>[0],
         );
         break;
       }
       case "ai_knowledge_query": {
         const { aiDeepKnowledgeIntegration } = await import("../../engines/AIDeepKnowledgeIntegrationEngine.js");
         result = await aiDeepKnowledgeIntegration.query(
-          params as Parameters<typeof aiDeepKnowledgeIntegration.query>[0],
+          params as unknown as Parameters<typeof aiDeepKnowledgeIntegration.query>[0],
         );
         break;
       }
@@ -364,7 +364,7 @@ export async function executeAIReasoningAction(
         const p = params as { query: string; context: Record<string, unknown>; mode?: "analytical"|"comparative"|"diagnostic"|"predictive"|"creative" };
         result = millingDeepReasoningEngine.reason(
           p.query,
-          p.context as Parameters<typeof millingDeepReasoningEngine.reason>[1],
+          p.context as unknown as Parameters<typeof millingDeepReasoningEngine.reason>[1],
           p.mode,
         );
         break;
@@ -378,21 +378,21 @@ export async function executeAIReasoningAction(
       case "ai_wedm_deep_neural": {
         const { wireEDMDeepNeuralReasoningEngine } = await import("../../engines/WireEDMDeepNeuralReasoningEngine.js");
         result = await wireEDMDeepNeuralReasoningEngine.reason(
-          params as Parameters<typeof wireEDMDeepNeuralReasoningEngine.reason>[0],
+          params as unknown as Parameters<typeof wireEDMDeepNeuralReasoningEngine.reason>[0],
         );
         break;
       }
       case "ai_milling_synthesize": {
         const { millingDeepKnowledgeSynthesisEngine } = await import("../../engines/MillingDeepKnowledgeSynthesisEngine.js");
         result = await millingDeepKnowledgeSynthesisEngine.synthesize(
-          params as Parameters<typeof millingDeepKnowledgeSynthesisEngine.synthesize>[0],
+          params as unknown as Parameters<typeof millingDeepKnowledgeSynthesisEngine.synthesize>[0],
         );
         break;
       }
       case "ai_lathe_reason": {
         const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
         result = await latheAIReasoningEngine.reason(
-          params as Parameters<typeof latheAIReasoningEngine.reason>[0],
+          params as unknown as Parameters<typeof latheAIReasoningEngine.reason>[0],
         );
         break;
       }
