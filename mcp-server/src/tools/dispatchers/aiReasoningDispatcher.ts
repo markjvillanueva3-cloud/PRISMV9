@@ -898,6 +898,50 @@ export async function executeAIReasoningAction(
         result = summary;
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE25: MetaLearningOptimizerEngine — learn-to-learn
+      // The singleton holds the (scenario, strategy) → stats ledger across
+      // calls; that's the whole point of this engine, so we MUST use the
+      // singleton (a fresh class instance per call would have empty state).
+      // ─────────────────────────────────────────────────────────────────────
+      case "meta_learning_record": {
+        const { metaLearningOptimizerEngine } = await import("../../engines/MetaLearningOptimizerEngine.js");
+        type OutcomeArg = Parameters<typeof metaLearningOptimizerEngine.record>[0];
+        const p = params as unknown as OutcomeArg;
+        const stats = metaLearningOptimizerEngine.record(p);
+        result = { recorded: true, stats };
+        break;
+      }
+      case "meta_learning_recommend": {
+        const { metaLearningOptimizerEngine } = await import("../../engines/MetaLearningOptimizerEngine.js");
+        const p = params as { scenario: string; minAttempts?: number };
+        const recommendation = metaLearningOptimizerEngine.recommend(
+          p.scenario,
+          typeof p.minAttempts === "number" ? p.minAttempts : 1,
+        );
+        result = { recommendation };
+        break;
+      }
+      case "meta_learning_stats": {
+        const { metaLearningOptimizerEngine } = await import("../../engines/MetaLearningOptimizerEngine.js");
+        const p = params as { scenario: string; strategy: string };
+        const stats = metaLearningOptimizerEngine.statsFor(p.scenario, p.strategy);
+        result = { stats };
+        break;
+      }
+      case "meta_learning_list": {
+        const { metaLearningOptimizerEngine } = await import("../../engines/MetaLearningOptimizerEngine.js");
+        const p = params as { mode?: "scenarios" | "all" };
+        const mode = p.mode ?? "all";
+        if (mode === "scenarios") {
+          const scenarios = metaLearningOptimizerEngine.listScenarios();
+          result = { mode, scenarios, count: scenarios.length };
+        } else {
+          const all = metaLearningOptimizerEngine.listAll();
+          result = { mode, stats: all, count: all.length, size: metaLearningOptimizerEngine.size() };
+        }
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
