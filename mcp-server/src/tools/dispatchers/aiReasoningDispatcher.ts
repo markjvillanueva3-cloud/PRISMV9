@@ -874,6 +874,30 @@ export async function executeAIReasoningAction(
         };
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE24: ActiveLearningStrategyEngine — info-gain ranking
+      // ─────────────────────────────────────────────────────────────────────
+      case "learning_rank": {
+        const { activeLearningStrategyEngine } = await import("../../engines/ActiveLearningStrategyEngine.js");
+        type RankArg = Parameters<typeof activeLearningStrategyEngine.rank>[0];
+        const p = params as { candidates: RankArg };
+        const ranked = activeLearningStrategyEngine.rank(p.candidates);
+        result = {
+          count: ranked.length,
+          totalInfoGain: ranked.reduce((a, r) => a + r.infoGain, 0),
+          topRank: ranked[0] ?? null,
+          ranked,
+        };
+        break;
+      }
+      case "learning_summary": {
+        const { activeLearningStrategyEngine } = await import("../../engines/ActiveLearningStrategyEngine.js");
+        type SummaryArg = Parameters<typeof activeLearningStrategyEngine.summary>[0];
+        const p = params as { ranked: SummaryArg };
+        const summary = activeLearningStrategyEngine.summary(p.ranked);
+        result = summary;
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
