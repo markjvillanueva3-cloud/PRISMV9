@@ -12,7 +12,11 @@
  * @module engines/ToolCatalogAdaptiveEngine
  */
 
-import { toolCatalogEngine, UnifiedTool, ToolRecommendation } from "./ToolCatalogEngine.js";
+import { toolCatalogEngine, type CatalogTool } from "./ToolCatalogEngine.js";
+
+// Local aliases to keep the public AdaptiveToolRecommendation surface stable.
+type UnifiedTool = CatalogTool;
+type ToolRecommendation = CatalogTool & { score: number; reasoning: string };
 import { adaptivePhysicsBridgeEngine, IntegratedAdaptiveAnalysis, AdaptiveCuttingConditions } from "./AdaptivePhysicsBridgeEngine.js";
 import { adaptiveSystemIntegrationEngine } from "./AdaptiveSystemIntegrationEngine.js";
 
@@ -107,13 +111,20 @@ export class ToolCatalogAdaptiveEngine {
       material: params.material,
     };
 
+    // Map material → ISO group for catalog query (P/M/K/N/S/H).
+    const isoMap: Record<string, string> = {
+      steel: "P", stainless: "M", cast_iron: "K", aluminum: "N", titanium: "S", superalloy: "H",
+    };
+    const isoGroup = isoMap[params.material] ?? "P";
+
     // Search tool catalog
-    const searchResults = toolCatalogEngine.searchTools({
-      min_diameter: params.diameter_mm ? params.diameter_mm - tolerance : undefined,
-      max_diameter: params.diameter_mm ? params.diameter_mm + tolerance : undefined,
-      tool_type: this.mapOperationToToolType(params.operation),
-      material_compatibility: ISO_TO_CATALOG_MATERIAL[params.material]?.[0],
-      limit: maxResults * 3, // Get extras for filtering
+    const searchTools: CatalogTool[] = toolCatalogEngine.search({
+      diameter_range: params.diameter_mm
+        ? [params.diameter_mm - tolerance, params.diameter_mm + tolerance]
+        : undefined,
+      type: this.mapOperationToToolType(params.operation),
+      iso_group: isoGroup,
+      max_results: maxResults * 3,
     });
 
     // Get adaptive analysis
@@ -125,33 +136,45 @@ export class ToolCatalogAdaptiveEngine {
     const recommendations: AdaptiveToolRecommendation[] = [];
     const catalogsConsulted = new Set<string>();
 
-    for (const tool of searchResults.tools.slice(0, maxResults)) {
-      catalogsConsulted.add(tool.source_catalog);
+    for (const tool of searchTools.slice(0, maxResults)) {
+      catalogsConsulted.add(tool.source);
 
-      // Get base recommendation from catalog
-      const baseRec = toolCatalogEngine.recommend({
-        diameter_mm: tool.cutting_diameter_mm,
+      // Get base recommendation from catalog (returns array of scored tools).
+      const baseRecs = toolCatalogEngine.recommend({
+        diameter_mm: tool.physical.cutting_diameter_mm,
         operation: params.operation ?? "general",
-        material: params.material,
-        depth_of_cut_mm: params.depth_of_cut_mm ?? 2,
-        width_of_cut_mm: params.width_of_cut_mm ?? tool.cutting_diameter_mm * 0.5,
+        iso_group: isoGroup,
+        depth_mm: params.depth_of_cut_mm ?? 2,
+        finish_required: params.operation === "finishing",
+        max_results: 1,
       });
+      const baseRec = baseRecs[0];
+
+      // Pull catalog cutting data for speed/feed defaults.
+      const cuttingData = tool.cutting_data?.[isoGroup];
+      const baseSpeedMpm = cuttingData
+        ? (cuttingData.vc_min + cuttingData.vc_max) / 2
+        : 90;
+      const baseFpt = cuttingData
+        ? (cuttingData.fz_min + cuttingData.fz_max) / 2
+        : 0.1;
 
       // Apply adaptive adjustments
       const feedOverride = adaptiveAnalysis.feedOverride;
       const speedOverride = adaptiveAnalysis.speedOverride;
-
-      const baseSfm = baseRec?.speed_sfm ?? 300;
-      const baseSpeed = baseSfm * 0.3048; // SFM to m/min
-      const baseFpt = baseRec?.feed_per_tooth ?? 0.1;
       const flutes = tool.flute_count ?? 4;
 
-      const adjustedSpeed = baseSpeed * speedOverride;
+      const adjustedSpeed = baseSpeedMpm * speedOverride;
       const adjustedFpt = baseFpt * feedOverride;
       const adjustedFpr = adjustedFpt * flutes;
 
       // Calculate capability boost from using this tool
       const capabilityBoost = this.calculateCapabilityBoost(tool, params.material, adaptiveAnalysis);
+
+      // Derive a wear-stage label from VB (Sandvik / ISO 8688 thresholds).
+      const VB = adaptiveAnalysis.wear.wearProgression.flankWearVB;
+      const wearStage: "fresh" | "normal" | "accelerated" | "critical" =
+        VB > 0.30 ? "critical" : VB > 0.20 ? "accelerated" : VB > 0.10 ? "normal" : "fresh";
 
       // Generate rationale
       const rationale: string[] = [];
@@ -166,24 +189,18 @@ export class ToolCatalogAdaptiveEngine {
       if (adaptiveAnalysis.feedOverride < 1) {
         warnings.push(`Feed reduced ${((1 - feedOverride) * 100).toFixed(0)}% due to process conditions`);
       }
-      if (adaptiveAnalysis.wear.wearStage === "accelerated" || adaptiveAnalysis.wear.wearStage === "critical") {
-        warnings.push(`High wear rate expected - consider coated variant`);
+      if (wearStage === "accelerated" || wearStage === "critical") {
+        warnings.push(`High wear rate expected (VB=${VB.toFixed(2)}mm, stage=${wearStage}) - consider coated variant`);
       }
 
+      const fallbackRec: ToolRecommendation = {
+        ...tool,
+        score: 50,
+        reasoning: `Fallback recommendation (no catalog match for ${tool.id})`,
+      };
       recommendations.push({
         tool,
-        base_recommendation: baseRec ?? {
-          tool_id: tool.id,
-          tool_type: tool.tool_type,
-          diameter_mm: tool.cutting_diameter_mm,
-          speed_sfm: baseSfm,
-          feed_per_tooth: baseFpt,
-          depth_of_cut_mm: params.depth_of_cut_mm ?? 2,
-          width_of_cut_mm: params.width_of_cut_mm ?? tool.cutting_diameter_mm * 0.5,
-          coolant: "flood",
-          confidence: 0.7,
-          source: tool.source_catalog,
-        },
+        base_recommendation: baseRec ?? fallbackRec,
         adaptive_adjustments: {
           feed_override: feedOverride,
           speed_override: speedOverride,
@@ -212,7 +229,7 @@ export class ToolCatalogAdaptiveEngine {
       recommendations,
       best_match: recommendations[0] ?? null,
       catalog_coverage: {
-        total_tools_searched: searchResults.total_count,
+        total_tools_searched: searchTools.length,
         matching_tools: recommendations.length,
         catalogs_consulted: Array.from(catalogsConsulted),
       },
@@ -367,7 +384,7 @@ export class ToolCatalogAdaptiveEngine {
     if (searchResult.best_match &&
         searchResult.best_match.process_capability_boost > 0) {
       improvements.push({
-        suggestion: `Switch to ${searchResult.best_match.tool.part_number} from ${searchResult.best_match.tool.manufacturer}`,
+        suggestion: `Switch to ${searchResult.best_match.tool.designation} from ${searchResult.best_match.tool.manufacturer}`,
         expected_capability_boost: searchResult.best_match.process_capability_boost,
         tool_recommendation: searchResult.best_match.tool,
       });
