@@ -24,10 +24,65 @@
 import { z } from "zod";
 import {
   CANONICAL_MATERIAL_DB,
+  CANONICAL_KIENZLE,
+  CANONICAL_TURNING_SPEEDS,
   AISI_ALIAS,
+  type MaterialEntry,
   type MaterialPhysics,
   type ISOGroup,
 } from "../physics/constants.js";
+
+// Local extended view — same shape as the LatheSpeedFeedCalculatorFacadeEngine
+// `ResolvedMaterialPhysics` (kept duplicate-free by re-deriving here so this
+// engine doesn't import from a sibling). Adds turning-specific fields not on
+// the canonical `MaterialPhysics` type. See entryToPhysics() for how each
+// extension field maps from MaterialEntry + canonical ISO-group tables.
+interface ResolvedMaterialPhysics extends MaterialPhysics {
+  k_thermal: number;
+  sigma_y_MPa: number;
+  density_kg_m3: number;
+  hardness_HB: number;
+  vc_base_roughing: number;
+  vc_base_finishing: number;
+  machinability_factor: number;
+  cp_J_kgK: number;
+  E_GPa: number;
+}
+
+function entryToPhysics(entry: MaterialEntry): ResolvedMaterialPhysics {
+  const kienzle = CANONICAL_KIENZLE[entry.iso_group];
+  const speeds = CANONICAL_TURNING_SPEEDS[entry.iso_group];
+  const hardness_HB = entry.hardness_HRC !== undefined
+    ? Math.round(entry.hardness_HRC * 10 + 100)
+    : entry.tensile_strength_MPa !== undefined
+      ? Math.round(entry.tensile_strength_MPa * 0.3)
+      : 200;
+  const sigma_y_MPa = entry.tensile_strength_MPa !== undefined
+    ? entry.tensile_strength_MPa * 0.85
+    : 400;
+  return {
+    name: entry.name,
+    iso_group: entry.iso_group,
+    kc1_1: kienzle.kc1_1,
+    mc: kienzle.mc,
+    taylor_C: entry.taylor_C,
+    taylor_n: entry.taylor_n,
+    density_kg_m3: entry.density_kg_m3,
+    thermal_conductivity_W_mK: entry.thermal_conductivity_W_mK,
+    specific_heat_J_kgK: entry.specific_heat_J_kgK,
+    hardness_HRC: entry.hardness_HRC,
+    hardness_HB,
+    tensile_strength_MPa: entry.tensile_strength_MPa,
+    yield_strength_MPa: sigma_y_MPa,
+    k_thermal: entry.thermal_conductivity_W_mK,
+    sigma_y_MPa,
+    vc_base_roughing: speeds.rough,
+    vc_base_finishing: speeds.finish,
+    machinability_factor: 1.0,
+    cp_J_kgK: entry.specific_heat_J_kgK,
+    E_GPa: 210,
+  };
+}
 
 // ── Input Schema ────────────────────────────────────────────────────────────
 
@@ -262,13 +317,13 @@ export class LatheSpeedFeedDeepLearningAdvisorEngine {
   /**
    * Resolve material to canonical properties.
    */
-  private static resolveMaterial(materialId: string): MaterialPhysics | null {
+  private static resolveMaterial(materialId: string): ResolvedMaterialPhysics | null {
     if (CANONICAL_MATERIAL_DB[materialId]) {
-      return CANONICAL_MATERIAL_DB[materialId];
+      return entryToPhysics(CANONICAL_MATERIAL_DB[materialId]);
     }
     const alias = AISI_ALIAS[materialId];
     if (alias && CANONICAL_MATERIAL_DB[alias]) {
-      return CANONICAL_MATERIAL_DB[alias];
+      return entryToPhysics(CANONICAL_MATERIAL_DB[alias]);
     }
     return null;
   }
@@ -278,7 +333,7 @@ export class LatheSpeedFeedDeepLearningAdvisorEngine {
    */
   private static extractFeatures(
     input: DLAdvisorInput,
-    material: MaterialPhysics
+    material: ResolvedMaterialPhysics
   ): { features: number[]; featureValues: Record<FeatureName, number> } {
     const values: Record<FeatureName, number> = {
       material_kc1_1: material.kc1_1,
@@ -330,7 +385,7 @@ export class LatheSpeedFeedDeepLearningAdvisorEngine {
    * Calculate base recommendation using physics.
    */
   private static calculateBaseRecommendation(
-    material: MaterialPhysics,
+    material: ResolvedMaterialPhysics,
     input: DLAdvisorInput
   ): DLRecommendation {
     const isRoughing = input.operation.type === "roughing";
@@ -478,7 +533,7 @@ export class LatheSpeedFeedDeepLearningAdvisorEngine {
    */
   private static computeAttentionWeights(
     input: DLAdvisorInput,
-    material: MaterialPhysics
+    material: ResolvedMaterialPhysics
   ): Record<string, number> {
     // Simulate attention mechanism
     const weights: Record<string, number> = {
@@ -518,7 +573,7 @@ export class LatheSpeedFeedDeepLearningAdvisorEngine {
    */
   private static generateNeuralReasoning(
     input: DLAdvisorInput,
-    material: MaterialPhysics,
+    material: ResolvedMaterialPhysics,
     factors: { speed_factor: number; feed_factor: number; depth_factor: number },
     topFeatures: FeatureImportance[]
   ): string[] {
