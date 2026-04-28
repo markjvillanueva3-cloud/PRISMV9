@@ -11,7 +11,15 @@
  * - Conflict resolution: higher-priority layer wins, alternatives tracked
  */
 
-import type { Machine, MachineController, MachineSpindle, MachineEnvelope, MachineAxes, MachineToolChanger, MachineCoolant, MachineKinematics, MachineLayer } from '../types.js';
+import type { Machine, MachineController, MachineSpindle, MachineEnvelope, MachineAxes, MachineToolChanger, MachineCoolant, MachineKinematics } from '../types.js';
+
+/**
+ * Internal layer vocabulary for this merger. Distinct from the canonical
+ * `MachineLayer` enum in `constants.ts` (which is "core"|"extended"|"user"|"legacy").
+ * This engine's history pre-dates the constants.ts rename — keep the local
+ * names rather than retro-renaming all callers.
+ */
+type MachineLayer = 'BASIC' | 'ENHANCED';
 import type { CanonicalMachinePackage, MachineFieldProvenance, MachineAmbiguity, MachineEnrichmentRecord, MachineConfidenceBreakdown, CanonicalMachineType } from '../types/MachinePackage.js';
 
 const LAYER_PRIORITY: Record<MachineLayer | 'LEVEL5' | 'USER', number> = {
@@ -119,7 +127,7 @@ class MachineLayerMergerEngine {
     };
   }
 
-  private mergeObject<T extends Record<string, unknown>>(
+  private mergeObject<T extends object>(
     basePath: string,
     objects: Array<{ value: T | undefined; layer: MachineLayer | 'LEVEL5' | 'USER'; source_id: string; enriched_at: string; confidence: number }>,
   ): { merged: T; provenance: Record<string, MachineFieldProvenance>; conflicts: number } {
@@ -130,7 +138,7 @@ class MachineLayerMergerEngine {
     const allKeys = new Set<string>();
     for (const obj of objects) {
       if (obj.value && typeof obj.value === 'object') {
-        for (const key of Object.keys(obj.value)) {
+        for (const key of Object.keys(obj.value as Record<string, unknown>)) {
           allKeys.add(key);
         }
       }
@@ -139,7 +147,7 @@ class MachineLayerMergerEngine {
     for (const key of allKeys) {
       const fieldPath = `${basePath}.${key}`;
       const fieldValues = objects.map(obj => ({
-        value: obj.value?.[key],
+        value: (obj.value as Record<string, unknown> | undefined)?.[key],
         layer: obj.layer,
         source_id: obj.source_id,
         enriched_at: obj.enriched_at,

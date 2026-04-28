@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "captured_at": "2026-04-27T23:55Z",
+  "captured_by": "claude-2a125756",
+  "worktree": "H:/prism-tsc-cleanup",
+  "branch": "work/tsc-cleanup-ms0",
+  "head": "643ba6607",
+  "current_errors": 897,
+  "baseline_errors": 940,
+  "delta_vs_baseline": -43,
+  "top_10_codes": [
+    { "count": 258, "code": "TS2339", "name": "Property does not exist" },
+    { "count": 111, "code": "TS2322", "name": "Type not assignable" },
+    { "count": 92,  "code": "TS2307", "name": "Cannot find module" },
+    { "count": 76,  "code": "TS2554", "name": "Wrong arg count" },
+    { "count": 72,  "code": "TS2345", "name": "Argument type mismatch" },
+    { "count": 68,  "code": "TS2353", "name": "Unknown property" },
+    { "count": 33,  "code": "TS18048", "name": "Possibly undefined" },
+    { "count": 19,  "code": "TS2739", "name": "Missing properties" },
+    { "count": 17,  "code": "TS2305", "name": "No exported member" },
+    { "count": 14,  "code": "TS2352", "name": "Conversion mistake" }
+  ],
+  "top_15_files": [
+    { "file": "src/tools/dispatchers/camDispatcher.ts", "count": 71, "blocked_by": "CAM-EXHAUST-MS0 peer chat" },
+    { "file": "src/tools/dispatchers/dataDispatcher.ts", "count": 23, "kind": "missing-module-cascade" },
+    { "file": "src/tools/dispatchers/guardDispatcher.ts", "count": 22, "kind": "missing-module-cascade" },
+    { "file": "src/engines/PipelineConsistencyHookEngine.ts", "count": 22, "claimed_by": "DESKTOP--60992 @ 23:48" },
+    { "file": "src/tools/dispatchers/cadAutomationDispatcher.ts", "count": 19 },
+    { "file": "src/tools/dispatchers/calcDispatcher.ts", "count": 18 },
+    { "file": "src/hooks/WEDMSafetyHooks.ts", "count": 16, "claimed_by": "DESKTOP--42120 @ 23:51" },
+    { "file": "src/engines/WireEDMSettingsEngine.ts", "count": 16 },
+    { "file": "src/engines/MachinePackageSelectionEngine.ts", "count": 15 },
+    { "file": "src/engines/LatheMasterOrchestratorFacadeEngine.ts", "count": 14 },
+    { "file": "src/engines/PipelineRegistryBridge.ts", "count": 13, "claimed_by": "DESKTOP--39504 @ 23:54" },
+    { "file": "src/engines/MachineLayerMerger.ts", "count": 13 },
+    { "file": "src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts", "count": 13 },
+    { "file": "src/engines/BarStockCutPlanEngine.ts", "count": 13 },
+    { "file": "src/engines/reactiveChainBootstrap.ts", "count": 12 }
+  ],
+  "completed_units": [
+    { "unit": "U-CL00-03", "title": "Capture baseline (940 errors)", "commit": "c26ce7e05" },
+    { "unit": "U-CL01-MIOE", "title": "MachiningIntelligenceOrchestratorEngine 35→0", "commit": "10b8f4053" },
+    { "unit": "U-CL01-HMDL", "title": "HyperMillDeepLearningEngine 25→0", "commit": "643ba6607" }
+  ],
+  "session_notes": [
+    "Peer chats actively claiming top-error files faster than single-chat can edit",
+    "All original P1 targets (AuthorityRanking 64, PRISMUnifiedOrchestrator 55, LatheSelfAwareness 52, IntentClassifier 51) NOW 0 errors — already fixed by peers or never matched",
+    "Worktree git status shows D-marked deletions (SurfaceFinishPredictor, ChainFailureRecovery, MillPatternMiner, businessActionSchemas, wedm-published-machines) — likely intentional supersede deletes from main",
+    "CRLF line endings in *.ts cause Edit tool old_string mismatches when copying multi-line content from Read output",
+    "dataDispatcher and guardDispatcher errors are mostly TS2307 (deleted engines) — those need either restore or dispatcher-action removal, not type annotations"
+  ],
+  "next_targets_uncontested": [
+    "src/tools/dispatchers/cadAutomationDispatcher.ts (19)",
+    "src/tools/dispatchers/calcDispatcher.ts (18)",
+    "src/engines/WireEDMSettingsEngine.ts (16)",
+    "src/engines/MachinePackageSelectionEngine.ts (15)",
+    "src/engines/LatheMasterOrchestratorFacadeEngine.ts (14)",
+    "src/engines/MachineLayerMerger.ts (13)",
+    "src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts (13)",
+    "src/engines/BarStockCutPlanEngine.ts (13)"
+  ],
+  "recommendations": [
+    "Resolve worktree deletions FIRST — those D-marked files cause TS2307 cascades in dispatchers (115+ errors)",
+    "Coordinate via state/shared/AGENT_WORKBOARD.md before claiming files (chat_post is too racy)",
+    "Single-chat ownership of one-file-at-a-time works; peer races wastes cycles"
+  ]
+}
