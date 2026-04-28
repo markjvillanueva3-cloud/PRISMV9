@@ -8,6 +8,17 @@
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
+/**
+ * Normalize CRLF to LF for cross-platform line-ending tolerance.
+ * Files on disk may be CRLF (Windows) while old_string is LF (Claude harness),
+ * causing byte-exact comparison to false-negative even when content matches.
+ * INTEL-OLLAMA-OBSIDIAN-MS0/HOOK-FIX-CRLF.
+ */
+function normalizeEOL(s) {
+  if (typeof s !== 'string') return s;
+  return s.replace(/\r\n/g, '\n');
+}
+
 const input = JSON.parse(readFileSync(0, 'utf8'));
 const { tool_name, tool_input } = input;
 
@@ -39,8 +50,10 @@ try {
   }
 
   const content = readFileSync(resolved, 'utf8');
+  const normalizedContent = normalizeEOL(content);
+  const normalizedOld = normalizeEOL(oldString);
 
-  if (!content.includes(oldString)) {
+  if (!normalizedContent.includes(normalizedOld)) {
     // Try to find similar strings
     const oldLines = oldString.split('\n');
     const firstLine = oldLines[0].trim();
@@ -84,7 +97,7 @@ try {
   }
 
   // Check for multiple matches (could cause unexpected behavior)
-  const matches = content.split(oldString).length - 1;
+  const matches = normalizedContent.split(normalizedOld).length - 1;
   if (matches > 1 && !tool_input?.replace_all) {
     console.log(JSON.stringify({
       continue: true,
