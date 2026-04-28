@@ -61,6 +61,19 @@ interface UnifiedOperation {
   description: string;
 }
 
+/**
+ * Per-operation shape inside each PowerMill catalog. The catalog loaders
+ * return Record<string, unknown> at the type level even though the JSON
+ * has this concrete shape — narrow at the iteration boundary so we don't
+ * lose type safety in the unified view.
+ */
+interface PowerMillCatalogOperation {
+  display_name: string;
+  category: string;
+  parameter_count: number;
+  description: string;
+}
+
 interface CatalogStats {
   catalog: string;
   operations: number;
@@ -85,7 +98,11 @@ export class PowerMillUnifiedFunctionIndexEngine {
 
     const operations: UnifiedOperation[] = [];
 
-    for (const [id, op] of Object.entries(roughing.operations)) {
+    const roughingOps = roughing.operations as Record<string, PowerMillCatalogOperation>;
+    const finishingOps = finishing.operations as Record<string, PowerMillCatalogOperation>;
+    const fiveAxisOps = fiveAxis.operations as Record<string, PowerMillCatalogOperation>;
+
+    for (const [id, op] of Object.entries(roughingOps)) {
       operations.push({
         id,
         catalog: "roughing",
@@ -96,7 +113,7 @@ export class PowerMillUnifiedFunctionIndexEngine {
       });
     }
 
-    for (const [id, op] of Object.entries(finishing.operations)) {
+    for (const [id, op] of Object.entries(finishingOps)) {
       operations.push({
         id,
         catalog: "finishing",
@@ -107,7 +124,7 @@ export class PowerMillUnifiedFunctionIndexEngine {
       });
     }
 
-    for (const [id, op] of Object.entries(fiveAxis.operations)) {
+    for (const [id, op] of Object.entries(fiveAxisOps)) {
       operations.push({
         id,
         catalog: "5axis_robot",
@@ -134,10 +151,19 @@ export class PowerMillUnifiedFunctionIndexEngine {
    * Lists all operation IDs across all catalogs.
    */
   static listAllOperations(): string[] {
+    // Sub-catalog listOperations() returns enriched {operation_id, ...} entries.
+    // The unified engine's contract is the operation_id list — flatten via
+    // map(o => o.operation_id) to honour the string[] return type.
     const roughing = PowerMillRoughingFunctionIndexEngine.listOperations();
     const finishing = PowerMillFinishingFunctionIndexEngine.listOperations();
     const fiveAxis = PowerMill5AxisFunctionIndexEngine.listOperations();
-    return [...roughing, ...finishing, ...fiveAxis];
+    // Roughing returns enriched {operation_id, ...} entries; finishing and
+    // 5-axis already return string[]. Normalize to operation_id strings.
+    return [
+      ...roughing.map((o) => o.operation_id),
+      ...finishing,
+      ...fiveAxis,
+    ];
   }
 
   /**
