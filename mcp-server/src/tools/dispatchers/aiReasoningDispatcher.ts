@@ -397,6 +397,46 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE05: 5 heavy AI orchestrator engines
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_milling_agi": {
+        const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
+        result = millingAGIOrchestrationEngine.analyzeWithAGI(
+          params as unknown as Parameters<typeof millingAGIOrchestrationEngine.analyzeWithAGI>[0],
+        );
+        break;
+      }
+      case "ai_milling_twin_simulate": {
+        const { millingDigitalTwinEngine } = await import("../../engines/MillingDigitalTwinEngine.js");
+        const p = params as { duration_s: number; parameter_changes?: Record<string, unknown> };
+        result = millingDigitalTwinEngine.simulate(
+          p.duration_s,
+          p.parameter_changes as unknown as Parameters<typeof millingDigitalTwinEngine.simulate>[1],
+        );
+        break;
+      }
+      case "ai_wedm_master": {
+        const { wireEDMMasterAIEngine } = await import("../../engines/WireEDMMasterAIEngine.js");
+        result = await wireEDMMasterAIEngine.analyze(
+          params as unknown as Parameters<typeof wireEDMMasterAIEngine.analyze>[0],
+        );
+        break;
+      }
+      case "ai_wedm_neural_orchestrate": {
+        const { wireEDMNeuralOrchestrationEngine } = await import("../../engines/WireEDMNeuralOrchestrationEngine.js");
+        result = wireEDMNeuralOrchestrationEngine.orchestrate(
+          params as unknown as Parameters<typeof wireEDMNeuralOrchestrationEngine.orchestrate>[0],
+        );
+        break;
+      }
+      case "ai_lathe_train": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        const p = params as { programs: Array<{ content: string; filepath: string }> };
+        result = latheAITrainingEngine.trainFromPrograms(p.programs);
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

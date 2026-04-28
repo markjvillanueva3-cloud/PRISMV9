@@ -42,6 +42,12 @@ export const AI_REASONING_ACTIONS = [
   "ai_wedm_deep_neural",
   "ai_milling_synthesize",
   "ai_lathe_reason",
+  // ENGINE-WIRE-MS0/U-WIRE05: 5 heavy AI orchestrator engines
+  "ai_milling_agi",
+  "ai_milling_twin_simulate",
+  "ai_wedm_master",
+  "ai_wedm_neural_orchestrate",
+  "ai_lathe_train",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -436,6 +442,79 @@ const ai_lathe_reason = z.object({
   optimization_target: z.enum(["balanced","max_speed","max_tool_life","min_cost","surface_quality"]).optional().describe("Optimization objective"),
 }).passthrough();
 
+// ─── ENGINE-WIRE-MS0/U-WIRE05: 5 heavy AI orchestrator engines ─────
+
+/** Milling AGI analysis — multi-objective, scientifically-justified parameter optimization. */
+const ai_milling_agi = z.object({
+  material: z.string().min(1).describe("Material designation"),
+  tool_diameter_mm: z.number().positive().describe("Tool diameter mm"),
+  tool_flutes: z.number().int().positive().describe("Tool flute count"),
+  cutting_speed_m_min: z.number().positive().describe("Cutting speed Vc m/min"),
+  feed_per_tooth_mm: z.number().positive().describe("Feed per tooth fz mm"),
+  axial_depth_mm: z.number().positive().describe("Axial DOC ap mm"),
+  radial_depth_mm: z.number().positive().describe("Radial DOC ae mm"),
+  operation: z.string().min(1).describe("Operation type (roughing/finishing/etc.)"),
+  coolant_type: z.string().optional().describe("Coolant type"),
+  tool_coating: z.string().optional().describe("Tool coating"),
+  helix_angle_deg: z.number().optional().describe("Helix angle deg"),
+  rake_angle_deg: z.number().optional().describe("Rake angle deg"),
+  corner_radius_mm: z.number().nonnegative().optional().describe("Corner radius mm"),
+}).passthrough();
+
+/** Milling Digital Twin simulate — forward-simulate process state for N seconds. */
+const ai_milling_twin_simulate = z.object({
+  duration_s: z.number().positive().describe("Simulation duration in seconds"),
+  parameter_changes: z.record(z.string(), z.unknown()).optional().describe("Optional process parameter overrides for this run"),
+}).passthrough();
+
+/** WEDM Master AI analyze — top-level Wire EDM AI orchestrator with depth control. */
+const ai_wedm_master = z.object({
+  domain: z.enum([
+    "parameter_selection","pass_strategy","wire_selection","machine_selection",
+    "troubleshooting","optimization","quality_prediction","cost_estimation","program_generation",
+  ]).describe("Decision domain"),
+  depth: z.enum(["quick","standard","deep","exhaustive"]).describe("Reasoning depth"),
+  material: z.string().optional().describe("Material designation"),
+  thickness_mm: z.number().positive().optional().describe("Material thickness mm"),
+  target_ra_um: z.number().positive().optional().describe("Target Ra µm"),
+  tolerance_mm: z.number().positive().optional().describe("Tolerance mm"),
+  wire_type: z.string().optional().describe("Wire type"),
+  wire_diameter_mm: z.number().positive().optional().describe("Wire diameter mm"),
+  customer: z.string().optional().describe("Customer name"),
+  part_category: z.string().optional().describe("Part category"),
+  question: z.string().optional().describe("Free-form question"),
+  program_content: z.string().optional().describe("Program content for analysis"),
+  current_params: z.record(z.string(), z.number()).optional().describe("Current parameter values"),
+  constraints: z.record(z.string(), z.unknown()).optional().describe("Free-form constraints"),
+  include_counterfactuals: z.boolean().optional().describe("Generate counterfactual scenarios"),
+}).passthrough();
+
+/** WEDM Neural Orchestrate — multi-strategy WEDM evaluation. */
+const ai_wedm_neural_orchestrate = z.object({
+  material: z.string().min(1).describe("Material designation"),
+  thickness_mm: z.number().positive().describe("Material thickness mm"),
+  target_ra_um: z.number().positive().optional().describe("Target Ra µm"),
+  geometry: z.enum(["straight","complex","taper","corner_heavy"]).optional().describe("Geometry class"),
+  priority: z.enum(["speed","quality","cost","balanced"]).optional().describe("Optimization priority"),
+  constraints: z.object({
+    max_cycle_time_min: z.number().positive().optional(),
+    max_wire_consumption_m: z.number().positive().optional(),
+    max_passes: z.number().int().positive().optional(),
+    min_accuracy_mm: z.number().positive().optional(),
+  }).passthrough().optional().describe("Hard constraints"),
+  context: z.record(z.string(), z.unknown()).optional().describe("Decision context"),
+  observations: z.array(z.string()).optional().describe("Observed signals"),
+  symptoms: z.array(z.string()).optional().describe("Reported symptoms"),
+}).passthrough();
+
+/** Lathe AI Train — train from a batch of CNC lathe programs. */
+const ai_lathe_train = z.object({
+  programs: z.array(z.object({
+    content: z.string().min(1).describe("Raw program text"),
+    filepath: z.string().min(1).describe("Source filepath for traceability"),
+  }).passthrough()).min(1).describe("Programs to train from"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -466,4 +545,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_wedm_deep_neural,
   ai_milling_synthesize,
   ai_lathe_reason,
+  // ENGINE-WIRE-MS0/U-WIRE05: 5 heavy AI orchestrator engines
+  ai_milling_agi,
+  ai_milling_twin_simulate,
+  ai_wedm_master,
+  ai_wedm_neural_orchestrate,
+  ai_lathe_train,
 };
