@@ -205,6 +205,54 @@ class CapacityPlanningEngine {
     return [...this.machines.keys()].map((id) => this.getMachineLoad(id, period_weeks));
   }
 
+  /**
+   * Append a job duration to a machine's schedule and return a denormalized
+   * load update suitable for emission via the cycle_time → capacity reactive
+   * chain. Adds a single ScheduleSlot starting today; falls back to the
+   * machine's current available hours when scheduling fails.
+   */
+  updateMachineLoad(
+    machine_id: string,
+    payload: { job_id: string; duration_hours: number; source?: string },
+  ): {
+    machine_id: string;
+    machine_name: string;
+    time_window: string;
+    available_hours: number;
+    scheduled_hours: number;
+    utilization_pct: number;
+    pending_jobs: number;
+    status: MachineLoad["status"];
+  } {
+    const machine = this.machines.get(machine_id);
+    if (!machine) throw new Error(`Machine ${machine_id} not found`);
+    const today = new Date().toISOString().slice(0, 10);
+    const dailyEffective = (machine.effective_weekly_hours / 7) || 1;
+    const days = Math.max(1, Math.ceil(payload.duration_hours / dailyEffective));
+    const end = new Date();
+    end.setDate(end.getDate() + days);
+    this.schedule.push({
+      job_id: payload.job_id,
+      operation: payload.source ?? "cycle_time_estimate",
+      machine_id,
+      start_date: today,
+      end_date: end.toISOString().slice(0, 10),
+      hours: payload.duration_hours,
+      priority: 5,
+    });
+    const load = this.getMachineLoad(machine_id, 1);
+    return {
+      machine_id: load.machine_id,
+      machine_name: load.machine_name,
+      time_window: load.period,
+      available_hours: load.available_hours,
+      scheduled_hours: load.loaded_hours,
+      utilization_pct: load.utilization_pct,
+      pending_jobs: load.jobs.length,
+      status: load.status,
+    };
+  }
+
   findBottlenecks(period_weeks?: number): BottleneckReport[] {
     const loads = this.getAllMachineLoads(period_weeks);
     return loads

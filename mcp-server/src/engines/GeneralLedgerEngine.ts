@@ -354,6 +354,47 @@ class GeneralLedgerEngine {
   }
 
   /**
+   * Accrue job costs into WIP inventory:
+   *   DR 1300 WIP Inventory (labor + material + tooling + overhead)
+   *   CR 5200 Payroll Expense (labor)
+   *   CR 5100 Material Cost (material)
+   *   CR 5300 Tooling Cost (tooling)
+   *   CR 5400 Overhead (overhead)
+   * Zero-amount lines are skipped. Used by reactive chain `accrue_job_costs`.
+   */
+  recordJobCost(input: {
+    job_id: string;
+    labor?: number;
+    material?: number;
+    tooling?: number;
+    overhead?: number;
+    date: string;
+  }): JournalEntry {
+    const labor = input.labor ?? 0;
+    const material = input.material ?? 0;
+    const tooling = input.tooling ?? 0;
+    const overhead = input.overhead ?? 0;
+    const total = labor + material + tooling + overhead;
+    if (total <= 0) {
+      throw new Error(`recordJobCost: total cost must be > 0 for job ${input.job_id}`);
+    }
+    const lines: JournalLine[] = [
+      { account_id: "1300", debit: total, credit: 0, description: `WIP accrual job ${input.job_id}` },
+    ];
+    if (labor > 0)    lines.push({ account_id: "5200", debit: 0, credit: labor,    description: `Labor accrual job ${input.job_id}` });
+    if (material > 0) lines.push({ account_id: "5100", debit: 0, credit: material, description: `Material accrual job ${input.job_id}` });
+    if (tooling > 0)  lines.push({ account_id: "5300", debit: 0, credit: tooling,  description: `Tooling accrual job ${input.job_id}` });
+    if (overhead > 0) lines.push({ account_id: "5400", debit: 0, credit: overhead, description: `Overhead accrual job ${input.job_id}` });
+    return this.postEntry({
+      date: input.date,
+      description: `Job cost accrual ${input.job_id}`,
+      source: "job_cost",
+      reference_id: input.job_id,
+      lines,
+    });
+  }
+
+  /**
    * Move WIP to COGS when finished job ships:
    *   DR 5000 Cost of Goods Sold (amount)
    *   CR 1300 WIP Inventory (amount)
