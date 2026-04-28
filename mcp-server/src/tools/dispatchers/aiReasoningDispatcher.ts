@@ -356,6 +356,47 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE04: 5 deep-learning/deep-reasoning engines
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_milling_deep_reason": {
+        const { millingDeepReasoningEngine } = await import("../../engines/MillingDeepReasoningEngine.js");
+        const p = params as { query: string; context: Record<string, unknown>; mode?: "analytical"|"comparative"|"diagnostic"|"predictive"|"creative" };
+        result = millingDeepReasoningEngine.reason(
+          p.query,
+          p.context as Parameters<typeof millingDeepReasoningEngine.reason>[1],
+          p.mode,
+        );
+        break;
+      }
+      case "ai_wedm_deep_logic": {
+        const { wireEDMDeepLogicEngine } = await import("../../engines/WireEDMDeepLogicEngine.js");
+        const p = params as { query: string; context?: Record<string, unknown> };
+        result = wireEDMDeepLogicEngine.reason(p.query, p.context);
+        break;
+      }
+      case "ai_wedm_deep_neural": {
+        const { wireEDMDeepNeuralReasoningEngine } = await import("../../engines/WireEDMDeepNeuralReasoningEngine.js");
+        result = await wireEDMDeepNeuralReasoningEngine.reason(
+          params as Parameters<typeof wireEDMDeepNeuralReasoningEngine.reason>[0],
+        );
+        break;
+      }
+      case "ai_milling_synthesize": {
+        const { millingDeepKnowledgeSynthesisEngine } = await import("../../engines/MillingDeepKnowledgeSynthesisEngine.js");
+        result = await millingDeepKnowledgeSynthesisEngine.synthesize(
+          params as Parameters<typeof millingDeepKnowledgeSynthesisEngine.synthesize>[0],
+        );
+        break;
+      }
+      case "ai_lathe_reason": {
+        const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+        result = await latheAIReasoningEngine.reason(
+          params as Parameters<typeof latheAIReasoningEngine.reason>[0],
+        );
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

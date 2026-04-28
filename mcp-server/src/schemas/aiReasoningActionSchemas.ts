@@ -36,6 +36,12 @@ export const AI_REASONING_ACTIONS = [
   "ai_physics_optimize",
   "ai_knowledge_query",
   "ai_material_lookup",
+  // ENGINE-WIRE-MS0/U-WIRE04: 5 deep-learning/deep-reasoning engines
+  "ai_milling_deep_reason",
+  "ai_wedm_deep_logic",
+  "ai_wedm_deep_neural",
+  "ai_milling_synthesize",
+  "ai_lathe_reason",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -347,6 +353,89 @@ const ai_material_lookup = z.object({
   material: z.string().min(1).describe("Material designation (e.g. AISI 4140, 6061-T6)"),
 }).passthrough();
 
+// ─── ENGINE-WIRE-MS0/U-WIRE04: 5 deep-learning/deep-reasoning engines ───
+
+/** Milling Deep Reasoning — chain-of-thought reasoning over milling context. */
+const ai_milling_deep_reason = z.object({
+  query: z.string().min(1).describe("Natural-language reasoning question"),
+  context: z.object({
+    material: z.string().optional(),
+    material_iso: z.enum(["P","M","K","N","S","H"]).optional(),
+    hardness_hrc: z.number().optional(),
+    operation: z.string().optional(),
+    tool_type: z.string().optional(),
+    tool_diameter_mm: z.number().positive().optional(),
+    machine: z.string().optional(),
+    controller: z.string().optional(),
+    customer: z.string().optional(),
+    tolerance_mm: z.number().positive().optional(),
+    surface_finish_ra: z.number().positive().optional(),
+    depth_mm: z.number().positive().optional(),
+    width_mm: z.number().positive().optional(),
+    is_thin_wall: z.boolean().optional(),
+    is_5_axis: z.boolean().optional(),
+  }).passthrough().describe("Milling operation context"),
+  mode: z.enum(["analytical","comparative","diagnostic","predictive","creative"]).optional().describe("Reasoning mode (default analytical)"),
+}).passthrough();
+
+/** Wire EDM Deep Logic — symbolic + rule-based reasoning over WEDM problems. */
+const ai_wedm_deep_logic = z.object({
+  query: z.string().min(1).describe("Natural-language reasoning question"),
+  context: z.record(z.string(), z.unknown()).optional().describe("Free-form context object"),
+}).passthrough();
+
+/** Wire EDM Deep Neural Reasoning — neural-net-style multi-hop inference. */
+const ai_wedm_deep_neural = z.object({
+  question: z.string().min(1).describe("Natural-language WEDM question"),
+  context: z.object({
+    material: z.string().optional(),
+    thickness_mm: z.number().positive().optional(),
+    target_ra_um: z.number().positive().optional(),
+    machine: z.string().optional(),
+    wire_diameter_mm: z.number().positive().optional(),
+    constraints: z.array(z.string()).optional(),
+    preferences: z.array(z.string()).optional(),
+  }).passthrough().describe("WEDM context"),
+  reasoning_depth: z.enum(["quick","standard","deep","exhaustive"]).optional().describe("Reasoning depth"),
+}).passthrough();
+
+/** Milling Deep Knowledge Synthesis — fuse tribal/physics/program sources. */
+const ai_milling_synthesize = z.object({
+  material: z.string().min(1).describe("Material designation"),
+  material_iso: z.string().min(1).describe("ISO material group code (e.g. P, M, K)"),
+  hardness_hrc: z.number().optional().describe("Workpiece hardness HRC"),
+  operation: z.string().min(1).describe("Operation type"),
+  feature_type: z.string().optional().describe("Feature type (pocket, profile, hole, etc.)"),
+  tool_diameter_mm: z.number().positive().optional().describe("Tool diameter mm"),
+  tool_type: z.string().optional().describe("Tool type"),
+  tool_length_mm: z.number().positive().optional().describe("Tool length mm"),
+  tolerance_mm: z.number().positive().optional().describe("Tolerance mm"),
+  surface_finish_ra: z.number().positive().optional().describe("Target Ra"),
+  machine: z.string().optional().describe("Machine name"),
+  controller: z.string().optional().describe("Controller name"),
+  customer: z.string().optional().describe("Customer name"),
+  min_confidence: z.number().min(0).max(1).optional().describe("Minimum confidence threshold"),
+  prefer_conservative: z.boolean().optional().describe("Bias toward safer parameters"),
+  require_physics_validation: z.boolean().optional().describe("Require physics validation"),
+}).passthrough();
+
+/** Lathe AI Reasoning — diagnostic/predictive reasoning over lathe operations. */
+const ai_lathe_reason = z.object({
+  operation_type: z.string().min(1).describe("Lathe operation type (turning, threading, grooving, parting, boring, etc.)"),
+  material_iso: z.enum(["P","M","K","N","S","H"]).describe("ISO material group"),
+  material_name: z.string().optional().describe("Material designation"),
+  hardness_hrc: z.number().optional().describe("Workpiece hardness HRC"),
+  diameter_mm: z.number().positive().optional().describe("Workpiece diameter mm"),
+  length_mm: z.number().positive().optional().describe("Cut length mm"),
+  depth_mm: z.number().positive().optional().describe("Depth of cut mm"),
+  tolerance_mm: z.number().positive().optional().describe("Tolerance mm"),
+  surface_finish_Ra_um: z.number().positive().optional().describe("Target Ra µm"),
+  thread_pitch_mm: z.number().positive().optional().describe("Thread pitch mm"),
+  controller: z.string().optional().describe("Controller name"),
+  machine_brand: z.string().optional().describe("Machine brand"),
+  optimization_target: z.enum(["balanced","max_speed","max_tool_life","min_cost","surface_quality"]).optional().describe("Optimization objective"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -366,4 +455,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_physics_optimize,
   ai_knowledge_query,
   ai_material_lookup,
+  // ENGINE-WIRE-MS0/U-WIRE04: 5 deep-learning/deep-reasoning engines
+  ai_milling_deep_reason,
+  ai_wedm_deep_logic,
+  ai_wedm_deep_neural,
+  ai_milling_synthesize,
+  ai_lathe_reason,
 };
