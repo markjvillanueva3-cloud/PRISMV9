@@ -437,6 +437,107 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ENGINE-WIRE-MS0/U-WIRE08: 5 Wire EDM AI specialist engines
+      case "ai_wedm_advanced_neural": {
+        const { wireEDMAdvancedNeuralEngine } = await import("../../engines/WireEDMAdvancedNeuralEngine.js");
+        const p = params as {
+          material: string;
+          thickness_mm: number;
+          target_ra_um: number;
+          target_accuracy_mm?: number;
+          wire_diameter_mm?: number;
+          taper_angle_deg?: number;
+          machine?: string;
+        };
+        // Normalize flat params into WEDMFeatureVector
+        const KNOWN_MATERIALS = ["D2","M2","A2","S7","H13","carbide","Ti6Al4V","Inconel_718","AL6061"];
+        const matIdx = KNOWN_MATERIALS.findIndex(m => p.material.toLowerCase().includes(m.toLowerCase()));
+        const matEmbedding = KNOWN_MATERIALS.map((_, i) => i === matIdx ? 1 : 0);
+        const KNOWN_MACHINES = ["mitsubishi","makino","sodick","fanuc","agie","charmilles"];
+        const machLower = (p.machine ?? "").toLowerCase();
+        const machIdx = KNOWN_MACHINES.findIndex(m => machLower.includes(m));
+        const machEmbedding = KNOWN_MACHINES.map((_, i) => i === machIdx ? 1 : 0);
+        const featureVector = {
+          material_embedding: matEmbedding,
+          thickness_normalized: Math.min(p.thickness_mm / 150, 1),
+          taper_angle_normalized: Math.min((p.taper_angle_deg ?? 0) / 30, 1),
+          corner_count_normalized: 0.5,
+          path_length_normalized: 0.5,
+          machine_embedding: machEmbedding,
+          wire_diameter_normalized: Math.min((p.wire_diameter_mm ?? 0.25) / 0.35, 1),
+          target_ra_normalized: Math.min(p.target_ra_um / 10, 1),
+          target_accuracy_normalized: Math.min((p.target_accuracy_mm ?? 0.005) / 0.1, 1),
+        };
+        result = wireEDMAdvancedNeuralEngine.predictParameters(featureVector);
+        break;
+      }
+      case "ai_wedm_agi_orchestrate": {
+        const { wireEDMAGIOrchestrator } = await import("../../engines/WireEDMAGIOrchestrator.js");
+        const p = params as {
+          query: string;
+          material: string;
+          thickness_mm: number;
+          wire_diameter_mm: number;
+          target_ra_um?: number;
+          target_accuracy_mm?: number;
+          machine?: string;
+          mode?: string;
+          include_counterfactuals?: boolean;
+          include_causal_analysis?: boolean;
+        };
+        // Normalize flat params into AGIRequest shape
+        const agiRequest = {
+          query: p.query,
+          context: {
+            material: p.material,
+            thickness_mm: p.thickness_mm,
+            wire_diameter_mm: p.wire_diameter_mm,
+            machine: p.machine,
+            target_ra_um: p.target_ra_um,
+            target_accuracy_mm: p.target_accuracy_mm,
+          },
+          mode: p.mode as Parameters<typeof wireEDMAGIOrchestrator.process>[0]["mode"],
+          include_counterfactuals: p.include_counterfactuals,
+          include_causal_analysis: p.include_causal_analysis,
+        };
+        result = wireEDMAGIOrchestrator.process(agiRequest);
+        break;
+      }
+      case "ai_wedm_print_to_program": {
+        const { wireEDMAIPrintToProgramEngine } = await import("../../engines/WireEDMAIPrintToProgramEngine.js");
+        const p = params as unknown as Parameters<typeof wireEDMAIPrintToProgramEngine.generate>[0];
+        result = await wireEDMAIPrintToProgramEngine.generate(p);
+        break;
+      }
+      case "ai_wedm_cam_knowledge": {
+        const { wireEDMCAMKnowledgeEngine } = await import("../../engines/WireEDMCAMKnowledgeEngine.js");
+        const p = params as { query: string; category?: "toolpath" | "parameter" | "workflow" | "optimization" | "safety" };
+        result = wireEDMCAMKnowledgeEngine.searchKnowledge(p.query, p.category);
+        break;
+      }
+      case "ai_wedm_synthesize_knowledge": {
+        const { wireEDMKnowledgeSynthesisEngine } = await import("../../engines/WireEDMKnowledgeSynthesisEngine.js");
+        const { question, material, thickness_mm, wire_diameter, target_ra_um, machine, urgency, confidence_threshold, max_hypotheses, ...rest } = params as {
+          question: string;
+          material?: string;
+          thickness_mm?: number;
+          wire_diameter?: string;
+          target_ra_um?: number;
+          machine?: string;
+          urgency?: "low" | "normal" | "high" | "critical";
+          confidence_threshold?: number;
+          max_hypotheses?: number;
+          [key: string]: unknown;
+        };
+        result = await wireEDMKnowledgeSynthesisEngine.synthesize({
+          question,
+          context: { material, thickness_mm, wire_diameter, target_ra_um, machine, urgency, ...rest },
+          confidence_threshold,
+          max_hypotheses,
+        });
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

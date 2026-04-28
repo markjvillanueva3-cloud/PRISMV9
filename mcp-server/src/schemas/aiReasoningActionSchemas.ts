@@ -48,6 +48,12 @@ export const AI_REASONING_ACTIONS = [
   "ai_wedm_master",
   "ai_wedm_neural_orchestrate",
   "ai_lathe_train",
+  // ENGINE-WIRE-MS0/U-WIRE08: 5 Wire EDM AI specialist engines
+  "ai_wedm_advanced_neural",
+  "ai_wedm_agi_orchestrate",
+  "ai_wedm_print_to_program",
+  "ai_wedm_cam_knowledge",
+  "ai_wedm_synthesize_knowledge",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -515,6 +521,70 @@ const ai_lathe_train = z.object({
   }).passthrough()).min(1).describe("Programs to train from"),
 }).passthrough();
 
+/** ENGINE-WIRE-MS0/U-WIRE08: Wire EDM AI Specialist Engines */
+
+/** Advanced Neural — predict optimal WEDM parameters via deep ensemble. */
+const ai_wedm_advanced_neural = z.object({
+  material: z.string().min(1).describe("Workpiece material (e.g. D2, M2, carbide)"),
+  thickness_mm: z.number().positive().describe("Workpiece thickness in mm"),
+  target_ra_um: z.number().positive().describe("Target surface roughness Ra in µm"),
+  target_accuracy_mm: z.number().positive().optional().describe("Target dimensional accuracy in mm"),
+  wire_diameter_mm: z.number().positive().optional().describe("Wire diameter in mm (default 0.25)"),
+  taper_angle_deg: z.number().min(0).optional().describe("Taper angle in degrees"),
+  machine: z.string().optional().describe("Machine model (e.g. Mitsubishi FA-S, Makino SP43)"),
+}).passthrough();
+
+/** AGI Orchestrate — full AGI reasoning chain for Wire EDM decision. */
+const ai_wedm_agi_orchestrate = z.object({
+  query: z.string().min(1).describe("Natural-language question or decision to reason about"),
+  material: z.string().min(1).describe("Workpiece material"),
+  thickness_mm: z.number().positive().describe("Workpiece thickness in mm"),
+  wire_diameter_mm: z.number().positive().describe("Wire diameter in mm"),
+  target_ra_um: z.number().positive().optional().describe("Target Ra in µm"),
+  target_accuracy_mm: z.number().positive().optional().describe("Target accuracy in mm"),
+  machine: z.string().optional().describe("Machine model"),
+  mode: z.enum(["analytical","creative","adaptive","predictive","counterfactual","causal","ensemble","physics","full_agi"]).optional().describe("AGI reasoning mode"),
+  include_counterfactuals: z.boolean().optional().describe("Include counterfactual what-if analysis"),
+  include_causal_analysis: z.boolean().optional().describe("Include causal inference step"),
+}).passthrough();
+
+/** Print to Program — AI-generate a Wire EDM NC program from part inputs. */
+const ai_wedm_print_to_program = z.object({
+  material: z.string().min(1).describe("Workpiece material"),
+  thickness_mm: z.number().positive().describe("Workpiece thickness in mm"),
+  target_ra_um: z.number().positive().optional().describe("Target Ra in µm"),
+  target_accuracy_mm: z.number().positive().optional().describe("Target accuracy in mm"),
+  wire_type: z.enum(["plain_brass","zinc_coated","gamma_coated","diffusion_annealed","molybdenum"]).optional().describe("Wire type"),
+  wire_diameter_mm: z.number().positive().optional().describe("Wire diameter in mm"),
+  taper_angle_deg: z.number().min(0).optional().describe("Taper angle in degrees"),
+  controller: z.enum(["mitsubishi","makino","sodick","fanuc","agie","charmilles"]).optional().describe("Machine controller"),
+  program_number: z.number().int().positive().optional().describe("Program number"),
+  part_name: z.string().optional().describe("Part name"),
+  customer: z.string().optional().describe("Customer name"),
+  reasoning_mode: z.enum(["ensemble","physics","neural","empirical","hybrid"]).optional().describe("AI reasoning mode"),
+  enable_counterfactuals: z.boolean().optional().describe("Enable counterfactual analysis"),
+  enable_ensemble: z.boolean().optional().describe("Enable multi-model ensemble"),
+}).passthrough();
+
+/** CAM Knowledge — search Mastercam Wire EDM knowledge base. */
+const ai_wedm_cam_knowledge = z.object({
+  query: z.string().min(1).describe("Search query for Wire EDM CAM knowledge"),
+  category: z.enum(["toolpath","parameter","workflow","optimization","safety"]).optional().describe("Knowledge category filter"),
+}).passthrough();
+
+/** Synthesize Knowledge — fuse all Wire EDM knowledge sources to answer a query. */
+const ai_wedm_synthesize_knowledge = z.object({
+  question: z.string().min(1).describe("Question to synthesize knowledge for"),
+  material: z.string().optional().describe("Workpiece material context"),
+  thickness_mm: z.number().positive().optional().describe("Workpiece thickness context in mm"),
+  wire_diameter: z.string().optional().describe("Wire diameter context (e.g. '0.25mm')"),
+  target_ra_um: z.number().positive().optional().describe("Target Ra context in µm"),
+  machine: z.string().optional().describe("Machine context"),
+  urgency: z.enum(["low","normal","high","critical"]).optional().describe("Response urgency"),
+  confidence_threshold: z.number().min(0).max(1).optional().describe("Minimum confidence threshold (0–1)"),
+  max_hypotheses: z.number().int().positive().optional().describe("Maximum hypotheses to evaluate"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -551,4 +621,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_wedm_master,
   ai_wedm_neural_orchestrate,
   ai_lathe_train,
+  // ENGINE-WIRE-MS0/U-WIRE08: 5 Wire EDM AI specialist engines
+  ai_wedm_advanced_neural,
+  ai_wedm_agi_orchestrate,
+  ai_wedm_print_to_program,
+  ai_wedm_cam_knowledge,
+  ai_wedm_synthesize_knowledge,
 };
