@@ -106,6 +106,7 @@ import { ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFunction
 import { ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillRoughingFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS, ACTION_CAM_LORA_CADENCE_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 import { ACTION_CAMX_MS22_U01_SCHEMAS } from '../../schemas/camxMs22U01ActionSchemas.js';
+import { ACTION_CAMX_MS22_U02_SCHEMAS } from '../../schemas/camxMs22U02ActionSchemas.js';
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -178,6 +179,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
   ...ACTION_CAM_LORA_CADENCE_SCHEMAS,
   ...ACTION_CAMX_MS22_U01_SCHEMAS,
+  ...ACTION_CAMX_MS22_U02_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -1715,6 +1717,12 @@ export const ACTIONS = [
   "fusion360_open", "fusion360_get_geometry", "fusion360_export_step",
   "hypermill_bridge_open", "hypermill_bridge_get_geometry", "hypermill_bridge_export_step",
   "hypercads_mock_import", "hypercads_mock_heal", "hypercads_mock_analyze", "hypercads_mock_stock",
+  // ENGINE-WIRE-MS0/U-WIRE14 — 5 Mastercam engines, 8 actions
+  "mastercam_ai_orchestrate",
+  "mastercam_cycle_search", "mastercam_cycle_lookup_code", "mastercam_cycle_stats",
+  "mastercam_deep_select_strategy",
+  "mastercam_function_index_summary",
+  "mastercam_multiaxis_recommend", "mastercam_multiaxis_list_strategies",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -13733,6 +13741,55 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "hypercads_mock_stock": {
             const { hyperCADSMockLayer } = await import("../../engines/HyperCADSMockLayer.js");
             result = { success: true, ...hyperCADSMockLayer.getMockStockModelResponse(params.mode as string | undefined) };
+            break;
+          }
+          // ENGINE-WIRE-MS0/U-WIRE14 — 5 Mastercam engines
+          case "mastercam_ai_orchestrate": {
+            const { mastercamAIOrchestrationEngine } = await import("../../engines/MastercamAIOrchestrationEngine.js");
+            result = await mastercamAIOrchestrationEngine.orchestrate(
+              params as Parameters<typeof mastercamAIOrchestrationEngine.orchestrate>[0],
+            );
+            break;
+          }
+          case "mastercam_cycle_search": {
+            const { mastercamCycleCatalogEngine } = await import("../../engines/MastercamCycleCatalogEngine.js");
+            const p = params as { query: string };
+            result = mastercamCycleCatalogEngine.search(p.query);
+            break;
+          }
+          case "mastercam_cycle_lookup_code": {
+            const { mastercamCycleCatalogEngine } = await import("../../engines/MastercamCycleCatalogEngine.js");
+            const p = params as { code: string };
+            result = mastercamCycleCatalogEngine.lookupByCode(p.code);
+            break;
+          }
+          case "mastercam_cycle_stats": {
+            const { mastercamCycleCatalogEngine } = await import("../../engines/MastercamCycleCatalogEngine.js");
+            result = mastercamCycleCatalogEngine.stats();
+            break;
+          }
+          case "mastercam_deep_select_strategy": {
+            const { mastercamDeepLearningEngine } = await import("../../engines/MastercamDeepLearningEngine.js");
+            result = mastercamDeepLearningEngine.selectOptimalStrategy(
+              params as Parameters<typeof mastercamDeepLearningEngine.selectOptimalStrategy>[0],
+            );
+            break;
+          }
+          case "mastercam_function_index_summary": {
+            const MFIE = (await import("../../engines/MastercamFunctionIndexEngine.js")).default;
+            result = MFIE.getSummary();
+            break;
+          }
+          case "mastercam_multiaxis_recommend": {
+            const { mastercamMultiAxisEngine } = await import("../../engines/MastercamMultiAxisEngine.js");
+            result = mastercamMultiAxisEngine.calculate(
+              params as Parameters<typeof mastercamMultiAxisEngine.calculate>[0],
+            );
+            break;
+          }
+          case "mastercam_multiaxis_list_strategies": {
+            const { mastercamMultiAxisEngine } = await import("../../engines/MastercamMultiAxisEngine.js");
+            result = mastercamMultiAxisEngine.listStrategies();
             break;
           }
           case "cam_fusion_tool_export": {
