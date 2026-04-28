@@ -100,7 +100,13 @@ function _getShopRates(): ShopRates {
 const DEFAULT_RATES: ShopRates = _FALLBACK_RATES;
 
 // Session 5-3 (U-PHYSCOST2): Physics bridge for MRR-based cycle time and Taylor tool life
-import { resolveMaterial, getTaylor } from "../physics/constants.js";
+import {
+  resolveMaterial,
+  getTaylor,
+  CANONICAL_KIENZLE,
+  CANONICAL_MILLING_SPEEDS,
+  CANONICAL_MATERIAL_DB,
+} from "../physics/constants.js";
 
 interface _PhysicsCostContext {
   mrr_cm3min: number;
@@ -142,8 +148,13 @@ function _getPhysicsForOp(materialType: string | undefined, opType: string | und
     };
   } catch {
     // Fallback: canonical MRR from material Vc + basic geometry
-    const mat = resolveMaterial(materialType);
-    const vc = isFinish ? mat.vc_base_finishing : mat.vc_base_roughing;
+    // Fallback to AISI 1045 keeps the math defined when the material name
+    // doesn't resolve. vc_base_* / kc1_1 / mc don't live on MaterialEntry —
+    // derive them from canonical ISO-group tables.
+    const mat = resolveMaterial(materialType) ?? CANONICAL_MATERIAL_DB["1045"]!;
+    const speeds = CANONICAL_MILLING_SPEEDS[mat.iso_group];
+    const kienzle = CANONICAL_KIENZLE[mat.iso_group];
+    const vc = isFinish ? speeds.finish : speeds.rough;
     const rpm = (vc * 1000) / (Math.PI * toolDia);
     const fz = toolDia * (isFinish ? 0.01 : 0.02);
     const feedMmMin = fz * flutes * rpm;
@@ -156,8 +167,8 @@ function _getPhysicsForOp(materialType: string | undefined, opType: string | und
     const toolLife = Math.min(Math.max(rawToolLife, 0.1), 500);
 
     // Kienzle power: Fc [N] = kc1.1 × ap × fz^(1-mc); P [kW] = Fc × Vc / 60000
-    const kc1_1 = mat.kc1_1;
-    const mc = mat.mc;
+    const kc1_1 = kienzle.kc1_1;
+    const mc = kienzle.mc;
     const h = fz > 0 ? fz : 0.05;
     const Fc = kc1_1 * ap * Math.pow(h, 1 - mc); // [N]
     const power = (Fc * vc) / 60000; // [kW] = [N] × [m/min] / 60000
@@ -294,8 +305,10 @@ class JobCostingEngineImpl {
     if (mat.type) {
       try {
         const resolved = resolveMaterial(mat.type);
-        density = resolved.density_kg_m3;
-        densitySource = "MaterialRegistry";
+        if (resolved) {
+          density = resolved.density_kg_m3;
+          densitySource = "MaterialRegistry";
+        }
       } catch { /* keep default */ }
     }
 
