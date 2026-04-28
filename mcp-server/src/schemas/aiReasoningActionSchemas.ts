@@ -106,6 +106,11 @@ export const AI_REASONING_ACTIONS = [
   "controller_compare",     // U-WIRE28 → compare two controllers head-to-head
   "controller_macro",       // U-WIRE28 → generate macro skeleton for task + controller
   "controller_debug",       // U-WIRE28 → debug post-processor / G-code error message
+  // ENGINE-WIRE-MS0/U-WIRE29: StatisticalLearningBoundsEngine — PAC/VC/Rademacher
+  "bounds_pac_complexity",  // U-WIRE29 → PAC sample complexity m ≥ (1/ε)·(ln|H| + ln(1/δ))
+  "bounds_vc",              // U-WIRE29 → VC bound √((d·ln(n/d) + ln(1/δ))/n)
+  "bounds_rademacher",      // U-WIRE29 → Rademacher 2·R̂_n + 3·√(ln(2/δ)/(2n))
+  "bounds_pac_bayes",       // U-WIRE29 → PAC-Bayes McAllester √((KL+ln(n/δ))/(2(n-1)))
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1026,5 +1031,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   controller_debug: z.object({
     errorMessage: z.string().min(1).describe("Error / alarm message text"),
     controller: z.string().min(1).describe("Controller family that produced the error"),
+  }).passthrough(),
+  // U-WIRE29 — StatisticalLearningBoundsEngine
+  // All bounds enforce ε,δ ∈ (0,1) STRICTLY (open interval — engine throws
+  // at exactly 0 or 1, so the schema mirrors that).
+  bounds_pac_complexity: z.object({
+    hypothesisClassSize: z.number().min(1).describe("Size of hypothesis class |H| (≥1)"),
+    epsilon: z.number().gt(0).lt(1).describe("Desired accuracy ε in (0,1) — open interval"),
+    delta: z.number().gt(0).lt(1).describe("Desired confidence δ in (0,1) — open interval"),
+  }).passthrough(),
+  bounds_vc: z.object({
+    vcDim: z.number().nonnegative().describe("VC dimension d (≥0)"),
+    n: z.number().int().positive().describe("Sample size n (positive integer)"),
+    delta: z.number().gt(0).lt(1).describe("Confidence δ in (0,1)"),
+  }).passthrough(),
+  bounds_rademacher: z.object({
+    empiricalRademacher: z.number().nonnegative().describe("Empirical Rademacher complexity R̂_n (≥0)"),
+    n: z.number().int().positive().describe("Sample size n (positive integer)"),
+    delta: z.number().gt(0).lt(1).describe("Confidence δ in (0,1)"),
+  }).passthrough(),
+  bounds_pac_bayes: z.object({
+    kl: z.number().nonnegative().describe("KL divergence KL(Q||P) (≥0)"),
+    n: z.number().int().gt(1).describe("Sample size n (integer > 1; bound divides by 2(n-1))"),
+    delta: z.number().gt(0).lt(1).describe("Confidence δ in (0,1)"),
   }).passthrough(),
 };

@@ -1056,6 +1056,39 @@ export async function executeAIReasoningAction(
         result = debug;
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE29: StatisticalLearningBoundsEngine — PAC/VC/Rademacher
+      // Pure math; no state. Per-call `new` is fine (the singleton export
+      // exists for callers that want a stable identity, not for state).
+      // ─────────────────────────────────────────────────────────────────────
+      case "bounds_pac_complexity": {
+        const { statisticalLearningBoundsEngine } = await import("../../engines/StatisticalLearningBoundsEngine.js");
+        type Arg = Parameters<typeof statisticalLearningBoundsEngine.pacSampleComplexity>[0];
+        const p = params as unknown as Arg;
+        result = statisticalLearningBoundsEngine.pacSampleComplexity(p);
+        break;
+      }
+      case "bounds_vc": {
+        const { statisticalLearningBoundsEngine } = await import("../../engines/StatisticalLearningBoundsEngine.js");
+        type Arg = Parameters<typeof statisticalLearningBoundsEngine.vcBound>[0];
+        const p = params as unknown as Arg;
+        result = statisticalLearningBoundsEngine.vcBound(p);
+        break;
+      }
+      case "bounds_rademacher": {
+        const { statisticalLearningBoundsEngine } = await import("../../engines/StatisticalLearningBoundsEngine.js");
+        type Arg = Parameters<typeof statisticalLearningBoundsEngine.rademacherBound>[0];
+        const p = params as unknown as Arg;
+        result = statisticalLearningBoundsEngine.rademacherBound(p);
+        break;
+      }
+      case "bounds_pac_bayes": {
+        const { statisticalLearningBoundsEngine } = await import("../../engines/StatisticalLearningBoundsEngine.js");
+        type Arg = Parameters<typeof statisticalLearningBoundsEngine.pacBayesBound>[0];
+        const p = params as unknown as Arg;
+        result = statisticalLearningBoundsEngine.pacBayesBound(p);
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
