@@ -8,7 +8,7 @@
  * NO I/O. NO process.* access (except input args). Pure logic.
  *
  * @milestone AUTONOMOUS-FOOLPROOF-MS0
- * @units U-AF01, U-AF02, U-AF03, U-AF04
+ * @units U-AF01, U-AF02, U-AF03, U-AF04, U-AF05
  */
 
 const DEFAULT_IDLE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
@@ -316,5 +316,72 @@ export function decideCostCeiling({
     decision: "block",
     reason: "ceiling-breached",
     breaches,
+  };
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// U-AF05: anti-regression-auto-sweep
+// ──────────────────────────────────────────────────────────────────────
+
+/**
+ * Decides whether the autonomous loop should treat a post-commit test
+ * sweep result as a regression. This is the policy half — the I/O half
+ * (running vitest, parsing output) lives in the hook script.
+ *
+ * @param {object} input
+ * @param {boolean} input.isAutonomous
+ * @param {boolean} input.isCommit         - was this a `git commit` invocation?
+ * @param {object|null} input.sweepResult  - parsed vitest summary
+ * @param {number} input.sweepResult.totalTests
+ * @param {number} input.sweepResult.passed
+ * @param {number} input.sweepResult.failed
+ * @param {string[]} [input.sweepResult.failedFiles]
+ */
+export function decideAntiRegressionSweep({
+  isAutonomous,
+  isCommit,
+  sweepResult,
+}) {
+  if (!isCommit) {
+    return { continue: true, reason: "not-a-commit" };
+  }
+  if (!isAutonomous) {
+    return { continue: true, reason: "non-autonomous" };
+  }
+  if (!sweepResult || typeof sweepResult !== "object") {
+    return { continue: true, reason: "no-sweep-result" };
+  }
+
+  const totalTests = Number.isFinite(sweepResult.totalTests)
+    ? Number(sweepResult.totalTests)
+    : 0;
+  const passed = Number.isFinite(sweepResult.passed) ? Number(sweepResult.passed) : 0;
+  const failed = Number.isFinite(sweepResult.failed) ? Number(sweepResult.failed) : 0;
+
+  if (totalTests === 0) {
+    // No tests to compare — pass through (could be a docs-only commit, or
+    // sweep was unable to find any U-WIRE/U-AF test files).
+    return { continue: true, reason: "no-tests-found" };
+  }
+
+  if (failed > 0) {
+    return {
+      continue: false,
+      decision: "regression-detected",
+      reason: "post-commit-tests-failed",
+      total_tests: totalTests,
+      passed,
+      failed,
+      failed_files: Array.isArray(sweepResult.failedFiles)
+        ? sweepResult.failedFiles
+        : [],
+    };
+  }
+
+  return {
+    continue: true,
+    reason: "all-tests-passing",
+    total_tests: totalTests,
+    passed,
   };
 }
