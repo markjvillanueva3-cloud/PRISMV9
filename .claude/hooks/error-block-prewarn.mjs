@@ -20,7 +20,71 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { searchSimilar, fileSuffix } from "../helpers/error-learn-store.mjs";
 
-const MAX_WARNINGS = 2;
+const MAX_WARNINGS = 3;
+const MCP_TIMEOUT_MS = 3_000;
+function mcpUrl() { return process.env.MCP_HTTP_URL ?? "http://127.0.0.1:3100/mcp"; }
+
+/**
+ * INTEL-OLLAMA-OBSIDIAN-MS0/P2-U04: Query Qdrant for top-N semantically
+ * similar past errors via prism_guard:error_ledger_recall_similar. Best
+ * effort — returns [] when Qdrant or MCP is unreachable so the local
+ * pattern path always runs.
+ *
+ * @param {string} signature — synthetic error signature for the candidate action
+ * @param {number} limit — max hits to retrieve (default 3)
+ * @returns {Promise<Array<{ id: string, score?: number, signature?: string, source?: string, ts?: string }>>}
+ */
+async function queryUnifiedLedgerNeighbors(signature, limit = 3) {
+  if (!signature) return [];
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), MCP_TIMEOUT_MS);
+  try {
+    const res = await fetch(mcpUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/call",
+        params: {
+          name: "prism_guard",
+          arguments: { action: "error_ledger_recall_similar", params: { signature, limit } },
+        },
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return [];
+    const body = await res.json();
+    const inner = body?.result?.content?.[0]?.text ?? "";
+    try {
+      const parsed = JSON.parse(inner);
+      return Array.isArray(parsed?.hits) ? parsed.hits : [];
+    } catch { return []; }
+  } catch {
+    clearTimeout(timer);
+    return [];
+  }
+}
+
+/** Build a signature for the candidate tool invocation matching the engine's buildErrorSignature shape. */
+function buildCandidateSignature(tool, suffix, triggers, contentSample) {
+  const trig = triggers.length > 0 ? triggers.join(",") : "";
+  const head = `pre :: ${tool} :: ${suffix || "?"} :: ${trig}`;
+  const tail = (contentSample ?? "").slice(0, 120).replace(/\r?\n/g, " ").trim();
+  return `${head} :: ${tail}`.slice(0, 240);
+}
+
+function formatVectorNeighbors(hits) {
+  if (!hits || hits.length === 0) return "";
+  const lines = hits.map((h, i) => {
+    const score = typeof h.score === "number" ? ` (sim=${h.score.toFixed(2)})` : "";
+    const sig = (h.signature ?? "").slice(0, 80);
+    const src = h.source ? ` [${h.source}]` : "";
+    return `  ${i + 1}. ${sig}${score}${src}`;
+  });
+  return ["", "📡 Vector-similar past errors (Qdrant):", ...lines].join("\n");
+}
 
 function readStdinSafe() {
   try {
@@ -106,7 +170,7 @@ async function main() {
   const suffix = fileSuffix(filePath);
   const triggers = extractTriggers(content);
 
-  // Search for matches: by file_suffix + each trigger token
+  // Search for matches: by file_suffix + each trigger token (local exact-match path)
   const allMatches = [];
   for (const trigger of triggers) {
     const found = searchSimilar({ tool, file_suffix: suffix || undefined, trigger, limit: 1 });
@@ -128,16 +192,25 @@ async function main() {
     if (unique.length >= MAX_WARNINGS) break;
   }
 
-  if (unique.length === 0) {
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U04: also query Qdrant for vector neighbors
+  // so the prewarn covers 100% of captures (vs the prior local-only 25%).
+  const candidateSignature = buildCandidateSignature(tool, suffix, triggers, content);
+  const vectorHits = await queryUnifiedLedgerNeighbors(candidateSignature, MAX_WARNINGS);
+
+  if (unique.length === 0 && vectorHits.length === 0) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
+
+  const sections = [];
+  if (unique.length > 0) sections.push(formatWarning(unique));
+  if (vectorHits.length > 0) sections.push(formatVectorNeighbors(vectorHits));
 
   console.log(JSON.stringify({
     continue: true,
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
-      additionalContext: formatWarning(unique),
+      additionalContext: sections.join("\n"),
     },
   }));
 }
