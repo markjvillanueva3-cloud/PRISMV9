@@ -751,6 +751,10 @@ async function handleTribalAdd(params: Record<string, any>): Promise<any> {
     operation_types: params.operation_types,
   });
 
+  if (!tip) {
+    return { success: false, error: "Failed to capture tip — engine returned null" };
+  }
+
   return {
     success: true,
     tip: {
@@ -934,7 +938,15 @@ export function registerShopPracticeDispatcher(server: any): void {
 
         const validation = validateActionParams(action, params, ACTION_SHOP_PRACTICE_SCHEMAS);
         if (!validation.valid) {
-          return dispatcherError("prism_shop_practice", action, Array.isArray(validation.errors) ? validation.errors.map((e: any) => e.message).join("; ") : "Invalid parameters");
+          return dispatcherError(
+            "prism_shop_practice",
+            action,
+            validation.error instanceof Error
+              ? validation.error.message
+              : typeof validation.error === "string"
+                ? validation.error
+                : "Invalid parameters",
+          );
         }
 
         const handler = ACTION_HANDLERS[action];
