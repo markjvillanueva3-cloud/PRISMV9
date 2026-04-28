@@ -276,4 +276,32 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       error_history: z.array(z.string()).optional(),
     }).passthrough().optional().describe("Optional session context for ranking"),
   }).passthrough(),
+  // ── ENGINE-WIRE-MS0/U-WIRE16: 5 test infra engines ─────────────────
+  dev_test_ast_analyze: z.object({
+    file_path: z.string().min(1).describe("Absolute or src-relative path to the engine TypeScript file"),
+  }).passthrough(),
+
+  dev_test_coverage_uncovered: z.object({}).passthrough(),
+
+  dev_test_registry_get_material: z.object({
+    iso_group: z.enum(["P","M","K","N","S","H"]).describe("ISO material group letter"),
+  }).passthrough(),
+
+  dev_test_resource_filter: z.object({
+    process: z.enum(["wire_edm","sinker_edm","lathe","mill","grinder","welder","laser","waterjet"]).optional().describe("Process category"),
+    coverage: z.enum(["tutorial","regression","adversarial","calibration"]).optional().describe("Coverage tier"),
+    difficulty: z.enum(["beginner","intermediate","advanced","expert"]).optional().describe("Difficulty tier"),
+    customer: z.string().optional().describe("Customer name filter"),
+    material: z.string().optional().describe("Material filter"),
+    controller: z.string().optional().describe("Controller filter"),
+    operation: z.string().optional().describe("Operation filter"),
+    tag: z.string().optional().describe("Single-tag filter"),
+    search: z.string().optional().describe("Substring search across label+tags+customer"),
+  }).passthrough(),
+
+  dev_skill_gap_analyze: z.object({
+    domain: z.string().optional().describe("Restrict analysis to a domain"),
+    min_usage_threshold: z.number().int().nonnegative().optional().describe("Floor on usage count"),
+    max_usage_threshold: z.number().int().positive().optional().describe("Ceiling on usage count"),
+  }).passthrough(),
 };
