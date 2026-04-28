@@ -232,6 +232,25 @@ const wiring_queue = z.object({}).passthrough();
 // EXPORT MAP
 // ============================================================================
 
+
+// ── ENGINE-WIRE-MS0/U-WIRE17: 5 hook orchestration engines ──────────
+const hook_orch_plan = z.object({
+  phase: z.enum(["PreTool","PostTool","UserPromptSubmit","SessionStart","SessionEnd","PreCompact","Stop"]).describe("Hook lifecycle phase to plan"),
+}).passthrough();
+
+const hook_coverage_analyze = z.object({}).passthrough();
+
+const hook_bandit_select = z.object({
+  k: z.number().int().positive().max(50).describe("Number of hooks to select"),
+  time_budget_ms: z.number().positive().max(60000).optional().describe("Total time budget in ms (default 500)"),
+}).passthrough();
+
+const hook_telemetry_metrics = z.object({}).passthrough();
+
+const hook_efficiency_roi = z.object({
+  session_budget: z.number().positive().optional().describe("Session token budget for ROI calc (default 150000)"),
+}).passthrough();
+
 export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   // V2 Hook Tools (5)
   list,
@@ -277,4 +296,10 @@ export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   wiring_process,
   wiring_stats,
   wiring_queue,
+  // ENGINE-WIRE-MS0/U-WIRE17: 5 hook orchestration engines
+  hook_orch_plan,
+  hook_coverage_analyze,
+  hook_bandit_select,
+  hook_telemetry_metrics,
+  hook_efficiency_roi,
 };
