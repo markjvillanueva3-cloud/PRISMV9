@@ -541,10 +541,12 @@ export const machineValidationHooks: HookDefinition[] = [
 ];
 
 // Named exports for direct access
+// Note: preMachineControllerCompatibility is also defined in CrossReferenceHooks.ts.
+// Re-export with a suffix to avoid the ambiguity in src/hooks/index.ts.
 export {
   preMachineSpindleLimits,
   preMachineEnvelopeCheck,
   preMachinePowerBudget,
-  preMachineControllerCompatibility,
+  preMachineControllerCompatibility as preMachineValidationControllerCompatibility,
   preMachineCompletenessGate,
 };

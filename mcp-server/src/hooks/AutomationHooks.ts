@@ -47,7 +47,7 @@ interface CacheEntry {
   createdAt: string;
 }
 
-interface BackupEntry {
+interface BackupEntry extends Record<string, unknown> {
   id: string;
   source: string;
   timestamp: string;
@@ -55,7 +55,7 @@ interface BackupEntry {
   type: "full" | "incremental";
 }
 
-interface NotificationEntry {
+interface NotificationEntry extends Record<string, unknown> {
   id: string;
   type: "info" | "warning" | "error" | "success";
   message: string;
