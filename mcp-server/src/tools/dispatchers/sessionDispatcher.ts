@@ -95,7 +95,14 @@ const ACTIONS = [
   "coordination_record",
   "coordination_detect_conflicts",
   "coordination_recent",
-  "coordination_count"
+  "coordination_count",
+  // ENGINE-WIRE-MS0/U-WIRE22: AgentSelfAwarenessEngine — unified self-awareness
+  "self_awareness_build",
+  "self_awareness_search",
+  "self_awareness_context_summary",
+  "self_awareness_health",
+  "self_awareness_quick_stats",
+  "self_awareness_recommended_actions"
 ] as const;
 
 function ok(data: any) {
@@ -1250,6 +1257,70 @@ export function registerSessionDispatcher(server: any): void {
               ledger.hydrateFromJSONL(lines);
             }
             return ok({ success: true, count: ledger.count(), ledger_path: ledgerPath });
+          }
+
+          // ================================================================
+          // ENGINE-WIRE-MS0/U-WIRE22: AgentSelfAwarenessEngine
+          // Unified self-awareness across capabilities + engines
+          // ================================================================
+          case "self_awareness_build": {
+            const { agentSelfAwarenessEngine } = await import("../../engines/AgentSelfAwarenessEngine.js");
+            const forceRefresh = params.force_refresh === true || params.forceRefresh === true;
+            const awareness = await agentSelfAwarenessEngine.buildAwareness(forceRefresh);
+            return ok({
+              stats: awareness.stats,
+              topCapabilities: awareness.topCapabilities,
+              topEngines: awareness.topEngines.slice(0, 10),
+              refreshedAt: awareness.refreshedAt.toISOString(),
+            });
+          }
+
+          case "self_awareness_search": {
+            const { agentSelfAwarenessEngine: asa1 } = await import("../../engines/AgentSelfAwarenessEngine.js");
+            const query = typeof params.query === "string" ? params.query : (typeof params.q === "string" ? params.q : "");
+            if (!query) return ok({ error: "Missing 'query' parameter" });
+            const limit = Number.isFinite(Number(params.limit)) ? Number(params.limit) : 20;
+            const results = await asa1.search(query, limit);
+            return ok({
+              query,
+              count: results.length,
+              results: results.map(r => ({
+                type: r.type,
+                name: r.name,
+                description: r.description,
+                category: r.category,
+                score: r.score,
+              })),
+            });
+          }
+
+          case "self_awareness_context_summary": {
+            const { agentSelfAwarenessEngine: asa2 } = await import("../../engines/AgentSelfAwarenessEngine.js");
+            const maxTokens = Number.isFinite(Number(params.max_tokens))
+              ? Number(params.max_tokens)
+              : (Number.isFinite(Number(params.maxTokens)) ? Number(params.maxTokens) : 500);
+            const summary = await asa2.getContextSummary(maxTokens);
+            return ok(summary);
+          }
+
+          case "self_awareness_health": {
+            const { agentSelfAwarenessEngine: asa3 } = await import("../../engines/AgentSelfAwarenessEngine.js");
+            const health = await asa3.getHealthCheck();
+            return ok(health);
+          }
+
+          case "self_awareness_quick_stats": {
+            const { agentSelfAwarenessEngine: asa4 } = await import("../../engines/AgentSelfAwarenessEngine.js");
+            const stats = await asa4.getQuickStats();
+            return ok(stats);
+          }
+
+          case "self_awareness_recommended_actions": {
+            const { agentSelfAwarenessEngine: asa5 } = await import("../../engines/AgentSelfAwarenessEngine.js");
+            const task = typeof params.task === "string" ? params.task : (typeof params.query === "string" ? params.query : "");
+            if (!task) return ok({ error: "Missing 'task' parameter" });
+            const recs = await asa5.getRecommendedActions(task);
+            return ok(recs);
           }
 
           default:
