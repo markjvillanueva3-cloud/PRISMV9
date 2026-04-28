@@ -626,6 +626,44 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ENGINE-WIRE-MS0/U-WIRE18: 5 code-gen + approval engines
+      case "ai_code_gate_pending": {
+        const { aiGeneratedCodeApprovalGateEngine } = await import("../../engines/AIGeneratedCodeApprovalGateEngine.js");
+        const p = params as { status?: string; approver?: string; request_type?: string };
+        result = aiGeneratedCodeApprovalGateEngine.getPending(p as Parameters<typeof aiGeneratedCodeApprovalGateEngine.getPending>[0]);
+        break;
+      }
+      case "ai_self_mod_propose_batch": {
+        const { selfModificationProposalEngine } = await import("../../engines/SelfModificationProposalEngine.js");
+        const p = params as { observations: Array<Record<string, unknown>>; at?: string };
+        // Zod has already validated each observation matches the PatternObservation shape.
+        result = selfModificationProposalEngine.proposeBatch(
+          p.observations as unknown as Parameters<typeof selfModificationProposalEngine.proposeBatch>[0],
+          p.at,
+        );
+        break;
+      }
+      case "ai_self_mod_is_approved": {
+        const { selfModificationApprovalEngine } = await import("../../engines/SelfModificationApprovalEngine.js");
+        const p = params as { proposal_id: string; proposal_hash: string; now_ms?: number };
+        result = { approved: selfModificationApprovalEngine.isApproved(p.proposal_id, p.proposal_hash, p.now_ms) };
+        break;
+      }
+      case "ai_intelligence_maximize": {
+        const { aiIntelligenceMaximizer } = await import("../../engines/AIIntelligenceMaximizerEngine.js");
+        // Zod-validated MaximizerInput; cast through unknown for structural-overlap satisfaction.
+        result = await aiIntelligenceMaximizer.maximize(
+          params as unknown as Parameters<typeof aiIntelligenceMaximizer.maximize>[0],
+        );
+        break;
+      }
+      case "ai_hook_rule_match": {
+        const { hookRuleMatcherEngine } = await import("../../engines/HookRuleMatcherEngine.js");
+        const p = params as { tool: string; params: Record<string, unknown> };
+        result = hookRuleMatcherEngine.match(p.tool, p.params);
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
