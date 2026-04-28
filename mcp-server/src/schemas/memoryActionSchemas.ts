@@ -71,6 +71,13 @@ const SEMANTIC_KIND_VALUES = [
   "rule",
   "playbook",
   "note",
+  "error",
+  "skill",
+  "engine",
+  "action",
+  "gsd",
+  "directive",
+  "wiki",
 ] as const;
 
 const semantic_search = z.object({
