@@ -31,6 +31,7 @@ export interface SpeedFeedEvidenceOutput extends SpeedFeedEvidenceInput {
 export function enrichSpeedFeedEvidence(
   input: SpeedFeedEvidenceInput,
   _context?: Record<string, unknown>,
+  _provenance?: Record<string, unknown>,
 ): SpeedFeedEvidenceOutput {
   return {
     ...input,
