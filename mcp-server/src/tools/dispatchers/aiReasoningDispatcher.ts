@@ -1089,6 +1089,38 @@ export async function executeAIReasoningAction(
         result = statisticalLearningBoundsEngine.pacBayesBound(p);
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE30: ProactiveLearningEngine — auto-trigger
+      // detection + knowledge-quality monitoring. Singleton (uses event bus).
+      // ─────────────────────────────────────────────────────────────────────
+      case "proactive_detect": {
+        const { proactiveLearningEngine } = await import("../../engines/ProactiveLearningEngine.js");
+        type Arg = Parameters<typeof proactiveLearningEngine.detectLearningTriggers>[0];
+        const p = params as { context: Arg };
+        const triggers = proactiveLearningEngine.detectLearningTriggers(p.context);
+        result = { triggers, count: triggers.length };
+        break;
+      }
+      case "proactive_classify": {
+        const { proactiveLearningEngine } = await import("../../engines/ProactiveLearningEngine.js");
+        type Arg = Parameters<typeof proactiveLearningEngine.classifyTrigger>[0];
+        const p = params as { trigger: Arg };
+        const classification = proactiveLearningEngine.classifyTrigger(p.trigger);
+        result = classification;
+        break;
+      }
+      case "proactive_quality_report": {
+        const { proactiveLearningEngine } = await import("../../engines/ProactiveLearningEngine.js");
+        const report = proactiveLearningEngine.monitorKnowledgeQuality();
+        result = report;
+        break;
+      }
+      case "proactive_stats": {
+        const { proactiveLearningEngine } = await import("../../engines/ProactiveLearningEngine.js");
+        const stats = proactiveLearningEngine.getCategorizationStats();
+        result = stats;
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;

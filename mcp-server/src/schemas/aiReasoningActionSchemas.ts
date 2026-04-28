@@ -111,6 +111,11 @@ export const AI_REASONING_ACTIONS = [
   "bounds_vc",              // U-WIRE29 → VC bound √((d·ln(n/d) + ln(1/δ))/n)
   "bounds_rademacher",      // U-WIRE29 → Rademacher 2·R̂_n + 3·√(ln(2/δ)/(2n))
   "bounds_pac_bayes",       // U-WIRE29 → PAC-Bayes McAllester √((KL+ln(n/δ))/(2(n-1)))
+  // ENGINE-WIRE-MS0/U-WIRE30: ProactiveLearningEngine — auto-trigger learning
+  "proactive_detect",          // U-WIRE30 → detect learning triggers in a context
+  "proactive_classify",        // U-WIRE30 → classify a trigger (priority + reason)
+  "proactive_quality_report",  // U-WIRE30 → knowledge-quality monitor report
+  "proactive_stats",           // U-WIRE30 → categorization stats
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1055,4 +1060,32 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     n: z.number().int().gt(1).describe("Sample size n (integer > 1; bound divides by 2(n-1))"),
     delta: z.number().gt(0).lt(1).describe("Confidence δ in (0,1)"),
   }).passthrough(),
+  // U-WIRE30 — ProactiveLearningEngine
+  // The 'context' object has many optional fields; the engine validates
+  // semantically. Schema accepts the documented LearningContext shape but
+  // is permissive about extra fields (passthrough).
+  proactive_detect: z.object({
+    context: z.object({
+      material: z.string().optional(),
+      operation: z.string().optional(),
+      machine: z.string().optional(),
+      outcome: z.enum(["success", "failure", "partial"]).optional(),
+      parameters: z.record(z.string(), z.unknown()).optional(),
+      knowledge_sources: z.array(z.object({
+        source: z.string(),
+        recommendation: z.string(),
+        confidence: z.number(),
+      })).optional(),
+      prior_confidence: z.number().optional(),
+      outcome_confidence: z.number().optional(),
+      is_routine: z.boolean().optional(),
+    }).passthrough().describe("LearningContext to scan for trigger conditions"),
+  }).passthrough(),
+  proactive_classify: z.object({
+    trigger: z.object({
+      type: z.string().describe("LearningTriggerType label"),
+    }).passthrough().describe("LearningTrigger object to classify"),
+  }).passthrough(),
+  proactive_quality_report: z.object({}).passthrough(),
+  proactive_stats: z.object({}).passthrough(),
 };
