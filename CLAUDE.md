@@ -47,6 +47,31 @@ Canonical storage: `state/shared/handoffs/HANDOFF-<instance>-<topic>.md` — one
 ### Topic naming (enforced by `enforce-handoff-topic.mjs` Stop hook)
 The topic is derived in this order: most-recent commit's `[SCOPE-MS#]` → `CURRENT_POSITION.md` milestone → last segment of git branch (`work/cam-exhaust-ms0` → `cam-exhaust-ms0`). The Stop hook renames any topicless `HANDOFF-<id>.md` → `HANDOFF-<id>-<topic>.md` so chats can never end a session with an ambiguous unsuffixed file. **Never bypass this hook**: a topicless handoff in a multi-chat run is the precursor to the silent-overwrite class of bug we already hit (see `RESUME_AT_WORK.md` §8). When writing handoffs by hand, always pass `--topic <slug>` to `per-agent-handoff.mjs write`.
 
+### Lane discipline + conflict-fork rule (2026-04-28)
+Each chat **stays in its own lane** — claims a milestone scope, commits to the matching `work/<scope>` worktree. `worktree-commit-route.mjs` enforces routing when wired (currently dormant; deeper rules in `data/docs/gsd/GSD_MICRO.md` Multi-Chat section).
+
+**Conflict-fork rule:** if `commit-ownership-guard` or `git-anti-clobber` blocks your commit because another chat owns the files in the shared tree, do NOT fight for the same tree. **Fork to your own tree:**
+```bash
+git worktree add ../prism-<milestone> -b work/<milestone>
+# move work via git stash → pop in new tree, OR cherry-pick
+# update HANDOFF-<id>-<topic>.md to point at new worktree
+```
+This avoids multi-chat thrash on shared HEAD and keeps milestones independently mergeable.
+
+## ENGINE WIRING — WIRE TO ALL SOURCES (2026-04-28)
+When generating an engine, do NOT stop at one dispatcher. Wire to **every dispatcher that would naturally consume it**, in the same commit. Examples:
+- New memory engine → `prism_memory` AND specialized consumer (e.g. `prism_guard:error_ledger_*`)
+- New physics engine → `prism_calc` AND `prism_safety` (if it computes safety-relevant)
+- New CAM engine → `prism_cam` AND vendor-specialized (mastercam, hypermill, etc.)
+- New reasoning engine → `prism_ai` AND `prism_intelligence`
+
+Verification:
+- `stop-auto-wire.mjs` (Stop hook, NOW WIRED) audits new engines/hooks/skills, warns on missing dispatcher refs.
+- `stop_on_unwired_assets.mjs` HARD BLOCKS Stop on zero-dispatcher orphans.
+- Test acceptance criterion: round-trip E2E assertion through every wired dispatcher (not only the singleton).
+
+If an engine is genuinely wrapped by a singleton (e.g. `QdrantMemoryEngine` ← `QdrantMemoryEngineSingleton`), tag it `// WIRE-EXEMPT: <reason>` naming the wrapper.
+
 ## MCP DISPATCHERS (primary execution surface)
 PRISM exposes every capability as an MCP dispatcher action. Prefer these over inlining logic:
 - `prism_calc` (manufacturing physics) • `prism_cam` / `prism_cad` / `prism_turning` / `prism_5axis`

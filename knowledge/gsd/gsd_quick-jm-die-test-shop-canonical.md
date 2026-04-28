@@ -2,7 +2,7 @@
 source: gsd_quick
 section: JM DIE TEST SHOP (CANONICAL)
 slug: jm-die-test-shop-canonical
-indexed_at: 2026-04-28T02:29:29.163Z
+indexed_at: 2026-04-28T02:50:03.659Z
 ---
 
 ## JM DIE TEST SHOP (CANONICAL)
