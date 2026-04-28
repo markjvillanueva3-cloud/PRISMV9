@@ -22,7 +22,8 @@ import {
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
   type ISOGroup,
-  type MaterialPhysics,
+  CANONICAL_MILLING_SPEEDS,
+  type MaterialEntry,
 } from "../physics/constants.js";
 
 // ============================================================================
@@ -250,27 +251,41 @@ export async function resolveMaterial(input: {
 }
 
 function materialPhysicsToContext(
-  mp: MaterialPhysics,
+  mp: MaterialEntry,
   source: ResolvedMaterialContext["source"],
   confidence: number,
   warnings: string[] = [],
 ): ResolvedMaterialContext {
+  // MaterialEntry is the registry shape; derive fields not stored on it from
+  // canonical ISO-group tables (Kienzle, milling speeds) and field-name
+  // aliases (k_thermal=thermal_conductivity_W_mK, cp_J_kgK=specific_heat_J_kgK,
+  // sigma_y_MPa≈0.85*UTS, HB≈10*HRC+100 or 0.3*UTS).
+  const kienzle = CANONICAL_KIENZLE[mp.iso_group];
+  const speeds = CANONICAL_MILLING_SPEEDS[mp.iso_group];
+  const hardness_HB = mp.hardness_HRC !== undefined
+    ? Math.round(mp.hardness_HRC * 10 + 100)
+    : mp.tensile_strength_MPa !== undefined
+      ? Math.round(mp.tensile_strength_MPa * 0.3)
+      : 200;
+  const sigma_y_MPa = mp.tensile_strength_MPa !== undefined
+    ? mp.tensile_strength_MPa * 0.85
+    : 400;
   return {
     name: mp.name,
     iso_group: mp.iso_group,
-    kc1_1: mp.kc1_1,
-    mc: mp.mc,
+    kc1_1: kienzle.kc1_1,
+    mc: kienzle.mc,
     taylor_C: mp.taylor_C,
     taylor_n: mp.taylor_n,
-    k_thermal: mp.k_thermal,
-    sigma_y_MPa: mp.sigma_y_MPa,
+    k_thermal: mp.thermal_conductivity_W_mK,
+    sigma_y_MPa,
     density_kg_m3: mp.density_kg_m3,
-    hardness_HB: mp.hardness_HB,
-    vc_base_roughing: mp.vc_base_roughing,
-    vc_base_finishing: mp.vc_base_finishing,
-    machinability_factor: mp.machinability_factor,
-    cp_J_kgK: mp.cp_J_kgK,
-    E_GPa: mp.E_GPa,
+    hardness_HB,
+    vc_base_roughing: speeds.rough,
+    vc_base_finishing: speeds.finish,
+    machinability_factor: 1.0,
+    cp_J_kgK: mp.specific_heat_J_kgK,
+    E_GPa: 210, // canonical default; non-ferrous overrides handled at registry layer
     source,
     confidence,
     warnings,
