@@ -7,8 +7,18 @@ import type { Express } from "express";
 import { log } from "../utils/Logger.js";
 import { getAuthConfig } from "./authConfig.js";
 
-/** Build MCP discovery document for .well-known/mcp.json */
-export function buildMcpDiscoveryDocument(): Record<string, unknown> {
+/**
+ * Build MCP discovery document for .well-known/mcp.json. The optional
+ * `_baseUrl` is accepted (and ignored) so callers that compute it from the
+ * inbound request can pass it without a type error.
+ */
+export function buildMcpDiscoveryDocument(_baseUrl?: string): {
+  name: string;
+  version: string;
+  description: string;
+  oauth: { authorization_endpoint: string; token_endpoint: string; scopes: string[] };
+  authentication?: Record<string, unknown>;
+} {
   const config = getAuthConfig();
   return {
     name: "prism-mcp-server",
