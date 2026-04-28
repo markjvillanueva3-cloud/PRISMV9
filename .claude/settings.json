@@ -401,6 +401,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claudemd-section-update.mjs",
             "timeout": 5000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/gsd-section-update.mjs",
+            "timeout": 5000,
+            "continueOnError": true
           }
         ]
       },
@@ -551,6 +557,12 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_unwired_assets.mjs"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-auto-wire.mjs",
+            "timeout": 5000,
+            "continueOnError": true
           },
           {
             "type": "command",
