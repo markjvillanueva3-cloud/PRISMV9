@@ -85,6 +85,11 @@ export const AI_REASONING_ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE24: ActiveLearningStrategyEngine — info-gain ranking
   "learning_rank",        // U-WIRE24 → rank LearningCandidate[] by infoGain/cost (Ψ-weighted)
   "learning_summary",     // U-WIRE24 → summarize a ranked list (totals + topTopic)
+  // ENGINE-WIRE-MS0/U-WIRE25: MetaLearningOptimizerEngine — learn-to-learn
+  "meta_learning_record",     // U-WIRE25 → record (scenario, strategy, success) outcome
+  "meta_learning_recommend",  // U-WIRE25 → best strategy for a scenario (Wilson lower-bound)
+  "meta_learning_stats",      // U-WIRE25 → stats for (scenario, strategy) pair
+  "meta_learning_list",       // U-WIRE25 → list scenarios or full stats matrix
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -923,5 +928,23 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
       score: z.number(),
       rank: z.number(),
     }).passthrough()).min(0).describe("RankedCandidate[] from prior learning_rank call"),
+  }).passthrough(),
+  // U-WIRE25 — MetaLearningOptimizerEngine
+  meta_learning_record: z.object({
+    scenario: z.string().min(1).describe("Content type / problem class label (e.g. 'kienzle_calibration')"),
+    strategy: z.string().min(1).describe("Strategy identifier (e.g. 'tribal_lookup', 'pdf_extract')"),
+    success: z.boolean().describe("Did the strategy succeed?"),
+    durationMs: z.number().nonnegative().finite().optional().describe("Wall-clock duration in ms (optional)"),
+  }).passthrough(),
+  meta_learning_recommend: z.object({
+    scenario: z.string().min(1).describe("Scenario to recommend a strategy for"),
+    minAttempts: z.number().int().nonnegative().optional().describe("Minimum attempts required to qualify (default 1)"),
+  }).passthrough(),
+  meta_learning_stats: z.object({
+    scenario: z.string().min(1).describe("Scenario label"),
+    strategy: z.string().min(1).describe("Strategy label"),
+  }).passthrough(),
+  meta_learning_list: z.object({
+    mode: z.enum(["scenarios", "all"]).optional().describe("'scenarios' returns scenario names only; 'all' returns full stats matrix (default 'all')"),
   }).passthrough(),
 };
