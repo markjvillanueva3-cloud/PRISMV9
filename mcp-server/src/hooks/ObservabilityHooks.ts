@@ -105,7 +105,7 @@ const onPerformanceTrack: HookDefinition = {
   phase: "on-outcome",
   category: "observability",
   mode: "silent",
-  priority: "background",
+  priority: "low",
   enabled: true,
   
   tags: ["performance", "metrics", "monitoring"],
@@ -173,17 +173,18 @@ const onSlowOperationDetect: HookDefinition = {
   enabled: true,
   
   tags: ["performance", "slow", "alert"],
-  
-  condition: (context: HookContext): boolean => {
-    const duration = context.metadata?.durationMs as number | undefined;
-    return duration !== undefined && duration > 5000;  // > 5 seconds
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onSlowOperationDetect;
-    
+
     const operation = context.operation || "unknown";
-    const duration = context.metadata?.durationMs as number;
+    const duration = context.metadata?.durationMs as number | undefined;
+    // HookDefinition no longer carries a `condition` field — gate inside
+    // the handler and short-circuit with hookSuccess if the threshold
+    // hasn't been crossed (preserves original 5-second slow-op threshold).
+    if (duration === undefined || duration <= 5000) {
+      return hookSuccess(hook, "Operation within performance budget");
+    }
     
     log.warn(`SLOW OPERATION: ${operation} took ${(duration/1000).toFixed(2)}s`);
     
@@ -209,7 +210,7 @@ const onUsageTrack: HookDefinition = {
   phase: "on-outcome",
   category: "observability",
   mode: "silent",
-  priority: "background",
+  priority: "low",
   enabled: true,
   
   tags: ["usage", "analytics", "tracking"],
@@ -270,7 +271,10 @@ const onToolCallFrequency: HookDefinition = {
     const hook = onToolCallFrequency;
     
     const toolName = context.operation || "unknown";
-    const callCount = context.session?.toolCalls || 0;
+    // session.toolCalls is typed as `unknown` on HookContext.session; coerce
+    // to a number for the buffer-zone arithmetic. Defaults to 0 when unset.
+    const rawToolCalls = context.session?.toolCalls;
+    const callCount = typeof rawToolCalls === "number" ? rawToolCalls : 0;
     
     // Determine buffer zone
     let zone: string;
@@ -378,14 +382,16 @@ const onValidationFailure: HookDefinition = {
   enabled: true,
   
   tags: ["validation", "failure", "tracking"],
-  
-  condition: (context: HookContext): boolean => {
-    return context.metadata?.validationFailed === true;
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onValidationFailure;
-    
+
+    // HookDefinition no longer carries a `condition` field — gate inside
+    // the handler. Original behavior: only act when validation failed.
+    if (context.metadata?.validationFailed !== true) {
+      return hookSuccess(hook, "No validation failure to track");
+    }
+
     const validationType = context.metadata?.validationType as string || "unknown";
     const failures = context.metadata?.failures as string[] || [];
     
@@ -504,7 +510,11 @@ const onQualityTrend: HookDefinition = {
   handler: (context: HookContext): HookResult => {
     const hook = onQualityTrend;
     
-    const qualityMetrics = context.quality;
+    // HookContext doesn't carry a top-level `quality` field — pull from
+    // metadata where producers stash the omega/safety/reasoning breakdown.
+    const qualityMetrics = context.metadata?.quality as
+      | { omega?: number; safety?: number; reasoning?: number; code?: number; process?: number }
+      | undefined;
     if (!qualityMetrics) {
       return hookSuccess(hook, "No quality metrics to track");
     }
