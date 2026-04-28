@@ -46,6 +46,7 @@ export const MEMORY_KINDS = [
   "note",
   "error",
   "skill",
+  "engine",
 ] as const;
 
 export type MemoryKind = (typeof MEMORY_KINDS)[number];
