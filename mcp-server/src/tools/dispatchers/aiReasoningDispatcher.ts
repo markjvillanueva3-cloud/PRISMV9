@@ -809,6 +809,71 @@ export async function executeAIReasoningAction(
         result = { ok: removed, id: p.id };
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE21: ChainOfThoughtEngine — step-by-step reasoning
+      // ─────────────────────────────────────────────────────────────────────
+      case "cot_reason": {
+        const { ChainOfThoughtEngine } = await import("../../engines/ChainOfThoughtEngine.js");
+        type ReasoningProblemArg = Parameters<typeof ChainOfThoughtEngine.reason>[0];
+        const p = params as unknown as ReasoningProblemArg;
+        const chain = ChainOfThoughtEngine.reason(p);
+        result = {
+          chain_id: chain.chain_id,
+          step_count: chain.steps.length,
+          current_confidence: chain.current_confidence,
+          dead_end_count: chain.dead_ends.length,
+          final_answer: chain.final_answer ?? null,
+          meta: chain.meta,
+          steps: chain.steps.map(s => ({
+            step_id: s.step_id,
+            type: s.type,
+            content: s.content,
+            confidence: s.confidence,
+            premises: s.premises,
+          })),
+        };
+        break;
+      }
+      case "cot_reason_tree": {
+        const { ChainOfThoughtEngine } = await import("../../engines/ChainOfThoughtEngine.js");
+        type ReasoningProblemArg = Parameters<typeof ChainOfThoughtEngine.reasonTree>[0];
+        const p = params as unknown as ReasoningProblemArg & { beam_width?: number };
+        const beamWidth = typeof p.beam_width === "number" ? p.beam_width : 3;
+        const tree = ChainOfThoughtEngine.reasonTree(p, beamWidth);
+        result = {
+          tree_id: tree.tree_id,
+          best_path: tree.best_path,
+          beam_width: tree.beam_width,
+          explored_nodes: tree.explored_nodes,
+          final_answer: tree.final_answer ?? null,
+        };
+        break;
+      }
+      case "cot_explain": {
+        const { ChainOfThoughtEngine } = await import("../../engines/ChainOfThoughtEngine.js");
+        type ChainArg = Parameters<typeof ChainOfThoughtEngine.explainChain>[0];
+        const p = params as { chain: ChainArg };
+        if (!p.chain || typeof p.chain !== "object") {
+          return dispatcherError("Missing required 'chain' parameter (ReasoningChain object)", action, "prism_ai");
+        }
+        const explanation = ChainOfThoughtEngine.explainChain(p.chain);
+        result = { explanation };
+        break;
+      }
+      case "cot_apply_heuristics": {
+        const { ChainOfThoughtEngine } = await import("../../engines/ChainOfThoughtEngine.js");
+        const p = params as { problem?: string; context?: Record<string, unknown> };
+        const problem = typeof p.problem === "string" ? p.problem : "";
+        const ctx = (p.context && typeof p.context === "object") ? p.context : {};
+        const heuristics = ChainOfThoughtEngine.applyManufacturingHeuristics(problem, ctx);
+        result = {
+          problem,
+          context: ctx,
+          heuristics,
+          count: heuristics.length,
+        };
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
