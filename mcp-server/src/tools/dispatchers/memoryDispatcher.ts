@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats",
     {
       action: z.enum([
         "get_health",
@@ -49,8 +49,15 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "get_node",
         "run_integrity",
         "consolidate",
-        "consolidation_stats",
-        "consolidation_patterns","record_session_end","semantic_search","remember",]).describe("Memory graph action"),
+        "consolidation_stats","record_session_end","semantic_search","remember",
+        "consolidation_patterns",
+        // ENGINE-WIRE-MS0/U-WIRE19: AgentMemoryFabricEngine — persistent cross-session memory
+        "agent_memory_remember",
+        "agent_memory_query",
+        "agent_memory_reinforce",
+        "agent_memory_forget",
+        "agent_memory_stats",
+      ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -279,8 +286,127 @@ export function registerMemoryDispatcher(server: McpServer): void {
             result = r.ok ? { ok: true, kind, id } : { ok: false, error: r.error, kind, id };
             break;
           }
+
+          // ENGINE-WIRE-MS0/U-WIRE19: AgentMemoryFabricEngine wiring
+          case "agent_memory_remember": {
+            const { agentMemoryFabricEngine } = await import("../../engines/AgentMemoryFabricEngine.js");
+            const memType = typeof params.memory_type === "string" ? params.memory_type : params.memoryType;
+            const content = typeof params.content === "string" ? params.content : "";
+            if (!content) {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing required 'content' parameter" }) }] };
+            }
+            const opts = {
+              relatedEntity: params.related_entity ?? params.relatedEntity,
+              tags: Array.isArray(params.tags) ? params.tags : undefined,
+              confidence: typeof params.confidence === "number" ? params.confidence : undefined,
+              priority: typeof params.priority === "number" ? params.priority : undefined,
+              source: params.source,
+              expiresInDays: typeof params.expires_in_days === "number"
+                ? params.expires_in_days
+                : (typeof params.expiresInDays === "number" ? params.expiresInDays : undefined),
+            };
+            let entry;
+            switch (memType) {
+              case "fact":
+                entry = await agentMemoryFabricEngine.rememberFact(content, opts);
+                break;
+              case "preference":
+                entry = await agentMemoryFabricEngine.rememberPreference(content, opts);
+                break;
+              case "correction": {
+                const wrong = typeof params.wrong === "string" ? params.wrong : "";
+                const correct = typeof params.correct === "string" ? params.correct : "";
+                entry = await agentMemoryFabricEngine.rememberCorrection(wrong, correct, content, opts);
+                break;
+              }
+              case "context":
+                entry = await agentMemoryFabricEngine.rememberContext(content, opts);
+                break;
+              case "tribal":
+                entry = await agentMemoryFabricEngine.rememberTribal(content, opts);
+                break;
+              default:
+                return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown memory_type: '${memType}'. Use one of: fact, preference, correction, context, tribal` }) }] };
+            }
+            result = { ok: true, id: entry.id, type: entry.type, priority: entry.priority };
+            break;
+          }
+
+          case "agent_memory_query": {
+            const { agentMemoryFabricEngine } = await import("../../engines/AgentMemoryFabricEngine.js");
+            const queryOpts = {
+              type: params.type,
+              tags: Array.isArray(params.tags) ? params.tags : undefined,
+              relatedEntity: params.related_entity ?? params.relatedEntity,
+              minConfidence: typeof params.min_confidence === "number"
+                ? params.min_confidence
+                : (typeof params.minConfidence === "number" ? params.minConfidence : undefined),
+              maxAgeDays: typeof params.max_age_days === "number"
+                ? params.max_age_days
+                : (typeof params.maxAgeDays === "number" ? params.maxAgeDays : undefined),
+              limit: typeof params.limit === "number" ? params.limit : 25,
+              sortBy: params.sort_by ?? params.sortBy,
+              sortOrder: params.sort_order ?? params.sortOrder,
+            };
+            const matches = await agentMemoryFabricEngine.query(queryOpts);
+            result = {
+              count: matches.length,
+              memories: matches.map(m => ({
+                id: m.id,
+                type: m.type,
+                content: m.content.slice(0, 500),
+                source: m.source,
+                confidence: m.confidence,
+                priority: m.priority,
+                tags: m.tags,
+                relatedEntity: m.relatedEntity,
+                reinforcements: m.reinforcements,
+                createdAt: m.createdAt,
+                lastAccessedAt: m.lastAccessedAt,
+              })),
+            };
+            break;
+          }
+
+          case "agent_memory_reinforce": {
+            const { agentMemoryFabricEngine } = await import("../../engines/AgentMemoryFabricEngine.js");
+            const memId = typeof params.memory_id === "string" ? params.memory_id : params.memoryId;
+            if (typeof memId !== "string" || !memId) {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing required 'memory_id' parameter" }) }] };
+            }
+            const reinforced = await agentMemoryFabricEngine.reinforce(memId);
+            if (!reinforced) {
+              result = { ok: false, error: `Memory not found: ${memId}` };
+            } else {
+              result = {
+                ok: true,
+                id: reinforced.id,
+                reinforcements: reinforced.reinforcements,
+                lastReinforcedAt: reinforced.lastReinforcedAt,
+              };
+            }
+            break;
+          }
+
+          case "agent_memory_forget": {
+            const { agentMemoryFabricEngine } = await import("../../engines/AgentMemoryFabricEngine.js");
+            const memId = typeof params.memory_id === "string" ? params.memory_id : params.memoryId;
+            if (typeof memId !== "string" || !memId) {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing required 'memory_id' parameter" }) }] };
+            }
+            const removed = await agentMemoryFabricEngine.forget(memId);
+            result = { ok: removed, id: memId };
+            break;
+          }
+
+          case "agent_memory_stats": {
+            const { agentMemoryFabricEngine } = await import("../../engines/AgentMemoryFabricEngine.js");
+            result = await agentMemoryFabricEngine.getStats();
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -296,5 +422,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (11 actions)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (17 actions: 12 graph + 5 agent-memory-fabric)");
 }
