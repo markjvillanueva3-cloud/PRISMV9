@@ -54,6 +54,12 @@ export const AI_REASONING_ACTIONS = [
   "ai_wedm_print_to_program",
   "ai_wedm_cam_knowledge",
   "ai_wedm_synthesize_knowledge",
+  // ENGINE-WIRE-MS0/U-WIRE13: 5 Lathe AI engines
+  "ai_lathe_orchestrate",
+  "ai_lathe_active_learn_select",
+  "ai_lathe_bayesian_fit_gp",
+  "ai_lathe_attention_compute",
+  "ai_lathe_adaptive_engagement",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -586,6 +592,88 @@ const ai_wedm_synthesize_knowledge = z.object({
 }).passthrough();
 
 /** Map action to schema */
+
+// ─── ENGINE-WIRE-MS0/U-WIRE13: 5 Lathe AI engines ─────────────────────
+const ai_lathe_orchestrate = z.object({
+  program: z.union([
+    z.string().min(1).describe("G-code program text"),
+    z.object({}).passthrough().describe("Lathe part description object"),
+  ]).describe("Program or part-description"),
+  context: z.object({
+    material: z.string().optional().describe("Workpiece material identifier"),
+    machineId: z.string().optional().describe("Machine instance identifier"),
+    controller: z.string().optional().describe("CNC controller name"),
+    constraints: z.object({}).passthrough().optional().describe("Optimization constraints"),
+  }).passthrough().optional().describe("Optional orchestration context"),
+  strategy: z.enum([
+    "full_coverage",
+    "fast_path",
+    "quality_optimized",
+    "cost_optimized",
+    "safety_first",
+    "learning_focused",
+    "adaptive",
+  ]).optional().describe("Orchestration strategy"),
+}).passthrough();
+
+const ai_lathe_active_learn_select = z.object({
+  labeled_data: z.array(z.object({}).passthrough()).min(1).describe("Labeled data points"),
+  pool_data: z.array(z.object({}).passthrough()).optional().describe("Unlabeled candidate pool"),
+  n_samples: z.number().int().positive().max(1000).optional().describe("Number of samples to select"),
+  query_strategy: z.enum([
+    "uncertainty_sampling",
+    "margin_sampling",
+    "entropy_sampling",
+    "query_by_committee",
+    "expected_model_change",
+    "expected_error_reduction",
+    "bald",
+    "core_set",
+    "batch_bald",
+    "hybrid",
+  ]).optional().describe("Active-learning query strategy"),
+  budget: z.object({}).passthrough().optional().describe("Optional sample budget overrides"),
+}).passthrough();
+
+const ai_lathe_bayesian_fit_gp = z.object({
+  observations: z.array(z.object({
+    x: z.array(z.number()).min(1).describe("Input vector"),
+    y: z.number().describe("Observed objective value"),
+    timestamp: z.number().optional().describe("Observation timestamp"),
+  })).min(2).describe("Bayesian observations (≥2 required for GP fit)"),
+  kernel_config: z.object({
+    type: z.enum(["RBF", "Matern32", "Matern52", "RationalQuadratic", "Linear", "Periodic"]).describe("Kernel family"),
+    length_scales: z.array(z.number().positive()).min(1).optional().describe("Per-dimension ARD length scales (auto-broadcast if missing)"),
+    signal_variance: z.number().positive().optional().describe("Kernel output (signal) variance"),
+    noise_variance: z.number().nonnegative().optional().describe("Observation noise variance"),
+    matern_nu: z.union([z.literal(1.5), z.literal(2.5)]).optional().describe("Matern smoothness ν (1.5 or 2.5)"),
+    alpha: z.number().positive().optional().describe("RationalQuadratic α parameter"),
+  }).passthrough().describe("GP kernel configuration"),
+}).passthrough();
+
+const ai_lathe_attention_compute = z.object({
+  tokens: z.array(z.object({
+    id: z.number().int().nonnegative().describe("Token id"),
+    token: z.string().min(1).describe("Token text"),
+    type: z.string().min(1).describe("Token type tag"),
+    position: z.number().int().nonnegative().describe("Position in sequence"),
+    embedding: z.array(z.number()).min(1).describe("Pre-computed embedding"),
+    value: z.number().optional().describe("Numeric value if applicable"),
+    line_number: z.number().int().nonnegative().optional().describe("Source line number"),
+    semantic_role: z.string().optional().describe("Manufacturing semantic role"),
+  })).min(2).max(2048).describe("Pre-tokenized G-code with embeddings"),
+}).passthrough();
+
+const ai_lathe_adaptive_engagement = z.object({
+  operation_type: z.enum(["roughing", "finishing", "threading", "grooving", "parting", "facing", "boring", "drilling"]).describe("Turning operation type"),
+  diameter: z.number().positive().describe("Workpiece diameter (mm)"),
+  depth_of_cut: z.number().positive().describe("Depth of cut ap (mm)"),
+  feed_per_rev: z.number().positive().describe("Feed per revolution fn (mm/rev)"),
+  lead_angle: z.number().positive().max(180).describe("Tool lead angle (deg)"),
+  nose_radius: z.number().positive().describe("Insert nose radius rε (mm)"),
+  cutting_speed: z.number().positive().describe("Cutting speed Vc (m/min)"),
+}).passthrough();
+
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
   ai_mill_agi_reason,
@@ -627,4 +715,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ai_wedm_print_to_program,
   ai_wedm_cam_knowledge,
   ai_wedm_synthesize_knowledge,
+  // ENGINE-WIRE-MS0/U-WIRE13: 5 Lathe AI engines
+  ai_lathe_orchestrate,
+  ai_lathe_active_learn_select,
+  ai_lathe_bayesian_fit_gp,
+  ai_lathe_attention_compute,
+  ai_lathe_adaptive_engagement,
 };
