@@ -65,6 +65,7 @@ const MEMORY_KIND_VALUES = [
   "note",
   "error",
   "skill",
+  "engine",
 ] as const;
 
 
