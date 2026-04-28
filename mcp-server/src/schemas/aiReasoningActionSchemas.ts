@@ -90,6 +90,11 @@ export const AI_REASONING_ACTIONS = [
   "meta_learning_recommend",  // U-WIRE25 → best strategy for a scenario (Wilson lower-bound)
   "meta_learning_stats",      // U-WIRE25 → stats for (scenario, strategy) pair
   "meta_learning_list",       // U-WIRE25 → list scenarios or full stats matrix
+  // ENGINE-WIRE-MS0/U-WIRE26: PeerLearningCoordinatorEngine — cross-session insight broker
+  "peer_broadcast",   // U-WIRE26 → broadcast PeerInsight (deduped by content hash)
+  "peer_query",       // U-WIRE26 → fetch insights with tag/confidence/exclude filters
+  "peer_get",         // U-WIRE26 → get one insight by id
+  "peer_size",        // U-WIRE26 → current number of accepted insights
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -947,4 +952,26 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   meta_learning_list: z.object({
     mode: z.enum(["scenarios", "all"]).optional().describe("'scenarios' returns scenario names only; 'all' returns full stats matrix (default 'all')"),
   }).passthrough(),
+  // U-WIRE26 — PeerLearningCoordinatorEngine
+  peer_broadcast: z.object({
+    fromSession: z.string().min(1).describe("Originating session id"),
+    summary: z.string().min(1).describe("One-line insight summary (used for content-hash dedup)"),
+    detail: z.string().optional().describe("Optional longer-form detail"),
+    tags: z.array(z.string()).describe("Tags for scoped retrieval (lowercased + deduped on store)"),
+    confidence: z.number().min(0).max(1).describe("Confidence in [0,1]"),
+    sensitivity: z.enum(["public", "redacted", "private"]).optional()
+      .describe("'private' insights are rejected; default 'public'"),
+    id: z.string().optional().describe("Override insight id (default auto-generated)"),
+    at: z.string().optional().describe("ISO timestamp override (default now)"),
+  }).passthrough(),
+  peer_query: z.object({
+    excludeSessionIds: z.array(z.string()).optional().describe("Skip insights from these sessions"),
+    includeAnyTag: z.array(z.string()).optional().describe("Match if insight has ANY of these tags"),
+    minConfidence: z.number().min(0).max(1).optional().describe("Minimum confidence threshold"),
+    limit: z.number().int().nonnegative().optional().describe("Max results (default unlimited)"),
+  }).passthrough(),
+  peer_get: z.object({
+    id: z.string().min(1).describe("Insight id to fetch"),
+  }).passthrough(),
+  peer_size: z.object({}).passthrough(),
 };

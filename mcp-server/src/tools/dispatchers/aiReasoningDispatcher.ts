@@ -942,6 +942,38 @@ export async function executeAIReasoningAction(
         }
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE26: PeerLearningCoordinatorEngine — broker for
+      // cross-session insight sharing. Singleton-only (state lives across calls).
+      // ─────────────────────────────────────────────────────────────────────
+      case "peer_broadcast": {
+        const { peerLearningCoordinatorEngine } = await import("../../engines/PeerLearningCoordinatorEngine.js");
+        type BroadcastArg = Parameters<typeof peerLearningCoordinatorEngine.broadcast>[0];
+        const p = params as unknown as BroadcastArg;
+        const ingestion = peerLearningCoordinatorEngine.broadcast(p);
+        result = ingestion;
+        break;
+      }
+      case "peer_query": {
+        const { peerLearningCoordinatorEngine } = await import("../../engines/PeerLearningCoordinatorEngine.js");
+        type QueryArg = Parameters<typeof peerLearningCoordinatorEngine.query>[0];
+        const p = params as QueryArg;
+        const insights = peerLearningCoordinatorEngine.query(p);
+        result = { insights, count: insights.length };
+        break;
+      }
+      case "peer_get": {
+        const { peerLearningCoordinatorEngine } = await import("../../engines/PeerLearningCoordinatorEngine.js");
+        const p = params as { id: string };
+        const insight = peerLearningCoordinatorEngine.get(p.id);
+        result = { insight };
+        break;
+      }
+      case "peer_size": {
+        const { peerLearningCoordinatorEngine } = await import("../../engines/PeerLearningCoordinatorEngine.js");
+        result = { size: peerLearningCoordinatorEngine.size() };
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
