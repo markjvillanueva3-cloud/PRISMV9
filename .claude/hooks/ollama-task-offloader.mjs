@@ -24,6 +24,33 @@ import { dirname } from "node:path";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 const STATS_PATH = "H:/prism/mcp-server/data/state/ollama-offload-stats.json";
+
+// P0-U03: per-hook fire counts + rolling 24h event log
+const HOOK_NAME = "ollama-task-offloader";
+const EVENT_RETENTION_MS = 24 * 60 * 60 * 1000;
+function bumpHookCounter(stats, decision, tokensSaved = 0) {
+  if (!stats.byHook) stats.byHook = {};
+  if (!stats.byHook[HOOK_NAME]) {
+    stats.byHook[HOOK_NAME] = { fired: 0, offloaded: 0, kept: 0, suggested: 0, tokensSaved: 0 };
+  }
+  const h = stats.byHook[HOOK_NAME];
+  h.fired = (h.fired || 0) + 1;
+  if (decision === "offload") h.offloaded = (h.offloaded || 0) + 1;
+  else if (decision === "keep") h.kept = (h.kept || 0) + 1;
+  else if (decision === "suggest") h.suggested = (h.suggested || 0) + 1;
+  h.tokensSaved = (h.tokensSaved || 0) + (tokensSaved || 0);
+}
+function pushEvent(stats, decision, extras = {}) {
+  if (!Array.isArray(stats.events)) stats.events = [];
+  const now = Date.now();
+  stats.events.push({ ts: new Date(now).toISOString(), hook: HOOK_NAME, decision, ...extras });
+  // Prune events older than 24h
+  const cutoff = now - EVENT_RETENTION_MS;
+  stats.events = stats.events.filter((e) => {
+    const t = Date.parse(e.ts);
+    return Number.isFinite(t) && t >= cutoff;
+  });
+}
 const RATE_LIMIT_PATH = "H:/prism/mcp-server/data/state/ollama-rate-limits.json";
 const TIMEOUT_MS = 2000;
 const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes per category
@@ -173,7 +200,7 @@ async function main() {
   const stats = loadStats();
 
   if (!classification.offloadable) {
-    stats.keptOnClaude++;
+    stats.keptOnClaude++; bumpHookCounter(stats, "keep"); pushEvent(stats, "keep");
     saveStats(stats);
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -181,7 +208,7 @@ async function main() {
 
   // Rate limiting: max 1 suggestion per 5 minutes per category
   if (isRateLimited(classification.category)) {
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "silent" });
     saveStats(stats);
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -189,7 +216,7 @@ async function main() {
 
   // Confidence threshold: only proceed if savings > 80%
   if (classification.savings < CONFIDENCE_THRESHOLD) {
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "silent" });
     saveStats(stats);
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -212,11 +239,13 @@ async function main() {
   stats.offloaded++;
   stats.estimatedTokensSaved += savedTokens;
   stats.byCategory[classification.category] = (stats.byCategory[classification.category] || 0) + 1;
+  bumpHookCounter(stats, "offload", savedTokens);
+  pushEvent(stats, "offload", { category: classification.category, tokensSaved: savedTokens });
 
   // Silent mode: only inject context if offload_score > 0.9
   // Otherwise just log silently and continue
   if (classification.savings < INJECT_THRESHOLD) {
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
+    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "silent" });
     saveStats(stats);
     // Log to file but don't inject into context
     console.log(JSON.stringify({ continue: true }));
@@ -224,7 +253,7 @@ async function main() {
   }
 
   // High-value suggestion: inject into context
-  stats.injectedSuggestions = (stats.injectedSuggestions || 0) + 1;
+  stats.injectedSuggestions = (stats.injectedSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "injected" });
   saveStats(stats);
 
   const ctx = [

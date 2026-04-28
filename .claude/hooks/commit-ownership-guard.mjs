@@ -39,9 +39,13 @@ function getSessionId(hookInput) {
   }
   // 2) Env override
   if (process.env.CLAUDE_SESSION_ID) return process.env.CLAUDE_SESSION_ID;
-  // 3) PID-based fallback (unstable across subprocess invocations)
-  const ppid = process.ppid || process.pid;
-  return `${hostname()}-${ppid}`;
+  // 3) Host-based fallback. We previously used hostname-PID here, but each
+  //    Bash subprocess gets a new PID, so successive commit attempts from
+  //    the same Claude Code instance got different IDs and the hook
+  //    false-positive-blocked its own commits. host-hostname is stable
+  //    across subprocess invocations on the same machine. Tactical fix
+  //    for INTEL-OLLAMA-OBSIDIAN-MS0; full session-id refactor tracked.
+  return `host-${hostname()}`;
 }
 
 function git(args) {
