@@ -82,6 +82,9 @@ export const AI_REASONING_ACTIONS = [
   "cot_reason_tree",      // U-WIRE21 → tree-of-thought beam search
   "cot_explain",          // U-WIRE21 → format a chain into human-readable trace
   "cot_apply_heuristics", // U-WIRE21 → manufacturing-domain heuristics for a context
+  // ENGINE-WIRE-MS0/U-WIRE24: ActiveLearningStrategyEngine — info-gain ranking
+  "learning_rank",        // U-WIRE24 → rank LearningCandidate[] by infoGain/cost (Ψ-weighted)
+  "learning_summary",     // U-WIRE24 → summarize a ranked list (totals + topTopic)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -896,5 +899,29 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
       .describe("Free-form problem statement (used to keyword-match heuristics)"),
     context: z.record(z.string(), z.unknown()).optional()
       .describe("Manufacturing context (material, operation, etc.) for context-specific heuristics"),
+  }).passthrough(),
+  // U-WIRE24 — ActiveLearningStrategyEngine
+  learning_rank: z.object({
+    candidates: z.array(z.object({
+      id: z.string().min(1).describe("Unique candidate id"),
+      topic: z.string().min(1).describe("Human-readable topic label"),
+      currentUncertainty: z.number().min(0).max(1).describe("Current uncertainty in [0,1]"),
+      expectedReduction: z.number().min(0).max(1).describe("Fraction of uncertainty this target removes, in [0,1]"),
+      psiImpact: z.number().finite().optional().describe("Projected Ψ delta in percentage points (optional)"),
+      costMinutes: z.number().positive().describe("Estimated cost in minutes (must be > 0)"),
+      tags: z.array(z.string()).optional().describe("Optional free-form tags"),
+    })).min(1).describe("LearningCandidate[] to rank — must contain at least one entry"),
+  }).passthrough(),
+  learning_summary: z.object({
+    ranked: z.array(z.object({
+      id: z.string(),
+      topic: z.string(),
+      currentUncertainty: z.number(),
+      expectedReduction: z.number(),
+      costMinutes: z.number(),
+      infoGain: z.number(),
+      score: z.number(),
+      rank: z.number(),
+    }).passthrough()).min(0).describe("RankedCandidate[] from prior learning_rank call"),
   }).passthrough(),
 };
