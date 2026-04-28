@@ -209,6 +209,18 @@ async function main() {
         timestamp: new Date().toISOString(),
       });
 
+      // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U02: mirror to unified ledger
+      try {
+        const mod = await import("../helpers/unified-ledger-mirror.mjs");
+        mod.mirrorToUnifiedLedgerAsync({
+          source: "pattern_memory",
+          tool: error.tool ?? error.toolName ?? undefined,
+          errorClass: error.code ?? error.type ?? undefined,
+          message: error.message ?? error.snippet ?? error.text ?? "",
+          context: { key, error_type: error.type, code: error.code },
+        });
+      } catch { /* mirror is best-effort */ }
+
       const pattern = data.patterns[error.type] || { count: 0, codes: {} };
       pattern.count++;
       pattern.codes[error.code] = (pattern.codes[error.code] || 0) + 1;

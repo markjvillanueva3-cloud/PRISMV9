@@ -102,6 +102,17 @@ Prevention: ${similar.prevention || 'none recorded'}` } }));
     resolved: false
   });
 
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U02: mirror to unified ledger
+  try {
+    const mod = await import("../helpers/unified-ledger-mirror.mjs");
+    mod.mirrorToUnifiedLedgerAsync({
+      source: "learner",
+      errorClass: errorSig.type,
+      message: errorSig.signature,
+      context: { snippet: toolResult.slice(0, 240) },
+    });
+  } catch { /* mirror is best-effort */ }
+
   // Keep last 100 errors
   if (memory.errors.length > 100) {
     memory.errors = memory.errors.slice(-100);
