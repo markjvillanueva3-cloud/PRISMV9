@@ -20,6 +20,9 @@ import {
   cuttingPower,
   rpmFromVc,
   CANONICAL_TOOL_MODULUS,
+  CANONICAL_KIENZLE,
+  CANONICAL_MILLING_SPEEDS,
+  CANONICAL_MATERIAL_DB,
 } from "../physics/constants.js";
 
 // ============================================================================
@@ -94,7 +97,12 @@ export class PipelineConsistencyHookEngine {
   check(input: ConsistencyCheckInput): ConsistencyCheckResult {
     log.info(`[PipelineConsistencyHook] Checking ${input.pipeline_name}`);
 
-    const mat = resolveMaterial(input.material || "steel");
+    // Fallback to AISI 1045 (canonical mild steel) if name doesn't resolve.
+    // The "1045" key always exists in CANONICAL_MATERIAL_DB so the non-null
+    // assertion is safe and prevents undefined-cascade through downstream maths.
+    const mat = resolveMaterial(input.material || "steel") ?? CANONICAL_MATERIAL_DB["1045"]!;
+    const kienzle = CANONICAL_KIENZLE[mat.iso_group];
+    const speeds = CANONICAL_MILLING_SPEEDS[mat.iso_group];
     const d = input.tool_diameter_mm || 12;
     const z = input.flutes || 4;
     const ap = input.ap_mm || (d * 0.5);
@@ -103,7 +111,7 @@ export class PipelineConsistencyHookEngine {
     // Derive feed per tooth
     const rpm = input.result.spindle_rpm || (input.cutting_speed_mpm
       ? rpmFromVc(input.cutting_speed_mpm, d)
-      : rpmFromVc(mat.vc_base_roughing, d));
+      : rpmFromVc(speeds.rough, d));
     const fz = input.fz_mm || (input.result.feed_rate_mmmin
       ? input.result.feed_rate_mmmin / (rpm * z)
       : 0.1);
@@ -116,7 +124,7 @@ export class PipelineConsistencyHookEngine {
 
     // 1. Cutting force check
     if (input.result.cutting_force_N !== undefined) {
-      const canonical_Fc = kienzleForce(mat.kc1_1, mat.mc, ap, fz);
+      const canonical_Fc = kienzleForce(kienzle.kc1_1, kienzle.mc, ap, fz);
       const div = pctDivergence(input.result.cutting_force_N, canonical_Fc);
       comparisons.push({
         metric: "cutting_force_N",
@@ -125,13 +133,13 @@ export class PipelineConsistencyHookEngine {
         divergence_pct: round2(div),
       });
       if (Math.abs(div) > 10) {
-        warnings.push(`Cutting force diverges ${div > 0 ? '+' : ''}${round2(div)}% from Kienzle canonical (kc1.1=${mat.kc1_1}, mc=${mat.mc})`);
+        warnings.push(`Cutting force diverges ${div > 0 ? '+' : ''}${round2(div)}% from Kienzle canonical (kc1.1=${kienzle.kc1_1}, mc=${kienzle.mc})`);
       }
     }
 
     // 2. Power check
     if (input.result.power_kW !== undefined) {
-      const canonical_Fc = kienzleForce(mat.kc1_1, mat.mc, ap, fz);
+      const canonical_Fc = kienzleForce(kienzle.kc1_1, kienzle.mc, ap, fz);
       const canonical_P = cuttingPower(canonical_Fc, Vc);
       const div = pctDivergence(input.result.power_kW, canonical_P);
       comparisons.push({
@@ -180,7 +188,7 @@ export class PipelineConsistencyHookEngine {
     if (input.result.deflection_um !== undefined) {
       const L = input.tool_stickout_mm || (d * 3);
       const E = CANONICAL_TOOL_MODULUS[(input.tool_material || "carbide") as keyof typeof CANONICAL_TOOL_MODULUS] || 600000;
-      const canonical_Fc = kienzleForce(mat.kc1_1, mat.mc, ap, fz);
+      const canonical_Fc = kienzleForce(kienzle.kc1_1, kienzle.mc, ap, fz);
       const canonical_defl_mm = toolDeflection(canonical_Fc, L, d, E);
       const canonical_defl_um = canonical_defl_mm * 1000;
       const div = pctDivergence(input.result.deflection_um, canonical_defl_um);
