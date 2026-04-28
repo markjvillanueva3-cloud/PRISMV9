@@ -253,3 +253,130 @@ function r2(n: number): number { return Math.round(n * 100) / 100; }
 function r3(n: number): number { return Math.round(n * 1000) / 1000; }
 
 export const threadTurningEngine = new ThreadTurningEngine();
+
+// ============================================================================
+// G76 DIALECT SUPPORT (ENGINE-WIRE-MS0/U-WIRE04)
+// ============================================================================
+//
+// Controller-specific G76 threading cycle dialects. Used by
+// LatheAIReasoningEngine.selectG76Dialect to route the same threading
+// intent to the correct G-code shape per controller family.
+//
+// Source: Fanuc 0i/30i Operator's Manual; Okuma OSP-P200/P300L Operator's
+// Reference; Mitsubishi M70V Programming; Siemens 840D sl Programming;
+// Mazak Mazatrol M-Plus Programming Reference.
+
+/** Identifier for a G76 dialect family. */
+export interface G76Dialect {
+  dialect: "fanuc_double" | "okuma" | "mitsubishi" | "siemens" | "mazak";
+  controller_names: string[];
+  line_format: string;
+  notes: string[];
+}
+
+/** Known G76 dialects, indexed for controller fingerprinting. */
+export const G76_DIALECTS: G76Dialect[] = [
+  {
+    dialect: "fanuc_double",
+    controller_names: ["fanuc", "haas", "doosan-fanuc", "hwacheon"],
+    line_format: "G76 P{repeat}{chamfer}{angle} Q{min_depth} R{finish}; G76 X{end_x} Z{end_z} P{depth} Q{first_cut} F{pitch}",
+    notes: ["Two-line G76 P/Q/R header plus X/Z/P/Q/F move. Most common dialect."],
+  },
+  {
+    dialect: "okuma",
+    controller_names: ["okuma", "osp-p", "osp"],
+    line_format: "G76 X{end_x} Z{end_z} I0 K{depth} D{first_cut_um} F{pitch} A{angle}",
+    notes: ["Single-line G76 with K=full depth, D=first-cut depth in microns, A=infeed angle."],
+  },
+  {
+    dialect: "mitsubishi",
+    controller_names: ["mitsubishi", "m70", "m700", "m80"],
+    line_format: "G76 P{repeat}{chamfer}{angle} Q{min_depth} R{finish}; G76 X{end_x} Z{end_z} P{depth} Q{first_cut} F{pitch}",
+    notes: ["Mitsubishi follows Fanuc two-line shape with minor parameter codings."],
+  },
+  {
+    dialect: "siemens",
+    controller_names: ["siemens", "sinumerik", "840d"],
+    line_format: "CYCLE99(SPL, FPL, DM1, DM2, APP, ROP, TDEP, FAL, IANG, NSP, NRC, NID, PIT, VARI, NUMTH, SDAC, MID, GAMW)",
+    notes: ["Siemens uses CYCLE99 wrapper instead of G76; parameter list is positional."],
+  },
+  {
+    dialect: "mazak",
+    controller_names: ["mazak", "mazatrol", "smooth"],
+    line_format: "G76 P{repeat}{chamfer}{angle} Q{min_depth} R{finish}; G76 X{end_x} Z{end_z} P{depth} Q{first_cut} F{pitch}",
+    notes: ["Mazak EIA mode mirrors Fanuc; Mazatrol conversational mode skips raw G-code."],
+  },
+];
+
+/**
+ * Resolve a controller string to its G76 dialect. Substring match is
+ * case-insensitive; falls back to undefined if no dialect matches so callers
+ * can apply their own default (typically fanuc_double).
+ */
+export function getG76Dialect(controller: string | null | undefined): G76Dialect | undefined {
+  if (!controller || typeof controller !== "string") return undefined;
+  const c = controller.toLowerCase();
+  for (const d of G76_DIALECTS) {
+    if (d.controller_names.some(name => c.includes(name))) return d;
+  }
+  return undefined;
+}
+
+/** Parameters needed to render a G76 cycle. */
+export interface G76Params {
+  end_x_mm: number;
+  end_z_mm: number;
+  thread_depth_mm: number;
+  first_cut_mm: number;
+  pitch_mm: number;
+  spring_passes?: number;
+  infeed_angle?: number;
+  chamfer_pitches?: number;
+  min_depth_mm?: number;
+  finish_allowance_mm?: number;
+}
+
+/**
+ * Render a G76 threading block for the requested dialect. Returns a
+ * single multi-line string ready to drop into a controller program.
+ *
+ * Numeric formatting follows each controller's documented conventions
+ * (microns for Okuma D-code, hundredths-of-mm for Fanuc P/Q-fields).
+ */
+export function generateG76Code(
+  dialect: G76Dialect["dialect"] | string,
+  params: G76Params,
+): string {
+  const repeat = String(params.spring_passes ?? 1).padStart(2, "0");
+  const chamfer = String(Math.round((params.chamfer_pitches ?? 1) * 10)).padStart(2, "0");
+  const angle = String(Math.round(params.infeed_angle ?? 60)).padStart(2, "0");
+  const minDepthUm = Math.round((params.min_depth_mm ?? 0.05) * 1000);
+  const depthUm = Math.round(params.thread_depth_mm * 1000);
+  const firstCutUm = Math.round(params.first_cut_mm * 1000);
+  const x = params.end_x_mm.toFixed(3);
+  const z = params.end_z_mm.toFixed(3);
+  const f = params.pitch_mm.toFixed(4);
+  const finish = (params.finish_allowance_mm ?? 0.02).toFixed(3);
+
+  switch (dialect) {
+    case "okuma":
+      return [
+        "( G76 OKUMA SINGLE-LINE )",
+        `G76 X${x} Z${z} I0 K${depthUm} D${firstCutUm} F${f} A${params.infeed_angle ?? 60}`,
+      ].join("\n");
+    case "siemens":
+      return [
+        "; CYCLE99 (Siemens 840D)",
+        `CYCLE99(0, 0, ${x}, ${z}, 0, ${finish}, ${params.thread_depth_mm.toFixed(3)}, ${finish}, ${params.infeed_angle ?? 60}, 0, ${params.spring_passes ?? 1}, 0, ${f}, 1, 1, 0, 0, 0)`,
+      ].join("\n");
+    case "fanuc_double":
+    case "mitsubishi":
+    case "mazak":
+    default:
+      return [
+        "( G76 TWO-LINE )",
+        `G76 P${repeat}${chamfer}${angle} Q${minDepthUm} R${finish}`,
+        `G76 X${x} Z${z} P${depthUm} Q${firstCutUm} F${f}`,
+      ].join("\n");
+  }
+}
