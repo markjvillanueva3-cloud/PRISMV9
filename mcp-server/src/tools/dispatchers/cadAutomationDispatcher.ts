@@ -878,8 +878,12 @@ Actions: ${ACTIONS.join(", ")}.`,
             const operations = params["operations"] as Array<Record<string, unknown>>;
             const context = (params["context"] as Record<string, unknown>) ?? {};
             const adapter = await getCADAdapter(cadSystem);
+            // The operations array is structurally typed via Zod at the schema
+            // boundary; the adapter signature is more specific. Cast through
+            // `unknown` to satisfy TS's overlap check without weakening downstream
+            // adapter-side validation.
             const script = adapter.buildScript(
-              operations as Parameters<typeof adapter.buildScript>[0],
+              operations as unknown as Parameters<typeof adapter.buildScript>[0],
               context as Parameters<typeof adapter.buildScript>[1],
             );
             // Serialize Map â†’ [key, value][] so the script crosses the MCP wire cleanly.
@@ -1793,7 +1797,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!Array.isArray(operations) || operations.length === 0) {
               throw new Error("cad_graph_build requires non-empty 'operations' array");
             }
-            const graph = engine.build(operations as Parameters<typeof engine.build>[0]);
+            const graph = engine.build(operations as unknown as Parameters<typeof engine.build>[0]);
             result = {
               node_count: graph.nodes.length,
               edge_count: graph.edges.length,
