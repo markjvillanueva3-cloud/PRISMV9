@@ -157,6 +157,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { mrr_cm3min: result.MRR_cm3min, spindle_rpm: result.spindle_rpm };
     case "coolant_strategy":
       return { strategy: result.recommendation?.strategy, pressure_bar: result.recommendation?.pressure_bar };
+    case "chip_thinning_compensation":
+      return { fz: result?.compensated_feed_per_tooth_mm, factor: result?.compensation_factor, hex: result?.effective_chip_thickness_mm, applied: result?.compensation_applied, multiplier: result?.feedrate_multiplier };
     case "tolerance_analysis":
       return { tolerance_um: result.tolerance_um, grade: result.grade_label, nominal_mm: result.nominal_mm };
     case "fit_analysis":
@@ -324,11 +326,11 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
     case "stochastic_force":
       return { result: `StochForce: μ=${result.value.mean_force_n.toFixed(1)}N σ=${result.value.std_dev_n.toFixed(1)}N CV=${result.value.cv_percent.toFixed(1)}%` };
     case "stochastic_tool_life":
-      return { result: `StochLife: Taylor=${result.value.taylor_life_min.toFixed(1)}min` };
+      return { taylor_min: result?.taylor_life_min, weibull_mean: result?.weibull?.mean_min, weibull_beta: result?.weibull?.beta, p10_min: result?.p10_life_min };
     case "stochastic_thermal":
       return { result: `StochTherm: μ=${result.value.mean_temp_c.toFixed(0)}°C σ=${result.value.std_dev_c.toFixed(0)}°C` };
     case "stochastic_finish":
-      return { result: `StochRa: theory=${result.value.theoretical_ra_um.toFixed(2)}μm actual=${result.value.mean_ra_um.toFixed(2)}μm` };
+      return { theory_um: result?.theoretical_ra_um, mean_um: result?.mean_ra_um, std_um: result?.std_dev_um, p95: result?.p95_ra_um, cpk: result?.cpk_ra };
     case "stochastic_chatter":
       return { result: `StochChatter: safe=${result.value.summary.max_safe_depth_mm.toFixed(2)}mm` };
     case "uncertainty_pipeline":
@@ -559,6 +561,7 @@ const ACTIONS = [
   "wear_progression", "drill_breakthrough", "thermal_growth",
   "bore_finishing", "finishing_pass", "turning_force",
   "tapping_torque", "power_budget",
+  "chip_thinning_compensation",
   "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
   "roughness_convert", "peck_drill_optimize",
   "drill_cycle_optimize", "coating_select",
@@ -8560,6 +8563,34 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ENGINE-WIRE-MS0/U-WIRE02: 5 leaf-physics engines wired (4 orphan enum slots + 1 new action)
+          case "power_budget": {
+            const { cuttingPowerBudgetEngine } = await import("../../engines/CuttingPowerBudgetEngine.js");
+            result = cuttingPowerBudgetEngine.calculate(params as Parameters<typeof cuttingPowerBudgetEngine.calculate>[0]);
+            break;
+          }
+          case "stochastic_dimension": {
+            const { stochasticDimensionalEngine } = await import("../../engines/StochasticDimensionalEngine.js");
+            result = stochasticDimensionalEngine.simulate(params as Parameters<typeof stochasticDimensionalEngine.simulate>[0]);
+            break;
+          }
+          case "stochastic_finish": {
+            const { stochasticSurfaceFinishEngine } = await import("../../engines/StochasticSurfaceFinishEngine.js");
+            const av = stochasticSurfaceFinishEngine.compute(params as Parameters<typeof stochasticSurfaceFinishEngine.compute>[0]);
+            result = (av && typeof av === "object" && "value" in av) ? (av as { value: unknown }).value : av;
+            break;
+          }
+          case "stochastic_tool_life": {
+            const { stochasticToolLifeEngine } = await import("../../engines/StochasticToolLifeEngine.js");
+            const av = stochasticToolLifeEngine.compute(params as Parameters<typeof stochasticToolLifeEngine.compute>[0]);
+            result = (av && typeof av === "object" && "value" in av) ? (av as { value: unknown }).value : av;
+            break;
+          }
+          case "chip_thinning_compensation": {
+            const { chipThinningCompensationEngine } = await import("../../engines/ChipThinningCompensationEngine.js");
+            result = chipThinningCompensationEngine.calculate(params as Parameters<typeof chipThinningCompensationEngine.calculate>[0]);
+            break;
+          }
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

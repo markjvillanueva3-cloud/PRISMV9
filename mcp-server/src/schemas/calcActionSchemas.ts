@@ -625,13 +625,24 @@ const tapping_torque = z.object({
 
 const power_budget = z.object({
   machine_power_kW: posNum,
+  machine_max_torque_Nm: optPosNum,
+  machine_base_rpm: optPosNum,
+  machine_max_rpm: optPosNum,
   cutting_speed_m_min: posNum,
   depth_of_cut_mm: posNum,
-  feed_mm_rev: posNum,
+  width_of_cut_mm: optPosNum,
+  // U-WIRE02: schema-engine alignment — engine accepts feed_mm_rev OR (feed_mm_tooth × flutes)
+  feed_mm_rev: optPosNum,
+  feed_mm_tooth: optPosNum,
+  flutes: z.number().int().positive().optional(),
   tool_diameter_mm: optPosNum,
+  workpiece_diameter_mm: optPosNum,
   number_of_teeth: z.number().int().positive().optional(),
   kc1_1: optPosNum,
   mc: optNum,
+  material_kc1_1: optPosNum,
+  material_mc: optNum,
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
   efficiency: z.number().min(0).max(1).optional(),
   material_id: materialRef,
   material: materialRef,
@@ -2667,6 +2678,81 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     n_trials: z.number().int().positive().optional().describe("Alias for mc_samples"),
     compute_sobol: optBool.describe("Compute Sobol sensitivity indices (slower)"),
     observed_wear_data: z.array(z.object({ time_min: z.number().min(0), wear_mm: z.number().min(0) })).optional().describe("Observed wear data for Bayesian updating"),
+  }).passthrough(),
+
+  // ── ENGINE-WIRE-MS0/U-WIRE02: orphan-action backfill ─────────────
+  // ── Stochastic Dimensional (StochasticDimensionalEngine.simulate) ──
+  stochastic_dimension: z.object({
+    nominal_mm: posNum.describe("Nominal dimension [mm]"),
+    usl_mm: posNum.describe("Upper spec limit [mm]"),
+    lsl_mm: posNum.describe("Lower spec limit [mm]"),
+    machine_repeatability_um: optPosNum.describe("Machine positioning repeatability (2σ) [µm]"),
+    machine_accuracy_um: optPosNum.describe("Machine positioning accuracy (systematic) [µm]"),
+    thermal_coeff_um_per_C: optPosNum.describe("Thermal expansion coefficient α [µm/°C]"),
+    ambient_temp_amplitude_C: optPosNum.describe("Sinusoidal ambient temperature amplitude [°C]"),
+    thermal_cycle_hours: optPosNum.describe("Thermal cycle period [h]"),
+    wear_rate_um_per_part: optPosNum.describe("Progressive wear-driven dimensional shift [µm/part]"),
+    tool_change_interval: z.number().int().positive().optional().describe("Parts between tool changes"),
+    wear_compensation_interval: z.number().int().positive().optional().describe("Parts between offset updates"),
+    cutting_force_N: optPosNum.describe("Cutting force [N] for deflection coupling"),
+    force_cv_pct: z.number().min(0).optional().describe("Force coefficient of variation [%]"),
+    tool_stiffness_N_per_um: optPosNum.describe("Tool stiffness [N/µm]"),
+    fixture_repeatability_um: optPosNum.describe("Fixture repeatability [µm]"),
+    spindle_runout_um: optPosNum.describe("Spindle runout TIR [µm]"),
+    hardness_cv_pct: z.number().min(0).optional().describe("Hardness coefficient of variation [%]"),
+    hardness_force_sensitivity: optPosNum.describe("Force sensitivity to hardness dF/dHRC [N/HRC]"),
+    gage_rr_um: optPosNum.describe("Gauge R&R uncertainty [µm]"),
+    production_qty: z.number().int().positive().optional().describe("Production run size [parts]"),
+    mc_samples_per_part: z.number().int().positive().optional().describe("Monte Carlo samples per part"),
+    spc_subgroup_size: z.number().int().positive().optional().describe("SPC subgroup size"),
+  }).passthrough(),
+
+  // ── Stochastic Surface Finish (StochasticSurfaceFinishEngine.compute) ──
+  stochastic_finish: z.object({
+    material: z.string().min(1).describe("Material designation, e.g. 'Ti-6Al-4V', 'AISI 4140'"),
+    feed_mm: posNum.describe("Feed per rev (turning) or per tooth (milling) [mm]"),
+    tool_nose_radius_mm: posNum.describe("Tool nose radius [mm]"),
+    cutting_speed_mpm: posNum.describe("Cutting speed Vc [m/min]"),
+    operation: z.enum(["turning", "milling"]).optional().describe("Operation type (default: turning)"),
+    tool_diameter_mm: optPosNum.describe("Tool diameter [mm] (milling)"),
+    flute_count: z.number().int().positive().optional().describe("Number of flutes (milling)"),
+    runout_um: optPosNum.describe("Radial runout [µm] (default 5)"),
+    damping_ratio: z.number().min(0).max(1).optional().describe("Damping ratio ζ (default 0.03)"),
+    natural_freq_hz: optPosNum.describe("Natural frequency [Hz] (default 800)"),
+    depth_mm: optPosNum.describe("Depth of cut [mm]"),
+    width_mm: optPosNum.describe("Width of cut [mm]"),
+    vb_mm: z.number().min(0).optional().describe("Current flank wear VB [mm] (default 0)"),
+    target_ra_um: optPosNum.describe("Target Ra for Cpk calculation [µm]"),
+    n_trials: z.number().int().positive().optional().describe("Monte Carlo trials (default 2000)"),
+    method: z.enum(["mc", "fosm", "both"]).optional().describe("Propagation method (default 'both')"),
+  }).passthrough(),
+
+  // ── Stochastic Tool Life (StochasticToolLifeEngine.compute, Weibull/Wiener/Bayes) ──
+  stochastic_tool_life: z.object({
+    material: z.string().min(1).describe("Material designation"),
+    cutting_speed_mpm: posNum.describe("Cutting speed Vc [m/min]"),
+    feed_mm: posNum.describe("Feed [mm/rev or mm/tooth]"),
+    depth_mm: posNum.describe("Depth of cut [mm]"),
+    tool_material: z.enum(["carbide", "ceramic", "cbn", "hss"]).optional().describe("Tool material (default carbide)"),
+    coating: z.enum(["TiAlN", "TiN", "AlCrN", "uncoated", "diamond"]).optional().describe("Tool coating"),
+    wear_limit_mm: optPosNum.describe("Flank wear limit VB [mm] (default 0.3)"),
+    n_trials: z.number().int().positive().optional().describe("Monte Carlo trials"),
+    observed_wear: z.array(z.object({
+      time_min: z.number().min(0),
+      wear_mm: z.number().min(0),
+    }).passthrough()).optional().describe("Observed wear samples for Bayesian update"),
+    target_time_min: optPosNum.describe("Target service time for reliability calc [min]"),
+    method: z.enum(["weibull", "wiener", "bayesian", "all"]).optional().describe("Stochastic method (default 'all')"),
+  }).passthrough(),
+
+  // ── Chip Thinning Compensation (ChipThinningCompensationEngine.calculate) ──
+  chip_thinning_compensation: z.object({
+    feed_per_tooth_mm: posNum.describe("Programmed feed per tooth fz [mm]"),
+    radial_engagement_mm: posNum.describe("Radial engagement ae [mm]"),
+    tool_diameter_mm: posNum.describe("Tool diameter D [mm]"),
+    axial_depth_mm: optPosNum.describe("Axial depth ap [mm] (informational)"),
+    max_compensation_factor: optPosNum.describe("Cap on compensation multiplier (default 2.0)"),
+    min_engagement_pct: z.number().min(0).max(100).optional().describe("Minimum engagement % below which compensation is limited (default 5)"),
   }).passthrough(),
 
   // ── Thermal Compensation Model (ThermalCompensationModelEngine) ──
