@@ -1272,12 +1272,19 @@ export const ACTIONS = [
   "solidcam_code_generate", "solidcam_code_templates",
   // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine (6 actions)
   "solidcam_25d_index", "solidcam_25d_summary", "solidcam_25d_list_ops", "solidcam_25d_get_op", "solidcam_25d_by_category", "solidcam_25d_imachining",
+  // CAM-EXHAUST-MS0/U-CAM-FIDX-30 — SolidCAM completeness wiring (+13 actions)
+  "solidcam_25d_find_param", "solidcam_25d_training_topics", "solidcam_25d_category_breakdown",
   "solidcam_imachining_index", "solidcam_imachining_summary", "solidcam_imachining_list_ops", "solidcam_imachining_get_op", "solidcam_imachining_by_category", "solidcam_imachining_wizard", "solidcam_imachining_find_param",
+  "solidcam_imachining_training_topics", "solidcam_imachining_category_breakdown",
   // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine (8 actions)
   "solidcam_3d_hss_hsr_index", "solidcam_3d_hss_hsr_summary", "solidcam_3d_hss_hsr_list_ops", "solidcam_3d_hss_hsr_get_op", "solidcam_3d_hss_hsr_by_category", "solidcam_3d_hss_hsr_find_param", "solidcam_3d_hss_hsr_recommend", "solidcam_3d_hss_hsr_step_from_scallop",
+  "solidcam_3d_hss_hsr_training_topics", "solidcam_3d_hss_hsr_category_breakdown",
   "solidcam_5_axis_index", "solidcam_5_axis_summary", "solidcam_5_axis_list_ops", "solidcam_5_axis_get_op", "solidcam_5_axis_by_category", "solidcam_5_axis_find_param", "solidcam_5_axis_recommend", "solidcam_5_axis_validate_axis", "solidcam_5_axis_singularity",
+  "solidcam_5_axis_training_topics", "solidcam_5_axis_category_breakdown",
   "solidcam_turning_index", "solidcam_turning_summary", "solidcam_turning_list_ops", "solidcam_turning_get_op", "solidcam_turning_by_category", "solidcam_turning_find_param", "solidcam_turning_recommend", "solidcam_turning_css", "solidcam_turning_boring_bar", "solidcam_turning_thread_passes",
+  "solidcam_turning_training_topics", "solidcam_turning_category_breakdown",
   "solidcam_millturn_index", "solidcam_millturn_summary", "solidcam_millturn_list_ops", "solidcam_millturn_get_op", "solidcam_millturn_by_category", "solidcam_millturn_find_param", "solidcam_millturn_recommend", "solidcam_millturn_sync_check", "solidcam_millturn_polar_feed", "solidcam_millturn_wait_barriers",
+  "solidcam_millturn_training_topics", "solidcam_millturn_category_breakdown",
   "solidcam_index_manifest", "solidcam_index_sections", "solidcam_index_section_stats", "solidcam_index_all_ops", "solidcam_index_find_op", "solidcam_index_find_param", "solidcam_index_categories", "solidcam_index_recommend", "solidcam_index_validate",
   "nxcam_milling_index", "nxcam_milling_summary", "nxcam_milling_list_ops", "nxcam_milling_get_op", "nxcam_milling_by_category", "nxcam_milling_find_param", "nxcam_milling_recommend", "nxcam_milling_scallop", "nxcam_milling_adaptive_check",
   "nxcam_turning_index", "nxcam_turning_summary", "nxcam_turning_list_ops", "nxcam_turning_get_op", "nxcam_turning_by_category", "nxcam_turning_find_param", "nxcam_turning_recommend", "nxcam_turning_nose_radius", "nxcam_turning_taylor", "nxcam_turning_teach_validate",
@@ -7300,6 +7307,22 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = eng.getIMachiningParams();
             break;
           }
+          // CAM-EXHAUST-MS0/U-CAM-FIDX-30 — SolidCAM 25D completeness (3 actions)
+          case "solidcam_25d_find_param": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "solidcam_25d_training_topics": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getTrainingTopics();
+            break;
+          }
+          case "solidcam_25d_category_breakdown": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getCategoryBreakdown();
+            break;
+          }
 
           // ── CAM-EXHAUST-MS0/U-CAM34: SolidCAMIMachiningFunctionIndexEngine ─
           case "solidcam_imachining_index": {
@@ -7325,6 +7348,16 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_imachining_by_category": {
             const eng = await getEngine("solidcamIMachiningIndex");
             result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_imachining_training_topics": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getTrainingTopics();
+            break;
+          }
+          case "solidcam_imachining_category_breakdown": {
+            const eng = await getEngine("solidcamIMachiningIndex");
+            result = eng.getCategoryBreakdown();
             break;
           }
           case "solidcam_imachining_wizard": {
@@ -7372,6 +7405,16 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_3d_hss_hsr_recommend": {
             const eng = await getEngine("solidcam3DHSSHSRIndex");
             result = eng.recommendStrategy(params.wall_angle_deg, params.geometry_hint);
+            break;
+          }
+          case "solidcam_3d_hss_hsr_training_topics": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.getTrainingTopics();
+            break;
+          }
+          case "solidcam_3d_hss_hsr_category_breakdown": {
+            const eng = await getEngine("solidcam3DHSSHSRIndex");
+            result = eng.getCategoryBreakdown();
             break;
           }
           case "solidcam_3d_hss_hsr_step_from_scallop": {
@@ -7431,6 +7474,16 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = eng.singularityCheck(params.tilt_deg);
             break;
           }
+          case "solidcam_5_axis_training_topics": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.getTrainingTopics();
+            break;
+          }
+          case "solidcam_5_axis_category_breakdown": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.getCategoryBreakdown();
+            break;
+          }
 
           // ── CAM-EXHAUST-MS0/U-CAM37 (turning): SolidCAMTurningFunctionIndexEngine ──
           case "solidcam_turning_index": {
@@ -7483,6 +7536,16 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = eng.threadPassSchedule(params.depth_of_thread_mm, params.first_pass_doc_mm, params.min_doc_mm, params.spring_passes ?? 1);
             break;
           }
+          case "solidcam_turning_training_topics": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.getTrainingTopics();
+            break;
+          }
+          case "solidcam_turning_category_breakdown": {
+            const eng = await getEngine("solidcamTurningIndex");
+            result = eng.getCategoryBreakdown();
+            break;
+          }
 
           // ── CAM-EXHAUST-MS0/U-CAM37 (mill-turn): SolidCAMMillTurnFunctionIndexEngine ──
           case "solidcam_millturn_index": {
@@ -7533,6 +7596,16 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_millturn_wait_barriers": {
             const eng = await getEngine("solidcamMillTurnIndex");
             result = eng.validateWaitBarriers(params.main_count, params.sub_count);
+            break;
+          }
+          case "solidcam_millturn_training_topics": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.getTrainingTopics();
+            break;
+          }
+          case "solidcam_millturn_category_breakdown": {
+            const eng = await getEngine("solidcamMillTurnIndex");
+            result = eng.getCategoryBreakdown();
             break;
           }
 
