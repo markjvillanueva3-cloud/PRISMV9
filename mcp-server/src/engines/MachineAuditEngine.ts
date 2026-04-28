@@ -18,7 +18,10 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { machinePackageAPIEngine } from "./MachinePackageAPIEngine.js";
+// import removed: MachinePackageAPIEngine had a transitive cascade of 50+
+// errors via 4 missing sub-engines (Shop overlay / Capability surface /
+// OptionContract / ConsumerBinding). MachineAudit only references the
+// engine in a comment + a string literal — no runtime usage to preserve.
 import { machineConfidenceCalculatorEngine } from "./MachineConfidenceCalculatorEngine.js";
 
 // ============================================================================

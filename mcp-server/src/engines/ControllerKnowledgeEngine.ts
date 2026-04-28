@@ -123,6 +123,46 @@ export interface GCodeDialect {
   rigidTapCode?: string;
   smoothingCode?: string;
   highAccuracyCode?: string;
+  /** Single-block threading code (Fanuc G32 / equivalent). */
+  threadingCycle?: string;
+  /** Helical thread-milling code (G33 / G84.2 / etc.). */
+  threadMilling?: string;
+  /** Negative-direction tool length compensation (Fanuc G44). */
+  toolLengthCompNegative?: string;
+  /** Tool length comp under TCPC (e.g. Heidenhain G234). */
+  toolLengthCompTCPC?: string;
+  /** Fixed-cycle tool length comp (e.g. macro-driven). */
+  toolLengthCompFixed?: string;
+  /** Nano-precision smoothing variant (Fanuc G05.1 Q3). */
+  nanoSmoothingCode?: string;
+  /** Tilted-workplane code (Heidenhain CYCLE19, etc.). */
+  tiltedWorkplaneCode?: string;
+  /** Geometry-comp activation (e.g. Mazatrol G135). */
+  geometryCompOn?: string;
+  /** Secondary work offset shortcut (some controllers expose G55 separately). */
+  workOffsetG55?: string;
+  /** Tertiary work offset shortcut (G56). */
+  workOffsetG56?: string;
+  /** Quaternary work offset shortcut (G57). */
+  workOffsetG57?: string;
+  /** Quintic work offset shortcut (G58). */
+  workOffsetG58?: string;
+  /** Senary work offset shortcut (G59). */
+  workOffsetG59?: string;
+  /** Cancel tilted-workplane (Heidenhain CYCLE19 cancel, etc.). */
+  cancelTiltedWorkplane?: string;
+  /** Confirm tilted-workplane (commits the rotation). */
+  confirmTiltedWorkplane?: string;
+  /** Tool Center Point Control mode (5-axis, e.g. G43.4 / TCPM). */
+  tcpMode?: string;
+  /**
+   * Index signature absorbs controller-specific extras (extendedWorkOffsets,
+   * additionalWorkOffsets, tcpMode5axis, vendor-specific cycle codes). Each
+   * controller has dozens of unique fields and listing them all would defeat
+   * maintainability — strict named fields above stay required for the
+   * canonical surface, extras flow through here.
+   */
+  [extra: string]: string | undefined;
 }
 
 // Controller Knowledge Database
