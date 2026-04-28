@@ -105,6 +105,7 @@ import { ACTION_NXCAM_FBM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFBMF
 import { ACTION_NXCAM_FUNCTION_INDEX_SCHEMAS } from "../../schemas/nxcamFunctionIndexActionSchemas.js";
 import { ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMillRoughingFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS, ACTION_CAM_LORA_CADENCE_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
+import { ACTION_CAMX_MS22_U01_SCHEMAS } from '../../schemas/camxMs22U01ActionSchemas.js';
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -176,6 +177,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
   ...ACTION_CAM_LORA_CADENCE_SCHEMAS,
+  ...ACTION_CAMX_MS22_U01_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -1707,6 +1709,12 @@ export const ACTIONS = [
   "milling_lora_predict", "milling_lora_train", "milling_lora_optimize",
   "millturn_lora_predict", "millturn_lora_train", "millturn_lora_optimize",
   "cam_compare_programs", "cam_dfm_check", "cam_feasibility_check", "cam_fusion_tool_export",
+  // ENGINE-WIRE-MS0/U-WIRE12 — 5 engines, 13 actions
+  "mastercam_5axis_recommend", "mastercam_5axis_tilt_limits", "mastercam_5axis_list_strategies",
+  "multi_agent_register_session", "multi_agent_get_activity", "multi_agent_query_chains",
+  "fusion360_open", "fusion360_get_geometry", "fusion360_export_step",
+  "hypermill_bridge_open", "hypermill_bridge_get_geometry", "hypermill_bridge_export_step",
+  "hypercads_mock_import", "hypercads_mock_heal", "hypercads_mock_analyze", "hypercads_mock_stock",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -13583,6 +13591,148 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               error: "cam_feasibility_check handled by FeasibilityOrchestrator via prism_feasibility dispatcher",
               redirect: { dispatcher: "prism_feasibility", action: "orchestrator_full" },
             };
+            break;
+          }
+          // ENGINE-WIRE-MS0/U-WIRE12 — mastercam5AxisEngine (E2501)
+          case "mastercam_5axis_recommend": {
+            const { mastercam5AxisEngine } = await import("../../engines/Mastercam5AxisEngine.js");
+            result = { success: true, recommendations: mastercam5AxisEngine.recommend({
+              geometry: params.geometry,
+              goal: params.goal,
+              isoGroup: params.isoGroup ?? params.iso_group,
+              toolDiameterMm: params.toolDiameterMm ?? params.tool_diameter_mm,
+              toolType: params.toolType ?? params.tool_type,
+              cornerRadiusMm: params.cornerRadiusMm ?? params.corner_radius_mm,
+              kinematics: params.kinematics,
+              maxWallAngleDeg: params.maxWallAngleDeg ?? params.max_wall_angle_deg,
+              minFilletRadiusMm: params.minFilletRadiusMm ?? params.min_fillet_radius_mm,
+              targetRaUm: params.targetRaUm ?? params.target_ra_um,
+              requireCollisionCheck: params.requireCollisionCheck ?? params.require_collision_check,
+              partToleranceMm: params.partToleranceMm ?? params.part_tolerance_mm,
+            }) };
+            break;
+          }
+          case "mastercam_5axis_tilt_limits": {
+            const { mastercam5AxisEngine } = await import("../../engines/Mastercam5AxisEngine.js");
+            result = { success: true, ...mastercam5AxisEngine.checkTiltLimits({
+              tiltADeg: params.tiltADeg ?? params.tilt_a_deg,
+              tiltBDeg: params.tiltBDeg ?? params.tilt_b_deg,
+              machineAMin: params.machineAMin ?? params.machine_a_min,
+              machineAMax: params.machineAMax ?? params.machine_a_max,
+              machineBMin: params.machineBMin ?? params.machine_b_min,
+              machineBMax: params.machineBMax ?? params.machine_b_max,
+            }) };
+            break;
+          }
+          case "mastercam_5axis_list_strategies": {
+            const { mastercam5AxisEngine } = await import("../../engines/Mastercam5AxisEngine.js");
+            result = { success: true, strategies: mastercam5AxisEngine.listStrategies() };
+            break;
+          }
+          // ENGINE-WIRE-MS0/U-WIRE12 — multiAgentAIInterfaceEngine
+          case "multi_agent_register_session": {
+            const { multiAgentAIInterfaceEngine } = await import("../../engines/MultiAgentAIInterfaceEngine.js");
+            result = { success: true, ...multiAgentAIInterfaceEngine.registerSession({
+              agent_id: params.agent_id,
+              family: params.family,
+              lane: params.lane,
+              machine: params.machine,
+              token_budget: params.token_budget,
+            }) };
+            break;
+          }
+          case "multi_agent_get_activity": {
+            const { multiAgentAIInterfaceEngine } = await import("../../engines/MultiAgentAIInterfaceEngine.js");
+            result = { success: true, ...multiAgentAIInterfaceEngine.getActivity() };
+            break;
+          }
+          case "multi_agent_query_chains": {
+            const { multiAgentAIInterfaceEngine } = await import("../../engines/MultiAgentAIInterfaceEngine.js");
+            result = { success: true, chains: multiAgentAIInterfaceEngine.queryChains({
+              intent_pattern: params.intent_pattern,
+              source: params.source,
+              status: params.status,
+              created_by: params.created_by,
+              since: params.since,
+              limit: params.limit,
+            }) };
+            break;
+          }
+          // ENGINE-WIRE-MS0/U-WIRE12 — fusion360AutomationBridge
+          case "fusion360_open": {
+            const { fusion360AutomationBridge } = await import("../../engines/Fusion360AutomationBridge.js");
+            try {
+              const r = await fusion360AutomationBridge.open(
+                params.file_path as string,
+                params.base_url ? { baseUrl: params.base_url as string } : {},
+              );
+              result = { success: true, ...r.value, confidence: r.confidence, source: r.source };
+            } catch (err: any) { result = { success: false, error: err.message }; }
+            break;
+          }
+          case "fusion360_get_geometry": {
+            const { fusion360AutomationBridge } = await import("../../engines/Fusion360AutomationBridge.js");
+            try {
+              const r = await fusion360AutomationBridge.getGeometry();
+              result = { success: true, geometry: r.value, confidence: r.confidence, source: r.source };
+            } catch (err: any) { result = { success: false, error: err.message }; }
+            break;
+          }
+          case "fusion360_export_step": {
+            const { fusion360AutomationBridge } = await import("../../engines/Fusion360AutomationBridge.js");
+            try {
+              const r = await fusion360AutomationBridge.exportSTEP(params.output_path as string);
+              result = { success: true, ...r.value, confidence: r.confidence, source: r.source };
+            } catch (err: any) { result = { success: false, error: err.message }; }
+            break;
+          }
+          // ENGINE-WIRE-MS0/U-WIRE12 — hypermillAutomationBridge
+          case "hypermill_bridge_open": {
+            const { hypermillAutomationBridge } = await import("../../engines/HyperMILLAutomationBridge.js");
+            try {
+              const r = await hypermillAutomationBridge.open(
+                params.file_path as string,
+                { acHost: params.ac_host as string | undefined, acPort: params.ac_port as number | undefined },
+              );
+              result = { success: true, ...r.value, confidence: r.confidence, source: r.source };
+            } catch (err: any) { result = { success: false, error: err.message }; }
+            break;
+          }
+          case "hypermill_bridge_get_geometry": {
+            const { hypermillAutomationBridge } = await import("../../engines/HyperMILLAutomationBridge.js");
+            try {
+              const r = await hypermillAutomationBridge.getGeometry();
+              result = { success: true, geometry: r.value, confidence: r.confidence, source: r.source };
+            } catch (err: any) { result = { success: false, error: err.message }; }
+            break;
+          }
+          case "hypermill_bridge_export_step": {
+            const { hypermillAutomationBridge } = await import("../../engines/HyperMILLAutomationBridge.js");
+            try {
+              const r = await hypermillAutomationBridge.exportSTEP(params.output_path as string);
+              result = { success: true, ...r.value, confidence: r.confidence, source: r.source };
+            } catch (err: any) { result = { success: false, error: err.message }; }
+            break;
+          }
+          // ENGINE-WIRE-MS0/U-WIRE12 — hyperCADSMockLayer (E1164)
+          case "hypercads_mock_import": {
+            const { hyperCADSMockLayer } = await import("../../engines/HyperCADSMockLayer.js");
+            result = { success: true, ...hyperCADSMockLayer.getMockImportResponse(params.file_path as string | undefined) };
+            break;
+          }
+          case "hypercads_mock_heal": {
+            const { hyperCADSMockLayer } = await import("../../engines/HyperCADSMockLayer.js");
+            result = { success: true, ...hyperCADSMockLayer.getMockHealResponse(params.body_name as string | undefined) };
+            break;
+          }
+          case "hypercads_mock_analyze": {
+            const { hyperCADSMockLayer } = await import("../../engines/HyperCADSMockLayer.js");
+            result = { success: true, ...hyperCADSMockLayer.getMockAnalyzeResponse(params.body_name as string | undefined) };
+            break;
+          }
+          case "hypercads_mock_stock": {
+            const { hyperCADSMockLayer } = await import("../../engines/HyperCADSMockLayer.js");
+            result = { success: true, ...hyperCADSMockLayer.getMockStockModelResponse(params.mode as string | undefined) };
             break;
           }
           case "cam_fusion_tool_export": {
