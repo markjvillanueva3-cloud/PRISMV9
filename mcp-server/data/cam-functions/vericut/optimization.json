@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "vericut",
+  "section_key": "optimization",
+  "extraction_source": "CGTech VERICUT 9.4 OptiPath Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-25",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["optipath", "force_optimize", "feed_optimize", "surface_finish_optimize"]
+  },
+  "operations": {
+    "optipath": {
+      "display_name": "OptiPath Optimization",
+      "category": "optipath",
+      "description": "VERICUT flagship — automatic feedrate optimization based on real chip load and material removal rate. Reduces cycle time 10-50%.",
+      "dialog_tabs": ["Material", "Limits", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "material": {
+          "material_db_ref": { "type": "selection", "tab": "Material", "required": true, "description": "VERICUT material database with kc1.1 etc." },
+          "stock_material_grade": { "type": "string", "default": "STEEL_4140", "tab": "Material" },
+          "use_local_chip_load": { "type": "boolean", "default": true, "description": "Compute per-step chip load from voxel removal", "tab": "Material" },
+          "chip_load_smoothing_ms": { "type": "number", "unit": "ms", "default": 50, "description": "Avoid feed flicker", "tab": "Material" }
+        },
+        "limits": {
+          "max_chip_load_mm_per_tooth": { "type": "number", "unit": "mm_per_tooth", "default": 0.15, "tab": "Limits" },
+          "min_feed_pct_of_original": { "type": "number", "unit": "pct", "default": 30.0, "description": "Don't go below 30% of programmed", "tab": "Limits" },
+          "max_feed_pct_of_original": { "type": "number", "unit": "pct", "default": 200.0, "description": "Don't exceed 200% of programmed", "tab": "Limits" },
+          "max_spindle_load_pct": { "type": "number", "unit": "pct", "default": 85.0, "description": "Spindle motor utilisation cap", "tab": "Limits" }
+        },
+        "strategy": {
+          "optimize_in_air": { "type": "boolean", "default": true, "description": "Slam rapid feeds in non-cutting moves", "tab": "Strategy" },
+          "optimize_finish_passes": { "type": "boolean", "default": false, "description": "Off — preserve programmed finish feeds", "tab": "Strategy" },
+          "respect_corner_slowdown": { "type": "boolean", "default": true, "description": "Slow at sharp corners for accuracy", "tab": "Strategy" },
+          "look_ahead_distance_mm": { "type": "number", "unit": "mm", "default": 50, "tab": "Strategy" }
+        },
+        "output": {
+          "output_format": { "type": "enum", "values": ["modified_NC", "OPL_overlay", "side_by_side"], "default": "modified_NC", "tab": "Output" },
+          "report_cycle_time_savings_pct": { "type": "boolean", "default": true, "tab": "Output" },
+          "preserve_program_structure": { "type": "boolean", "default": true, "description": "Keep subroutines and modal codes intact", "tab": "Output" },
+          "auto_apply_post_simulation": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    },
+    "force_optimize": {
+      "display_name": "Force-Based Optimization",
+      "category": "force_optimize",
+      "description": "Adjust feeds based on calculated cutting force using Kienzle model. Maintains constant force across varying engagement.",
+      "dialog_tabs": ["Force_Model", "Limits", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "force_model": {
+          "force_model": { "type": "enum", "values": ["kienzle", "altintas", "merchant", "experimental_fit"], "default": "kienzle", "description": "Kienzle Fc = kc1.1 × ap × fz^(1-mc)", "tab": "Force_Model" },
+          "kc1_1_lookup": { "type": "boolean", "default": true, "description": "Pull from VERICUT material DB", "tab": "Force_Model" },
+          "mc_lookup": { "type": "boolean", "default": true, "tab": "Force_Model" },
+          "force_check_resolution_ms": { "type": "number", "unit": "ms", "default": 5, "tab": "Force_Model" }
+        },
+        "limits": {
+          "target_force_N": { "type": "number", "unit": "N", "default": 800, "description": "Setpoint cutting force", "tab": "Limits" },
+          "max_force_N": { "type": "number", "unit": "N", "default": 1500, "description": "Hard ceiling", "tab": "Limits" },
+          "max_torque_Nm": { "type": "number", "unit": "Nm", "default": 50, "description": "Spindle torque limit", "tab": "Limits" },
+          "max_axial_force_N": { "type": "number", "unit": "N", "default": 1200, "tab": "Limits" }
+        },
+        "strategy": {
+          "feed_response_mode": { "type": "enum", "values": ["linear", "PI_controller", "model_predictive"], "default": "PI_controller", "tab": "Strategy" },
+          "PI_kp": { "type": "number", "default": 0.5, "tab": "Strategy" },
+          "PI_ki": { "type": "number", "default": 0.1, "tab": "Strategy" }
+        },
+        "output": {
+          "log_force_per_segment": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_target_unreachable": { "type": "boolean", "default": true, "tab": "Output" },
+          "auto_increase_doc_for_low_force": { "type": "boolean", "default": false, "description": "Be careful — can violate stock allowance", "tab": "Output" }
+        }
+      }
+    },
+    "feed_optimize": {
+      "display_name": "Feed Optimization (Volumetric)",
+      "category": "feed_optimize",
+      "description": "Adjust feed based on volumetric removal rate (cm³/min). Maintains constant MRR for predictable cycle time.",
+      "dialog_tabs": ["MRR", "Strategy", "Limits", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "mrr": {
+          "target_mrr_cm3_per_min": { "type": "number", "unit": "cm3_per_min", "default": 50, "tab": "MRR" },
+          "compute_method": { "type": "enum", "values": ["instantaneous", "rolling_window", "look_ahead"], "default": "rolling_window", "tab": "MRR" },
+          "window_size_ms": { "type": "number", "unit": "ms", "default": 100, "tab": "MRR" },
+          "voxel_resolution_mm": { "type": "number", "unit": "mm", "default": 0.1, "tab": "MRR" }
+        },
+        "strategy": {
+          "increase_feed_in_air": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "decrease_feed_at_corners": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "preserve_finish_pass": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "preserve_threading": { "type": "boolean", "default": true, "description": "Never modify G76 threads", "tab": "Strategy" }
+        },
+        "limits": {
+          "min_feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 100, "tab": "Limits" },
+          "max_feed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 5000, "tab": "Limits" },
+          "min_chip_load_mm_per_tooth": { "type": "number", "unit": "mm_per_tooth", "default": 0.02, "description": "Avoid rubbing/work-hardening", "tab": "Limits" }
+        },
+        "output": {
+          "report_mrr_curve": { "type": "boolean", "default": true, "tab": "Output" },
+          "report_cycle_time_savings_pct": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_on_excessive_modification": { "type": "boolean", "default": true, "description": "Flag if feed modified > 50%", "tab": "Output" },
+          "feed_modification_threshold_pct": { "type": "number", "unit": "pct", "default": 50.0, "tab": "Output" }
+        }
+      }
+    },
+    "surface_finish_optimize": {
+      "display_name": "Surface Finish Optimization",
+      "category": "surface_finish_optimize",
+      "description": "Tune feed/speed for target Ra. Uses theoretical Ra = f²/(8r) plus material/coating correction factors.",
+      "dialog_tabs": ["Target", "Tool", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "target": {
+          "ra_target_um": { "type": "number", "unit": "um", "default": 1.6, "tab": "Target" },
+          "rz_target_um": { "type": "number", "unit": "um", "default": 6.3, "tab": "Target" },
+          "consistency_tolerance_pct": { "type": "number", "unit": "pct", "default": 20.0, "description": "Allow ±20% Ra variation across part", "tab": "Target" },
+          "critical_feature_zones": { "type": "selection", "tab": "Target", "description": "Faces requiring strict Ra" }
+        },
+        "tool": {
+          "nose_radius_mm": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Tool" },
+          "tool_grade": { "type": "string", "default": "carbide_PVD", "tab": "Tool" },
+          "wiper_geometry": { "type": "boolean", "default": false, "description": "Wiper allows 2x feed for same Ra", "tab": "Tool" },
+          "edge_prep_um": { "type": "number", "unit": "um", "default": 25, "description": "Hone radius affects min Ra achievable", "tab": "Tool" }
+        },
+        "strategy": {
+          "use_formula_ra_f2_8r": { "type": "boolean", "default": true, "tab": "Strategy" },
+          "apply_material_correction": { "type": "boolean", "default": true, "description": "Factor for material grade", "tab": "Strategy" },
+          "auto_select_speed_for_BUE": { "type": "boolean", "default": true, "description": "Avoid built-up-edge speed range", "tab": "Strategy" }
+        },
+        "output": {
+          "predicted_ra_per_zone": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_exceeds_tolerance": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlight_zones_in_3d": { "type": "boolean", "default": true, "tab": "Output" },
+          "report_correction_factors_used": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "OptiPath Methodology",
+      "key_concepts": ["Per-segment feedrate from real chip load", "Voxel-based MRR computation", "Air moves get max-feed boost"],
+      "best_practices": ["Always verify after optimisation", "Preserve finish pass feeds", "Cap modification at 200% original"]
+    }
+  ]
+}

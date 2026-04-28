@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "vericut",
+  "section_key": "verification",
+  "extraction_source": "CGTech VERICUT 9.4 Reference / NC verification training",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-25",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["collision_detect", "gouge_check", "holder_collision", "fixture_collision"]
+  },
+  "operations": {
+    "collision_detect": {
+      "display_name": "Collision Detection",
+      "category": "collision_detect",
+      "description": "VERICUT flagship — detect tool/holder/spindle/fixture/stock collisions during NC simulation. Frame-by-frame distance computation with adjustable tolerance.",
+      "dialog_tabs": ["Scope", "Tolerance", "Action", "Report"],
+      "parameter_count": 16,
+      "parameters": {
+        "scope": {
+          "check_tool_to_stock": { "type": "boolean", "default": true, "description": "Detect rapid-into-stock collisions", "tab": "Scope" },
+          "check_holder_to_fixture": { "type": "boolean", "default": true, "tab": "Scope" },
+          "check_holder_to_part": { "type": "boolean", "default": true, "tab": "Scope" },
+          "check_spindle_to_part": { "type": "boolean", "default": true, "tab": "Scope" }
+        },
+        "tolerance": {
+          "rapid_collision_clearance_mm": { "type": "number", "unit": "mm", "default": 0.001, "description": "Min clearance during rapid moves — tighter than cutting", "tab": "Tolerance" },
+          "feed_collision_clearance_mm": { "type": "number", "unit": "mm", "default": 0.0, "description": "Cutting collisions = 0 clearance", "tab": "Tolerance" },
+          "near_miss_threshold_mm": { "type": "number", "unit": "mm", "default": 1.0, "description": "Flag near-misses under this distance", "tab": "Tolerance" },
+          "tolerance_curve_resolution_mm": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Tolerance" }
+        },
+        "action": {
+          "action_on_collision": { "type": "enum", "values": ["continue", "stop_immediately", "stop_at_step_end", "log_only"], "default": "stop_immediately", "tab": "Action" },
+          "action_on_near_miss": { "type": "enum", "values": ["continue", "log", "highlight"], "default": "highlight", "tab": "Action" },
+          "max_collisions_before_abort": { "type": "integer", "default": 100, "tab": "Action" },
+          "auto_create_collision_report": { "type": "boolean", "default": true, "tab": "Action" }
+        },
+        "report": {
+          "include_3d_screenshots": { "type": "boolean", "default": true, "description": "Capture each collision moment as PNG", "tab": "Report" },
+          "include_program_line_ref": { "type": "boolean", "default": true, "description": "Cross-link to NC line that caused collision", "tab": "Report" },
+          "include_distance_curve": { "type": "boolean", "default": true, "description": "Time-series of min-distance for whole program", "tab": "Report" },
+          "save_to_VRC_file": { "type": "boolean", "default": true, "description": "VERICUT native verification file", "tab": "Report" }
+        }
+      }
+    },
+    "gouge_check": {
+      "display_name": "Part Gouge Check",
+      "category": "gouge_check",
+      "description": "Detect tool removing more material than design intent (overcut). Compares cut stock vs design model with tolerance band.",
+      "dialog_tabs": ["Reference", "Tolerance", "Action", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "reference": {
+          "design_model_ref": { "type": "selection", "tab": "Reference", "required": true, "description": "Master design CAD model" },
+          "stock_model_ref": { "type": "selection", "tab": "Reference", "required": true },
+          "compare_method": { "type": "enum", "values": ["voxel_subtract", "boolean_intersect", "ray_cast"], "default": "voxel_subtract", "tab": "Reference" },
+          "voxel_resolution_mm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Smaller = more accurate, slower", "tab": "Reference" }
+        },
+        "tolerance": {
+          "max_overcut_mm": { "type": "number", "unit": "mm", "default": 0.0, "description": "0 = strict — any overcut fails", "tab": "Tolerance" },
+          "max_overcut_warning_mm": { "type": "number", "unit": "mm", "default": 0.005, "description": "Warning band before failure", "tab": "Tolerance" },
+          "ignore_chamfers": { "type": "boolean", "default": false, "tab": "Tolerance" },
+          "ignore_blend_zones": { "type": "boolean", "default": false, "tab": "Tolerance" }
+        },
+        "action": {
+          "action_on_gouge": { "type": "enum", "values": ["stop_immediately", "log_only", "highlight_red"], "default": "stop_immediately", "tab": "Action" },
+          "max_gouges_before_abort": { "type": "integer", "default": 50, "tab": "Action" },
+          "create_gouge_3d_view": { "type": "boolean", "default": true, "tab": "Action" }
+        },
+        "output": {
+          "report_per_program_line": { "type": "boolean", "default": true, "tab": "Output" },
+          "save_overcut_volume_mm3": { "type": "boolean", "default": true, "description": "Cumulative overcut volume across run", "tab": "Output" },
+          "include_vector_arrows": { "type": "boolean", "default": true, "description": "Show gouge direction in 3D view", "tab": "Output" }
+        }
+      }
+    },
+    "holder_collision": {
+      "display_name": "Tool Holder Collision",
+      "category": "holder_collision",
+      "description": "Specific check for tool holder + extension collision against part walls. Critical for deep pockets, bores, and corner radii.",
+      "dialog_tabs": ["Holder", "Approach", "Verify", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "holder": {
+          "holder_geometry_ref": { "type": "selection", "tab": "Holder", "required": true },
+          "extension_present": { "type": "boolean", "default": true, "tab": "Holder" },
+          "extension_length_mm": { "type": "number", "unit": "mm", "default": 50, "tab": "Holder" },
+          "shrink_fit_or_collet": { "type": "enum", "values": ["shrink_fit", "ER_collet", "side_lock", "weldon"], "default": "shrink_fit", "tab": "Holder" }
+        },
+        "approach": {
+          "min_clearance_to_part_mm": { "type": "number", "unit": "mm", "default": 0.5, "description": "Required holder-to-part clearance", "tab": "Approach" },
+          "required_pocket_depth_check": { "type": "boolean", "default": true, "description": "Verify holder fits in pocket without scraping walls", "tab": "Approach" },
+          "z_offset_tolerance_mm": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Approach" }
+        },
+        "verify": {
+          "verify_at_setup_zero": { "type": "boolean", "default": true, "tab": "Verify" },
+          "verify_at_max_z_depth": { "type": "boolean", "default": true, "tab": "Verify" },
+          "verify_corner_radii": { "type": "boolean", "default": true, "description": "Holder may not fit into tight inside corners", "tab": "Verify" },
+          "verify_undercut_zones": { "type": "boolean", "default": true, "tab": "Verify" }
+        },
+        "output": {
+          "report_min_clearance_per_op": { "type": "boolean", "default": true, "tab": "Output" },
+          "auto_extend_on_failure": { "type": "boolean", "default": false, "description": "Auto-suggest extension length when holder hits", "tab": "Output" },
+          "warn_if_extension_LD_high": { "type": "boolean", "default": true, "description": "Flag if L/D > 4 (chatter risk)", "tab": "Output" },
+          "max_acceptable_LD": { "type": "number", "default": 4.0, "tab": "Output" }
+        }
+      }
+    },
+    "fixture_collision": {
+      "display_name": "Fixture & Workholding Collision",
+      "category": "fixture_collision",
+      "description": "Detect tool/holder collision with fixture clamps, vice jaws, T-nuts, table fixturing.",
+      "dialog_tabs": ["Fixture", "Detection", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "fixture": {
+          "fixture_model_ref": { "type": "selection", "tab": "Fixture", "required": true },
+          "fixture_type": { "type": "enum", "values": ["vice", "chuck", "fixture_plate", "vacuum_table", "magnetic_chuck", "custom"], "default": "vice", "tab": "Fixture" },
+          "clamp_count": { "type": "integer", "default": 2, "description": "Number of active clamps for collision check", "tab": "Fixture" },
+          "table_ref": { "type": "selection", "tab": "Fixture", "description": "Machine table model for collision" }
+        },
+        "detection": {
+          "detect_active_clamps_only": { "type": "boolean", "default": true, "description": "Skip retracted clamps", "tab": "Detection" },
+          "detect_T_nut_clearance": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_setup_block_clearance": { "type": "boolean", "default": true, "tab": "Detection" },
+          "detect_below_table_collision": { "type": "boolean", "default": true, "description": "Block if rapid below table surface", "tab": "Detection" }
+        },
+        "strategy": {
+          "auto_optimize_clamp_position": { "type": "boolean", "default": false, "description": "Suggest alternate clamp positions", "tab": "Strategy" },
+          "exclude_clamp_zones": { "type": "boolean", "default": true, "description": "Auto-exclude clamp zones from milling area", "tab": "Strategy" },
+          "lift_required_per_op": { "type": "boolean", "default": false, "tab": "Strategy" }
+        },
+        "output": {
+          "report_clamp_collisions": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlight_clamps_3d": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_clamp_blocks_machining_pct": { "type": "number", "unit": "pct", "default": 5.0, "description": "Flag if clamp shadow > 5% of part surface", "tab": "Output" },
+          "save_collision_to_setup_log": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Voxel-Based Material Removal",
+      "key_concepts": ["Voxel resolution affects accuracy", "Smaller voxel = slower sim", "Boolean preferred for final verify"],
+      "best_practices": ["Use 0.1mm voxel for rough check", "Use 0.01mm for finish verify", "Always voxel-then-boolean for final"]
+    }
+  ]
+}

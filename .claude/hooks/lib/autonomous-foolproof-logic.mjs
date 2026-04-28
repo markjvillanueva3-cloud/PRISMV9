@@ -8,7 +8,7 @@
  * NO I/O. NO process.* access (except input args). Pure logic.
  *
  * @milestone AUTONOMOUS-FOOLPROOF-MS0
- * @units U-AF01..U-AF06
+ * @units U-AF01..U-AF07
  */
 
 const DEFAULT_IDLE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
@@ -517,4 +517,182 @@ export function decideExtractRun({ filePath, isAutonomous, cache, nowMs = Date.n
   }
 
   return { run: false, reason: "cache-fresh", age_ms: age };
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// U-AF07: ollama-schema-engine-sync-gate
+// ──────────────────────────────────────────────────────────────────────
+
+const SCHEMA_FILE_PATTERN = /[\\/]schemas[\\/][A-Za-z0-9_]+\.ts$/;
+
+/**
+ * Detect whether a file path is a Zod schema source file. PRISM convention:
+ * src/schemas/<dispatcherName>ActionSchemas.ts (or similar).
+ */
+export function isSchemaSourceFile(filePath) {
+  if (typeof filePath !== "string" || filePath.length === 0) return false;
+  return SCHEMA_FILE_PATTERN.test(filePath);
+}
+
+/**
+ * Extract z.enum([...]) literals from Zod schema source. Returns a flat
+ * list of enum value sets keyed by best-effort field name. The parser is
+ * intentionally lightweight (regex + manual quote scan) — it doesn't need
+ * to be a full Zod AST, just good enough to flag drift.
+ *
+ * Returned shape:
+ *   [{ field: string|null, values: string[], lineHint?: number }]
+ *
+ * @param {string} src - Zod schema source code
+ */
+export function extractZodEnumsFromSchema(src) {
+  if (typeof src !== "string" || src.length === 0) return [];
+
+  const results = [];
+  // Match patterns like:  z.enum(["a","b","c"])
+  // and:  field_name: z.enum([...])
+  const enumPattern = /([A-Za-z_][A-Za-z0-9_]*)?\s*:?\s*z\.enum\(\s*\[([^\]]*)\]/g;
+
+  let m;
+  while ((m = enumPattern.exec(src)) !== null) {
+    const rawField = m[1] ? m[1].trim() : null;
+    const literalsBlock = m[2];
+
+    // Pull "..." or '...' or `...` literals from inside the brackets
+    const valuePattern = /["'`]([^"'`]+)["'`]/g;
+    const values = [];
+    let v;
+    while ((v = valuePattern.exec(literalsBlock)) !== null) {
+      values.push(v[1]);
+    }
+
+    if (values.length === 0) continue;
+    // Find approximate line number (count newlines up to match start)
+    const lineHint = src.slice(0, m.index).split("\n").length;
+    results.push({ field: rawField, values, lineHint });
+  }
+
+  return results;
+}
+
+/**
+ * Compare proposed schema enums against an engine's cached enums.
+ * Returns a structured drift report. Only enum fields that exist in BOTH
+ * sides are compared (drift on a field that isn't in the engine cache is
+ * not a sync error — it's a new field).
+ *
+ * @param {Array<{field:string|null, values:string[]}>} schemaEnums
+ * @param {Record<string, string[]>} engineEnums
+ */
+export function diffSchemaVsEngineEnums(schemaEnums, engineEnums) {
+  const drifts = [];
+  const matchable = (Array.isArray(schemaEnums) ? schemaEnums : []).filter(
+    (e) => e && typeof e.field === "string" && e.field in (engineEnums ?? {}),
+  );
+
+  for (const entry of matchable) {
+    const proposed = new Set(entry.values);
+    const engine = new Set(engineEnums[entry.field]);
+
+    const onlyInSchema = [...proposed].filter((v) => !engine.has(v));
+    const onlyInEngine = [...engine].filter((v) => !proposed.has(v));
+
+    if (onlyInSchema.length === 0 && onlyInEngine.length === 0) continue;
+
+    drifts.push({
+      field: entry.field,
+      only_in_schema: onlyInSchema,
+      only_in_engine: onlyInEngine,
+      line_hint: entry.lineHint ?? null,
+    });
+  }
+
+  return drifts;
+}
+
+/**
+ * Decide whether to block a schema edit due to enum drift against cached
+ * engine contracts.
+ *
+ * @param {object} input
+ * @param {string} input.filePath           - schema file being edited
+ * @param {string|null} input.proposedSrc   - new file content
+ * @param {boolean} input.isAutonomous
+ * @param {boolean} input.overrideEnabled
+ * @param {object|null} input.cache         - ENGINE_CONTRACTS_CACHE.json
+ * @param {string[]} [input.relatedEngines] - engine paths to compare against
+ *                                            (caller decides which engines this
+ *                                            schema feeds; usually all cached)
+ */
+export function decideSchemaSyncGate({
+  filePath,
+  proposedSrc,
+  isAutonomous,
+  overrideEnabled,
+  cache,
+  relatedEngines,
+}) {
+  if (!isSchemaSourceFile(filePath)) {
+    return { continue: true, reason: "not-a-schema-file" };
+  }
+  if (!isAutonomous) {
+    return { continue: true, reason: "non-autonomous" };
+  }
+  if (overrideEnabled) {
+    return { continue: true, reason: "override-active" };
+  }
+  if (typeof proposedSrc !== "string" || proposedSrc.length === 0) {
+    return { continue: true, reason: "no-content" };
+  }
+  if (!cache || typeof cache !== "object" || !cache.entries) {
+    return { continue: true, reason: "no-cache" };
+  }
+
+  const schemaEnums = extractZodEnumsFromSchema(proposedSrc);
+  if (schemaEnums.length === 0) {
+    return { continue: true, reason: "no-schema-enums" };
+  }
+
+  // Determine which engine cache entries to consult.
+  const engineKeys =
+    Array.isArray(relatedEngines) && relatedEngines.length > 0
+      ? relatedEngines
+      : Object.keys(cache.entries);
+
+  // Aggregate enums from all related engines into a single fieldName→values map.
+  const aggregatedEnums = {};
+  for (const key of engineKeys) {
+    const entry = cache.entries[key];
+    if (!entry || typeof entry !== "object") continue;
+    const enums = entry.contract?.enums;
+    if (!enums || typeof enums !== "object") continue;
+    for (const [field, vals] of Object.entries(enums)) {
+      if (!Array.isArray(vals)) continue;
+      // Engine enums are authoritative — last write wins on collision (rare).
+      aggregatedEnums[field] = vals;
+    }
+  }
+
+  if (Object.keys(aggregatedEnums).length === 0) {
+    return { continue: true, reason: "no-engine-enums-cached" };
+  }
+
+  const drifts = diffSchemaVsEngineEnums(schemaEnums, aggregatedEnums);
+
+  if (drifts.length === 0) {
+    return {
+      continue: true,
+      reason: "no-drift",
+      schema_enum_count: schemaEnums.length,
+      compared_engine_enum_count: Object.keys(aggregatedEnums).length,
+    };
+  }
+
+  return {
+    continue: false,
+    decision: "block",
+    reason: "enum-drift",
+    drifts,
+    drift_count: drifts.length,
+  };
 }

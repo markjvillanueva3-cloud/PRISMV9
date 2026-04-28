@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "system_id": "vericut",
+  "section_key": "review",
+  "extraction_source": "CGTech VERICUT 9.4 Review & Reporting Reference",
+  "extraction_date": "2026-04-27",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM-FIDX-25",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 60,
+    "categories": ["in_process_inspect", "design_compare", "time_estimate", "report_generate"]
+  },
+  "operations": {
+    "in_process_inspect": {
+      "display_name": "In-Process Inspection Review",
+      "category": "in_process_inspect",
+      "description": "Inject probe cycles between operations and verify part dimensions match design. Auto-generates probing programs for critical features.",
+      "dialog_tabs": ["Probe", "Features", "Strategy", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "probe": {
+          "probe_type": { "type": "enum", "values": ["touch_OMP", "scanning_OMP", "tool_setter"], "default": "touch_OMP", "tab": "Probe" },
+          "probe_macro_format": { "type": "enum", "values": ["renishaw_o9810", "blum_macros", "fanuc_g31", "haas_ips"], "default": "renishaw_o9810", "tab": "Probe" },
+          "probe_speed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 200, "tab": "Probe" },
+          "probe_overtravel_mm": { "type": "number", "unit": "mm", "default": 5.0, "tab": "Probe" }
+        },
+        "features": {
+          "auto_select_critical_features": { "type": "boolean", "default": true, "description": "Probe features tagged with H7+ tolerance", "tab": "Features" },
+          "min_tolerance_for_probing_um": { "type": "number", "unit": "um", "default": 25, "description": "Probe if tol band < 25μm", "tab": "Features" },
+          "probe_count_per_feature": { "type": "integer", "default": 3, "description": "3-touch min for hole, 5 for plane", "tab": "Features" },
+          "probe_after_op": { "type": "boolean", "default": true, "tab": "Features" }
+        },
+        "strategy": {
+          "in_process_or_post_process": { "type": "enum", "values": ["in_process_with_correction", "post_process_only"], "default": "in_process_with_correction", "description": "Apply mid-cycle correction or post-only", "tab": "Strategy" },
+          "auto_correct_offsets": { "type": "boolean", "default": true, "description": "Update G54 if measurement off", "tab": "Strategy" },
+          "max_correction_um": { "type": "number", "unit": "um", "default": 50, "description": "Block if correction > 50μm — flag setup error", "tab": "Strategy" }
+        },
+        "output": {
+          "save_probe_data_csv": { "type": "boolean", "default": true, "tab": "Output" },
+          "highlight_out_of_tol_3d": { "type": "boolean", "default": true, "tab": "Output" },
+          "estimate_probe_cycle_time": { "type": "boolean", "default": true, "tab": "Output" },
+          "alarm_if_failed_features": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "design_compare": {
+      "display_name": "Comparison to Design Model",
+      "category": "design_compare",
+      "description": "Final part comparison: machined stock voxel model vs original design CAD. Dimensional + form tolerance check.",
+      "dialog_tabs": ["Compare", "Tolerance", "Visual", "Report"],
+      "parameter_count": 14,
+      "parameters": {
+        "compare": {
+          "as_machined_ref": { "type": "selection", "tab": "Compare", "required": true, "description": "Voxel state at end of all ops" },
+          "design_ref": { "type": "selection", "tab": "Compare", "required": true },
+          "compare_resolution_mm": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Compare" },
+          "include_critical_features_only": { "type": "boolean", "default": false, "tab": "Compare" }
+        },
+        "tolerance": {
+          "default_tolerance_band_um": { "type": "number", "unit": "um", "default": 25, "tab": "Tolerance" },
+          "color_pass_um": { "type": "number", "unit": "um", "default": 25, "description": "Green band — within tolerance", "tab": "Tolerance" },
+          "color_warn_um": { "type": "number", "unit": "um", "default": 50, "description": "Yellow band — borderline", "tab": "Tolerance" },
+          "color_fail_um": { "type": "number", "unit": "um", "default": 100, "description": "Red band — fail", "tab": "Tolerance" }
+        },
+        "visual": {
+          "show_3d_color_map": { "type": "boolean", "default": true, "tab": "Visual" },
+          "show_section_views": { "type": "boolean", "default": true, "tab": "Visual" },
+          "max_deviation_per_face": { "type": "boolean", "default": true, "tab": "Visual" }
+        },
+        "report": {
+          "save_html_report": { "type": "boolean", "default": true, "tab": "Report" },
+          "include_3d_views_png": { "type": "boolean", "default": true, "tab": "Report" },
+          "include_per_feature_table": { "type": "boolean", "default": true, "tab": "Report" }
+        }
+      }
+    },
+    "time_estimate": {
+      "display_name": "Cycle Time Estimation",
+      "category": "time_estimate",
+      "description": "Accurate cycle time prediction including acceleration, deceleration, look-ahead, axis-switching, tool changes, dwells.",
+      "dialog_tabs": ["Source", "Machine", "Breakdown", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "source": {
+          "use_virtual_machine": { "type": "boolean", "default": true, "description": "Most accurate", "tab": "Source" },
+          "use_simple_geometric": { "type": "boolean", "default": false, "description": "Fastest but inaccurate (10-20% off)", "tab": "Source" },
+          "include_air_moves": { "type": "boolean", "default": true, "tab": "Source" },
+          "include_tool_changes": { "type": "boolean", "default": true, "tab": "Source" }
+        },
+        "machine": {
+          "rapid_speed_mm_per_min": { "type": "number", "unit": "mm_per_min", "default": 36000, "tab": "Machine" },
+          "max_acceleration_m_per_s2": { "type": "number", "unit": "m_per_s2", "default": 5.0, "description": "Critical for path-following accuracy", "tab": "Machine" },
+          "tool_change_time_s": { "type": "number", "unit": "s", "default": 4.0, "tab": "Machine" },
+          "max_jerk_m_per_s3": { "type": "number", "unit": "m_per_s3", "default": 50, "description": "Affects sharp-corner cycle time", "tab": "Machine" }
+        },
+        "breakdown": {
+          "report_per_op": { "type": "boolean", "default": true, "tab": "Breakdown" },
+          "report_per_tool": { "type": "boolean", "default": true, "tab": "Breakdown" },
+          "report_air_vs_cutting": { "type": "boolean", "default": true, "tab": "Breakdown" },
+          "report_per_axis_load": { "type": "boolean", "default": true, "tab": "Breakdown" }
+        },
+        "output": {
+          "save_csv_breakdown": { "type": "boolean", "default": true, "tab": "Output" },
+          "include_in_part_traveler": { "type": "boolean", "default": true, "tab": "Output" },
+          "compare_to_quoted_time": { "type": "boolean", "default": true, "tab": "Output" },
+          "warn_if_exceeds_quote_pct": { "type": "number", "unit": "pct", "default": 10.0, "tab": "Output" }
+        }
+      }
+    },
+    "report_generate": {
+      "display_name": "Verification Report Generator",
+      "category": "report_generate",
+      "description": "Generate full HTML/PDF verification packet. Includes screenshots, errors, optimisations, time, comparison. Sent to QA + customer if required.",
+      "dialog_tabs": ["Format", "Content", "Distribution", "Output"],
+      "parameter_count": 15,
+      "parameters": {
+        "format": {
+          "format_type": { "type": "enum", "values": ["html_interactive", "pdf_static", "docx_template", "csv_data"], "default": "html_interactive", "tab": "Format" },
+          "branding_template": { "type": "string", "default": "PRISM_default", "description": "Custom CSS/header for shop branding", "tab": "Format" },
+          "include_company_logo": { "type": "boolean", "default": true, "tab": "Format" },
+          "page_size": { "type": "enum", "values": ["letter", "A4", "tabloid"], "default": "letter", "tab": "Format" }
+        },
+        "content": {
+          "include_collision_section": { "type": "boolean", "default": true, "tab": "Content" },
+          "include_gouge_section": { "type": "boolean", "default": true, "tab": "Content" },
+          "include_optipath_savings": { "type": "boolean", "default": true, "tab": "Content" },
+          "include_design_compare": { "type": "boolean", "default": true, "tab": "Content" },
+          "include_3d_screenshots": { "type": "boolean", "default": true, "tab": "Content" },
+          "include_part_traveler": { "type": "boolean", "default": false, "tab": "Content" }
+        },
+        "distribution": {
+          "auto_email_to_QA": { "type": "boolean", "default": false, "tab": "Distribution" },
+          "save_to_part_folder": { "type": "boolean", "default": true, "tab": "Distribution" },
+          "save_to_central_archive": { "type": "boolean", "default": true, "tab": "Distribution" }
+        },
+        "output": {
+          "report_filename_pattern": { "type": "string", "default": "{partno}_{rev}_{date}_VRC_report", "tab": "Output" },
+          "compress_zip": { "type": "boolean", "default": false, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Verification Report Workflow",
+      "key_concepts": ["VRC report is the final deliverable", "Customer often requires it for aerospace/medical", "Archive required for traceability"],
+      "best_practices": ["Use HTML for internal review", "Use PDF for customer", "Always save to part folder"]
+    }
+  ]
+}
