@@ -17,7 +17,10 @@ const ACTIONS = [
   "emit", "event_list", "event_history",
   "fire", "chain_v2", "status", "history",
   "enable", "disable", "coverage", "gaps", "performance", "failures",
-  "subscribe", "reactive_chains"
+  "subscribe", "reactive_chains",
+  // ENGINE-WIRE-MS0/U-WIRE17: 5 hook orchestration engines
+  "hook_orch_plan", "hook_coverage_analyze", "hook_bandit_select",
+  "hook_telemetry_metrics", "hook_efficiency_roi"
 ] as const;
 
 function ok(data: any) {
@@ -173,6 +176,32 @@ export function registerHookDispatcher(server: any): void {
           case "reactive_chains": {
             const chains = eventBus.getReactiveChains();
             return ok({ count: chains.length, chains });
+          }
+          // ENGINE-WIRE-MS0/U-WIRE17 — 5 hook orchestration engines
+          case "hook_orch_plan": {
+            const { hookOrchestratorEngine } = await import("../../engines/HookOrchestratorEngine.js");
+            const phase = params.phase as "PreTool" | "PostTool" | "UserPromptSubmit" | "SessionStart" | "SessionEnd" | "PreCompact" | "Stop";
+            return ok(hookOrchestratorEngine.plan(phase));
+          }
+          case "hook_coverage_analyze": {
+            const { hookCoverageMaximizerEngine } = await import("../../engines/HookCoverageMaximizerEngine.js");
+            await hookCoverageMaximizerEngine.initialize();
+            return ok(await hookCoverageMaximizerEngine.analyze());
+          }
+          case "hook_bandit_select": {
+            const { hookBanditEngine } = await import("../../engines/HookBanditEngine.js");
+            const k = params.k as number;
+            const timeBudgetMs = (params.timeBudgetMs ?? params.time_budget_ms) as number | undefined;
+            return ok(hookBanditEngine.select(k, timeBudgetMs ?? 500));
+          }
+          case "hook_telemetry_metrics": {
+            const { hookTelemetryEngine } = await import("../../engines/HookTelemetryEngine.js");
+            return ok(hookTelemetryEngine.getSystemMetrics());
+          }
+          case "hook_efficiency_roi": {
+            const { hookEfficiencyEngine } = await import("../../engines/HookEfficiencyEngine.js");
+            const sessionBudget = (params.sessionBudget ?? params.session_budget) as number | undefined;
+            return ok(hookEfficiencyEngine.getROI(sessionBudget ?? 150_000));
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
