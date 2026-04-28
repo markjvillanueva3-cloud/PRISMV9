@@ -13,20 +13,24 @@
 
 import type { Machine, MachineController, MachineSpindle, MachineEnvelope, MachineAxes, MachineToolChanger, MachineCoolant, MachineKinematics } from '../types.js';
 
-/**
- * Internal layer vocabulary for this merger. Distinct from the canonical
- * `MachineLayer` enum in `constants.ts` (which is "core"|"extended"|"user"|"legacy").
- * This engine's history pre-dates the constants.ts rename — keep the local
- * names rather than retro-renaming all callers.
- */
-type MachineLayer = 'BASIC' | 'ENHANCED';
 import type { CanonicalMachinePackage, MachineFieldProvenance, MachineAmbiguity, MachineEnrichmentRecord, MachineConfidenceBreakdown, CanonicalMachineType } from '../types/MachinePackage.js';
+import type { MachineLayer as CanonicalMachineLayer } from '../constants.js';
+
+/**
+ * Layer vocabulary for this merger. The canonical enum is "core"|"extended"|
+ * "user"|"legacy"; the merger also recognises "LEVEL5" and "USER" as escalated
+ * provenance tags. We re-alias the canonical type so the merger's union exactly
+ * matches MachineFieldProvenance.layer (avoiding the prior BASIC/ENHANCED drift).
+ */
+type MachineLayer = CanonicalMachineLayer;
 
 const LAYER_PRIORITY: Record<MachineLayer | 'LEVEL5' | 'USER', number> = {
-  'BASIC': 1,
-  'ENHANCED': 2,
-  'LEVEL5': 3,
-  'USER': 4,
+  legacy: 0,
+  core: 1,
+  extended: 2,
+  LEVEL5: 3,
+  user: 4,
+  USER: 4,
 };
 
 export interface MachineLayerInput {
@@ -90,7 +94,7 @@ class MachineLayerMergerEngine {
   ): FieldMergeResult<T[]> | null {
     const allItems: T[] = [];
     const seenJson = new Set<string>();
-    let bestLayer: MachineLayer | 'LEVEL5' | 'USER' = 'BASIC';
+    let bestLayer: MachineLayer | 'LEVEL5' | 'USER' = 'core';
     let bestEnriched = '';
     let bestSource = '';
     let maxConfidence = 0;
@@ -292,7 +296,7 @@ class MachineLayerMergerEngine {
       series: series?.value,
       raw_type: machineType?.value ?? 'unknown',
       canonical_type: this.normalizeType(machineType?.value ?? 'unknown'),
-      topology: this.inferTopology(axesResult.merged),
+      topology: this.inferTopology(axesResult.merged as Partial<MachineAxes>),
       controller: controllerResult.merged as MachineController,
       spindle,
       envelope: envelopeResult.merged as MachineEnvelope,
@@ -376,14 +380,14 @@ class MachineLayerMergerEngine {
     return 'OTHER';
   }
 
-  private inferTopology(axes: Record<string, unknown>): 'three_axis' | 'four_axis' | 'five_axis' | 'mill_turn' | 'lathe' | 'swiss' | 'other' {
-    const linear = (axes.linear_axes as number) ?? 3;
-    const rotary = (axes.rotary_axes as number) ?? 0;
+  private inferTopology(axes: Partial<MachineAxes> | undefined): import('../contracts/userMachineProfile.js').MachineAxisTopology {
+    const linear = axes?.linear_axes ?? 3;
+    const rotary = axes?.rotary_axes ?? 0;
     const total = linear + rotary;
-    if (total >= 5) return 'five_axis';
-    if (total === 4) return 'four_axis';
-    if (linear === 3 && rotary === 0) return 'three_axis';
-    if (linear === 2 && rotary <= 1) return 'lathe';
+    if (total >= 5) return '5_axis_vertical';
+    if (total === 4) return '4_axis_vertical';
+    if (linear === 3 && rotary === 0) return '3_axis_vertical';
+    if (linear === 2 && rotary <= 1) return '2_axis_lathe';
     return 'other';
   }
 }
