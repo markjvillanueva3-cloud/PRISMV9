@@ -1,5 +1,5 @@
 /**
- * Zod action schemas for prism_memory dispatcher (6 actions)
+ * Zod action schemas for prism_memory dispatcher (10 actions)
  *
  * - `.passthrough()` on all schemas: extra params flow through (hooks, metadata, debug)
  * - Only enforce fields the engine actually reads
@@ -49,6 +49,24 @@ const consolidation_patterns = z.object({
   limit: z.number().optional().describe("Max patterns to return (default: 50)"),
 }).passthrough();
 
+
+const MEMORY_KIND_VALUES = [
+  "program",
+  "outcome",
+  "tip",
+  "formula",
+  "rule",
+  "playbook",
+  "note",
+] as const;
+
+const semantic_search = z.object({
+  query: z.string().min(1).describe("Free-text query embedded via Ollama nomic-embed-text"),
+  kind: z.enum(MEMORY_KIND_VALUES).optional().describe("Memory kind to search; defaults to note"),
+  limit: z.number().int().positive().max(100).optional().describe("Max results (default: 10, max 100)"),
+  threshold: z.number().min(0).max(1).optional().describe("Minimum similarity score 0-1; below dropped"),
+  filter: z.record(z.string(), z.unknown()).optional().describe("Optional Qdrant payload filter"),
+}).passthrough();
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -59,4 +77,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   consolidate,
   consolidation_stats,
   consolidation_patterns,
+  semantic_search,
 };
