@@ -124,6 +124,12 @@ const DataDispatcherSchema = z.object({
     "grinding_lora_cadence_config", "grinding_lora_cadence_state", "grinding_lora_cadence_record",
     "grinding_lora_dataset_build", "grinding_lora_dataset_schema",
     "grinding_replacement_evaluate", "grinding_replacement_stats",
+    // ENGINE-WIRE-MS0/U-WIRE07: 5 material+tool engines
+    "material_equivalent_lookup",
+    "material_selection_recommend",
+    "material_interpolation_find",
+    "tool_db_bridge_query",
+    "tool_catalog_adaptive_recommend",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -2261,6 +2267,72 @@ export function registerDataDispatcher(server: any): void {
               p.holder as Parameters<typeof toolAssemblyModelEngine.buildAssembly>[1],
               p.spindle as Parameters<typeof toolAssemblyModelEngine.buildAssembly>[2],
             );
+            break;
+          }
+
+          // ENGINE-WIRE-MS0/U-WIRE07: 5 material+tool engines
+          case "material_equivalent_lookup": {
+            const { materialEquivalenceEngine } = await import("../../engines/MaterialEquivalenceEngine.js");
+            result = materialEquivalenceEngine.findEquivalent(
+              params as unknown as Parameters<typeof materialEquivalenceEngine.findEquivalent>[0],
+            );
+            break;
+          }
+          case "material_selection_recommend": {
+            const { materialSelectionEngine } = await import("../../engines/MaterialSelectionEngine.js");
+            result = materialSelectionEngine.recommend(
+              params as unknown as Parameters<typeof materialSelectionEngine.recommend>[0],
+            );
+            break;
+          }
+          case "material_interpolation_find": {
+            const { materialInterpolationEngine } = await import("../../engines/MaterialInterpolationEngine.js");
+            const p = params as { material_name: string; known_tensile_MPa?: number; known_hardness_HRC?: number; safety_factor?: number; top_n?: number };
+            const knownProps = (p.known_tensile_MPa !== undefined || p.known_hardness_HRC !== undefined)
+              ? { tensile_strength_MPa: p.known_tensile_MPa, hardness_HRC: p.known_hardness_HRC }
+              : undefined;
+            result = materialInterpolationEngine.interpolateParams(p.material_name, knownProps, p.safety_factor);
+            break;
+          }
+          case "tool_db_bridge_query": {
+            const { toolDatabaseBridgeEngine } = await import("../../engines/ToolDatabaseBridgeEngine.js");
+            // U-WIRE07 fix: ToolQuery uses camelCase fields (minDiameter/maxDiameter) but MCP
+            // callers send snake_case; paramNormalizer aliases do not cover these. Map
+            // snake -> camel here so the engine's filter actually runs.
+            const p = params as Record<string, unknown>;
+            result = await toolDatabaseBridgeEngine.query({
+              type: p.type as string | undefined,
+              manufacturer: p.manufacturer as string | undefined,
+              minDiameter: (p.minDiameter ?? p.min_diameter) as number | undefined,
+              maxDiameter: (p.maxDiameter ?? p.max_diameter) as number | undefined,
+              limit: p.limit as number | undefined,
+            });
+            break;
+          }
+          case "tool_catalog_adaptive_recommend": {
+            const { toolCatalogAdaptiveEngine } = await import("../../engines/ToolCatalogAdaptiveEngine.js");
+            const p = params as {
+              material: "steel" | "stainless" | "cast_iron" | "aluminum" | "titanium" | "superalloy";
+              operation: "roughing" | "finishing";
+              target_capability_score: number;
+              current_tool_diameter_mm?: number;
+              current_tool_flutes?: number;
+              current_tool_coating?: string;
+              max_diameter_mm?: number;
+              min_diameter_mm?: number;
+              required_coating?: string;
+            };
+            result = toolCatalogAdaptiveEngine.recommendForAdaptive({
+              material: p.material,
+              operation: p.operation,
+              target_capability_score: p.target_capability_score,
+              current_tool: (p.current_tool_diameter_mm !== undefined)
+                ? { diameter_mm: p.current_tool_diameter_mm, flutes: p.current_tool_flutes ?? 4, coating: p.current_tool_coating }
+                : undefined,
+              constraints: (p.max_diameter_mm !== undefined || p.min_diameter_mm !== undefined || p.required_coating !== undefined)
+                ? { max_diameter_mm: p.max_diameter_mm, min_diameter_mm: p.min_diameter_mm, required_coating: p.required_coating }
+                : undefined,
+            });
             break;
           }
 
