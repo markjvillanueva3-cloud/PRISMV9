@@ -841,3 +841,191 @@ export function decideOllamaReviewSecondOpinion({
     record_verdict: true,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// U-AF09: AUTONOMOUS_STATE.json — canonical schema + initializer + merger
+// Used by U-AF01 (watchdog), U-AF03 (fail-latch), U-AF04 (cost ceiling),
+// U-AF05 (sweep), U-AF08 (reviewer). Single source of truth so the file
+// fields cannot drift between hooks.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const AUTONOMOUS_STATE_SCHEMA_VERSION = "1.0.0";
+
+export const AUTONOMOUS_STATE_DEFAULT_CAPS = Object.freeze({
+  cost_usd: 50,
+  tokens: 5_000_000,
+  wall_time_ms: 5 * 60 * 60 * 1000, // 5h
+  unit_max: 25,
+});
+
+const AUTONOMOUS_STATE_REQUIRED_KEYS = [
+  "schemaVersion",
+  "session_id",
+  "mode",
+  "started_at",
+  "last_commit_at",
+  "last_user_input_at",
+  "fail_count",
+  "last_block_reason",
+  "last_block_at",
+  "cost_usd",
+  "tokens_used",
+  "wall_time_ms",
+  "unit_count",
+  "caps",
+];
+
+const VALID_MODES = new Set(["autonomous", "manual"]);
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+function isIsoDateString(v) {
+  return typeof v === "string" && ISO_DATE_RE.test(v);
+}
+
+function isIsoOrNull(v) {
+  return v === null || isIsoDateString(v);
+}
+
+function isNonNegativeFiniteNumber(v) {
+  return typeof v === "number" && Number.isFinite(v) && v >= 0;
+}
+
+/**
+ * Validate that a payload matches the AUTONOMOUS_STATE schema.
+ * Returns { ok, errors: string[] }. `errors` is empty iff `ok=true`.
+ */
+export function validateAutonomousState(payload) {
+  const errors = [];
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return { ok: false, errors: ["payload-not-object"] };
+  }
+  for (const key of AUTONOMOUS_STATE_REQUIRED_KEYS) {
+    if (!(key in payload)) errors.push(`missing-key:${key}`);
+  }
+  if (errors.length > 0) return { ok: false, errors };
+
+  if (payload.schemaVersion !== AUTONOMOUS_STATE_SCHEMA_VERSION) {
+    errors.push(`bad-schemaVersion:${payload.schemaVersion}`);
+  }
+  if (typeof payload.session_id !== "string" || payload.session_id.length === 0) {
+    errors.push("bad-session_id");
+  }
+  if (!VALID_MODES.has(payload.mode)) {
+    errors.push(`bad-mode:${payload.mode}`);
+  }
+  if (!isIsoDateString(payload.started_at)) errors.push("bad-started_at");
+  if (!isIsoOrNull(payload.last_commit_at)) errors.push("bad-last_commit_at");
+  if (!isIsoOrNull(payload.last_user_input_at)) errors.push("bad-last_user_input_at");
+  if (!isIsoOrNull(payload.last_block_at)) errors.push("bad-last_block_at");
+
+  if (!isNonNegativeFiniteNumber(payload.fail_count) || !Number.isInteger(payload.fail_count)) {
+    errors.push("bad-fail_count");
+  }
+  if (payload.last_block_reason !== null && typeof payload.last_block_reason !== "string") {
+    errors.push("bad-last_block_reason");
+  }
+  if (!isNonNegativeFiniteNumber(payload.cost_usd)) errors.push("bad-cost_usd");
+  if (!isNonNegativeFiniteNumber(payload.tokens_used)) errors.push("bad-tokens_used");
+  if (!isNonNegativeFiniteNumber(payload.wall_time_ms)) errors.push("bad-wall_time_ms");
+  if (!isNonNegativeFiniteNumber(payload.unit_count) || !Number.isInteger(payload.unit_count)) {
+    errors.push("bad-unit_count");
+  }
+
+  const caps = payload.caps;
+  if (!caps || typeof caps !== "object" || Array.isArray(caps)) {
+    errors.push("bad-caps");
+  } else {
+    for (const k of ["cost_usd", "tokens", "wall_time_ms", "unit_max"]) {
+      if (!isNonNegativeFiniteNumber(caps[k])) errors.push(`bad-caps.${k}`);
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
+/**
+ * Construct a fresh AUTONOMOUS_STATE payload. All time fields default to
+ * `nowMs` (or Date.now()). `caps` defaults to AUTONOMOUS_STATE_DEFAULT_CAPS;
+ * the caller may override individual cap dimensions via {caps: {...}}.
+ *
+ * @param {object} input
+ * @param {string} input.sessionId
+ * @param {"autonomous"|"manual"} [input.mode="autonomous"]
+ * @param {number} [input.nowMs]
+ * @param {Partial<typeof AUTONOMOUS_STATE_DEFAULT_CAPS>} [input.caps]
+ */
+export function buildInitialAutonomousState({ sessionId, mode = "autonomous", nowMs, caps } = {}) {
+  if (typeof sessionId !== "string" || sessionId.length === 0) {
+    throw new Error("buildInitialAutonomousState: sessionId required");
+  }
+  if (!VALID_MODES.has(mode)) {
+    throw new Error(`buildInitialAutonomousState: invalid mode "${mode}"`);
+  }
+  const t = typeof nowMs === "number" && Number.isFinite(nowMs) ? nowMs : Date.now();
+  const startedAt = new Date(t).toISOString();
+  return {
+    schemaVersion: AUTONOMOUS_STATE_SCHEMA_VERSION,
+    session_id: sessionId,
+    mode,
+    started_at: startedAt,
+    last_commit_at: null,
+    last_user_input_at: null,
+    fail_count: 0,
+    last_block_reason: null,
+    last_block_at: null,
+    cost_usd: 0,
+    tokens_used: 0,
+    wall_time_ms: 0,
+    unit_count: 0,
+    caps: { ...AUTONOMOUS_STATE_DEFAULT_CAPS, ...(caps ?? {}) },
+  };
+}
+
+/**
+ * Merge a partial patch into an existing AUTONOMOUS_STATE payload. Unknown
+ * keys are dropped. `caps` is shallow-merged. Returns a NEW object — never
+ * mutates `prev`. If prev is invalid, falls back to a fresh state and merges
+ * onto that (caller should validate after).
+ *
+ * Numeric counters (fail_count, cost_usd, tokens_used, wall_time_ms,
+ * unit_count) ADD when patch provides them with key prefixed `+` (e.g.
+ * `{ "+fail_count": 1 }`). Without `+` they REPLACE.
+ */
+export function mergeAutonomousState(prev, patch) {
+  const base = (prev && typeof prev === "object" && !Array.isArray(prev))
+    ? { ...prev, caps: { ...(prev.caps ?? AUTONOMOUS_STATE_DEFAULT_CAPS) } }
+    : null;
+  const next = base ?? buildInitialAutonomousState({
+    sessionId: "unknown-session",
+    nowMs: 0,
+  });
+  if (!patch || typeof patch !== "object") return next;
+
+  const replaceableKeys = new Set([
+    "session_id", "mode", "started_at",
+    "last_commit_at", "last_user_input_at",
+    "last_block_reason", "last_block_at",
+    "fail_count", "cost_usd", "tokens_used", "wall_time_ms", "unit_count",
+  ]);
+  const incrementableKeys = new Set([
+    "fail_count", "cost_usd", "tokens_used", "wall_time_ms", "unit_count",
+  ]);
+
+  for (const [k, v] of Object.entries(patch)) {
+    if (k === "caps" && v && typeof v === "object") {
+      next.caps = { ...next.caps, ...v };
+      continue;
+    }
+    if (k.startsWith("+")) {
+      const realKey = k.slice(1);
+      if (incrementableKeys.has(realKey) && typeof v === "number" && Number.isFinite(v)) {
+        next[realKey] = (Number.isFinite(next[realKey]) ? next[realKey] : 0) + v;
+      }
+      continue;
+    }
+    if (replaceableKeys.has(k)) {
+      next[k] = v;
+    }
+  }
+  return next;
+}
