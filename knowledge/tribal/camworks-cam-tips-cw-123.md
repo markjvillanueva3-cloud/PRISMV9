@@ -1,0 +1,26 @@
+---
+id: "cw-123"
+title: "Hardened Steel Machining — CBN/Ceramic Tooling with Light Cuts"
+source: "web:camworks-docs"
+confidence: 91
+category: "cam_strategy"
+tags: ["camworks", "material", "hardened-steel", "cbn", "ceramic", "mold"]
+_source: "camworks-cam-tips.ts"
+indexed_at: 2026-04-28T01:00:41.741Z
+---
+
+# Hardened Steel Machining — CBN/Ceramic Tooling with Light Cuts
+
+Hardened steel (> 50 HRC) requires CBN or ceramic tooling with light depths of cut (ap 0.1-0.5mm, ae 0.05-0.2mm). Vc 100-300 m/min (CBN), 300-1000 m/min (ceramic). Machine dry — coolant causes thermal shock that fractures ceramic/CBN. Use CAMWorks' constant-cusp finishing with 0.002-0.005mm tolerance for mold cavity finishing in hardened tool steel. Avoid interrupted cuts with ceramic — even a small air gap causes thermal cycling that leads to edge chipping. CBN is more forgiving for interrupted cuts.
+
+**Category:** cam_strategy
+**Confidence:** 91
+**Source:** web:camworks-docs
+**Operations:** milling, 3d_finishing
+
+## Related
+- [[camworks-cam-tips-cw-124|Inconel Machining — Low Speed, High Pressure, Short Engagements]]
+- [[bobcad-cam-tips-bc-117|Hardened Steel (>45 HRC) with Light Passes and Dry Cutting]]
+- [[surfcam-cam-tips-sc2-101|Hardened Steel (>45 HRC) with Light Passes and CBN/Ceramic Tools]]
+- [[camworks-cam-tips-cw-022|TechDB Material-Specific Settings — Hardness-Dependent Cutting Parameters]]
+- [[camworks-cam-tips-cw-120|Aluminum Machining — High Speed with Large Chip Load]]

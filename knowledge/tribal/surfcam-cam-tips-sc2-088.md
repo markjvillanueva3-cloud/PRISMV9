@@ -1,0 +1,26 @@
+---
+id: "sc2-088"
+title: "Air Cut Reduction Skips Empty Passes"
+source: "web:surfcam-aircut-reduction"
+confidence: 88
+category: "optimization"
+tags: ["air-cut", "reduction", "stock-model", "castings", "cycle-time"]
+_source: "surfcam-cam-tips.ts"
+indexed_at: 2026-04-28T01:00:44.099Z
+---
+
+# Air Cut Reduction Skips Empty Passes
+
+SURFCAM air cut reduction detects toolpath segments where the tool is not engaged with material (cutting air) and eliminates them. This is most impactful in roughing operations on parts where the stock shape differs significantly from a rectangular block — castings, forgings, and previously machined parts. Enable air cut reduction and set the minimum engagement threshold to 5% of tool diameter. The system uses the in-process stock model to identify air-cutting segments.
+
+**Category:** optimization
+**Confidence:** 88
+**Source:** web:surfcam-aircut-reduction
+**Operations:** roughing
+
+## Related
+- [[bobcad-cam-tips-bc-105|Air Cut Reduction with Stock Model Awareness]]
+- [[bobcad-cam-tips-bc-008|Air Cut Avoidance in Adaptive Roughing]]
+- [[camworks-cam-tips-cw-030|VoluMill Air Cut Reduction — Minimize Non-Cutting Travel Time]]
+- [[gibbscam-cam-tips-gc-029|VoluMill air-cut elimination uses stock model to skip empty regions]]
+- [[surfcam-cam-tips-sc2-009|TrueMill Air Cut Reduction via Stock Boundary Tracking]]
