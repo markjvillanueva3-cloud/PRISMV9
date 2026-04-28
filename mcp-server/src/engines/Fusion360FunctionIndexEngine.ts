@@ -553,6 +553,74 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get additive toolpaths (CAM-EXHAUST-MS1-02).
+   * Reads additive.json catalog covering DED, PBF, FDM, and Hybrid
+   * (additive+subtractive) operations.
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   *   Categories: "DED" | "PBF" | "FDM" | "Hybrid"
+   */
+  static getAdditiveOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("additive.json", "getAdditiveOperations");
+  }
+
+  /**
+   * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
+   * additive.json, etc). Returns flattened operation summaries.
+   * @internal
+   */
+  private static loadFusionToolpathCatalog(
+    fileName: string,
+    callerName: string
+  ): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    const path = resolve(CATALOG_ROOT, fileName);
+    if (!existsSync(path)) {
+      return [];
+    }
+    try {
+      const data = readJson<{
+        toolpaths?: Record<
+          string,
+          {
+            description: string;
+            category: string;
+            parameterCount: number;
+          }
+        >;
+      }>(path);
+      const out: Array<{
+        toolpath_id: string;
+        category: string;
+        parameter_count: number;
+        description: string;
+      }> = [];
+      for (const [id, op] of Object.entries(data.toolpaths ?? {})) {
+        out.push({
+          toolpath_id: id,
+          category: op.category,
+          parameter_count: op.parameterCount,
+          description: op.description,
+        });
+      }
+      return out;
+    } catch (err) {
+      throw new Error(
+        `Fusion360FunctionIndexEngine.${callerName}: failed to load ${fileName} — ${(err as Error).message}`
+      );
+    }
+  }
+
+  /**
    * Get probing toolpaths (CAM-EXHAUST-MS1-01).
    * Reads the probing module catalog directly to enumerate operations
    * since the catalog uses Fusion's `toolpaths.{ID}.tabs.{Tab}.parameters[]`
@@ -573,41 +641,7 @@ export class Fusion360FunctionIndexEngine {
     parameter_count: number;
     description: string;
   }> {
-    const probingPath = resolve(CATALOG_ROOT, "probing.json");
-    if (!existsSync(probingPath)) {
-      return [];
-    }
-    try {
-      const data = readJson<{
-        toolpaths?: Record<
-          string,
-          {
-            description: string;
-            category: string;
-            parameterCount: number;
-          }
-        >;
-      }>(probingPath);
-      const out: Array<{
-        toolpath_id: string;
-        category: string;
-        parameter_count: number;
-        description: string;
-      }> = [];
-      for (const [id, op] of Object.entries(data.toolpaths ?? {})) {
-        out.push({
-          toolpath_id: id,
-          category: op.category,
-          parameter_count: op.parameterCount,
-          description: op.description,
-        });
-      }
-      return out;
-    } catch (err) {
-      throw new Error(
-        `Fusion360FunctionIndexEngine.getProbingOperations: failed to load probing.json — ${(err as Error).message}`
-      );
-    }
+    return this.loadFusionToolpathCatalog("probing.json", "getProbingOperations");
   }
 
   /**
