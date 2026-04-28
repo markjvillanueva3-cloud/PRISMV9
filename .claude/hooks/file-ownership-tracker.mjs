@@ -24,8 +24,10 @@ function getSessionId() {
   if (process.env.CLAUDE_SESSION_ID) {
     return process.env.CLAUDE_SESSION_ID;
   }
-  const ppid = process.ppid || process.pid;
-  return `${hostname()}-${ppid}`;
+  // HOOK-FIX-5/B: stable host-only ID. Per-subprocess PID would tag every
+  // tool invocation with a different session, causing each chat to block
+  // its own commits. Aligns with .claude/hooks/commit-ownership-guard.mjs.
+  return `host-${hostname()}`;
 }
 
 function loadOwnership() {

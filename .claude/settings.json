@@ -383,6 +383,18 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/posttool-mcp-backend-audit.mjs",
             "timeout": 50000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/memory-mirror-to-vault.mjs",
+            "timeout": 12000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claudemd-section-update.mjs",
+            "timeout": 5000,
+            "continueOnError": true
           }
         ]
       },
@@ -467,6 +479,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-obsidian-memory-extract.mjs",
             "timeout": 15000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-consolidate-graph.mjs",
+            "timeout": 12000,
             "continueOnError": true
           },
           {

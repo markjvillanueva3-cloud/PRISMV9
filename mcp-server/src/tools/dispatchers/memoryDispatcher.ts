@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, semantic_search, remember",
+    "Cross-session memory graph + semantic vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember",
     {
       action: z.enum([
         "get_health",
@@ -50,7 +50,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "run_integrity",
         "consolidate",
         "consolidation_stats",
-        "consolidation_patterns","semantic_search","remember",]).describe("Memory graph action"),
+        "consolidation_patterns","record_session_end","semantic_search","remember",]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -205,6 +205,30 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          case "record_session_end": {
+            const { memoryConsolidationEngine: mce3 } = await import("../../engines/MemoryConsolidationEngine.js");
+            mce3.recordSessionEnd();
+            const stats = mce3.getStats();
+            const ready = (stats as { sessionsSinceLast?: number }).sessionsSinceLast !== undefined
+              ? (stats as { sessionsSinceLast: number }).sessionsSinceLast >= 5
+              : false;
+            const auto = params.auto_consolidate !== false;
+            let report: unknown = null;
+            if (ready && auto) {
+              report = await mce3.consolidate();
+            }
+            result = {
+              ok: true,
+              sessions_since_last: (stats as { sessionsSinceLast?: number }).sessionsSinceLast ?? null,
+              ready_to_consolidate: ready,
+              auto_consolidate: auto,
+              ran_consolidate: report !== null,
+              report,
+              session_id: typeof params.session_id === "string" ? params.session_id : undefined,
+            };
+            break;
+          }
+
           case "semantic_search": {
             const { QdrantMemoryEngineSingleton } = await import("../../engines/QdrantMemoryEngineSingleton.js");
             const query = typeof params.query === "string" ? params.query : "";
@@ -256,7 +280,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'semantic_search', 'remember'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);

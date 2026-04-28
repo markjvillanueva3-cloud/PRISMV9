@@ -45,6 +45,11 @@ const consolidate = z.object({}).passthrough();
 
 const consolidation_stats = z.object({}).passthrough();
 
+const record_session_end = z.object({
+  session_id: z.string().optional().describe("Optional session id for telemetry; engine does not require it"),
+  auto_consolidate: z.boolean().optional().describe("If true (default), auto-runs consolidate() when N>=5"),
+}).passthrough();
+
 const consolidation_patterns = z.object({
   limit: z.number().optional().describe("Max patterns to return (default: 50)"),
 }).passthrough();
@@ -84,6 +89,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   consolidate,
   consolidation_stats,
   consolidation_patterns,
+  record_session_end,
   semantic_search,
   remember,
 };
