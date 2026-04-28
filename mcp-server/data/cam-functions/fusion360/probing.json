@@ -1,0 +1,650 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Probing Toolpath Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for all Fusion 360 probing operations including WCS setup, geometry inspection, tool measurement, and in-process inspection. Renishaw OMP/RMP-compatible macros emitted by Fusion post processors.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-28",
+    "milestone": "CAM-EXHAUST-MS1-01",
+    "source": "Autodesk Fusion 360 Help — Probing operations + Manufacturing Extension Probing reference",
+    "totalParameters": 256,
+    "toolpathCount": 16,
+    "physics_links": ["RENISHAW_PROBE_CYCLE", "PROBE_CALIBRATION_OFFSET", "WCS_TRANSFORM"]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across probing operations",
+    "tabs": ["Tool", "Geometry", "Probe", "Action", "Output"]
+  },
+  "toolpaths": {
+    "PROBE_WCS_SINGLE_SURFACE": {
+      "description": "Probe a single surface to set the Z origin (typically stock top). Most common WCS-setup probe.",
+      "category": "Probe_WCS",
+      "parameterCount": 14,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Probe Tool", "type": "selection", "description": "Spindle-mounted probe (Renishaw OMP60/RMP60/MP250)", "required": true},
+            {"name": "Tool Number", "type": "numeric", "description": "Probe tool number in magazine", "default": 99, "unit": "count"},
+            {"name": "Probe Feedrate", "type": "numeric", "description": "Slow approach feedrate", "default": 100, "unit": "mm/min", "min": 10, "max": 500}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Probe Surface", "type": "selection", "description": "Surface to probe (top of stock or feature)", "required": true},
+            {"name": "WCS Index", "type": "dropdown", "description": "Work coordinate to update", "options": ["G54", "G55", "G56", "G57", "G58", "G59", "G54.1_P1", "G54.1_P2"], "default": "G54"},
+            {"name": "Axis to Update", "type": "dropdown", "description": "Which axis offset to set", "options": ["X", "Y", "Z"], "default": "Z"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "description": "Distance to retract before probe move", "default": 5, "unit": "mm", "min": 0.5, "max": 50},
+            {"name": "Overtravel", "type": "numeric", "description": "Max distance past expected surface before fail", "default": 1, "unit": "mm", "min": 0.1, "max": 10},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "description": "Final slow approach for accuracy", "default": 50, "unit": "mm/min"},
+            {"name": "Probe Feedrate Fast", "type": "numeric", "description": "Initial fast approach", "default": 500, "unit": "mm/min"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS Offset", "type": "checkbox", "description": "Write measured value to WCS register", "default": true},
+            {"name": "Print Result", "type": "checkbox", "description": "Echo measurement to console / DPRNT", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Number", "type": "numeric", "description": "Macro variable for measured value (e.g. #500)", "default": 500, "min": 100, "max": 999},
+            {"name": "Tolerance Window", "type": "numeric", "description": "Max deviation from nominal before alarm", "default": 0.5, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_2_AXIS_CORNER": {
+      "description": "Probe a 2-axis corner (X+Y) to set both X and Y origins from a stock corner.",
+      "category": "Probe_WCS",
+      "parameterCount": 16,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Corner Edge X", "type": "selection", "description": "Edge defining X reference", "required": true},
+            {"name": "Corner Edge Y", "type": "selection", "description": "Edge defining Y reference", "required": true},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"},
+            {"name": "Corner Direction", "type": "dropdown", "description": "Which corner of stock", "options": ["X+Y+", "X+Y-", "X-Y+", "X-Y-"], "default": "X-Y-"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Probe X First", "type": "checkbox", "description": "Probe X axis before Y axis", "default": true},
+            {"name": "Edge Offset From Corner", "type": "numeric", "description": "How far in from corner along edge to probe", "default": 10, "unit": "mm"},
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Probe Feedrate Fast", "type": "numeric", "default": 500, "unit": "mm/min"},
+            {"name": "Z Probe Depth Below Corner", "type": "numeric", "description": "Drop probe below stock-top before X/Y probe", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS Offset", "type": "checkbox", "default": true},
+            {"name": "Print Result", "type": "checkbox", "default": true},
+            {"name": "Avoid Burr at Corner", "type": "checkbox", "description": "Add safe approach to avoid corner burr", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable X", "type": "numeric", "default": 500},
+            {"name": "Output Variable Y", "type": "numeric", "default": 501}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_3_AXIS_CORNER": {
+      "description": "Probe a 3-axis corner (X+Y+Z) to set all three origins from a stock corner.",
+      "category": "Probe_WCS",
+      "parameterCount": 16,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Corner Edge X", "type": "selection", "required": true},
+            {"name": "Corner Edge Y", "type": "selection", "required": true},
+            {"name": "Top Surface", "type": "selection", "description": "Surface for Z reference", "required": true},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Probe Sequence", "type": "dropdown", "description": "Order of axis probes", "options": ["Z_then_X_then_Y", "X_then_Y_then_Z", "Z_first_quick"], "default": "Z_then_X_then_Y"},
+            {"name": "Edge Offset From Corner", "type": "numeric", "default": 10, "unit": "mm"},
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Z Probe Depth Below Top", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Probe Feedrate Fast", "type": "numeric", "default": 500, "unit": "mm/min"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS Offset", "type": "checkbox", "default": true},
+            {"name": "Print Result", "type": "checkbox", "default": true},
+            {"name": "Pre-Position Above Stock", "type": "checkbox", "description": "Rapid to stock-top + clearance before cycle", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable X", "type": "numeric", "default": 500},
+            {"name": "Output Variable Y", "type": "numeric", "default": 501},
+            {"name": "Output Variable Z", "type": "numeric", "default": 502}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_WEB": {
+      "description": "Probe both sides of a web (raised feature) and set WCS to the midpoint.",
+      "category": "Probe_WCS",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Web Feature", "type": "selection", "description": "The raised feature to probe", "required": true},
+            {"name": "Probe Axis", "type": "dropdown", "description": "Axis along which to probe", "options": ["X", "Y"], "default": "X"},
+            {"name": "Approximate Width", "type": "numeric", "description": "Nominal web width for travel calc", "required": true, "unit": "mm"},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Probe Feedrate Fast", "type": "numeric", "default": 500, "unit": "mm/min"},
+            {"name": "Z Probe Depth", "type": "numeric", "description": "How far below web-top to probe sides", "default": 2, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS to Midpoint", "type": "checkbox", "default": true},
+            {"name": "Output Width", "type": "checkbox", "description": "Capture measured width for size verify", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Center", "type": "numeric", "default": 500},
+            {"name": "Output Variable Width", "type": "numeric", "default": 501},
+            {"name": "Width Tolerance", "type": "numeric", "default": 0.05, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_POCKET": {
+      "description": "Probe both sides inside a pocket (recessed feature) and set WCS to midpoint.",
+      "category": "Probe_WCS",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Pocket Feature", "type": "selection", "required": true},
+            {"name": "Probe Axis", "type": "dropdown", "options": ["X", "Y"], "default": "X"},
+            {"name": "Approximate Width", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Probe Feedrate Fast", "type": "numeric", "default": 500, "unit": "mm/min"},
+            {"name": "Z Probe Depth Inside Pocket", "type": "numeric", "default": 3, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS to Midpoint", "type": "checkbox", "default": true},
+            {"name": "Output Width", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Center", "type": "numeric", "default": 500},
+            {"name": "Output Variable Width", "type": "numeric", "default": 501},
+            {"name": "Width Tolerance", "type": "numeric", "default": 0.05, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_BOSS": {
+      "description": "Probe 4 points around a circular boss to find center and diameter.",
+      "category": "Probe_WCS",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Boss Feature", "type": "selection", "required": true},
+            {"name": "Approximate Diameter", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Number of Probe Points", "type": "dropdown", "description": "More points = more accurate but slower", "options": ["4", "6", "8"], "default": "4"},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Z Probe Depth Below Top", "type": "numeric", "default": 2, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS to Center", "type": "checkbox", "default": true},
+            {"name": "Output Diameter", "type": "checkbox", "default": true},
+            {"name": "Output Roundness Error", "type": "checkbox", "description": "Best-fit circle deviation", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Center X", "type": "numeric", "default": 500},
+            {"name": "Output Variable Center Y", "type": "numeric", "default": 501},
+            {"name": "Output Variable Diameter", "type": "numeric", "default": 502}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_BORE": {
+      "description": "Probe inside a bore at 4 points to find center and diameter.",
+      "category": "Probe_WCS",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Bore Feature", "type": "selection", "required": true},
+            {"name": "Approximate Diameter", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Number of Probe Points", "type": "dropdown", "options": ["4", "6", "8"], "default": "4"},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Z Probe Depth Inside Bore", "type": "numeric", "default": 3, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update WCS to Center", "type": "checkbox", "default": true},
+            {"name": "Output Diameter", "type": "checkbox", "default": true},
+            {"name": "Output Roundness Error", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Center X", "type": "numeric", "default": 500},
+            {"name": "Output Variable Center Y", "type": "numeric", "default": 501},
+            {"name": "Output Variable Diameter", "type": "numeric", "default": 502}
+          ]
+        }
+      }
+    },
+    "PROBE_WCS_PLANE_ANGLE": {
+      "description": "Probe two points on a plane to determine angular orientation; rotate WCS by measured angle.",
+      "category": "Probe_WCS",
+      "parameterCount": 12,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Reference Edge", "type": "selection", "required": true},
+            {"name": "Probe Span", "type": "numeric", "description": "Distance between two probe points", "default": 50, "unit": "mm"},
+            {"name": "WCS Index", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Apply Rotation to WCS (G68)", "type": "checkbox", "description": "Activate G68 rotation with measured angle", "default": true},
+            {"name": "Max Angle Limit", "type": "numeric", "description": "Alarm if measured angle exceeds this", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Angle", "type": "numeric", "default": 500},
+            {"name": "Output Variable Point 1", "type": "numeric", "default": 501},
+            {"name": "Output Variable Point 2", "type": "numeric", "default": 502}
+          ]
+        }
+      }
+    },
+    "PROBE_GEOMETRY_SPHERE": {
+      "description": "Probe a calibration sphere (typically 25mm Renishaw artifact) to verify probe stylus offset and calibrate.",
+      "category": "Probe_Geometry",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Sphere Feature", "type": "selection", "required": true},
+            {"name": "Sphere Diameter (Cert)", "type": "numeric", "description": "Certified sphere diameter from artifact cal", "default": 25.000, "unit": "mm"},
+            {"name": "Probe Pattern", "type": "dropdown", "description": "How sphere is probed", "options": ["5_point_north_pole", "8_point_equator_plus_north", "great_circle"], "default": "5_point_north_pole"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 30, "unit": "mm/min"},
+            {"name": "Probe Feedrate Fast", "type": "numeric", "default": 200, "unit": "mm/min"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update Probe Stylus Offsets", "type": "checkbox", "description": "Write measured deltas to G10 / probe params", "default": true},
+            {"name": "Print Diameter Result", "type": "checkbox", "default": true},
+            {"name": "Alarm on Cal Drift", "type": "checkbox", "description": "Stop if measured > tolerance from nominal", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Diameter", "type": "numeric", "default": 500},
+            {"name": "Output Variable Form Error", "type": "numeric", "default": 501},
+            {"name": "Tolerance Window", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PROBE_GEOMETRY_HOLE_PATTERN": {
+      "description": "Probe a bolt-circle or hole pattern to verify pitch diameter, hole positions, true position vs CAD.",
+      "category": "Probe_Geometry",
+      "parameterCount": 16,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Pattern Definition", "type": "selection", "description": "Sketch or feature list defining hole positions", "required": true},
+            {"name": "Pattern Type", "type": "dropdown", "options": ["bolt_circle", "linear_array", "rectangular_grid", "freeform"], "default": "bolt_circle"},
+            {"name": "Number of Holes", "type": "numeric", "default": 6, "min": 1, "max": 64},
+            {"name": "Probe Each Hole", "type": "dropdown", "description": "Probe inside each hole or just check pattern", "options": ["all_holes", "first_3_only", "first_and_opposite"], "default": "all_holes"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Probe Points per Hole", "type": "numeric", "description": "How many points to probe inside each hole", "default": 4, "min": 3, "max": 8},
+            {"name": "Approach Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 50, "unit": "mm/min"},
+            {"name": "Z Probe Depth", "type": "numeric", "default": 3, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Compute True Position", "type": "checkbox", "default": true},
+            {"name": "Compare to CAD Pattern", "type": "checkbox", "default": true},
+            {"name": "Generate FAI Report", "type": "checkbox", "description": "Write First Article Inspection record", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Pitch Diameter", "type": "numeric", "default": 500},
+            {"name": "Output Variable Max True Position Error", "type": "numeric", "default": 501},
+            {"name": "Tolerance — True Position", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Tolerance — Pitch Diameter", "type": "numeric", "default": 0.02, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PROBE_TOOL_LENGTH": {
+      "description": "Measure tool length using table-mounted tool setter (e.g. Renishaw OTS, Marposs T36). Updates tool length compensation.",
+      "category": "Probe_Tool",
+      "parameterCount": 16,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Target Tool", "type": "selection", "description": "Tool to measure", "required": true},
+            {"name": "Tool Setter Macro", "type": "dropdown", "options": ["renishaw_o9810", "marposs_t36", "blum_z_nano", "haas_ats"], "default": "renishaw_o9810"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Tool Setter Position X", "type": "numeric", "description": "Machine X of tool setter pad", "required": true, "unit": "mm"},
+            {"name": "Tool Setter Position Y", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Tool Setter Top Z", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Approach Height Above Setter", "type": "numeric", "default": 25, "unit": "mm"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Feedrate", "type": "numeric", "default": 1000, "unit": "mm/min"},
+            {"name": "Probe Feedrate", "type": "numeric", "default": 30, "unit": "mm/min"},
+            {"name": "Overtravel", "type": "numeric", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update Tool Length Offset", "type": "checkbox", "description": "Write measured value to H register", "default": true},
+            {"name": "Compare to Library Length", "type": "checkbox", "description": "Alarm if differs from CAM tool library by > tol", "default": true},
+            {"name": "Length Drift Tolerance", "type": "numeric", "default": 0.05, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Length", "type": "numeric", "default": 500},
+            {"name": "Output Variable Drift", "type": "numeric", "description": "Difference from previous measure", "default": 501},
+            {"name": "H Register Number", "type": "numeric", "description": "Length offset register to update", "default": 1, "min": 1, "max": 999}
+          ]
+        }
+      }
+    },
+    "PROBE_TOOL_DIAMETER": {
+      "description": "Measure tool diameter using tool setter side-touch. Updates diameter compensation register.",
+      "category": "Probe_Tool",
+      "parameterCount": 14,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Target Tool", "type": "selection", "required": true},
+            {"name": "Tool Setter Macro", "type": "dropdown", "options": ["renishaw_o9811", "marposs_t36", "blum_d_nano"], "default": "renishaw_o9811"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Tool Setter Cube Position", "type": "selection", "description": "Position of side-touch face", "required": true},
+            {"name": "Number of Touch Points", "type": "dropdown", "options": ["2", "4", "8"], "default": "4"},
+            {"name": "Spindle Speed During Probe", "type": "numeric", "description": "RPM during touch (low value)", "default": 200, "unit": "rpm"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Approach Feedrate", "type": "numeric", "default": 500, "unit": "mm/min"},
+            {"name": "Probe Feedrate", "type": "numeric", "default": 30, "unit": "mm/min"},
+            {"name": "Overtravel", "type": "numeric", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Update Diameter Offset", "type": "checkbox", "default": true},
+            {"name": "D Register Number", "type": "numeric", "default": 1},
+            {"name": "Diameter Drift Tolerance", "type": "numeric", "default": 0.02, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Diameter", "type": "numeric", "default": 500},
+            {"name": "Output Variable Runout", "type": "numeric", "description": "TIR difference between touch points", "default": 501}
+          ]
+        }
+      }
+    },
+    "PROBE_TOOL_BREAKAGE": {
+      "description": "Quick broken-tool check via tool setter. Used between operations or after tool changes. Stops program if tool absent or short.",
+      "category": "Probe_Tool",
+      "parameterCount": 12,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Target Tool", "type": "selection", "required": true},
+            {"name": "Detection Macro", "type": "dropdown", "options": ["renishaw_o9853", "blum_breakage", "laser_curtain"], "default": "renishaw_o9853"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Setter / Curtain Position X", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Setter / Curtain Position Y", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Detection Z Height", "type": "numeric", "description": "Z value where tool tip should touch", "required": true, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Action on Broken", "type": "dropdown", "options": ["stop_alarm", "swap_to_sister_tool", "skip_op_log_only"], "default": "stop_alarm"},
+            {"name": "Sister Tool Number", "type": "numeric", "description": "Auto-swap target if broken", "default": 0},
+            {"name": "Acceptable Length Window", "type": "numeric", "description": "± mm from expected length", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Status", "type": "numeric", "description": "1=ok, 0=broken", "default": 500},
+            {"name": "Print Status to DPRNT", "type": "checkbox", "default": true},
+            {"name": "Log to Tool History", "type": "checkbox", "description": "Append to tool-life tracker", "default": true},
+            {"name": "Alarm Code", "type": "numeric", "default": 5300}
+          ]
+        }
+      }
+    },
+    "INSPECT_FEATURE_VERIFY": {
+      "description": "In-process inspection — probe a finished feature and compare measured value to CAD nominal + tolerance band.",
+      "category": "Inspect",
+      "parameterCount": 18,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Feature to Inspect", "type": "selection", "required": true},
+            {"name": "Feature Type", "type": "dropdown", "options": ["bore", "boss", "slot", "pocket", "plane", "step", "shoulder"], "default": "bore"},
+            {"name": "Nominal Value", "type": "numeric", "description": "Target dimension from CAD/print", "required": true, "unit": "mm"},
+            {"name": "Upper Tolerance", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Lower Tolerance", "type": "numeric", "default": -0.05, "unit": "mm"}
+          ]
+        },
+        "Probe": {
+          "parameters": [
+            {"name": "Probe Points", "type": "numeric", "default": 4, "min": 2, "max": 16},
+            {"name": "Approach Distance", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Overtravel", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Probe Feedrate Slow", "type": "numeric", "default": 30, "unit": "mm/min"},
+            {"name": "Z Probe Depth", "type": "numeric", "default": 2, "unit": "mm"}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Action if Out of Tolerance", "type": "dropdown", "options": ["stop_alarm", "auto_offset_adjust", "log_only_continue", "scrap_tag"], "default": "stop_alarm"},
+            {"name": "Auto-Offset Strategy", "type": "dropdown", "description": "If auto_offset_adjust: which axis/register", "options": ["wear_offset_only", "geometry_offset", "both", "WCS_correction"], "default": "wear_offset_only"},
+            {"name": "Generate Inspection Record", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Measured", "type": "numeric", "default": 500},
+            {"name": "Output Variable Deviation", "type": "numeric", "default": 501},
+            {"name": "Output Variable Pass/Fail", "type": "numeric", "description": "1=pass, 0=fail", "default": 502},
+            {"name": "Inspection Log Path", "type": "string", "description": "DPRNT path or controller var", "default": "/var/spool/inspection/"},
+            {"name": "Tag Schema", "type": "dropdown", "options": ["QIF_3.0", "AS9102_FAI", "PPAP_4.0", "custom"], "default": "QIF_3.0"}
+          ]
+        }
+      }
+    },
+    "INSPECT_TOLERANCE_GATE": {
+      "description": "Pass/fail tolerance gate triggered after a finishing operation. Pulls values from prior INSPECT_FEATURE_VERIFY ops and applies decision logic.",
+      "category": "Inspect",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Inspection Variables", "type": "string", "description": "List of macro vars to evaluate (e.g. #500-#510)", "required": true},
+            {"name": "Gate Logic", "type": "dropdown", "options": ["all_pass", "majority_pass", "weighted_score", "first_fail_stops"], "default": "all_pass"},
+            {"name": "Min Cpk Required", "type": "numeric", "description": "If trending, require Cpk above this", "default": 1.33}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "On Pass", "type": "dropdown", "options": ["continue", "advance_to_next_part", "skip_remaining_inspect"], "default": "continue"},
+            {"name": "On Fail", "type": "dropdown", "options": ["stop_alarm", "scrap_tag_continue", "rework_path", "operator_decision"], "default": "stop_alarm"},
+            {"name": "Alarm Code Fail", "type": "numeric", "default": 5400},
+            {"name": "Allow Operator Override", "type": "checkbox", "description": "If true, M00 + DPRNT prompt vs hard alarm", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Variable Result", "type": "numeric", "description": "1=pass, 0=fail, 2=marginal", "default": 510},
+            {"name": "Output Variable Score", "type": "numeric", "description": "Aggregate score 0-100", "default": 511},
+            {"name": "Generate FAI", "type": "checkbox", "default": false},
+            {"name": "Append to SPC Log", "type": "checkbox", "default": true},
+            {"name": "Trend Window Size", "type": "numeric", "description": "Last N parts for Cpk trend", "default": 25, "min": 5, "max": 200},
+            {"name": "Output Variable Trend Cpk", "type": "numeric", "default": 512},
+            {"name": "Print Result to DPRNT", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "INSPECT_SPC_LOG": {
+      "description": "Capture inspection data for SPC tracking. Writes timestamped records to controller log or external file. Feeds Cpk/Cp trend analysis.",
+      "category": "Inspect",
+      "parameterCount": 14,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Variables", "type": "string", "description": "Macro variables containing inspection results", "required": true},
+            {"name": "Feature Tags", "type": "string", "description": "Per-variable label (e.g. 'bore_dia,boss_height')", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Log Format", "type": "dropdown", "options": ["DPRNT", "QIF_xml", "MTConnect_event", "csv_file", "json_lines"], "default": "DPRNT"},
+            {"name": "Log Destination", "type": "string", "description": "File path or MTConnect endpoint", "default": "/var/spool/spc/"},
+            {"name": "Include Operator ID", "type": "checkbox", "default": true},
+            {"name": "Include Timestamp", "type": "checkbox", "default": true},
+            {"name": "Include WCS Index", "type": "checkbox", "default": true},
+            {"name": "Include Tool Numbers Used", "type": "checkbox", "default": true},
+            {"name": "Include Setup Sheet ID", "type": "checkbox", "description": "Cross-link to job traveler", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Auto-Compute Cpk", "type": "checkbox", "description": "Run rolling Cpk on each log write", "default": true},
+            {"name": "Cpk Window Size", "type": "numeric", "default": 25, "min": 5, "max": 200},
+            {"name": "Alert Threshold (Cpk)", "type": "numeric", "description": "DPRNT warning if Cpk drops below", "default": 1.33},
+            {"name": "Output Variable Cpk", "type": "numeric", "default": 520},
+            {"name": "Output Variable Cp", "type": "numeric", "default": 521}
+          ]
+        }
+      }
+    }
+  },
+  "physics_formulas_linked": [
+    {
+      "formula_id": "RENISHAW_PROBE_CYCLE",
+      "description": "Standard Renishaw OMP/RMP probe cycle: rapid_to_approach -> fast_probe -> retract -> slow_probe -> capture -> retract.",
+      "constants": ["approach_distance_default_mm", "overtravel_default_mm", "fast_feedrate_default_mm_min", "slow_feedrate_default_mm_min"]
+    },
+    {
+      "formula_id": "PROBE_CALIBRATION_OFFSET",
+      "description": "Sphere calibration: measured_diameter - certified_diameter = stylus_offset_correction (apply via G10 to probe param register).",
+      "engines_linked": ["ProbeCalibrationEngine"]
+    },
+    {
+      "formula_id": "WCS_TRANSFORM",
+      "description": "G54..G59 + G68 rotation transform; midpoint probe writes (probe_minus + probe_plus) / 2 to WCS axis offset.",
+      "engines_linked": ["MachineKinematicsEngine"]
+    }
+  ],
+  "tribal_knowledge_summary": {
+    "tip_count": 6,
+    "sources": ["jm_die", "renishaw_app_notes", "shop_floor"],
+    "highlights": [
+      {"id": "tt_probe_renishaw_z", "text": "Always run PROBE_WCS_SINGLE_SURFACE before first cut on a new fixture; WCS Z drift over a shift is +/- 0.02mm typical.", "source": "jm_die", "confidence": 0.92},
+      {"id": "tt_probe_calibrate_weekly", "text": "Recalibrate probe stylus weekly via PROBE_GEOMETRY_SPHERE; spindle thermal growth shifts apparent length 0.01-0.03mm/hr until stable.", "source": "renishaw_app_notes", "confidence": 0.95},
+      {"id": "tt_probe_breakage_pre", "text": "Run PROBE_TOOL_BREAKAGE before every drilling op on D2 die work — broken tap detection at the gate prevents scrap.", "source": "jm_die", "confidence": 0.9},
+      {"id": "tt_probe_inspect_30sec", "text": "Use INSPECT_FEATURE_VERIFY only for critical features — every probe cycle costs 20-45 sec and adds program time.", "source": "shop_floor", "confidence": 0.85},
+      {"id": "tt_probe_overtravel", "text": "Set overtravel to >= 1mm; probe collision damages stylus + requires recalibration. Slow approach + 50mm/min final feed.", "source": "renishaw_app_notes", "confidence": 0.95},
+      {"id": "tt_probe_warmup", "text": "Probe spindle for 5min before measuring critical dies; thermal growth makes morning measurements drift versus afternoon by 0.05-0.10mm.", "source": "jm_die", "confidence": 0.88}
+    ]
+  }
+}

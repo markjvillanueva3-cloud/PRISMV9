@@ -553,6 +553,64 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get probing toolpaths (CAM-EXHAUST-MS1-01).
+   * Reads the probing module catalog directly to enumerate operations
+   * since the catalog uses Fusion's `toolpaths.{ID}.tabs.{Tab}.parameters[]`
+   * schema rather than Schema A.
+   *
+   * Returns all 16 probing operations across 4 categories:
+   *   - Probe_WCS (8 ops): single_surface, 2_axis_corner, 3_axis_corner,
+   *     web, pocket, boss, bore, plane_angle
+   *   - Probe_Geometry (2 ops): sphere calibration, hole pattern
+   *   - Probe_Tool (3 ops): length, diameter, breakage detection
+   *   - Inspect (3 ops): feature_verify, tolerance_gate, spc_log
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getProbingOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    const probingPath = resolve(CATALOG_ROOT, "probing.json");
+    if (!existsSync(probingPath)) {
+      return [];
+    }
+    try {
+      const data = readJson<{
+        toolpaths?: Record<
+          string,
+          {
+            description: string;
+            category: string;
+            parameterCount: number;
+          }
+        >;
+      }>(probingPath);
+      const out: Array<{
+        toolpath_id: string;
+        category: string;
+        parameter_count: number;
+        description: string;
+      }> = [];
+      for (const [id, op] of Object.entries(data.toolpaths ?? {})) {
+        out.push({
+          toolpath_id: id,
+          category: op.category,
+          parameter_count: op.parameterCount,
+          description: op.description,
+        });
+      }
+      return out;
+    } catch (err) {
+      throw new Error(
+        `Fusion360FunctionIndexEngine.getProbingOperations: failed to load probing.json — ${(err as Error).message}`
+      );
+    }
+  }
+
+  /**
    * Get platform integration info.
    */
   static getPlatformIntegration(): Fusion360FunctionIndex["platform_integration"] {

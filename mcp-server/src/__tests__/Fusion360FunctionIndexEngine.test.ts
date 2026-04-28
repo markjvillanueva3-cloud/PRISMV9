@@ -504,5 +504,96 @@ describe("Fusion360FunctionIndexEngine", () => {
         expect(actions).toContain(action);
       }
     });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_probing_operations (MS1-01)", async () => {
+      const mod: any = await import("../tools/dispatchers/camDispatcher.js");
+      const actions: string[] = mod.ACTIONS;
+      expect(actions).toContain("fusion360_function_index_get_probing_operations");
+    });
+  });
+
+  // CAM-EXHAUST-MS1-01 — Fusion 360 Probing module
+  describe("getProbingOperations (CAM-EXHAUST-MS1-01)", () => {
+    it("returns 16 probing toolpaths across 4 categories", () => {
+      const ops = Fusion360FunctionIndexEngine.getProbingOperations();
+      expect(ops).toHaveLength(16);
+      const categories = new Set(ops.map((o) => o.category));
+      expect(categories.has("Probe_WCS")).toBe(true);
+      expect(categories.has("Probe_Geometry")).toBe(true);
+      expect(categories.has("Probe_Tool")).toBe(true);
+      expect(categories.has("Inspect")).toBe(true);
+    });
+
+    it("includes all 8 WCS-setup probing operations", () => {
+      const ops = Fusion360FunctionIndexEngine.getProbingOperations();
+      const wcsOps = ops.filter((o) => o.category === "Probe_WCS").map((o) => o.toolpath_id).sort();
+      expect(wcsOps).toEqual([
+        "PROBE_WCS_2_AXIS_CORNER",
+        "PROBE_WCS_3_AXIS_CORNER",
+        "PROBE_WCS_BORE",
+        "PROBE_WCS_BOSS",
+        "PROBE_WCS_PLANE_ANGLE",
+        "PROBE_WCS_POCKET",
+        "PROBE_WCS_SINGLE_SURFACE",
+        "PROBE_WCS_WEB",
+      ]);
+    });
+
+    it("includes the 3 in-process inspection operations", () => {
+      const ops = Fusion360FunctionIndexEngine.getProbingOperations();
+      const inspectIds = ops.filter((o) => o.category === "Inspect").map((o) => o.toolpath_id).sort();
+      expect(inspectIds).toEqual([
+        "INSPECT_FEATURE_VERIFY",
+        "INSPECT_SPC_LOG",
+        "INSPECT_TOLERANCE_GATE",
+      ]);
+    });
+
+    it("each probing operation has parameter_count > 0 and a description", () => {
+      const ops = Fusion360FunctionIndexEngine.getProbingOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_probing_operations returns 16 ops", async () => {
+      const mod: any = await import("../tools/dispatchers/camDispatcher.js");
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer);
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_probing_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string }>;
+          })
+        : (raw as { success: boolean; operations: Array<{ toolpath_id: string }> });
+      expect(result.success).toBe(true);
+      expect(result.operations).toHaveLength(16);
+      const ids = result.operations.map((o) => o.toolpath_id);
+      expect(ids).toContain("PROBE_WCS_SINGLE_SURFACE");
+      expect(ids).toContain("PROBE_TOOL_BREAKAGE");
+      expect(ids).toContain("INSPECT_TOLERANCE_GATE");
+    });
+
+    it("probing module is registered in fusion360 function-index", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const moduleIds = idx.modules.map((m) => m.module_id);
+      expect(moduleIds).toContain("probing");
+      const probingEntry = idx.modules.find((m) => m.module_id === "probing");
+      expect(probingEntry?.parameter_count_estimate).toBeGreaterThan(200);
+    });
   });
 });
