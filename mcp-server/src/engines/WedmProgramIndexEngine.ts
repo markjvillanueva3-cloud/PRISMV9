@@ -271,9 +271,17 @@ export class WedmProgramIndexEngine {
     defaultProgramType: "wire_edm" | "electrode_mill",
     programs: WedmProgramEntry[]
   ): Promise<void> {
-    let items: Awaited<ReturnType<typeof readdir>>;
+    // @types/node typed readdir's withFileTypes overload to return
+    // Dirent<NonSharedBuffer>[] in newer versions; pin encoding so item.name
+    // stays a string (coerce via String() to keep behavior portable across
+    // node-types versions that might still flow Buffer through).
+    let items: Array<{ name: string | Buffer; isDirectory(): boolean; isFile(): boolean }>;
     try {
-      items = await readdir(rootPath, { withFileTypes: true });
+      items = (await readdir(rootPath, { withFileTypes: true })) as Array<{
+        name: string | Buffer;
+        isDirectory(): boolean;
+        isFile(): boolean;
+      }>;
     } catch (err) {
       log.warn(
         `[WedmProgramIndexEngine] Cannot read directory ${rootPath}: ${err}`
@@ -282,13 +290,14 @@ export class WedmProgramIndexEngine {
     }
 
     for (const item of items) {
-      const fullPath = path.join(rootPath, item.name);
+      const itemName = typeof item.name === "string" ? item.name : item.name.toString("utf8");
+      const fullPath = path.join(rootPath, itemName);
 
       if (item.isDirectory()) {
         // Customer subfolder — recurse and tag all files with this customer name
         await WedmProgramIndexEngine._scanDirectory(
           fullPath,
-          item.name,
+          itemName,
           machine,
           defaultProgramType,
           programs,
@@ -298,7 +307,7 @@ export class WedmProgramIndexEngine {
         // Top-level file — check if it's a valid program
         const entry = await WedmProgramIndexEngine._tryParseFile(
           fullPath,
-          item.name,
+          itemName,
           "UNASSIGNED",
           machine,
           defaultProgramType
@@ -328,15 +337,20 @@ export class WedmProgramIndexEngine {
   ): Promise<void> {
     if (depth > MAX_DEPTH) return;
 
-    let items: Awaited<ReturnType<typeof readdir>>;
+    let items: Array<{ name: string | Buffer; isDirectory(): boolean; isFile(): boolean }>;
     try {
-      items = await readdir(dirPath, { withFileTypes: true });
+      items = (await readdir(dirPath, { withFileTypes: true })) as Array<{
+        name: string | Buffer;
+        isDirectory(): boolean;
+        isFile(): boolean;
+      }>;
     } catch {
       return;
     }
 
     for (const item of items) {
-      const fullPath = path.join(dirPath, item.name);
+      const itemName = typeof item.name === "string" ? item.name : item.name.toString("utf8");
+      const fullPath = path.join(dirPath, itemName);
 
       if (item.isDirectory()) {
         await WedmProgramIndexEngine._scanDirectory(
@@ -350,7 +364,7 @@ export class WedmProgramIndexEngine {
       } else if (item.isFile()) {
         const entry = await WedmProgramIndexEngine._tryParseFile(
           fullPath,
-          item.name,
+          itemName,
           customer,
           machine,
           defaultProgramType
