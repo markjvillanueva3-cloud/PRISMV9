@@ -67,6 +67,9 @@ const MEMORY_KIND_VALUES = [
   "skill",
   "engine",
   "action",
+  "gsd",
+  "directive",
+  "wiki",
 ] as const;
 
 
