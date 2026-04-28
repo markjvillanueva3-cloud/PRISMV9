@@ -725,4 +725,114 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_additive_operations");
     });
   });
+
+  // CAM-EXHAUST-MS1-03 — Fusion 360 Cutting module
+  describe("getCuttingOperations (CAM-EXHAUST-MS1-03)", () => {
+    it("returns exactly 9 cutting toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      expect(ops.length).toBe(9);
+    });
+
+    it("Laser category contains 3 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const laserIds = ops.filter((o) => o.category === "Laser").map((o) => o.toolpath_id).sort();
+      expect(laserIds).toEqual([
+        "LASER_CUTTING",
+        "LASER_DRILLING",
+        "LASER_ETCHING",
+      ]);
+    });
+
+    it("Waterjet category contains 3 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const wjIds = ops.filter((o) => o.category === "Waterjet").map((o) => o.toolpath_id).sort();
+      expect(wjIds).toEqual([
+        "WATERJET_CUTTING",
+        "WATERJET_PURE_WATER",
+        "WATERJET_TAPERED_5AXIS",
+      ]);
+    });
+
+    it("Plasma category contains 3 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const plasmaIds = ops.filter((o) => o.category === "Plasma").map((o) => o.toolpath_id).sort();
+      expect(plasmaIds).toEqual([
+        "PLASMA_BEVEL",
+        "PLASMA_CUTTING",
+        "PLASMA_MARK",
+      ]);
+    });
+
+    it("LASER_CUTTING has exactly 24 parameters", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const op = ops.find((o) => o.toolpath_id === "LASER_CUTTING");
+      expect(op?.parameter_count).toBe(24);
+    });
+
+    it("WATERJET_CUTTING has exactly 22 parameters", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const op = ops.find((o) => o.toolpath_id === "WATERJET_CUTTING");
+      expect(op?.parameter_count).toBe(22);
+    });
+
+    it("PLASMA_MARK has exactly 12 parameters (lightest cutting op)", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const op = ops.find((o) => o.toolpath_id === "PLASMA_MARK");
+      expect(op?.parameter_count).toBe(12);
+    });
+
+    it("WATERJET_TAPERED_5AXIS description references 5-axis", () => {
+      const ops = Fusion360FunctionIndexEngine.getCuttingOperations();
+      const op = ops.find((o) => o.toolpath_id === "WATERJET_TAPERED_5AXIS");
+      expect(op?.description.includes("5-axis")).toBe(true);
+    });
+
+    it("dispatcher round-trip: get_cutting_operations returns 9 ops with PLASMA_BEVEL @ 22 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_cutting_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(9);
+      const plasmaBevel = result.operations.find((o) => o.toolpath_id === "PLASMA_BEVEL");
+      expect(plasmaBevel?.category).toBe("Plasma");
+      expect(plasmaBevel?.parameter_count).toBe(22);
+    });
+
+    it("cutting module is registered in fusion360 function-index with 196 estimated params", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const cuttingEntry = idx.modules.find((m) => m.module_id === "cutting");
+      expect(cuttingEntry?.parameter_count_estimate).toBe(196);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_cutting_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_cutting_operations");
+    });
+  });
 });

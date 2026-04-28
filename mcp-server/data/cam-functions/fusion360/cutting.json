@@ -1,0 +1,505 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Cutting Toolpath Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 sheet-cutting operations: laser cutting (CO2/fiber/Nd:YAG), abrasive waterjet, and plasma cutting. 2D profile cutting with kerf compensation, lead-in/out, pierce/etch/mark sub-modes.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-28",
+    "milestone": "CAM-EXHAUST-MS1-03",
+    "source": "Autodesk Fusion 360 Help — Cutting workspace + Manufacturing Extension cutting reference",
+    "totalParameters": 196,
+    "toolpathCount": 9,
+    "physics_links": [
+      "LASER_BEAM_ABLATION",
+      "LASER_KERF_GEOMETRY",
+      "WATERJET_KERF_TAPER",
+      "WATERJET_PIERCE_TIME",
+      "PLASMA_ARC_VOLTAGE_HEIGHT",
+      "PLASMA_PIERCE_DELAY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across cutting operations",
+    "tabs": ["Process", "Geometry", "Cut", "Pierce", "Lead", "Output"]
+  },
+  "toolpaths": {
+    "LASER_CUTTING": {
+      "description": "Laser through-cutting for sheet metal, plastics, wood. CO2 (10.6μm) for non-metals, fiber (1.07μm) for metals. Kerf 0.1-0.4mm depending on power and material.",
+      "category": "Laser",
+      "parameterCount": 24,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Laser Type", "type": "dropdown", "description": "Laser source", "options": ["CO2_10600nm", "fiber_1070nm", "Nd_YAG_1064nm", "diode_900nm"], "default": "fiber_1070nm"},
+            {"name": "Laser Power", "type": "numeric", "description": "Cutting power", "default": 4000, "unit": "W", "min": 100, "max": 30000},
+            {"name": "Power Mode", "type": "dropdown", "options": ["continuous_wave_CW", "pulsed_modulated", "super_pulse"], "default": "continuous_wave_CW"},
+            {"name": "Pulse Frequency", "type": "numeric", "description": "Hz for pulsed mode", "default": 5000, "unit": "Hz", "min": 1, "max": 100000},
+            {"name": "Duty Cycle", "type": "numeric", "default": 100, "unit": "pct", "min": 1, "max": 100},
+            {"name": "Assist Gas", "type": "dropdown", "options": ["Oxygen_O2", "Nitrogen_N2", "Compressed_Air", "Argon"], "default": "Oxygen_O2"},
+            {"name": "Gas Pressure", "type": "numeric", "default": 0.5, "unit": "MPa", "min": 0.05, "max": 2.5}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Profile", "type": "selection", "description": "2D contour to cut", "required": true},
+            {"name": "Material Thickness", "type": "numeric", "default": 3, "unit": "mm", "min": 0.1, "max": 50},
+            {"name": "Material Type", "type": "dropdown", "options": ["mild_steel", "stainless_304", "stainless_316", "aluminum_5052", "aluminum_6061", "brass", "copper", "titanium_grade_2", "acrylic_PMMA", "wood_plywood", "MDF"], "default": "mild_steel"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Cutting Speed", "type": "numeric", "default": 6000, "unit": "mm/min"},
+            {"name": "Kerf Compensation", "type": "numeric", "description": "Beam kerf width offset", "default": 0.15, "unit": "mm"},
+            {"name": "Compensation Side", "type": "dropdown", "options": ["outside_part", "inside_part", "centerline"], "default": "outside_part"},
+            {"name": "Focus Position", "type": "numeric", "description": "Z-offset of focal point relative to surface", "default": -1.5, "unit": "mm"},
+            {"name": "Nozzle Standoff", "type": "numeric", "default": 1.0, "unit": "mm"}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Mode", "type": "dropdown", "options": ["fast_pierce", "soft_pierce_ramp", "edge_start_no_pierce"], "default": "fast_pierce"},
+            {"name": "Pierce Power", "type": "numeric", "description": "Power during pierce (often higher than cut)", "default": 5000, "unit": "W"},
+            {"name": "Pierce Dwell Time", "type": "numeric", "default": 0.5, "unit": "s"},
+            {"name": "Pierce Gas Pressure", "type": "numeric", "default": 0.8, "unit": "MPa"}
+          ]
+        },
+        "Lead": {
+          "parameters": [
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "ramp", "none"], "default": "arc"},
+            {"name": "Lead-In Length", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Lead-In Radius", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "ramp", "none"], "default": "arc"},
+            {"name": "Lead-Out Length", "type": "numeric", "default": 3, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_laser", "DXF", "Trumpf_LST", "Bystronic_LCC", "Mazak_Optonics"], "default": "G_code_laser"},
+            {"name": "Estimate Cut Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "LASER_ETCHING": {
+      "description": "Laser etching/marking for surface engraving without through-cutting. Lower power, higher speed, focus on surface.",
+      "category": "Laser",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Laser Type", "type": "dropdown", "options": ["CO2_10600nm", "fiber_1070nm", "Nd_YAG_1064nm"], "default": "fiber_1070nm"},
+            {"name": "Laser Power", "type": "numeric", "default": 200, "unit": "W"},
+            {"name": "Power Mode", "type": "dropdown", "options": ["continuous_wave_CW", "pulsed_modulated"], "default": "pulsed_modulated"},
+            {"name": "Pulse Frequency", "type": "numeric", "default": 20000, "unit": "Hz"},
+            {"name": "Assist Gas", "type": "dropdown", "options": ["Compressed_Air", "Nitrogen_N2", "none"], "default": "Compressed_Air"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Etch Geometry", "type": "selection", "description": "Text, logo, or pattern", "required": true},
+            {"name": "Material Type", "type": "dropdown", "options": ["mild_steel", "stainless_304", "aluminum_anodized", "anodized_titanium", "plastic", "wood"], "default": "stainless_304"},
+            {"name": "Etch Style", "type": "dropdown", "options": ["surface_anneal", "shallow_engrave", "deep_engrave", "color_marking"], "default": "surface_anneal"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Etching Speed", "type": "numeric", "default": 1500, "unit": "mm/min"},
+            {"name": "Etch Depth", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Multi-Pass Count", "type": "numeric", "description": "Number of passes for deeper marks", "default": 1, "min": 1, "max": 20},
+            {"name": "Hatch Spacing", "type": "numeric", "description": "For filled regions", "default": 0.05, "unit": "mm"},
+            {"name": "Hatch Angle", "type": "numeric", "default": 0, "unit": "deg"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Vector vs Raster", "type": "dropdown", "options": ["vector_outline", "raster_fill", "vector_then_raster"], "default": "vector_outline"},
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_laser", "DXF"], "default": "G_code_laser"},
+            {"name": "Estimate Etch Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "LASER_DRILLING": {
+      "description": "Laser percussion drilling for small high-aspect-ratio holes (cooling holes in turbine blades, micro-vias in PCBs).",
+      "category": "Laser",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Laser Type", "type": "dropdown", "options": ["fiber_1070nm", "Nd_YAG_1064nm", "femtosecond"], "default": "Nd_YAG_1064nm"},
+            {"name": "Laser Power", "type": "numeric", "default": 500, "unit": "W"},
+            {"name": "Pulse Frequency", "type": "numeric", "default": 50, "unit": "Hz"},
+            {"name": "Pulse Duration", "type": "numeric", "default": 0.5, "unit": "ms"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Pattern", "type": "selection", "required": true},
+            {"name": "Hole Diameter Target", "type": "numeric", "default": 0.5, "unit": "mm", "min": 0.05, "max": 5},
+            {"name": "Material Thickness", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Hole Angle", "type": "numeric", "description": "Drill angle from normal", "default": 0, "unit": "deg", "min": 0, "max": 60},
+            {"name": "Material Type", "type": "dropdown", "options": ["nickel_superalloy", "stainless_steel", "titanium", "ceramic", "carbide"], "default": "nickel_superalloy"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Drilling Method", "type": "dropdown", "options": ["percussion", "trepanning", "helical", "single_pulse"], "default": "percussion"},
+            {"name": "Pulses Per Hole", "type": "numeric", "default": 8, "min": 1, "max": 1000},
+            {"name": "Inter-Pulse Delay", "type": "numeric", "description": "Cooling time between pulses", "default": 5, "unit": "ms"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_laser_drill", "DXF"], "default": "G_code_laser_drill"},
+            {"name": "Verify Hole Geometry", "type": "checkbox", "description": "Probe after drilling", "default": false},
+            {"name": "Skip Backwall Pulses", "type": "checkbox", "description": "Stop pulses once breakthrough detected", "default": true}
+          ]
+        }
+      }
+    },
+    "WATERJET_CUTTING": {
+      "description": "Abrasive waterjet through-cutting. Uses high-pressure water + garnet abrasive. Cold cutting (no HAZ), suitable for stainless, titanium, composites, glass, stone.",
+      "category": "Waterjet",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Cutting Mode", "type": "dropdown", "options": ["abrasive", "pure_water_no_abrasive"], "default": "abrasive"},
+            {"name": "Pump Pressure", "type": "numeric", "default": 4100, "unit": "bar", "min": 1000, "max": 6500},
+            {"name": "Orifice Diameter", "type": "numeric", "description": "Sapphire/diamond orifice", "default": 0.30, "unit": "mm", "min": 0.10, "max": 0.50},
+            {"name": "Mixing Tube Diameter", "type": "numeric", "default": 0.76, "unit": "mm", "min": 0.50, "max": 1.25},
+            {"name": "Abrasive Type", "type": "dropdown", "options": ["garnet_80_mesh", "garnet_120_mesh", "garnet_50_mesh", "olivine"], "default": "garnet_80_mesh"},
+            {"name": "Abrasive Flow Rate", "type": "numeric", "default": 0.45, "unit": "kg/min", "min": 0.1, "max": 1.5}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Profile", "type": "selection", "required": true},
+            {"name": "Material Thickness", "type": "numeric", "default": 25, "unit": "mm", "min": 0.5, "max": 300},
+            {"name": "Material Type", "type": "dropdown", "options": ["stainless_304", "stainless_316", "aluminum_6061", "titanium_grade_5", "tool_steel", "carbide", "glass", "stone_granite", "composite_CFRP", "rubber"], "default": "stainless_304"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Cutting Quality", "type": "dropdown", "description": "Q1=fastest/roughest, Q5=slowest/smoothest", "options": ["Q1_separating_cut", "Q2_rough", "Q3_medium", "Q4_smooth", "Q5_polish_quality"], "default": "Q3_medium"},
+            {"name": "Cutting Speed", "type": "numeric", "default": 200, "unit": "mm/min"},
+            {"name": "Kerf Width", "type": "numeric", "description": "Effective kerf for compensation", "default": 1.0, "unit": "mm"},
+            {"name": "Taper Compensation", "type": "checkbox", "description": "Active 5-axis kerf taper compensation", "default": false},
+            {"name": "Taper Angle", "type": "numeric", "description": "Static taper if no 5-axis", "default": 0.5, "unit": "deg"}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Strategy", "type": "dropdown", "options": ["dynamic_pierce", "low_pressure_pierce", "stationary_pierce", "ramp_pierce"], "default": "dynamic_pierce"},
+            {"name": "Pierce Time", "type": "numeric", "description": "Stationary pierce dwell", "default": 2, "unit": "s"},
+            {"name": "Pierce Pressure", "type": "numeric", "description": "Reduced pressure during pierce (avoid backsplash)", "default": 2000, "unit": "bar"}
+          ]
+        },
+        "Lead": {
+          "parameters": [
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "none"], "default": "tangential"},
+            {"name": "Lead-In Length", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "none"], "default": "tangential"},
+            {"name": "Lead-Out Length", "type": "numeric", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_waterjet", "DXF", "OMAX_OMX", "Flow_FLW", "Hypertherm_HPR"], "default": "G_code_waterjet"},
+            {"name": "Estimate Abrasive Consumption", "type": "checkbox", "default": true},
+            {"name": "Estimate Cut Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "WATERJET_PURE_WATER": {
+      "description": "Pure-water waterjet (no abrasive) for soft materials: rubber, foam, food, composites without contamination, gaskets.",
+      "category": "Waterjet",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Pump Pressure", "type": "numeric", "default": 3500, "unit": "bar"},
+            {"name": "Orifice Diameter", "type": "numeric", "default": 0.10, "unit": "mm", "min": 0.05, "max": 0.30},
+            {"name": "Water Filtration", "type": "dropdown", "options": ["1_micron", "0.45_micron", "0.2_micron"], "default": "1_micron"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Profile", "type": "selection", "required": true},
+            {"name": "Material Thickness", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Material Type", "type": "dropdown", "options": ["rubber_EPDM", "foam_PU", "gasket_sheet", "leather", "felt", "food_grade", "composite_aramid"], "default": "rubber_EPDM"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Cutting Speed", "type": "numeric", "default": 3000, "unit": "mm/min"},
+            {"name": "Multi-Pass Cutting", "type": "checkbox", "default": false},
+            {"name": "Pass Count", "type": "numeric", "default": 1, "min": 1, "max": 10},
+            {"name": "Kerf Width", "type": "numeric", "default": 0.2, "unit": "mm"}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Strategy", "type": "dropdown", "options": ["dynamic_pierce", "stationary_pierce", "edge_start"], "default": "dynamic_pierce"},
+            {"name": "Pierce Time", "type": "numeric", "default": 0.5, "unit": "s"}
+          ]
+        },
+        "Lead": {
+          "parameters": [
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "none"], "default": "tangential"},
+            {"name": "Lead-In Length", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "none"], "default": "tangential"},
+            {"name": "Lead-Out Length", "type": "numeric", "default": 3, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_waterjet", "DXF", "OMAX_OMX"], "default": "G_code_waterjet"},
+            {"name": "Estimate Cut Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "WATERJET_TAPERED_5AXIS": {
+      "description": "5-axis waterjet with active kerf-taper compensation. Used for parts requiring perpendicular walls (precision aerospace, electronic enclosures).",
+      "category": "Waterjet",
+      "parameterCount": 20,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Pump Pressure", "type": "numeric", "default": 4100, "unit": "bar"},
+            {"name": "Orifice Diameter", "type": "numeric", "default": 0.30, "unit": "mm"},
+            {"name": "Mixing Tube Diameter", "type": "numeric", "default": 0.76, "unit": "mm"},
+            {"name": "Abrasive Type", "type": "dropdown", "options": ["garnet_80_mesh", "garnet_120_mesh"], "default": "garnet_80_mesh"},
+            {"name": "Abrasive Flow Rate", "type": "numeric", "default": 0.45, "unit": "kg/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Profile", "type": "selection", "required": true},
+            {"name": "Material Thickness", "type": "numeric", "default": 25, "unit": "mm"},
+            {"name": "Material Type", "type": "dropdown", "options": ["stainless_304", "aluminum_6061", "titanium_grade_5", "tool_steel"], "default": "aluminum_6061"},
+            {"name": "Wall Perpendicularity Target", "type": "numeric", "default": 0.05, "unit": "mm/100mm"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Cutting Quality", "type": "dropdown", "options": ["Q3_medium", "Q4_smooth", "Q5_polish_quality"], "default": "Q5_polish_quality"},
+            {"name": "Cutting Speed", "type": "numeric", "default": 100, "unit": "mm/min"},
+            {"name": "Kerf Width", "type": "numeric", "default": 1.0, "unit": "mm"},
+            {"name": "Taper Compensation Mode", "type": "dropdown", "options": ["dynamic_5axis_active", "predicted_static", "model_based"], "default": "dynamic_5axis_active"},
+            {"name": "Tilt Angle Limit", "type": "numeric", "description": "Max head tilt for compensation", "default": 8, "unit": "deg"}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Strategy", "type": "dropdown", "options": ["dynamic_pierce", "low_pressure_pierce", "ramp_pierce"], "default": "ramp_pierce"},
+            {"name": "Pierce Time", "type": "numeric", "default": 3, "unit": "s"},
+            {"name": "Pierce Pressure", "type": "numeric", "default": 2500, "unit": "bar"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_5axis_waterjet", "OMAX_OMX_5ax", "Flow_FLW_5ax"], "default": "G_code_5axis_waterjet"},
+            {"name": "Verify Tilt Reach", "type": "checkbox", "default": true},
+            {"name": "Estimate Cut Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PLASMA_CUTTING": {
+      "description": "Plasma arc cutting for conductive sheet metal. Faster than oxy-fuel, more economical than laser for thicker steel (>10mm). Uses ionized gas at 20000-30000°C.",
+      "category": "Plasma",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Plasma System Class", "type": "dropdown", "options": ["air_plasma_low_amp", "Hypertherm_HPR_HiDef", "Kjellberg_Smart_Focus", "Thermal_Dynamics_Auto_Cut"], "default": "Hypertherm_HPR_HiDef"},
+            {"name": "Cutting Current", "type": "numeric", "default": 130, "unit": "A", "min": 30, "max": 800},
+            {"name": "Arc Voltage", "type": "numeric", "default": 145, "unit": "V"},
+            {"name": "Gas Type Plasma", "type": "dropdown", "options": ["Air", "Oxygen_O2", "Nitrogen_N2", "Hydrogen_H2", "Argon_Hydrogen_mix"], "default": "Air"},
+            {"name": "Gas Type Shield", "type": "dropdown", "options": ["Air", "Nitrogen_N2", "Argon", "CO2"], "default": "Air"},
+            {"name": "Gas Flow Plasma", "type": "numeric", "default": 50, "unit": "L/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Profile", "type": "selection", "required": true},
+            {"name": "Material Thickness", "type": "numeric", "default": 12, "unit": "mm", "min": 1, "max": 100},
+            {"name": "Material Type", "type": "dropdown", "options": ["mild_steel", "stainless_304", "stainless_316", "aluminum_6061", "copper", "brass"], "default": "mild_steel"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Cutting Speed", "type": "numeric", "default": 3500, "unit": "mm/min"},
+            {"name": "Kerf Width", "type": "numeric", "default": 1.5, "unit": "mm"},
+            {"name": "Torch Height (THC)", "type": "dropdown", "description": "Torch height control mode", "options": ["arc_voltage_feedback", "fixed_height", "initial_height_sense_only"], "default": "arc_voltage_feedback"},
+            {"name": "Cut Height", "type": "numeric", "description": "Steady-state torch standoff", "default": 1.5, "unit": "mm"},
+            {"name": "Bevel Angle", "type": "numeric", "description": "0=perpendicular cut, > 0 = beveled", "default": 0, "unit": "deg", "min": 0, "max": 45}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Height", "type": "numeric", "description": "Higher than cut height during pierce", "default": 4.5, "unit": "mm"},
+            {"name": "Pierce Delay", "type": "numeric", "description": "Stationary dwell during pierce", "default": 0.4, "unit": "s"},
+            {"name": "Pierce Move Type", "type": "dropdown", "options": ["plunge", "dynamic_motion_pierce", "ramp"], "default": "plunge"},
+            {"name": "Pierce Current", "type": "numeric", "description": "Often equal to cut current; some systems boost", "default": 130, "unit": "A"}
+          ]
+        },
+        "Lead": {
+          "parameters": [
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "none"], "default": "perpendicular"},
+            {"name": "Lead-In Length", "type": "numeric", "default": 4, "unit": "mm"},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["arc", "perpendicular", "tangential", "none"], "default": "perpendicular"},
+            {"name": "Lead-Out Length", "type": "numeric", "default": 4, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_plasma", "Hypertherm_PMX", "ESAB_iSeries"], "default": "G_code_plasma"},
+            {"name": "Estimate Consumable Life", "type": "checkbox", "description": "Predict electrode/nozzle/swirl-ring life", "default": true},
+            {"name": "Estimate Cut Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PLASMA_BEVEL": {
+      "description": "Bevel-cutting plasma for weld preparation. Single-bevel or double-bevel V/Y/X edges. Requires 5-axis or rotator/tilter head.",
+      "category": "Plasma",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Plasma System Class", "type": "dropdown", "options": ["Hypertherm_HPR_HiDef", "Kjellberg_Smart_Focus", "Thermal_Dynamics_AutoCut"], "default": "Hypertherm_HPR_HiDef"},
+            {"name": "Cutting Current", "type": "numeric", "default": 200, "unit": "A"},
+            {"name": "Arc Voltage", "type": "numeric", "default": 150, "unit": "V"},
+            {"name": "Gas Type Plasma", "type": "dropdown", "options": ["Oxygen_O2", "Nitrogen_N2", "Argon_Hydrogen_mix"], "default": "Oxygen_O2"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Profile", "type": "selection", "required": true},
+            {"name": "Bevel Type", "type": "dropdown", "options": ["V_single", "Y_single_with_root", "X_double_symmetric", "K_double_asymmetric"], "default": "V_single"},
+            {"name": "Top Bevel Angle", "type": "numeric", "default": 30, "unit": "deg", "min": 0, "max": 45},
+            {"name": "Bottom Bevel Angle", "type": "numeric", "default": 0, "unit": "deg"},
+            {"name": "Root Face Height", "type": "numeric", "description": "For Y / X / K bevels", "default": 2, "unit": "mm"},
+            {"name": "Material Thickness", "type": "numeric", "default": 20, "unit": "mm"},
+            {"name": "Material Type", "type": "dropdown", "options": ["mild_steel", "stainless_304", "stainless_316"], "default": "mild_steel"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Cutting Speed", "type": "numeric", "default": 2000, "unit": "mm/min"},
+            {"name": "Kerf Width", "type": "numeric", "default": 2.5, "unit": "mm"},
+            {"name": "Bevel Compensation", "type": "checkbox", "description": "Adjust path for bevel offset from contour", "default": true},
+            {"name": "Pass Order", "type": "dropdown", "options": ["bevel_first_then_cut", "cut_first_then_bevel", "single_pass_combined"], "default": "single_pass_combined"}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Pierce Delay", "type": "numeric", "default": 0.6, "unit": "s"},
+            {"name": "Pierce Strategy", "type": "dropdown", "options": ["dynamic_motion_pierce", "stationary"], "default": "dynamic_motion_pierce"}
+          ]
+        },
+        "Lead": {
+          "parameters": [
+            {"name": "Lead-In Length", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Lead-Out Length", "type": "numeric", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_5axis_plasma", "Hypertherm_PMX", "ESAB_iSeries"], "default": "G_code_5axis_plasma"},
+            {"name": "Verify Tilt Reach", "type": "checkbox", "default": true},
+            {"name": "Estimate Cut Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PLASMA_MARK": {
+      "description": "Plasma marking (low-power scribe) for layout lines and part identification before cutting. Same head as plasma cut, reduced current.",
+      "category": "Plasma",
+      "parameterCount": 12,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Marking Current", "type": "numeric", "default": 25, "unit": "A", "min": 10, "max": 60},
+            {"name": "Gas Type", "type": "dropdown", "options": ["Argon", "Argon_Hydrogen_mix", "Air"], "default": "Argon"},
+            {"name": "Gas Flow", "type": "numeric", "default": 25, "unit": "L/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mark Geometry", "type": "selection", "description": "Text, layout lines, ID", "required": true},
+            {"name": "Material Type", "type": "dropdown", "options": ["mild_steel", "stainless_304", "aluminum_6061"], "default": "mild_steel"}
+          ]
+        },
+        "Cut": {
+          "parameters": [
+            {"name": "Marking Speed", "type": "numeric", "default": 8000, "unit": "mm/min"},
+            {"name": "Mark Depth", "type": "numeric", "default": 0.1, "unit": "mm"},
+            {"name": "Mark Height (Standoff)", "type": "numeric", "default": 3, "unit": "mm"}
+          ]
+        },
+        "Pierce": {
+          "parameters": [
+            {"name": "Pierce Height", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Pierce Delay", "type": "numeric", "description": "Marking does not pierce; arc-on dwell only", "default": 0.1, "unit": "s"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["G_code_plasma", "Hypertherm_PMX"], "default": "G_code_plasma"},
+            {"name": "Estimate Mark Time", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    }
+  },
+  "physics_formulas_linked": [
+    {
+      "formula_id": "LASER_BEAM_ABLATION",
+      "description": "Material removal rate per pulse: V = (alpha * I_avg * t_pulse) / (rho * h_v) where alpha = absorption coeff, I_avg = avg intensity, h_v = vaporization enthalpy.",
+      "engines_linked": ["LaserAblationEngine", "LaserCuttingEngine"]
+    },
+    {
+      "formula_id": "LASER_KERF_GEOMETRY",
+      "description": "Kerf width = focused beam diameter + (HAZ width). Bottom kerf > top kerf (positive taper) due to beam divergence below focus.",
+      "engines_linked": ["LaserCuttingEngine"]
+    },
+    {
+      "formula_id": "WATERJET_KERF_TAPER",
+      "description": "Kerf taper t = (D_top - D_bottom) / 2. Decreases with: lower speed, higher pressure, larger orifice. Active 5-axis comp eliminates taper for perpendicular walls.",
+      "engines_linked": ["WaterjetCuttingEngine"]
+    },
+    {
+      "formula_id": "WATERJET_PIERCE_TIME",
+      "description": "Pierce time t_p ~ k * (thickness)^n where n = 1.5-2.0 depending on material brittleness; ductile metals require longer pierce due to rebound.",
+      "engines_linked": ["WaterjetCuttingEngine"]
+    },
+    {
+      "formula_id": "PLASMA_ARC_VOLTAGE_HEIGHT",
+      "description": "Arc voltage rises ~6-10 V per mm increase in standoff. THC (Torch Height Control) feeds voltage back to maintain constant cut height.",
+      "engines_linked": ["PlasmaCuttingEngine"]
+    },
+    {
+      "formula_id": "PLASMA_PIERCE_DELAY",
+      "description": "Pierce delay t_d = a + b*thickness; typical 0.3 + 0.05*t (s). Too short = blow-through molten on lens; too long = consumable wear.",
+      "engines_linked": ["PlasmaCuttingEngine"]
+    }
+  ],
+  "tribal_knowledge_summary": {
+    "tip_count": 6,
+    "sources": ["jm_die", "shop_floor", "fusion_help", "hypertherm_app_notes"],
+    "highlights": [
+      {"id": "tt_laser_n2_ss", "text": "Cut stainless with Nitrogen, not Oxygen — N2 prevents oxidation (clean shiny edge); O2 leaves dross + oxide layer requiring secondary clean.", "source": "fusion_help", "confidence": 0.95},
+      {"id": "tt_laser_pierce_thick", "text": "For >12mm carbon steel use ramp pierce or center-drill before cut — fast pierce blows back into nozzle and damages optics.", "source": "shop_floor", "confidence": 0.92},
+      {"id": "tt_waterjet_garnet_grit", "text": "80-mesh garnet for general work; 120-mesh for finish quality (Q5); 50-mesh for thick (>50mm) cutting where speed matters more than finish.", "source": "shop_floor", "confidence": 0.9},
+      {"id": "tt_waterjet_taper_perpend", "text": "Pure waterjet at low speed gives least taper; for tight perpendicularity use 5-axis dynamic comp; static taper trick only works ±0.5° tilt.", "source": "fusion_help", "confidence": 0.88},
+      {"id": "tt_plasma_thc", "text": "Always run THC on arc-voltage feedback for warped plate; fixed-height THC fails on >2mm bow and torches dive into the plate.", "source": "hypertherm_app_notes", "confidence": 0.94},
+      {"id": "tt_plasma_consumables", "text": "Pierce extracts 2-4x more wear from electrode than steady cut — minimize pierces (bridge cuts, common-line cuts, chain piercing).", "source": "hypertherm_app_notes", "confidence": 0.93}
+    ]
+  }
+}

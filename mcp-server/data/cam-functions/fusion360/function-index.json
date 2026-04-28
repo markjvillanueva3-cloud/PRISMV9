@@ -69,6 +69,14 @@
       "parameter_count_estimate": 264,
       "description": "Additive manufacturing toolpaths — DED (4 ops: thin-wall, wide-area, multi-axis lattice, repair), PBF/SLM (3 ops: part, support, lattice infill), FDM (3 ops: part, support, infill pattern), Hybrid (2 ops: cycled DED+mill, near-net+finish). Manufacturing Extension surface.",
       "dependencies": []
+    },
+    {
+      "module_id": "cutting",
+      "path": "cam-functions/fusion360/cutting.json",
+      "covered_units": ["U-CAM-MS1-03"],
+      "parameter_count_estimate": 196,
+      "description": "Sheet cutting toolpaths — laser cutting (3 ops: cutting, etching, drilling), waterjet (3 ops: abrasive, pure-water, 5-axis tapered), plasma (3 ops: cutting, bevel, mark). 9 toolpaths covering 2D contour with kerf compensation, lead-in/out, pierce strategies.",
+      "dependencies": []
     }
   ],
   "global_cross_references": {

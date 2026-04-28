@@ -553,6 +553,22 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get cutting toolpaths (CAM-EXHAUST-MS1-03).
+   * Covers laser, waterjet, and plasma sheet-cutting operations.
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   *   Categories: "Laser" | "Waterjet" | "Plasma"
+   */
+  static getCuttingOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("cutting.json", "getCuttingOperations");
+  }
+
+  /**
    * Get additive toolpaths (CAM-EXHAUST-MS1-02).
    * Reads additive.json catalog covering DED, PBF, FDM, and Hybrid
    * (additive+subtractive) operations.
