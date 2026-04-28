@@ -1,0 +1,26 @@
+---
+id: "sc-083"
+title: "Mill-Turn Sub-Spindle Transfer — Stock Model Carries Over"
+source: "web:solidcam-docs"
+confidence: 90
+category: "cam_strategy"
+tags: ["solidcam", "mill-turn", "sub-spindle", "stock-transfer", "part-off"]
+_source: "solidcam-cam-tips.ts"
+indexed_at: 2026-04-28T01:00:43.727Z
+---
+
+# Mill-Turn Sub-Spindle Transfer — Stock Model Carries Over
+
+When transferring a part from the main spindle to the sub-spindle in SolidCAM, the updated stock model transfers automatically. This means subsequent sub-spindle operations see the exact material state from main-spindle machining. Always define the part-off operation before the sub-spindle pickup to ensure the stock model is correctly split. If you modify main-spindle operations after setting up sub-spindle work, regenerate all sub-spindle operations to update the transferred stock model.
+
+**Category:** cam_strategy
+**Confidence:** 90
+**Source:** web:solidcam-docs
+**Operations:** mill_turn, sub_spindle
+
+## Related
+- [[solidcam-cam-tips-sc-154-2|Taylor Tool Life for Economic Speed Selection]]
+- [[solidcam-cam-tips-sc-082|Mill-Turn C/Y-Axis Milling — Coordinate System Alignment]]
+- [[solidcam-cam-tips-sc-084|Mill-Turn Live Tooling — RPM vs. CSS Decision for Milling on Lathe]]
+- [[solidcam-cam-tips-sc-143-2|Monte Carlo Cycle Time Estimation]]
+- [[solidcam-cam-tips-sc-144-2|Weibull Tool Life for iMachining Replace-Before-Fail]]
