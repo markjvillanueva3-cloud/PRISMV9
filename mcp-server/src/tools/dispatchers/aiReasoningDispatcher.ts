@@ -63,9 +63,9 @@ export async function executeAIReasoningAction(
   const startTime = Date.now();
   log.info(`[prism_ai] Executing action: ${action}`);
 
-  // Validate params against schema
-  const schema = ACTION_AI_REASONING_SCHEMAS[action];
-  const validation = validateActionParams(action, params, schema);
+  // Validate params against schema (U-WIRE03: pass the schema MAP, not the per-action schema —
+  // validateActionParams indexes the map by action; passing a single Zod object made it always pass).
+  const validation = validateActionParams(action, params, ACTION_AI_REASONING_SCHEMAS);
   if (!validation.valid) {
     return dispatcherError(validation.error ?? "Validation failed", action, "prism_ai");
   }
@@ -318,6 +318,41 @@ export async function executeAIReasoningAction(
           exclude_patterns: params.exclude_patterns as string[] | undefined,
           max_files_per_cycle: params.max_files_per_cycle as number | undefined,
         });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_explain_decision": {
+        const { aiDecisionExplanationEngine } = await import("../../engines/AIDecisionExplanationEngine.js");
+        result = aiDecisionExplanationEngine.explainDecision(
+          params as Parameters<typeof aiDecisionExplanationEngine.explainDecision>[0],
+        );
+        break;
+      }
+      case "ai_extract_classify": {
+        const { aiExtractionReasoner } = await import("../../engines/AIExtractionReasonerEngine.js");
+        result = await aiExtractionReasoner.classifyContent(params.content);
+        break;
+      }
+      case "ai_physics_optimize": {
+        const { aiPhysicsOptimizationEngine } = await import("../../engines/AIPhysicsOptimizationEngine.js");
+        result = await aiPhysicsOptimizationEngine.optimize(
+          params as Parameters<typeof aiPhysicsOptimizationEngine.optimize>[0],
+        );
+        break;
+      }
+      case "ai_knowledge_query": {
+        const { aiDeepKnowledgeIntegration } = await import("../../engines/AIDeepKnowledgeIntegrationEngine.js");
+        result = await aiDeepKnowledgeIntegration.query(
+          params as Parameters<typeof aiDeepKnowledgeIntegration.query>[0],
+        );
+        break;
+      }
+      case "ai_material_lookup": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getMaterialParameters(params.material as string);
         break;
       }
 

@@ -30,6 +30,12 @@ export const AI_REASONING_ACTIONS = [
   "sfc_fewshot_predict",
   "ppg_sfc_closed_loop",
   "iterate_retrieve",
+  // ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines
+  "ai_explain_decision",
+  "ai_extract_classify",
+  "ai_physics_optimize",
+  "ai_knowledge_query",
+  "ai_material_lookup",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -224,6 +230,123 @@ const iterate_retrieve = z.object({
   max_files_per_cycle: z.number().int().min(10).max(500).optional().describe("Cap per cycle (default 100)"),
 }).passthrough();
 
+// ─── ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines ──────
+
+/** AI Decision Explanation — narrate why parameters were chosen. */
+const ai_explain_decision = z.object({
+  operationId: z.string().min(1).describe("Operation ID for traceability"),
+  operationType: z.enum([
+    "roughing","finishing","drilling","threading","tapping","boring","reaming",
+    "facing","turning","grooving","parting","profiling","pocketing","contouring",
+    "chamfering","wire_edm","sinker_edm","grinding","general",
+  ]).describe("High-level operation classification"),
+  operationName: z.string().optional().describe("Human-readable operation name"),
+  parameters: z.array(z.object({
+    parameter: z.string().min(1),
+    chosenValue: z.union([z.number(), z.string()]),
+    unit: z.string(),
+    context: z.record(z.string(), z.unknown()).optional(),
+    sources: z.array(z.unknown()).optional(),
+    alternatives: z.array(z.unknown()).optional(),
+    constraints: z.array(z.string()).optional(),
+    risks: z.array(z.string()).optional(),
+    displayName: z.string().optional(),
+  }).passthrough()).min(1).describe("Parameter decisions to explain"),
+  verbosity: z.enum(["brief", "normal", "detailed"]).optional().describe("Explanation depth"),
+  includeTribalKnowledge: z.boolean().optional().describe("Include tribal-tip references"),
+  targetAudience: z.enum(["operator", "engineer", "manager"]).optional().describe("Tailor wording"),
+}).passthrough();
+
+/** AI Extraction Classifier — categorize raw extracted content. */
+const ai_extract_classify = z.object({
+  content: z.unknown().describe("Raw extracted content (object, string, or array)"),
+}).passthrough();
+
+/** AI Physics Optimization — multi-objective parameter search with physics + AI agents. */
+const ai_physics_optimize = z.object({
+  material: z.object({
+    name: z.string().min(1),
+    iso_group: z.enum(["P","M","K","N","S","H"]).optional(),
+    hardness_hrc: z.number().optional(),
+    hardness_hb: z.number().optional(),
+    kc1_1: z.number().positive().optional(),
+    mc: z.number().optional(),
+    thermal_conductivity: z.number().positive().optional(),
+    machinability_factor: z.number().positive().optional(),
+  }).passthrough().describe("Workpiece material spec"),
+  tool: z.object({
+    type: z.enum(["endmill","insert","drill","tap","boring_bar","turning_insert"]),
+    material: z.enum(["hss","carbide","ceramic","cbn","pcd"]),
+    diameter_mm: z.number().positive(),
+    flutes: z.number().int().positive().optional(),
+    coating: z.string().optional(),
+    helix_angle_deg: z.number().optional(),
+    corner_radius_mm: z.number().nonnegative().optional(),
+    stickout_mm: z.number().positive().optional(),
+    edge_radius_mm: z.number().nonnegative().optional(),
+  }).passthrough().describe("Tool spec"),
+  machine: z.object({
+    type: z.enum(["vertical_mill","horizontal_mill","lathe","turn_mill","5axis"]),
+    power_kw: z.number().positive(),
+    max_rpm: z.number().positive(),
+    max_torque_nm: z.number().positive().optional(),
+    taper: z.string().optional(),
+    rigidity: z.enum(["low","medium","high"]).optional(),
+    natural_freq_hz: z.number().positive().optional(),
+  }).passthrough().describe("Machine spec"),
+  operation: z.object({
+    operation: z.enum(["roughing","finishing","semi_finishing","drilling","threading","grooving"]),
+    feature: z.string().optional(),
+    strategy: z.string().optional(),
+    coolant: z.string().optional(),
+    tolerance_mm: z.number().positive().optional(),
+    surface_finish_ra: z.number().positive().optional(),
+  }).passthrough().describe("Operation context"),
+  objectives: z.object({
+    maximize_mrr: z.boolean().optional(),
+    maximize_tool_life: z.boolean().optional(),
+    minimize_cost: z.boolean().optional(),
+    minimize_cycle_time: z.boolean().optional(),
+    maximize_surface_quality: z.boolean().optional(),
+    minimize_deflection: z.boolean().optional(),
+    weights: z.object({
+      productivity: z.number().min(0),
+      tool_cost: z.number().min(0),
+      quality: z.number().min(0),
+      safety: z.number().min(0),
+    }).passthrough().optional(),
+  }).passthrough().optional().describe("Optimization weights"),
+  constraints: z.object({
+    max_force_N: z.number().positive().optional(),
+    max_power_kw: z.number().positive().optional(),
+    max_deflection_um: z.number().positive().optional(),
+    min_tool_life_min: z.number().positive().optional(),
+    max_temperature_C: z.number().optional(),
+  }).passthrough().optional().describe("Hard constraints"),
+  use_swarm: z.boolean().optional().describe("Enable swarm-of-agents reasoning"),
+  use_creative_reasoning: z.boolean().optional().describe("Enable cross-disciplinary creative mode"),
+  use_uncertainty_quantification: z.boolean().optional().describe("Run Monte Carlo UQ"),
+  monte_carlo_samples: z.number().int().positive().optional().describe("MC sample count"),
+}).passthrough();
+
+/** AI Deep Knowledge Query — multi-source knowledge fusion. */
+const ai_knowledge_query = z.object({
+  intent: z.enum([
+    "recommend_parameters","validate_physics","find_similar_programs","get_tribal_wisdom",
+    "suggest_toolpath","analyze_material","optimize_process","generate_code",
+    "debug_issue","learn_from_resource",
+  ]).describe("What kind of answer the caller wants"),
+  domain: z.string().min(1).describe("Domain hint (e.g. 'milling', 'turning', material name)"),
+  context: z.record(z.string(), z.unknown()).describe("Free-form context object"),
+  constraints: z.array(z.string()).optional().describe("Optional constraint strings"),
+  depth: z.enum(["surface","moderate","deep","exhaustive"]).optional().describe("Reasoning depth"),
+}).passthrough();
+
+/** AI Resource Material Lookup — surface learned material parameters from program corpus. */
+const ai_material_lookup = z.object({
+  material: z.string().min(1).describe("Material designation (e.g. AISI 4140, 6061-T6)"),
+}).passthrough();
+
 /** Map action to schema */
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
   ai_route_mill_pipeline,
@@ -237,4 +360,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   pattern_reinforce,
   pattern_stats,
   iterate_retrieve,
+  // ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines
+  ai_explain_decision,
+  ai_extract_classify,
+  ai_physics_optimize,
+  ai_knowledge_query,
+  ai_material_lookup,
 };
