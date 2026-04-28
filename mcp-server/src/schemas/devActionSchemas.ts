@@ -247,4 +247,33 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     ).optional().describe("Per-hook-type model overrides"),
     verbose: z.boolean().optional().describe("Enable verbose logging"),
   }).optional(),
+  // ── ENGINE-WIRE-MS0/U-WIRE15: 5 self-awareness/AI-meta engines ──
+  dev_awareness_find_similar: z.object({
+    keywords: z.array(z.string().min(1)).min(1).max(50).describe("Keywords to match against asset registry"),
+    types: z.array(z.enum(["engine","formula","algorithm","action","dispatcher","skill","hook","tribal_tip","playbook_rule","extraction"])).optional().describe("Restrict to specific asset types"),
+    limit: z.number().int().positive().max(100).optional().describe("Max results (default 10)"),
+  }),
+
+  dev_awareness_bootstrap_report: z.object({
+    now_ms: z.number().int().positive().optional().describe("Override 'now' timestamp (test reproducibility)"),
+  }).passthrough(),
+
+  dev_capability_metrics: z.object({}).passthrough(),
+
+  dev_system_recommend_engines: z.object({
+    type: z.enum(["build","optimize","analyze","extract","reason"]).describe("Task category"),
+    domain: z.string().min(1).describe("Domain or topic (e.g. 'cutting force', 'tool life')"),
+    description: z.string().min(1).describe("Free-text description of the task"),
+  }).passthrough(),
+
+  dev_auto_utilize_analyze: z.object({
+    input: z.string().min(1).describe("User input or task description to classify"),
+    context: z.object({
+      recent_files: z.array(z.string()).optional(),
+      recent_engines: z.array(z.string()).optional(),
+      domain_focus: z.string().optional(),
+      session_goals: z.array(z.string()).optional(),
+      error_history: z.array(z.string()).optional(),
+    }).passthrough().optional().describe("Optional session context for ranking"),
+  }).passthrough(),
 };
