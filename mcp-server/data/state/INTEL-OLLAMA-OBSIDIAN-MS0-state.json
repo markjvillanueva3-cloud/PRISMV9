@@ -9,16 +9,16 @@
     "P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05",
     "P4-U01", "P4-U02", "P4-U03", "P4-U04",
     "P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05",
-    "P6-U01", "P6-U02",
+    "P6-U01", "P6-U02", "P6-U03",
     "GSD-REFRESH", "OLLAMA-DEV-01", "OLLAMA-DEV-02", "HOOK-FIX"
   ],
   "in_progress_units": [],
   "blocked_units": [],
-  "current_phase": "P6",
-  "last_updated": "2026-04-28T17:18:00.000Z",
+  "current_phase": "P7",
+  "last_updated": "2026-04-28T17:42:00.000Z",
   "last_updated_by": "claude-37ef54c0",
   "last_updated_pc": "MarkV",
-  "next_recommended_unit": "P6-U03",
-  "notes": "Phases P4 + P5 complete; P6-U01 + P6-U02 closed. P6-U01: mirror-c-to-h.mjs hook + bootstrap + audit scripts (12/12 tests). P6-U02: 4/4 advisory hooks now wired (engine-digest-precheck, commit-format-validator, compact-interval-warning + new rtk-prefix-reminder.mjs by claude-37ef54c0); 32/32 tests pass in P6U02UnforcedRuleHooks.test.ts (was 15, +17 for rtk-prefix-reminder). Envelope v3.0.0 final — 92 units, 24 phases.",
-  "next_unit_rationale": "P6-U03 — Awareness hook deduplication (pick 3 canonical, deprecate 10). Manual config change requiring careful settings.json edits + .deprecated/ folder migration. P20-U01 (model pulls) remains the long-term unlock for Vision PDF + multi-model stack."
+  "next_recommended_unit": "P7-U01",
+  "notes": "Phase P6 COMPLETE. P6-U03 closed by claude-37ef54c0: moved 10 redundant awareness hooks to .claude/hooks/.deprecated/ (ai-command-awareness, awareness-floor, cross-session-awareness, multi-session-awareness, post-write-sync-awareness, pre-tool-awareness-refresh, prism-awareness-v2, self-awareness-auto-inject, session-awareness-bootstrap, session-awareness-inject); applied wire-canonical-awareness.mjs --apply which removed 4 currently-wired redundant entries from H:/.claude/settings.json (backup: settings.json.pre-p6u03.1777397992378). 7 surviving canonical hooks: awareness-snapshot, awareness-bootstrap, prism-awareness-cache + multi-computer-awareness, self-awareness-enforce, stop_on_awareness_degraded, working-set-awareness. 9/9 WireCanonicalAwareness tests pass post-apply. JSON valid. Phases P0-P6 fully closed. Envelope v3.0.0 final — 92 units, 24 phases.",
+  "next_unit_rationale": "P7 phase begins. Inspect knowledge/roadmap/INTEL-OLLAMA-OBSIDIAN-MS0.json for P7-U01. P20-U01 (model pulls — nomic-embed-text, llama3.2-vision, deepseek-r1) remains the long-term unlock for Vision PDF + multi-model stack."
 }
