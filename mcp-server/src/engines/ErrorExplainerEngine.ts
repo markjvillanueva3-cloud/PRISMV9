@@ -166,6 +166,74 @@ const MATCHERS: Matcher[] = [
   },
 ];
 
+/**
+ * OLLAMA-DEV-02: Ollama escalation
+ *
+ * When the deterministic signature match returns category="unknown"
+ * (no known pattern), call local Ollama qwen2.5-coder:7b for a
+ * domain-specific minimalFix instead of giving up with generic
+ * guidance. Ollama is opportunistic — if it's down or timed out we
+ * keep the original generic block, never throw.
+ */
+const OLLAMA_TIMEOUT_MS = 6_000;
+const OLLAMA_MAX_MESSAGE_CHARS = 2_000;
+
+async function explainWithOllama(
+  input: ErrorExplainInput,
+): Promise<{ plainLanguage: string; minimalFix: string; unblockCommand: string; confidence: number } | null> {
+  const ollamaUrl = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
+  const ollamaModel = process.env.OLLAMA_ERROR_MODEL ?? "qwen2.5-coder:7b";
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), OLLAMA_TIMEOUT_MS);
+  const message = input.message.slice(0, OLLAMA_MAX_MESSAGE_CHARS);
+  const filePathHint = input.filePath ? `\nFile: ${input.filePath}` : "";
+  const prompt = [
+    `You are a concise compiler-error explainer. Given a ${input.source} error message, respond with JSON only:`,
+    `{"plainLanguage":"<one sentence cause>","minimalFix":"<one sentence fix>","unblockCommand":"<one short shell command, may be empty>"}`,
+    `Do not include any markdown, prose, or backticks. Just the JSON.`,
+    `${filePathHint}`,
+    "",
+    `Error message:`,
+    message,
+  ].join("\n");
+  try {
+    const res = await fetch(`${ollamaUrl}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: ollamaModel,
+        prompt,
+        stream: false,
+        format: "json",
+        options: { num_predict: 220, temperature: 0.1 },
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const body = (await res.json()) as { response?: string };
+    const raw = String(body?.response ?? "").trim();
+    if (!raw) return null;
+    let parsed: unknown;
+    try { parsed = JSON.parse(raw); } catch { return null; }
+    if (!parsed || typeof parsed !== "object") return null;
+    const obj = parsed as Record<string, unknown>;
+    const plain = typeof obj.plainLanguage === "string" ? obj.plainLanguage.trim() : "";
+    const fix = typeof obj.minimalFix === "string" ? obj.minimalFix.trim() : "";
+    const cmd = typeof obj.unblockCommand === "string" ? obj.unblockCommand.trim() : "";
+    if (!plain || !fix) return null;
+    return {
+      plainLanguage: plain.slice(0, 240),
+      minimalFix: fix.slice(0, 240),
+      unblockCommand: cmd.slice(0, 240),
+      confidence: 0.5,
+    };
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
 export class ErrorExplainerEngine {
   readonly name = "ErrorExplainerEngine";
 
@@ -188,6 +256,31 @@ export class ErrorExplainerEngine {
       minimalFix: "Read the first 3 lines of the stack trace carefully — they usually point to the true origin.",
       unblockCommand: "",
       confidence: 0.2,
+    };
+  }
+
+  /**
+   * Same as explain(), but escalates to local Ollama when the
+   * deterministic match returns category="unknown". Falls back to
+   * the sync result if Ollama is unreachable, returns malformed
+   * JSON, or is otherwise unhelpful — never throws.
+   *
+   * @param input — same shape as explain()
+   * @returns ErrorExplanation; category remains "unknown" when
+   *          escalation succeeded so callers can tell the
+   *          guidance came from Ollama, not a known pattern.
+   */
+  async explainEscalated(input: ErrorExplainInput): Promise<ErrorExplanation> {
+    const sync = this.explain(input);
+    if (sync.category !== "unknown") return sync;
+    const ollama = await explainWithOllama(input);
+    if (!ollama) return sync;
+    return {
+      category: "unknown",
+      plainLanguage: ollama.plainLanguage,
+      minimalFix: ollama.minimalFix,
+      unblockCommand: ollama.unblockCommand,
+      confidence: ollama.confidence,
     };
   }
 

@@ -2620,6 +2620,22 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "error_explain_escalated": {
+            // OLLAMA-DEV-02: deterministic-first, Ollama-fallback when
+            // category=unknown. Falls back to the sync result when
+            // Ollama is unreachable; never throws.
+            const { errorExplainerEngine } = await import(
+              "../../engines/ErrorExplainerEngine.js"
+            );
+            const explanation = await errorExplainerEngine.explainEscalated({
+              source: params.source || "other",
+              message: String(params.message || ""),
+              filePath: params.filePath,
+            });
+            result = { success: true, explanation };
+            break;
+          }
+
           case "git_safety_classify": {
             const { gitSafetyEngine } = await import(
               "../../engines/GitSafetyEngine.js"
