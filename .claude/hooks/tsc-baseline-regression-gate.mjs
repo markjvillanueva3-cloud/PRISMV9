@@ -17,7 +17,11 @@ import {
 } from "./lib/autonomous-foolproof-logic.mjs";
 
 const BASELINE_RELATIVE = "state/shared/TSC_BASELINE_ERRORS.json";
+const CACHE_RELATIVE = "state/shared/TSC_BASELINE_CACHE.json";
 const TSC_TIMEOUT_MS = 90 * 1000;
+// Source roots to fingerprint for cache invalidation. tsc only matters when
+// these change. Build artifacts (dist/, node_modules/) are excluded.
+const TSC_SCAN_ROOTS = ["mcp-server/src"];
 
 function readStdinSafe() {
   try {
@@ -73,6 +77,60 @@ function writeBaseline(baselinePath, count) {
   }
 }
 
+/**
+ * Fingerprint the .ts file tree under TSC_SCAN_ROOTS — file count + max mtime.
+ * If cache holds the same fingerprint, we can skip tsc entirely. Walk is
+ * iterative + bounded; ignores node_modules and dist.
+ */
+function fingerprintSources(projectRoot) {
+  const SKIP = new Set(["node_modules", "dist", ".git", ".cache", "coverage"]);
+  let fileCount = 0;
+  let mtimeMax = 0;
+  const stack = TSC_SCAN_ROOTS.map((r) => path.join(projectRoot, r)).filter((p) => fs.existsSync(p));
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const ent of entries) {
+      if (SKIP.has(ent.name)) continue;
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) { stack.push(full); continue; }
+      if (!ent.isFile()) continue;
+      if (!ent.name.endsWith(".ts") && !ent.name.endsWith(".tsx")) continue;
+      try {
+        const st = fs.statSync(full);
+        fileCount++;
+        if (st.mtimeMs > mtimeMax) mtimeMax = st.mtimeMs;
+      } catch { /* unreadable file — skip */ }
+    }
+  }
+  return { fileCount, mtimeMax };
+}
+
+function loadCache(cachePath) {
+  try {
+    if (!fs.existsSync(cachePath)) return null;
+    const c = JSON.parse(fs.readFileSync(cachePath, "utf8"));
+    if (typeof c.error_count !== "number") return null;
+    if (typeof c.file_count !== "number") return null;
+    if (typeof c.mtime_max !== "number") return null;
+    return c;
+  } catch { return null; }
+}
+
+function writeCache(cachePath, errorCount, fingerprint) {
+  try {
+    fs.mkdirSync(path.dirname(cachePath), { recursive: true });
+    fs.writeFileSync(cachePath, JSON.stringify({
+      schemaVersion: "1.0.0",
+      error_count: errorCount,
+      file_count: fingerprint.fileCount,
+      mtime_max: fingerprint.mtimeMax,
+      generated_at: new Date().toISOString(),
+    }, null, 2), "utf8");
+  } catch { /* best-effort */ }
+}
+
 function countTscErrors(projectRoot) {
   try {
     const mcpServer = path.join(projectRoot, "mcp-server");
@@ -120,8 +178,24 @@ async function main() {
 
   const root = findProjectRoot();
   const baselinePath = path.join(root, BASELINE_RELATIVE);
+  const cachePath = path.join(root, CACHE_RELATIVE);
   const baseline = loadBaseline(baselinePath);
-  const current = countTscErrors(root);
+
+  // Fast path: if cache fingerprint matches current source tree, no .ts file
+  // changed since the last full tsc run → reuse cached error count. This
+  // avoids the 60-90s tsc invocation on every commit when the model is
+  // editing non-TS files (settings, hooks, markdown). Sub-second.
+  const fingerprint = fingerprintSources(root);
+  const cache = loadCache(cachePath);
+  let current;
+  if (cache &&
+      cache.file_count === fingerprint.fileCount &&
+      cache.mtime_max === fingerprint.mtimeMax) {
+    current = cache.error_count;
+  } else {
+    current = countTscErrors(root);
+    if (current !== null) writeCache(cachePath, current, fingerprint);
+  }
 
   const result = decideTscRegressionGate({
     isAutonomous,
