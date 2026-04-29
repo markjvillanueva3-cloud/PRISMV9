@@ -37,15 +37,20 @@ const BUILD_PATTERNS = [
   { family: "vitest-via-node", re: /node[^\s]*vitest/ },
 ];
 
-// Failure markers to scan in stdout when exit_code is unavailable
+// Failure markers to scan in stdout when exit_code is unavailable.
+// Each marker must be SPECIFIC enough to not false-positive on commit
+// messages, lint-staged wrapper output, or git push status. The earlier
+// generic /\bFAILED?\b/ matched "lint-staged failed" and triggered on
+// every successful commit — bug fixed by requiring failure markers to
+// be in canonical tool-output shape.
 const FAILURE_MARKERS = [
-  /\b(FAIL|FAILED)\b/,
-  /\d+\s+(failed|failing)/i,
-  /\berror\s+TS\d+\b/,
-  /\bnpm\s+ERR!/,
-  /AssertionError/,
-  /Test Files\s+\d+\s+failed/,
-  /Tests\s+\d+\s+failed/,
+  /^\s*FAIL\s+\S+/m,                    // vitest: "FAIL src/foo.test.ts"
+  /Test Files\s+\d+\s+failed/,          // vitest summary
+  /Tests\s+\d+\s+failed/,               // vitest summary
+  /\berror\s+TS\d+\b/,                  // tsc errors
+  /^npm\s+ERR!/m,                       // npm errors at line start
+  /^\s*AssertionError/m,                // assertion failures
+  /^\s*\d+\s+(failed|failing)\b/im,     // generic test reporter "N failed"
 ];
 
 function readStdinSafe() {
@@ -85,9 +90,14 @@ function markFired(sid, family) {
 }
 
 function detectFamily(cmd) {
-  const stripped = cmd.replace(/^(rtk\s+)?/, "").trim();
+  // Only inspect the LAST segment of a chained command (after && / || / ; / |).
+  // Earlier behavior tested the whole string, which matched 'vitest' inside
+  // heredoc commit messages and 'tsc' inside log greps. The last segment is
+  // the command whose exit code/output we're actually evaluating.
+  const segments = cmd.split(/&&|\|\||;|\|/).map((s) => s.trim()).filter(Boolean);
+  const last = (segments[segments.length - 1] ?? cmd).replace(/^(rtk\s+)?/, "").trim();
   for (const { family, re } of BUILD_PATTERNS) {
-    if (re.test(stripped)) return family;
+    if (re.test(last)) return family;
   }
   return null;
 }
