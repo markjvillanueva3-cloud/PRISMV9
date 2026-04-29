@@ -1,0 +1,24 @@
+{
+  "_doc": "Allowlist for leave-a-copy-behind-guard.mjs Stop hook. Files matching these entries may be deleted/renamed without leaving a copy at the original path. Use sparingly — the default is to preserve. Format: 'exact' = literal path strings (forward-slash, repo-relative); 'patterns' = JS RegExp source strings tested against forward-slash repo-relative paths.",
+  "_added": "2026-04-29 — initial seed alongside hook deployment (META-FIX/CAMX-MS22-U01-RECOVERY)",
+  "exact": [],
+  "patterns": [
+    "^mcp-server/data/state/.*\\.json$",
+    "^mcp-server/data/state/.*\\.jsonl$",
+    "^state/derived/.*$",
+    "^state/shared/handoffs/HANDOFF-claude-[a-z0-9]+\\.md$",
+    "^state/externalized/.*$",
+    "^.*\\.tsbuildinfo$",
+    "^state/shared/SCRUTINY_LEDGER\\.json$",
+    "^state/shared/AGENT_CHAT\\.md$",
+    "^state/shared/AGENT_WORKBOARD\\.md$",
+    "^state/shared/AGENT_COORDINATION_STATUS\\.md$",
+    "^state/shared/SVI-watch-status\\..*$",
+    "^state/shared/chat-bus/.*$",
+    "^state/shared/TASK_QUEUE\\.md$",
+    "^state/shared/TSC_BASELINE_ERRORS\\.json$",
+    "^mcp-server/data/state/ollama-offload-stats\\.json$",
+    "^mcp-server/data/state/session-file-ownership\\.json$",
+    "^mcp-server/data/state/consolidation-counter\\.json$"
+  ]
+}
