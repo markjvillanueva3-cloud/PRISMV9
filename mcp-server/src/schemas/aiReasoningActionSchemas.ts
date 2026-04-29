@@ -145,6 +145,11 @@ export const AI_REASONING_ACTIONS = [
   "fusion_dl_explain",         // U-WIRE36 → markdown explanation of a strategy by id (null if missing)
   "fusion_dl_list",            // U-WIRE36 → list strategies, optionally filtered by category enum
   "fusion_dl_stats",           // U-WIRE36 → engine stats (strategy count, knowledge entries, supported features/materials, categories)
+  // ENGINE-WIRE-MS0/U-WIRE37: InventorCAMStrategyEngine — Inventor HSM/HSMWorks strategy DB (8 categories × 18 features)
+  "inventorcam_recommend",     // U-WIRE37 → recommend top-5 strategies given feature/material/machine/tool/priority with reasoning
+  "inventorcam_get_strategy",  // U-WIRE37 → fetch HSMStrategy by internal name (null if missing)
+  "inventorcam_list",          // U-WIRE37 → list strategies, optional category filter (8-element enum)
+  "inventorcam_categories",    // U-WIRE37 → categories with counts and descriptions (only non-empty)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1280,4 +1285,59 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     ]).optional().describe("Optional category filter; omit to list all 23 seeded strategies"),
   }).passthrough(),
   fusion_dl_stats: z.object({}).passthrough(),
+  // U-WIRE37 — InventorCAMStrategyEngine
+  // recommend() takes 4 nested objects (feature/material/machine/tool) + an
+  // optional priority enum. Each nested object validates strict enums for
+  // its discriminator field (type / iso_group) but accepts loose optional
+  // numeric fields. All sub-schemas are .passthrough() so engine-internal
+  // fields not echoed in this map still flow through.
+  inventorcam_recommend: z.object({
+    feature: z.object({
+      type: z.enum([
+        "pocket_2d", "contour_2d", "slot", "face", "hole", "boss",
+        "freeform_3d", "steep_wall", "flat_area", "blended_surface", "ruled_surface",
+        "impeller", "turbine_blade", "port",
+        "turning_external", "turning_internal", "groove", "thread",
+      ]),
+      depth_mm: z.number().nonnegative().optional(),
+      wall_angle_deg: z.number().min(0).max(90).optional(),
+      has_previous_roughing: z.boolean().optional(),
+      axis_count: z.union([z.literal(3), z.literal(4), z.literal(5)]).optional(),
+      is_open: z.boolean().optional(),
+    }).passthrough(),
+    material: z.object({
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]),
+      hardness_hrc: z.number().optional(),
+      name: z.string().optional(),
+    }).passthrough(),
+    machine: z.object({
+      type: z.enum(["3axis_vertical", "3axis_horizontal", "4axis", "5axis", "lathe", "mill_turn"]),
+      max_rpm: z.number().positive().optional(),
+      spindle_kw: z.number().positive().optional(),
+      hpc: z.boolean().optional(),
+      tsc: z.boolean().optional(),
+    }).passthrough(),
+    tool: z.object({
+      diameter_mm: z.number().positive(),
+      flute_count: z.number().int().positive(),
+      type: z.enum([
+        "flat_end", "ball_end", "bull_nose", "face_mill", "drill",
+        "tap", "spot_drill", "chamfer", "lollipop", "barrel", "turning_insert",
+      ]),
+      corner_radius_mm: z.number().nonnegative().optional(),
+      flute_length_mm: z.number().positive().optional(),
+    }).passthrough(),
+    priority: z.enum(["cycle_time", "tool_life", "surface_finish", "balanced"]).optional()
+      .describe("Optimization priority; defaults to 'balanced' inside engine"),
+  }).passthrough(),
+  inventorcam_get_strategy: z.object({
+    name: z.string().min(1).describe("Strategy internal name (HSMStrategy.name); engine returns undefined when missing"),
+  }).passthrough(),
+  inventorcam_list: z.object({
+    category: z.enum([
+      "roughing_2d", "roughing_3d", "finishing_2d", "finishing_3d",
+      "drilling", "turning", "multi_axis", "probing",
+    ]).optional().describe("Optional category filter; omit to list all strategies"),
+  }).passthrough(),
+  inventorcam_categories: z.object({}).passthrough(),
 };
