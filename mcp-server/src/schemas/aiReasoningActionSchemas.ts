@@ -165,6 +165,11 @@ export const AI_REASONING_ACTIONS = [
   "machine_type_classify",       // U-WIRE41: full ClassificationResult with reasoning/warnings/alternatives/recommendedOperations
   "machine_type_quick",          // U-WIRE41: quick description-only classification, returns single MachineTypeClass
   "machine_type_multi_required", // U-WIRE41: boolean check if part requires multi-machine routing
+  // ENGINE-WIRE-MS0/U-WIRE42: MaterialHardnessStateClassifierEngine - hardness band -> kc1.1/mc/ISO/insert
+  "hardness_classify",           // U-WIRE42: full HardnessClassificationResult with band/kc1.1/mc/insert/max_speed
+  "hardness_list_materials",     // U-WIRE42: JM Die material name list (no aliases)
+  "hardness_list_with_aliases",  // U-WIRE42: full {name, aliases[]} map
+  "hardness_convert",            // U-WIRE42: bidirectional HB <-> HRC conversion
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1531,5 +1536,23 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
     partDescription: z.string().optional(),
     materialHardness_hrc: z.number().nonnegative().optional(),
+  }).passthrough(),
+  // U-WIRE42 - MaterialHardnessStateClassifierEngine
+  // classify() needs material_name; hardness_hrc OR hardness_hb (engine
+  // defaults to 25 HRC + warning when both omitted). heat_treatment is one
+  // of 6 enum values. Material lookup is case-insensitive substring match
+  // against the alias table; unknown materials fall back to band-based
+  // generic defaults at confidence 0.6.
+  hardness_classify: z.object({
+    material_name: z.string().min(1).describe("Material name or alias (e.g. '4140', 'AISI D2', '17-4 PH H1025')"),
+    hardness_hrc: z.number().min(0).max(72).optional().describe("Rockwell C hardness; takes precedence over HB"),
+    hardness_hb: z.number().min(50).max(800).optional().describe("Brinell hardness; converted to HRC if HRC absent"),
+    heat_treatment: z.enum(["annealed", "normalized", "quench_tempered", "case_hardened", "nitrided", "unknown"]).optional(),
+  }).passthrough(),
+  hardness_list_materials: z.object({}).passthrough(),
+  hardness_list_with_aliases: z.object({}).passthrough(),
+  hardness_convert: z.object({
+    from: z.enum(["hrc", "hb"]).describe("Source scale"),
+    value: z.number().nonnegative().describe("Source value; HRC range 0..72, HB range 100..739 (engine clamps outside)"),
   }).passthrough(),
 };
