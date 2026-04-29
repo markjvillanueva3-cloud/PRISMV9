@@ -608,6 +608,25 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get mill-turn toolpaths (CAM-EXHAUST-MS1-05).
+   * Reads mill-turn.json catalog covering dual-spindle synchronization,
+   * auxiliary actuation (tailstock / steady-rest), C-axis indexed +
+   * interpolated milling, and multi-axis turning (Y-axis offcenter,
+   * polygon, thread whirling, cross-drilling).
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   *   Categories: "Synchronization" | "Auxiliary" | "C_Axis" | "Multi_Axis"
+   */
+  static getMillTurnOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("mill-turn.json", "getMillTurnOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal
