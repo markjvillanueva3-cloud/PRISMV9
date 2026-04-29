@@ -140,6 +140,11 @@ export const AI_REASONING_ACTIONS = [
   "algo_orch_recommend",       // U-WIRE35 → recommend best algorithm by problemType+domain with alternatives
   "algo_orch_get",             // U-WIRE35 → fetch a single algorithm spec by id (null if missing)
   "algo_orch_count",           // U-WIRE35 → count of currently-loaded algorithms (sync, no await)
+  // ENGINE-WIRE-MS0/U-WIRE36: FusionDeepLearningEngine — Fusion 360 CAM strategy knowledge base (23 strategies × 21 features × 6 ISO materials)
+  "fusion_dl_select_strategy", // U-WIRE36 → chain-of-thought strategy selection with reasoning_chain + cutting_parameters + tribal_tips + warnings
+  "fusion_dl_explain",         // U-WIRE36 → markdown explanation of a strategy by id (null if missing)
+  "fusion_dl_list",            // U-WIRE36 → list strategies, optionally filtered by category enum
+  "fusion_dl_stats",           // U-WIRE36 → engine stats (strategy count, knowledge entries, supported features/materials, categories)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1235,4 +1240,44 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     id: z.string().min(1).describe("Algorithm id (e.g. 'kienzle', 'taylor', 'kalman'); returns null when missing"),
   }).passthrough(),
   algo_orch_count: z.object({}).passthrough(),
+  // U-WIRE36 — FusionDeepLearningEngine
+  // selectOptimalStrategy() expects strict enums (feature_type, material_group, machine_type)
+  // matching the engine's internal type unions. Tool/depth/width/tolerance are positive
+  // physical dimensions in mm. surface_finish_Ra_um (optional) tunes the scoring boost
+  // for finishing strategies (<1.6 µm triggers +0.15). prefer_adaptive forces Adaptive
+  // Clearing when present (also auto-triggered when depth > 2× tool diameter).
+  fusion_dl_select_strategy: z.object({
+    feature_type: z.enum([
+      "closed_pocket", "open_pocket", "slot_through", "slot_blind", "hole_through",
+      "hole_blind", "threaded_hole", "counterbore", "countersink", "boss",
+      "fillet", "chamfer", "freeform_surface", "flat_face", "thin_wall",
+      "deep_cavity", "bore", "thread_mill", "undercut", "ruled_surface", "text_engrave",
+    ]).describe("21 Fusion 360 feature types"),
+    material_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group (P=steel, M=stainless, K=cast iron, N=Al/NF, S=titanium/superalloy, H=hardened)"),
+    machine_type: z.enum([
+      "3axis_mill", "4axis_rotary", "5axis_table_table", "5axis_head_head",
+      "5axis_table_head", "lathe_2axis", "lathe_live_tooling", "mill_turn", "router",
+    ]).describe("Machine configuration"),
+    tool_diameter_mm: z.number().positive().describe("Tool diameter in mm; filters strategies by min/max range"),
+    depth_mm: z.number().positive().describe("Feature depth in mm; depth > 2×tool_diameter triggers Adaptive preference"),
+    width_mm: z.number().positive().describe("Feature width in mm"),
+    tolerance_mm: z.number().positive().describe("Required tolerance in mm"),
+    surface_finish_Ra_um: z.number().positive().optional().describe("Target Ra in µm; <1.6 boosts finishing strategies"),
+    prefer_adaptive: z.boolean().optional().describe("Force Adaptive Clearing when available"),
+    previous_operation: z.string().optional().describe("Identifier of preceding operation (informational)"),
+  }).passthrough(),
+  fusion_dl_explain: z.object({
+    strategy_id: z.string().min(1).describe("Strategy id (e.g. 'fusion-2d-adaptive', 'fusion-multiaxis-swarf'); returns null when missing"),
+  }).passthrough(),
+  fusion_dl_list: z.object({
+    category: z.enum([
+      "2d_adaptive", "2d_pocket", "2d_contour", "2d_face", "2d_slot", "2d_trace",
+      "2d_engrave", "2d_bore", "2d_circular", "drill", "thread", "3d_adaptive",
+      "3d_pocket", "3d_parallel", "3d_contour", "3d_steep_shallow", "3d_pencil",
+      "3d_scallop", "3d_radial", "3d_spiral", "3d_morphed_spiral", "3d_flow",
+      "3d_ramp", "3d_project", "3d_horizontal", "multiaxis_contour", "multiaxis_swarf",
+      "multiaxis_flow", "multiaxis_3plus2",
+    ]).optional().describe("Optional category filter; omit to list all 23 seeded strategies"),
+  }).passthrough(),
+  fusion_dl_stats: z.object({}).passthrough(),
 };

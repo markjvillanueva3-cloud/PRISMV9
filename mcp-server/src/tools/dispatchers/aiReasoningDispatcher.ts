@@ -1326,6 +1326,46 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE36: FusionDeepLearningEngine — Fusion 360 CAM
+      // strategy knowledge base (23 seeded strategies × 21 features × 6 ISO
+      // material groups). selectOptimalStrategy returns a chain-of-thought
+      // recommendation; explain/list/stats expose the rest of the surface.
+      // All methods are synchronous (no initialize() needed). Engine is
+      // wrapped by FusionAIOrchestrationEngine for ONE method only — the
+      // remaining surface area is unwired at the dispatcher layer.
+      // ─────────────────────────────────────────────────────────────────────
+      case "fusion_dl_select_strategy": {
+        const { fusionDeepLearningEngine } = await import("../../engines/FusionDeepLearningEngine.js");
+        type Arg = Parameters<typeof fusionDeepLearningEngine.selectOptimalStrategy>[0];
+        result = fusionDeepLearningEngine.selectOptimalStrategy(params as Arg);
+        break;
+      }
+      case "fusion_dl_explain": {
+        const { fusionDeepLearningEngine } = await import("../../engines/FusionDeepLearningEngine.js");
+        const p = params as { strategy_id: string };
+        const explanation = fusionDeepLearningEngine.explainStrategy(p.strategy_id);
+        result = explanation === null
+          ? { explanation: null, found: false }
+          : { explanation, found: true };
+        break;
+      }
+      case "fusion_dl_list": {
+        const { fusionDeepLearningEngine } = await import("../../engines/FusionDeepLearningEngine.js");
+        type Cat = Parameters<typeof fusionDeepLearningEngine.findByCategory>[0];
+        const p = params as { category?: Cat };
+        const strategies = p.category
+          ? fusionDeepLearningEngine.findByCategory(p.category)
+          : fusionDeepLearningEngine.listStrategies();
+        result = { strategies, count: strategies.length };
+        break;
+      }
+      case "fusion_dl_stats": {
+        const { fusionDeepLearningEngine } = await import("../../engines/FusionDeepLearningEngine.js");
+        result = fusionDeepLearningEngine.getStats();
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
