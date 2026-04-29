@@ -126,6 +126,10 @@ export const AI_REASONING_ACTIONS = [
   "analogy_register_many",     // U-WIRE32 → bulk register; throws on first invalid, prior inserts kept
   "analogy_find",              // U-WIRE32 → find analogous solved problems by free-text or structured query
   "analogy_inventory",         // U-WIRE32 → list registered problems (sorted by id) + size
+  // ENGINE-WIRE-MS0/U-WIRE33: MultiAssetReasoningEngine — cross-asset reasoning (engines+formulas+materials)
+  "multi_asset_reason",        // U-WIRE33 → reason(context) returns recommendation + assetsUsed + confidence + alternatives
+  "multi_asset_types",         // U-WIRE33 → getAssetTypes() — canonical asset categories (engine/formula/algorithm/...)
+  "multi_asset_reset",         // U-WIRE33 → reset() — clears initialization, forces re-init on next reason()
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1162,4 +1166,19 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
   }).passthrough(),
   analogy_inventory: z.object({}).passthrough(),
+  // U-WIRE33 — MultiAssetReasoningEngine
+  // reason() needs an objective string; constraints/availableAssetTypes/material/
+  // machineType are optional. Engine returns ReasoningResult with confidence
+  // bounded to [0.1, 1.0] internally.
+  multi_asset_reason: z.object({
+    context: z.object({
+      objective: z.string().min(1).describe("What we're trying to accomplish"),
+      constraints: z.array(z.string()).optional().describe("Constraint strings; each adds 0.05 confidence penalty"),
+      availableAssetTypes: z.array(z.string()).optional().describe("Restrict reasoning to a subset of canonical asset types"),
+      material: z.string().optional(),
+      machineType: z.string().optional(),
+    }).passthrough().describe("ReasoningContext to drive asset selection + recommendation"),
+  }).passthrough(),
+  multi_asset_types: z.object({}).passthrough(),
+  multi_asset_reset: z.object({}).passthrough(),
 };
