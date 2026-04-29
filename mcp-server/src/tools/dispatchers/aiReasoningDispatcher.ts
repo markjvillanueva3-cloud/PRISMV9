@@ -1366,6 +1366,56 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE37: InventorCAMStrategyEngine — Inventor HSM /
+      // HSMWorks strategy database. recommend() filters by feature/machine/
+      // tool suitability then scores by priority + HSM bonus + engagement-
+      // control bonus + 5-axis bonus + material-specific guidance bonus,
+      // sorts descending, returns top 5 ranked. All methods synchronous.
+      // ─────────────────────────────────────────────────────────────────────
+      case "inventorcam_recommend": {
+        const { inventorCAMStrategyEngine } = await import("../../engines/InventorCAMStrategyEngine.js");
+        type FeatureArg = Parameters<typeof inventorCAMStrategyEngine.recommend>[0];
+        type MaterialArg = Parameters<typeof inventorCAMStrategyEngine.recommend>[1];
+        type MachineArg = Parameters<typeof inventorCAMStrategyEngine.recommend>[2];
+        type ToolArg = Parameters<typeof inventorCAMStrategyEngine.recommend>[3];
+        type PriorityArg = Parameters<typeof inventorCAMStrategyEngine.recommend>[4];
+        const p = params as {
+          feature: FeatureArg;
+          material: MaterialArg;
+          machine: MachineArg;
+          tool: ToolArg;
+          priority?: PriorityArg;
+        };
+        const recommendations = inventorCAMStrategyEngine.recommend(p.feature, p.material, p.machine, p.tool, p.priority);
+        result = { recommendations, count: recommendations.length };
+        break;
+      }
+      case "inventorcam_get_strategy": {
+        const { inventorCAMStrategyEngine } = await import("../../engines/InventorCAMStrategyEngine.js");
+        const p = params as { name: string };
+        // Engine returns HSMStrategy | undefined; normalize to {strategy, found} shape.
+        const strategy = inventorCAMStrategyEngine.getParameters(p.name);
+        result = strategy === undefined
+          ? { strategy: null, found: false }
+          : { strategy, found: true };
+        break;
+      }
+      case "inventorcam_list": {
+        const { inventorCAMStrategyEngine } = await import("../../engines/InventorCAMStrategyEngine.js");
+        type Cat = Parameters<typeof inventorCAMStrategyEngine.listStrategies>[0];
+        const p = params as { category?: Cat };
+        const strategies = inventorCAMStrategyEngine.listStrategies(p.category);
+        result = { strategies, count: strategies.length };
+        break;
+      }
+      case "inventorcam_categories": {
+        const { inventorCAMStrategyEngine } = await import("../../engines/InventorCAMStrategyEngine.js");
+        const categories = inventorCAMStrategyEngine.getCategories();
+        result = { categories, count: categories.length };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
