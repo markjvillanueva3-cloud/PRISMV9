@@ -47,6 +47,31 @@ import {
   MAX_BLOCKS_PER_SESSION,
 } from "../helpers/scrutiny-ledger.mjs";
 
+// Wider clearance window: hook payload session_id and mark-script session_id
+// (from CLAUDE_SESSION_ID env or stable-session-id helper) can drift. Accept
+// ANY entry recorded within this window with both reviews as clearance.
+const RECENT_SCRUTINY_WINDOW_MS = 5 * 60 * 1000;
+const LEDGER_REL = "mcp-server/data/state/SCRUTINY_LEDGER.json";
+
+function hasRecentScrutiny(projectRoot) {
+  try {
+    const ledgerPath = path.join(projectRoot, LEDGER_REL);
+    if (!fs.existsSync(ledgerPath)) return false;
+    const data = JSON.parse(fs.readFileSync(ledgerPath, "utf-8"));
+    const entries = data && typeof data === "object" ? data.entries || {} : {};
+    const cutoff = Date.now() - RECENT_SCRUTINY_WINDOW_MS;
+    for (const entry of Object.values(entries)) {
+      if (!entry || typeof entry !== "object") continue;
+      if (entry.selfReviewed !== true || entry.agentReviewed !== true) continue;
+      const recordedMs = Date.parse(entry.recordedAt || "");
+      if (Number.isFinite(recordedMs) && recordedMs >= cutoff) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 function readStdinSafe() {
   try {
     if (process.stdin.isTTY) return "";
@@ -132,6 +157,15 @@ async function main() {
 
   // Already cleared ⇒ allow stop
   if (isCleared(sessionId)) {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  // Cross-ID fallback: mark-script and hook may derive different session ids
+  // (CLAUDE_SESSION_ID env vs payload.session_id vs stable-session-id helper).
+  // If the assistant ran scrutiny-mark recently with both reviews recorded,
+  // honor that as clearance regardless of session-id alignment.
+  if (hasRecentScrutiny(root)) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
