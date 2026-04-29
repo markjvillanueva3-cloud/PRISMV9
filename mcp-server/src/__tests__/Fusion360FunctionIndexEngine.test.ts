@@ -1106,4 +1106,140 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_mill_turn_operations");
     });
   });
+
+  describe("getSetupOperations (CAM-EXHAUST-MS1-06)", () => {
+    it("returns exactly 12 setup toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      expect(ops.length).toBe(12);
+    });
+
+    it("Workpiece category contains 5 ops with sorted ids (model + previous_setup + body + box + cylinder)", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const ids = ops.filter((o) => o.category === "Workpiece").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "STOCK_FROM_BODY",
+        "STOCK_FROM_BOX",
+        "STOCK_FROM_CYLINDER",
+        "STOCK_FROM_MODEL",
+        "STOCK_FROM_PREVIOUS_SETUP",
+      ]);
+    });
+
+    it("Fixture category contains 2 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const ids = ops.filter((o) => o.category === "Fixture").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual(["FIXTURE_CHUCK", "FIXTURE_VISE"]);
+    });
+
+    it("Coordinates category contains 2 ops (single WCS + extended schedule)", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const ids = ops.filter((o) => o.category === "Coordinates").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual(["WCS_DEFINE", "WCS_OFFSET_SCHEDULE"]);
+    });
+
+    it("Kinematics, Multi_Setup, and Documentation each contain exactly 1 op", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      expect(ops.filter((o) => o.category === "Kinematics").map((o) => o.toolpath_id)).toEqual(["KINEMATICS_BIND"]);
+      expect(ops.filter((o) => o.category === "Multi_Setup").map((o) => o.toolpath_id)).toEqual(["SETUP_GROUP"]);
+      expect(ops.filter((o) => o.category === "Documentation").map((o) => o.toolpath_id)).toEqual(["SETUP_DOCUMENT"]);
+    });
+
+    it("STOCK_FROM_MODEL has 14 parameters and Workpiece category (canonical default)", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const op = ops.find((o) => o.toolpath_id === "STOCK_FROM_MODEL");
+      expect(op?.parameter_count).toBe(14);
+      expect(op?.category).toBe("Workpiece");
+    });
+
+    it("STOCK_FROM_PREVIOUS_SETUP has 14 parameters and Workpiece category (Op1->Op2 chain)", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const op = ops.find((o) => o.toolpath_id === "STOCK_FROM_PREVIOUS_SETUP");
+      expect(op?.parameter_count).toBe(14);
+      expect(op?.category).toBe("Workpiece");
+    });
+
+    it("FIXTURE_VISE has 18 parameters (largest fixture op — Kurt-class jaw modeling)", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const op = ops.find((o) => o.toolpath_id === "FIXTURE_VISE");
+      expect(op?.parameter_count).toBe(18);
+      expect(op?.category).toBe("Fixture");
+    });
+
+    it("KINEMATICS_BIND has 18 parameters and Kinematics category", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const op = ops.find((o) => o.toolpath_id === "KINEMATICS_BIND");
+      expect(op?.parameter_count).toBe(18);
+      expect(op?.category).toBe("Kinematics");
+    });
+
+    it("STOCK_FROM_PREVIOUS_SETUP description references Op chain / preceding / inherited stock", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const op = ops.find((o) => o.toolpath_id === "STOCK_FROM_PREVIOUS_SETUP");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("preceding") || text.includes("op2") || text.includes("inherit") || text.includes("chain")).toBe(true);
+    });
+
+    it("parameter counts sum to 193 across all 12 setup ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      const total = ops.reduce((sum, o) => sum + o.parameter_count, 0);
+      expect(total).toBe(193);
+    });
+
+    it("each setup operation has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getSetupOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_setup_operations returns 12 ops with STOCK_FROM_MODEL @ 14 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_setup_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(12);
+      const stockFromModel = result.operations.find((o) => o.toolpath_id === "STOCK_FROM_MODEL");
+      expect(stockFromModel?.category).toBe("Workpiece");
+      expect(stockFromModel?.parameter_count).toBe(14);
+    });
+
+    it("setup module is registered in fusion360 function-index with 193 estimated params and no dependencies", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const setupEntry = idx.modules.find((m) => m.module_id === "setup");
+      expect(setupEntry?.parameter_count_estimate).toBe(193);
+      expect(setupEntry?.dependencies).toEqual([]);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_setup_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_setup_operations");
+    });
+  });
 });
