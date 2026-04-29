@@ -1415,6 +1415,118 @@ export async function executeAIReasoningAction(
         result = { categories, count: categories.length };
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE39: ActualVsPredictedCollectorEngine — neural
+      // training feedback collector. Records (predicted, actual) pairs as
+      // training examples with computed residuals and JM-DIE 2× weight.
+      // Singleton with default config (10K buffer, 32 min batch, 2.0 weight).
+      // Engine throws on missing context/targets — wrap record to return a
+      // structured failure payload instead of crashing the dispatcher.
+      // ─────────────────────────────────────────────────────────────────────
+      case "avp_record": {
+        const { actualVsPredictedCollectorEngine } = await import("../../engines/ActualVsPredictedCollectorEngine.js");
+        type Arg = Parameters<typeof actualVsPredictedCollectorEngine.record>[0];
+        try {
+          const example = actualVsPredictedCollectorEngine.record(params as Arg);
+          result = {
+            recorded: true,
+            example,
+            buffer_size: actualVsPredictedCollectorEngine.size,
+          };
+        } catch (e) {
+          result = {
+            recorded: false,
+            error: e instanceof Error ? e.message : String(e),
+            buffer_size: actualVsPredictedCollectorEngine.size,
+          };
+        }
+        break;
+      }
+      case "avp_stats": {
+        const { actualVsPredictedCollectorEngine } = await import("../../engines/ActualVsPredictedCollectorEngine.js");
+        const stats = actualVsPredictedCollectorEngine.getAllResidualStats();
+        result = {
+          stats,
+          targets_covered: stats.length,
+          buffer_size: actualVsPredictedCollectorEngine.size,
+        };
+        break;
+      }
+      case "avp_emit_batch": {
+        const { actualVsPredictedCollectorEngine } = await import("../../engines/ActualVsPredictedCollectorEngine.js");
+        const batch = actualVsPredictedCollectorEngine.emitTrainingBatch();
+        // Engine returns null when buffer < min_batch_size; surface the gating
+        // condition so the caller knows whether to wait or proceed.
+        const cfg = actualVsPredictedCollectorEngine.getConfig();
+        result = batch === null
+          ? {
+              ready: false,
+              reason: `Buffer has ${actualVsPredictedCollectorEngine.size} examples; min_batch_size=${cfg.min_batch_size}`,
+              buffer_size: actualVsPredictedCollectorEngine.size,
+              min_batch_size: cfg.min_batch_size,
+            }
+          : { ready: true, batch };
+        break;
+      }
+      case "avp_trend": {
+        const { actualVsPredictedCollectorEngine } = await import("../../engines/ActualVsPredictedCollectorEngine.js");
+        type Arg = Parameters<typeof actualVsPredictedCollectorEngine.accuracyTrend>[0];
+        const p = params as { target: Arg };
+        result = actualVsPredictedCollectorEngine.accuracyTrend(p.target);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE40: FusionStrategyKnowledgeEngine - Fusion 360
+      // CAM strategy knowledge base with chain-of-thought reasoning. selectStrategy
+      // returns top-1 ranked recommendation; compareStrategies returns top-N with
+      // trade-off analysis. selectStrategy and compareStrategies bump the engine
+      // query counter; the other three actions are read-only.
+      // All methods are synchronous.
+      // ─────────────────────────────────────────────────────────────────────
+      case "fusion_kb_select_strategy": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        type Arg = Parameters<typeof fusionStrategyKnowledgeEngine.selectStrategy>[0];
+        result = fusionStrategyKnowledgeEngine.selectStrategy(params as Arg);
+        break;
+      }
+      case "fusion_kb_compare_strategies": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        type QueryArg = Parameters<typeof fusionStrategyKnowledgeEngine.compareStrategies>[0];
+        const p = params as QueryArg & { max_strategies?: number };
+        result = fusionStrategyKnowledgeEngine.compareStrategies(p, p.max_strategies);
+        break;
+      }
+      case "fusion_kb_list_strategies": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        type FeatureArg = Parameters<typeof fusionStrategyKnowledgeEngine.getStrategiesForFeature>[0];
+        const p = params as { feature?: FeatureArg };
+        const strategies = p.feature
+          ? fusionStrategyKnowledgeEngine.getStrategiesForFeature(p.feature)
+          : fusionStrategyKnowledgeEngine.getAllStrategies();
+        result = { strategies, count: strategies.length };
+        break;
+      }
+      case "fusion_kb_get_strategy": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        const p = params as { id: string };
+        const strategy = fusionStrategyKnowledgeEngine.getStrategyById(p.id);
+        // Engine returns undefined for missing; normalize to null + found flag.
+        result = strategy === undefined
+          ? { strategy: null, found: false }
+          : { strategy, found: true };
+        break;
+      }
+      case "fusion_kb_stats": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        const p = params as { reset?: boolean };
+        const stats = fusionStrategyKnowledgeEngine.stats();
+        if (p.reset === true) {
+          fusionStrategyKnowledgeEngine.clear();
+        }
+        result = { ...stats, reset_after_read: p.reset === true };
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;

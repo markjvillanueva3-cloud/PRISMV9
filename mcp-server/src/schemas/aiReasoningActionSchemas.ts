@@ -150,6 +150,17 @@ export const AI_REASONING_ACTIONS = [
   "inventorcam_get_strategy",  // U-WIRE37 → fetch HSMStrategy by internal name (null if missing)
   "inventorcam_list",          // U-WIRE37 → list strategies, optional category filter (8-element enum)
   "inventorcam_categories",    // U-WIRE37 → categories with counts and descriptions (only non-empty)
+  // ENGINE-WIRE-MS0/U-WIRE39: ActualVsPredictedCollectorEngine — neural training feedback (residuals + JM-DIE 2× weight)
+  "avp_record",                // U-WIRE39 → record(observation) returns TrainingExample with computed residuals
+  "avp_stats",                 // U-WIRE39 → getAllResidualStats() — per-target MAE/bias/RMSE/min/max
+  "avp_emit_batch",            // U-WIRE39 → emitTrainingBatch() — null when buffer < min_batch_size
+  "avp_trend",                 // U-WIRE39 → accuracyTrend(target) — first-half vs second-half RMSE
+  // ENGINE-WIRE-MS0/U-WIRE40: FusionStrategyKnowledgeEngine - Fusion 360 strategy KB with chain-of-thought reasoning
+  "fusion_kb_select_strategy",   // U-WIRE40: selectStrategy returns top-1 ranked recommendation with reasoning chain
+  "fusion_kb_compare_strategies",// U-WIRE40: compareStrategies returns top-N with trade-off analysis (default N=3)
+  "fusion_kb_list_strategies",   // U-WIRE40: list all OR filter by feature (does NOT bump engine query counter)
+  "fusion_kb_get_strategy",      // U-WIRE40: fetch StrategyKnowledge by id (null if missing)
+  "fusion_kb_stats",             // U-WIRE40: query counter; pass {reset:true} to clear after read
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1340,4 +1351,101 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     ]).optional().describe("Optional category filter; omit to list all strategies"),
   }).passthrough(),
   inventorcam_categories: z.object({}).passthrough(),
+  // U-WIRE39 — ActualVsPredictedCollectorEngine
+  // record(observation) requires {job_id, context{material, ...}, targets{<NeuralTarget>: {predicted, actual}}}.
+  // Engine throws on missing context/targets or no valid target pairs (NaN/Infinity dropped).
+  // The 6 NeuralTarget values are the canonical cutting-physics labels.
+  avp_record: z.object({
+    observation_id: z.string().optional().describe("Auto-generated if omitted"),
+    job_id: z.string().min(1).describe("Job/part identifier"),
+    program_id: z.string().optional(),
+    jm_die_proven: z.boolean().optional().describe("True triggers 2× training weight"),
+    context: z.object({
+      material: z.string().min(1),
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
+      tool_type: z.string().optional(),
+      tool_diameter_mm: z.number().positive().optional(),
+      operation_type: z.string().optional(),
+      cutting_speed_m_min: z.number().positive().optional(),
+      feed_per_tooth_mm: z.number().positive().optional(),
+      axial_depth_mm: z.number().positive().optional(),
+    }).passthrough().describe("Predictor input features (pass-through to trainer)"),
+    // z.record(z.enum, ...) in this Zod version REQUIRES all enum keys present;
+    // use explicit optional fields to allow ANY subset of the 6 NeuralTargets.
+    // Engine drops NaN/Infinity values and throws if zero valid pairs remain.
+    targets: z.object({
+      cutting_force_n: z.object({ predicted: z.number(), actual: z.number() }).optional(),
+      power_kw: z.object({ predicted: z.number(), actual: z.number() }).optional(),
+      tool_life_min: z.object({ predicted: z.number(), actual: z.number() }).optional(),
+      surface_finish_um: z.object({ predicted: z.number(), actual: z.number() }).optional(),
+      temperature_c: z.object({ predicted: z.number(), actual: z.number() }).optional(),
+      chatter_probability: z.object({ predicted: z.number(), actual: z.number() }).optional(),
+    }).strict().describe("At least one target pair; unknown keys rejected; NaN/Infinity dropped by engine"),
+    timestamp: z.string().optional().describe("ISO timestamp; defaults to now"),
+  }).passthrough(),
+  avp_stats: z.object({}).passthrough(),
+  avp_emit_batch: z.object({}).passthrough(),
+  avp_trend: z.object({
+    target: z.enum(["cutting_force_n", "power_kw", "tool_life_min", "surface_finish_um", "temperature_c", "chatter_probability"])
+      .describe("Single NeuralTarget — accuracyTrend is per-target"),
+  }).passthrough(),
+  // U-WIRE40 - FusionStrategyKnowledgeEngine
+  // selectStrategy and compareStrategies bump the engine query counter;
+  // list_strategies / get_strategy / stats do not. operation enum is the
+  // engine's internal "roughing|semi_finishing|finishing" union; tool_type
+  // and material enums match the StrategyQuery interface verbatim.
+  fusion_kb_select_strategy: z.object({
+    feature: z.enum([
+      "pocket", "slot", "contour", "face", "chamfer", "fillet", "boss", "rib",
+      "freeform", "ruled_surface", "blended_surface", "hole", "thread",
+      "steep_wall", "shallow_floor", "corner",
+    ]).describe("FeatureType — 16 Fusion 360 features"),
+    operation: z.enum(["roughing", "semi_finishing", "finishing"]),
+    material: z.enum([
+      "aluminum", "steel_low_carbon", "steel_alloy", "stainless", "cast_iron",
+      "titanium", "superalloy", "hardened_steel", "plastic", "composite",
+    ]).describe("MaterialClass — 10 material families"),
+    tool_diameter_mm: z.number().positive(),
+    tool_type: z.enum(["flat_end", "ball_nose", "bull_nose", "drill", "tap", "form"]),
+    target_ra_um: z.number().positive().optional(),
+    has_5axis: z.boolean().optional(),
+    prefer_hsm: z.boolean().optional(),
+    max_cycle_time_min: z.number().positive().optional(),
+    stock_to_leave_mm: z.number().nonnegative().optional(),
+  }).passthrough(),
+  fusion_kb_compare_strategies: z.object({
+    feature: z.enum([
+      "pocket", "slot", "contour", "face", "chamfer", "fillet", "boss", "rib",
+      "freeform", "ruled_surface", "blended_surface", "hole", "thread",
+      "steep_wall", "shallow_floor", "corner",
+    ]),
+    operation: z.enum(["roughing", "semi_finishing", "finishing"]),
+    material: z.enum([
+      "aluminum", "steel_low_carbon", "steel_alloy", "stainless", "cast_iron",
+      "titanium", "superalloy", "hardened_steel", "plastic", "composite",
+    ]),
+    tool_diameter_mm: z.number().positive(),
+    tool_type: z.enum(["flat_end", "ball_nose", "bull_nose", "drill", "tap", "form"]),
+    target_ra_um: z.number().positive().optional(),
+    has_5axis: z.boolean().optional(),
+    prefer_hsm: z.boolean().optional(),
+    max_cycle_time_min: z.number().positive().optional(),
+    stock_to_leave_mm: z.number().nonnegative().optional(),
+    max_strategies: z.number().int().min(1).max(20).optional()
+      .describe("Cap on returned strategies; defaults to 3 inside engine"),
+  }).passthrough(),
+  fusion_kb_list_strategies: z.object({
+    feature: z.enum([
+      "pocket", "slot", "contour", "face", "chamfer", "fillet", "boss", "rib",
+      "freeform", "ruled_surface", "blended_surface", "hole", "thread",
+      "steep_wall", "shallow_floor", "corner",
+    ]).optional().describe("Optional feature filter; omit to list every strategy in the KB"),
+  }).passthrough(),
+  fusion_kb_get_strategy: z.object({
+    id: z.string().min(1).describe("StrategyKnowledge.id (e.g. 'f360_2d_adaptive')"),
+  }).passthrough(),
+  fusion_kb_stats: z.object({
+    reset: z.boolean().optional()
+      .describe("When true, clears the engine query counter AFTER reading current values"),
+  }).passthrough(),
 };
