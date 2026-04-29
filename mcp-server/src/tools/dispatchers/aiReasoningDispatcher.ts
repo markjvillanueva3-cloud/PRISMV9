@@ -1735,6 +1735,37 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE45: LatheLoRADatasetValidatorEngine - quality
+      // gate for LoRA fine-tune training data. Validates schema compliance,
+      // content quality, physics sanity (RPM/feed/depth bounds), diversity,
+      // and duplicate detection. Stateless - all methods synchronous.
+      // ─────────────────────────────────────────────────────────────────────
+      case "lathe_lora_validate": {
+        const { latheLoRADatasetValidatorEngine } = await import("../../engines/LatheLoRADatasetValidatorEngine.js");
+        type ExamplesArg = Parameters<typeof latheLoRADatasetValidatorEngine.validate>[0];
+        type ConfigArg = Parameters<typeof latheLoRADatasetValidatorEngine.validate>[1];
+        const p = params as { examples: ExamplesArg; config?: ConfigArg };
+        result = latheLoRADatasetValidatorEngine.validate(p.examples, p.config ?? {});
+        break;
+      }
+      case "lathe_lora_validate_single": {
+        const { latheLoRADatasetValidatorEngine } = await import("../../engines/LatheLoRADatasetValidatorEngine.js");
+        type ExampleArg = Parameters<typeof latheLoRADatasetValidatorEngine.validateSingle>[0];
+        const p = params as { example: ExampleArg };
+        const issues = latheLoRADatasetValidatorEngine.validateSingle(p.example);
+        result = { issues, count: issues.length };
+        break;
+      }
+      case "lathe_lora_summary": {
+        const { latheLoRADatasetValidatorEngine } = await import("../../engines/LatheLoRADatasetValidatorEngine.js");
+        type ResultArg = Parameters<typeof latheLoRADatasetValidatorEngine.getSummary>[0];
+        const p = params as { result: ResultArg };
+        const summary = latheLoRADatasetValidatorEngine.getSummary(p.result);
+        result = { summary };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

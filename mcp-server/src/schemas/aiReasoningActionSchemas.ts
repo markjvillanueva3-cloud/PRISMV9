@@ -188,6 +188,10 @@ export const AI_REASONING_ACTIONS = [
   "sim_stall_scan_one",          // U-WIRE44: lookup single sim job at now_ms
   "sim_stall_stats",             // U-WIRE44: tracker stats; optional now_ms toggles statsAt
   "sim_stall_clear",             // U-WIRE44: reset all sim tracking
+  // ENGINE-WIRE-MS0/U-WIRE45: LatheLoRADatasetValidatorEngine - dataset quality gate for LoRA fine-tune
+  "lathe_lora_validate",          // U-WIRE45: full ValidationResult with metrics/issues/recommendations
+  "lathe_lora_validate_single",   // U-WIRE45: validate one example, return issues array only
+  "lathe_lora_summary",           // U-WIRE45: render markdown summary from a ValidationResult
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1644,4 +1648,50 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     now_ms: z.number().int().nonnegative().optional(),
   }).passthrough(),
   sim_stall_clear: z.object({}).passthrough(),
+  // U-WIRE45 - LatheLoRADatasetValidatorEngine
+  // examples accept either LoRAExample (id/instruction/input/output/metadata)
+  // or TrainingExample (id/type/instruction/input/output/confidence/tags/source).
+  // Use loose passthrough since the engine inspects fields it owns.
+  // config is optional — engine merges over DEFAULT_CONFIG.
+  lathe_lora_validate: z.object({
+    examples: z.array(z.object({
+      id: z.string().min(1),
+      instruction: z.string(),
+      input: z.string(),
+      output: z.string(),
+    }).passthrough()).min(0).describe("Empty array returns valid:false, score:0"),
+    config: z.object({
+      min_instruction_length: z.number().int().nonnegative().optional(),
+      max_instruction_length: z.number().int().positive().optional(),
+      min_output_length: z.number().int().nonnegative().optional(),
+      max_output_length: z.number().int().positive().optional(),
+      min_confidence: z.number().min(0).max(1).optional(),
+      required_operation_types: z.array(z.string()).optional(),
+      check_physics: z.boolean().optional(),
+      check_duplicates: z.boolean().optional(),
+      similarity_threshold: z.number().min(0).max(1).optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  lathe_lora_validate_single: z.object({
+    example: z.object({
+      id: z.string().min(1),
+      instruction: z.string(),
+      input: z.string(),
+      output: z.string(),
+    }).passthrough(),
+  }).passthrough(),
+  lathe_lora_summary: z.object({
+    result: z.object({
+      valid: z.boolean(),
+      score: z.number(),
+      total_examples: z.number().int().nonnegative(),
+      issues: z.array(z.object({
+        severity: z.enum(["error", "warning", "info"]),
+        code: z.string(),
+        message: z.string(),
+      }).passthrough()),
+      metrics: z.object({}).passthrough(),
+      recommendations: z.array(z.string()),
+    }).passthrough(),
+  }).passthrough(),
 };
