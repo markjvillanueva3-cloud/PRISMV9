@@ -501,6 +501,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/leave-a-copy-behind-guard.mjs",
+            "timeout": 8000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_broken_imports.mjs",
             "timeout": 5000,
             "continueOnError": false
