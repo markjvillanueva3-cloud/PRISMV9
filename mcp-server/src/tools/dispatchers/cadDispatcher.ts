@@ -175,6 +175,11 @@ const ACTIONS = [
   "cad_fusion360_get_index", "cad_fusion360_list_modules", "cad_fusion360_list_operations",
   "cad_fusion360_get_operation", "cad_fusion360_find_parameter", "cad_fusion360_search_parameters",
   "cad_fusion360_operations_by_category",
+  // Autodesk Fusion MCP Proxy (U-CAD-FIDX-FUS-INT-01)
+  "cad_fusion_mcp_initialize", "cad_fusion_mcp_list_tools", "cad_fusion_mcp_execute_script",
+  "cad_fusion_mcp_read_api_doc", "cad_fusion_mcp_screenshot", "cad_fusion_mcp_list_projects",
+  "cad_fusion_mcp_search_documents", "cad_fusion_mcp_open_document", "cad_fusion_mcp_save_document",
+  "cad_fusion_mcp_undo", "cad_fusion_mcp_redo", "cad_fusion_mcp_execute_operation",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1455,6 +1460,198 @@ Params vary by action — pass relevant fields in params object.`,
               moduleId
             );
             result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+          // ─── Autodesk Fusion MCP Proxy (U-CAD-FIDX-FUS-INT-01) ────────────
+          // Wraps the official Autodesk Fusion 360 MCP server (default endpoint
+          // http://127.0.0.1:27182/mcp) with PRISM dispatcher actions.
+          // All actions accept an optional `endpoint` param to override the URL.
+          case "cad_fusion_mcp_initialize": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const init = await proxy.initialize();
+            result = { success: true, endpoint: proxy.getEndpoint(), serverInfo: init.serverInfo, protocolVersion: init.protocolVersion, capabilities: init.capabilities };
+            break;
+          }
+          case "cad_fusion_mcp_list_tools": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const tools = await proxy.listTools();
+            result = { success: true, count: tools.length, tools };
+            break;
+          }
+          case "cad_fusion_mcp_execute_script": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const script = params.script as string;
+            if (!script) {
+              return dispatcherError(
+                "cad_fusion_mcp_execute_script requires a 'script' string with `def run(_context):` entry point",
+                action,
+                "prism_cad"
+              );
+            }
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.executeScript(script);
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_read_api_doc": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const searchPattern = (params.search_pattern ?? params.searchPattern ?? params.query) as string;
+            if (!searchPattern) {
+              return dispatcherError(
+                "cad_fusion_mcp_read_api_doc requires a 'search_pattern' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const apiCategory = (params.api_category ?? params.apiCategory) as
+              | "class"
+              | "member"
+              | "description"
+              | "all"
+              | undefined;
+            const filter = params.filter as string | undefined;
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.readApiDoc(searchPattern, { apiCategory, filter });
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_screenshot": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.screenshot({
+              width: typeof params.width === "number" ? params.width : undefined,
+              height: typeof params.height === "number" ? params.height : undefined,
+              antiAliasing: typeof params.anti_aliasing === "boolean" ? params.anti_aliasing : undefined,
+              transparentBackground: typeof params.transparent_background === "boolean" ? params.transparent_background : undefined,
+              direction: params.direction as
+                | "current"
+                | "front"
+                | "back"
+                | "bottom"
+                | "top"
+                | "left"
+                | "right"
+                | "iso-bottom-left"
+                | "iso-bottom-right"
+                | "iso-top-left"
+                | "iso-top-right"
+                | undefined,
+            });
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_list_projects": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.listProjects();
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_search_documents": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const name = params.name as string;
+            if (!name) {
+              return dispatcherError(
+                "cad_fusion_mcp_search_documents requires a 'name' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const project = params.project as string | undefined;
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.searchDocuments(name, project);
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_open_document": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const fileId = (params.file_id ?? params.fileId) as string;
+            if (!fileId) {
+              return dispatcherError(
+                "cad_fusion_mcp_open_document requires a 'file_id' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.openDocument(fileId);
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_save_document": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.saveDocument();
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_undo": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.undo();
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_redo": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const callResult = await proxy.redo();
+            result = { success: !callResult.isError, result: callResult };
+            break;
+          }
+          case "cad_fusion_mcp_execute_operation": {
+            const { AutodeskFusionMCPProxyEngine } = await import(
+              "../../engines/AutodeskFusionMCPProxyEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string;
+            const operationId = (params.operation_id ?? params.operationId) as string;
+            const opParams = (params.operation_params ?? params.operationParams ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_fusion_mcp_execute_operation requires module_id and operation_id (operation_params optional)",
+                action,
+                "prism_cad"
+              );
+            }
+            const endpoint = (params.endpoint as string | undefined);
+            const proxy = new AutodeskFusionMCPProxyEngine(endpoint ? { endpoint } : {});
+            const { script, result: callResult } = await proxy.executeOperation(moduleId, operationId, opParams);
+            result = { success: !callResult.isError, module_id: moduleId, operation_id: operationId, script, result: callResult };
             break;
           }
           default:
