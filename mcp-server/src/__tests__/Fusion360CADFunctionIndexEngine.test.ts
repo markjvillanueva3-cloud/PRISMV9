@@ -71,9 +71,14 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains exactly three modules (sketch_operations, feature_operations, modify_operations)", () => {
+    it("modules array contains exactly four modules in shipping order", () => {
       const ids = Fusion360CADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
-      expect(ids).toEqual(["sketch_operations", "feature_operations", "modify_operations"]);
+      expect(ids).toEqual([
+        "sketch_operations",
+        "feature_operations",
+        "modify_operations",
+        "surface_operations",
+      ]);
     });
 
     it("returns same object identity on repeated calls (cache hit)", () => {
@@ -84,9 +89,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 3 remaining deferred modules with non-empty scopes (feature_operations + modify_operations now shipped)", () => {
+    it("declares exactly 2 remaining deferred modules with non-empty scopes (feature/modify/surface now shipped)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(3);
+      expect(fm.length).toBe(2);
       for (const f of fm) {
         expect(f.scope.length).toBeGreaterThan(20);
         expect(f.estimated_params).toBeGreaterThan(0);
@@ -94,23 +99,23 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("planned_ids cover surface/mesh/assembly (feature + modify now shipped)", () => {
+    it("planned_ids cover mesh/assembly (sketch + feature + modify + surface now shipped)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
       expect(ids).toEqual([
         "assembly_operations",
         "mesh_operations",
-        "surface_operations",
       ]);
     });
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns exactly ['sketch_operations', 'feature_operations', 'modify_operations']", () => {
+    it("listModules returns exactly the 4 shipped modules in order", () => {
       expect(Fusion360CADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "feature_operations",
         "modify_operations",
+        "surface_operations",
       ]);
     });
 
@@ -193,16 +198,18 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals sum of listOperations across all three modules (22 sketch + 18 feature + 9 modify = 49)", () => {
+    it("listAllOperations equals sum of listOperations across all four modules (22 sketch + 18 feature + 9 modify + 8 surface = 57)", () => {
       const all = Fusion360CADFunctionIndexEngine.listAllOperations();
       const sketch = Fusion360CADFunctionIndexEngine.listOperations("sketch_operations");
       const feature = Fusion360CADFunctionIndexEngine.listOperations("feature_operations");
       const modify = Fusion360CADFunctionIndexEngine.listOperations("modify_operations");
+      const surface = Fusion360CADFunctionIndexEngine.listOperations("surface_operations");
       expect(sketch.length).toBe(22);
       expect(feature.length).toBe(18);
       expect(modify.length).toBe(9);
-      expect(all.length).toBe(sketch.length + feature.length + modify.length);
-      expect(all.length).toBe(49);
+      expect(surface.length).toBe(8);
+      expect(all.length).toBe(sketch.length + feature.length + modify.length + surface.length);
+      expect(all.length).toBe(57);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -418,9 +425,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 422 parameters across all 49 operations (115 sketch + 206 feature + 101 modify)", () => {
+    it("counts exactly 496 parameters across all 57 operations (115 + 206 + 101 + 74)", () => {
       const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(422);
+      expect(total).toBe(496);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -441,8 +448,15 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(modifyTotal).toBe(101);
       expect(modifyDeclared).toBe(101);
 
+      const surfaceTotal = sumParamsForModule("surface_operations");
+      const surfaceDeclared = (Fusion360CADFunctionIndexEngine.getModule("surface_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(surfaceTotal).toBe(74);
+      expect(surfaceDeclared).toBe(74);
+
       // Aggregate engine method must equal sum of per-module computed totals
-      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + featureTotal + modifyTotal);
+      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(
+        sketchTotal + featureTotal + modifyTotal + surfaceTotal,
+      );
     });
   });
 
@@ -636,6 +650,88 @@ describe("Fusion360CADFunctionIndexEngine", () => {
     it("findParameter returns null when the operation is wrong but parameter exists elsewhere (failure mode)", () => {
       // 'Radius' exists on FILLET but not on CHAMFER — must not cross-pollinate
       expect(Fusion360CADFunctionIndexEngine.findParameter("modify_operations", "CHAMFER", "Radius")).toBeNull();
+    });
+  });
+
+  describe("surface_operations module (U-CAD-FIDX-FUS-04)", () => {
+    const SURFACE_OPS = [
+      "PATCH", "STITCH", "UNSTITCH",
+      "TRIM_SURFACE", "EXTEND_SURFACE", "REVERSE_NORMAL",
+      "OFFSET_SURFACE", "THICKEN",
+    ];
+
+    it("listOperations('surface_operations') returns exactly the 8 surface ops", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("surface_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(8);
+      expect(ops.sort()).toEqual([...SURFACE_OPS].sort());
+    });
+
+    it("PATCH enumerates 3 boundary continuity types (free / G1 tangent / G2 curvature)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("surface_operations", "PATCH");
+      const continuity = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Default Continuity");
+      expect(continuity?.options).toEqual(["free", "tangent_G1", "curvature_G2"]);
+    });
+
+    it("EXTEND_SURFACE enumerates 4 extension types and 3 resulting-continuity grades", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("surface_operations", "EXTEND_SURFACE");
+      const extType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Extension Type");
+      expect(extType?.options).toEqual(["natural", "tangent", "linear", "to_object"]);
+      const continuity = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Resulting Continuity");
+      expect(continuity?.options).toEqual(["G0_position", "G1_tangent", "G2_curvature"]);
+    });
+
+    it("THICKEN enumerates the 3 direction modes (side_1 / side_2 / symmetric)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("surface_operations", "THICKEN");
+      const direction = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Direction");
+      expect(direction?.options).toEqual(["side_1", "side_2", "symmetric"]);
+    });
+
+    it("STITCH enforces minimum 2 surfaces (single-surface stitch is a no-op)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("surface_operations", "STITCH");
+      const surfaces = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Surfaces");
+      expect(surfaces?.required).toBe(true);
+      expect((surfaces as { min?: number })?.min).toBe(2);
+    });
+
+    it("STITCH default tolerance matches Fusion's import default (0.01 mm)", () => {
+      const loc = Fusion360CADFunctionIndexEngine.findParameter("surface_operations", "STITCH", "Tolerance");
+      expect(loc?.parameter.unit).toBe("mm");
+      expect(loc?.parameter.default).toBe(0.01);
+      expect((loc?.parameter as { min?: number }).min).toBe(0.0001);
+    });
+
+    it("getOperationsByCategory enumerates exactly 2 Surface_Combine ops (Stitch + Unstitch)", () => {
+      const combine = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Surface_Combine", "surface_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(combine).toEqual(["STITCH", "UNSTITCH"]);
+    });
+
+    it("getOperationsByCategory enumerates exactly 5 Surface_Modify ops", () => {
+      const modify = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Surface_Modify", "surface_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(modify).toEqual([
+        "EXTEND_SURFACE", "OFFSET_SURFACE", "REVERSE_NORMAL", "THICKEN", "TRIM_SURFACE",
+      ]);
+    });
+
+    it("BOUNDARY_FILL is NOT in surface_operations (it lives in feature_operations) — failure mode", () => {
+      // Catches accidental duplication if a future contributor moves it
+      expect(Fusion360CADFunctionIndexEngine.getOperation("surface_operations", "BOUNDARY_FILL")).toBeNull();
+      expect(Fusion360CADFunctionIndexEngine.getOperation("feature_operations", "BOUNDARY_FILL")).not.toBeNull();
+    });
+
+    it("findParameter returns null for a surface op that doesn't exist (failure mode)", () => {
+      expect(Fusion360CADFunctionIndexEngine.findParameter("surface_operations", "NONEXISTENT", "Tolerance")).toBeNull();
+    });
+
+    it("THICKEN supports per-face thickness overrides for variable-thickness shells", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("surface_operations", "THICKEN");
+      const overrides = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Per-Face Thickness Overrides");
+      expect(overrides?.type).toBe("selection_pairs");
     });
   });
 

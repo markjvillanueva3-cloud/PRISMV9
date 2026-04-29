@@ -1,0 +1,302 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Surface Operations - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 Design workspace surface modeling: gap-filling (Patch), connectivity (Stitch / Unstitch), boundary modification (Trim / Extend), normal correction (Reverse Normal), offset/thickening (Offset Surface / Thicken). Boundary Fill is shipped in feature_operations and not duplicated here. Aligns with Autodesk Fusion 360 Python API SurfaceFeatures module surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-FUS-04",
+    "source": "Autodesk Fusion 360 Help — Design workspace > Surface > Create + Modify panels + Python API SurfaceFeatures reference",
+    "totalParameters": 74,
+    "operationCount": 8,
+    "cad_concepts_used": [
+      "BOUNDARY_PATCH",
+      "TANGENCY_CONTINUITY",
+      "CURVATURE_CONTINUITY",
+      "STITCH_TOLERANCE",
+      "SURFACE_NORMAL_ORIENTATION",
+      "SURFACE_OFFSET",
+      "VARIABLE_THICKNESS",
+      "SURFACE_TRIM_BOOLEAN"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs for surface operations",
+    "tabs": ["Selection", "Configuration", "Operation", "Properties"]
+  },
+  "operations": {
+    "PATCH": {
+      "description": "Fills a closed boundary curve loop with a surface. Boundary may be a single closed sketch loop, a chain of edges, or a mix. Continuity at boundary is selectable per edge: free / tangent (G1) / curvature (G2). Common for gap-filling imported geometry and lofting non-rectangular regions.",
+      "category": "Surface_Create",
+      "fusion_command": "Patch",
+      "python_api": "rootComp.features.patchFeatures.add | createInput",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Boundary Curves", "type": "selection_list", "description": "Closed loop of edges and/or sketch curves", "required": true},
+            {"name": "Per-Edge Continuity", "type": "selection_pairs", "description": "[(edge_index, continuity_type)] overrides for each boundary segment"},
+            {"name": "Interior Curves", "type": "selection_list", "description": "Optional internal isoparametric curves to control patch shape"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Default Continuity", "type": "dropdown", "description": "Continuity at boundary unless overridden per-edge", "options": ["free", "tangent_G1", "curvature_G2"], "default": "free"},
+            {"name": "Continuity Weight", "type": "numeric", "description": "Tangent magnitude (G1/G2 modes)", "min": 0, "default": 1.0},
+            {"name": "Plane Constraint", "type": "selection", "description": "Optional plane the patch must lie tangent to"},
+            {"name": "Smooth Internal Mesh", "type": "checkbox", "description": "Add intermediate u-v lines for smoother result", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "description": "Surface or solid output", "options": ["new_surface", "new_body", "join", "stitch_into_existing"], "default": "new_surface"},
+            {"name": "Target Surfaces", "type": "selection_list", "description": "Surfaces to stitch into when stitch_into_existing"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "STITCH": {
+      "description": "Joins multiple surfaces along their shared edges into a single surface body or, if the result is closed, a solid body. Tolerance controls how far apart edges may be and still be considered shared. Failed stitch returns an open body with an error report.",
+      "category": "Surface_Combine",
+      "fusion_command": "Stitch",
+      "python_api": "rootComp.features.stitchFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection_list", "description": "Two or more surfaces to stitch", "required": true, "min": 2}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum gap that will still be stitched", "default": 0.01, "min": 0.0001},
+            {"name": "Auto-Solid", "type": "checkbox", "description": "Convert to solid body if the stitch is closed", "default": true},
+            {"name": "Fail On Error", "type": "checkbox", "description": "Throw if any edge fails to stitch (vs leaving open)", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "modify_in_place"], "default": "new_body"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "UNSTITCH": {
+      "description": "Splits a stitched surface body or solid back into individual face surfaces. Reverses Stitch. Useful when imported geometry needs per-face control, or to re-do connectivity with different tolerance.",
+      "category": "Surface_Combine",
+      "fusion_command": "Unstitch",
+      "python_api": "rootComp.features.unstitchFeatures.add | createInput",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Faces or Bodies", "type": "selection_list", "description": "Faces to unstitch (subset) or whole bodies (all faces)", "required": true},
+            {"name": "Chain Selection", "type": "checkbox", "description": "Auto-extend along tangent-connected faces", "default": false}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Keep Original", "type": "checkbox", "description": "Preserve the stitched body", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "TRIM_SURFACE": {
+      "description": "Trims a surface using a curve / edge / surface as the trim tool. Selectable side determines which region is removed. Common for cleaning imported surfaces and shaping lofted blends.",
+      "category": "Surface_Modify",
+      "fusion_command": "TrimSurface",
+      "python_api": "rootComp.features.trimFeatures.add | createInput",
+      "parameterCount": 11,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "description": "Surface to trim", "required": true},
+            {"name": "Trim Tool Type", "type": "dropdown", "options": ["curve", "edge", "surface", "sketch_projection"], "default": "curve"},
+            {"name": "Trim Tool", "type": "selection", "description": "Curve / edge / surface / sketch", "required": true},
+            {"name": "Region to Remove", "type": "selection", "description": "Click which side of the trim tool to discard", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Extend Trim Tool", "type": "checkbox", "description": "Auto-extend a finite trim tool to fully bound the surface", "default": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Extend selection along tangent edges (curve/edge mode)", "default": true},
+            {"name": "Projection Direction", "type": "selection", "description": "Vector for sketch_projection mode (default = sketch normal)"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Keep Both Sides", "type": "checkbox", "description": "Output two surfaces (kept + removed) instead of just kept", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "EXTEND_SURFACE": {
+      "description": "Extends the boundary of a surface outward by a specified distance with selectable end-condition (linear / tangent / natural curvature). Used to make surfaces large enough to act as trim tools, or to reach a target body for thickening.",
+      "category": "Surface_Modify",
+      "fusion_command": "ExtendSurface",
+      "python_api": "rootComp.features.extendFeatures.add | createInput",
+      "parameterCount": 11,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Edges", "type": "selection_list", "description": "Open boundary edges to extend", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Auto-extend selection along tangent edges", "default": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Extension Type", "type": "dropdown", "options": ["natural", "tangent", "linear", "to_object"], "default": "natural"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Extension length (all modes except to_object)", "min": 0.001},
+            {"name": "Target Object", "type": "selection", "description": "Plane / face / body terminator (to_object mode)"},
+            {"name": "Resulting Continuity", "type": "dropdown", "description": "How extended region connects to original", "options": ["G0_position", "G1_tangent", "G2_curvature"], "default": "G1_tangent"},
+            {"name": "Direction Flip", "type": "checkbox", "description": "Reverse extension direction (rare — for cycle-failure recovery)", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["modify_existing", "new_body"], "default": "modify_existing"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REVERSE_NORMAL": {
+      "description": "Flips the orientation (front/back side) of a surface. No geometry change — only the parametric direction reverses. Important for downstream Thicken (which thickens in the normal direction) and rendering operations.",
+      "category": "Surface_Modify",
+      "fusion_command": "ReverseNormal",
+      "python_api": "rootComp.features.reverseNormalFeatures.add | createInput",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection_list", "description": "Surface body / face whose normal will flip", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Apply to all tangent-connected surfaces", "default": false}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Make Copy", "type": "checkbox", "description": "Preserve original orientation as separate body", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "OFFSET_SURFACE": {
+      "description": "Creates a parallel surface at a specified normal-direction offset from the input. Positive distance = along normal; negative = opposite. Common for shell-like operations on free-form geometry where Shell isn't applicable.",
+      "category": "Surface_Modify",
+      "fusion_command": "OffsetSurface",
+      "python_api": "rootComp.features.offsetFeatures.add | createInput",
+      "parameterCount": 9,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection_list", "description": "Surfaces / faces to offset", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Auto-extend selection along tangent edges", "default": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Offset distance (signed: + = along normal)", "required": true},
+            {"name": "Both Sides", "type": "checkbox", "description": "Generate two offset surfaces, one each side", "default": false},
+            {"name": "Approximation Tolerance", "type": "numeric", "unit": "mm", "description": "Max deviation from true offset (NURBS approximation)", "default": 0.01, "min": 0.0001}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_surface", "new_body"], "default": "new_surface"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "THICKEN": {
+      "description": "Converts a surface body into a solid body with constant or per-face wall thickness. Direction selectable: side_1 (along normal), side_2 (against), symmetric (both). Common for converting imported surface models into manufacturable solids.",
+      "category": "Surface_Modify",
+      "fusion_command": "Thicken",
+      "python_api": "rootComp.features.thickenFeatures.add | createInput",
+      "parameterCount": 11,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection_list", "description": "Surface bodies to thicken", "required": true},
+            {"name": "Per-Face Thickness Overrides", "type": "selection_pairs", "description": "[(face, thickness_mm)] pairs for variable thickness"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "description": "Default thickness", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["side_1", "side_2", "symmetric"], "default": "side_1"},
+            {"name": "Hollow Result", "type": "checkbox", "description": "Output an open-ended thick shell instead of capped solid", "default": false},
+            {"name": "Approximation Tolerance", "type": "numeric", "unit": "mm", "description": "Max NURBS approximation deviation", "default": 0.01, "min": 0.0001}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Bodies", "type": "selection_list", "description": "Bodies to combine with (join/cut/intersect)"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "design_workspace_required": true,
+    "boundary_fill_lives_in_feature_operations": "Boundary Fill is the multi-cell solidification primitive — shipped in feature_operations under the Boolean category, not here, to avoid catalog duplication",
+    "thicken_direction_depends_on_normal": "Thicken's side_1 direction follows the surface normal — flip with REVERSE_NORMAL first if the normal points the wrong way",
+    "stitch_tolerance_guideline": "Default 0.01 mm matches Fusion's import-tolerance default. Imported STEP/IGES surfaces from older CAD systems may need 0.05-0.1 mm to stitch successfully.",
+    "patch_continuity_per_edge": "G2 curvature continuity requires that the adjacent surface has consistent curvature direction — degenerate results common at trihedral points"
+  }
+}
