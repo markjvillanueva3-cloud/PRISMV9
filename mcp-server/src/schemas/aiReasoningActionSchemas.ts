@@ -130,6 +130,11 @@ export const AI_REASONING_ACTIONS = [
   "multi_asset_reason",        // U-WIRE33 → reason(context) returns recommendation + assetsUsed + confidence + alternatives
   "multi_asset_types",         // U-WIRE33 → getAssetTypes() — canonical asset categories (engine/formula/algorithm/...)
   "multi_asset_reset",         // U-WIRE33 → reset() — clears initialization, forces re-init on next reason()
+  // ENGINE-WIRE-MS0/U-WIRE34: JMDieProgramLearningEngine — patterns from 36,929 JM Die programs
+  "jmdie_query",               // U-WIRE34 → query patterns by machineType / category / minFrequency / limit
+  "jmdie_get_pattern",         // U-WIRE34 → fetch a single pattern by id (null if missing)
+  "jmdie_get_tips",            // U-WIRE34 → flat list of tribal tips, optionally filtered by machineType
+  "jmdie_stats",               // U-WIRE34 → totalPrograms, extractedPatterns, byMachineType, byCategory aggregations
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1181,4 +1186,25 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   }).passthrough(),
   multi_asset_types: z.object({}).passthrough(),
   multi_asset_reset: z.object({}).passthrough(),
+  // U-WIRE34 — JMDieProgramLearningEngine
+  // Engine seeds 15 patterns lazily on first call (3 machineTypes × 5 categories).
+  // All read methods are async because they await initialize() internally.
+  jmdie_query: z.object({
+    machineType: z.enum(["lathe", "mill", "wedm"]).optional()
+      .describe("Filter by machine type; engine seeds these three categories"),
+    category: z.enum(["roughing", "finishing", "threading", "drilling", "profiling"]).optional()
+      .describe("Filter by operation category"),
+    minFrequency: z.number().int().min(0).optional()
+      .describe("Drop patterns below this seen-count threshold"),
+    limit: z.number().int().min(1).max(1000).optional()
+      .describe("Cap returned results; default 50 inside engine"),
+  }).passthrough(),
+  jmdie_get_pattern: z.object({
+    id: z.string().min(1).describe("Pattern id (e.g. 'pattern_7'); returns null when missing"),
+  }).passthrough(),
+  jmdie_get_tips: z.object({
+    machineType: z.enum(["lathe", "mill", "wedm"]).optional()
+      .describe("Optional machine-type filter for the flattened tip list"),
+  }).passthrough(),
+  jmdie_stats: z.object({}).passthrough(),
 };
