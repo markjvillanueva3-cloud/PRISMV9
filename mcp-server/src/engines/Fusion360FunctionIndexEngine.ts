@@ -697,6 +697,31 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get multiaxis per-op tab deep-pass operations (CAM-EXHAUST-MS1-09).
+   * Reads multiaxis-deep.json catalog covering the 5 standard deep tabs
+   * (Strategy, Ramp, Holder, Output, Connections) for the 7 existing
+   * multiaxis ops, plus 2 net-new ops: BLADE_5AX (turbine-blade
+   * leading/trailing-edge blend finishing) and MULTI_AXIS_POCKET (5-axis
+   * adaptive pocket roughing with tilt-to-avoid). Closes the input-exhaust
+   * gap left by the original MS0/U-CAM23 multiaxis-operations.json — also
+   * fills in Heights/Linking tabs for the 5 simpler ops that the parent
+   * catalog omitted, and adds RTCP (G43.4 Runtime Tool Center Point)
+   * output controls to every op for proper 5-axis NC output.
+   *
+   * Categories: "Roughing" | "Finishing" | "Specialized"
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getMultiaxisDeepOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("multiaxis-deep.json", "getMultiaxisDeepOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal
