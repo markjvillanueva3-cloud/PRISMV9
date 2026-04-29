@@ -1556,6 +1556,44 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE42: MaterialHardnessStateClassifierEngine -
+      // material name + hardness -> ISO group / kc1.1 / mc / recommended
+      // insert / max cutting speed. Static class (methods called directly,
+      // no instance). Engine validates input via its own Zod schema.
+      // ─────────────────────────────────────────────────────────────────────
+      case "hardness_classify": {
+        const { MaterialHardnessStateClassifierEngine } = await import("../../engines/MaterialHardnessStateClassifierEngine.js");
+        type Arg = Parameters<typeof MaterialHardnessStateClassifierEngine.classify>[0];
+        result = MaterialHardnessStateClassifierEngine.classify(params as Arg);
+        break;
+      }
+      case "hardness_list_materials": {
+        const { MaterialHardnessStateClassifierEngine } = await import("../../engines/MaterialHardnessStateClassifierEngine.js");
+        const materials = MaterialHardnessStateClassifierEngine.getJMDieMaterials();
+        result = { materials, count: materials.length };
+        break;
+      }
+      case "hardness_list_with_aliases": {
+        const { MaterialHardnessStateClassifierEngine } = await import("../../engines/MaterialHardnessStateClassifierEngine.js");
+        const materials = MaterialHardnessStateClassifierEngine.getAllMaterialsWithAliases();
+        result = { materials, count: materials.length };
+        break;
+      }
+      case "hardness_convert": {
+        const { MaterialHardnessStateClassifierEngine } = await import("../../engines/MaterialHardnessStateClassifierEngine.js");
+        const p = params as { from: "hrc" | "hb"; value: number };
+        // Bidirectional conversion - engine has hbToHrc / hrcToHb statics.
+        if (p.from === "hrc") {
+          const hb = MaterialHardnessStateClassifierEngine.hrcToHb(p.value);
+          result = { input: { hrc: p.value }, output: { hb: Math.round(hb * 10) / 10 } };
+        } else {
+          const hrc = MaterialHardnessStateClassifierEngine.hbToHrc(p.value);
+          result = { input: { hb: p.value }, output: { hrc: Math.round(hrc * 10) / 10 } };
+        }
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
