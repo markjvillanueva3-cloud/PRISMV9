@@ -12,8 +12,8 @@
   "tier": "dev-infra",
   "omega_target": 0.9,
   "omega_floor_per_phase": 0.9,
-  "estimated_sessions_p50": 9,
-  "estimated_sessions_p90": 13,
+  "estimated_sessions_p50": 10,
+  "estimated_sessions_p90": 14,
   "depends_on": [
     "INTEL-OLLAMA-OBSIDIAN-MS0",
     "LOCAL-LLM-MS0"
@@ -453,6 +453,107 @@
           "rollback": "Delete personas data + test; revert engine edit"
         }
       ]
+    },
+    {
+      "id": "P5",
+      "title": "Multi-Chat Coordination Hardening — edit-time lane gate, auto-fork on conflict, cross-chat directive detection, arbitration audit log",
+      "rationale": "Existing rails (commit-ownership-guard, worktree-commit-route, chat-bus-inject) fire at COMMIT time or are advisory only. By then a chat has already produced an hour of work in a peer's tree, and the printed `git worktree add` instruction is sometimes parsed wrong or skipped under context pressure. This phase closes the gap with edit-time enforcement, automated fork execution, prompt-time cross-chat directive detection, and a single audit log so we can SEE whether the rails are actually firing.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P5-U01",
+          "title": "PreToolUse(Edit/Write/MultiEdit) lane gate — block edits in peer-claimed files",
+          "effort": 60,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": [
+            "Hook reads chat-bus claim ledger (state/shared/chat-bus/claims/*.json)",
+            "Blocks Edit/Write/MultiEdit when target matches an active foreign claim",
+            "Allows when target unclaimed OR claimed by own session OR claim expired",
+            "Block reason includes peer sessionId + pcName + exact `git worktree add` fork command",
+            "Path normalisation: case-insensitive, slash-direction-agnostic",
+            "PRISM_CHAT_BUS_CLAIMS_DIR env override for hermetic tests",
+            "14-test vitest suite covers all pass-through + block branches",
+            "Fail-open on every internal error — never breaks Edit"
+          ],
+          "deliverables": [
+            { "path": ".claude/hooks/pre-edit-lane-guard.mjs", "type": "hook", "description": "PreToolUse Edit/Write/MultiEdit lane gate" },
+            { "path": "mcp-server/src/__tests__/PreEditLaneGuard.test.ts", "type": "test", "description": "Hermetic-tmpdir test suite (14 cases)" }
+          ],
+          "tools": ["Write", "vitest"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove from settings.json + delete hook file. Existing commit-time rails still apply."
+        },
+        {
+          "id": "P5-U02",
+          "title": "Auto-fork-executor — actually run `git worktree add` + stash, not just print instructions",
+          "effort": 75,
+          "dependencies": ["P5-U01"],
+          "exit_conditions": [
+            "PreToolUse hook on Bash matching `git commit`",
+            "Detects when commit would land on wrong tree (cwd is main, no themed worktree exists for scope, scope is parseable)",
+            "Auto-creates new worktree at ../prism-<scope>-<idTag> with branch work/<scope>-<idTag>",
+            "Stashes work-in-progress (staged + untracked) with key `auto-fork-<scope>-<idTag>-<ts>` so it can be restored in the new tree",
+            "Blocks original commit with structured message containing single-line retry: `cd <newPath> && git stash pop && <orig commit>`",
+            "Defers silently when (a) [MAIN]/[MAIN-FORCE] override, (b) themed worktree already exists, (c) target branch already exists, (d) all candidate paths collide, (e) git command fails — leaves worktree-commit-route to handle text-only path",
+            "PRISM_AUTO_FORK=0 kill switch",
+            "13-test vitest suite uses per-test hermetic git repo (mkdtemp + git init + initial commit) to verify worktree actually appears on disk"
+          ],
+          "deliverables": [
+            { "path": ".claude/hooks/auto-fork-executor.mjs", "type": "hook", "description": "Auto-fork executor" },
+            { "path": "mcp-server/src/__tests__/AutoForkExecutor.test.ts", "type": "test", "description": "Hermetic-git test suite (13 cases)" }
+          ],
+          "tools": ["Write", "vitest", "Bash for hermetic git scaffold"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove from settings.json + delete hook. PRISM_AUTO_FORK=0 disables without removal."
+        },
+        {
+          "id": "P5-U03",
+          "title": "UserPromptSubmit cross-chat directive detector — warn when prompt looks like 'tell other chat to X'",
+          "effort": 45,
+          "dependencies": [],
+          "exit_conditions": [
+            "Hook scans prompts for three pattern shapes: `<claude-XXX> should/needs/must`, `tell|ask|inform <peer-or-broad-target> to`, `(all|every|peer) chats? should/need to`",
+            "Strips fenced code blocks + inline backticks + markdown blockquote BEFORE matching to avoid false positives on log-line pastes",
+            "Skips self-references — `claude-cba638c3 should X` from cba638c3 is harmless",
+            "NEVER blocks — emits additionalContext warning so chat sees it before responding",
+            "Echoes targeted entity + sample snippet + `prism_context chat_post` redirect in the warning",
+            "PRISM_DIRECTIVE_WARN=0 kill switch",
+            "17-test vitest suite covering 8 no-warn paths + 8 warn paths + 1 single-count guarantee"
+          ],
+          "deliverables": [
+            { "path": ".claude/hooks/cross-chat-directive-detector.mjs", "type": "hook", "description": "UserPromptSubmit directive detector" },
+            { "path": "mcp-server/src/__tests__/CrossChatDirectiveDetector.test.ts", "type": "test", "description": "Test suite (17 cases)" }
+          ],
+          "tools": ["Write", "vitest"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove from settings.json + delete hook."
+        },
+        {
+          "id": "P5-U04",
+          "title": "Arbitration audit log — single source of truth for fork/block/warn events + handoff surface",
+          "effort": 60,
+          "dependencies": ["P5-U01", "P5-U02", "P5-U03"],
+          "exit_conditions": [
+            "Helper at .claude/helpers/arbitration-log.mjs with appendEvent / readEvents / summarizeEvents / renderSummaryLine API + matching CLI",
+            "Storage at state/shared/AGENT_CONFLICT_ARBITRATION.json — same file P4-U02 declares as the consensus-gate dissent log (pre-emptively created here)",
+            "Concurrency-safe: read-merge-write with .lock dir (mkdir is atomic on Windows + Unix), bounded retry, falls through silently on lock contention",
+            "Schema-versioned (1.0.0); bounded to 5000 events; malformed log auto-rebuilt",
+            "P5-U01 / P5-U02 / P5-U03 hooks all wire into this log via sync spawnSync of the CLI — never breaks the hook on any error",
+            "PRISM_ARBITRATION_LOG env override for hermetic tests",
+            "renderSummaryLine produces a one-line handoff string like 'Arbitrations (24h): 3 auto-fork, 1 lane-block — last: auto-fork at <ts>'",
+            "14-test vitest suite covers append/read/summary/render-line + schema discipline + in-process API",
+            "Combined run of all 4 P5 test files: 56/56 pass (no regression of U01/U02/U03 hooks)"
+          ],
+          "deliverables": [
+            { "path": ".claude/helpers/arbitration-log.mjs", "type": "helper", "description": "Append-only event log + CLI" },
+            { "path": "state/shared/AGENT_CONFLICT_ARBITRATION.json", "type": "data", "description": "Created on first append (lazy)" },
+            { "path": "mcp-server/src/__tests__/ArbitrationLog.test.ts", "type": "test", "description": "14-case suite" }
+          ],
+          "tools": ["Write", "Edit", "vitest"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Delete helper + test; remove logArbitration calls from the three hooks. Hooks themselves still function without the log."
+        }
+      ]
     }
   ],
   "forge_triple": {
@@ -460,6 +561,10 @@
       { "kind": "hook", "name": "pre-write-roadmap-home.mjs", "BUILT_IN": "P0-U01" },
       { "kind": "hook", "name": "stop_on_non_h_roadmap.mjs", "BUILT_IN": "P0-U02" },
       { "kind": "hook", "name": "pre-shop-floor-commit-consensus.mjs", "BUILT_IN": "P4-U03" },
+      { "kind": "hook", "name": "pre-edit-lane-guard.mjs", "BUILT_IN": "P5-U01" },
+      { "kind": "hook", "name": "auto-fork-executor.mjs", "BUILT_IN": "P5-U02" },
+      { "kind": "hook", "name": "cross-chat-directive-detector.mjs", "BUILT_IN": "P5-U03" },
+      { "kind": "helper", "name": "arbitration-log.mjs", "BUILT_IN": "P5-U04" },
       { "kind": "engine", "name": "PRISMCodexBridgeEngine", "BUILT_IN": "P1-U02" },
       { "kind": "engine", "name": "PRISMConsensusGateEngine", "BUILT_IN": "P4-U01 + persona extension P4-U05" },
       { "kind": "engine", "name": "ObsidianVaultExporterEngine", "BUILT_IN": "P3-U01" },
@@ -480,7 +585,13 @@
     "new_hooks": [
       "pre-write-roadmap-home.mjs (P0-U01)",
       "stop_on_non_h_roadmap.mjs (P0-U02)",
-      "pre-shop-floor-commit-consensus.mjs (P4-U03)"
+      "pre-shop-floor-commit-consensus.mjs (P4-U03)",
+      "pre-edit-lane-guard.mjs (P5-U01)",
+      "auto-fork-executor.mjs (P5-U02)",
+      "cross-chat-directive-detector.mjs (P5-U03)"
+    ],
+    "new_helpers": [
+      "arbitration-log.mjs (P5-U04)"
     ],
     "new_actions": [
       "prism_orchestrate:codex_delegate (P1-U03)",
@@ -515,7 +626,7 @@
     "self_protection": "After P0 lands, this very milestone envelope cannot be written outside H: by any later session"
   },
   "compaction_strategy": {
-    "compact_after_units": ["P0-U03", "P1-U03", "P2-U01", "P2-U03", "P3-U02", "P3-U04", "P4-U02", "P4-U05"],
+    "compact_after_units": ["P0-U03", "P1-U03", "P2-U01", "P2-U03", "P3-U02", "P3-U04", "P4-U02", "P4-U05", "P5-U02", "P5-U04"],
     "rationale": "Every ≤3 units. Forced compact after P4-U02 because the AGENT_CONFLICT_ARBITRATION substrate fix touches multiple shared files. Tightened from 6 to 8 points after architecture-agent scrutiny flagged two 4-unit windows (P1-U04→P2-U03 and P3-U03→P4-U02) — added P2-U01 and P3-U04 to honor the 3-unit cadence and not strand non-trivial canvas/defuddle work."
   },
   "mcp_lifecycle": {
@@ -544,13 +655,14 @@
   },
   "exit_gate": {
     "criteria": [
-      "All 19 units complete with passing tests",
+      "All 23 units complete with passing tests",
       "Both P0 hooks fire correctly on synthetic violations (no false negatives)",
       "Codex plugin /codex:setup reports auth OK from this machine AND the other shared-H: machine",
       "Consensus gate runs end-to-end on a synthetic Kienzle constant edit and produces 5 verdicts + decision",
-      "AGENT_CONFLICT_ARBITRATION.json exists with ≥1 real arbitration record (synthetic if needed)",
+      "AGENT_CONFLICT_ARBITRATION.json exists with ≥1 real arbitration record (auto-fork, lane-block, directive-warn, or consensus-dissent)",
       "Random-sample 10 wiki entries open in Obsidian via wikilinks AND render on GitHub",
-      "roadmap.canvas opens in Obsidian and shows the full 685-milestone DAG without size errors"
+      "roadmap.canvas opens in Obsidian and shows the full 685-milestone DAG without size errors",
+      "P5 multi-chat rails fire on synthetic peer-claim conflict: lane gate blocks Edit, auto-fork creates ../prism-<scope>-<id>, audit log captures both events"
     ],
     "omega_floor": 0.9,
     "svi_delta_target": "+5%",
