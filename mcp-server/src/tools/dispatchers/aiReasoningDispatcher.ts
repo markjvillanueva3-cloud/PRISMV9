@@ -1226,6 +1226,31 @@ export async function executeAIReasoningAction(
         result = { problems, size: transferLearningBridgeEngine.size() };
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE33: MultiAssetReasoningEngine — cross-asset
+      // reasoning that combines engines + formulas + materials + machines to
+      // synthesize a recommendation with confidence and alternatives.
+      // Engine.reason() is async (lazy initialize); await it.
+      // ─────────────────────────────────────────────────────────────────────
+      case "multi_asset_reason": {
+        const { multiAssetReasoningEngine } = await import("../../engines/MultiAssetReasoningEngine.js");
+        type Arg = Parameters<typeof multiAssetReasoningEngine.reason>[0];
+        const p = params as { context: Arg };
+        result = await multiAssetReasoningEngine.reason(p.context);
+        break;
+      }
+      case "multi_asset_types": {
+        const { multiAssetReasoningEngine } = await import("../../engines/MultiAssetReasoningEngine.js");
+        const types = multiAssetReasoningEngine.getAssetTypes();
+        result = { types, count: types.length };
+        break;
+      }
+      case "multi_asset_reset": {
+        const { multiAssetReasoningEngine } = await import("../../engines/MultiAssetReasoningEngine.js");
+        multiAssetReasoningEngine.reset();
+        result = { reset: true };
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
