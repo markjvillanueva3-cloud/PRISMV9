@@ -1252,6 +1252,42 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE34: JMDieProgramLearningEngine — patterns mined
+      // from 36,929 JM Die programs across lathe/mill/wedm × 5 categories.
+      // All read methods are async (await initialize() internally).
+      // Singleton seeds 15 patterns lazily on first call.
+      // ─────────────────────────────────────────────────────────────────────
+      case "jmdie_query": {
+        const { jmDieProgramLearningEngine } = await import("../../engines/JMDieProgramLearningEngine.js");
+        type Arg = Parameters<typeof jmDieProgramLearningEngine.query>[0];
+        const patterns = await jmDieProgramLearningEngine.query(params as Arg);
+        result = { patterns, count: patterns.length };
+        break;
+      }
+      case "jmdie_get_pattern": {
+        const { jmDieProgramLearningEngine } = await import("../../engines/JMDieProgramLearningEngine.js");
+        const p = params as { id: string };
+        const pattern = await jmDieProgramLearningEngine.getPattern(p.id);
+        result = pattern === null
+          ? { pattern: null, found: false }
+          : { pattern, found: true };
+        break;
+      }
+      case "jmdie_get_tips": {
+        const { jmDieProgramLearningEngine } = await import("../../engines/JMDieProgramLearningEngine.js");
+        const p = params as { machineType?: string };
+        const tips = await jmDieProgramLearningEngine.getTips(p.machineType);
+        result = { tips, count: tips.length };
+        break;
+      }
+      case "jmdie_stats": {
+        const { jmDieProgramLearningEngine } = await import("../../engines/JMDieProgramLearningEngine.js");
+        const stats = await jmDieProgramLearningEngine.getStats();
+        result = stats;
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
