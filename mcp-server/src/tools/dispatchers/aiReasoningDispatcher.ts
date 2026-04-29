@@ -1528,6 +1528,34 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE41: MachineTypeClassifierEngine - infers
+      // required machine type (lathe / mill_3axis / mill_5axis / mill_turn /
+      // wire_edm / sinker_edm / swiss / grinder / multi_machine) from print
+      // intelligence (titleBlock, dimensions, GDT, CAD signature, free-form
+      // description). All methods synchronous, no engine state.
+      // ─────────────────────────────────────────────────────────────────────
+      case "machine_type_classify": {
+        const { machineTypeClassifierEngine } = await import("../../engines/MachineTypeClassifierEngine.js");
+        type Arg = Parameters<typeof machineTypeClassifierEngine.classify>[0];
+        result = machineTypeClassifierEngine.classify(params as Arg);
+        break;
+      }
+      case "machine_type_quick": {
+        const { machineTypeClassifierEngine } = await import("../../engines/MachineTypeClassifierEngine.js");
+        const p = params as { description: string };
+        const machineType = machineTypeClassifierEngine.quickClassify(p.description);
+        result = { primaryMachineType: machineType };
+        break;
+      }
+      case "machine_type_multi_required": {
+        const { machineTypeClassifierEngine } = await import("../../engines/MachineTypeClassifierEngine.js");
+        type Arg = Parameters<typeof machineTypeClassifierEngine.requiresMultiMachine>[0];
+        const required = machineTypeClassifierEngine.requiresMultiMachine(params as Arg);
+        result = { multiMachineRequired: required };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
