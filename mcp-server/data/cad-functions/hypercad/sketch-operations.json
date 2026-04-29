@@ -1,0 +1,801 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Sketch Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S Sketcher workspace. Designed by OPEN MIND for CAM workflows — sketcher includes more variants per primitive than typical parametric CAD because hyperMILL operators need fast 2D construction for toolpath references. Catalog covers: 9 primitive families (Line / Rectangle / Circle / Arc / Polygon / Ellipse / Spline / Slot / Point), 12 editing tools, 4 reference-geometry projections, parametric Constraint solver (15 constraint types), Dimension manager (8 dimension types), and 5 Query operations.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-01",
+    "source": "OPEN MIND hyperCAD-S User Manual + Macro Reference, hyperMILL Integration Guide",
+    "totalParameters": 242,
+    "operationCount": 32,
+    "cad_concepts_used": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "TANGENT_REFERENCE",
+      "PROJECTED_GEOMETRY",
+      "DRIVING_VS_DRIVEN",
+      "CONSTRUCTION_LINE",
+      "POLAR_COORDINATE",
+      "OFFSET_CHAIN",
+      "SPLINE_INTERPOLATION_VS_CONTROL_POLYGON"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S sketch operations",
+    "tabs": ["Plane", "Geometry", "Construction", "Properties"]
+  },
+  "operations": {
+    "LINE": {
+      "description": "Line creation with 8 placement methods. Default mode is two-point. Polar / parallel / perpendicular / tangent / offset modes auto-generate the corresponding geometric constraint at creation time.",
+      "category": "Sketch_Primitive_Line",
+      "fusion_command": "n/a (hyperCAD-S uses macro: SKETCH.LINE.CREATE)",
+      "python_api": "Sketcher.createLine | Sketcher.createLineByMode",
+      "parameterCount": 10,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "description": "XY/XZ/YZ origin plane, planar face, or reference plane", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "description": "Line construction method", "options": ["two_point", "ortho", "parallel", "perpendicular", "tangent", "polar", "offset", "free"], "default": "two_point", "required": true},
+            {"name": "Start Point", "type": "point2d", "description": "First endpoint (all modes except offset)", "required": true},
+            {"name": "End Point", "type": "point2d", "description": "Second endpoint (two_point / free / polar terminator)"},
+            {"name": "Reference Entity", "type": "selection", "description": "Existing line / circle / arc for parallel / perpendicular / tangent / offset modes"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Line length (polar / ortho / parallel / perpendicular modes)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Polar angle from horizontal (polar mode) or from reference (parallel-rotated)"},
+            {"name": "Offset Distance", "type": "numeric", "unit": "mm", "description": "Distance from reference (offset mode, signed)"},
+            {"name": "Continuous Chain", "type": "checkbox", "description": "Keep tool active to chain multiple lines", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "description": "Mark as construction geometry (excluded from feature consumption)", "default": false}
+          ]
+        }
+      }
+    },
+    "RECTANGLE": {
+      "description": "Closed 4-sided rectangle with 4 placement modes. Two-point and center-corner default to axis-aligned; three-point and rotated allow arbitrary orientation. Auto-generates Horizontal/Vertical/Perpendicular constraints.",
+      "category": "Sketch_Primitive_Rectangle",
+      "fusion_command": "SKETCH.RECTANGLE.CREATE",
+      "python_api": "Sketcher.createRectangle",
+      "parameterCount": 10,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["two_point", "three_point", "center_corner", "center_two_axes"], "default": "two_point"},
+            {"name": "Corner 1", "type": "point2d", "description": "First corner (two_point / three_point) or center (center modes)", "required": true},
+            {"name": "Corner 2", "type": "point2d", "description": "Opposite corner / direction reference", "required": true},
+            {"name": "Third Point", "type": "point2d", "description": "Width-edge endpoint (three_point mode only)"},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Override width — drives the dimension"},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Override height — drives the dimension"},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "description": "Rotation about center (center_two_axes mode)", "default": 0}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CIRCLE": {
+      "description": "Closed circle with 5 placement methods including hyperCAD's tangent-2-circles and tangent-3-elements (rare in other CAD).",
+      "category": "Sketch_Primitive_Circle",
+      "fusion_command": "SKETCH.CIRCLE.CREATE",
+      "python_api": "Sketcher.createCircle",
+      "parameterCount": 10,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["center_radius", "three_point", "two_point_diameter", "tangent_two_circles", "tangent_three_elements"], "default": "center_radius"},
+            {"name": "Center", "type": "point2d", "description": "Center point (center_radius mode)"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Circle radius", "min": 0.001},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "description": "Alternative to radius (mutually exclusive)"},
+            {"name": "Three Points", "type": "selection_list", "description": "Three points on circumference (three_point mode)", "min": 3, "max": 3},
+            {"name": "Diameter Endpoints", "type": "selection_list", "description": "Two diameter-endpoint points (two_point_diameter mode)", "min": 2, "max": 2},
+            {"name": "Tangent Entities", "type": "selection_list", "description": "Existing curves to be tangent to (tangent modes)"},
+            {"name": "Side Selector", "type": "dropdown", "description": "Which solution to choose for tangent_three_elements (multiple solutions exist)", "options": ["smallest", "largest", "interior", "exterior"], "default": "smallest"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ARC": {
+      "description": "Open arc with 4 placement methods. Center-radius-angle is canonical; tangent and three-point modes are common when constructing fillets without commit.",
+      "category": "Sketch_Primitive_Arc",
+      "fusion_command": "SKETCH.ARC.CREATE",
+      "python_api": "Sketcher.createArc",
+      "parameterCount": 10,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["center_start_end", "three_point", "tangent_endpoint", "fillet_style"], "default": "center_start_end"},
+            {"name": "Center", "type": "point2d", "description": "Arc center (center_start_end mode)"},
+            {"name": "Start Point", "type": "point2d", "required": true},
+            {"name": "End Point", "type": "point2d", "description": "End or third arc point (three_point)"},
+            {"name": "Mid Point", "type": "point2d", "description": "Required for three_point"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Override radius (drives constraint)", "min": 0.001},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "description": "Total sweep — overrides geometry if dimensional", "min": -360, "max": 360},
+            {"name": "Tangent Direction", "type": "selection", "description": "Tangent vector reference (tangent_endpoint mode)"},
+            {"name": "Direction", "type": "dropdown", "options": ["counter_clockwise", "clockwise"], "default": "counter_clockwise"}
+          ]
+        }
+      }
+    },
+    "POLYGON": {
+      "description": "Regular polygon (3..256 sides), irregular polygon by points, or polygon defined by edge length and number of sides. Inscribed (point-up) vs circumscribed (flat-up) orientation.",
+      "category": "Sketch_Primitive_Polygon",
+      "fusion_command": "SKETCH.POLYGON.CREATE",
+      "python_api": "Sketcher.createPolygon",
+      "parameterCount": 10,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["regular_inscribed", "regular_circumscribed", "irregular_by_points", "regular_by_edge_length"], "default": "regular_inscribed"},
+            {"name": "Sides", "type": "integer", "description": "Number of sides", "min": 3, "max": 256, "default": 6},
+            {"name": "Center", "type": "point2d", "description": "Center point (regular modes)"},
+            {"name": "Vertex Point", "type": "point2d", "description": "First vertex on circumscribing circle (inscribed) or edge midpoint (circumscribed)"},
+            {"name": "Vertex List", "type": "selection_list", "description": "Ordered vertex points (irregular_by_points mode)"},
+            {"name": "Edge Length", "type": "numeric", "unit": "mm", "description": "Side length (regular_by_edge_length mode)", "min": 0.001},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "description": "Initial rotation about center", "default": 0},
+            {"name": "Hole Mode", "type": "checkbox", "description": "Polygon represents a hole boundary (auto-flip normals)", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ELLIPSE": {
+      "description": "Closed ellipse defined by center + major axis + minor axis. 3-axis variant lets the user place an off-axis tangent point. Auto-generates major/minor axis lengths and rotation as drivable dimensions.",
+      "category": "Sketch_Primitive_Ellipse",
+      "fusion_command": "SKETCH.ELLIPSE.CREATE",
+      "python_api": "Sketcher.createEllipse",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Center", "type": "point2d", "required": true},
+            {"name": "Major Axis Endpoint", "type": "point2d", "description": "Defines major direction + length", "required": true},
+            {"name": "Minor Axis Endpoint", "type": "point2d", "description": "Defines minor length (perpendicular to major)"},
+            {"name": "Major Length", "type": "numeric", "unit": "mm", "description": "Override major-axis length", "min": 0.001},
+            {"name": "Minor Length", "type": "numeric", "unit": "mm", "description": "Override minor-axis length", "min": 0.001},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "description": "Major-axis rotation from horizontal", "default": 0}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SPLINE": {
+      "description": "Smooth curve through control points. Three creation modes — interpolation (curve passes through every control point), control_polygon (curve is bounded by polygon, doesn't pass through), and tangent (each control point has explicit tangent vector).",
+      "category": "Sketch_Primitive_Spline",
+      "fusion_command": "SKETCH.SPLINE.CREATE",
+      "python_api": "Sketcher.createSpline",
+      "parameterCount": 12,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["interpolation", "control_polygon", "tangent_spline"], "default": "interpolation"},
+            {"name": "Degree", "type": "integer", "description": "B-spline degree (3 = cubic, 5 = quintic)", "options": [2, 3, 5, 7], "default": 3},
+            {"name": "Control Points", "type": "selection_list", "description": "Ordered points (3+ for interpolation, 4+ for control_polygon)", "min": 3, "required": true},
+            {"name": "Knot Vector Type", "type": "dropdown", "description": "Knot distribution method", "options": ["uniform", "centripetal", "chord_length"], "default": "centripetal"},
+            {"name": "Closed", "type": "checkbox", "description": "Connect last point to first", "default": false},
+            {"name": "Tangent Vectors", "type": "selection_pairs", "description": "[(point_index, tangent_vector)] for tangent_spline mode"},
+            {"name": "Smoothness Weight", "type": "numeric", "description": "0..1 — favor smoothness vs interpolation accuracy", "min": 0, "max": 1, "default": 1.0},
+            {"name": "End Tangent Start", "type": "vector2", "description": "Optional start tangent direction"},
+            {"name": "End Tangent End", "type": "vector2", "description": "Optional end tangent direction"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false},
+            {"name": "Show Control Polygon", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SLOT": {
+      "description": "Closed slot — a stadium shape. Three modes: linear (straight axis), arc (curved axis), multi_arc (multi-segment axis with optional tangency).",
+      "category": "Sketch_Primitive_Slot",
+      "fusion_command": "SKETCH.SLOT.CREATE",
+      "python_api": "Sketcher.createSlot",
+      "parameterCount": 10,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["linear", "arc", "multi_arc"], "default": "linear"},
+            {"name": "Axis Start", "type": "point2d", "description": "Slot axis start", "required": true},
+            {"name": "Axis End", "type": "point2d", "description": "Slot axis end (linear) or arc end"},
+            {"name": "Arc Center", "type": "point2d", "description": "Arc axis center (arc mode)"},
+            {"name": "Multi-Axis Points", "type": "selection_list", "description": "Ordered axis points (multi_arc mode)", "min": 3},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Slot width perpendicular to axis", "required": true, "min": 0.001},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Total slot length (linear mode override)"},
+            {"name": "End Cap Type", "type": "dropdown", "description": "Slot end-cap geometry", "options": ["semicircular", "flat", "square"], "default": "semicircular"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "POINT": {
+      "description": "Sketch point with 4 placement methods. Used for hole centers, pattern seeds, and dimensional anchors.",
+      "category": "Sketch_Primitive_Point",
+      "fusion_command": "SKETCH.POINT.CREATE",
+      "python_api": "Sketcher.createPoint",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["single", "by_intersection", "by_parameter", "by_projection"], "default": "single"},
+            {"name": "Position", "type": "point2d", "description": "Direct placement (single mode)"},
+            {"name": "Curve A", "type": "selection", "description": "First curve (by_intersection mode)"},
+            {"name": "Curve B", "type": "selection", "description": "Second curve (by_intersection mode)"},
+            {"name": "Reference Curve", "type": "selection", "description": "Curve for by_parameter / by_projection modes"},
+            {"name": "Parameter", "type": "numeric", "description": "0..1 along reference curve (by_parameter mode)", "min": 0, "max": 1},
+            {"name": "Source Point", "type": "selection", "description": "External point to project (by_projection mode)"}
+          ]
+        }
+      }
+    },
+    "TRIM": {
+      "description": "Removes a portion of an existing sketch entity bounded by intersections with other entities. Click-trim picks a single segment; box-trim trims everything inside a rectangular region.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.TRIM",
+      "python_api": "Sketcher.trim",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Trim Mode", "type": "dropdown", "options": ["click", "box", "fence"], "default": "click"},
+            {"name": "Click Target", "type": "selection", "description": "Single segment to trim (click mode)"},
+            {"name": "Box Region", "type": "selection_list", "description": "Two corners of trim box (box mode)", "min": 2, "max": 2},
+            {"name": "Fence Curve", "type": "selection", "description": "Curve that defines trim fence (fence mode)"},
+            {"name": "Trim Side", "type": "dropdown", "description": "Which side of trim tool to remove", "options": ["nearest", "farthest", "both"], "default": "nearest"},
+            {"name": "Auto-Extend Bounds", "type": "checkbox", "description": "Extend trim tool to reach untrimmed segment", "default": true}
+          ]
+        }
+      }
+    },
+    "EXTEND": {
+      "description": "Extends a sketch entity to meet another entity. Targets the nearest intersection; explicit-target mode lets the user click a specific reference.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.EXTEND",
+      "python_api": "Sketcher.extend",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entity", "type": "selection", "description": "Entity to extend", "required": true},
+            {"name": "Source End", "type": "dropdown", "description": "Which end to extend", "options": ["nearest_to_click", "start", "end", "both"], "default": "nearest_to_click"},
+            {"name": "Target Entity", "type": "selection", "description": "Entity to extend toward (explicit mode)"},
+            {"name": "Auto-Detect Target", "type": "checkbox", "description": "Auto-find nearest intersecting entity", "default": true},
+            {"name": "Maintain Tangency", "type": "checkbox", "description": "Preserve tangency at extension point", "default": false},
+            {"name": "Extension Distance", "type": "numeric", "unit": "mm", "description": "Override — extend by fixed distance instead of to-target"}
+          ]
+        }
+      }
+    },
+    "BREAK": {
+      "description": "Splits an entity at a specified point or intersection without removing any geometry. Used to create independently-editable segments.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.BREAK",
+      "python_api": "Sketcher.breakAt",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entity", "type": "selection", "required": true},
+            {"name": "Break Mode", "type": "dropdown", "options": ["at_point", "at_intersection", "at_parameter", "at_midpoint"], "default": "at_point"},
+            {"name": "Break Point", "type": "point2d", "description": "Direct point (at_point mode)"},
+            {"name": "Intersecting Entity", "type": "selection", "description": "Entity defining intersection (at_intersection mode)"},
+            {"name": "Parameter", "type": "numeric", "description": "0..1 along source (at_parameter mode)", "min": 0, "max": 1},
+            {"name": "Preserve Constraints", "type": "checkbox", "description": "Apply parent constraints to both children", "default": true}
+          ]
+        }
+      }
+    },
+    "MIRROR": {
+      "description": "Mirrors selected entities about a sketch line. Mirrored entities can be linked (driven by source) or independent.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.MIRROR",
+      "python_api": "Sketcher.mirror",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "required": true},
+            {"name": "Mirror Line", "type": "selection", "description": "Sketch line / construction line", "required": true},
+            {"name": "Linked Mirror", "type": "checkbox", "description": "Mirrored copies follow source on edit", "default": true},
+            {"name": "Keep Source", "type": "checkbox", "description": "Preserve original entities", "default": true},
+            {"name": "Constraint Symmetry", "type": "checkbox", "description": "Auto-apply Symmetric constraint between source and mirror", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Group Result", "type": "checkbox", "description": "Result entities become a single group for selection", "default": false}
+          ]
+        }
+      }
+    },
+    "OFFSET": {
+      "description": "Creates parallel copy of a sketch entity at a specified perpendicular distance. Chain detection auto-extends to all tangent-connected entities.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.OFFSET",
+      "python_api": "Sketcher.offset",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Offset distance (signed: + = right of source direction)", "required": true},
+            {"name": "Chain Selection", "type": "checkbox", "description": "Auto-extend to tangent-connected entities", "default": true},
+            {"name": "Both Sides", "type": "checkbox", "description": "Create offset on both sides", "default": false},
+            {"name": "Corner Type", "type": "dropdown", "description": "How corners between offset segments are joined", "options": ["arc", "extension", "miter", "chamfer"], "default": "arc"},
+            {"name": "Keep Source", "type": "checkbox", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SCALE": {
+      "description": "Uniform or non-uniform scaling of sketch entities about a scale point. Non-uniform mode allows independent X / Y factors.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.SCALE",
+      "python_api": "Sketcher.scale",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "required": true},
+            {"name": "Scale Mode", "type": "dropdown", "options": ["uniform", "non_uniform"], "default": "uniform"},
+            {"name": "Scale Point", "type": "point2d", "description": "Origin of scaling (default = entity centroid)"},
+            {"name": "Uniform Factor", "type": "numeric", "description": "Scale factor (uniform mode)", "default": 1.0, "min": 0.001},
+            {"name": "X Factor", "type": "numeric", "description": "X-axis factor (non_uniform mode)", "default": 1.0, "min": 0.001},
+            {"name": "Y Factor", "type": "numeric", "description": "Y-axis factor (non_uniform mode)", "default": 1.0, "min": 0.001},
+            {"name": "Keep Source", "type": "checkbox", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ROTATE": {
+      "description": "Rotates selected entities about a pivot point by a specified angle.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.ROTATE",
+      "python_api": "Sketcher.rotate",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "required": true},
+            {"name": "Pivot Point", "type": "point2d", "description": "Rotation center", "required": true},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Rotation angle (positive = counter-clockwise)", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["counter_clockwise", "clockwise"], "default": "counter_clockwise"},
+            {"name": "Keep Source", "type": "checkbox", "default": false},
+            {"name": "Copy Count", "type": "integer", "description": "Number of rotated copies (1 = single rotation)", "default": 1, "min": 1}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "TRANSLATE": {
+      "description": "Translates selected entities by a 2D vector or by point-to-point delta.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.TRANSLATE",
+      "python_api": "Sketcher.translate",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["vector", "point_to_point"], "default": "vector"},
+            {"name": "Vector", "type": "vector2", "description": "Translation X/Y (vector mode)"},
+            {"name": "Source Point", "type": "point2d", "description": "Reference origin (point_to_point mode)"},
+            {"name": "Destination Point", "type": "point2d", "description": "Target origin (point_to_point mode)"},
+            {"name": "Keep Source", "type": "checkbox", "default": false},
+            {"name": "Copy Count", "type": "integer", "description": "Number of translated copies (linear pattern)", "default": 1, "min": 1}
+          ]
+        }
+      }
+    },
+    "STRETCH": {
+      "description": "Moves a portion of a sketch (within a region box) while leaving the rest fixed. Connecting edges are automatically stretched to maintain connectivity.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.STRETCH",
+      "python_api": "Sketcher.stretch",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Region Box", "type": "selection_list", "description": "Two corners of stretch region", "min": 2, "max": 2, "required": true},
+            {"name": "Source Point", "type": "point2d", "description": "Reference point inside region"},
+            {"name": "Destination Point", "type": "point2d", "description": "Target point", "required": true},
+            {"name": "Auto-Update Constraints", "type": "checkbox", "description": "Update constraints affected by stretch", "default": true},
+            {"name": "Window Mode", "type": "dropdown", "description": "Box-selection style", "options": ["window", "crossing"], "default": "window"},
+            {"name": "Lock Boundary", "type": "checkbox", "description": "Endpoints on region edge are locked", "default": false}
+          ]
+        }
+      }
+    },
+    "SKETCH_FILLET": {
+      "description": "Rounds the corner between two sketch entities with a tangent arc of specified radius. Trims the source entities to the arc tangent points.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.FILLET",
+      "python_api": "Sketcher.fillet",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "description": "Two entities or one shared corner", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Fillet radius", "required": true, "min": 0.001},
+            {"name": "Trim Source", "type": "checkbox", "description": "Trim source entities to fillet tangent point", "default": true},
+            {"name": "Tangent Continuous", "type": "checkbox", "description": "Force tangency constraint (default — turn off for sharp transition)", "default": true},
+            {"name": "Apply to All Corners", "type": "checkbox", "description": "Apply same radius to all chained corners", "default": false},
+            {"name": "Constraint Type", "type": "dropdown", "description": "Constraint applied to fillet arc", "options": ["radius", "length", "tangency_only"], "default": "radius"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SKETCH_CHAMFER": {
+      "description": "Bevels the corner between two sketch entities with a straight chamfer of specified geometry.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.CHAMFER",
+      "python_api": "Sketcher.chamfer",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "description": "Two entities or one shared corner", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["equal_distance", "two_distance", "distance_angle"], "default": "equal_distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Primary distance", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Second distance (two_distance mode)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Chamfer angle from primary entity (distance_angle mode)", "min": 0.1, "max": 89.9},
+            {"name": "Trim Source", "type": "checkbox", "description": "Trim source entities to chamfer endpoints", "default": true},
+            {"name": "Apply to All Corners", "type": "checkbox", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MATCH": {
+      "description": "Aligns one entity to another by editing constraints. e.g., make a line match the length of another line, or make an arc match the radius of another arc.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SKETCH.MATCH",
+      "python_api": "Sketcher.match",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entity", "type": "selection", "description": "Reference (driven) entity", "required": true},
+            {"name": "Target Entity", "type": "selection", "description": "Entity to be modified", "required": true},
+            {"name": "Match Property", "type": "dropdown", "description": "Which property to match", "options": ["length", "radius", "diameter", "angle", "width_height", "all"], "default": "length"},
+            {"name": "Apply as Constraint", "type": "checkbox", "description": "Create equal-X constraint vs one-time copy", "default": true},
+            {"name": "Preserve Position", "type": "checkbox", "description": "Lock target position when matching", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Match tolerance (one-time copy mode)", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "PROJECT_EDGE": {
+      "description": "Projects an existing 3D edge or sketch entity onto the active sketch plane. Used to capture geometry from elsewhere into the current sketch.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SKETCH.PROJECT.EDGE",
+      "python_api": "Sketcher.projectEdge",
+      "parameterCount": 6,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Edges", "type": "selection_list", "description": "3D edges to project", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Auto-extend selection along tangent edges", "default": false},
+            {"name": "Continuous Chain", "type": "checkbox", "description": "Auto-extend along smoothly-connected edges", "default": false},
+            {"name": "Project Mode", "type": "dropdown", "options": ["normal_to_sketch", "along_view", "along_vector"], "default": "normal_to_sketch"},
+            {"name": "Projection Vector", "type": "vector3", "description": "Custom direction (along_vector mode)"}
+          ]
+        }
+      }
+    },
+    "PROJECT_FACE": {
+      "description": "Projects the boundary of a 3D face onto the active sketch plane.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SKETCH.PROJECT.FACE",
+      "python_api": "Sketcher.projectFace",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Face", "type": "selection", "required": true},
+            {"name": "Include Inner Loops", "type": "checkbox", "description": "Project inner-loop boundaries (holes in face)", "default": true},
+            {"name": "Tangent Edge Filter", "type": "checkbox", "description": "Skip projection of tangent (G1) edges", "default": false},
+            {"name": "Projection Direction", "type": "vector3", "description": "Override projection direction"}
+          ]
+        }
+      }
+    },
+    "INTERSECT_SURFACE": {
+      "description": "Computes the intersection curve between a 3D surface/face and the active sketch plane.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SKETCH.PROJECT.INTERSECT_SURFACE",
+      "python_api": "Sketcher.intersectSurface",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "description": "3D surface/face to intersect", "required": true},
+            {"name": "Include All Branches", "type": "checkbox", "description": "Capture all intersection components (some surfaces produce multiple)", "default": true},
+            {"name": "Output Type", "type": "dropdown", "description": "Result type", "options": ["polyline", "spline", "exact"], "default": "exact"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Approximation tolerance for spline mode", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "PROJECT_SILHOUETTE": {
+      "description": "Projects the silhouette of a 3D solid (the outline as viewed from sketch normal) onto the active sketch plane. Useful for matching mating-part profiles.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SKETCH.PROJECT.SILHOUETTE",
+      "python_api": "Sketcher.projectSilhouette",
+      "parameterCount": 6,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Body", "type": "selection", "description": "Solid body whose silhouette is projected", "required": true},
+            {"name": "View Vector", "type": "vector3", "description": "Override view direction (default = sketch normal)"},
+            {"name": "Include Hidden Edges", "type": "checkbox", "description": "Project edges hidden in the silhouette view", "default": false},
+            {"name": "Include Tangent Edges", "type": "checkbox", "description": "Project tangent (smooth) edges", "default": false},
+            {"name": "Output Type", "type": "dropdown", "options": ["polyline", "spline", "exact"], "default": "exact"}
+          ]
+        }
+      }
+    },
+    "SKETCH_CONSTRAINT": {
+      "description": "Applies one of 15 geometric constraints between sketch entities. Constraints are persistent and drive solver iteration on edit.",
+      "category": "Sketch_Constraint",
+      "fusion_command": "SKETCH.CONSTRAINT",
+      "python_api": "Sketcher.addConstraint",
+      "parameterCount": 12,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Constraint Type", "type": "dropdown", "options": ["coincident", "concentric", "collinear", "parallel", "perpendicular", "tangent", "equal", "symmetric", "horizontal", "vertical", "fix_point", "fix_length", "lock_distance", "midpoint", "smooth_g2"], "required": true},
+            {"name": "Entity 1", "type": "selection", "description": "First entity (all constraints)", "required": true},
+            {"name": "Entity 2", "type": "selection", "description": "Second entity (binary constraints)"},
+            {"name": "Entity 3", "type": "selection", "description": "Third entity (symmetric — needs mirror line)"},
+            {"name": "Override Solver", "type": "checkbox", "description": "Apply even if constraint over-defines the sketch", "default": false},
+            {"name": "Driving", "type": "checkbox", "description": "Driving (changes geometry) vs Driven (reflects geometry)", "default": true},
+            {"name": "Reference Only", "type": "checkbox", "description": "Annotation only, no solver effect", "default": false},
+            {"name": "Force Direction", "type": "dropdown", "description": "Direction sense for parallel/perpendicular/tangent (rare override)", "options": ["auto", "same", "opposite"], "default": "auto"},
+            {"name": "Equal Property", "type": "dropdown", "description": "Which property to equalize (equal constraint)", "options": ["length", "radius", "diameter", "any"], "default": "any"},
+            {"name": "Show Marker", "type": "checkbox", "description": "Display constraint glyph in canvas", "default": true},
+            {"name": "Auto-Apply", "type": "checkbox", "description": "Auto-add when sketcher detects matching geometry", "default": true},
+            {"name": "Tolerance", "type": "numeric", "description": "Solver tolerance for this constraint", "default": 0.0001}
+          ]
+        }
+      }
+    },
+    "SKETCH_DIMENSION": {
+      "description": "Adds a dimensional constraint to sketch geometry. 8 dimension types: linear (point-to-point or aligned), angular, diameter, radius, arc-length, distance-between, distance-to-point, and reference (display-only).",
+      "category": "Sketch_Dimension",
+      "fusion_command": "SKETCH.DIMENSION",
+      "python_api": "Sketcher.addDimension",
+      "parameterCount": 12,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Dimension Type", "type": "dropdown", "options": ["linear", "angular", "diameter", "radius", "arc_length", "distance_between", "distance_to_point", "reference"], "required": true},
+            {"name": "Entity 1", "type": "selection", "description": "First entity (all types)", "required": true},
+            {"name": "Entity 2", "type": "selection", "description": "Second entity (binary types)"},
+            {"name": "Reference Point", "type": "point2d", "description": "Anchor point (distance_to_point type)"},
+            {"name": "Value", "type": "numeric", "description": "Dimension value (driving) or display value (driven)", "required": true},
+            {"name": "Unit", "type": "dropdown", "options": ["mm", "in", "deg", "rad"], "default": "mm"},
+            {"name": "Driving", "type": "checkbox", "description": "Driving (changes geometry) vs Driven (reflects geometry)", "default": true},
+            {"name": "Tolerance Type", "type": "dropdown", "description": "Display-tolerance style", "options": ["none", "limits", "plus_minus", "asymmetric"], "default": "none"},
+            {"name": "Upper Tolerance", "type": "numeric", "description": "Upper deviation"},
+            {"name": "Lower Tolerance", "type": "numeric", "description": "Lower deviation"},
+            {"name": "Decimal Places", "type": "integer", "description": "Display precision", "default": 3, "min": 0, "max": 6},
+            {"name": "Reference Suffix", "type": "string", "description": "Suffix shown after value (e.g. 'TYP', 'MIN', 'MAX')"}
+          ]
+        }
+      }
+    },
+    "QUERY_LENGTH": {
+      "description": "Reports the length of a sketch entity (line, arc, spline, polygon perimeter, or sum across selection).",
+      "category": "Sketch_Query",
+      "fusion_command": "SKETCH.QUERY.LENGTH",
+      "python_api": "Sketcher.queryLength",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "description": "Sketch entities to measure", "required": true},
+            {"name": "Output Unit", "type": "dropdown", "options": ["mm", "cm", "m", "in", "ft"], "default": "mm"},
+            {"name": "Decimal Places", "type": "integer", "default": 3, "min": 0, "max": 6},
+            {"name": "Sum Mode", "type": "dropdown", "description": "How to aggregate across multiple entities", "options": ["sum", "individual", "min", "max", "average"], "default": "sum"},
+            {"name": "Include Construction", "type": "checkbox", "description": "Include construction-geometry entities in result", "default": false}
+          ]
+        }
+      }
+    },
+    "QUERY_AREA": {
+      "description": "Reports the area enclosed by a closed loop of sketch entities. Multi-loop selection sums.",
+      "category": "Sketch_Query",
+      "fusion_command": "SKETCH.QUERY.AREA",
+      "python_api": "Sketcher.queryArea",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Closed Loops", "type": "selection_list", "description": "One or more closed loops", "required": true},
+            {"name": "Output Unit", "type": "dropdown", "options": ["mm^2", "cm^2", "m^2", "in^2", "ft^2"], "default": "mm^2"},
+            {"name": "Decimal Places", "type": "integer", "default": 3, "min": 0, "max": 6},
+            {"name": "Subtract Inner Loops", "type": "checkbox", "description": "If selection includes inner loops (holes), subtract their area", "default": true},
+            {"name": "Centroid Output", "type": "checkbox", "description": "Also compute and display centroid", "default": false}
+          ]
+        }
+      }
+    },
+    "QUERY_DISTANCE": {
+      "description": "Reports distance between two sketch entities (point-to-point, point-to-line, line-to-line, etc).",
+      "category": "Sketch_Query",
+      "fusion_command": "SKETCH.QUERY.DISTANCE",
+      "python_api": "Sketcher.queryDistance",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "required": true},
+            {"name": "Entity 2", "type": "selection", "required": true},
+            {"name": "Distance Type", "type": "dropdown", "description": "Which distance to compute (some pairs have multiple meaningful distances)", "options": ["min", "max", "perpendicular", "parallel", "center_to_center"], "default": "min"},
+            {"name": "Output Unit", "type": "dropdown", "options": ["mm", "cm", "m", "in", "ft"], "default": "mm"},
+            {"name": "Show Distance Marker", "type": "checkbox", "description": "Display measurement in canvas", "default": true}
+          ]
+        }
+      }
+    },
+    "QUERY_ANGLE": {
+      "description": "Reports angle between two sketch entities (line-line, line-arc-tangent, arc-arc-tangent).",
+      "category": "Sketch_Query",
+      "fusion_command": "SKETCH.QUERY.ANGLE",
+      "python_api": "Sketcher.queryAngle",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "required": true},
+            {"name": "Entity 2", "type": "selection", "required": true},
+            {"name": "Angle Sense", "type": "dropdown", "description": "Which of the 4 angle solutions to report", "options": ["acute", "obtuse", "supplementary", "complementary", "signed_ccw"], "default": "acute"},
+            {"name": "Output Unit", "type": "dropdown", "options": ["deg", "rad"], "default": "deg"},
+            {"name": "Decimal Places", "type": "integer", "default": 2, "min": 0, "max": 6}
+          ]
+        }
+      }
+    },
+    "QUERY_COORDINATES": {
+      "description": "Reports XY coordinates of selected sketch points or entity endpoints / center / midpoint.",
+      "category": "Sketch_Query",
+      "fusion_command": "SKETCH.QUERY.COORDINATES",
+      "python_api": "Sketcher.queryCoordinates",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entities", "type": "selection_list", "description": "Sketch points, vertices, or entities (uses center / endpoint)", "required": true},
+            {"name": "Anchor Type", "type": "dropdown", "description": "Which feature point of each entity (entity selection)", "options": ["start", "end", "midpoint", "center", "centroid"], "default": "center"},
+            {"name": "Coordinate System", "type": "dropdown", "description": "Reporting frame", "options": ["sketch_local", "model_global", "polar"], "default": "sketch_local"},
+            {"name": "Output Unit", "type": "dropdown", "options": ["mm", "cm", "m", "in", "ft"], "default": "mm"},
+            {"name": "Decimal Places", "type": "integer", "default": 3, "min": 0, "max": 6}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "sketcher_workspace_required": true,
+    "macro_recording_supported": "All sketch operations are recordable as hyperCAD-S macros for batch processing",
+    "constraint_solver": "hyperCAD-S uses a 2D parametric solver with 15 distinct constraint types — the smooth_g2 constraint is unusual (most CAD tools don't expose curvature continuity in 2D sketches)",
+    "tangent_three_elements_solutions": "tangent_three_elements (Circle mode 5) typically has multiple solutions — the side_selector parameter picks among smallest/largest/interior/exterior solutions",
+    "spline_mode_distinction": "interpolation passes through every control point; control_polygon does NOT (Bézier-style); tangent_spline allows explicit tangent vectors at each point",
+    "smooth_g2_constraint": "smooth_g2 is hyperCAD's higher-than-tangent continuity constraint — applies between two splines or arc+spline to enforce curvature continuity"
+  }
+}

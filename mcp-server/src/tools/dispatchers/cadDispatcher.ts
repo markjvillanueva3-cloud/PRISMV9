@@ -180,6 +180,10 @@ const ACTIONS = [
   "cad_fusion_mcp_read_api_doc", "cad_fusion_mcp_screenshot", "cad_fusion_mcp_list_projects",
   "cad_fusion_mcp_search_documents", "cad_fusion_mcp_open_document", "cad_fusion_mcp_save_document",
   "cad_fusion_mcp_undo", "cad_fusion_mcp_redo", "cad_fusion_mcp_execute_operation",
+  // hyperCAD-S CAD Function Index (U-CAD-FIDX-HCAD-01)
+  "cad_hypercad_get_index", "cad_hypercad_list_modules", "cad_hypercad_list_operations",
+  "cad_hypercad_get_operation", "cad_hypercad_find_parameter", "cad_hypercad_search_parameters",
+  "cad_hypercad_operations_by_category",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1654,6 +1658,103 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: !callResult.isError, module_id: moduleId, operation_id: operationId, script, result: callResult };
             break;
           }
+
+          // ─── hyperCAD-S CAD Function Index (U-CAD-FIDX-HCAD-01) ───────────
+          case "cad_hypercad_get_index": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            result = { success: true, index: HyperCADCADFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "cad_hypercad_list_modules": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            result = { success: true, modules: HyperCADCADFunctionIndexEngine.listModules() };
+            break;
+          }
+          case "cad_hypercad_list_operations": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operations = moduleId
+              ? HyperCADCADFunctionIndexEngine.listOperations(moduleId)
+              : HyperCADCADFunctionIndexEngine.listAllOperations();
+            result = { success: true, operations };
+            break;
+          }
+          case "cad_hypercad_get_operation": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string;
+            const operationId = (params.operation_id ?? params.operationId) as string;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_hypercad_get_operation requires module_id and operation_id",
+                action,
+                "prism_cad"
+              );
+            }
+            const operation = HyperCADCADFunctionIndexEngine.getOperation(moduleId, operationId);
+            result = { success: operation !== null, module_id: moduleId, operation_id: operationId, operation };
+            break;
+          }
+          case "cad_hypercad_find_parameter": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string;
+            const operationId = (params.operation_id ?? params.operationId) as string;
+            const parameterName = (params.parameter_name ?? params.parameterName) as string;
+            if (!moduleId || !operationId || !parameterName) {
+              return dispatcherError(
+                "cad_hypercad_find_parameter requires module_id, operation_id, and parameter_name",
+                action,
+                "prism_cad"
+              );
+            }
+            const locator = HyperCADCADFunctionIndexEngine.findParameter(moduleId, operationId, parameterName);
+            result = { success: locator !== null, locator };
+            break;
+          }
+          case "cad_hypercad_search_parameters": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const query = (params.query ?? params.q) as string;
+            const limit = typeof params.limit === "number" ? params.limit : 50;
+            if (!query) {
+              return dispatcherError(
+                "cad_hypercad_search_parameters requires a 'query' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const matches = HyperCADCADFunctionIndexEngine.searchParameters(query, limit);
+            result = { success: true, query, count: matches.length, matches };
+            break;
+          }
+          case "cad_hypercad_operations_by_category": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const category = params.category as string;
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            if (!category) {
+              return dispatcherError(
+                "cad_hypercad_operations_by_category requires a 'category' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const operations = HyperCADCADFunctionIndexEngine.getOperationsByCategory(category, moduleId);
+            result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

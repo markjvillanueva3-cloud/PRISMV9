@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypercad_s",
+  "module_id": "cad_function_index",
+  "module_name": "hyperCAD-S Unified Function Index",
+  "description": "Top-level index for hyperCAD-S (OPEN MIND) CAD operations. hyperCAD-S is a hybrid CAD system designed specifically for CAM workflows, with deep integration to hyperMILL CAM. Coverage spans: 2D Sketcher (extensive — more variants per primitive than Fusion), 3D Solid Modeler (with direct-edit), Surface Modeler (Coons / network / refit — hyperCAD's strength), Healing/Repair (hyperCAD's killer feature for imported geometry), Mesh Modeler (with feature-line extraction for hyperMILL), Assembly, Drawing (2D-from-3D output), and Datum/Reference geometry. Consumed by HyperCADCADFunctionIndexEngine for lookup, parameter discovery, and AI orchestration of CAD generation.",
+  "indexed_at": "2026-04-29T05:00:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/hypercad/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-01"],
+      "parameter_count_estimate": 242,
+      "description": "2D sketching with hyperCAD-S extensive variant set: Line (8 creation modes including ortho / parallel / perpendicular / tangent / polar / offset), Rectangle (4 methods), Circle (5 methods including tangent-2-circles and tangent-3-elements), Arc (4 methods), Ellipse (3-axis), Polygon (regular + irregular + by-points), Spline (interpolation / control-polygon / tangent), Slot (linear / arc / multi-arc), Point (single / by-intersection / by-parameter / by-projection), Editing (Trim / Extend / Break / Mirror / Offset / Scale / Rotate / Translate / Stretch / Sketch-Fillet / Sketch-Chamfer / Match), Constraints (15 types incl. Concentric / Collinear / Symmetric / Lock-distance), Dimensions (Linear / Angular / Diameter / Radius / Distance-between / Driven / Driving / Reference), Reference geometry (Project edge / Project face / Intersect surface / Project silhouette), and Query (Length / Area / Distance / Angle / Coordinates).",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "PROJECTED_GEOMETRY",
+      "TANGENT_REFERENCE",
+      "DRIVING_VS_DRIVEN_DIMENSION"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "HyperCADCADFunctionIndexEngine",
+      "HyperCADSCodeGeneratorEngine",
+      "HyperMillStrategyKnowledgeEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 1,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01"],
+    "estimated_parameter_total": 242,
+    "api_surface": {
+      "macro_api_items": 32,
+      "hypercad_workspace": "Sketcher"
+    },
+    "pdf_sources_bound": [
+      "OPEN MIND hyperCAD-S User Manual",
+      "OPEN MIND hyperCAD-S Macro Reference",
+      "hyperMILL Integration Reference"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "sketch_constraint_strategy",
+      "tangent_reference_pitfalls",
+      "spline_smoothing",
+      "imported_sketch_healing"
+    ]
+  },
+  "platform_integration": {
+    "hypermill_native": true,
+    "supports_step_iges_import": true,
+    "supports_parasolid": true,
+    "supports_acis": true,
+    "direct_modeling_mode": true,
+    "macro_recording": true
+  },
+  "future_modules": [
+    {
+      "planned_id": "solid_operations",
+      "scope": "Solid creation primitives (box/cylinder/cone/sphere/torus/pipe/block), sweep features (extrude/revolve/sweep/loft/pipe-along-curve/helix), modify (fillet/chamfer/round/variable-round/shell/draft/hollow/thicken), Boolean (union/subtract/intersect/split-by-plane/split-by-surface/split-by-curve), pattern (linear/circular/path/sketch/mirror/variable), direct-edit (move-face/offset-face/push-pull/replace-face/delete-face/resize/edit), holes (simple/cbore/csink/tap/thread/custom), threading (internal/external/cosmetic/helical)",
+      "estimated_params": 260,
+      "deferred_to": "U-CAD-FIDX-HCAD-02"
+    },
+    {
+      "planned_id": "surface_operations",
+      "scope": "Surface creation (Patch / Boundary / Coons / Network / Sweep / Loft / Revolve / Extrude / Plane / Ruled / Tabulated / Helical), modify (Trim / Extend / Untrim / Offset / Stitch / Unstitch / Reverse / Match / Blend / Surface-Fillet / Surface-Chamfer / Replace / Refit), conversion (Surface-to-Solid / Solid-to-Surface / Mesh-to-Surface)",
+      "estimated_params": 220,
+      "deferred_to": "U-CAD-FIDX-HCAD-03"
+    },
+    {
+      "planned_id": "healing_operations",
+      "scope": "hyperCAD's killer feature — Auto-heal, Manual-gap-fill, Knit-faces, Remove-feature, Decimate-edge, Smooth-curve, Gap-detector, Remove-fillet, Replace-face, Edge-blend, Detect-non-manifold, Force-stitch, Fix-tangent, Snap-to-grid, Repair-self-intersect, Validate-watertight",
+      "estimated_params": 120,
+      "deferred_to": "U-CAD-FIDX-HCAD-04"
+    },
+    {
+      "planned_id": "mesh_operations",
+      "scope": "Insert / Convert-to-BRep / Convert-to-Surface / Reduce / Smooth / Repair / Remesh / Boolean-mesh-mesh / Plane-Cut / Clip-Volume / Extract-Feature-Lines (for hyperMILL toolpath generation) / Slice-for-Additive",
+      "estimated_params": 80,
+      "deferred_to": "U-CAD-FIDX-HCAD-05"
+    },
+    {
+      "planned_id": "assembly_operations",
+      "scope": "Insert-Component / Pattern / Mirror / Joint / Fix-Component / Group / Hide / Show-Only / Suppress / Replace-Component / Edit-In-Place / Component-Tree / BOM-extract / Mass-Properties / Interference-Check",
+      "estimated_params": 120,
+      "deferred_to": "U-CAD-FIDX-HCAD-06"
+    },
+    {
+      "planned_id": "drawing_operations",
+      "scope": "Standard-projection-views (front/top/right/iso), Auxiliary, Section (full / half / aligned / offset / broken), Detail, Broken-out, Crop. Annotations: Linear-dim / Angular-dim / Radius / Diameter / Chamfer / Note / Symbol / GD&T-frame / Hatching / Title-block / Revision-table / BOM-table. Layers, Linetypes, Plot-styles.",
+      "estimated_params": 210,
+      "deferred_to": "U-CAD-FIDX-HCAD-07"
+    },
+    {
+      "planned_id": "datum_operations",
+      "scope": "Reference Plane (10 creation methods: offset / 3-points / tangent / midplane / normal-to-curve / 2-edges / angle / projection / coordinate / from-axes), Reference Axis (8 methods), Reference Point (12 methods), Coordinate System (origin + 3 directions, 6 alignment options), Reference Spline / Polyline (3D)",
+      "estimated_params": 180,
+      "deferred_to": "U-CAD-FIDX-HCAD-08"
+    }
+  ]
+}
