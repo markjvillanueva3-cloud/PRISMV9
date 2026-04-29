@@ -1594,6 +1594,78 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE43: PrintMatchStallDetectorEngine - tracks
+      // print-matching jobs through 5 stages (ingest, feature_extraction,
+      // similarity_search, candidate_review, disposition) with per-stage
+      // stall budgets. Caller supplies now_ms (engine never reads Date.now).
+      // All methods synchronous. Mutating actions return {ok:true} or boolean.
+      // ─────────────────────────────────────────────────────────────────────
+      case "stall_start_tracking": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        type StageArg = Parameters<typeof printMatchStallDetectorEngine.startTracking>[1];
+        const p = params as { job_id: string; stage: StageArg; now_ms: number; context?: Record<string, unknown> };
+        printMatchStallDetectorEngine.startTracking(p.job_id, p.stage, p.now_ms, p.context ?? {});
+        result = { ok: true, job_id: p.job_id, stage: p.stage };
+        break;
+      }
+      case "stall_mark_progress": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        const p = params as { job_id: string; now_ms: number };
+        printMatchStallDetectorEngine.markProgress(p.job_id, p.now_ms);
+        result = { ok: true, job_id: p.job_id };
+        break;
+      }
+      case "stall_advance_stage": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        type StageArg = Parameters<typeof printMatchStallDetectorEngine.advanceStage>[1];
+        const p = params as { job_id: string; from_stage: StageArg; to_stage: StageArg; now_ms: number };
+        printMatchStallDetectorEngine.advanceStage(p.job_id, p.from_stage, p.to_stage, p.now_ms);
+        result = { ok: true, job_id: p.job_id, from: p.from_stage, to: p.to_stage };
+        break;
+      }
+      case "stall_complete_job": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        const p = params as { job_id: string };
+        const removed = printMatchStallDetectorEngine.completeJob(p.job_id);
+        result = { removed, job_id: p.job_id };
+        break;
+      }
+      case "stall_scan": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        const p = params as { now_ms: number };
+        const events = printMatchStallDetectorEngine.scan(p.now_ms);
+        result = { events, count: events.length };
+        break;
+      }
+      case "stall_scan_one": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        const p = params as { job_id: string; now_ms: number };
+        const event = printMatchStallDetectorEngine.scanOne(p.job_id, p.now_ms);
+        // Engine returns undefined for not-tracked OR not-stalled - normalize.
+        result = event === undefined
+          ? { event: null, stalled: false, job_id: p.job_id }
+          : { event, stalled: true };
+        break;
+      }
+      case "stall_stats": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        const p = params as { now_ms?: number };
+        // statsAt(now_ms) populates currently_stalled; stats() leaves it 0.
+        const stats = p.now_ms !== undefined
+          ? printMatchStallDetectorEngine.statsAt(p.now_ms)
+          : printMatchStallDetectorEngine.stats();
+        const trackedIds = printMatchStallDetectorEngine.trackedIds();
+        result = { ...stats, tracked_ids: trackedIds };
+        break;
+      }
+      case "stall_clear": {
+        const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+        printMatchStallDetectorEngine.clear();
+        result = { ok: true, cleared: true };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

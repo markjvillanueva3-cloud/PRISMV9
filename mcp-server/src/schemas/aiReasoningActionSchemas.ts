@@ -170,6 +170,15 @@ export const AI_REASONING_ACTIONS = [
   "hardness_list_materials",     // U-WIRE42: JM Die material name list (no aliases)
   "hardness_list_with_aliases",  // U-WIRE42: full {name, aliases[]} map
   "hardness_convert",            // U-WIRE42: bidirectional HB <-> HRC conversion
+  // ENGINE-WIRE-MS0/U-WIRE43: PrintMatchStallDetectorEngine - per-stage stall budgets for print-matching jobs
+  "stall_start_tracking",        // U-WIRE43: begin tracking a job at a stage
+  "stall_mark_progress",         // U-WIRE43: reset stall clock without changing stage
+  "stall_advance_stage",         // U-WIRE43: move job to next stage + reset clock
+  "stall_complete_job",          // U-WIRE43: remove job from tracking
+  "stall_scan",                  // U-WIRE43: list all stalled jobs at now_ms (descending stall time)
+  "stall_scan_one",              // U-WIRE43: lookup single job at now_ms
+  "stall_stats",                 // U-WIRE43: tracker stats; optional now_ms toggles statsAt for live stall count
+  "stall_clear",                 // U-WIRE43: reset all tracking (testing/dashboard)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1555,4 +1564,40 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     from: z.enum(["hrc", "hb"]).describe("Source scale"),
     value: z.number().nonnegative().describe("Source value; HRC range 0..72, HB range 100..739 (engine clamps outside)"),
   }).passthrough(),
+  // U-WIRE43 - PrintMatchStallDetectorEngine
+  // Engine validates: job_id non-empty, stage in MatchStage enum, no
+  // duplicate startTracking, advance_stage from-stage matches actual.
+  // Per-stage budgets: ingest=10s, feature_extraction=30s, similarity_search=60s,
+  // candidate_review=15min, disposition=30s. Priority levels: low/medium/high/critical.
+  stall_start_tracking: z.object({
+    job_id: z.string().min(1),
+    stage: z.enum(["ingest", "feature_extraction", "similarity_search", "candidate_review", "disposition"]),
+    now_ms: z.number().int().nonnegative().describe("Caller-supplied epoch ms (engine never reads Date.now itself)"),
+    context: z.record(z.string(), z.unknown()).optional().describe("Free-form context object cloned into job state"),
+  }).passthrough(),
+  stall_mark_progress: z.object({
+    job_id: z.string().min(1),
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  stall_advance_stage: z.object({
+    job_id: z.string().min(1),
+    from_stage: z.enum(["ingest", "feature_extraction", "similarity_search", "candidate_review", "disposition"]),
+    to_stage: z.enum(["ingest", "feature_extraction", "similarity_search", "candidate_review", "disposition"]),
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  stall_complete_job: z.object({
+    job_id: z.string().min(1),
+  }).passthrough(),
+  stall_scan: z.object({
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  stall_scan_one: z.object({
+    job_id: z.string().min(1),
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  stall_stats: z.object({
+    now_ms: z.number().int().nonnegative().optional()
+      .describe("When provided, response includes currently_stalled count via statsAt; omit for static stats only"),
+  }).passthrough(),
+  stall_clear: z.object({}).passthrough(),
 };
