@@ -1,0 +1,2411 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Multiaxis Per-Op Tab Deep Pass — Strategy / Ramp / Holder / Output / Connections + BLADE_5AX + MULTI_AXIS_POCKET",
+    "description": "Deep-pass extension to multiaxis-operations.json (MS0/U-CAM23). Closes the input-exhaust gap by adding the 5 standard deep tabs (Strategy, Ramp, Holder, Output, Connections) to the 7 existing multiaxis ops. The 5 simpler ops (flow, morphed_spiral_multiaxis, rotary_4axis, trimming, impeller_machining) also get Heights + Linking tabs that the parent catalog omitted. Two net-new ops added: BLADE_5AX (turbine-blade-specific 5-axis finishing with leading/trailing-edge blend strategy) and MULTI_AXIS_POCKET (5-axis adaptive pocket roughing with tilt-to-avoid). Together brings Fusion 360 multiaxis to 100% input-field coverage per L2-CAMX-EXHAUST mandate.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-09",
+    "source": "Autodesk Fusion 360 Help — Multiaxis reference (Swarf / Multi-Axis Contour / Flow / Rotary / Morphed Spiral Multiaxis / Trimming / Impeller Machining / Blade Machining / Multi-Axis Pocket) + Manufacturing Extension 5-axis tilt envelope reference + Mazak Variaxis / DMG MORI DMU programming guide + ISO 10303-238 STEP-NC AP238 multiaxis supplement + post.cps Manual NC reference + Holder Collision Check + Tool Axis tilt strategies",
+    "totalParameters": 320,
+    "toolpathCount": 9,
+    "physics_links": [
+      "TOOL_AXIS_TILT_VS_FORM_DEFLECTION",
+      "5AXIS_LEAD_LEAN_KINEMATICS",
+      "ROTARY_C_AXIS_INTERPOLATION_ERROR",
+      "BLADE_LEADING_EDGE_BLEND",
+      "IMPELLER_HUB_SHROUD_COLLISION",
+      "FLANK_DRIVE_VS_POINT_DRIVE",
+      "MULTI_AXIS_POCKET_TILT_TO_AVOID",
+      "SWARF_TANGENT_FLANK_GAP",
+      "RTCP_RUNTIME_TOOL_CENTER_POINT"
+    ]
+  },
+  "commonTabs": {
+    "description": "New tabs added by the deep pass on top of existing base (tool/geometry/passes/tool_orientation/collision; some ops have heights/linking, some don't). The deep pass adds Strategy/Ramp/Holder/Output/Connections to all ops, and fills Heights/Linking where parent catalog omitted them.",
+    "tabs": [
+      "Strategy",
+      "Ramp",
+      "Holder",
+      "Output",
+      "Connections",
+      "Heights",
+      "Linking"
+    ],
+    "extends": [
+      "Tool",
+      "Geometry",
+      "Passes",
+      "Tool_Orientation",
+      "Collision"
+    ]
+  },
+  "toolpaths": {
+    "SWARF_DEEP": {
+      "description": "Deep-tab extension to swarf — flank-driven 5-axis finishing for tapered walls, fan blades, ruled surfaces. Adds Strategy (tangent gap / drive surface flip), Ramp (helical lead-in along ruled surface), Holder (5-axis tilt envelope), Output (NURBS spline output), Connections (tool-axis-change cost-aware stay-down).",
+      "category": "Finishing",
+      "parameterCount": 32,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Drive Mode",
+              "type": "dropdown",
+              "options": [
+                "flank_drive",
+                "point_drive",
+                "blend"
+              ],
+              "default": "flank_drive"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Floor",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Tangent Gap Tolerance",
+              "type": "numeric",
+              "description": "Max gap to flank surface when flank-driving",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Drive Surface Flip",
+              "type": "checkbox",
+              "description": "Reverse drive-surface orientation (for outside vs inside flanks)",
+              "default": false
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "horizontal_arc",
+                "vertical_arc",
+                "extension"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Sweep Angle",
+              "type": "numeric",
+              "default": 90,
+              "unit": "deg"
+            },
+            {
+              "name": "Lead-Out",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Lead-Out Type",
+              "type": "dropdown",
+              "options": [
+                "same_as_lead_in",
+                "tangent_arc",
+                "extension"
+              ],
+              "default": "same_as_lead_in"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths",
+                "skip_paths",
+                "tilt_to_avoid"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "description": "Max tool-axis tilt to clear holder (5-axis Mfg Ext)",
+              "default": 30,
+              "unit": "deg"
+            },
+            {
+              "name": "Reduce Feedrate Near Holder",
+              "type": "checkbox",
+              "default": false
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "linearize",
+                "G05_HPCC",
+                "G6.2_NURBS",
+                "G6.3_NURBS"
+              ],
+              "default": "linearize"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "description": "Output Runtime Tool Center Point (G43.4 / TRAORI)",
+              "default": true
+            },
+            {
+              "name": "M-Code on Start",
+              "type": "text"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid",
+                "convert_to_high_feed",
+                "always_use_feed"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Stay Down Level",
+              "type": "dropdown",
+              "options": [
+                "least_engagement",
+                "minimum_lift",
+                "tool_axis_change_aware"
+              ],
+              "default": "tool_axis_change_aware"
+            },
+            {
+              "name": "Tool Axis Change Cost",
+              "type": "numeric",
+              "description": "Penalty weight for tool-axis discontinuities (higher = prefer continuous orientation)",
+              "default": 5,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Connection Radius",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            }
+          ]
+        }
+      }
+    },
+    "MULTI_AXIS_CONTOUR_DEEP": {
+      "description": "Deep-tab extension to multi_axis_contour — curve-driven 5-axis finishing along selected edges/curves. Strategy / Ramp / Holder / Output / Connections.",
+      "category": "Finishing",
+      "parameterCount": 28,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Trace Side",
+              "type": "dropdown",
+              "options": [
+                "on_curve",
+                "left_of_curve",
+                "right_of_curve"
+              ],
+              "default": "on_curve"
+            },
+            {
+              "name": "Number of Stepdowns",
+              "type": "numeric",
+              "default": 1,
+              "min": 1,
+              "max": 20
+            },
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 0.2,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Sort By",
+              "type": "dropdown",
+              "options": [
+                "selection_order",
+                "shortest_path"
+              ],
+              "default": "shortest_path"
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "horizontal_arc",
+                "extension",
+                "ramp"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Radius",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-Out",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Plunge Type",
+              "type": "dropdown",
+              "options": [
+                "plunge",
+                "ramp"
+              ],
+              "default": "plunge"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths",
+                "tilt_to_avoid"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "default": 30,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "linearize",
+                "G05_HPCC",
+                "G6.2_NURBS"
+              ],
+              "default": "G05_HPCC"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid",
+                "always_use_feed"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Stay Down Level",
+              "type": "dropdown",
+              "options": [
+                "least_engagement",
+                "minimum_lift",
+                "tool_axis_change_aware"
+              ],
+              "default": "tool_axis_change_aware"
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Maximum Lift Distance",
+              "type": "numeric",
+              "default": 10,
+              "unit": "mm"
+            }
+          ]
+        }
+      }
+    },
+    "FLOW_DEEP": {
+      "description": "Deep-tab extension to flow — surface-flow finishing along U/V parametric directions. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 35,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Clearance Height",
+              "type": "numeric",
+              "default": 15,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Height",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Feed Height",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Top Height",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Bottom Height",
+              "type": "numeric",
+              "default": -10,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {
+              "name": "Linking Strategy",
+              "type": "dropdown",
+              "options": [
+                "smooth",
+                "stay_down",
+                "shortest_path"
+              ],
+              "default": "smooth"
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Lift Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Flow Direction",
+              "type": "dropdown",
+              "options": [
+                "U_direction",
+                "V_direction",
+                "auto_optimal"
+              ],
+              "default": "U_direction"
+            },
+            {
+              "name": "Pass Pattern",
+              "type": "dropdown",
+              "options": [
+                "one_way",
+                "back_and_forth",
+                "spiral"
+              ],
+              "default": "back_and_forth"
+            },
+            {
+              "name": "Stepover",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Cusp Height",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use Cusp Height",
+              "type": "checkbox",
+              "default": false
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "horizontal_arc"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "Plunge Type",
+              "type": "dropdown",
+              "options": [
+                "plunge",
+                "ramp"
+              ],
+              "default": "plunge"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths",
+                "tilt_to_avoid"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "default": 30,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "linearize",
+                "G05_HPCC",
+                "G6.2_NURBS"
+              ],
+              "default": "G05_HPCC"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Stay Down Level",
+              "type": "dropdown",
+              "options": [
+                "least_engagement",
+                "tool_axis_change_aware"
+              ],
+              "default": "tool_axis_change_aware"
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Maximum Lift Distance",
+              "type": "numeric",
+              "default": 10,
+              "unit": "mm"
+            }
+          ]
+        }
+      }
+    },
+    "MORPHED_SPIRAL_MULTIAXIS_DEEP": {
+      "description": "Deep-tab extension to morphed_spiral_multiaxis — boundary-following spiral on 5-axis surfaces. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 32,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Clearance Height",
+              "type": "numeric",
+              "default": 15,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Height",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Feed Height",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Top Height",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Bottom Height",
+              "type": "numeric",
+              "default": -10,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {
+              "name": "Linking Strategy",
+              "type": "dropdown",
+              "options": [
+                "smooth",
+                "stay_down"
+              ],
+              "default": "smooth"
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Spiral Direction",
+              "type": "dropdown",
+              "options": [
+                "inside_out",
+                "outside_in"
+              ],
+              "default": "outside_in"
+            },
+            {
+              "name": "Stepover",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Cusp Height",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use Cusp Height",
+              "type": "checkbox",
+              "default": false
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Boundary Type",
+              "type": "dropdown",
+              "options": [
+                "selected",
+                "silhouette",
+                "machining_boundary"
+              ],
+              "default": "selected"
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "horizontal_arc"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "Plunge Type",
+              "type": "dropdown",
+              "options": [
+                "plunge",
+                "ramp"
+              ],
+              "default": "plunge"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "default": 30,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "linearize",
+                "G05_HPCC",
+                "G6.2_NURBS"
+              ],
+              "default": "G05_HPCC"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Stay Down Level",
+              "type": "dropdown",
+              "options": [
+                "least_engagement",
+                "tool_axis_change_aware"
+              ],
+              "default": "tool_axis_change_aware"
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "ROTARY_4AXIS_DEEP": {
+      "description": "Deep-tab extension to rotary_4axis — 4-axis indexed/continuous rotary milling around an axis. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Roughing",
+      "parameterCount": 32,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Clearance Diameter",
+              "type": "numeric",
+              "description": "Clearance OD around rotary axis",
+              "default": 50,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Diameter",
+              "type": "numeric",
+              "default": 30,
+              "unit": "mm"
+            },
+            {
+              "name": "Feed Diameter",
+              "type": "numeric",
+              "default": 22,
+              "unit": "mm"
+            },
+            {
+              "name": "Top Diameter",
+              "type": "numeric",
+              "default": 20,
+              "unit": "mm"
+            },
+            {
+              "name": "Bottom Diameter",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {
+              "name": "Linking Strategy",
+              "type": "dropdown",
+              "options": [
+                "smooth",
+                "stay_down",
+                "lift_to_clearance"
+              ],
+              "default": "smooth"
+            },
+            {
+              "name": "Stay Down Angle",
+              "type": "numeric",
+              "description": "Max angular distance allowed without retract (deg around rotary axis)",
+              "default": 5,
+              "unit": "deg"
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Pattern",
+              "type": "dropdown",
+              "options": [
+                "axial",
+                "circumferential",
+                "spiral_helical"
+              ],
+              "default": "axial"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stepover",
+              "type": "numeric",
+              "default": 0.4,
+              "unit": "× tool diameter"
+            },
+            {
+              "name": "Stock to Leave Radial",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Axial",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "C-Axis Continuous",
+              "type": "checkbox",
+              "description": "Continuous C-axis rotation vs index-and-cut",
+              "default": true
+            },
+            {
+              "name": "Maximum C-Axis Rate",
+              "type": "numeric",
+              "description": "Rotary feed rate cap",
+              "default": 360,
+              "unit": "deg/min"
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Ramp Type",
+              "type": "dropdown",
+              "options": [
+                "helical",
+                "plunge",
+                "ramp_zigzag"
+              ],
+              "default": "helical"
+            },
+            {
+              "name": "Ramping Angle",
+              "type": "numeric",
+              "default": 2,
+              "unit": "deg"
+            },
+            {
+              "name": "Helical Ramp Diameter",
+              "type": "numeric",
+              "default": 0.9,
+              "unit": "× tool diameter"
+            },
+            {
+              "name": "Maximum Ramp Stepdown",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "linearize",
+                "G05_HPCC"
+              ],
+              "default": "G05_HPCC"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "description": "Output RTCP-aware moves (G43.4)",
+              "default": true
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "TRIMMING_DEEP": {
+      "description": "Deep-tab extension to trimming — 5-axis edge-trimming for sheet/composite parts. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 28,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Clearance Height",
+              "type": "numeric",
+              "default": 15,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Height",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Feed Height",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Trim Edge Offset",
+              "type": "numeric",
+              "description": "Tool offset along the edge normal",
+              "default": 0,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {
+              "name": "Linking Strategy",
+              "type": "dropdown",
+              "options": [
+                "smooth",
+                "stay_down"
+              ],
+              "default": "smooth"
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Trim Side",
+              "type": "dropdown",
+              "options": [
+                "on_edge",
+                "left_of_edge",
+                "right_of_edge"
+              ],
+              "default": "on_edge"
+            },
+            {
+              "name": "Number of Stepdowns",
+              "type": "numeric",
+              "default": 1,
+              "min": 1,
+              "max": 10
+            },
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "horizontal_arc",
+                "extension"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "Lead-Out",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Plunge Type",
+              "type": "dropdown",
+              "options": [
+                "plunge",
+                "ramp"
+              ],
+              "default": "plunge"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Stay Down Level",
+              "type": "dropdown",
+              "options": [
+                "least_engagement",
+                "tool_axis_change_aware"
+              ],
+              "default": "tool_axis_change_aware"
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "IMPELLER_MACHINING_DEEP": {
+      "description": "Deep-tab extension to impeller_machining — specialized 5-axis impeller / blisk roughing+finishing with hub/shroud collision modeling. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Specialized",
+      "parameterCount": 35,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Hub Surface",
+              "type": "selection",
+              "description": "Inner-radius hub surface",
+              "required": true
+            },
+            {
+              "name": "Shroud Surface",
+              "type": "selection",
+              "description": "Outer-radius shroud surface",
+              "required": true
+            },
+            {
+              "name": "Inlet Plane",
+              "type": "selection",
+              "description": "Flow-inlet plane"
+            },
+            {
+              "name": "Outlet Plane",
+              "type": "selection",
+              "description": "Flow-outlet plane"
+            },
+            {
+              "name": "Hub Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Shroud Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {
+              "name": "Linking Strategy",
+              "type": "dropdown",
+              "options": [
+                "smooth_around_hub",
+                "lift_to_inlet",
+                "shortest_path"
+              ],
+              "default": "smooth_around_hub"
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": false
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Operation Type",
+              "type": "dropdown",
+              "options": [
+                "hub_rough",
+                "blade_rough",
+                "blade_finish",
+                "fillet_finish",
+                "edge_blend"
+              ],
+              "default": "blade_rough"
+            },
+            {
+              "name": "Number of Blades",
+              "type": "numeric",
+              "description": "Auto-detected from geometry, override if needed",
+              "default": 12,
+              "min": 2,
+              "max": 50
+            },
+            {
+              "name": "Has Splitter Blades",
+              "type": "checkbox",
+              "default": false
+            },
+            {
+              "name": "Splitter Blade Count",
+              "type": "numeric",
+              "default": 0,
+              "min": 0,
+              "max": 50
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Cusp Height",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "horizontal_arc",
+                "from_inlet"
+              ],
+              "default": "from_inlet"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Plunge Type",
+              "type": "dropdown",
+              "options": [
+                "plunge",
+                "ramp"
+              ],
+              "default": "ramp"
+            },
+            {
+              "name": "Ramp Angle",
+              "type": "numeric",
+              "default": 1,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "tilt_to_avoid"
+              ],
+              "default": "tilt_to_avoid"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "default": 45,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "G05_HPCC",
+                "G6.2_NURBS"
+              ],
+              "default": "G6.2_NURBS"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.003,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "High Feedrate Mode",
+              "type": "dropdown",
+              "options": [
+                "preserve_rapid"
+              ],
+              "default": "preserve_rapid"
+            },
+            {
+              "name": "Stay Down Level",
+              "type": "dropdown",
+              "options": [
+                "least_engagement",
+                "tool_axis_change_aware"
+              ],
+              "default": "tool_axis_change_aware"
+            },
+            {
+              "name": "Smooth Connection",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "BLADE_5AX": {
+      "description": "Net-new turbine-blade-specific 5-axis finishing op. Specialized for compressor/turbine blade leading-edge / pressure-side / suction-side / trailing-edge with continuous-flank tool-axis control and leading-edge blend strategy. Missing entirely from MS0/U-CAM23 catalog (Fusion's Manufacturing Extension exposes Blade as a distinct strategy from Impeller).",
+      "category": "Specialized",
+      "parameterCount": 51,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "description": "Ball / barrel / circle-segment recommended",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Diameter Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Disabled",
+                "Flood",
+                "Mist",
+                "Through Tool",
+                "Air"
+              ],
+              "default": "Through Tool"
+            },
+            {
+              "name": "Spindle Speed",
+              "type": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "name": "Surface Speed",
+              "type": "numeric",
+              "unit": "m/min"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Feed per Tooth",
+              "type": "numeric",
+              "unit": "mm"
+            },
+            {
+              "name": "Plunge Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Pressure Side Surface",
+              "type": "selection",
+              "required": true
+            },
+            {
+              "name": "Suction Side Surface",
+              "type": "selection",
+              "required": true
+            },
+            {
+              "name": "Leading Edge",
+              "type": "selection"
+            },
+            {
+              "name": "Trailing Edge",
+              "type": "selection"
+            },
+            {
+              "name": "Tip Surface",
+              "type": "selection"
+            },
+            {
+              "name": "Hub Surface",
+              "type": "selection"
+            },
+            {
+              "name": "Blade Count",
+              "type": "numeric",
+              "default": 1,
+              "min": 1,
+              "max": 100
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.003,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Clearance Height",
+              "type": "numeric",
+              "default": 20,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Height",
+              "type": "numeric",
+              "default": 10,
+              "unit": "mm"
+            },
+            {
+              "name": "Feed Height",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Hub Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {
+              "name": "Operation Type",
+              "type": "dropdown",
+              "options": [
+                "pressure_side_finish",
+                "suction_side_finish",
+                "leading_edge_blend",
+                "trailing_edge_blend",
+                "full_blade_finish",
+                "tip_finish"
+              ],
+              "default": "full_blade_finish",
+              "required": true
+            },
+            {
+              "name": "Stepover",
+              "type": "numeric",
+              "default": 0.2,
+              "unit": "mm"
+            },
+            {
+              "name": "Cusp Height",
+              "type": "numeric",
+              "default": 0.003,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Number of Passes",
+              "type": "numeric",
+              "default": 1,
+              "min": 1,
+              "max": 10
+            },
+            {
+              "name": "Direction",
+              "type": "dropdown",
+              "options": [
+                "hub_to_tip",
+                "tip_to_hub",
+                "leading_to_trailing",
+                "trailing_to_leading"
+              ],
+              "default": "hub_to_tip"
+            }
+          ]
+        },
+        "Tool_Orientation": {
+          "parameters": [
+            {
+              "name": "Tool Axis Mode",
+              "type": "dropdown",
+              "options": [
+                "normal_to_surface",
+                "tilted_to_surface",
+                "lead_lean_fixed",
+                "interpolated"
+              ],
+              "default": "tilted_to_surface"
+            },
+            {
+              "name": "Lead Angle",
+              "type": "numeric",
+              "default": 5,
+              "unit": "deg",
+              "min": -45,
+              "max": 45
+            },
+            {
+              "name": "Lean Angle",
+              "type": "numeric",
+              "default": 0,
+              "unit": "deg",
+              "min": -45,
+              "max": 45
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "default": 30,
+              "unit": "deg"
+            },
+            {
+              "name": "Tilt Smoothing",
+              "type": "checkbox",
+              "description": "Smooth tool-axis transitions across leading edge",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Leading Edge Blend Width",
+              "type": "numeric",
+              "description": "Arc length over which to blend leading-edge tool axis",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Trailing Edge Blend Width",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "from_leading_edge",
+                "from_trailing_edge",
+                "tangent_arc",
+                "horizontal_arc"
+              ],
+              "default": "from_leading_edge"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Plunge Type",
+              "type": "dropdown",
+              "options": [
+                "plunge",
+                "ramp"
+              ],
+              "default": "ramp"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "tilt_to_avoid"
+              ],
+              "default": "tilt_to_avoid"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "G05_HPCC",
+                "G6.2_NURBS"
+              ],
+              "default": "G6.2_NURBS"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.003,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "MULTI_AXIS_POCKET": {
+      "description": "Net-new 5-axis pocket roughing op — adaptive clearing with 5-axis tilt-to-avoid for deep undercut pockets, draft-walled cavities, and reach-limited regions where 3-axis tools would collide. Missing entirely from MS0/U-CAM23 catalog.",
+      "category": "Roughing",
+      "parameterCount": 47,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Flood",
+                "Through Tool",
+                "Mist"
+              ],
+              "default": "Flood"
+            },
+            {
+              "name": "Spindle Speed",
+              "type": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "name": "Surface Speed",
+              "type": "numeric",
+              "unit": "m/min"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Plunge Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Target Pocket Surfaces",
+              "type": "selection_multi",
+              "required": true
+            },
+            {
+              "name": "Boundary Curves",
+              "type": "selection_multi"
+            },
+            {
+              "name": "Floor Surface",
+              "type": "selection"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Clearance Height",
+              "type": "numeric",
+              "default": 20,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Height",
+              "type": "numeric",
+              "default": 10,
+              "unit": "mm"
+            },
+            {
+              "name": "Feed Height",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Top Height",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Bottom Height",
+              "type": "numeric",
+              "default": -10,
+              "unit": "mm"
+            },
+            {
+              "name": "Use Stock Top",
+              "type": "checkbox",
+              "default": false
+            }
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {
+              "name": "Optimal Load",
+              "type": "numeric",
+              "description": "Target radial engagement (woc)",
+              "default": 0.4,
+              "unit": "× tool diameter"
+            },
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Radial",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Axial",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.025,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Tool_Orientation": {
+          "parameters": [
+            {
+              "name": "Tool Axis Mode",
+              "type": "dropdown",
+              "options": [
+                "fixed_z",
+                "tilt_to_avoid_collision",
+                "interpolated_along_path",
+                "manual_lead_lean"
+              ],
+              "default": "tilt_to_avoid_collision"
+            },
+            {
+              "name": "Maximum Tilt Angle",
+              "type": "numeric",
+              "default": 30,
+              "unit": "deg",
+              "min": 0,
+              "max": 80
+            },
+            {
+              "name": "Lead Angle",
+              "type": "numeric",
+              "default": 0,
+              "unit": "deg"
+            },
+            {
+              "name": "Lean Angle",
+              "type": "numeric",
+              "default": 0,
+              "unit": "deg"
+            },
+            {
+              "name": "Tilt Smoothing",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Pocket Strategy",
+              "type": "dropdown",
+              "options": [
+                "adaptive_clearing",
+                "offset",
+                "morphed_spiral"
+              ],
+              "default": "adaptive_clearing"
+            },
+            {
+              "name": "Avoid Slotting",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Region Order",
+              "type": "dropdown",
+              "options": [
+                "from_outside",
+                "from_inside",
+                "by_depth"
+              ],
+              "default": "by_depth"
+            },
+            {
+              "name": "Order By Depth",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Ramp Type",
+              "type": "dropdown",
+              "options": [
+                "helical",
+                "profile",
+                "plunge",
+                "ramp_zigzag"
+              ],
+              "default": "helical"
+            },
+            {
+              "name": "Maximum Ramp Stepdown",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Ramping Angle",
+              "type": "numeric",
+              "default": 2,
+              "unit": "deg"
+            },
+            {
+              "name": "Helical Ramp Diameter",
+              "type": "numeric",
+              "default": 0.9,
+              "unit": "× tool diameter"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "tilt_to_avoid"
+              ],
+              "default": "tilt_to_avoid"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Spline Output",
+              "type": "dropdown",
+              "options": [
+                "linearize",
+                "G05_HPCC",
+                "G6.2_NURBS"
+              ],
+              "default": "G05_HPCC"
+            },
+            {
+              "name": "Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            },
+            {
+              "name": "Use RTCP",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

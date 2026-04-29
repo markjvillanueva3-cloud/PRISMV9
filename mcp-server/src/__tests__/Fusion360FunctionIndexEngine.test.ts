@@ -1568,4 +1568,155 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_milling_3d_deep_operations");
     });
   });
+
+  describe("getMultiaxisDeepOperations (CAM-EXHAUST-MS1-09)", () => {
+    it("returns exactly 9 multiaxis-deep toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      expect(ops.length).toBe(9);
+    });
+
+    it("Roughing category contains 2 ops (Rotary4axis_DEEP + MultiAxisPocket)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const ids = ops.filter((o) => o.category === "Roughing").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual(["MULTI_AXIS_POCKET", "ROTARY_4AXIS_DEEP"]);
+    });
+
+    it("Finishing category contains 5 _DEEP extensions (Swarf/Contour/Flow/MorphedSpiral/Trimming)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const ids = ops.filter((o) => o.category === "Finishing").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "FLOW_DEEP",
+        "MORPHED_SPIRAL_MULTIAXIS_DEEP",
+        "MULTI_AXIS_CONTOUR_DEEP",
+        "SWARF_DEEP",
+        "TRIMMING_DEEP",
+      ]);
+    });
+
+    it("Specialized category contains 2 ops (ImpellerMachining_DEEP + Blade5ax)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const ids = ops.filter((o) => o.category === "Specialized").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual(["BLADE_5AX", "IMPELLER_MACHINING_DEEP"]);
+    });
+
+    it("BLADE_5AX is the largest op (51 params — full 8-tab structure for turbine blade finishing)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "BLADE_5AX");
+      expect(op?.parameter_count).toBe(51);
+      expect(op?.category).toBe("Specialized");
+    });
+
+    it("MULTI_AXIS_POCKET has 47 params and Roughing category (5-axis adaptive with tilt-to-avoid)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "MULTI_AXIS_POCKET");
+      expect(op?.parameter_count).toBe(47);
+      expect(op?.category).toBe("Roughing");
+    });
+
+    it("All 7 _DEEP extensions present (one per existing multiaxis-operations.json op) with exact param counts", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const expected: Record<string, number> = {
+        SWARF_DEEP: 32,
+        MULTI_AXIS_CONTOUR_DEEP: 28,
+        FLOW_DEEP: 35,
+        MORPHED_SPIRAL_MULTIAXIS_DEEP: 32,
+        ROTARY_4AXIS_DEEP: 32,
+        TRIMMING_DEEP: 28,
+        IMPELLER_MACHINING_DEEP: 35,
+      };
+      for (const [id, expectedCount] of Object.entries(expected)) {
+        const op = ops.find((o) => o.toolpath_id === id);
+        expect(op?.parameter_count).toBe(expectedCount);
+      }
+    });
+
+    it("BLADE_5AX description references blade-specific concepts (leading/trailing edge or pressure/suction side or blend)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "BLADE_5AX");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(
+        text.includes("leading") || text.includes("trailing") || text.includes("blend") || text.includes("blade")
+      ).toBe(true);
+    });
+
+    it("MULTI_AXIS_POCKET description references tilt-to-avoid + 5-axis pocket roughing concepts", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "MULTI_AXIS_POCKET");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text).toContain("5-axis");
+      expect(text.includes("tilt-to-avoid") || text.includes("tilt to avoid") || text.includes("tilt")).toBe(true);
+    });
+
+    it("IMPELLER_MACHINING_DEEP carries hub/shroud collision modeling concept (dimension that distinguishes impeller from generic 5-axis)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "IMPELLER_MACHINING_DEEP");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(
+        text.includes("hub") || text.includes("shroud") || text.includes("blisk") || text.includes("impeller")
+      ).toBe(true);
+    });
+
+    it("parameter counts sum to 320 across all 9 ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      const total = ops.reduce((sum, o) => sum + o.parameter_count, 0);
+      expect(total).toBe(320);
+    });
+
+    it("each op has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getMultiaxisDeepOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_multiaxis_deep_operations returns 9 ops with BLADE_5AX @ 51 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_multiaxis_deep_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(9);
+      const blade = result.operations.find((o) => o.toolpath_id === "BLADE_5AX");
+      expect(blade?.category).toBe("Specialized");
+      expect(blade?.parameter_count).toBe(51);
+    });
+
+    it("multiaxis_deep module is registered in fusion360 function-index with 320 estimated params and depends on multiaxis_operations", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "multiaxis_deep");
+      expect(entry?.parameter_count_estimate).toBe(320);
+      expect(entry?.dependencies).toEqual(["multiaxis_operations"]);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_multiaxis_deep_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_multiaxis_deep_operations");
+    });
+  });
 });

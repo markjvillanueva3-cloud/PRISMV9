@@ -117,6 +117,14 @@
       "parameter_count_estimate": 499,
       "description": "3D milling per-op tab deep pass — closes the input-exhaust gap on existing 3d-operations.json by adding 5 previously-uncatalogued tabs (Strategy, Ramp, Holder, Output, Connections) to the 12 existing 3D ops via _DEEP entries (Adaptive/Pocket/Parallel/Contour 3D + Scallop/Pencil/Radial/Spiral/Morphed-Spiral/Steep-Shallow/Horizontal/Ramp), AND introduces 2 net-new finishing ops (PROJECT_3D for sketch-curve projection onto curved surfaces, FLAT_3D for auto-detected flat-surface finishing). 14 toolpaths total. Note: 8 simpler-finishing _DEEP ops also fill in missing Heights/Linking tabs that the parent catalog omitted.",
       "dependencies": ["3d_operations"]
+    },
+    {
+      "module_id": "multiaxis_deep",
+      "path": "cam-functions/fusion360/multiaxis-deep.json",
+      "covered_units": ["U-CAM-MS1-09"],
+      "parameter_count_estimate": 320,
+      "description": "Multiaxis per-op tab deep pass — closes the input-exhaust gap on existing multiaxis-operations.json by adding 5 standard deep tabs (Strategy, Ramp, Holder, Output, Connections) to the 7 existing multiaxis ops via _DEEP entries (Swarf / Multi-Axis Contour / Flow / Morphed-Spiral-Multiaxis / Rotary-4axis / Trimming / Impeller-Machining), AND introduces 2 net-new ops (BLADE_5AX for turbine-blade-specific 5-axis finishing with leading/trailing-edge blend, MULTI_AXIS_POCKET for 5-axis adaptive pocket roughing with tilt-to-avoid). 9 toolpaths total. The 5 simpler _DEEP ops also fill in missing Heights/Linking tabs the parent catalog omitted. Adds RTCP (G43.4 Runtime Tool Center Point) output controls to every op for proper 5-axis NC output.",
+      "dependencies": ["multiaxis_operations"]
     }
   ],
   "global_cross_references": {
