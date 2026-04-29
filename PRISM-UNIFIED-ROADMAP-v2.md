@@ -5,6 +5,7 @@
 ## New: Lanes 14-17 added from Haas/Hurco/Mastercam/Setup/Cost/Digital Twin/Supply Chain/Scheduling/hyperMILL analysis
 ## New: Lane 18 (TRIBAL KNOWLEDGE PROPAGATION) added from 20-agent tribal knowledge scrutiny (2026-04-12)
 ## New: Lane 20 (KAR-UO) added — Knowledge-Augmented Reasoning + Unified Orchestration (14 milestones, 72 units)
+## New: Branch L2-CAMX-EXHAUST added 2026-04-29 — Complete CAM Function/Asset Coverage across Fusion 360 / hyperMILL / Mastercam / Inventor HSM / Esprit / SolidCAM (78 milestones, ~656 units, 6/78 complete via Fusion MS1-01..06)
 
 ---
 
@@ -415,6 +416,211 @@ FORGE-TRIPLE: hook=frontend-canonical-guard | action=prism_dev:frontend_health |
 - LEARN-MS4: Feedback + Fleet Learning Wiring
 - LEARN-MS5: Web UI — Knowledge Ingestion + Browser + Courses
 - See **Lane 18** for the tribal knowledge propagation pipeline that builds ON TOP of LEARN infrastructure
+
+## Branch L2-CAMX-EXHAUST: Complete CAM Function/Asset Coverage [NEW — 2026-04-29]
+**Track**: CAM-EXHAUST-{F360,HM,MCAM,IHSM,ESP,SCAM} + CAM-AUTOPOP-{CORE,F360,HM,MCAM,IHSM,ESP,SCAM}
+**Milestones**: 78 | **Units**: ~656 | **Sessions**: ~263
+**Status**: 6/78 complete (Fusion MS1-01..06 ✓ shipped on `work/cam-fusion-ms1`)
+**Priority order**: Fusion → hyperMILL → Mastercam → Inventor HSM → Esprit → SolidCAM (matches user-stated CAM rollout sequence)
+**Worktree convention**: each CAM gets its own `work/cam-<system>-msN` branch + `H:/prism-<system>-msN` worktree to avoid cross-CAM commit thrash.
+
+### Mandate (4 axes, 100% coverage gate per CAM)
+
+1. **Function-input exhaust** — every parameter on every tab of every toolpath dialog catalogued with type, default, range, dependencies, `physics_links`. No stubs, no "and others".
+2. **Asset auto-population** — PRISM tool/holder/fixture/machine DBs (DB-EXP-MS2/3/4 + JMDIE-MS1) → CAM library files (round-trip-validated).
+3. **CAD model import** — STEP/IGES/native machine + fixture + tool + holder geometry import per CAM.
+4. **Creator-form auto-fill** — for assets without CAD models, programmatically fill the CAM's tool/holder creator dialogs from PRISM canonical records.
+
+### Foundation gates (sequential — phase N blocks phase N+1)
+
+```
+Phase 1: Finish Fusion MS1-07..12             (6 ms — in motion, lowest activation energy)
+Phase 2: CAM-AUTOPOP-CORE universal schema    (1 ms, 6 units — BLOCKS all Track-B work)
+Phase 3: CAM-AUTOPOP-FUSION × 4 asset types   (4 ms — proves autopop pattern on best-known CAM)
+Phase 4: CAM-EXHAUST-HYPERMILL + AUTOPOP-HM   (10 + 4 = 14 ms — full end-to-end)
+Phase 5: CAM-EXHAUST-MASTERCAM + AUTOPOP-MCAM (12 + 4 = 16 ms)
+Phase 6: CAM-EXHAUST-INVENTOR-HSM + AUTOPOP-IHSM (7 + 4 = 11 ms)
+Phase 7: CAM-EXHAUST-ESPRIT + AUTOPOP-ESP     (8 + 4 = 12 ms)
+Phase 8: CAM-EXHAUST-SOLIDCAM + AUTOPOP-SCAM  (10 + 4 = 14 ms)
+```
+
+Each CAM ships fully usable end-to-end (function exhaust + 4 asset bridges) before next CAM starts — avoids the trap of 6 partially-done CAMs.
+
+### Track A — CAM Function-Input Exhaust (per-CAM)
+
+#### CAM-EXHAUST-FUSION — Fusion 360 (Status: 6/12 complete)
+**Worktree**: `H:/prism-fusion-ms1` on `work/cam-fusion-ms1`
+- MS0 ✓ Function-index — 2D ops, 3D ops, multiaxis, turning (existing, U-CAM21..24)
+- MS1-01 ✓ Probing — 16 ops, 256 params (Renishaw OMP/RMP cycles + WCS + tool measurement)
+- MS1-02 ✓ Additive — 12 ops, 264 params (DED / PBF-SLM / FDM / Hybrid)
+- MS1-03 ✓ Cutting — 9 ops, 196 params (laser / waterjet / plasma sheet)
+- MS1-04 ✓ Inspection — 11 ops, 186 params (CMM plan / tolerance stack / GD&T / reporting)
+- MS1-05 ✓ Mill-Turn — 12 ops, 200 params (Sync / Aux / C-Axis / Multi-Axis)
+- MS1-06 ✓ Manufacturing Model / Setup — 12 ops, 193 params (Workpiece + STOCK_FROM_MODEL + STOCK_FROM_PREVIOUS_SETUP / Fixture / WCS / Kinematics / Multi-Setup / Doc)
+- MS1-07 ▢ 2D Milling Per-Op Tab Deep Pass — exhaust every tab of: Adaptive 2D, Pocket 2D, Contour 2D, Face, Slot, Trace, Engrave, Thread, Bore, Circular, Chamfer (~18 ops × ~140 params ≈ 2,500 params)
+- MS1-08 ▢ 3D Milling Per-Op Tab Deep Pass — Adaptive 3D, Pocket 3D, Parallel, Contour 3D, Steep-Shallow, Scallop, Pencil, Morphed Spiral, Radial, Spiral, Project (~12 ops × ~120 params ≈ 1,400 params)
+- MS1-09 ▢ Multiaxis Per-Op Tab Deep Pass — Swarf, Multi-Axis Contour, Flow, Rotary, Multi-Axis Pocket, Blade, Impeller (~10 ops × ~140 params ≈ 1,400 params)
+- MS1-10 ▢ Turning Per-Op Tab Deep Pass — Profile Roughing/Finishing, Face, Thread, Groove, Cutoff, Bore, Secondary-Spindle, Live-Tooling (~12 ops × ~80 params ≈ 1,000 params)
+- MS1-11 ▢ Post-Processor + NC Output Surface — `post.cps` grammar, parameter forwarding, controller variant table, simulation hooks
+- MS1-12 ▢ Cloud / Manufacturing Extension — generative design bind, additive sim, nesting, cost estimator
+
+#### CAM-EXHAUST-HYPERMILL — hyperMILL 2026 (Status: 0/10)
+**Worktree**: `H:/prism-hypermill-ms0` on `work/cam-hypermill-ms0` (TBD)
+- MS0 ▢ Function-index — modules: 2D, 3D, 5-axis, MillTurn, deepHole, finishing-strats, hyperCAD-S, AddiPath, BEST-FIT
+- MS1-01 ▢ 2D Strategies — pocket / contour / face / drilling / threading
+- MS1-02 ▢ 3D Strategies — Z-level / equidistant / profile finishing
+- MS1-03 ▢ 5-Axis Strategies — swarf / tilted / 3+2 indexing / sim-5 / tip-blade
+- MS1-04 ▢ MillTurn — main+sub spindle, C/Y axis, polygon, thread-whirl
+- MS1-05 ▢ deepHole — gun drilling, BTA, multi-tube
+- MS1-06 ▢ Finishing — equi-Z, plane-parallel, isoparametric, 5-axis swarf finishing
+- MS1-07 ▢ hyperCAD-S CAD bridge — feature recognition, native B-rep
+- MS1-08 ▢ AddiPath — DED, PBF, hybrid additive
+- MS1-09 ▢ BEST-FIT macros — proprietary auto-strategy selector
+
+#### CAM-EXHAUST-MASTERCAM — Mastercam 2026 (Status: 0/12)
+**Worktree**: `H:/prism-mastercam-ms0` on `work/cam-mastercam-ms0` (TBD)
+- MS0 ▢ Function-index — modules: Mill, Lathe, MillTurn, WireEDM, Router
+- MS1-01 ▢ Mill 2D — Dynamic Mill (proprietary), 2D HST, Contour, Drill cycles, Threadmill, Engrave
+- MS1-02 ▢ Mill 3D — 3D HST (Roughing/Finishing), Surface High-Speed
+- MS1-03 ▢ Mill OptiRough — proprietary high-feed adaptive
+- MS1-04 ▢ Lathe — face / rough / finish / groove / thread / cutoff / drill / bore / tap
+- MS1-05 ▢ MillTurn — multi-axis, multi-stream, sync codes
+- MS1-06 ▢ WireEDM — 2-axis + 4-axis, multi-pass, taper, glue stops, lead-in/out
+- MS1-07 ▢ Router — nesting, tabs, bit-changes
+- MS1-08 ▢ Multiaxis Curve — 5-axis wireframe-driven
+- MS1-09 ▢ Multiaxis Swarf — flank-drive
+- MS1-10 ▢ Multiaxis Drill — index + sim drilling
+- MS1-11 ▢ Chook API — customization surface for op generation
+
+#### CAM-EXHAUST-INVENTOR-HSM — Inventor HSM (Status: 0/7)
+**Worktree**: `H:/prism-inventor-hsm-ms0` on `work/cam-inventor-hsm-ms0` (TBD)
+**Note**: Inventor HSM shares its CAM engine with Fusion 360 CAM but lives in Inventor host — inputs are ~95% identical to Fusion. Reuse Fusion catalog as base; diff host-specific items only.
+- MS0 ▢ Function-index — diff vs. Fusion 360 catalog
+- MS1-01 ▢ 2D ops (host-diff)
+- MS1-02 ▢ 3D ops (host-diff)
+- MS1-03 ▢ Multiaxis (host-diff)
+- MS1-04 ▢ Turning + Mill-Turn
+- MS1-05 ▢ Probing
+- MS1-06 ▢ Inventor-host bridges — iLogic, BOM, drawings (capabilities Fusion lacks)
+
+#### CAM-EXHAUST-ESPRIT — Esprit 2025+ (Status: 0/8)
+**Worktree**: `H:/prism-esprit-ms0` on `work/cam-esprit-ms0` (TBD)
+- MS0 ▢ Function-index — modules: Mill, Turn, MillTurn, WireEDM, Multitasking, ProfitMilling, KnowledgeBase, Edge AI
+- MS1-01 ▢ Mill — 2D / 3D / HSM / 5-axis
+- MS1-02 ▢ Turn — Esprit-style turret modeling
+- MS1-03 ▢ MillTurn — multi-channel, multi-turret
+- MS1-04 ▢ WireEDM — 4-axis EDM with Esprit-specific cycle codes
+- MS1-05 ▢ Multitasking — Swiss-type, multi-spindle, sub-spindle
+- MS1-06 ▢ ProfitMilling — proprietary high-efficiency adaptive
+- MS1-07 ▢ Edge AI — ML-based strategy selector
+
+#### CAM-EXHAUST-SOLIDCAM — SolidCAM (Status: 0/10)
+**Worktree**: `H:/prism-solidcam-ms0` on `work/cam-solidcam-ms0` (TBD)
+- MS0 ▢ Function-index — modules: HSM, HSR, iMachining, Indexial-4, Sim-5, Turning, Mill-Turn, Probing, SolidProbe
+- MS1-01 ▢ HSM — high-speed machining 3D
+- MS1-02 ▢ HSR — high-speed roughing
+- MS1-03 ▢ iMachining — proprietary feed-vs-engagement adaptive
+- MS1-04 ▢ Indexial-4 — 4-axis indexed
+- MS1-05 ▢ Sim-5 — 5-axis simultaneous
+- MS1-06 ▢ Turning — lathe ops
+- MS1-07 ▢ Mill-Turn — combined operations
+- MS1-08 ▢ Probing — on-machine inspection
+- MS1-09 ▢ SolidProbe — CMM-style measurement
+
+### Track B — Asset Auto-Population (per-CAM × per-asset, 6×4 = 24 milestones)
+
+Each Track-B sub-milestone follows the same 5-unit template:
+
+```
+TEMPLATE (5 units per CAM × asset-type cell):
+- U-AP-{CAM}-{T|H|F|M}-01: Map PRISM canonical {asset} record → CAM library file format spec
+- U-AP-{CAM}-{T|H|F|M}-02: Auto-populator engine writes CAM library entry
+- U-AP-{CAM}-{T|H|F|M}-03: Round-trip validator (PRISM → CAM → re-read → diff under tolerance)
+- U-AP-{CAM}-{T|H|F|M}-04: Bulk import JM Die {asset} inventory into CAM library (chains JMDIE-MS1, DB-EXP-MS{2|3|4})
+- U-AP-{CAM}-{T|H|F|M}-05: Creator-form auto-fill for assets without CAD (programmatic dialog/XML field-fill)
+```
+
+#### CAM-AUTOPOP-FUSION (4 milestones, 20 units)
+- AUTOPOP-FUSION-TOOLS — Fusion ToolLibrary XML schema (`*.tools` files); ties to MS1-06 setup primitives via Tool ID binding
+- AUTOPOP-FUSION-HOLDERS — CAT/BT/HSK holder library; ties to DB-EXP-MS2 holder DB
+- AUTOPOP-FUSION-FIXTURES — STEP→Fusion fixture body conversion + auto-bind to MS1-06 FIXTURE_VISE/CHUCK primitives
+- AUTOPOP-FUSION-MACHINES — `*.machine` XML schema + post-processor binding; ties to MS1-06 KINEMATICS_BIND
+
+#### CAM-AUTOPOP-HYPERMILL (4 milestones, 20 units)
+- AUTOPOP-HM-TOOLS — hyperMILL Component DB tool section (proprietary)
+- AUTOPOP-HM-HOLDERS — Component DB holder section
+- AUTOPOP-HM-FIXTURES — STEP fixture import + setup binding
+- AUTOPOP-HM-MACHINES — hyperMILL machine model file format
+
+#### CAM-AUTOPOP-MASTERCAM (4 milestones, 20 units)
+- AUTOPOP-MCAM-TOOLS — Mastercam Tool Manager (`.tooldb`) writer
+- AUTOPOP-MCAM-HOLDERS — Tool Holder Manager writer
+- AUTOPOP-MCAM-FIXTURES — Fixture/stock from STL/STEP import
+- AUTOPOP-MCAM-MACHINES — Machine Definition File (`.mcam-md`) writer
+
+#### CAM-AUTOPOP-INVENTOR-HSM (4 milestones, 20 units)
+- AUTOPOP-IHSM-TOOLS — shares Fusion `*.tools` schema (high reuse — branch from AUTOPOP-FUSION-TOOLS)
+- AUTOPOP-IHSM-HOLDERS — shares Fusion holder schema
+- AUTOPOP-IHSM-FIXTURES — Inventor-native fixture library bridge
+- AUTOPOP-IHSM-MACHINES — Inventor-native machine library bridge
+
+#### CAM-AUTOPOP-ESPRIT (4 milestones, 20 units)
+- AUTOPOP-ESP-TOOLS — Esprit KnowledgeBase tool schema
+- AUTOPOP-ESP-HOLDERS — KnowledgeBase holder schema
+- AUTOPOP-ESP-FIXTURES — Esprit fixture binding
+- AUTOPOP-ESP-MACHINES — Esprit machine kinematics
+
+#### CAM-AUTOPOP-SOLIDCAM (4 milestones, 20 units)
+- AUTOPOP-SCAM-TOOLS — SolidCAM tool table writer
+- AUTOPOP-SCAM-HOLDERS — SolidCAM holder table writer
+- AUTOPOP-SCAM-FIXTURES — SolidCAM fixture binding
+- AUTOPOP-SCAM-MACHINES — SolidCAM machine + post bind
+
+### Track C — Universal Schema Infrastructure (FOUNDATION GATE)
+
+#### CAM-AUTOPOP-CORE (1 milestone, 6 units) — **BLOCKS all Track-B sub-tracks**
+- U-APC-01 ▢ Universal Tool Record canonical schema — anchor to **ISO 13399** (Cutting Tool Data Representation), extend with PRISM cutting-data, Kienzle-derived defaults, manufacturer feed cross-refs
+- U-APC-02 ▢ Universal Holder Record canonical schema — ISO 13399 + adapter chain modeling (taper → extension → collet → tool)
+- U-APC-03 ▢ Universal Fixture / Workholding canonical schema — ISO 1101 datum frame + clamping-force budget (ties to MS1-06 FIXTURE_VISE/CHUCK)
+- U-APC-04 ▢ Universal Machine + Kinematics canonical schema — ISO 230-1/2 axis acceptance + post-processor binding contract (ties to MS1-06 KINEMATICS_BIND)
+- U-APC-05 ▢ Round-trip validator suite — same tool/holder/fixture/machine emitted to all 6 CAMs, re-read, asserted equivalent within tolerance
+- U-APC-06 ▢ PRISM tool DB bridge — `DB-EXP-MS3` records → universal-record converter (chains existing manufacturer DB)
+
+### Dependencies (block diagram)
+
+```
+DB-EXP-MS2/3/4 (existing tool/holder/fixture DBs)
+        ↓
+JMDIE-MS1 (JM Die inventory imported into PRISM)
+        ↓
+CAM-AUTOPOP-CORE (universal schemas)  ← BLOCKS ALL TRACK-B
+        ↓
+[per-CAM] CAM-EXHAUST-MS0 function-index  ← needed for that CAM's Track-B targeting
+        ↓
+[per-CAM] CAM-AUTOPOP-{TOOLS,HOLDERS,FIXTURES,MACHINES}
+        ↓
+[per-CAM] CAM-EXHAUST-MS1 module deep pass (uses populated libraries in test fixtures)
+```
+
+### Out of scope (explicit non-goals — covered by other branches)
+
+- **MES integration** — production scheduling / shop-floor control stays in `L2-INFRA`
+- **G-code generation** — covered by `L2-PP` (post-processor track), not this branch
+- **CAD-to-CAM print reading** — covered by `L2-CAMX` (CAM Exchange Pipeline)
+- **Tribal CAM knowledge propagation** — covered by `LANE 18` (TRIBAL KNOWLEDGE PROPAGATION)
+- **Specific machine controller variants** — Lane 6 process hardening covers controller dialects; this track stops at the post-processor binding interface
+- **Existing F360/HM ecosystem branches** (`L2-F360`, `L2-HM` above) cover plugin/adapter/knowledge work — they remain separate from this input-exhaust + asset-bridge track
+
+### Numerical scope
+
+| Track | New milestones | New units | Sessions (est) |
+|---|---|---|---|
+| A — CAM Function-Input Exhaust (6 CAMs) | 53 | ~530 | ~210 |
+| B — Asset Auto-Population (24 sub-tracks) | 24 | 120 | ~50 |
+| C — Universal Schema (foundation) | 1 | 6 | ~3 |
+| **Total** | **78** | **~656** | **~263** |
+
+For context: roadmap currently has 707 milestones / 344 done. This branch adds ~11% growth and is the largest single CAM-side commitment in the roadmap.
 
 ---
 
