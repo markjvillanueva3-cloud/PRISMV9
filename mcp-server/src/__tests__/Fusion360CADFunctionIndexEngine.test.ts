@@ -71,9 +71,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains exactly two modules (sketch_operations, feature_operations)", () => {
+    it("modules array contains exactly three modules (sketch_operations, feature_operations, modify_operations)", () => {
       const ids = Fusion360CADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
-      expect(ids).toEqual(["sketch_operations", "feature_operations"]);
+      expect(ids).toEqual(["sketch_operations", "feature_operations", "modify_operations"]);
     });
 
     it("returns same object identity on repeated calls (cache hit)", () => {
@@ -84,9 +84,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 4 remaining deferred modules with non-empty scopes (feature_operations was completed in U-CAD-FIDX-FUS-02)", () => {
+    it("declares exactly 3 remaining deferred modules with non-empty scopes (feature_operations + modify_operations now shipped)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(4);
+      expect(fm.length).toBe(3);
       for (const f of fm) {
         expect(f.scope.length).toBeGreaterThan(20);
         expect(f.estimated_params).toBeGreaterThan(0);
@@ -94,23 +94,23 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("planned_ids cover modify/surface/mesh/assembly (feature_operations now shipped)", () => {
+    it("planned_ids cover surface/mesh/assembly (feature + modify now shipped)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
       expect(ids).toEqual([
         "assembly_operations",
         "mesh_operations",
-        "modify_operations",
         "surface_operations",
       ]);
     });
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns exactly ['sketch_operations', 'feature_operations']", () => {
+    it("listModules returns exactly ['sketch_operations', 'feature_operations', 'modify_operations']", () => {
       expect(Fusion360CADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "feature_operations",
+        "modify_operations",
       ]);
     });
 
@@ -193,14 +193,16 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals sum of listOperations across both modules (22 sketch + 18 feature = 40)", () => {
+    it("listAllOperations equals sum of listOperations across all three modules (22 sketch + 18 feature + 9 modify = 49)", () => {
       const all = Fusion360CADFunctionIndexEngine.listAllOperations();
       const sketch = Fusion360CADFunctionIndexEngine.listOperations("sketch_operations");
       const feature = Fusion360CADFunctionIndexEngine.listOperations("feature_operations");
+      const modify = Fusion360CADFunctionIndexEngine.listOperations("modify_operations");
       expect(sketch.length).toBe(22);
       expect(feature.length).toBe(18);
-      expect(all.length).toBe(sketch.length + feature.length);
-      expect(all.length).toBe(40);
+      expect(modify.length).toBe(9);
+      expect(all.length).toBe(sketch.length + feature.length + modify.length);
+      expect(all.length).toBe(49);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -416,9 +418,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 321 parameters across all 40 operations (115 sketch + 206 feature)", () => {
+    it("counts exactly 422 parameters across all 49 operations (115 sketch + 206 feature + 101 modify)", () => {
       const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(321);
+      expect(total).toBe(422);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -434,8 +436,13 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(featureTotal).toBe(206);
       expect(featureDeclared).toBe(206);
 
+      const modifyTotal = sumParamsForModule("modify_operations");
+      const modifyDeclared = (Fusion360CADFunctionIndexEngine.getModule("modify_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(modifyTotal).toBe(101);
+      expect(modifyDeclared).toBe(101);
+
       // Aggregate engine method must equal sum of per-module computed totals
-      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + featureTotal);
+      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + featureTotal + modifyTotal);
     });
   });
 
@@ -525,6 +532,110 @@ describe("Fusion360CADFunctionIndexEngine", () => {
         .map((m) => m.operation_id)
         .sort();
       expect(opsWithTaper).toEqual(["EXTRUDE", "RIB", "SWEEP", "WEB"]);
+    });
+  });
+
+  describe("modify_operations module (U-CAD-FIDX-FUS-03)", () => {
+    const MODIFY_OPS = [
+      "FILLET", "CHAMFER", "PRESS_PULL",
+      "MOVE", "SCALE",
+      "PLANE", "AXIS", "POINT",
+      "SECTION_ANALYSIS",
+    ];
+
+    it("listOperations('modify_operations') returns exactly the 9 modify ops", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("modify_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(9);
+      expect(ops.sort()).toEqual([...MODIFY_OPS].sort());
+    });
+
+    it("FILLET enumerates all 4 geometric construction methods", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "FILLET");
+      const filletType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Fillet Type");
+      expect(filletType?.options).toEqual(["constant_radius", "variable_radius", "full_round", "chord_length"]);
+    });
+
+    it("CHAMFER enumerates the 3 input modes (equal/two_distance/distance_angle)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "CHAMFER");
+      const chamferType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Chamfer Type");
+      expect(chamferType?.options).toEqual(["equal_distance", "two_distance", "distance_angle"]);
+    });
+
+    it("MOVE enumerates all 5 transform types (free/translate/rotate/point_to_point/align)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "MOVE");
+      const moveType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Move Type");
+      expect(moveType?.options).toEqual(["free", "translate", "rotate", "point_to_point", "align"]);
+    });
+
+    it("PLANE enumerates all 7 construction methods", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "PLANE");
+      const method = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Construction Method");
+      expect(method?.options).toEqual([
+        "offset_from_plane",
+        "three_points",
+        "tangent_to_face",
+        "midplane_between",
+        "normal_to_curve",
+        "two_parallel_edges",
+        "angle_through_edge",
+      ]);
+    });
+
+    it("AXIS enumerates all 5 construction methods", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "AXIS");
+      const method = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Construction Method");
+      expect(method?.options).toEqual([
+        "through_cylinder",
+        "through_edge",
+        "through_two_planes",
+        "through_two_points",
+        "normal_to_face_at_point",
+      ]);
+    });
+
+    it("POINT enumerates all 8 construction methods", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "POINT");
+      const method = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Construction Method");
+      expect(method?.options).toHaveLength(8);
+      expect(method?.options).toContain("at_vertex");
+      expect(method?.options).toContain("two_edges_intersection");
+      expect(method?.options).toContain("three_planes");
+      expect(method?.options).toContain("midpoint_of_edge");
+    });
+
+    it("getOperationsByCategory enumerates exactly 3 Construction ops (Plane/Axis/Point)", () => {
+      const construction = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Construction", "modify_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(construction).toEqual(["AXIS", "PLANE", "POINT"]);
+    });
+
+    it("findParameter locates FILLET.Radius with correct unit, default, and lower bound", () => {
+      const loc = Fusion360CADFunctionIndexEngine.findParameter("modify_operations", "FILLET", "Radius");
+      expect(loc?.tab_id).toBe("Configuration");
+      expect(loc?.parameter.unit).toBe("mm");
+      expect(loc?.parameter.default).toBe(1.0);
+      expect((loc?.parameter as { min?: number }).min).toBe(0.001);
+    });
+
+    it("SECTION_ANALYSIS Multi-Section Additional Planes caps at 5 (Fusion's 6-section limit minus primary)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "SECTION_ANALYSIS");
+      const additional = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Additional Planes");
+      expect((additional as { max?: number })?.max).toBe(5);
+    });
+
+    it("getOperation returns null for an op that doesn't exist in modify_operations (failure mode)", () => {
+      expect(Fusion360CADFunctionIndexEngine.getOperation("modify_operations", "NONEXISTENT_OP")).toBeNull();
+    });
+
+    it("findParameter returns null when the parameter doesn't exist on FILLET (failure mode)", () => {
+      expect(Fusion360CADFunctionIndexEngine.findParameter("modify_operations", "FILLET", "Bogus Param")).toBeNull();
+    });
+
+    it("findParameter returns null when the operation is wrong but parameter exists elsewhere (failure mode)", () => {
+      // 'Radius' exists on FILLET but not on CHAMFER — must not cross-pollinate
+      expect(Fusion360CADFunctionIndexEngine.findParameter("modify_operations", "CHAMFER", "Radius")).toBeNull();
     });
   });
 

@@ -21,6 +21,14 @@
       "parameter_count_estimate": 206,
       "description": "3D feature creation: solid sweeps (Extrude, Revolve, Sweep, Loft), thin features (Rib, Web), holes/threads (Hole with 5 head variants, Thread with ANSI/ISO/UNJ standards), modify-by-removal (Shell, Draft), patterns (Linear/Circular/On-Path/On-Sketch), Mirror, Boolean (Combine, Split Body, Boundary Fill). 18 operations.",
       "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "modify_operations",
+      "path": "cad-functions/fusion360/modify-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-03"],
+      "parameter_count_estimate": 101,
+      "description": "Post-feature modify and construction operations: edge filleting (4 types), chamfering (3 types), Press Pull (4 inferred modes), rigid Move (5 transform types), Scale (uniform / non-uniform), construction Plane (7 variants), Axis (5 variants), Point (8 variants), and Section Analysis (single + multi-section). 9 operations.",
+      "dependencies": ["feature_operations"]
     }
   ],
   "global_cross_references": {
@@ -56,11 +64,11 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 2,
-    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02"],
-    "estimated_parameter_total": 321,
+    "total_modules": 3,
+    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02", "U-CAD-FIDX-FUS-03"],
+    "estimated_parameter_total": 422,
     "api_surface": {
-      "python_api_items": 40,
+      "python_api_items": 49,
       "fusion_design_workspace": true
     },
     "pdf_sources_bound": [
@@ -88,12 +96,6 @@
     "render_workspace": false
   },
   "future_modules": [
-    {
-      "planned_id": "modify_operations",
-      "scope": "Fillet, Chamfer, Press Pull, Move, Scale, Plane, Axis, Construction Geometry, Section Analysis",
-      "estimated_params": 110,
-      "deferred_to": "U-CAD-FIDX-FUS-03"
-    },
     {
       "planned_id": "surface_operations",
       "scope": "Patch, Stitch, Trim, Extend, Unstitch, Reverse Normal, Boundary Fill, Offset Surface, Thicken",
