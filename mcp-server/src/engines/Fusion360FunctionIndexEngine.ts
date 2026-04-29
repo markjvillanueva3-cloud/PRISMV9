@@ -674,6 +674,29 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get 3D milling per-op tab deep-pass operations (CAM-EXHAUST-MS1-08).
+   * Reads milling-3d-deep.json catalog covering Strategy / Ramp / Holder /
+   * Output / Connections tab extensions to the 12 existing 3D ops, plus
+   * 2 net-new finishing ops (PROJECT_3D for sketch-curve projection onto
+   * curved surfaces, FLAT_3D for auto-detected flat-surface finishing).
+   * Closes the input-exhaust gap left by the original MS0/U-CAM22
+   * 3d-operations.json — also fills in Heights/Linking tabs for the 8
+   * simpler-finishing ops that the parent catalog omitted.
+   *
+   * Categories: "Roughing" | "Finishing"
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getMilling3DDeepOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("milling-3d-deep.json", "getMilling3DDeepOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal

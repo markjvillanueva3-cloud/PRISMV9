@@ -1403,4 +1403,169 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_milling_2d_deep_operations");
     });
   });
+
+  describe("getMilling3DDeepOperations (CAM-EXHAUST-MS1-08)", () => {
+    it("returns exactly 14 milling-3d-deep toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      expect(ops.length).toBe(14);
+    });
+
+    it("Roughing category contains 2 ops (Adaptive3D + Pocket3D DEEP)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const ids = ops.filter((o) => o.category === "Roughing").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual(["ADAPTIVE_3D_DEEP", "POCKET_3D_DEEP"]);
+    });
+
+    it("Finishing category contains 12 ops (10 _DEEP extensions + PROJECT_3D + FLAT_3D)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const ids = ops.filter((o) => o.category === "Finishing").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "CONTOUR_3D_DEEP",
+        "FLAT_3D",
+        "HORIZONTAL_DEEP",
+        "MORPHED_SPIRAL_DEEP",
+        "PARALLEL_DEEP",
+        "PENCIL_DEEP",
+        "PROJECT_3D",
+        "RADIAL_DEEP",
+        "RAMP_DEEP",
+        "SCALLOP_DEEP",
+        "SPIRAL_DEEP",
+        "STEEP_AND_SHALLOW_DEEP",
+      ]);
+    });
+
+    it("ADAPTIVE_3D_DEEP has 35 parameters and Roughing category (anchor for HSM workflows)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "ADAPTIVE_3D_DEEP");
+      expect(op?.parameter_count).toBe(35);
+      expect(op?.category).toBe("Roughing");
+    });
+
+    it("SCALLOP_DEEP is the largest _DEEP extension (41 params — Heights+Linking gap closure for ball-nose finishing)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "SCALLOP_DEEP");
+      expect(op?.parameter_count).toBe(41);
+      expect(op?.category).toBe("Finishing");
+    });
+
+    it("2 net-new finishing ops (PROJECT_3D, FLAT_3D) have exact expected param counts and Finishing category", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const expected: Record<string, number> = {
+        PROJECT_3D: 51,
+        FLAT_3D: 56,
+      };
+      for (const [id, expectedCount] of Object.entries(expected)) {
+        const op = ops.find((o) => o.toolpath_id === id);
+        expect(op?.parameter_count).toBe(expectedCount);
+        expect(op?.category).toBe("Finishing");
+      }
+    });
+
+    it("All 12 _DEEP extensions present (one per existing 3d-operations.json op)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const deepIds = ops.filter((o) => o.toolpath_id.endsWith("_DEEP")).map((o) => o.toolpath_id).sort();
+      expect(deepIds).toEqual([
+        "ADAPTIVE_3D_DEEP",
+        "CONTOUR_3D_DEEP",
+        "HORIZONTAL_DEEP",
+        "MORPHED_SPIRAL_DEEP",
+        "PARALLEL_DEEP",
+        "PENCIL_DEEP",
+        "POCKET_3D_DEEP",
+        "RADIAL_DEEP",
+        "RAMP_DEEP",
+        "SCALLOP_DEEP",
+        "SPIRAL_DEEP",
+        "STEEP_AND_SHALLOW_DEEP",
+      ]);
+    });
+
+    it("PROJECT_3D description references curve-projection / sketch / surface (its defining concept)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "PROJECT_3D");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("project") || text.includes("sketch") || text.includes("curve")).toBe(true);
+      expect(text).toContain("surface");
+    });
+
+    it("FLAT_3D description references auto-detect of flat surfaces (its defining capability)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "FLAT_3D");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("auto-detect") || text.includes("auto detect")).toBe(true);
+      expect(text).toContain("flat");
+    });
+
+    it("STEEP_AND_SHALLOW_DEEP carries slope-threshold-driven dual-strategy concept", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "STEEP_AND_SHALLOW_DEEP");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("slope") || text.includes("steep")).toBe(true);
+      expect(op?.parameter_count).toBe(33);
+    });
+
+    it("parameter counts sum to 499 across all 14 ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      const total = ops.reduce((sum, o) => sum + o.parameter_count, 0);
+      expect(total).toBe(499);
+    });
+
+    it("each op has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling3DDeepOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_milling_3d_deep_operations returns 14 ops with FLAT_3D @ 56 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_milling_3d_deep_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(14);
+      const flat = result.operations.find((o) => o.toolpath_id === "FLAT_3D");
+      expect(flat?.category).toBe("Finishing");
+      expect(flat?.parameter_count).toBe(56);
+    });
+
+    it("milling_3d_deep module is registered in fusion360 function-index with 499 estimated params and depends on 3d_operations", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "milling_3d_deep");
+      expect(entry?.parameter_count_estimate).toBe(499);
+      expect(entry?.dependencies).toEqual(["3d_operations"]);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_milling_3d_deep_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_milling_3d_deep_operations");
+    });
+  });
 });

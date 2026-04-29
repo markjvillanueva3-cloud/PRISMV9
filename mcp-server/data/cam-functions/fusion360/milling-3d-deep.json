@@ -1,0 +1,1011 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM 3D Milling Per-Op Tab Deep Pass — Strategy / Ramp / Holder / Output / Connections Coverage + PROJECT + FLAT",
+    "description": "Deep-pass extension to 3d-operations.json (MS0/U-CAM22). Closes the input-exhaust gap by adding 5 previously-uncatalogued tabs (Strategy, Ramp, Holder, Output, Connections) to the 12 existing 3D milling ops via _DEEP entries (Adaptive/Pocket/Parallel/Contour/Scallop/Pencil/Radial/Spiral/Morphed-Spiral/Steep-Shallow/Horizontal/Ramp), AND introduces 2 net-new finishing ops (PROJECT_3D, FLAT_3D) that were missing entirely. Together brings Fusion 360 3D milling toward 100% input-field coverage per the L2-CAMX-EXHAUST mandate.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-08",
+    "source": "Autodesk Fusion 360 Help — 3D Milling reference (Adaptive Clearing 3D / Pocket Clearing 3D / Parallel / Contour 3D / Steep-Shallow / Scallop / Pencil / Horizontal / Morphed Spiral / Radial / Spiral / Ramp / Project / Flat) + HSM Best Practices Guide + post.cps Manual NC reference + Holder Collision Check documentation + 3D Linking strategies reference + Manufacturing Extension 5-axis tilt-extension reference",
+    "totalParameters": 499,
+    "toolpathCount": 14,
+    "physics_links": [
+      "SCALLOP_HEIGHT_VS_STEPOVER",
+      "SURFACE_FINISH_RA_FROM_BALL_NOSE",
+      "TOOL_TIP_RUNOUT_3D",
+      "STAY_DOWN_VS_HSM_LIFT",
+      "HOLDER_TILT_ENVELOPE_5AX",
+      "STEP_DOWN_VS_FORM_DEFLECTION",
+      "PROJECT_TO_SURFACE_TOLERANCE",
+      "FLAT_DETECTION_THRESHOLD"
+    ]
+  },
+  "commonTabs": {
+    "description": "New tabs added by the deep pass on top of the existing base (tool/geometry/heights/passes/linking — note 8 of 12 simpler-finishing ops in 3d-operations.json only had tool/geometry/passes; deep pass treats Heights/Linking as covered by parent catalog).",
+    "tabs": ["Strategy", "Ramp", "Holder", "Output", "Connections"],
+    "extends": ["Tool", "Geometry", "Heights", "Passes", "Linking"]
+  },
+  "toolpaths": {
+    "ADAPTIVE_3D_DEEP": {
+      "description": "Deep-tab extension to adaptive_clearing_3d — adds Strategy (engagement / region order / smoothing), Ramp (helical 3D entry), Holder (5-axis tilt-extension envelope), Output (HSM-aware NURBS / G6.2 spline output), Connections (stay-down vs lift trade-off).",
+      "category": "Roughing",
+      "parameterCount": 35,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Optimal Load", "type": "numeric", "description": "Target radial engagement (woc) for 3D adaptive load control", "default": 0.4, "unit": "× tool diameter", "min": 0.05, "max": 0.95},
+            {"name": "Stock to Leave Radial", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave Axial", "type": "numeric", "default": 0.0, "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.025, "unit": "mm"},
+            {"name": "Region Order", "type": "dropdown", "options": ["from_outside", "from_inside", "by_depth", "by_pocket"], "default": "from_outside"},
+            {"name": "Avoid Slotting", "type": "checkbox", "default": true},
+            {"name": "Optimize Load", "type": "checkbox", "default": true},
+            {"name": "Use Slot Clearing", "type": "checkbox", "description": "Pre-clear slot regions before adaptive", "default": false}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["helical", "profile", "plunge", "ramp_zigzag"], "default": "helical"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "default": 4, "unit": "mm"},
+            {"name": "Ramping Angle", "type": "numeric", "default": 2, "unit": "deg"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.9, "unit": "× tool diameter"},
+            {"name": "Minimum Ramp Diameter", "type": "numeric", "default": 0.5, "unit": "× tool diameter"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths", "skip_paths", "tilt_to_avoid"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1.0, "unit": "mm"},
+            {"name": "Maximum Tilt Angle", "type": "numeric", "description": "Used by tilt_to_avoid mode (5-axis Mfg Ext)", "default": 30, "unit": "deg"},
+            {"name": "Reduce Feedrate Near Holder", "type": "checkbox", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS", "G6.3_NURBS"], "default": "linearize"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.01, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "convert_to_high_feed", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift", "manual"], "default": "least_engagement"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": true},
+            {"name": "Avoidance Geometry", "type": "selection_multi"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Connection Radius", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "POCKET_3D_DEEP": {
+      "description": "Deep-tab extension to pocket_clearing_3d — Strategy / Ramp / Holder / Output / Connections for offset-based 3D pocket clearing with Z-step pattern.",
+      "category": "Roughing",
+      "parameterCount": 32,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Pocket Strategy", "type": "dropdown", "options": ["offset", "morphed_spiral", "raster", "spiral"], "default": "offset"},
+            {"name": "Stepover", "type": "numeric", "default": 0.4, "unit": "× tool diameter"},
+            {"name": "Stock to Leave Radial", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave Axial", "type": "numeric", "default": 0.0, "unit": "mm"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.025, "unit": "mm"},
+            {"name": "Z Step Pattern", "type": "dropdown", "options": ["constant", "scallop_constant", "morphed"], "default": "constant"},
+            {"name": "Maximum Z Stepdown", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["helical", "profile", "plunge", "ramp_zigzag"], "default": "helical"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Ramping Angle", "type": "numeric", "default": 2, "unit": "deg"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.9, "unit": "× tool diameter"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "linearize"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.01, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "convert_to_high_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": true},
+            {"name": "Avoidance Geometry", "type": "selection_multi"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Connection Radius", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 50, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PARALLEL_DEEP": {
+      "description": "Deep-tab extension to parallel — Strategy (pass direction / multi-pass / cusp control) / Ramp / Holder / Output / Connections for raster-pattern 3D finishing.",
+      "category": "Finishing",
+      "parameterCount": 32,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Pass Direction", "type": "numeric", "default": 0, "unit": "deg", "min": 0, "max": 359},
+            {"name": "Direction", "type": "dropdown", "options": ["one_way", "back_and_forth", "climb_only", "conventional_only"], "default": "back_and_forth"},
+            {"name": "Stepover", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Cusp Height", "type": "numeric", "description": "Target scallop height (drives stepover via ball-nose geometry)", "default": 0.005, "unit": "mm"},
+            {"name": "Use Cusp Height", "type": "checkbox", "description": "Compute stepover from cusp height instead of explicit stepover", "default": false},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.01, "unit": "mm"},
+            {"name": "Order By", "type": "dropdown", "options": ["passes", "regions"], "default": "passes"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["horizontal_arc", "tangent_arc", "straight"], "default": "tangent_arc"},
+            {"name": "Lead-Out Distance", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift", "tool_radius"], "default": "least_engagement"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Connection Radius", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": true},
+            {"name": "Avoidance Geometry", "type": "selection_multi"},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 25, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "CONTOUR_3D_DEEP": {
+      "description": "Deep-tab extension to contour 3D — Strategy (Z-level slicing / shallow-area auto-detect) / Ramp / Holder / Output / Connections for Z-level finishing.",
+      "category": "Finishing",
+      "parameterCount": 33,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 0.2, "unit": "mm"},
+            {"name": "Use Cusp Height", "type": "checkbox", "default": false},
+            {"name": "Cusp Height", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional", "either"], "default": "climb"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Sort By", "type": "dropdown", "options": ["depth_first", "region_first", "shortest_path"], "default": "depth_first"},
+            {"name": "Auto Skip Shallow Areas", "type": "checkbox", "description": "Skip shallow surfaces (use scallop / parallel for those instead)", "default": true},
+            {"name": "Shallow Threshold Angle", "type": "numeric", "default": 30, "unit": "deg"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.01, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["horizontal_arc", "vertical_arc", "tangent"], "default": "horizontal_arc"},
+            {"name": "Lead-In Radius", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["same_as_lead_in", "horizontal_arc"], "default": "same_as_lead_in"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths", "tilt_to_avoid"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Maximum Tilt Angle", "type": "numeric", "default": 30, "unit": "deg"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift", "tool_radius"], "default": "least_engagement"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": true},
+            {"name": "Avoidance Geometry", "type": "selection_multi"}
+          ]
+        }
+      }
+    },
+    "SCALLOP_DEEP": {
+      "description": "Deep-tab extension to scallop — adds Heights/Linking (missing in parent), Strategy/Ramp/Holder/Output/Connections for constant-scallop ball-nose finishing.",
+      "category": "Finishing",
+      "parameterCount": 41,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"},
+            {"name": "Use Z Bounds", "type": "checkbox", "default": false},
+            {"name": "Slope Angle Filter Min", "type": "numeric", "default": 0, "unit": "deg"},
+            {"name": "Slope Angle Filter Max", "type": "numeric", "default": 90, "unit": "deg"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down_inside_radius", "shortest_path"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Lift Distance", "type": "numeric", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Cusp Height", "type": "numeric", "description": "Target scallop height (drives stepover)", "default": 0.005, "unit": "mm", "required": true},
+            {"name": "Maximum Stepover", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional", "either"], "default": "climb"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["machining_boundary", "silhouette", "selected", "none"], "default": "machining_boundary"},
+            {"name": "Avoid Steep Areas", "type": "checkbox", "default": true},
+            {"name": "Steep Threshold Angle", "type": "numeric", "default": 60, "unit": "deg"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc", "straight"], "default": "tangent_arc"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["same_as_lead_in", "tangent_arc"], "default": "same_as_lead_in"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.003, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Connection Radius", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 10, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PENCIL_DEEP": {
+      "description": "Deep-tab extension to pencil — corner-cleanup finishing along internal radii. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 31,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "shortest_path"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Number of Passes", "type": "numeric", "default": 1, "min": 1, "max": 10},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional", "either"], "default": "climb"},
+            {"name": "Reference Tool Diameter", "type": "numeric", "description": "Diameter of prior larger tool (drives where corners need cleanup)", "default": 6, "unit": "mm"},
+            {"name": "Tip Offset", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Multi-Pass Stepover", "type": "numeric", "default": 0.1, "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.2, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.003, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 5, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "RADIAL_DEEP": {
+      "description": "Deep-tab extension to radial — radial finishing pattern from a center point. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 32,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Center Point", "type": "selection", "description": "Origin of radial pattern", "required": true},
+            {"name": "Inner Radius", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Outer Radius", "type": "numeric", "default": 50, "unit": "mm"},
+            {"name": "Angular Stepover", "type": "numeric", "default": 1, "unit": "deg", "min": 0.05, "max": 30},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional", "either"], "default": "climb"},
+            {"name": "Pass Direction", "type": "dropdown", "options": ["inside_out", "outside_in"], "default": "inside_out"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 10, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "SPIRAL_DEEP": {
+      "description": "Deep-tab extension to spiral — Archimedean-spiral finishing for round / circular boss / pocket areas. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 30,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Center Point", "type": "selection", "description": "Origin of spiral", "required": true},
+            {"name": "Stepover", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"},
+            {"name": "Spiral Direction", "type": "dropdown", "options": ["inside_out", "outside_in"], "default": "outside_in"},
+            {"name": "Maximum Radius", "type": "numeric", "default": 50, "unit": "mm"},
+            {"name": "Minimum Radius", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MORPHED_SPIRAL_DEEP": {
+      "description": "Deep-tab extension to morphed_spiral — boundary-following spiral finishing. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 33,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Stepover", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"},
+            {"name": "Spiral Direction", "type": "dropdown", "options": ["inside_out", "outside_in"], "default": "outside_in"},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["machining_boundary", "selected", "silhouette"], "default": "machining_boundary"},
+            {"name": "Boundary Selection", "type": "selection_multi"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Cusp Height", "type": "numeric", "description": "Optional drives stepover", "default": 0.005, "unit": "mm"},
+            {"name": "Use Cusp Height", "type": "checkbox", "default": false}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 10, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "STEEP_AND_SHALLOW_DEEP": {
+      "description": "Deep-tab extension to steep_and_shallow — combined Z-level (steep) + scallop (shallow) finishing in one op driven by slope-angle threshold. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 33,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Slope Threshold Angle", "type": "numeric", "description": "Angle separating steep (Z-level) from shallow (scallop) regions", "default": 30, "unit": "deg", "min": 0, "max": 90, "required": true},
+            {"name": "Steep Maximum Stepdown", "type": "numeric", "default": 0.2, "unit": "mm"},
+            {"name": "Shallow Cusp Height", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Shallow Maximum Stepover", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"},
+            {"name": "Order", "type": "dropdown", "options": ["steep_first", "shallow_first", "by_region"], "default": "steep_first"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths", "tilt_to_avoid"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Maximum Tilt Angle", "type": "numeric", "default": 30, "unit": "deg"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 10, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "HORIZONTAL_DEEP": {
+      "description": "Deep-tab extension to horizontal — flat-area-only finishing pass. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 30,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "shortest_path"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Pattern", "type": "dropdown", "options": ["offset", "raster", "spiral"], "default": "offset"},
+            {"name": "Stepover", "type": "numeric", "default": 0.4, "unit": "× tool diameter"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Pass Direction", "type": "numeric", "description": "Raster angle (raster pattern only)", "default": 0, "unit": "deg"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Detect Shallow Areas", "type": "checkbox", "default": false},
+            {"name": "Shallow Threshold Angle", "type": "numeric", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "RAMP_DEEP": {
+      "description": "Deep-tab extension to ramp finishing — slope-following passes. Heights/Linking + Strategy/Ramp/Holder/Output/Connections.",
+      "category": "Finishing",
+      "parameterCount": 30,
+      "tabs": {
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Slope Direction", "type": "numeric", "description": "Direction along which to ramp", "default": 0, "unit": "deg"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"},
+            {"name": "Pass Direction", "type": "dropdown", "options": ["uphill", "downhill", "back_and_forth"], "default": "back_and_forth"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "horizontal_arc", "straight"], "default": "tangent_arc"},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "ramp"},
+            {"name": "Plunge Ramp Angle", "type": "numeric", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PROJECT_3D": {
+      "description": "Net-new project-finishing op — projects a 2D sketch / curve onto the 3D model surface and follows it. Used for engraved details on curved surfaces, mold-line trim paths, decorative surface features. Missing entirely from MS0/U-CAM22 catalog.",
+      "category": "Finishing",
+      "parameterCount": 51,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "required": true},
+            {"name": "Tool Number", "type": "numeric", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "default": 1},
+            {"name": "Diameter Offset", "type": "numeric", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "options": ["Disabled", "Flood", "Mist", "Through Tool", "Air"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Lead-In Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Curves", "type": "selection_multi", "description": "2D sketch curves to project", "required": true},
+            {"name": "Target Surfaces", "type": "selection_multi", "description": "Surfaces to project onto", "required": true},
+            {"name": "Projection Direction", "type": "dropdown", "options": ["along_z", "along_normal", "along_vector"], "default": "along_z"},
+            {"name": "Projection Vector", "type": "vector", "description": "Custom direction (if along_vector)"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Surface Offset", "type": "numeric", "description": "Offset above projected curve (engraving depth)", "default": -0.5, "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Number of Stepdowns", "type": "numeric", "default": 1, "min": 1, "max": 10},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 0.2, "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional", "either"], "default": "climb"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "shortest_path"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Trace Side", "type": "dropdown", "options": ["on_curve", "left_of_curve", "right_of_curve"], "default": "on_curve"},
+            {"name": "Sort By", "type": "dropdown", "options": ["selection_order", "shortest_path"], "default": "shortest_path"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["tangent_arc", "straight", "extension"], "default": "tangent_arc"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC", "G6.2_NURBS"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.003, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Lift Between Curves", "type": "checkbox", "default": true},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FLAT_3D": {
+      "description": "Net-new flat-finishing op — auto-detects flat surfaces (within slope-angle tolerance) and finishes them with offset / spiral / raster pattern. Faster than horizontal for purely-flat regions because it skips slope checking. Missing entirely from MS0/U-CAM22 catalog.",
+      "category": "Finishing",
+      "parameterCount": 56,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Flat-end mill recommended", "required": true},
+            {"name": "Tool Number", "type": "numeric", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "default": 1},
+            {"name": "Diameter Offset", "type": "numeric", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "options": ["Disabled", "Flood", "Mist", "Through Tool"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Auto Detect Flat Areas", "type": "checkbox", "description": "Automatic flat-region detection", "default": true},
+            {"name": "Detection Tolerance Angle", "type": "numeric", "description": "Surface within this angle of horizontal is treated as flat", "default": 1, "unit": "deg", "min": 0.1, "max": 5},
+            {"name": "Manual Region Selection", "type": "selection_multi", "description": "Override auto-detect with explicit regions"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["silhouette", "machining_boundary", "selected", "none"], "default": "silhouette"},
+            {"name": "Boundary Selection", "type": "selection_multi"},
+            {"name": "Boundary Offset", "type": "numeric", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Use Z Bounds", "type": "checkbox", "default": false},
+            {"name": "Top Z Bound", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Z Bound", "type": "numeric", "default": -10, "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Pattern", "type": "dropdown", "options": ["offset", "spiral", "raster"], "default": "offset"},
+            {"name": "Stepover", "type": "numeric", "default": 0.6, "unit": "× tool diameter"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Pass Direction", "type": "numeric", "description": "Raster angle (raster pattern only)", "default": 0, "unit": "deg"},
+            {"name": "Multiple Stepdowns", "type": "checkbox", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 0.2, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Linking Strategy", "type": "dropdown", "options": ["smooth", "stay_down", "shortest_path"], "default": "smooth"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 3, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Order By", "type": "dropdown", "options": ["region_first", "depth_first", "shortest_path"], "default": "shortest_path"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"},
+            {"name": "Finish Pass", "type": "checkbox", "description": "Add final wall-pass at zero stock", "default": false},
+            {"name": "Finish Pass Stepover", "type": "numeric", "default": 0.05, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["plunge", "helical", "ramp"], "default": "plunge"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.5, "unit": "× tool diameter"},
+            {"name": "Ramp Angle", "type": "numeric", "default": 3, "unit": "deg"},
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.5, "unit": "mm"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_HPCC"], "default": "G05_HPCC"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Level", "type": "dropdown", "options": ["least_engagement", "minimum_lift"], "default": "least_engagement"},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Maximum Lift Distance", "type": "numeric", "default": 15, "unit": "mm"}
+          ]
+        }
+      }
+    }
+  }
+}

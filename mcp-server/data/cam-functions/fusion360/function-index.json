@@ -109,6 +109,14 @@
       "parameter_count_estimate": 486,
       "description": "2D milling per-op tab deep pass — closes the input-exhaust gap on existing 2d-operations.json by adding 4 previously-uncatalogued tabs (Strategy, Ramp, Holder, Output, plus Connections) to the 11 existing 2D ops via _DEEP entries (Adaptive/Pocket/Contour/Chamfer/Face/Slot/Trace/Engrave/Bore/Circular/Thread), AND introduces 4 net-new drill-family ops (DRILL_2D with 12 cycle codes, TAP_2D rigid+floating, REAM_2D G85, COUNTERBORE_2D G82). 15 toolpaths total. Brings Fusion 360 2D milling toward 100% input-field coverage per L2-CAMX-EXHAUST mandate.",
       "dependencies": ["2d_operations"]
+    },
+    {
+      "module_id": "milling_3d_deep",
+      "path": "cam-functions/fusion360/milling-3d-deep.json",
+      "covered_units": ["U-CAM-MS1-08"],
+      "parameter_count_estimate": 499,
+      "description": "3D milling per-op tab deep pass — closes the input-exhaust gap on existing 3d-operations.json by adding 5 previously-uncatalogued tabs (Strategy, Ramp, Holder, Output, Connections) to the 12 existing 3D ops via _DEEP entries (Adaptive/Pocket/Parallel/Contour 3D + Scallop/Pencil/Radial/Spiral/Morphed-Spiral/Steep-Shallow/Horizontal/Ramp), AND introduces 2 net-new finishing ops (PROJECT_3D for sketch-curve projection onto curved surfaces, FLAT_3D for auto-detected flat-surface finishing). 14 toolpaths total. Note: 8 simpler-finishing _DEEP ops also fill in missing Heights/Linking tabs that the parent catalog omitted.",
+      "dependencies": ["3d_operations"]
     }
   ],
   "global_cross_references": {
