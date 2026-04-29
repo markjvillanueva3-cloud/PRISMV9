@@ -1,7 +1,7 @@
 /**
  * Tests for HyperCADCADFunctionIndexEngine — hyperCAD-S CAD Function Index.
  * @see src/engines/HyperCADCADFunctionIndexEngine.ts
- * @see U-CAD-FIDX-HCAD-01
+ * @see U-CAD-FIDX-HCAD-01 (sketch_operations) + U-CAD-FIDX-HCAD-02 (solid_operations)
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -14,6 +14,16 @@ const KNOWN_SKETCH_OPS = [
   "PROJECT_EDGE", "PROJECT_FACE", "INTERSECT_SURFACE", "PROJECT_SILHOUETTE",
   "SKETCH_CONSTRAINT", "SKETCH_DIMENSION",
   "QUERY_LENGTH", "QUERY_AREA", "QUERY_DISTANCE", "QUERY_ANGLE", "QUERY_COORDINATES",
+];
+
+const KNOWN_SOLID_OPS = [
+  "BOX", "CYLINDER", "CONE", "SPHERE", "TORUS", "BLOCK",
+  "EXTRUDE", "REVOLVE", "SWEEP", "LOFT", "PIPE_ALONG_CURVE", "HELIX",
+  "FILLET", "CHAMFER", "SHELL", "DRAFT", "THICKEN",
+  "BOOLEAN_UNION", "BOOLEAN_SUBTRACT", "BOOLEAN_INTERSECT",
+  "PATTERN_LINEAR", "PATTERN_CIRCULAR", "PATTERN_MIRROR", "PATTERN_PATH",
+  "MOVE_FACE", "PUSH_PULL", "REPLACE_FACE",
+  "HOLE_SIMPLE", "HOLE_CBORE", "HOLE_TAP",
 ];
 
 function sumParamsForModule(moduleId: string): number {
@@ -54,9 +64,9 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains exactly one shipped module today (sketch_operations)", () => {
+    it("modules array contains the two shipped modules (sketch_operations + solid_operations)", () => {
       const ids = HyperCADCADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
-      expect(ids).toEqual(["sketch_operations"]);
+      expect(ids).toEqual(["sketch_operations", "solid_operations"]);
     });
 
     it("returns same object identity on repeated calls (cache hit)", () => {
@@ -67,9 +77,9 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 7 deferred modules with non-empty scopes", () => {
+    it("declares exactly 6 deferred modules with non-empty scopes (solid_operations now shipped)", () => {
       const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(7);
+      expect(fm.length).toBe(6);
       for (const f of fm) {
         expect(f.scope.length).toBeGreaterThan(20);
         expect(f.estimated_params).toBeGreaterThan(0);
@@ -77,7 +87,7 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       }
     });
 
-    it("planned_ids cover solid/surface/healing/mesh/assembly/drawing/datum", () => {
+    it("planned_ids cover surface/healing/mesh/assembly/drawing/datum (solid moved to shipped)", () => {
       const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
       expect(ids).toEqual([
@@ -86,7 +96,6 @@ describe("HyperCADCADFunctionIndexEngine", () => {
         "drawing_operations",
         "healing_operations",
         "mesh_operations",
-        "solid_operations",
         "surface_operations",
       ]);
     });
@@ -103,8 +112,11 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns exactly ['sketch_operations']", () => {
-      expect(HyperCADCADFunctionIndexEngine.listModules()).toEqual(["sketch_operations"]);
+    it("listModules returns the two shipped modules in declared order", () => {
+      expect(HyperCADCADFunctionIndexEngine.listModules()).toEqual([
+        "sketch_operations",
+        "solid_operations",
+      ]);
     });
 
     it("getModuleEntry('sketch_operations') has the U-CAD-FIDX-HCAD-01 tag and 242 params", () => {
@@ -113,6 +125,15 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(entry?.path).toBe("cad-functions/hypercad/sketch-operations.json");
       expect(entry?.covered_units).toEqual(["U-CAD-FIDX-HCAD-01"]);
       expect(entry?.parameter_count_estimate).toBe(242);
+    });
+
+    it("getModuleEntry('solid_operations') has the U-CAD-FIDX-HCAD-02 tag and 214 params", () => {
+      const entry = HyperCADCADFunctionIndexEngine.getModuleEntry("solid_operations");
+      expect(entry?.module_id).toBe("solid_operations");
+      expect(entry?.path).toBe("cad-functions/hypercad/solid-operations.json");
+      expect(entry?.covered_units).toEqual(["U-CAD-FIDX-HCAD-02"]);
+      expect(entry?.parameter_count_estimate).toBe(214);
+      expect(entry?.dependencies).toEqual(["sketch_operations"]);
     });
 
     it("getModuleEntry returns null for unknown module", () => {
@@ -127,11 +148,12 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(ops.sort()).toEqual([...KNOWN_SKETCH_OPS].sort());
     });
 
-    it("listAllOperations equals listOperations of the only shipped module", () => {
+    it("listAllOperations sums sketch + solid module operation counts", () => {
       const all = HyperCADCADFunctionIndexEngine.listAllOperations();
       const sketch = HyperCADCADFunctionIndexEngine.listOperations("sketch_operations");
-      expect(all.length).toBe(sketch.length);
-      expect(all.length).toBe(32);
+      const solid = HyperCADCADFunctionIndexEngine.listOperations("solid_operations");
+      expect(all.length).toBe(sketch.length + solid.length);
+      expect(all.length).toBe(62);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -273,6 +295,215 @@ describe("HyperCADCADFunctionIndexEngine", () => {
     });
   });
 
+  describe("listOperations — solid_operations module", () => {
+    it("returns exactly 30 solid operations matching the canonical hyperCAD-S solid list", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("solid_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(30);
+      expect(ops.sort()).toEqual([...KNOWN_SOLID_OPS].sort());
+    });
+  });
+
+  describe("Solid_Primitive — 6 primitives (BOX/CYLINDER/CONE/SPHERE/TORUS/BLOCK)", () => {
+    it("getOperationsByCategory enumerates exactly 6 Solid_Primitive operations", () => {
+      const prims = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Primitive", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(prims).toEqual(["BLOCK", "BOX", "CONE", "CYLINDER", "SPHERE", "TORUS"]);
+    });
+
+    it("BOX exposes 3 origin modes (corner/center_base/center_volume)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "BOX");
+      const origin = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Origin Mode");
+      expect(origin?.options).toEqual(["corner", "center_base", "center_volume"]);
+    });
+
+    it("CYLINDER allows radius- or diameter-driven dimensioning", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "CYLINDER");
+      const dim = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Dimension Mode");
+      expect(dim?.options).toEqual(["radius", "diameter"]);
+    });
+
+    it("TORUS sweep angle is bounded [1, 360] for partial-torus support", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "TORUS");
+      const sweep = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Sweep Angle");
+      expect(sweep?.min).toBe(1);
+      expect(sweep?.max).toBe(360);
+      expect(sweep?.default).toBe(360);
+    });
+  });
+
+  describe("Solid_Sweep — 6 sweep features (EXTRUDE/REVOLVE/SWEEP/LOFT/PIPE_ALONG_CURVE/HELIX)", () => {
+    it("getOperationsByCategory enumerates exactly 6 Solid_Sweep operations", () => {
+      const sweeps = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Sweep", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(sweeps).toEqual(["EXTRUDE", "HELIX", "LOFT", "PIPE_ALONG_CURVE", "REVOLVE", "SWEEP"]);
+    });
+
+    it("EXTRUDE exposes 5 end conditions per side (distance/to_face/through_all/to_next/to_object)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "EXTRUDE");
+      const end1 = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "End Condition Side 1");
+      expect(end1?.options).toEqual(["distance", "to_face", "through_all", "to_next", "to_object"]);
+    });
+
+    it("EXTRUDE supports symmetric / two-sides direction modes", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "EXTRUDE");
+      const dir = op?.tabs?.["Direction"]?.parameters?.find((p) => p.name === "Direction Mode");
+      expect(dir?.options).toEqual(["one_side", "two_sides", "symmetric"]);
+    });
+
+    it("HELIX direction enumerates right_hand / left_hand", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "HELIX");
+      const dir = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Direction");
+      expect(dir?.options).toEqual(["right_hand", "left_hand"]);
+      expect(dir?.default).toBe("right_hand");
+    });
+
+    it("LOFT supports closed-loft toggle for ring/wreath geometry", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "LOFT");
+      const closed = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Closed Loft");
+      expect(closed?.type).toBe("checkbox");
+      expect(closed?.default).toBe(false);
+    });
+  });
+
+  describe("Solid_Modify — 5 modify ops (FILLET/CHAMFER/SHELL/DRAFT/THICKEN)", () => {
+    it("getOperationsByCategory enumerates exactly 5 Solid_Modify operations", () => {
+      const mods = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Modify", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(mods).toEqual(["CHAMFER", "DRAFT", "FILLET", "SHELL", "THICKEN"]);
+    });
+
+    it("FILLET supports 3 fillet types (constant/variable/full_round)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "FILLET");
+      const fType = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Fillet Type");
+      expect(fType?.options).toEqual(["constant", "variable", "full_round"]);
+    });
+
+    it("FILLET cross-section options include G2-continuous and conic", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "FILLET");
+      const cs = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Cross Section");
+      expect(cs?.options).toEqual(["circular", "conic", "g2_continuous"]);
+    });
+
+    it("CHAMFER supports 3 definitions (equal/two_distance/distance_angle)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "CHAMFER");
+      const cType = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Chamfer Type");
+      expect(cType?.options).toEqual(["equal_distance", "two_distance", "distance_angle"]);
+    });
+
+    it("DRAFT exposes 3 draft types including parting_line and step_draft", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "DRAFT");
+      const dType = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Draft Type");
+      expect(dType?.options).toEqual(["neutral_plane", "parting_line", "step_draft"]);
+    });
+
+    it("DRAFT angle is bounded [-89, 89] degrees (avoid degenerate drafts)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "DRAFT");
+      const angle = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Draft Angle");
+      expect(angle?.min).toBe(-89);
+      expect(angle?.max).toBe(89);
+    });
+  });
+
+  describe("Solid_Boolean — 3 ops (UNION/SUBTRACT/INTERSECT)", () => {
+    it("getOperationsByCategory enumerates exactly 3 Solid_Boolean operations", () => {
+      const bools = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Boolean", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(bools).toEqual(["BOOLEAN_INTERSECT", "BOOLEAN_SUBTRACT", "BOOLEAN_UNION"]);
+    });
+
+    it("BOOLEAN_UNION declares Tolerance with mm unit and small default", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "BOOLEAN_UNION");
+      const tol = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Tolerance");
+      expect(tol?.unit).toBe("mm");
+      expect(tol?.default).toBe(0.001);
+    });
+  });
+
+  describe("Solid_Pattern — 4 ops (LINEAR/CIRCULAR/MIRROR/PATH)", () => {
+    it("getOperationsByCategory enumerates exactly 4 Solid_Pattern operations", () => {
+      const pats = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Pattern", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(pats).toEqual(["PATTERN_CIRCULAR", "PATTERN_LINEAR", "PATTERN_MIRROR", "PATTERN_PATH"]);
+    });
+
+    it("PATTERN_CIRCULAR exposes 3 angular modes (full/total/increment)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "PATTERN_CIRCULAR");
+      const mode = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Angular Mode");
+      expect(mode?.options).toEqual(["full_circle", "total_angle", "increment_angle"]);
+    });
+
+    it("PATTERN_PATH supports 3 instance orientations including tangent_to_path", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "PATTERN_PATH");
+      const orient = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Orientation");
+      expect(orient?.options).toEqual(["tangent_to_path", "fixed_world", "fixed_to_seed"]);
+      expect(orient?.default).toBe("tangent_to_path");
+    });
+  });
+
+  describe("Solid_Direct_Edit — 3 history-free ops (MOVE_FACE/PUSH_PULL/REPLACE_FACE)", () => {
+    it("getOperationsByCategory enumerates exactly 3 Solid_Direct_Edit operations", () => {
+      const edits = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Direct_Edit", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(edits).toEqual(["MOVE_FACE", "PUSH_PULL", "REPLACE_FACE"]);
+    });
+
+    it("MOVE_FACE supports translate and rotate modes", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "MOVE_FACE");
+      const mode = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Move Mode");
+      expect(mode?.options).toEqual(["translate", "rotate"]);
+    });
+
+    it("PUSH_PULL signed-offset semantics documented (positive=pull, negative=push)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "PUSH_PULL");
+      const offset = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Offset Distance");
+      expect(offset?.required).toBe(true);
+      expect(offset?.description ?? "").toMatch(/positive.*pull|negative.*push/i);
+    });
+  });
+
+  describe("Solid_Hole — 3 hole cycles for hyperMILL feature recognition", () => {
+    it("getOperationsByCategory enumerates exactly 3 Solid_Hole operations", () => {
+      const holes = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Hole", "solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(holes).toEqual(["HOLE_CBORE", "HOLE_SIMPLE", "HOLE_TAP"]);
+    });
+
+    it("HOLE_TAP supports the 4 standard thread families (ISO_metric/UN_inch/BSP/NPT)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "HOLE_TAP");
+      const std = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Thread Standard");
+      expect(std?.options).toEqual(["ISO_metric", "UN_inch", "BSP", "NPT"]);
+      expect(std?.default).toBe("ISO_metric");
+    });
+
+    it("HOLE_TAP supports cosmetic vs true_helix modeling for downstream toolpath choice", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "HOLE_TAP");
+      const modeled = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Modeled As");
+      expect(modeled?.options).toEqual(["cosmetic", "true_helix"]);
+      expect(modeled?.default).toBe("cosmetic");
+    });
+
+    it("HOLE_SIMPLE declares ISO 286 fit field for downstream tolerance-aware drilling", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", "HOLE_SIMPLE");
+      const tol = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Hole Tolerance");
+      expect(tol?.type).toBe("text");
+      expect(tol?.description ?? "").toMatch(/ISO 286|H7|fit/i);
+    });
+  });
+
   describe("findParameter — happy path + 3 failure modes", () => {
     it("locates LINE.Mode with full option set", () => {
       const loc = HyperCADCADFunctionIndexEngine.findParameter("sketch_operations", "LINE", "Mode");
@@ -311,16 +542,28 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount + per-module drift guard", () => {
-    it("counts exactly 242 parameters across all 32 sketch operations", () => {
-      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(242);
+    it("counts exactly 456 parameters across both shipped modules (242 sketch + 214 solid)", () => {
+      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(456);
     });
 
-    it("per-module computed total exactly equals metadata.totalParameters declaration (catches catalog drift)", () => {
+    it("sketch module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
       const sketchTotal = sumParamsForModule("sketch_operations");
       const sketchDeclared = (HyperCADCADFunctionIndexEngine.getModule("sketch_operations")?.metadata as { totalParameters?: number })?.totalParameters;
       expect(sketchTotal).toBe(242);
       expect(sketchDeclared).toBe(242);
-      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal);
+    });
+
+    it("solid module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
+      const solidTotal = sumParamsForModule("solid_operations");
+      const solidDeclared = (HyperCADCADFunctionIndexEngine.getModule("solid_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(solidTotal).toBe(214);
+      expect(solidDeclared).toBe(214);
+    });
+
+    it("getTotalParameterCount equals the sum of per-module computed totals", () => {
+      const sketchTotal = sumParamsForModule("sketch_operations");
+      const solidTotal = sumParamsForModule("solid_operations");
+      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + solidTotal);
     });
   });
 
@@ -341,6 +584,17 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       const failures: string[] = [];
       for (const opInfo of ops) {
         const op = HyperCADCADFunctionIndexEngine.getOperation("sketch_operations", opInfo.operation_id);
+        const desc = op?.description ?? "";
+        if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
+      }
+      expect(failures).toEqual([]);
+    });
+
+    it("every solid op has a substantive description", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("solid_operations");
+      const failures: string[] = [];
+      for (const opInfo of ops) {
+        const op = HyperCADCADFunctionIndexEngine.getOperation("solid_operations", opInfo.operation_id);
         const desc = op?.description ?? "";
         if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
       }

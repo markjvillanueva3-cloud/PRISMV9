@@ -13,6 +13,14 @@
       "parameter_count_estimate": 242,
       "description": "2D sketching with hyperCAD-S extensive variant set: Line (8 creation modes including ortho / parallel / perpendicular / tangent / polar / offset), Rectangle (4 methods), Circle (5 methods including tangent-2-circles and tangent-3-elements), Arc (4 methods), Ellipse (3-axis), Polygon (regular + irregular + by-points), Spline (interpolation / control-polygon / tangent), Slot (linear / arc / multi-arc), Point (single / by-intersection / by-parameter / by-projection), Editing (Trim / Extend / Break / Mirror / Offset / Scale / Rotate / Translate / Stretch / Sketch-Fillet / Sketch-Chamfer / Match), Constraints (15 types incl. Concentric / Collinear / Symmetric / Lock-distance), Dimensions (Linear / Angular / Diameter / Radius / Distance-between / Driven / Driving / Reference), Reference geometry (Project edge / Project face / Intersect surface / Project silhouette), and Query (Length / Area / Distance / Angle / Coordinates).",
       "dependencies": []
+    },
+    {
+      "module_id": "solid_operations",
+      "path": "cad-functions/hypercad/solid-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-02"],
+      "parameter_count_estimate": 214,
+      "description": "3D solid modeling: 6 primitives (Box / Cylinder / Cone / Sphere / Torus / stock-Block), 6 sweep features (Extrude / Revolve / Sweep / Loft / Pipe-Along-Curve / Helix), 5 modify ops (Fillet / Chamfer / Shell / Draft / Thicken), 3 Boolean ops (Union / Subtract / Intersect), 4 pattern ops (Linear / Circular / Mirror / Path), 3 direct-edit ops (Move-Face / Push-Pull / Replace-Face) for imported-geometry workflows, and 3 hole cycles (Simple / Counterbore / Tapped) that write hyperMILL feature-recognition attributes for automatic drill/tap cycle assignment.",
+      "dependencies": ["sketch_operations"]
     }
   ],
   "global_cross_references": {
@@ -33,17 +41,18 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 1,
-    "total_units_covered": ["U-CAD-FIDX-HCAD-01"],
-    "estimated_parameter_total": 242,
+    "total_modules": 2,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02"],
+    "estimated_parameter_total": 456,
     "api_surface": {
-      "macro_api_items": 32,
-      "hypercad_workspace": "Sketcher"
+      "macro_api_items": 62,
+      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler"
     },
     "pdf_sources_bound": [
       "OPEN MIND hyperCAD-S User Manual",
       "OPEN MIND hyperCAD-S Macro Reference",
-      "hyperMILL Integration Reference"
+      "hyperMILL Integration Reference",
+      "hyperMILL Hole Feature Reference"
     ]
   },
   "tribal_knowledge_integration": {
@@ -64,12 +73,6 @@
     "macro_recording": true
   },
   "future_modules": [
-    {
-      "planned_id": "solid_operations",
-      "scope": "Solid creation primitives (box/cylinder/cone/sphere/torus/pipe/block), sweep features (extrude/revolve/sweep/loft/pipe-along-curve/helix), modify (fillet/chamfer/round/variable-round/shell/draft/hollow/thicken), Boolean (union/subtract/intersect/split-by-plane/split-by-surface/split-by-curve), pattern (linear/circular/path/sketch/mirror/variable), direct-edit (move-face/offset-face/push-pull/replace-face/delete-face/resize/edit), holes (simple/cbore/csink/tap/thread/custom), threading (internal/external/cosmetic/helical)",
-      "estimated_params": 260,
-      "deferred_to": "U-CAD-FIDX-HCAD-02"
-    },
     {
       "planned_id": "surface_operations",
       "scope": "Surface creation (Patch / Boundary / Coons / Network / Sweep / Loft / Revolve / Extrude / Plane / Ruled / Tabulated / Helical), modify (Trim / Extend / Untrim / Offset / Stitch / Unstitch / Reverse / Match / Blend / Surface-Fillet / Surface-Chamfer / Replace / Refit), conversion (Surface-to-Solid / Solid-to-Surface / Mesh-to-Surface)",

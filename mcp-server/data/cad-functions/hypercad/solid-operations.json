@@ -1,0 +1,716 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Solid Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S 3D Solid Modeler. hyperCAD-S blends parametric (history-based) modeling with direct-edit (history-free) workflows because hyperMILL operators frequently work with imported solids that lack history. Catalog covers: 6 primitive solids (Box / Cylinder / Cone / Sphere / Torus / Block), 6 sweep features (Extrude / Revolve / Sweep / Loft / Pipe-Along-Curve / Helix), 5 modify ops (Fillet / Chamfer / Shell / Draft / Thicken), 3 Boolean ops (Union / Subtract / Intersect), 4 pattern ops (Linear / Circular / Mirror / Path), 3 direct-edit ops (Move-Face / Push-Pull / Replace-Face), and 3 hole cycles (Simple / Counterbore / Tapped). Hole cycles align with hyperMILL hole-feature recognition for downstream toolpath generation.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-02",
+    "source": "OPEN MIND hyperCAD-S User Manual + Macro Reference, hyperMILL Hole Feature Reference",
+    "totalParameters": 214,
+    "operationCount": 30,
+    "cad_concepts_used": [
+      "PARAMETRIC_FEATURE",
+      "DIRECT_EDIT",
+      "BOOLEAN_OPERATION",
+      "FACE_DRAFT_ANGLE",
+      "VARIABLE_FILLET",
+      "SHELL_THICKNESS",
+      "SWEEP_GUIDE_RAIL",
+      "LOFT_TANGENCY",
+      "HELIX_PITCH",
+      "HOLE_FEATURE_TAXONOMY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S solid operations",
+    "tabs": ["Profile", "Geometry", "Direction", "Boolean", "Properties"]
+  },
+  "operations": {
+    "BOX": {
+      "description": "Axis-aligned or oriented box primitive defined by length / width / height. Origin placement: corner, center-base, or center-volume.",
+      "category": "Solid_Primitive",
+      "fusion_command": "n/a (hyperCAD-S macro: SOLID.PRIMITIVE.BOX)",
+      "python_api": "Solid.createBox",
+      "parameterCount": 9,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Origin Mode", "type": "dropdown", "options": ["corner", "center_base", "center_volume"], "default": "corner", "required": true},
+            {"name": "Origin Point", "type": "point3d", "description": "Reference point per Origin Mode", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "X-axis extent", "required": true, "min": 0.001},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Y-axis extent", "required": true, "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Z-axis extent", "required": true, "min": 0.001},
+            {"name": "Orientation Plane", "type": "selection", "description": "Reference plane for L/W axes (overrides world XY)"}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection", "description": "Required when Boolean Mode != new_body"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Body Name", "type": "text", "description": "Optional body name for tree visibility"}
+          ]
+        }
+      }
+    },
+    "CYLINDER": {
+      "description": "Cylinder primitive defined by axis, radius, and height. Supports diameter-driven dimensioning for hole-mating workflows.",
+      "category": "Solid_Primitive",
+      "fusion_command": "SOLID.PRIMITIVE.CYLINDER",
+      "python_api": "Solid.createCylinder",
+      "parameterCount": 9,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Base Center", "type": "point3d", "description": "Cylinder base center point", "required": true},
+            {"name": "Axis Direction", "type": "vector3d", "description": "Cylinder axis (defaults to +Z)", "required": true},
+            {"name": "Dimension Mode", "type": "dropdown", "options": ["radius", "diameter"], "default": "radius"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Cylinder radius (Dimension Mode = radius)", "min": 0.001},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "description": "Cylinder diameter (Dimension Mode = diameter)", "min": 0.002},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Cylinder length along axis", "required": true, "min": 0.001},
+            {"name": "Symmetric About Base", "type": "checkbox", "description": "Extrude equally on both sides of base plane", "default": false}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "CONE": {
+      "description": "Cone or truncated cone primitive. Set top radius = 0 for full cone, or non-zero for frustum. Half-angle drives draft for casting workflows.",
+      "category": "Solid_Primitive",
+      "fusion_command": "SOLID.PRIMITIVE.CONE",
+      "python_api": "Solid.createCone",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Base Center", "type": "point3d", "required": true},
+            {"name": "Axis Direction", "type": "vector3d", "default": "+Z"},
+            {"name": "Base Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Top Radius", "type": "numeric", "unit": "mm", "description": "Set 0 for full cone, >0 for frustum", "default": 0, "min": 0},
+            {"name": "Height", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Half Angle", "type": "numeric", "unit": "deg", "description": "Driven if Top Radius is set; or driving (overrides Top Radius)"}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "SPHERE": {
+      "description": "Sphere primitive defined by center and radius/diameter. Hemisphere cut option for dome features.",
+      "category": "Solid_Primitive",
+      "fusion_command": "SOLID.PRIMITIVE.SPHERE",
+      "python_api": "Solid.createSphere",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Center", "type": "point3d", "required": true},
+            {"name": "Dimension Mode", "type": "dropdown", "options": ["radius", "diameter"], "default": "radius"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "min": 0.002},
+            {"name": "Hemisphere Cut", "type": "checkbox", "description": "Cut sphere at equatorial plane to produce dome", "default": false}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"}
+          ]
+        }
+      }
+    },
+    "TORUS": {
+      "description": "Torus primitive defined by major/minor radius. Used for fillet-of-fillet and ring features.",
+      "category": "Solid_Primitive",
+      "fusion_command": "SOLID.PRIMITIVE.TORUS",
+      "python_api": "Solid.createTorus",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Center", "type": "point3d", "required": true},
+            {"name": "Axis Direction", "type": "vector3d", "default": "+Z"},
+            {"name": "Major Radius", "type": "numeric", "unit": "mm", "description": "Distance from torus center to tube center", "required": true, "min": 0.001},
+            {"name": "Minor Radius", "type": "numeric", "unit": "mm", "description": "Tube cross-section radius", "required": true, "min": 0.001},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "description": "Partial torus arc; 360 = full torus", "default": 360, "min": 1, "max": 360}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "BLOCK": {
+      "description": "Stock-block primitive sized to enclose selected geometry plus a uniform allowance. Common in hyperMILL stock setup workflows.",
+      "category": "Solid_Primitive",
+      "fusion_command": "SOLID.PRIMITIVE.BLOCK_FROM_BBOX",
+      "python_api": "Solid.createStockBlock",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Reference Geometry", "type": "selection_list", "description": "Bodies / surfaces / sketches whose bounding box drives the block", "required": true},
+            {"name": "Allowance Mode", "type": "dropdown", "options": ["uniform", "per_axis"], "default": "uniform"},
+            {"name": "Uniform Allowance", "type": "numeric", "unit": "mm", "description": "Stock allowance applied to all 6 faces", "default": 5, "min": 0},
+            {"name": "Allowance X", "type": "numeric", "unit": "mm", "description": "Per-axis X allowance (Allowance Mode = per_axis)"},
+            {"name": "Allowance Y", "type": "numeric", "unit": "mm", "description": "Per-axis Y allowance"},
+            {"name": "Allowance Z", "type": "numeric", "unit": "mm", "description": "Per-axis Z allowance"},
+            {"name": "Align To", "type": "dropdown", "options": ["world", "selection_orientation"], "default": "world"}
+          ]
+        }
+      }
+    },
+    "EXTRUDE": {
+      "description": "Linear sweep of a 2D profile to a solid (or surface, when profile is open). Supports symmetric / two-direction extrude with independent end conditions and tapered side faces.",
+      "category": "Solid_Sweep",
+      "fusion_command": "SOLID.FEATURE.EXTRUDE",
+      "python_api": "Solid.createExtrude",
+      "parameterCount": 12,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection_list", "description": "Closed profile(s) for solid extrude or open profile for surface", "required": true},
+            {"name": "Start Plane", "type": "selection", "description": "Override sketch plane as extrude start (default: sketch plane)"}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Direction Mode", "type": "dropdown", "options": ["one_side", "two_sides", "symmetric"], "default": "one_side", "required": true},
+            {"name": "Direction Vector", "type": "vector3d", "description": "Extrude direction (defaults to sketch normal)"},
+            {"name": "Flip Direction", "type": "checkbox", "default": false}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "End Condition Side 1", "type": "dropdown", "options": ["distance", "to_face", "through_all", "to_next", "to_object"], "default": "distance"},
+            {"name": "Distance Side 1", "type": "numeric", "unit": "mm", "description": "Extrude distance (End Condition = distance)"},
+            {"name": "End Condition Side 2", "type": "dropdown", "options": ["distance", "to_face", "through_all", "to_next", "to_object"], "default": "distance"},
+            {"name": "Distance Side 2", "type": "numeric", "unit": "mm", "description": "Side-2 distance (Direction Mode = two_sides)"},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "description": "Per-side draft angle on side faces; positive expands outward", "default": 0}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "REVOLVE": {
+      "description": "Revolve a 2D profile about an axis. Supports partial-angle revolve and full 360° revolve. Axis can be sketch line / construction line / linear edge / reference axis.",
+      "category": "Solid_Sweep",
+      "fusion_command": "SOLID.FEATURE.REVOLVE",
+      "python_api": "Solid.createRevolve",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection_list", "description": "Closed profile(s) on the revolve plane", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Revolve axis: sketch line / construction line / edge / reference axis", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Direction Mode", "type": "dropdown", "options": ["one_side", "two_sides", "symmetric"], "default": "one_side"},
+            {"name": "Angle Side 1", "type": "numeric", "unit": "deg", "description": "Revolve angle (negative reverses direction)", "default": 360, "min": -360, "max": 360},
+            {"name": "Angle Side 2", "type": "numeric", "unit": "deg", "description": "Side-2 angle (Direction Mode = two_sides)"},
+            {"name": "Flip Axis Direction", "type": "checkbox", "default": false}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "SWEEP": {
+      "description": "Sweep a profile along a guide path. Optional twist about path tangent. Supports keep-perpendicular vs keep-parallel sectioning.",
+      "category": "Solid_Sweep",
+      "fusion_command": "SOLID.FEATURE.SWEEP",
+      "python_api": "Solid.createSweep",
+      "parameterCount": 9,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection_list", "description": "Cross-section profile(s)", "required": true},
+            {"name": "Guide Path", "type": "selection", "description": "Sketch / edge chain / 3D curve along which the profile is swept", "required": true},
+            {"name": "Guide Rail", "type": "selection", "description": "Optional second rail to control orientation"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Section Orientation", "type": "dropdown", "options": ["keep_perpendicular_to_path", "keep_parallel_to_start", "guide_rail_driven"], "default": "keep_perpendicular_to_path"},
+            {"name": "Twist Angle", "type": "numeric", "unit": "deg", "description": "Total twist about path tangent (start to end)", "default": 0},
+            {"name": "Scale Factor", "type": "numeric", "description": "Profile scale at end of path (1.0 = no scaling)", "default": 1, "min": 0.001},
+            {"name": "Merge Faces", "type": "checkbox", "description": "Merge tangent faces along sweep", "default": true}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "LOFT": {
+      "description": "Loft (blend) a solid through 2 or more profile sections, optionally guided by rail curves. Supports tangency conditions at first / last section.",
+      "category": "Solid_Sweep",
+      "fusion_command": "SOLID.FEATURE.LOFT",
+      "python_api": "Solid.createLoft",
+      "parameterCount": 10,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Section Profiles", "type": "selection_list", "description": "Ordered list of 2+ profile sections", "required": true},
+            {"name": "Guide Rails", "type": "selection_list", "description": "Optional curves controlling cross-flow"},
+            {"name": "Centerline", "type": "selection", "description": "Optional centerline driving section orientation"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Start Tangency", "type": "dropdown", "options": ["none", "tangent_to_face", "perpendicular_to_face", "specify_vector"], "default": "none"},
+            {"name": "Start Tangent Magnitude", "type": "numeric", "description": "Tangent weight at first section", "default": 1, "min": 0.001},
+            {"name": "End Tangency", "type": "dropdown", "options": ["none", "tangent_to_face", "perpendicular_to_face", "specify_vector"], "default": "none"},
+            {"name": "End Tangent Magnitude", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "Closed Loft", "type": "checkbox", "description": "Connect last section back to first", "default": false}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "PIPE_ALONG_CURVE": {
+      "description": "Pipe with circular cross-section swept along a 3D curve. Specialized form of Sweep optimized for tubing / wiring / cooling-channel modeling.",
+      "category": "Solid_Sweep",
+      "fusion_command": "SOLID.FEATURE.PIPE",
+      "python_api": "Solid.createPipe",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Path Curve", "type": "selection", "description": "3D curve / edge chain / spline driving the pipe", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Outer Diameter", "type": "numeric", "unit": "mm", "description": "Pipe outer diameter", "required": true, "min": 0.001},
+            {"name": "Wall Thickness", "type": "numeric", "unit": "mm", "description": "Wall thickness; 0 = solid pipe", "default": 0, "min": 0},
+            {"name": "End Treatment Start", "type": "dropdown", "options": ["flat", "open", "capped"], "default": "flat"},
+            {"name": "End Treatment End", "type": "dropdown", "options": ["flat", "open", "capped"], "default": "flat"}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "HELIX": {
+      "description": "Helical solid sweep defined by axis / pitch / height. Used for screw threads, springs, augers, and cooling-channel helices in mold cores.",
+      "category": "Solid_Sweep",
+      "fusion_command": "SOLID.FEATURE.HELIX",
+      "python_api": "Solid.createHelix",
+      "parameterCount": 9,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Cross Section", "type": "selection", "description": "Profile sketch swept along helix path", "required": true},
+            {"name": "Helix Axis", "type": "selection", "description": "Axis line / edge / reference axis", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Pitch", "type": "numeric", "unit": "mm", "description": "Distance between successive turns along axis", "required": true, "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Total helix height (driving)", "min": 0.001},
+            {"name": "Revolutions", "type": "numeric", "description": "Total revolutions (alternate driver to Height)", "min": 0.001},
+            {"name": "Start Angle", "type": "numeric", "unit": "deg", "description": "Angular offset at helix start", "default": 0},
+            {"name": "Direction", "type": "dropdown", "options": ["right_hand", "left_hand"], "default": "right_hand"}
+          ]
+        },
+        "Boolean": {
+          "parameters": [
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Body", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "FILLET": {
+      "description": "Constant-radius or variable-radius fillet on selected edges. Supports edge-set, face-set, and chain selection. Setback control for corner cleanup.",
+      "category": "Solid_Modify",
+      "fusion_command": "SOLID.MODIFY.FILLET",
+      "python_api": "Solid.createFillet",
+      "parameterCount": 9,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Selection Mode", "type": "dropdown", "options": ["edge", "face", "chain", "all_tangent_edges"], "default": "edge"},
+            {"name": "Selected Entities", "type": "selection_list", "required": true},
+            {"name": "Fillet Type", "type": "dropdown", "options": ["constant", "variable", "full_round"], "default": "constant"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Constant fillet radius (Fillet Type = constant)", "min": 0.001},
+            {"name": "Variable Radius Map", "type": "table", "description": "Per-vertex radius assignments (Fillet Type = variable)"},
+            {"name": "Cross Section", "type": "dropdown", "options": ["circular", "conic", "g2_continuous"], "default": "circular"},
+            {"name": "Conic Rho", "type": "numeric", "description": "Conic shape factor (Cross Section = conic)", "min": 0.05, "max": 0.95, "default": 0.5},
+            {"name": "Setback Distance", "type": "numeric", "unit": "mm", "description": "Setback for cleaner 3-edge corners", "default": 0},
+            {"name": "Propagate Tangent", "type": "checkbox", "description": "Auto-extend along tangent edges", "default": true}
+          ]
+        }
+      }
+    },
+    "CHAMFER": {
+      "description": "Chamfer (broken edge) with equal-distance, two-distance, or distance-and-angle definition. Applied to edges, edge-sets, or chains.",
+      "category": "Solid_Modify",
+      "fusion_command": "SOLID.MODIFY.CHAMFER",
+      "python_api": "Solid.createChamfer",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Selected Edges", "type": "selection_list", "required": true},
+            {"name": "Chamfer Type", "type": "dropdown", "options": ["equal_distance", "two_distance", "distance_angle"], "default": "equal_distance"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "description": "Primary chamfer distance", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Second distance (Chamfer Type = two_distance)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Angle from primary face (Chamfer Type = distance_angle)"},
+            {"name": "Flip Reference Face", "type": "checkbox", "description": "Swap which face is reference for two_distance / distance_angle", "default": false},
+            {"name": "Propagate Tangent", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SHELL": {
+      "description": "Hollow a solid by removing one or more faces and offsetting the remaining shell to a target wall thickness. Supports per-face thickness override.",
+      "category": "Solid_Modify",
+      "fusion_command": "SOLID.MODIFY.SHELL",
+      "python_api": "Solid.createShell",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Faces to Remove", "type": "selection_list", "description": "Faces opened by the shell; may be empty for closed-shell hollow"},
+            {"name": "Default Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["inward", "outward", "symmetric"], "default": "inward"},
+            {"name": "Per-Face Overrides", "type": "table", "description": "Optional {face, thickness} pairs"},
+            {"name": "Tangent Continuity", "type": "checkbox", "description": "Maintain tangency across removed-face boundaries", "default": true}
+          ]
+        }
+      }
+    },
+    "DRAFT": {
+      "description": "Apply draft angle to faces relative to a neutral plane / parting plane. Used for cast / molded part DfM.",
+      "category": "Solid_Modify",
+      "fusion_command": "SOLID.MODIFY.DRAFT",
+      "python_api": "Solid.createDraft",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Draft Type", "type": "dropdown", "options": ["neutral_plane", "parting_line", "step_draft"], "default": "neutral_plane"},
+            {"name": "Neutral Plane", "type": "selection", "description": "Reference plane / face from which faces are drafted"},
+            {"name": "Parting Line", "type": "selection", "description": "Closed edge chain for parting_line / step_draft"},
+            {"name": "Faces to Draft", "type": "selection_list", "required": true},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "description": "Per-side draft angle; positive opens away from neutral", "required": true, "min": -89, "max": 89},
+            {"name": "Pull Direction", "type": "vector3d", "description": "Mold pull direction (defaults to neutral plane normal)"},
+            {"name": "Symmetric Two-Sided", "type": "checkbox", "description": "Apply equal-and-opposite drafts both sides of parting line", "default": false}
+          ]
+        }
+      }
+    },
+    "THICKEN": {
+      "description": "Thicken an open surface set into a solid body by offsetting normal to the surface. Common when converting imported surface bodies for hyperMILL machining.",
+      "category": "Solid_Modify",
+      "fusion_command": "SOLID.MODIFY.THICKEN",
+      "python_api": "Solid.createThicken",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Surfaces", "type": "selection_list", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["positive_normal", "negative_normal", "symmetric"], "default": "positive_normal"},
+            {"name": "Solidify Closed Set", "type": "checkbox", "description": "If surface set is closed, produce solid by enclosed volume instead of offset", "default": false},
+            {"name": "Boolean Mode", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "new_body"}
+          ]
+        }
+      }
+    },
+    "BOOLEAN_UNION": {
+      "description": "Boolean union (join) of 2+ bodies into a single body. Tool bodies are consumed.",
+      "category": "Solid_Boolean",
+      "fusion_command": "SOLID.BOOLEAN.UNION",
+      "python_api": "Solid.booleanUnion",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Tool Bodies", "type": "selection_list", "required": true},
+            {"name": "Keep Tools", "type": "checkbox", "description": "Preserve tool bodies after union", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Stitching tolerance for marginal contact", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "BOOLEAN_SUBTRACT": {
+      "description": "Boolean subtract (difference) — remove tool body volume from target body.",
+      "category": "Solid_Boolean",
+      "fusion_command": "SOLID.BOOLEAN.SUBTRACT",
+      "python_api": "Solid.booleanSubtract",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Tool Bodies", "type": "selection_list", "required": true},
+            {"name": "Keep Tools", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "BOOLEAN_INTERSECT": {
+      "description": "Boolean intersect — retain only the volume common to all selected bodies.",
+      "category": "Solid_Boolean",
+      "fusion_command": "SOLID.BOOLEAN.INTERSECT",
+      "python_api": "Solid.booleanIntersect",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Bodies", "type": "selection_list", "description": "2+ bodies whose intersection is retained", "required": true},
+            {"name": "Keep Originals", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001},
+            {"name": "Result Body Name", "type": "text"}
+          ]
+        }
+      }
+    },
+    "PATTERN_LINEAR": {
+      "description": "Linear (rectangular) pattern of features / bodies / faces along 1 or 2 directions.",
+      "category": "Solid_Pattern",
+      "fusion_command": "SOLID.PATTERN.LINEAR",
+      "python_api": "Solid.createLinearPattern",
+      "parameterCount": 9,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "description": "Features / bodies / faces to pattern", "required": true},
+            {"name": "Direction 1", "type": "selection", "description": "Edge / axis / vector for primary direction", "required": true},
+            {"name": "Spacing 1", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Count 1", "type": "numeric", "description": "Total instances along Direction 1 (incl. seed)", "required": true, "min": 1},
+            {"name": "Direction 2", "type": "selection", "description": "Optional second direction"},
+            {"name": "Spacing 2", "type": "numeric", "unit": "mm"},
+            {"name": "Count 2", "type": "numeric", "min": 1, "default": 1},
+            {"name": "Symmetric About Direction 1", "type": "checkbox", "default": false},
+            {"name": "Suppressed Instances", "type": "selection_list", "description": "Indices to skip in pattern grid"}
+          ]
+        }
+      }
+    },
+    "PATTERN_CIRCULAR": {
+      "description": "Circular pattern of features about an axis. Supports full-revolution or partial-arc layout.",
+      "category": "Solid_Pattern",
+      "fusion_command": "SOLID.PATTERN.CIRCULAR",
+      "python_api": "Solid.createCircularPattern",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Rotation axis: edge / sketch line / reference axis", "required": true},
+            {"name": "Count", "type": "numeric", "description": "Total instances incl. seed", "required": true, "min": 2},
+            {"name": "Angular Mode", "type": "dropdown", "options": ["full_circle", "total_angle", "increment_angle"], "default": "full_circle"},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "description": "Total spread (Angular Mode = total_angle)"},
+            {"name": "Increment Angle", "type": "numeric", "unit": "deg", "description": "Per-instance angle (Angular Mode = increment_angle)"},
+            {"name": "Symmetric", "type": "checkbox", "description": "Distribute equally on both sides of seed", "default": false}
+          ]
+        }
+      }
+    },
+    "PATTERN_MIRROR": {
+      "description": "Mirror features / bodies / faces about a plane. The mirrored copy retains parametric link to the source.",
+      "category": "Solid_Pattern",
+      "fusion_command": "SOLID.PATTERN.MIRROR",
+      "python_api": "Solid.createMirror",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Mirror Plane", "type": "selection", "description": "Origin plane / planar face / reference plane", "required": true},
+            {"name": "Merge with Source", "type": "checkbox", "description": "Join mirrored body to source instead of creating separate body", "default": true},
+            {"name": "Suppress Source", "type": "checkbox", "description": "Hide the original (rare; for symmetry-driven design)", "default": false}
+          ]
+        }
+      }
+    },
+    "PATTERN_PATH": {
+      "description": "Pattern features along an arbitrary curve / edge chain. Supports tangent-aligned or fixed-orientation instances.",
+      "category": "Solid_Pattern",
+      "fusion_command": "SOLID.PATTERN.PATH",
+      "python_api": "Solid.createPathPattern",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Path Curve", "type": "selection", "description": "Curve / edge chain along which instances distribute", "required": true},
+            {"name": "Count", "type": "numeric", "required": true, "min": 2},
+            {"name": "Spacing Mode", "type": "dropdown", "options": ["equal", "spacing_distance"], "default": "equal"},
+            {"name": "Spacing Distance", "type": "numeric", "unit": "mm", "description": "Arc-length between instances (Spacing Mode = spacing_distance)"},
+            {"name": "Orientation", "type": "dropdown", "options": ["tangent_to_path", "fixed_world", "fixed_to_seed"], "default": "tangent_to_path"}
+          ]
+        }
+      }
+    },
+    "MOVE_FACE": {
+      "description": "Direct-edit translate / rotate of selected faces. History-free; common with imported solids that lack feature tree.",
+      "category": "Solid_Direct_Edit",
+      "fusion_command": "SOLID.DIRECT.MOVE_FACE",
+      "python_api": "Solid.directMoveFace",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Selected Faces", "type": "selection_list", "required": true},
+            {"name": "Move Mode", "type": "dropdown", "options": ["translate", "rotate"], "default": "translate"},
+            {"name": "Translation Vector", "type": "vector3d", "description": "Translation direction & magnitude (Move Mode = translate)"},
+            {"name": "Rotation Axis", "type": "selection", "description": "Rotation axis (Move Mode = rotate)"},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "description": "Rotation angle (Move Mode = rotate)"},
+            {"name": "Maintain Tangency", "type": "checkbox", "description": "Re-extend adjacent faces to preserve tangency", "default": true}
+          ]
+        }
+      }
+    },
+    "PUSH_PULL": {
+      "description": "Direct-edit offset of selected face along its normal. Implicitly creates / removes material with adjacent face re-extension.",
+      "category": "Solid_Direct_Edit",
+      "fusion_command": "SOLID.DIRECT.PUSH_PULL",
+      "python_api": "Solid.directPushPull",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Selected Face", "type": "selection", "required": true},
+            {"name": "Offset Distance", "type": "numeric", "unit": "mm", "description": "Positive = pull (add material), negative = push (remove material)", "required": true},
+            {"name": "Direction Override", "type": "vector3d", "description": "Override face-normal direction"},
+            {"name": "Allow Topology Change", "type": "checkbox", "description": "Permit face counts to change (true) vs preserve topology (false)", "default": true},
+            {"name": "Maintain Tangency", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REPLACE_FACE": {
+      "description": "Direct-edit replace target face(s) with selected replacement surface / face. Used to substitute mating surfaces in imported geometry.",
+      "category": "Solid_Direct_Edit",
+      "fusion_command": "SOLID.DIRECT.REPLACE_FACE",
+      "python_api": "Solid.directReplaceFace",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Faces", "type": "selection_list", "description": "Faces to be replaced", "required": true},
+            {"name": "Replacement Surface", "type": "selection", "description": "Surface / face used as replacement", "required": true},
+            {"name": "Extend If Short", "type": "checkbox", "description": "Auto-extend replacement to fully cover target faces", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.01}
+          ]
+        }
+      }
+    },
+    "HOLE_SIMPLE": {
+      "description": "Simple cylindrical hole defined by diameter and depth. Drives downstream hole-feature recognition for hyperMILL drilling cycles.",
+      "category": "Solid_Hole",
+      "fusion_command": "SOLID.HOLE.SIMPLE",
+      "python_api": "Solid.createSimpleHole",
+      "parameterCount": 8,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Placement Sketch", "type": "selection", "description": "Sketch points / face center references for hole positions", "required": true},
+            {"name": "Hole Diameter", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Termination", "type": "dropdown", "options": ["distance", "through_all", "to_face"], "default": "distance"},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "description": "Hole depth (Termination = distance)"},
+            {"name": "Drill Point Angle", "type": "numeric", "unit": "deg", "description": "Drill point included angle for blind holes", "default": 118},
+            {"name": "Flat Bottom", "type": "checkbox", "description": "Force flat hole bottom (overrides Drill Point Angle)", "default": false},
+            {"name": "Direction", "type": "vector3d", "description": "Hole axis (defaults to face normal at placement)"},
+            {"name": "Hole Tolerance", "type": "text", "description": "Optional ISO 286 fit, e.g. H7"}
+          ]
+        }
+      }
+    },
+    "HOLE_CBORE": {
+      "description": "Counterbored hole — through hole + larger-diameter cylindrical recess. Standard for socket-head cap screws.",
+      "category": "Solid_Hole",
+      "fusion_command": "SOLID.HOLE.COUNTERBORE",
+      "python_api": "Solid.createCounterboreHole",
+      "parameterCount": 9,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Placement Sketch", "type": "selection", "required": true},
+            {"name": "Through Diameter", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Through Depth", "type": "numeric", "unit": "mm"},
+            {"name": "Counterbore Diameter", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Counterbore Depth", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Termination", "type": "dropdown", "options": ["distance", "through_all", "to_face"], "default": "through_all"},
+            {"name": "Drill Point Angle", "type": "numeric", "unit": "deg", "default": 118},
+            {"name": "Flat Bottom", "type": "checkbox", "default": false},
+            {"name": "Direction", "type": "vector3d"}
+          ]
+        }
+      }
+    },
+    "HOLE_TAP": {
+      "description": "Tapped hole — pilot hole + thread spec. Stores nominal thread designation so hyperMILL hole-feature recognition emits the matching tap cycle.",
+      "category": "Solid_Hole",
+      "fusion_command": "SOLID.HOLE.TAP",
+      "python_api": "Solid.createTappedHole",
+      "parameterCount": 9,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Placement Sketch", "type": "selection", "required": true},
+            {"name": "Thread Standard", "type": "dropdown", "options": ["ISO_metric", "UN_inch", "BSP", "NPT"], "default": "ISO_metric"},
+            {"name": "Thread Designation", "type": "text", "description": "Nominal designation, e.g. M8x1.25 / 5/16-18 / 1/4-NPT", "required": true},
+            {"name": "Thread Class", "type": "text", "description": "Optional fit class, e.g. 6H / 2B"},
+            {"name": "Thread Depth", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Drill Depth", "type": "numeric", "unit": "mm", "description": "Pilot drill depth (>= Thread Depth)"},
+            {"name": "Drill Point Angle", "type": "numeric", "unit": "deg", "default": 118},
+            {"name": "Modeled As", "type": "dropdown", "options": ["cosmetic", "true_helix"], "default": "cosmetic"},
+            {"name": "Direction", "type": "vector3d"}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "history_aware": "Sweep / pattern / fillet operations participate in the parametric history tree and can be edited / suppressed.",
+    "history_free": "Direct-edit operations (MOVE_FACE / PUSH_PULL / REPLACE_FACE) bypass history and are appropriate for imported (STEP / IGES / Parasolid) bodies.",
+    "hypermill_handoff": "HOLE_SIMPLE / HOLE_CBORE / HOLE_TAP write attributes consumed by hyperMILL feature-based-machining for automatic drill / tap cycle assignment."
+  }
+}
