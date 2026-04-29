@@ -1288,6 +1288,44 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE35: AlgorithmOrchestratorEngine — routes 8
+      // seeded algorithms (kienzle, taylor, sld, johnson_cook, monte_carlo,
+      // bayesian_opt, kalman, lqr) by category/domain/inputType. recommend()
+      // picks best by problemType+domain match with confidence + alternatives.
+      // All async methods await initialize() internally; getCount is sync.
+      // ─────────────────────────────────────────────────────────────────────
+      case "algo_orch_query": {
+        const { algorithmOrchestratorEngine } = await import("../../engines/AlgorithmOrchestratorEngine.js");
+        type Arg = Parameters<typeof algorithmOrchestratorEngine.query>[0];
+        const algorithms = await algorithmOrchestratorEngine.query(params as Arg);
+        result = { algorithms, count: algorithms.length };
+        break;
+      }
+      case "algo_orch_recommend": {
+        const { algorithmOrchestratorEngine } = await import("../../engines/AlgorithmOrchestratorEngine.js");
+        const p = params as { problemType: string; domain: string };
+        result = await algorithmOrchestratorEngine.recommend(p.problemType, p.domain);
+        break;
+      }
+      case "algo_orch_get": {
+        const { algorithmOrchestratorEngine } = await import("../../engines/AlgorithmOrchestratorEngine.js");
+        const p = params as { id: string };
+        const algorithm = await algorithmOrchestratorEngine.getAlgorithm(p.id);
+        result = algorithm === null
+          ? { algorithm: null, found: false }
+          : { algorithm, found: true };
+        break;
+      }
+      case "algo_orch_count": {
+        const { algorithmOrchestratorEngine } = await import("../../engines/AlgorithmOrchestratorEngine.js");
+        // Engine.getCount() is sync but reflects post-init state. Force initialize
+        // so callers always see the seeded count rather than 0 on a cold instance.
+        await algorithmOrchestratorEngine.initialize();
+        result = { count: algorithmOrchestratorEngine.getCount() };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

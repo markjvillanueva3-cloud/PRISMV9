@@ -135,6 +135,11 @@ export const AI_REASONING_ACTIONS = [
   "jmdie_get_pattern",         // U-WIRE34 → fetch a single pattern by id (null if missing)
   "jmdie_get_tips",            // U-WIRE34 → flat list of tribal tips, optionally filtered by machineType
   "jmdie_stats",               // U-WIRE34 → totalPrograms, extractedPatterns, byMachineType, byCategory aggregations
+  // ENGINE-WIRE-MS0/U-WIRE35: AlgorithmOrchestratorEngine — routes 8 seeded algorithms (kienzle, taylor, sld, johnson_cook, monte_carlo, bayesian_opt, kalman, lqr)
+  "algo_orch_query",           // U-WIRE35 → filter algorithms by category/domain/inputType, sliced to limit
+  "algo_orch_recommend",       // U-WIRE35 → recommend best algorithm by problemType+domain with alternatives
+  "algo_orch_get",             // U-WIRE35 → fetch a single algorithm spec by id (null if missing)
+  "algo_orch_count",           // U-WIRE35 → count of currently-loaded algorithms (sync, no await)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1207,4 +1212,27 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
       .describe("Optional machine-type filter for the flattened tip list"),
   }).passthrough(),
   jmdie_stats: z.object({}).passthrough(),
+  // U-WIRE35 — AlgorithmOrchestratorEngine
+  // Engine seeds 8 algorithms lazily; categories drawn from seeded specs:
+  //   force | life | stability | material | stochastic | optimization | estimation | control
+  // domain accepts any string so callers can pass machine domains the engine
+  // doesn't know about (filter then returns empty rather than throwing).
+  algo_orch_query: z.object({
+    category: z.enum(["force", "life", "stability", "material", "stochastic", "optimization", "estimation", "control"]).optional()
+      .describe("Filter by algorithm category; matches seeded specs"),
+    domain: z.string().min(1).optional()
+      .describe("Filter by domain (e.g. 'lathe', 'mill', 'wedm'); 'all' is matched as a wildcard"),
+    inputType: z.string().min(1).optional()
+      .describe("Filter by required input type (e.g. 'cutting_params', 'modal_params')"),
+    limit: z.number().int().min(1).max(1000).optional()
+      .describe("Cap returned results; default 50 inside engine"),
+  }).passthrough(),
+  algo_orch_recommend: z.object({
+    problemType: z.string().min(1).describe("Problem category to match against algorithm.category"),
+    domain: z.string().min(1).describe("Domain to filter applicable algorithms (e.g. 'mill', 'lathe')"),
+  }).passthrough(),
+  algo_orch_get: z.object({
+    id: z.string().min(1).describe("Algorithm id (e.g. 'kienzle', 'taylor', 'kalman'); returns null when missing"),
+  }).passthrough(),
+  algo_orch_count: z.object({}).passthrough(),
 };
