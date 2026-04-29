@@ -2,16 +2,18 @@
  * HyperCADCADFunctionIndexEngine — CAD-side parity to Fusion360FunctionIndexEngine.
  *
  * Loads the hyperCAD-S (OPEN MIND CAM-oriented CAD) operation catalog under
- * `data/cad-functions/fusion360/` and exposes typed lookups for AI orchestration:
- * sketch operations, feature operations, modify ops, surface ops.
+ * `data/cad-functions/hypercad/` and exposes typed lookups for AI orchestration:
+ * sketch operations, solid operations, and (planned) surface / healing / mesh /
+ * assembly / drawing / datum modules.
  *
  * This engine is pure: lazy JSON load + in-process cache, no I/O beyond initial
  * read, no state mutation, no dispatcher imports.
  *
- * Coverage: U-CAD-FIDX-FUS-01 (sketch operations foundation).
+ * Coverage: U-CAD-FIDX-HCAD-01 (sketch_operations) + U-CAD-FIDX-HCAD-02
+ * (solid_operations).
  *
- * @see data/cad-functions/fusion360/function-index.json
- * @see Fusion360FunctionIndexEngine (CAM-side analog)
+ * @see data/cad-functions/hypercad/function-index.json
+ * @see Fusion360FunctionIndexEngine (sister CAD function-index for Fusion 360)
  */
 
 import { readFileSync, existsSync } from "node:fs";
