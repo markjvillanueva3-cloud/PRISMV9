@@ -1666,6 +1666,75 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE44: SimulationStallDetectorEngine - tracks
+      // simulation-pipeline jobs through 5 stages (gcode_parse, kinematics,
+      // collision_check, physics_validate, finalize) with per-stage stall
+      // budgets. Same lifecycle as U-WIRE43 but for sim domain.
+      // ─────────────────────────────────────────────────────────────────────
+      case "sim_stall_start_tracking": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        type StageArg = Parameters<typeof simulationStallDetectorEngine.startTracking>[1];
+        const p = params as { job_id: string; stage: StageArg; now_ms: number; context?: Record<string, unknown> };
+        simulationStallDetectorEngine.startTracking(p.job_id, p.stage, p.now_ms, p.context ?? {});
+        result = { ok: true, job_id: p.job_id, stage: p.stage };
+        break;
+      }
+      case "sim_stall_mark_progress": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        const p = params as { job_id: string; now_ms: number };
+        simulationStallDetectorEngine.markProgress(p.job_id, p.now_ms);
+        result = { ok: true, job_id: p.job_id };
+        break;
+      }
+      case "sim_stall_advance_stage": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        type StageArg = Parameters<typeof simulationStallDetectorEngine.advanceStage>[1];
+        const p = params as { job_id: string; from_stage: StageArg; to_stage: StageArg; now_ms: number };
+        simulationStallDetectorEngine.advanceStage(p.job_id, p.from_stage, p.to_stage, p.now_ms);
+        result = { ok: true, job_id: p.job_id, from: p.from_stage, to: p.to_stage };
+        break;
+      }
+      case "sim_stall_complete_job": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        const p = params as { job_id: string };
+        const removed = simulationStallDetectorEngine.completeJob(p.job_id);
+        result = { removed, job_id: p.job_id };
+        break;
+      }
+      case "sim_stall_scan": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        const p = params as { now_ms: number };
+        const events = simulationStallDetectorEngine.scan(p.now_ms);
+        result = { events, count: events.length };
+        break;
+      }
+      case "sim_stall_scan_one": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        const p = params as { job_id: string; now_ms: number };
+        const event = simulationStallDetectorEngine.scanOne(p.job_id, p.now_ms);
+        result = event === undefined
+          ? { event: null, stalled: false, job_id: p.job_id }
+          : { event, stalled: true };
+        break;
+      }
+      case "sim_stall_stats": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        const p = params as { now_ms?: number };
+        const stats = p.now_ms !== undefined
+          ? simulationStallDetectorEngine.statsAt(p.now_ms)
+          : simulationStallDetectorEngine.stats();
+        const trackedIds = simulationStallDetectorEngine.trackedIds();
+        result = { ...stats, tracked_ids: trackedIds };
+        break;
+      }
+      case "sim_stall_clear": {
+        const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+        simulationStallDetectorEngine.clear();
+        result = { ok: true, cleared: true };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
