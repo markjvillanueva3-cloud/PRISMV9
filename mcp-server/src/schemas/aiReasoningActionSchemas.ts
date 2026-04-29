@@ -116,6 +116,11 @@ export const AI_REASONING_ACTIONS = [
   "proactive_classify",        // U-WIRE30 → classify a trigger (priority + reason)
   "proactive_quality_report",  // U-WIRE30 → knowledge-quality monitor report
   "proactive_stats",           // U-WIRE30 → categorization stats
+  // ENGINE-WIRE-MS0/U-WIRE31: ExceptionLearningEngine — turn exceptions into knowledge
+  "exception_handle",          // U-WIRE31 → capture an unexpected event, return analysis + suggestedActions
+  "exception_record_outcome",  // U-WIRE31 → finalize event outcome; success generates tribal tip + envelope proposal
+  "exception_pending",         // U-WIRE31 → list captured events not yet recorded
+  "exception_stats",           // U-WIRE31 → totalEvents, learnedCount, successRate, tipsGenerated, proposalsGenerated
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1088,4 +1093,26 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   }).passthrough(),
   proactive_quality_report: z.object({}).passthrough(),
   proactive_stats: z.object({}).passthrough(),
+  // U-WIRE31 — ExceptionLearningEngine
+  // handleUnexpected accepts an event sans id/timestamp (engine assigns both).
+  // The four `type` values map to engine analysis branches; severity gates the
+  // shouldFail return (critical without prior similar success → shouldFail).
+  exception_handle: z.object({
+    type: z.enum(["parameter_outlier", "outcome_anomaly", "process_deviation", "measurement_spike"])
+      .describe("Exception category that selects the analysis template"),
+    description: z.string().min(1).describe("Human-readable description of what happened"),
+    context: z.record(z.string(), z.unknown())
+      .describe("Free-form contextual metadata (machine, op, material, operator, …)"),
+    data: z.record(z.string(), z.union([z.number(), z.string()]))
+      .describe("Numeric/string measurements; for parameter_outlier include {parameter, value} to enable envelope proposals"),
+    severity: z.enum(["info", "warning", "critical"])
+      .describe("'critical' triggers shouldFail unless a similar exception has previously succeeded"),
+  }).passthrough(),
+  exception_record_outcome: z.object({
+    eventId: z.string().min(1).describe("Event id returned by exception_handle (e.g. 'EX-7'); unknown id returns null"),
+    outcome: z.enum(["success", "failure", "neutral"])
+      .describe("'success' generates a tribal tip and (for parameter_outlier with data.value) an envelope proposal"),
+  }).passthrough(),
+  exception_pending: z.object({}).passthrough(),
+  exception_stats: z.object({}).passthrough(),
 };
