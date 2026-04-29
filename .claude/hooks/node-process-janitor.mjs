@@ -94,10 +94,15 @@ Write-Output $killed
     const psFile = join(tmpdir(), `prism-janitor-${process.pid}-${Date.now()}.ps1`);
     writeFileSync(psFile, psScript, "utf-8");
 
+    // Portable-node child shell PATH may not contain `powershell` — resolve
+    // it explicitly via SystemRoot so this janitor actually runs (was failing
+    // silently and reporting "complete" with no nodes killed).
+    const sysRoot = process.env.SystemRoot || process.env.SYSTEMROOT || "C:\\Windows";
+    const psExe = `${sysRoot}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`;
     let killed = "0";
     try {
       killed = execSync(
-        `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${psFile}"`,
+        `"${psExe}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${psFile}"`,
         { timeout: PS_TIMEOUT_MS, stdio: ["ignore", "pipe", "ignore"], windowsHide: true },
       ).toString().trim();
     } finally {
