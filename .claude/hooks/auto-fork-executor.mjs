@@ -31,6 +31,39 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { exit } from "node:process";
+import { fileURLToPath } from "node:url";
+
+// Audit-log helper invoked synchronously via the helper's CLI. Resolved
+// relative to this hook so it works in any worktree. A missing helper or a
+// failed write must never break the hook itself — every error is swallowed.
+const ARBITRATION_HELPER_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "helpers",
+  "arbitration-log.mjs",
+);
+const ARBITRATION_LOG_TIMEOUT_MS = 2000;
+function logArbitration(kind, details, ctx) {
+  try {
+    if (!fs.existsSync(ARBITRATION_HELPER_PATH)) return;
+    const args = [
+      ARBITRATION_HELPER_PATH,
+      "append",
+      "--kind",
+      kind,
+      "--details",
+      JSON.stringify(details ?? {}),
+    ];
+    if (ctx && ctx.sessionId) args.push("--session", ctx.sessionId);
+    spawnSync(process.execPath, args, {
+      timeout: ARBITRATION_LOG_TIMEOUT_MS,
+      stdio: ["ignore", "ignore", "ignore"],
+      windowsHide: true,
+    });
+  } catch {
+    // never let the audit log break the hook itself
+  }
+}
 
 // -- Constants ------------------------------------------------------------
 
@@ -354,6 +387,22 @@ const lines = [
   `Auto-fork puts you on your own branch so this commit lands without`,
   `racing peers. Set PRISM_AUTO_FORK=0 to disable this hook entirely.`,
 ].filter(Boolean);
+
+// Audit-log the fork before emitting block. P5-U04 surfaces this in the
+// per-agent handoff so we can see how often the rails actually fire.
+logArbitration(
+  "auto-fork",
+  {
+    scope,
+    newWorktree: fork.newPath,
+    newBranch: fork.branch,
+    stashed,
+    stashKey: stashed ? stashKey : null,
+    originalCommitSubject: subject,
+    originalCwd: process.cwd(),
+  },
+  { sessionId },
+);
 
 console.log(
   JSON.stringify({

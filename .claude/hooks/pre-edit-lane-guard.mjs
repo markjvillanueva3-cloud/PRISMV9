@@ -36,6 +36,37 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+// Audit log invoked sync via helper CLI; failure swallowed. P5-U04.
+const ARBITRATION_HELPER_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "helpers",
+  "arbitration-log.mjs",
+);
+const ARBITRATION_LOG_TIMEOUT_MS = 2000;
+function logArbitration(kind, details, ctx) {
+  try {
+    if (!fs.existsSync(ARBITRATION_HELPER_PATH)) return;
+    const args = [
+      ARBITRATION_HELPER_PATH,
+      "append",
+      "--kind",
+      kind,
+      "--details",
+      JSON.stringify(details ?? {}),
+    ];
+    if (ctx && ctx.sessionId) args.push("--session", ctx.sessionId);
+    spawnSync(process.execPath, args, {
+      timeout: ARBITRATION_LOG_TIMEOUT_MS,
+      stdio: ["ignore", "ignore", "ignore"],
+      windowsHide: true,
+    });
+  } catch {
+    // never let logging break the hook
+  }
+}
 
 // Default chat-bus root mirrors chat-bus-inject.mjs. Tests can override via
 // the PRISM_CHAT_BUS_CLAIMS_DIR env var to run against a hermetic tmpdir
@@ -202,6 +233,20 @@ function main() {
     `before retrying. Stale claims should be rare — verify with`,
     `  prism_context action chat_post  channel=general  message="checking who owns ${path.basename(filePath)}"`,
   ].filter(Boolean);
+
+  // Audit-log the block before emitting, so the per-agent handoff can show
+  // how often this rail fires. P5-U04.
+  logArbitration(
+    "lane-block",
+    {
+      targetFile: filePath,
+      claimedBy: conflictingClaim.sessionId,
+      claimedOn: conflictingClaim.pcName || "?",
+      tool,
+      suggestedFork: { worktreePath, branch },
+    },
+    { sessionId: me },
+  );
 
   emitBlock(lines.join("\n"));
 }

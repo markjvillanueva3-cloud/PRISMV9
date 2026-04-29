@@ -28,7 +28,39 @@
  * Opt-out: PRISM_DIRECTIVE_WARN=0 disables the hook.
  */
 import fs from "node:fs";
+import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+// Audit log invoked sync via helper CLI; failure swallowed. P5-U04.
+const ARBITRATION_HELPER_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "helpers",
+  "arbitration-log.mjs",
+);
+const ARBITRATION_LOG_TIMEOUT_MS = 2000;
+function logArbitration(kind, details, ctx) {
+  try {
+    if (!fs.existsSync(ARBITRATION_HELPER_PATH)) return;
+    const args = [
+      ARBITRATION_HELPER_PATH,
+      "append",
+      "--kind",
+      kind,
+      "--details",
+      JSON.stringify(details ?? {}),
+    ];
+    if (ctx && ctx.sessionId) args.push("--session", ctx.sessionId);
+    spawnSync(process.execPath, args, {
+      timeout: ARBITRATION_LOG_TIMEOUT_MS,
+      stdio: ["ignore", "ignore", "ignore"],
+      windowsHide: true,
+    });
+  } catch {
+    // never let logging break the hook
+  }
+}
 
 const STABLE_ID_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
 const STABLE_ID_TIMEOUT_MS = 1500;
@@ -186,6 +218,17 @@ function main() {
     emitContinue();
     return;
   }
+
+  // Audit-log the warn before emitting. P5-U04 surfaces this in the handoff.
+  logArbitration(
+    "directive-warn",
+    {
+      directiveCount: hits.length,
+      targets: Array.from(new Set(hits.map((h) => h.targeted))).slice(0, 5),
+      sampleSnippet: hits[0].snippet.slice(0, 120),
+    },
+    { sessionId: ownId },
+  );
 
   emitContinueWithContext(buildWarning(hits, ownId));
 }
