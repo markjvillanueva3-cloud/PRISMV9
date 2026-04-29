@@ -37,6 +37,14 @@
       "parameter_count_estimate": 74,
       "description": "Surface modeling: gap-filling (Patch), connectivity (Stitch / Unstitch), boundary modification (Trim Surface / Extend Surface), normal correction (Reverse Normal), offset (Offset Surface), and surface-to-solid conversion (Thicken). Boundary Fill lives in feature_operations to avoid duplication. 8 operations.",
       "dependencies": ["feature_operations"]
+    },
+    {
+      "module_id": "mesh_operations",
+      "path": "cad-functions/fusion360/mesh-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-05"],
+      "parameter_count_estimate": 66,
+      "description": "Mesh modeling: import (Insert Mesh from OBJ/STL/3MF), conversion (Convert to BRep), decimation (Reduce — count/percentage/deviation modes), smoothing (Smooth — Laplacian + Taubin λ-μ), healing (Repair — fill holes / fix non-manifold / merge duplicates), splitting (Plane Cut), local edits (Erase and Fill). 7 operations.",
+      "dependencies": ["surface_operations"]
     }
   ],
   "global_cross_references": {
@@ -72,11 +80,11 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 4,
-    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02", "U-CAD-FIDX-FUS-03", "U-CAD-FIDX-FUS-04"],
-    "estimated_parameter_total": 496,
+    "total_modules": 5,
+    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02", "U-CAD-FIDX-FUS-03", "U-CAD-FIDX-FUS-04", "U-CAD-FIDX-FUS-05"],
+    "estimated_parameter_total": 562,
     "api_surface": {
-      "python_api_items": 57,
+      "python_api_items": 64,
       "fusion_design_workspace": true
     },
     "pdf_sources_bound": [
@@ -104,12 +112,6 @@
     "render_workspace": false
   },
   "future_modules": [
-    {
-      "planned_id": "mesh_operations",
-      "scope": "Insert Mesh, Convert to BRep, Reduce, Smooth, Repair, Plane Cut, Erase and Fill",
-      "estimated_params": 70,
-      "deferred_to": "U-CAD-FIDX-FUS-05"
-    },
     {
       "planned_id": "assembly_operations",
       "scope": "Joint, As-Built Joint, Rigid Group, Component Operations, Drive Joints, Motion Study",
