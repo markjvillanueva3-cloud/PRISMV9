@@ -45,6 +45,14 @@
       "parameter_count_estimate": 66,
       "description": "Mesh modeling: import (Insert Mesh from OBJ/STL/3MF), conversion (Convert to BRep), decimation (Reduce — count/percentage/deviation modes), smoothing (Smooth — Laplacian + Taubin λ-μ), healing (Repair — fill holes / fix non-manifold / merge duplicates), splitting (Plane Cut), local edits (Erase and Fill). 7 operations.",
       "dependencies": ["surface_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/fusion360/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-06"],
+      "parameter_count_estimate": 112,
+      "description": "Assembly modeling: kinematic Joint (7 motion types: rigid/revolute/slider/cylindrical/pin_slot/planar/ball), As-Built Joint (from current geometry), Rigid Group (lock components together), Component From Bodies, Component Insert (copy or derive), Component Ground, Motion Link (gear/rack/leadscrew ratios), Drive Joints (kinematic animation), Motion Study (keyframe + dynamic simulation with gravity/friction/contact), Contact Set (collision pairs). 10 operations.",
+      "dependencies": ["mesh_operations"]
     }
   ],
   "global_cross_references": {
@@ -80,12 +88,13 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 5,
-    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02", "U-CAD-FIDX-FUS-03", "U-CAD-FIDX-FUS-04", "U-CAD-FIDX-FUS-05"],
-    "estimated_parameter_total": 562,
+    "total_modules": 6,
+    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02", "U-CAD-FIDX-FUS-03", "U-CAD-FIDX-FUS-04", "U-CAD-FIDX-FUS-05", "U-CAD-FIDX-FUS-06"],
+    "estimated_parameter_total": 674,
     "api_surface": {
-      "python_api_items": 64,
-      "fusion_design_workspace": true
+      "python_api_items": 74,
+      "fusion_design_workspace": true,
+      "fusion_animation_workspace": true
     },
     "pdf_sources_bound": [
       "Autodesk Fusion 360 Design Fundamentals.pdf",
@@ -111,12 +120,5 @@
     "sheet_metal_workspace": false,
     "render_workspace": false
   },
-  "future_modules": [
-    {
-      "planned_id": "assembly_operations",
-      "scope": "Joint, As-Built Joint, Rigid Group, Component Operations, Drive Joints, Motion Study",
-      "estimated_params": 130,
-      "deferred_to": "U-CAD-FIDX-FUS-06"
-    }
-  ]
+  "future_modules": []
 }

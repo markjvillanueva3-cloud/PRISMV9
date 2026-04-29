@@ -1,0 +1,396 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Assembly Operations - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 Design workspace assembly operations: kinematic joints (7 motion types), rigid groups, component creation/insertion/grounding, motion linking, joint driving, motion studies (keyframe animation + dynamic simulation), and contact sets. Aligns with Autodesk Fusion 360 Python API Joints + Components surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-FUS-06",
+    "source": "Autodesk Fusion 360 Help — Design workspace > Assemble panel + Animation workspace + Python API Joints/AsBuiltJoints/Components/Occurrences reference",
+    "totalParameters": 112,
+    "operationCount": 10,
+    "cad_concepts_used": [
+      "KINEMATIC_DOF",
+      "JOINT_ORIGIN_ALIGNMENT",
+      "REVOLUTE_PRISMATIC_CYLINDRICAL",
+      "PIN_SLOT_JOINT",
+      "PLANAR_BALL_JOINT",
+      "MOTION_LIMIT",
+      "GEAR_RATIO_LINK",
+      "RIGID_GROUP",
+      "GROUND_COMPONENT",
+      "MOTION_STUDY_KEYFRAME",
+      "CONTACT_SET"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs for assembly operations",
+    "tabs": ["Selection", "Configuration", "Motion", "Operation", "Properties"]
+  },
+  "operations": {
+    "JOINT": {
+      "description": "Defines kinematic relationship between two components by snapping a joint origin on each. 7 motion types: rigid (0 DoF), revolute (1 rotational), slider (1 translational), cylindrical (1 rot + 1 trans), pin-slot (1 rot + 1 trans on slot), planar (3 DoF in plane), ball (3 rotational). Joints support motion limits and animation drive.",
+      "category": "Joint",
+      "fusion_command": "Joint",
+      "python_api": "rootComp.joints.add | jointInputs",
+      "parameterCount": 20,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Component 1 Joint Origin", "type": "selection", "description": "Joint origin on first (mobile) component", "required": true},
+            {"name": "Component 2 Joint Origin", "type": "selection", "description": "Joint origin on second (target) component", "required": true},
+            {"name": "Snap Mode", "type": "dropdown", "description": "How origins are aligned during preview", "options": ["between_two_faces", "between_two_edges", "between_two_points", "manual"], "default": "between_two_faces"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Motion Type", "type": "dropdown", "options": ["rigid", "revolute", "slider", "cylindrical", "pin_slot", "planar", "ball"], "required": true, "default": "rigid"},
+            {"name": "Rotation Axis", "type": "dropdown", "description": "Local axis (revolute / cylindrical)", "options": ["x", "y", "z", "custom"], "default": "z"},
+            {"name": "Custom Rotation Vector", "type": "vector3", "description": "Custom axis when rotation_axis = custom"},
+            {"name": "Slide Axis", "type": "dropdown", "description": "Local axis (slider / cylindrical / pin_slot)", "options": ["x", "y", "z", "custom"], "default": "x"},
+            {"name": "Custom Slide Vector", "type": "vector3"},
+            {"name": "Plane Normal", "type": "vector3", "description": "Plane normal (planar joint)"},
+            {"name": "Flip", "type": "checkbox", "description": "Reverse joint origin alignment", "default": false}
+          ]
+        },
+        "Motion": {
+          "parameters": [
+            {"name": "Min Rotation Limit", "type": "numeric", "unit": "deg", "description": "Lower bound on rotational DoF (revolute/cyl/pin_slot/ball)"},
+            {"name": "Max Rotation Limit", "type": "numeric", "unit": "deg"},
+            {"name": "Min Translation Limit", "type": "numeric", "unit": "mm", "description": "Lower bound on translational DoF (slider/cyl/pin_slot/planar)"},
+            {"name": "Max Translation Limit", "type": "numeric", "unit": "mm"},
+            {"name": "Rest Position", "type": "numeric", "description": "Joint position at design rest state (units depend on motion type)"},
+            {"name": "Animate Range", "type": "checkbox", "description": "Show range-of-motion preview in Animation workspace", "default": true}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Suppress at Capture Position", "type": "checkbox", "description": "Auto-suppress joint when in capture position (rare — for kinematic puzzles)", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Joint Name", "type": "string", "description": "User-facing label in browser tree"},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "AS_BUILT_JOINT": {
+      "description": "Defines a joint from the components' current geometric state without requiring joint origins. The relative pose at creation becomes the rest position. Supports the same 7 motion types as Joint. Faster for assemblies imported from other CAD where joint origins were never defined.",
+      "category": "Joint",
+      "fusion_command": "AsBuiltJoint",
+      "python_api": "rootComp.asBuiltJoints.add | asBuiltJointInputs",
+      "parameterCount": 13,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Component 1", "type": "selection", "description": "First component (typically mobile)", "required": true},
+            {"name": "Component 2", "type": "selection", "description": "Second component (typically grounded or parent)", "required": true},
+            {"name": "Geometry Reference", "type": "selection", "description": "Optional axis / point / face for orientation reference"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Motion Type", "type": "dropdown", "options": ["rigid", "revolute", "slider", "cylindrical", "pin_slot", "planar", "ball"], "required": true},
+            {"name": "Rotation Axis", "type": "dropdown", "options": ["x", "y", "z", "custom"], "default": "z"},
+            {"name": "Custom Rotation Vector", "type": "vector3"},
+            {"name": "Slide Axis", "type": "dropdown", "options": ["x", "y", "z", "custom"], "default": "x"}
+          ]
+        },
+        "Motion": {
+          "parameters": [
+            {"name": "Min Limit", "type": "numeric", "description": "Lower motion bound (units depend on motion type)"},
+            {"name": "Max Limit", "type": "numeric"},
+            {"name": "Rest Position", "type": "numeric", "default": 0}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Joint Name", "type": "string"},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "RIGID_GROUP": {
+      "description": "Locks 2+ components together so they move as a single rigid body. Faster than creating rigid joints between every pair. Common for stationary subassemblies in a moving assembly.",
+      "category": "Joint",
+      "fusion_command": "RigidGroup",
+      "python_api": "rootComp.rigidGroups.add | rigidGroupInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Components", "type": "selection_list", "description": "Components to lock together", "required": true, "min": 2}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Include Child Components", "type": "checkbox", "description": "Auto-include sub-components of selected", "default": true},
+            {"name": "Capture at Current Position", "type": "checkbox", "description": "Lock at current pose (vs design rest)", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Group Name", "type": "string"},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Computed Mass", "type": "numeric", "unit": "kg", "description": "Read-only — sum of member masses"},
+            {"name": "Computed Volume", "type": "numeric", "unit": "mm^3", "description": "Read-only — sum of member volumes"}
+          ]
+        }
+      }
+    },
+    "COMPONENT_FROM_BODIES": {
+      "description": "Converts one or more bodies into a new component, optionally with a generated joint origin. Components are the unit of assembly motion — bodies are not. Critical for converting parametric models into assemblies.",
+      "category": "Component_Create",
+      "fusion_command": "CreateComponentFromBodies",
+      "python_api": "rootComp.occurrences.addNewComponent + rootComp.bRepBodies.move",
+      "parameterCount": 9,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Bodies", "type": "selection_list", "description": "Bodies to wrap in a component", "required": true},
+            {"name": "Component Origin", "type": "selection", "description": "Optional point to use as new component's origin"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Component Name", "type": "string", "required": true},
+            {"name": "Component Description", "type": "string"},
+            {"name": "Auto-Create Joint Origin", "type": "checkbox", "description": "Add a joint origin at component origin", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_component", "merge_into_parent"], "default": "new_component"},
+            {"name": "Activate New Component", "type": "checkbox", "description": "Switch active context to the new component", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "COMPONENT_INSERT": {
+      "description": "Inserts an external component (from another Fusion design or Library) as an occurrence. Optionally derives the component (links to source — propagates updates). Supports placement at a sketch point or origin.",
+      "category": "Component_Create",
+      "fusion_command": "InsertComponent",
+      "python_api": "rootComp.occurrences.addByInsert | dataFile",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Source", "type": "dropdown", "options": ["library", "fusion_team_project", "local_design"], "default": "library"},
+            {"name": "Library Path", "type": "string", "description": "Library/project component path"},
+            {"name": "Local File Path", "type": "string", "description": "Local-design source path"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Insertion Mode", "type": "dropdown", "options": ["copy", "derive"], "default": "copy"},
+            {"name": "Quantity", "type": "integer", "description": "Number of occurrences to create", "default": 1, "min": 1, "max": 100},
+            {"name": "Placement Point", "type": "selection", "description": "Optional anchor point"},
+            {"name": "Initial Orientation", "type": "vector3", "description": "Euler XYZ rotation (deg)"},
+            {"name": "Auto-Ground", "type": "checkbox", "description": "Lock as grounded after placement", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Activate Inserted Component", "type": "checkbox", "default": false},
+            {"name": "Refresh Linked Source", "type": "checkbox", "description": "Pull latest from source (derive mode)", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "COMPONENT_GROUND": {
+      "description": "Locks a component as immobile in the assembly. The grounded component is the assembly's reference frame — all joint positions are relative to it. Typically applied to the chassis / base / housing.",
+      "category": "Component_Modify",
+      "fusion_command": "Ground",
+      "python_api": "occurrence.isGrounded = true",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Component", "type": "selection", "description": "Component to ground / un-ground", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Action", "type": "dropdown", "options": ["ground", "unground", "toggle"], "default": "ground"},
+            {"name": "Apply to Children", "type": "checkbox", "description": "Recurse into sub-components", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Show Anchor Icon", "type": "checkbox", "description": "Display the anchor glyph in the canvas", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MOTION_LINK": {
+      "description": "Constrains the motion of two joints by a fixed ratio. Common uses: gear pairs (rotation:rotation), rack and pinion (rotation:translation), pulley/belt drives, leadscrew (rotation:translation with helical advance).",
+      "category": "Motion",
+      "fusion_command": "MotionLink",
+      "python_api": "rootComp.motionLinks.add | motionLinkInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Driver Joint", "type": "selection", "description": "Joint whose motion drives the link", "required": true},
+            {"name": "Driven Joint", "type": "selection", "description": "Joint that follows", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Ratio Type", "type": "dropdown", "options": ["gear_ratio", "linear_ratio", "rack_pinion", "leadscrew"], "default": "gear_ratio"},
+            {"name": "Driver Value", "type": "numeric", "description": "Driver magnitude (1 turn / 1 mm / etc)", "default": 1},
+            {"name": "Driven Value", "type": "numeric", "description": "Driven magnitude", "default": 1},
+            {"name": "Reverse Direction", "type": "checkbox", "description": "Driven moves opposite of driver", "default": false},
+            {"name": "Leadscrew Pitch", "type": "numeric", "unit": "mm", "description": "Helical advance per revolution (leadscrew mode)"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Link Name", "type": "string"},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "DRIVE_JOINTS": {
+      "description": "Sets a target joint position and animates from current to target over a sequence of frames. Used for kinematic visualization — does not run dynamic simulation. Multiple joints can be driven simultaneously.",
+      "category": "Motion",
+      "fusion_command": "DriveJoints",
+      "python_api": "joint.jointMotion.rotationValue | translationValue",
+      "parameterCount": 9,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Target Joints", "type": "selection_list", "description": "Joints to drive", "required": true, "min": 1}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Target Positions", "type": "selection_pairs", "description": "[(joint_index, position_value)] target value per joint", "required": true},
+            {"name": "Frame Count", "type": "integer", "description": "Number of frames between rest and target", "default": 100, "min": 2, "max": 10000},
+            {"name": "Loop Mode", "type": "dropdown", "options": ["none", "ping_pong", "cycle"], "default": "none"},
+            {"name": "Easing", "type": "dropdown", "description": "Interpolation profile", "options": ["linear", "ease_in_out", "ease_in", "ease_out"], "default": "ease_in_out"},
+            {"name": "Capture as Keyframe", "type": "checkbox", "description": "Save as keyframe in active Motion Study", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["preview", "execute", "reset_to_rest"], "default": "preview"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MOTION_STUDY": {
+      "description": "Animation timeline for joint-driven motion + (with simulation enabled) dynamic physics: gravity, contact, friction. Keyframes capture joint positions at discrete times. Output: AVI/MP4 video render or screenshot at any frame.",
+      "category": "Motion",
+      "fusion_command": "MotionStudy",
+      "python_api": "design.motionStudies.add | motionStudyInput",
+      "parameterCount": 17,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Joints to Animate", "type": "selection_list", "description": "Joints that participate in this study", "required": true},
+            {"name": "Reference Frame", "type": "selection", "description": "Optional viewpoint anchor (defaults to grounded component)"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Duration", "type": "numeric", "unit": "s", "description": "Total animation length", "default": 5, "min": 0.1, "max": 600},
+            {"name": "Frames Per Second", "type": "integer", "default": 30, "min": 1, "max": 120},
+            {"name": "Keyframes", "type": "selection_pairs", "description": "[(time_s, joint_position_state)] keyframe at each timestamp"},
+            {"name": "Interpolation", "type": "dropdown", "options": ["linear", "spline", "step"], "default": "spline"},
+            {"name": "Enable Simulation", "type": "checkbox", "description": "Run dynamic simulation (gravity / friction / contact)", "default": false},
+            {"name": "Gravity Vector", "type": "vector3", "description": "Gravity direction + magnitude (default = -Z * 9.81 m/s²)", "default": [0, 0, -9810]},
+            {"name": "Friction Coefficient", "type": "numeric", "description": "Global friction (per-contact-set override available)", "default": 0.3, "min": 0, "max": 5},
+            {"name": "Time Step", "type": "numeric", "unit": "ms", "description": "Simulation integration step", "default": 1, "min": 0.001}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["create", "update", "delete", "render", "export_csv"], "default": "create"},
+            {"name": "Render Format", "type": "dropdown", "options": ["mp4", "avi", "png_sequence", "gif"], "default": "mp4"},
+            {"name": "Render Resolution", "type": "dropdown", "options": ["720p", "1080p", "4k"], "default": "1080p"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Study Name", "type": "string"},
+            {"name": "Active in Browser", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "ENABLE_CONTACT_SET": {
+      "description": "Defines pairs of components that should physically contact during dynamic motion-study simulation. Without contact sets, components pass through each other. Used for cam/follower, gear-mesh-without-MotionLink, and collision tests.",
+      "category": "Motion",
+      "fusion_command": "ContactSet",
+      "python_api": "design.contactSets.add | contactSetInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Component A", "type": "selection_list", "description": "First contact participant(s)", "required": true},
+            {"name": "Component B", "type": "selection_list", "description": "Second contact participant(s)", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Contact Type", "type": "dropdown", "options": ["rigid", "elastic", "frictional"], "default": "rigid"},
+            {"name": "Static Friction", "type": "numeric", "description": "Coefficient of static friction (frictional mode)", "default": 0.5, "min": 0, "max": 5},
+            {"name": "Dynamic Friction", "type": "numeric", "description": "Coefficient of kinetic friction (frictional mode)", "default": 0.3, "min": 0, "max": 5},
+            {"name": "Restitution", "type": "numeric", "description": "Coefficient of bounce (0 = perfectly inelastic, 1 = elastic)", "default": 0.1, "min": 0, "max": 1}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Set Name", "type": "string"},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "design_workspace_required": true,
+    "animation_workspace_for_motion_study": "Motion Study creation/editing UI lives in the Animation workspace; the timeline and keyframe panel are not visible in Design",
+    "joint_origin_selection_modes": "between_two_faces is the most-common convenience snap; manual mode lets advanced users place an origin at an arbitrary point with explicit alignment vectors",
+    "as_built_joint_for_imported_assemblies": "AS_BUILT_JOINT is the preferred path when STEP/IGES assembly imports lack joint metadata — preserves the imported pose as the rest position",
+    "rigid_group_vs_rigid_joint": "Rigid Group is faster than creating rigid joints between every pair (n components → 1 group vs n*(n-1)/2 joints). Use Group for static subassemblies, Joint for parametric rigidity that may be unsuppressed.",
+    "motion_study_simulation_caveats": [
+      "Time Step affects accuracy — too large misses contacts; too small explodes runtime",
+      "Friction coefficients above ~1 indicate tire / brake materials and may produce non-physical results",
+      "Dynamic simulation requires Enable Simulation = true; default-off creates a kinematic-only animation",
+      "Render export consumes Cloud Credits (Fusion Team plan)"
+    ],
+    "contact_set_required_for_collisions": "Without an explicit contact set, motion study allows components to pass through each other — Fusion does not auto-detect contact pairs"
+  }
+}

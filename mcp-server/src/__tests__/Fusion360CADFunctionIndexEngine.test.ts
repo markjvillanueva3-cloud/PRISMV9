@@ -71,7 +71,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains exactly five modules in shipping order", () => {
+    it("modules array contains all six Fusion modules in shipping order (Fusion catalog COMPLETE)", () => {
       const ids = Fusion360CADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
       expect(ids).toEqual([
         "sketch_operations",
@@ -79,6 +79,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
         "modify_operations",
         "surface_operations",
         "mesh_operations",
+        "assembly_operations",
       ]);
     });
 
@@ -90,33 +91,27 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 1 remaining deferred module — assembly_operations is the last Fusion frontier", () => {
+    it("declares zero remaining deferred modules — Fusion catalog is FULLY COMPLETE", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(1);
-      for (const f of fm) {
-        expect(f.scope.length).toBeGreaterThan(20);
-        expect(f.estimated_params).toBeGreaterThan(0);
-        expect(f.deferred_to).toMatch(/^U-CAD-FIDX-FUS-\d+$/);
-      }
+      expect(fm.length).toBe(0);
     });
 
-    it("planned_ids contains only assembly_operations (sketch/feature/modify/surface/mesh shipped)", () => {
+    it("future_modules array is empty (all 6 Fusion modules shipped)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
-      expect(ids).toEqual([
-        "assembly_operations",
-      ]);
+      expect(ids).toEqual([]);
     });
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns exactly the 5 shipped modules in order", () => {
+    it("listModules returns all 6 shipped modules in order (Fusion catalog COMPLETE)", () => {
       expect(Fusion360CADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "feature_operations",
         "modify_operations",
         "surface_operations",
         "mesh_operations",
+        "assembly_operations",
       ]);
     });
 
@@ -199,20 +194,24 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals sum of listOperations across all five modules (22+18+9+8+7 = 64)", () => {
+    it("listAllOperations equals sum across all 6 modules (22+18+9+8+7+10 = 74)", () => {
       const all = Fusion360CADFunctionIndexEngine.listAllOperations();
       const sketch = Fusion360CADFunctionIndexEngine.listOperations("sketch_operations");
       const feature = Fusion360CADFunctionIndexEngine.listOperations("feature_operations");
       const modify = Fusion360CADFunctionIndexEngine.listOperations("modify_operations");
       const surface = Fusion360CADFunctionIndexEngine.listOperations("surface_operations");
       const mesh = Fusion360CADFunctionIndexEngine.listOperations("mesh_operations");
+      const assembly = Fusion360CADFunctionIndexEngine.listOperations("assembly_operations");
       expect(sketch.length).toBe(22);
       expect(feature.length).toBe(18);
       expect(modify.length).toBe(9);
       expect(surface.length).toBe(8);
       expect(mesh.length).toBe(7);
-      expect(all.length).toBe(sketch.length + feature.length + modify.length + surface.length + mesh.length);
-      expect(all.length).toBe(64);
+      expect(assembly.length).toBe(10);
+      expect(all.length).toBe(
+        sketch.length + feature.length + modify.length + surface.length + mesh.length + assembly.length,
+      );
+      expect(all.length).toBe(74);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -428,9 +427,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 562 parameters across all 64 operations (115 + 206 + 101 + 74 + 66)", () => {
+    it("counts exactly 674 parameters across all 74 operations (115+206+101+74+66+112)", () => {
       const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(562);
+      expect(total).toBe(674);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -459,9 +458,14 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(meshTotal).toBe(66);
       expect(meshDeclared).toBe(66);
 
+      const assemblyTotal = sumParamsForModule("assembly_operations");
+      const assemblyDeclared = (Fusion360CADFunctionIndexEngine.getModule("assembly_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(assemblyTotal).toBe(112);
+      expect(assemblyDeclared).toBe(112);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        sketchTotal + featureTotal + modifyTotal + surfaceTotal + meshTotal,
+        sketchTotal + featureTotal + modifyTotal + surfaceTotal + meshTotal + assemblyTotal,
       );
     });
   });
@@ -839,6 +843,116 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       const filePath = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "File Path");
       expect(filePath?.required).toBe(true);
       expect(filePath?.type).toBe("string");
+    });
+  });
+
+  describe("assembly_operations module (U-CAD-FIDX-FUS-06)", () => {
+    const ASSEMBLY_OPS = [
+      "JOINT", "AS_BUILT_JOINT", "RIGID_GROUP",
+      "COMPONENT_FROM_BODIES", "COMPONENT_INSERT", "COMPONENT_GROUND",
+      "MOTION_LINK", "DRIVE_JOINTS", "MOTION_STUDY", "ENABLE_CONTACT_SET",
+    ];
+
+    it("listOperations('assembly_operations') returns exactly the 10 assembly ops", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("assembly_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(10);
+      expect(ops.sort()).toEqual([...ASSEMBLY_OPS].sort());
+    });
+
+    it("JOINT enumerates all 7 motion types (rigid/revolute/slider/cylindrical/pin_slot/planar/ball)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "JOINT");
+      const motionType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Motion Type");
+      expect(motionType?.options).toEqual([
+        "rigid", "revolute", "slider", "cylindrical", "pin_slot", "planar", "ball",
+      ]);
+    });
+
+    it("AS_BUILT_JOINT enumerates the same 7 motion types as JOINT", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "AS_BUILT_JOINT");
+      const motionType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Motion Type");
+      expect(motionType?.options).toEqual([
+        "rigid", "revolute", "slider", "cylindrical", "pin_slot", "planar", "ball",
+      ]);
+    });
+
+    it("RIGID_GROUP enforces minimum 2 components (single-component group is meaningless)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "RIGID_GROUP");
+      const components = op?.tabs?.["Selection"]?.parameters?.find((p) => p.name === "Components");
+      expect(components?.required).toBe(true);
+      expect((components as { min?: number })?.min).toBe(2);
+    });
+
+    it("MOTION_LINK enumerates 4 ratio types (gear / linear / rack-pinion / leadscrew)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "MOTION_LINK");
+      const ratioType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Ratio Type");
+      expect(ratioType?.options).toEqual(["gear_ratio", "linear_ratio", "rack_pinion", "leadscrew"]);
+    });
+
+    it("MOTION_STUDY gravity defaults to physical -Z * 9.81 m/s² (in mm/s²)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "MOTION_STUDY");
+      const gravity = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Gravity Vector");
+      // Default = [0, 0, -9810] mm/s² = -9.81 m/s² in Fusion's mm-default unit system
+      expect(gravity?.default).toEqual([0, 0, -9810]);
+    });
+
+    it("MOTION_STUDY render formats include all common video + still options", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "MOTION_STUDY");
+      const renderFormat = op?.tabs?.["Operation"]?.parameters?.find((p) => p.name === "Render Format");
+      expect(renderFormat?.options).toEqual(["mp4", "avi", "png_sequence", "gif"]);
+    });
+
+    it("COMPONENT_INSERT distinguishes copy (independent) from derive (linked-source)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "COMPONENT_INSERT");
+      const mode = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Insertion Mode");
+      expect(mode?.options).toEqual(["copy", "derive"]);
+    });
+
+    it("ENABLE_CONTACT_SET supports rigid / elastic / frictional contact types with restitution bounded [0,1]", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "ENABLE_CONTACT_SET");
+      const contactType = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Contact Type");
+      expect(contactType?.options).toEqual(["rigid", "elastic", "frictional"]);
+      const restitution = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Restitution");
+      expect((restitution as { min?: number })?.min).toBe(0);
+      expect((restitution as { max?: number })?.max).toBe(1);
+    });
+
+    it("DRIVE_JOINTS enumerates 4 easing profiles (linear/ease_in_out/ease_in/ease_out)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("assembly_operations", "DRIVE_JOINTS");
+      const easing = op?.tabs?.["Configuration"]?.parameters?.find((p) => p.name === "Easing");
+      expect(easing?.options).toEqual(["linear", "ease_in_out", "ease_in", "ease_out"]);
+    });
+
+    it("getOperationsByCategory enumerates exactly 3 Joint ops (Joint + As-Built + Rigid Group)", () => {
+      const joints = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Joint", "assembly_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(joints).toEqual(["AS_BUILT_JOINT", "JOINT", "RIGID_GROUP"]);
+    });
+
+    it("getOperationsByCategory enumerates exactly 4 Motion ops", () => {
+      const motion = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Motion", "assembly_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(motion).toEqual(["DRIVE_JOINTS", "ENABLE_CONTACT_SET", "MOTION_LINK", "MOTION_STUDY"]);
+    });
+
+    it("findParameter returns null for an op that doesn't exist (failure mode)", () => {
+      expect(Fusion360CADFunctionIndexEngine.findParameter("assembly_operations", "NOPE", "Motion Type")).toBeNull();
+    });
+
+    it("findParameter returns null for COMPONENT_GROUND but a JOINT-only parameter (failure mode)", () => {
+      // 'Motion Type' is JOINT-only — must not pollute COMPONENT_GROUND
+      expect(Fusion360CADFunctionIndexEngine.findParameter("assembly_operations", "COMPONENT_GROUND", "Motion Type")).toBeNull();
+    });
+
+    it("Fusion catalog total at completion: 6 modules / 74 ops / 674 params (FUS roadmap COMPLETE)", () => {
+      // Final integration check — confirms the entire Fusion catalog landed clean
+      expect(Fusion360CADFunctionIndexEngine.listModules()).toHaveLength(6);
+      expect(Fusion360CADFunctionIndexEngine.listAllOperations()).toHaveLength(74);
+      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(674);
+      expect(Fusion360CADFunctionIndexEngine.getIndex().future_modules).toEqual([]);
     });
   });
 
