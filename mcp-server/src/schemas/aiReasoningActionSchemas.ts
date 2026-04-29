@@ -161,6 +161,10 @@ export const AI_REASONING_ACTIONS = [
   "fusion_kb_list_strategies",   // U-WIRE40: list all OR filter by feature (does NOT bump engine query counter)
   "fusion_kb_get_strategy",      // U-WIRE40: fetch StrategyKnowledge by id (null if missing)
   "fusion_kb_stats",             // U-WIRE40: query counter; pass {reset:true} to clear after read
+  // ENGINE-WIRE-MS0/U-WIRE41: MachineTypeClassifierEngine - print/CAD to machine type inference (9 classes)
+  "machine_type_classify",       // U-WIRE41: full ClassificationResult with reasoning/warnings/alternatives/recommendedOperations
+  "machine_type_quick",          // U-WIRE41: quick description-only classification, returns single MachineTypeClass
+  "machine_type_multi_required", // U-WIRE41: boolean check if part requires multi-machine routing
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1447,5 +1451,85 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   fusion_kb_stats: z.object({
     reset: z.boolean().optional()
       .describe("When true, clears the engine query counter AFTER reading current values"),
+  }).passthrough(),
+  // U-WIRE41 - MachineTypeClassifierEngine
+  // classify() takes 6 optional inputs; engine returns "multi_machine" if no
+  // signal sources are provided. titleBlock/dimensions/gdtFeatures/cadFeatures
+  // are pass-through shapes — engine reads only the fields it knows. The
+  // CADFeatureSignature shape is fully enumerated since every field is required
+  // when present (engine's score functions assume all 11 fields).
+  machine_type_classify: z.object({
+    titleBlock: z.object({
+      part_number: z.string().optional(),
+      revision: z.string().optional(),
+      title: z.string().optional(),
+      material: z.string().optional(),
+      finish: z.string().optional(),
+      units: z.enum(["mm", "in", "mixed"]).optional(),
+      general_tolerance: z.string().optional(),
+      treatment: z.string().optional(),
+      confidence: z.number().min(0).max(1).optional(),
+    }).passthrough().optional(),
+    dimensions: z.array(z.object({
+      id: z.string().min(1),
+      type: z.string().min(1),
+      nominal: z.number(),
+      unit: z.enum(["mm", "in"]),
+      tolerance: z.object({
+        type: z.string(),
+        upper: z.number(),
+        lower: z.number(),
+      }).optional(),
+      surface_finish_ra: z.number().nonnegative().optional(),
+      raw_text: z.string().optional(),
+      confidence: z.number().min(0).max(1),
+    }).passthrough()).optional(),
+    gdtFeatures: z.array(z.object({
+      id: z.string().min(1),
+      symbol: z.string().min(1),
+      tolerance_value: z.number(),
+      tolerance_unit: z.enum(["mm", "in"]),
+      datum_references: z.array(z.string()),
+      raw_text: z.string().optional(),
+      confidence: z.number().min(0).max(1),
+    }).passthrough()).optional(),
+    cadFeatures: z.object({
+      turningFeatures: z.number().int().nonnegative(),
+      millingFeatures: z.number().int().nonnegative(),
+      drillingFeatures: z.number().int().nonnegative(),
+      threadFeatures: z.number().int().nonnegative(),
+      edmFeatures: z.number().int().nonnegative(),
+      grindingFeatures: z.number().int().nonnegative(),
+      primaryAxisOfSymmetry: z.enum(["z_axis", "multi_axis", "none"]),
+      maxAspectRatio: z.number().nonnegative(),
+      hasInternalFeatures: z.boolean(),
+      hasBackworkFeatures: z.boolean(),
+      hasLiveToolFeatures: z.boolean(),
+    }).passthrough().optional(),
+    partDescription: z.string().optional(),
+    materialHardness_hrc: z.number().nonnegative().optional(),
+  }).passthrough(),
+  machine_type_quick: z.object({
+    description: z.string().min(1).describe("Free-form part description, e.g. 'shaft with M8 thread, ID grind to Ra 0.4'"),
+  }).passthrough(),
+  machine_type_multi_required: z.object({
+    titleBlock: z.object({}).passthrough().optional(),
+    dimensions: z.array(z.object({}).passthrough()).optional(),
+    gdtFeatures: z.array(z.object({}).passthrough()).optional(),
+    cadFeatures: z.object({
+      turningFeatures: z.number().int().nonnegative(),
+      millingFeatures: z.number().int().nonnegative(),
+      drillingFeatures: z.number().int().nonnegative(),
+      threadFeatures: z.number().int().nonnegative(),
+      edmFeatures: z.number().int().nonnegative(),
+      grindingFeatures: z.number().int().nonnegative(),
+      primaryAxisOfSymmetry: z.enum(["z_axis", "multi_axis", "none"]),
+      maxAspectRatio: z.number().nonnegative(),
+      hasInternalFeatures: z.boolean(),
+      hasBackworkFeatures: z.boolean(),
+      hasLiveToolFeatures: z.boolean(),
+    }).passthrough().optional(),
+    partDescription: z.string().optional(),
+    materialHardness_hrc: z.number().nonnegative().optional(),
   }).passthrough(),
 };
