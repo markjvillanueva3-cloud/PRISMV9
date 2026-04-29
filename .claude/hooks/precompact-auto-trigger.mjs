@@ -38,8 +38,22 @@ import fs from "node:fs";
 import path from "node:path";
 
 const CACHE_DIR = path.resolve("H:/prism/.claude/cache");
-const SOFT_FIRED = path.join(CACHE_DIR, "precompact-auto-soft-fired.marker");
+const SOFT_FIRED_PREFIX = "precompact-auto-soft-fired-"; // suffix: <sid>.marker
 const PENDING_MARKER_DIR = CACHE_DIR; // precompact-pending-<sid>.marker lives here
+
+// Multi-chat coordination: every chat keys its OWN marker by session id taken
+// from hook stdin (stdin.session_id). Earlier this file used a single global
+// marker, which caused 6 concurrent chats to silently dedup themselves out of
+// the SOFT warning when the FIRST chat crossed 800K — they sailed past the
+// soft window and all hit the HARD 900K block in the same minute.
+function safeSid(sid) {
+  if (typeof sid !== "string" || sid.length === 0) return "global";
+  // Sanitize: keep alnum + dash + underscore; everything else → '_'.
+  return sid.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64) || "global";
+}
+function softFiredPath(sid) {
+  return path.join(CACHE_DIR, `${SOFT_FIRED_PREFIX}${safeSid(sid)}.marker`);
+}
 
 // Thresholds are paired with CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=95 (950K of 1M):
 //   SOFT 800K — nudge Claude to run /precompact (non-blocking)
@@ -89,46 +103,65 @@ function estimateFromBytes(transcriptPath) {
   } catch { return 0; }
 }
 
-function precompactMarkerActive() {
-  // If /precompact was just run, its guard marker exists. In that case we
-  // don't nag or block — the user just needs to run /compact, and the
+function precompactMarkerActive(sid) {
+  // If /precompact was just run for THIS session, its guard marker exists.
+  // Don't nag or block — the user just needs to run /compact, and the
   // precompact-pending-guard Stop hook already enforces that.
+  //
+  // Multi-chat: the marker filename is `precompact-pending-<sid>.marker`.
+  // Earlier this scanned ALL pending markers and returned true on any recent
+  // one, meaning chat A running /precompact unblocked the HARD threshold for
+  // chats B-F. Now scoped to the caller's own session id.
+  const safe = safeSid(sid);
+  const markerPath = path.join(PENDING_MARKER_DIR, `precompact-pending-${safe}.marker`);
   try {
-    if (!fs.existsSync(PENDING_MARKER_DIR)) return false;
-    const markers = fs.readdirSync(PENDING_MARKER_DIR)
-      .filter((f) => f.startsWith("precompact-pending-") && f.endsWith(".marker"));
-    const now = Date.now();
-    for (const m of markers) {
-      try {
-        const mt = fs.statSync(path.join(PENDING_MARKER_DIR, m)).mtimeMs;
-        if ((now - mt) / 60000 < 30) return true;
-      } catch { /* ignore */ }
-    }
-  } catch { /* ignore */ }
-  return false;
+    if (!fs.existsSync(markerPath)) return false;
+    const mt = fs.statSync(markerPath).mtimeMs;
+    return (Date.now() - mt) / 60000 < 30;
+  } catch { return false; }
 }
 
-function softAlreadyFired(tokens) {
+function softAlreadyFired(sid, tokens) {
+  const p = softFiredPath(sid);
   try {
-    if (!fs.existsSync(SOFT_FIRED)) return false;
-    const body = JSON.parse(fs.readFileSync(SOFT_FIRED, "utf-8"));
+    if (!fs.existsSync(p)) return false;
+    const body = JSON.parse(fs.readFileSync(p, "utf-8"));
     // If we're still above the threshold and it was fired recently, skip
     return body?.tokens_at_fire && tokens >= SOFT - 5000;
   } catch { return false; }
 }
 
-function markSoftFired(tokens) {
+function markSoftFired(sid, tokens) {
   try {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
-    fs.writeFileSync(SOFT_FIRED, JSON.stringify({
+    fs.writeFileSync(softFiredPath(sid), JSON.stringify({
+      session_id: safeSid(sid),
       tokens_at_fire: tokens,
       fired_at: new Date().toISOString(),
     }) + "\n");
   } catch { /* ignore */ }
 }
 
-function clearSoftFired() {
-  try { fs.unlinkSync(SOFT_FIRED); } catch { /* ignore */ }
+function clearSoftFired(sid) {
+  try { fs.unlinkSync(softFiredPath(sid)); } catch { /* ignore */ }
+}
+
+// Housekeeping: scan all per-session SOFT markers, drop any older than 30 min.
+// Replaces the previous single-file stale-cleanup. Survives crashes that left
+// markers behind for sessions that never reached the post-compact recovery.
+function pruneStaleSoftMarkers() {
+  try {
+    if (!fs.existsSync(CACHE_DIR)) return;
+    const now = Date.now();
+    for (const f of fs.readdirSync(CACHE_DIR)) {
+      if (!f.startsWith(SOFT_FIRED_PREFIX) || !f.endsWith(".marker")) continue;
+      const full = path.join(CACHE_DIR, f);
+      try {
+        const st = fs.statSync(full);
+        if ((now - st.mtimeMs) > 30 * 60 * 1000) fs.unlinkSync(full);
+      } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
 }
 
 function detectEvent(stdin) {
@@ -148,19 +181,25 @@ function emit(obj) {
 function main() {
   const stdin = readStdinSync();
   const transcriptPath = stdin?.transcript_path;
+  // Per-chat scoping: each session has its own SOFT/PENDING marker keyed by
+  // stdin.session_id. Falls back to "global" when stdin is absent (manual
+  // testing) — preserves the old single-marker behavior in that case.
+  const sid = stdin?.session_id;
 
   let tokens = transcriptPath ? lastAssistantTokens(transcriptPath) : null;
   if (tokens == null || !Number.isFinite(tokens) || tokens <= 0) {
     tokens = transcriptPath ? estimateFromBytes(transcriptPath) : 0;
   }
 
-  // Dropped back below soft threshold? (post-compact) — clear dedup marker.
-  if (tokens < SOFT) clearSoftFired();
-  // Also clear markers older than 30 minutes (stale from crashed sessions)
-  try { if (fs.existsSync(SOFT_FIRED)) { const st = fs.statSync(SOFT_FIRED); if ((Date.now() - st.mtimeMs) > 30 * 60 * 1000) clearSoftFired(); } } catch { /* ignore */ }
+  // Dropped back below soft threshold? (post-compact) — clear THIS session's
+  // dedup marker so the next crossing fires a fresh warning.
+  if (tokens < SOFT) clearSoftFired(sid);
+  // Housekeeping: drop any per-session marker older than 30 minutes (stale
+  // from crashed sessions). Bounded scan over the cache dir.
+  pruneStaleSoftMarkers();
 
   const event = detectEvent(stdin);
-  const precompactAlreadyArmed = precompactMarkerActive();
+  const precompactAlreadyArmed = precompactMarkerActive(sid);
 
   // HARD: PreToolUse block at ≥ HARD tokens, unless precompact marker is live
   if (event === "PreToolUse" && tokens >= HARD && !precompactAlreadyArmed) {
@@ -184,9 +223,10 @@ function main() {
   }
 
   // SOFT: PostToolUse / UserPromptSubmit inject at ≥ SOFT tokens, dedup'd
+  // per-session — each chat must see its own warning when it crosses 800K.
   if ((event === "PostToolUse" || event === "UserPromptSubmit") &&
-      tokens >= SOFT && !precompactAlreadyArmed && !softAlreadyFired(tokens)) {
-    markSoftFired(tokens);
+      tokens >= SOFT && !precompactAlreadyArmed && !softAlreadyFired(sid, tokens)) {
+    markSoftFired(sid, tokens);
     const remaining = Math.max(0, CONTEXT_CAP - tokens);
     const msg = [
       `CONTEXT AT ${tokens.toLocaleString()} TOKENS — /precompact REQUIRED (soft threshold ${SOFT.toLocaleString()})`,
