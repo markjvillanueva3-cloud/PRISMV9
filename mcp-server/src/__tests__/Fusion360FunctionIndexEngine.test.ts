@@ -835,4 +835,136 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_cutting_operations");
     });
   });
+
+  // CAM-EXHAUST-MS1-04 — Fusion 360 Inspection module
+  describe("getInspectionOperations (CAM-EXHAUST-MS1-04)", () => {
+    it("returns exactly 11 inspection toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      expect(ops.length).toBe(11);
+    });
+
+    it("Planning category contains 2 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const planningIds = ops.filter((o) => o.category === "Planning").map((o) => o.toolpath_id).sort();
+      expect(planningIds).toEqual([
+        "CMM_PLAN_GENERATE",
+        "CMM_SAMPLING_STRATEGY",
+      ]);
+    });
+
+    it("Analysis category contains 4 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const analysisIds = ops.filter((o) => o.category === "Analysis").map((o) => o.toolpath_id).sort();
+      expect(analysisIds).toEqual([
+        "COMPARE_TO_CAD",
+        "SURFACE_FORM_ANALYZE",
+        "TOLERANCE_STACK_ANALYZE",
+        "TOLERANCE_STACK_MONTE_CARLO",
+      ]);
+    });
+
+    it("Validation category contains 3 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const validationIds = ops.filter((o) => o.category === "Validation").map((o) => o.toolpath_id).sort();
+      expect(validationIds).toEqual([
+        "GDT_VALIDATE",
+        "GDT_ZONE_CHECK",
+        "PROBE_COMPENSATION_CALIBRATE",
+      ]);
+    });
+
+    it("Reporting category contains 2 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const reportingIds = ops.filter((o) => o.category === "Reporting").map((o) => o.toolpath_id).sort();
+      expect(reportingIds).toEqual([
+        "CERTIFICATE_OF_CONFORMANCE",
+        "GENERATE_INSPECTION_REPORT",
+      ]);
+    });
+
+    it("CMM_PLAN_GENERATE has exactly 22 parameters and Planning category", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const op = ops.find((o) => o.toolpath_id === "CMM_PLAN_GENERATE");
+      expect(op?.parameter_count).toBe(22);
+      expect(op?.category).toBe("Planning");
+    });
+
+    it("TOLERANCE_STACK_MONTE_CARLO has exactly 18 parameters and Analysis category", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const op = ops.find((o) => o.toolpath_id === "TOLERANCE_STACK_MONTE_CARLO");
+      expect(op?.parameter_count).toBe(18);
+      expect(op?.category).toBe("Analysis");
+    });
+
+    it("PROBE_COMPENSATION_CALIBRATE has exactly 14 parameters (smallest validation op)", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const op = ops.find((o) => o.toolpath_id === "PROBE_COMPENSATION_CALIBRATE");
+      expect(op?.parameter_count).toBe(14);
+      expect(op?.category).toBe("Validation");
+    });
+
+    it("CERTIFICATE_OF_CONFORMANCE description references conformance / traceability", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      const op = ops.find((o) => o.toolpath_id === "CERTIFICATE_OF_CONFORMANCE");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("conformance") || text.includes("traceability")).toBe(true);
+    });
+
+    it("each inspection operation has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getInspectionOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_inspection_operations returns 11 ops with COMPARE_TO_CAD @ 18 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_inspection_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(11);
+      const compareToCad = result.operations.find((o) => o.toolpath_id === "COMPARE_TO_CAD");
+      expect(compareToCad?.category).toBe("Analysis");
+      expect(compareToCad?.parameter_count).toBe(18);
+    });
+
+    it("inspection module is registered in fusion360 function-index with 186 estimated params", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const inspectionEntry = idx.modules.find((m) => m.module_id === "inspection");
+      expect(inspectionEntry?.parameter_count_estimate).toBe(186);
+      expect(inspectionEntry?.dependencies).toContain("probing");
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_inspection_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_inspection_operations");
+    });
+  });
 });

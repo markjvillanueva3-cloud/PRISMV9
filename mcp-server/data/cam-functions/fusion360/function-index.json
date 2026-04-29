@@ -77,6 +77,14 @@
       "parameter_count_estimate": 196,
       "description": "Sheet cutting toolpaths — laser cutting (3 ops: cutting, etching, drilling), waterjet (3 ops: abrasive, pure-water, 5-axis tapered), plasma (3 ops: cutting, bevel, mark). 9 toolpaths covering 2D contour with kerf compensation, lead-in/out, pierce strategies.",
       "dependencies": []
+    },
+    {
+      "module_id": "inspection",
+      "path": "cam-functions/fusion360/inspection.json",
+      "covered_units": ["U-CAM-MS1-04"],
+      "parameter_count_estimate": 186,
+      "description": "Inspection-extension toolpaths — CMM planning + sampling strategy (2 ops), tolerance stack analysis RSS + Monte Carlo + surface form + compare-to-CAD (4 ops), GD&T validate / zone-check + probe compensation calibrate (3 ops), inspection report + certificate of conformance (2 ops). 11 toolpaths complementing MS1-01 Probing — focuses on planning, analysis, validation, and reporting layers above raw probe macros.",
+      "dependencies": ["probing"]
     }
   ],
   "global_cross_references": {
