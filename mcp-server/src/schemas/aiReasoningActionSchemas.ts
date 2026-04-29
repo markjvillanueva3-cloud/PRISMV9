@@ -121,6 +121,11 @@ export const AI_REASONING_ACTIONS = [
   "exception_record_outcome",  // U-WIRE31 → finalize event outcome; success generates tribal tip + envelope proposal
   "exception_pending",         // U-WIRE31 → list captured events not yet recorded
   "exception_stats",           // U-WIRE31 → totalEvents, learnedCount, successRate, tipsGenerated, proposalsGenerated
+  // ENGINE-WIRE-MS0/U-WIRE32: TransferLearningBridgeEngine — cross-domain analogy finder
+  "analogy_register",          // U-WIRE32 → register a single SolvedProblem (validates id/domain/title/description/solution)
+  "analogy_register_many",     // U-WIRE32 → bulk register; throws on first invalid, prior inserts kept
+  "analogy_find",              // U-WIRE32 → find analogous solved problems by free-text or structured query
+  "analogy_inventory",         // U-WIRE32 → list registered problems (sorted by id) + size
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1115,4 +1120,46 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   }).passthrough(),
   exception_pending: z.object({}).passthrough(),
   exception_stats: z.object({}).passthrough(),
+  // U-WIRE32 — TransferLearningBridgeEngine
+  // SolvedProblem shape inlined twice (register + register_many) rather than
+  // hoisting a shared const, to match the existing inline-schema pattern in
+  // this file. The engine's assertValid() additionally trims-and-checks each
+  // string field; the Zod min(1) here matches that contract.
+  analogy_register: z.object({
+    problem: z.object({
+      id: z.string().min(1).describe("Unique id across all registered problems"),
+      domain: z.string().min(1).describe("Canonical PRISM domain (milling/turning/grinding/wire-edm/...)"),
+      title: z.string().min(1).describe("One-line problem statement"),
+      description: z.string().min(1).describe("Full description — substrate for lexical matching"),
+      tags: z.array(z.string()).optional().describe("Optional structural tags participating in Jaccard overlap"),
+      solution: z.string().min(1).describe("What was actually done — reported back verbatim with the match"),
+    }).passthrough().describe("SolvedProblem to index"),
+  }).passthrough(),
+  analogy_register_many: z.object({
+    problems: z.array(z.object({
+      id: z.string().min(1),
+      domain: z.string().min(1),
+      title: z.string().min(1),
+      description: z.string().min(1),
+      tags: z.array(z.string()).optional(),
+      solution: z.string().min(1),
+    }).passthrough()).min(1).describe("Non-empty array of SolvedProblems; first invalid entry throws"),
+  }).passthrough(),
+  analogy_find: z.object({
+    // Query is either a free-text string or a structured AnalogyQuery.
+    query: z.union([
+      z.string().min(1),
+      z.object({
+        description: z.string().min(1),
+        domain: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+      }).passthrough(),
+    ]).describe("Free-text problem statement OR {description,domain?,tags?}"),
+    options: z.object({
+      limit: z.number().int().min(0).optional().describe("Cap on returned matches; default 5; 0 = unlimited"),
+      minScore: z.number().min(0).max(1).optional().describe("Minimum combined score; default 0.05"),
+      crossDomainOnly: z.boolean().optional().describe("Drop same-domain problems entirely"),
+    }).passthrough().optional(),
+  }).passthrough(),
+  analogy_inventory: z.object({}).passthrough(),
 };
