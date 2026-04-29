@@ -325,10 +325,10 @@ describe("hypercads_mock_stock", () => {
 
 // ── fusion360AutomationBridge (bridge-tolerant) ───────────────────────────────
 
-describe("fusion360_open (FUSION360_MOCK=1)", () => {
+describe("fusion360_open (PRISM_CAD_MOCK=1)", () => {
   it("happy path: .f3d returns filePath, format=.f3d, confidence=1.0, source=mock", async () => {
-    const prev = process.env["FUSION360_MOCK"];
-    process.env["FUSION360_MOCK"] = "1";
+    const prev = process.env["PRISM_CAD_MOCK"];
+    process.env["PRISM_CAD_MOCK"] = "1";
     try {
       const r = await fusion360AutomationBridge.open("/test/part.f3d");
       expect(r.value.filePath).toBe("/test/part.f3d");
@@ -338,14 +338,14 @@ describe("fusion360_open (FUSION360_MOCK=1)", () => {
     } catch {
       // live add-in not reachable in CI — bridge tolerance accepted
     } finally {
-      if (prev === undefined) delete process.env["FUSION360_MOCK"];
-      else process.env["FUSION360_MOCK"] = prev;
+      if (prev === undefined) delete process.env["PRISM_CAD_MOCK"];
+      else process.env["PRISM_CAD_MOCK"] = prev;
     }
   });
 
   it("schema rejection 5: .f3z extension detected as format=.f3z", async () => {
-    const prev = process.env["FUSION360_MOCK"];
-    process.env["FUSION360_MOCK"] = "1";
+    const prev = process.env["PRISM_CAD_MOCK"];
+    process.env["PRISM_CAD_MOCK"] = "1";
     try {
       const r = await fusion360AutomationBridge.open("/archive/model.f3z");
       expect(r.value.format).toBe(".f3z");
@@ -353,8 +353,8 @@ describe("fusion360_open (FUSION360_MOCK=1)", () => {
     } catch {
       // live add-in not reachable — acceptable
     } finally {
-      if (prev === undefined) delete process.env["FUSION360_MOCK"];
-      else process.env["FUSION360_MOCK"] = prev;
+      if (prev === undefined) delete process.env["PRISM_CAD_MOCK"];
+      else process.env["PRISM_CAD_MOCK"] = prev;
     }
   });
 });
