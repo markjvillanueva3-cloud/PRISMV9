@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "fusion360",
+  "module_id": "cad_function_index",
+  "module_name": "Fusion 360 CAD Unified Function Index",
+  "description": "Top-level index for Fusion 360 CAD-side (Design workspace) operations: sketch tools, 3D feature creation, modify ops, surface ops, mesh ops. CAD-side parity to the existing CAM-side Fusion360FunctionIndexEngine. Consumed by Fusion360CADFunctionIndexEngine for lookup, parameter discovery, and AI orchestration of CAD generation.",
+  "indexed_at": "2026-04-29T00:55:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/fusion360/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-01"],
+      "parameter_count_estimate": 115,
+      "description": "2D sketch creation and editing: Line, Rectangle (3 variants), Circle (5 variants), Polygon (3 variants), Arc (3 variants), Ellipse, Spline (2 variants), Slot (4 variants), Conic, Point, Project/Intersect/Project-to-Surface, Mirror, Offset, Trim/Extend/Break, Scale, Sketch Dimensions (linear/angular/radial/diameter), Geometric Constraints (13 types), Construction Geometry toggle.",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "SKETCH_PLANE_DEFINITION",
+      "PROJECTED_GEOMETRY",
+      "SPLINE_INTERPOLATION",
+      "CONIC_SECTION"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "Fusion360CADFunctionIndexEngine",
+      "Fusion360CADGeneratorAdapter",
+      "Fusion360CodeGeneratorEngine",
+      "PartGeometryEngine",
+      "FeatureRecognitionEngine",
+      "SketchConstraintSolverEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 1,
+    "total_units_covered": ["U-CAD-FIDX-FUS-01"],
+    "estimated_parameter_total": 115,
+    "api_surface": {
+      "python_api_items": 22,
+      "fusion_design_workspace": true
+    },
+    "pdf_sources_bound": [
+      "Autodesk Fusion 360 Design Fundamentals.pdf",
+      "Autodesk Fusion 360 Sketching Guide.pdf",
+      "Autodesk Fusion 360 Python API Reference — Sketches Module"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "sketch_constraint_strategy",
+      "construction_geometry_use",
+      "spline_smoothing",
+      "projected_geometry_pitfalls"
+    ]
+  },
+  "platform_integration": {
+    "cloud_enabled": true,
+    "design_workspace": true,
+    "form_workspace": false,
+    "sheet_metal_workspace": false,
+    "render_workspace": false
+  },
+  "future_modules": [
+    {
+      "planned_id": "feature_operations",
+      "scope": "Extrude, Revolve, Sweep, Loft, Rib, Web, Hole, Thread, Shell, Draft, Pattern (linear/circular/path/sketch-driven), Mirror, Combine, Split, Boundary Fill",
+      "estimated_params": 220,
+      "deferred_to": "U-CAD-FIDX-FUS-02"
+    },
+    {
+      "planned_id": "modify_operations",
+      "scope": "Fillet, Chamfer, Press Pull, Move, Scale, Plane, Axis, Construction Geometry, Section Analysis",
+      "estimated_params": 110,
+      "deferred_to": "U-CAD-FIDX-FUS-03"
+    },
+    {
+      "planned_id": "surface_operations",
+      "scope": "Patch, Stitch, Trim, Extend, Unstitch, Reverse Normal, Boundary Fill, Offset Surface, Thicken",
+      "estimated_params": 90,
+      "deferred_to": "U-CAD-FIDX-FUS-04"
+    },
+    {
+      "planned_id": "mesh_operations",
+      "scope": "Insert Mesh, Convert to BRep, Reduce, Smooth, Repair, Plane Cut, Erase and Fill",
+      "estimated_params": 70,
+      "deferred_to": "U-CAD-FIDX-FUS-05"
+    },
+    {
+      "planned_id": "assembly_operations",
+      "scope": "Joint, As-Built Joint, Rigid Group, Component Operations, Drive Joints, Motion Study",
+      "estimated_params": 130,
+      "deferred_to": "U-CAD-FIDX-FUS-06"
+    }
+  ]
+}

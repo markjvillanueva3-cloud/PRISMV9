@@ -1,0 +1,456 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Sketch Operations - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 Design workspace sketch tools. Covers sketch creation (geometry primitives + curves), sketch editing (mirror, offset, trim, extend, break, scale), and sketch constraints (dimensional + geometric). Aligns with Autodesk Fusion 360 Python API Sketches module surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-FUS-01",
+    "source": "Autodesk Fusion 360 Help — Design workspace > Sketch toolbar + Python API Sketches reference",
+    "totalParameters": 115,
+    "operationCount": 22,
+    "cad_concepts_used": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "PROJECTED_GEOMETRY",
+      "SKETCH_PLANE",
+      "SPLINE_INTERPOLATION",
+      "CONIC_SECTION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across sketch operations",
+    "tabs": ["Plane", "Geometry", "Properties"]
+  },
+  "operations": {
+    "LINE": {
+      "description": "Two-point straight line. Continuous chain mode supports multiple connected segments. Snap-to-existing-geometry triggers automatic Coincident constraints.",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchLines",
+      "python_api": "sketch.sketchCurves.sketchLines.addByTwoPoints",
+      "parameterCount": 6,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "description": "XY/XZ/YZ origin plane, planar face, or construction plane", "required": true},
+            {"name": "Origin Reference", "type": "selection", "description": "Optional sketch origin override", "required": false}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Start Point", "type": "point2d", "description": "First endpoint in sketch coordinates", "required": true},
+            {"name": "End Point", "type": "point2d", "description": "Second endpoint in sketch coordinates", "required": true},
+            {"name": "Continuous Chain", "type": "checkbox", "description": "Keep line tool active to chain segments", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "description": "Mark as construction (excluded from feature consumption)", "default": false}
+          ]
+        }
+      }
+    },
+    "RECTANGLE": {
+      "description": "Four-sided closed rectangle aligned to sketch axes (or rotated for three-point variant). Auto-generates Horizontal/Vertical/Perpendicular constraints.",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchRectangles",
+      "python_api": "sketch.sketchCurves.sketchLines.addTwoPointRectangle | addThreePointRectangle | addCenterPointRectangle",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Variant", "type": "dropdown", "description": "Rectangle construction method", "options": ["two_point", "three_point", "center_point"], "default": "two_point"},
+            {"name": "Corner 1 / Center", "type": "point2d", "description": "First corner (two_point) or center (center_point)", "required": true},
+            {"name": "Corner 2 / Width Reference", "type": "point2d", "description": "Opposite corner or width-direction reference", "required": true},
+            {"name": "Third Point", "type": "point2d", "description": "Required for three_point variant", "required": false},
+            {"name": "Width", "type": "numeric", "description": "Rectangle width — overrides geometry if dimensional", "unit": "mm", "min": 0.001},
+            {"name": "Height", "type": "numeric", "description": "Rectangle height — overrides geometry if dimensional", "unit": "mm", "min": 0.001}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CIRCLE": {
+      "description": "Closed circular curve. Five construction variants cover most workflows: center+diameter, center+radius, three points on circumference, two-tangent (with radius), three-tangent (radius derived).",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchCircles",
+      "python_api": "sketch.sketchCurves.sketchCircles.addByCenterRadius | addByThreePoints | addByTwoTangents | addByThreeTangents",
+      "parameterCount": 9,
+      "tabs": {
+        "Plane": {
+          "parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Variant", "type": "dropdown", "options": ["center_diameter", "center_radius", "three_point", "two_tangent", "three_tangent"], "default": "center_diameter"},
+            {"name": "Center", "type": "point2d", "description": "Required for center_diameter and center_radius variants"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "min": 0.001, "description": "Used by center_radius and tangent variants"},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "min": 0.002, "description": "Used by center_diameter variant — overrides radius"},
+            {"name": "Point 1 / Tangent Curve 1", "type": "selection", "description": "First circumference point or first tangent reference", "required": false},
+            {"name": "Point 2 / Tangent Curve 2", "type": "selection", "required": false},
+            {"name": "Point 3 / Tangent Curve 3", "type": "selection", "required": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [{"name": "Construction Geometry", "type": "checkbox", "default": false}]
+        }
+      }
+    },
+    "ARC": {
+      "description": "Open circular arc segment. Center-point variant defines via center + start + sweep; three-point via 3 circumference points; tangent variant matches tangency to existing curve.",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchArcs",
+      "python_api": "sketch.sketchCurves.sketchArcs.addByCenterStartSweep | addByThreePoints | addFillet",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Variant", "type": "dropdown", "options": ["center_point", "three_point", "tangent"], "default": "center_point"},
+            {"name": "Center", "type": "point2d", "description": "Required for center_point variant"},
+            {"name": "Start Point", "type": "point2d", "required": true},
+            {"name": "End Point", "type": "point2d", "description": "Required for three_point and tangent variants"},
+            {"name": "Mid Point", "type": "point2d", "description": "Required for three_point variant"},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "min": -360, "max": 360, "description": "Arc sweep — used by center_point variant"},
+            {"name": "Tangent Reference", "type": "selection", "description": "Existing curve for tangent variant"}
+          ]
+        }
+      }
+    },
+    "POLYGON": {
+      "description": "Regular n-gon. Inscribed (vertices on radius circle), circumscribed (edge midpoints on radius circle), edge-defined (specify one edge).",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchPolygons",
+      "python_api": "sketch.sketchCurves.sketchLines.addInscribedPolygon | addCircumscribedPolygon",
+      "parameterCount": 7,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Variant", "type": "dropdown", "options": ["inscribed", "circumscribed", "edge_defined"], "default": "inscribed"},
+            {"name": "Side Count", "type": "integer", "min": 3, "max": 64, "default": 6},
+            {"name": "Center", "type": "point2d", "description": "Required for inscribed/circumscribed", "required": false},
+            {"name": "Reference Radius", "type": "numeric", "unit": "mm", "min": 0.001, "description": "Inscribed/circumscribed reference"},
+            {"name": "Edge Start", "type": "point2d", "description": "Required for edge_defined variant"},
+            {"name": "Edge End", "type": "point2d", "description": "Required for edge_defined variant"}
+          ]
+        }
+      }
+    },
+    "ELLIPSE": {
+      "description": "Closed elliptical curve defined by center + major axis endpoint + minor axis radius.",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchEllipses",
+      "python_api": "sketch.sketchCurves.sketchEllipses.add",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Center", "type": "point2d", "required": true},
+            {"name": "Major Axis Endpoint", "type": "point2d", "required": true},
+            {"name": "Minor Radius", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Major Radius", "type": "numeric", "unit": "mm", "description": "Derived from center→endpoint or override", "required": false}
+          ]
+        }
+      }
+    },
+    "SPLINE": {
+      "description": "NURBS curve through fit points (interpolating) or control points (approximating). Supports tangent handles and weight per control point.",
+      "category": "Sketch_Curve",
+      "fusion_command": "SketchSplines",
+      "python_api": "sketch.sketchCurves.sketchFittedSplines.add | sketchControlPointSplines.add",
+      "parameterCount": 9,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Variant", "type": "dropdown", "options": ["fit_point", "control_point"], "default": "fit_point"},
+            {"name": "Points", "type": "point2d_array", "description": "Sequence of fit or control points", "required": true},
+            {"name": "Closed Curve", "type": "checkbox", "default": false},
+            {"name": "Degree", "type": "integer", "description": "Curve degree (control_point only)", "min": 1, "max": 7, "default": 3},
+            {"name": "Tangent Handles", "type": "checkbox", "description": "Show editable tangent handles at fit points", "default": false},
+            {"name": "Weights", "type": "numeric_array", "description": "Per-control-point weight (NURBS, control_point variant)", "required": false},
+            {"name": "Knots", "type": "numeric_array", "description": "Knot vector override (advanced)", "required": false}
+          ]
+        }
+      }
+    },
+    "SLOT": {
+      "description": "Closed obround / arc-ended slot. Four construction variants: center-to-center (two arcs at endpoints), three-point (start, end, width), center-point, overall-length-and-width.",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchSlots",
+      "python_api": "sketch.sketchCurves.sketchLines.addCenterToCenterSlot | addThreePointSlot | addCenterPointSlot | addOverallSlot",
+      "parameterCount": 9,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Variant", "type": "dropdown", "options": ["center_to_center", "three_point", "center_point", "overall_length"], "default": "center_to_center"},
+            {"name": "Start / Center", "type": "point2d", "required": true},
+            {"name": "End / Direction", "type": "point2d", "required": true},
+            {"name": "Width", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "min": 0.001, "description": "Required for overall_length variant"},
+            {"name": "Arc Type", "type": "dropdown", "options": ["circular", "tangent"], "default": "circular", "description": "End-cap geometry"},
+            {"name": "Mid Point", "type": "point2d", "description": "Required for three_point variant"},
+            {"name": "Width Direction", "type": "vector2d", "description": "Required for three_point variant"}
+          ]
+        }
+      }
+    },
+    "CONIC_CURVE": {
+      "description": "Conic section between two endpoints with rho parameter. rho<0.5 ellipse, rho=0.5 parabola, rho>0.5 hyperbola.",
+      "category": "Sketch_Curve",
+      "fusion_command": "SketchConicCurves",
+      "python_api": "sketch.sketchCurves.sketchConicCurves.add",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Start Point", "type": "point2d", "required": true},
+            {"name": "End Point", "type": "point2d", "required": true},
+            {"name": "Apex / Shoulder Point", "type": "point2d", "required": true, "description": "Tangent intersection point"},
+            {"name": "Rho", "type": "numeric", "min": 0.01, "max": 0.99, "default": 0.5, "description": "Conic shape parameter (<0.5 ellipse, =0.5 parabola, >0.5 hyperbola)"}
+          ]
+        }
+      }
+    },
+    "POINT": {
+      "description": "Sketch point — placeholder for dimensions, projections, or hole-pattern center.",
+      "category": "Sketch_Primitive",
+      "fusion_command": "SketchPoints",
+      "python_api": "sketch.sketchPoints.add",
+      "parameterCount": 3,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Sketch Plane", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Location", "type": "point2d", "required": true},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "PROJECT": {
+      "description": "Project 3D edges/faces/sketches onto active sketch plane. Result is associative — moves with source by default.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SketchProject",
+      "python_api": "sketch.project | projectCutEdges",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Active Sketch", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Geometry", "type": "selection_array", "description": "Edges, faces, sketches, vertices to project", "required": true},
+            {"name": "Project Mode", "type": "dropdown", "options": ["body_geometry", "include_geometry", "intersect_with_sketch_plane"], "default": "body_geometry"},
+            {"name": "Associative", "type": "checkbox", "description": "Update projection when source changes", "default": true},
+            {"name": "Project Through Body", "type": "checkbox", "description": "Project hidden edges as well", "default": false}
+          ]
+        }
+      }
+    },
+    "INTERSECT": {
+      "description": "Find intersection curves between sketch plane and 3D body — useful for sectioning.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SketchIntersect",
+      "python_api": "sketch.intersectWithSketchPlane",
+      "parameterCount": 3,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Active Sketch", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Body / Component", "type": "selection", "description": "Body to intersect with sketch plane", "required": true},
+            {"name": "Associative", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PROJECT_TO_SURFACE": {
+      "description": "Project sketch geometry onto a target curved surface — output is 3D sketch curve on the surface.",
+      "category": "Sketch_Reference",
+      "fusion_command": "SketchProjectToSurface",
+      "python_api": "sketch.projectToSurface",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {"parameters": [{"name": "Active Sketch", "type": "selection", "required": true}]},
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Curves", "type": "selection_array", "required": true},
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Projection Type", "type": "dropdown", "options": ["closest_point", "along_vector", "along_surface_normal"], "default": "closest_point"},
+            {"name": "Vector Direction", "type": "vector3d", "description": "Required for along_vector type"}
+          ]
+        }
+      }
+    },
+    "MIRROR": {
+      "description": "Mirror selected sketch geometry across a line — preserves original (non-destructive). Auto-generates Symmetric constraints.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SketchMirror",
+      "python_api": "sketch.geometricConstraints.addSymmetry | mirror",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Geometry", "type": "selection_array", "required": true},
+            {"name": "Mirror Line", "type": "selection", "description": "Sketch line or axis", "required": true},
+            {"name": "Keep Original", "type": "checkbox", "default": true},
+            {"name": "Add Symmetry Constraint", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "OFFSET": {
+      "description": "Offset a curve (or chain of curves) by a constant distance. Positive distance offsets to one side, negative the other. Preserves tangency and corners (rounded by default).",
+      "category": "Sketch_Edit",
+      "fusion_command": "SketchOffset",
+      "python_api": "sketch.offset",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Curves", "type": "selection_array", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "description": "Signed offset distance"},
+            {"name": "Chain Selection", "type": "checkbox", "description": "Auto-extend selection along tangent-connected chain", "default": true},
+            {"name": "Corner Type", "type": "dropdown", "options": ["round", "extend", "natural"], "default": "round"},
+            {"name": "Constrain Offset", "type": "checkbox", "description": "Add equal-distance constraint between source and offset", "default": true}
+          ]
+        }
+      }
+    },
+    "TRIM": {
+      "description": "Remove segment of curve between intersections. Operates on hover-and-click.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SketchTrim",
+      "python_api": "sketch.trim",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Curve Segment", "type": "selection", "description": "Segment between two intersection points", "required": true},
+            {"name": "Preserve Constraints", "type": "checkbox", "description": "Keep dimensions on remaining segments where possible", "default": true}
+          ]
+        }
+      }
+    },
+    "EXTEND": {
+      "description": "Extend curve to next intersection with another curve.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SketchExtend",
+      "python_api": "sketch.extend",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Curve End", "type": "selection", "description": "Curve endpoint to extend", "required": true},
+            {"name": "Boundary", "type": "selection", "description": "Optional explicit boundary; default is nearest intersection", "required": false},
+            {"name": "Extension Type", "type": "dropdown", "options": ["natural", "linear"], "default": "natural"}
+          ]
+        }
+      }
+    },
+    "BREAK": {
+      "description": "Split a curve at a specified point — creates two segments without removing geometry.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SketchBreak",
+      "python_api": "sketch.break",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Curve", "type": "selection", "required": true},
+            {"name": "Break Point", "type": "point2d", "required": true}
+          ]
+        }
+      }
+    },
+    "SCALE": {
+      "description": "Uniform scale of selected sketch geometry about a base point.",
+      "category": "Sketch_Edit",
+      "fusion_command": "SketchScale",
+      "python_api": "sketch.scale",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Geometry", "type": "selection_array", "required": true},
+            {"name": "Base Point", "type": "point2d", "required": true},
+            {"name": "Scale Factor", "type": "numeric", "min": 0.001, "default": 1.0, "required": true},
+            {"name": "Copy", "type": "checkbox", "description": "Keep original; place scaled copy", "default": false}
+          ]
+        }
+      }
+    },
+    "SKETCH_DIMENSION": {
+      "description": "Apply dimensional constraint — linear, angular, radial, or diametric. Drives or driven by parametric value.",
+      "category": "Sketch_Constraint",
+      "fusion_command": "SketchDimension",
+      "python_api": "sketch.sketchDimensions.addDistanceDimension | addAngularDimension | addRadialDimension | addDiameterDimension",
+      "parameterCount": 8,
+      "tabs": {
+        "Constraint": {
+          "parameters": [
+            {"name": "Dimension Type", "type": "dropdown", "options": ["linear", "linear_aligned", "angular", "radial", "diameter", "arc_length"], "default": "linear"},
+            {"name": "Reference 1", "type": "selection", "description": "First geometric reference (point/line/curve)", "required": true},
+            {"name": "Reference 2", "type": "selection", "description": "Second reference; optional for radial/diameter/arc_length", "required": false},
+            {"name": "Text Position", "type": "point2d", "description": "Where dimension label appears", "required": true},
+            {"name": "Value", "type": "numeric", "description": "Driving value (driving) or measurement (driven)", "required": true},
+            {"name": "Driven", "type": "checkbox", "description": "Mark as driven (read-only measurement)", "default": false},
+            {"name": "Reference Geometry", "type": "checkbox", "description": "Mark dimension as reference (no driving role)", "default": false},
+            {"name": "Tolerance", "type": "object", "description": "Optional ± tolerance band {upper, lower, type}", "required": false}
+          ]
+        }
+      }
+    },
+    "GEOMETRIC_CONSTRAINT": {
+      "description": "Add a geometric relation between sketch entities — 13 supported types.",
+      "category": "Sketch_Constraint",
+      "fusion_command": "SketchConstraints",
+      "python_api": "sketch.geometricConstraints.{add[Type]}",
+      "parameterCount": 4,
+      "tabs": {
+        "Constraint": {
+          "parameters": [
+            {"name": "Constraint Type", "type": "dropdown", "options": ["coincident", "collinear", "concentric", "equal", "fix", "horizontal", "midpoint", "parallel", "perpendicular", "smooth", "symmetric", "tangent", "vertical"], "required": true},
+            {"name": "Entity 1", "type": "selection", "required": true},
+            {"name": "Entity 2", "type": "selection", "description": "Second entity; optional for fix and horizontal/vertical applied to a single line", "required": false},
+            {"name": "Symmetry Line", "type": "selection", "description": "Required for symmetric constraint", "required": false}
+          ]
+        }
+      }
+    },
+    "CONSTRUCTION_TOGGLE": {
+      "description": "Toggle selected geometry between consumable (default) and construction (reference-only, excluded from feature consumption).",
+      "category": "Sketch_Property",
+      "fusion_command": "SketchConstruction",
+      "python_api": "sketchEntity.isConstruction = bool",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Geometry", "type": "selection_array", "required": true},
+            {"name": "Construction State", "type": "checkbox", "description": "true = construction; false = consumable", "default": true}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "browser_path": "Solid > Create > Sketch (or Surface > Create > Sketch in Surface workspace)",
+    "python_api_module": "adsk.fusion.Sketches",
+    "constraint_solver": "Internal degree-of-freedom solver auto-runs after each entity addition",
+    "underdefined_indicator": "Blue geometry = underdefined (DOF > 0); black = fully defined (DOF = 0); red = overdefined or conflicting"
+  }
+}

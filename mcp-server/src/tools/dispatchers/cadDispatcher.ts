@@ -171,6 +171,10 @@ const ACTIONS = [
   "gear_compute_geometry", "gear_generate_tooth_profile", "gear_compute_contact_ratio",
   // Helical Spring Engine (U-CADC16)
   "spring_compute_geometry", "spring_compute_mechanics", "spring_compute_stress_at_force", "spring_generate_coil_path",
+  // Fusion 360 CAD Function Index (U-CAD-FIDX-FUS-01)
+  "cad_fusion360_get_index", "cad_fusion360_list_modules", "cad_fusion360_list_operations",
+  "cad_fusion360_get_operation", "cad_fusion360_find_parameter", "cad_fusion360_search_parameters",
+  "cad_fusion360_operations_by_category",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1349,6 +1353,108 @@ Params vary by action — pass relevant fields in params object.`,
               { samplesPerCoil: params.samplesPerCoil }
             );
             result = { success: true, path };
+            break;
+          }
+          // ─── Fusion 360 CAD Function Index (U-CAD-FIDX-FUS-01) ────────────
+          case "cad_fusion360_get_index": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            result = { success: true, index: Fusion360CADFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "cad_fusion360_list_modules": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            result = { success: true, modules: Fusion360CADFunctionIndexEngine.listModules() };
+            break;
+          }
+          case "cad_fusion360_list_operations": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operations = moduleId
+              ? Fusion360CADFunctionIndexEngine.listOperations(moduleId)
+              : Fusion360CADFunctionIndexEngine.listAllOperations();
+            result = { success: true, operations };
+            break;
+          }
+          case "cad_fusion360_get_operation": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string;
+            const operationId = (params.operation_id ?? params.operationId) as string;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_fusion360_get_operation requires module_id and operation_id",
+                action,
+                "prism_cad"
+              );
+            }
+            const operation = Fusion360CADFunctionIndexEngine.getOperation(moduleId, operationId);
+            result = { success: operation !== null, module_id: moduleId, operation_id: operationId, operation };
+            break;
+          }
+          case "cad_fusion360_find_parameter": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string;
+            const operationId = (params.operation_id ?? params.operationId) as string;
+            const parameterName = (params.parameter_name ?? params.parameterName) as string;
+            if (!moduleId || !operationId || !parameterName) {
+              return dispatcherError(
+                "cad_fusion360_find_parameter requires module_id, operation_id, and parameter_name",
+                action,
+                "prism_cad"
+              );
+            }
+            const locator = Fusion360CADFunctionIndexEngine.findParameter(
+              moduleId,
+              operationId,
+              parameterName
+            );
+            result = { success: locator !== null, locator };
+            break;
+          }
+          case "cad_fusion360_search_parameters": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const query = (params.query ?? params.q) as string;
+            const limit = typeof params.limit === "number" ? params.limit : 50;
+            if (!query) {
+              return dispatcherError(
+                "cad_fusion360_search_parameters requires a 'query' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const matches = Fusion360CADFunctionIndexEngine.searchParameters(query, limit);
+            result = { success: true, query, count: matches.length, matches };
+            break;
+          }
+          case "cad_fusion360_operations_by_category": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const category = params.category as string;
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            if (!category) {
+              return dispatcherError(
+                "cad_fusion360_operations_by_category requires a 'category' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const operations = Fusion360CADFunctionIndexEngine.getOperationsByCategory(
+              category,
+              moduleId
+            );
+            result = { success: true, category, count: operations.length, operations };
             break;
           }
           default:
