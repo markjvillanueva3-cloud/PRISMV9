@@ -1242,4 +1242,165 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_setup_operations");
     });
   });
+
+  describe("getMilling2DDeepOperations (CAM-EXHAUST-MS1-07)", () => {
+    it("returns exactly 15 milling-2d-deep toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      expect(ops.length).toBe(15);
+    });
+
+    it("Roughing category contains 5 ops with sorted ids (Adaptive/Pocket/Face/Slot/Circular DEEP)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const ids = ops.filter((o) => o.category === "Roughing").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "ADAPTIVE_2D_DEEP",
+        "CIRCULAR_DEEP",
+        "FACE_DEEP",
+        "POCKET_2D_DEEP",
+        "SLOT_DEEP",
+      ]);
+    });
+
+    it("Finishing category contains 4 ops (Contour/Chamfer/Trace/Engrave DEEP)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const ids = ops.filter((o) => o.category === "Finishing").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "CHAMFER_2D_DEEP",
+        "CONTOUR_2D_DEEP",
+        "ENGRAVE_DEEP",
+        "TRACE_DEEP",
+      ]);
+    });
+
+    it("Drilling category contains 6 ops (Bore/Thread DEEP + 4 net-new drill-family)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const ids = ops.filter((o) => o.category === "Drilling").map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "BORE_DEEP",
+        "COUNTERBORE_2D",
+        "DRILL_2D",
+        "REAM_2D",
+        "TAP_2D",
+        "THREAD_DEEP",
+      ]);
+    });
+
+    it("DRILL_2D is the largest op (57 params — covers all 12 Fanuc canned-cycle codes)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "DRILL_2D");
+      expect(op?.parameter_count).toBe(57);
+      expect(op?.category).toBe("Drilling");
+    });
+
+    it("ADAPTIVE_2D_DEEP has 44 parameters and Roughing category", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "ADAPTIVE_2D_DEEP");
+      expect(op?.parameter_count).toBe(44);
+      expect(op?.category).toBe("Roughing");
+    });
+
+    it("4 net-new drill-family ops (DRILL/TAP/REAM/COUNTERBORE) all have exact expected param counts and Drilling category", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const expected: Record<string, number> = {
+        DRILL_2D: 57,
+        TAP_2D: 44,
+        REAM_2D: 39,
+        COUNTERBORE_2D: 39,
+      };
+      for (const [id, expectedCount] of Object.entries(expected)) {
+        const op = ops.find((o) => o.toolpath_id === id);
+        expect(op?.parameter_count).toBe(expectedCount);
+        expect(op?.category).toBe("Drilling");
+      }
+    });
+
+    it("All 11 _DEEP extensions present (one per existing 2d-operations.json op)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const deepIds = ops.filter((o) => o.toolpath_id.endsWith("_DEEP")).map((o) => o.toolpath_id).sort();
+      expect(deepIds).toEqual([
+        "ADAPTIVE_2D_DEEP",
+        "BORE_DEEP",
+        "CHAMFER_2D_DEEP",
+        "CIRCULAR_DEEP",
+        "CONTOUR_2D_DEEP",
+        "ENGRAVE_DEEP",
+        "FACE_DEEP",
+        "POCKET_2D_DEEP",
+        "SLOT_DEEP",
+        "THREAD_DEEP",
+        "TRACE_DEEP",
+      ]);
+    });
+
+    it("DRILL_2D description references all 12 canned-cycle codes (drill/tap/ream/bore/counterbore family)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "DRILL_2D");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text).toContain("12");
+      expect(text.includes("canned") || text.includes("cycle")).toBe(true);
+    });
+
+    it("parameter counts sum to 486 across all 15 ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      const total = ops.reduce((sum, o) => sum + o.parameter_count, 0);
+      expect(total).toBe(486);
+    });
+
+    it("each op has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getMilling2DDeepOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_milling_2d_deep_operations returns 15 ops with DRILL_2D @ 57 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_milling_2d_deep_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(15);
+      const drill = result.operations.find((o) => o.toolpath_id === "DRILL_2D");
+      expect(drill?.category).toBe("Drilling");
+      expect(drill?.parameter_count).toBe(57);
+    });
+
+    it("milling_2d_deep module is registered in fusion360 function-index with 486 estimated params and depends on 2d_operations", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "milling_2d_deep");
+      expect(entry?.parameter_count_estimate).toBe(486);
+      expect(entry?.dependencies).toEqual(["2d_operations"]);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_milling_2d_deep_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_milling_2d_deep_operations");
+    });
+  });
 });

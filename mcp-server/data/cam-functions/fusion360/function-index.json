@@ -101,6 +101,14 @@
       "parameter_count_estimate": 193,
       "description": "Manufacturing-model / setup primitives — workpiece (5 ops: stock from model, from previous setup, from body, from box, from cylinder), fixture (2 ops: vise, chuck), coordinates (2 ops: WCS_DEFINE single G54-G59, WCS_OFFSET_SCHEDULE extended G54.1 P1..P48), kinematics (1 op: machine + post + axis-config bind), multi-setup (1 op: Op1/Op2 group with datum propagation), documentation (1 op: setup-sheet PDF/HTML/image bundle). 12 toolpaths anchoring every downstream module to a concrete machine + workpiece + datum frame.",
       "dependencies": []
+    },
+    {
+      "module_id": "milling_2d_deep",
+      "path": "cam-functions/fusion360/milling-2d-deep.json",
+      "covered_units": ["U-CAM-MS1-07"],
+      "parameter_count_estimate": 486,
+      "description": "2D milling per-op tab deep pass — closes the input-exhaust gap on existing 2d-operations.json by adding 4 previously-uncatalogued tabs (Strategy, Ramp, Holder, Output, plus Connections) to the 11 existing 2D ops via _DEEP entries (Adaptive/Pocket/Contour/Chamfer/Face/Slot/Trace/Engrave/Bore/Circular/Thread), AND introduces 4 net-new drill-family ops (DRILL_2D with 12 cycle codes, TAP_2D rigid+floating, REAM_2D G85, COUNTERBORE_2D G82). 15 toolpaths total. Brings Fusion 360 2D milling toward 100% input-field coverage per L2-CAMX-EXHAUST mandate.",
+      "dependencies": ["2d_operations"]
     }
   ],
   "global_cross_references": {

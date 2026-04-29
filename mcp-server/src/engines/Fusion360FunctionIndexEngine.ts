@@ -653,6 +653,27 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get 2D milling per-op tab deep-pass operations (CAM-EXHAUST-MS1-07).
+   * Reads milling-2d-deep.json catalog covering Strategy / Ramp / Holder /
+   * Output / Connections tab extensions to the 11 existing 2D ops, plus
+   * 4 net-new drill-family ops (DRILL_2D with 12 cycle codes, TAP_2D
+   * rigid+floating, REAM_2D G85, COUNTERBORE_2D G82). Closes the input-
+   * exhaust gap left by the original MS0/U-CAM21 2d-operations.json.
+   *
+   * Categories: "Roughing" | "Finishing" | "Drilling"
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getMilling2DDeepOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("milling-2d-deep.json", "getMilling2DDeepOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal

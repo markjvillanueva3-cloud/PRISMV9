@@ -1612,6 +1612,8 @@ export const ACTIONS = [
   "fusion360_function_index_get_mill_turn_operations",
   // CAM-EXHAUST-MS1-06 — Fusion360 Manufacturing Model / Setup module
   "fusion360_function_index_get_setup_operations",
+  // CAM-EXHAUST-MS1-07 — Fusion360 2D Milling Per-Op Tab Deep Pass
+  "fusion360_function_index_get_milling_2d_deep_operations",
   // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
   "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
   "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
@@ -12430,6 +12432,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "fusion360_function_index_get_setup_operations": {
             const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
             result = { success: true, operations: Fusion360FunctionIndexEngine.getSetupOperations() };
+            break;
+          }
+          // CAM-EXHAUST-MS1-07 — Fusion360 2D Milling Per-Op Tab Deep Pass
+          case "fusion360_function_index_get_milling_2d_deep_operations": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, operations: Fusion360FunctionIndexEngine.getMilling2DDeepOperations() };
             break;
           }
 
