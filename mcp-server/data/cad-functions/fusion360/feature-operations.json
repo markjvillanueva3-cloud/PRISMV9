@@ -1,0 +1,694 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Feature Operations - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 Design workspace 3D feature creation: solid sweeps (extrude/revolve/sweep/loft), thin features (rib/web), holes/threads, modify-by-removal (shell/draft/split), patterns, mirror, and combine. Aligns with Autodesk Fusion 360 Python API Features module surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-FUS-02",
+    "source": "Autodesk Fusion 360 Help — Design workspace > Solid > Create + Modify panels + Python API Features reference",
+    "totalParameters": 206,
+    "operationCount": 18,
+    "cad_concepts_used": [
+      "PARAMETRIC_SWEEP",
+      "PROFILE_CONSUMPTION",
+      "TAPER_ANGLE",
+      "BOOLEAN_OPERATION",
+      "GUIDE_RAIL",
+      "PATTERN_DISTRIBUTION",
+      "DRAFT_NEUTRAL_PLANE",
+      "SHELL_THICKNESS",
+      "HOLE_TYPE_VARIANT",
+      "THREAD_DESIGNATION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across feature operations",
+    "tabs": ["Profile", "Direction", "Operation", "Properties"]
+  },
+  "operations": {
+    "EXTRUDE": {
+      "description": "Linear sweep of a planar profile along a direction. Supports symmetric/two-side, taper, multiple distance modes (distance/to_object/all/between/symmetric), and Boolean operation against existing bodies (new/join/cut/intersect).",
+      "category": "Solid_Sweep",
+      "fusion_command": "Extrude",
+      "python_api": "rootComp.features.extrudeFeatures.addSimple | createInput",
+      "parameterCount": 17,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Closed sketch profile, planar face, or surface region", "required": true},
+            {"name": "Multiple Profiles", "type": "boolean", "description": "Allow multiple profile selection for separate features", "default": false}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Direction", "type": "dropdown", "description": "Sweep direction relative to profile plane", "options": ["one_side", "two_sides", "symmetric"], "default": "one_side"},
+            {"name": "Extent Type", "type": "dropdown", "description": "How depth is determined", "options": ["distance", "to_object", "all", "between", "symmetric"], "default": "distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Linear sweep distance (one_side / symmetric half)", "min": 0.001},
+            {"name": "Distance Side 2", "type": "numeric", "unit": "mm", "description": "Optional second-side distance for two_sides mode"},
+            {"name": "To Object", "type": "selection", "description": "Face/plane/body terminator for to_object/between modes"},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "description": "Side wall draft angle (positive = outward)", "min": -89, "max": 89, "default": 0},
+            {"name": "Direction Vector Override", "type": "selection", "description": "Optional non-normal direction (edge/axis)"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "description": "Boolean against existing bodies", "options": ["new_body", "new_component", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Bodies", "type": "selection", "description": "Bodies to combine with (join/cut/intersect)"},
+            {"name": "Start Extent Type", "type": "dropdown", "description": "Where the extrude begins", "options": ["profile_plane", "offset", "from_object"], "default": "profile_plane"},
+            {"name": "Start Offset", "type": "numeric", "unit": "mm", "description": "Distance from profile plane when start = offset", "default": 0},
+            {"name": "Start Object", "type": "selection", "description": "Reference for from_object start"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "description": "Mark resulting body as construction", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "description": "Skip during regeneration", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "description": "Body visibility", "default": true}
+          ]
+        }
+      }
+    },
+    "REVOLVE": {
+      "description": "Circular sweep of a planar profile around an axis (line/edge/sketch axis/origin axis). Full or angular revolution; symmetric or one-sided. Boolean operation against existing bodies. Common for cylindrical and shaft-like geometry.",
+      "category": "Solid_Sweep",
+      "fusion_command": "Revolve",
+      "python_api": "rootComp.features.revolveFeatures.add | createInput",
+      "parameterCount": 12,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Closed sketch profile or planar face", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Revolution axis (sketch line, edge, construction axis, or origin axis)", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Direction", "type": "dropdown", "options": ["one_side", "two_sides", "symmetric"], "default": "one_side"},
+            {"name": "Extent Type", "type": "dropdown", "options": ["angle", "to_object", "full"], "default": "full"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Sweep angle (one_side / symmetric half)", "min": -360, "max": 360, "default": 360},
+            {"name": "Angle Side 2", "type": "numeric", "unit": "deg", "description": "Second-side angle for two_sides mode"},
+            {"name": "To Object", "type": "selection", "description": "Face/plane terminator for to_object mode"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "new_component", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Bodies", "type": "selection", "description": "Bodies to combine with"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SWEEP": {
+      "description": "Translates a profile along a 2D/3D path. Supports orientation control (perpendicular_to_path / parallel / guide_rail), twist angle, taper, and an optional guide rail/surface for dual-control sweeping. Used for tubes, handles, swept fins.",
+      "category": "Solid_Sweep",
+      "fusion_command": "Sweep",
+      "python_api": "rootComp.features.sweepFeatures.add | createInput",
+      "parameterCount": 14,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Closed planar profile or face", "required": true},
+            {"name": "Path", "type": "selection", "description": "Continuous edge or sketch chain", "required": true},
+            {"name": "Guide Rail", "type": "selection", "description": "Optional second curve to control profile scaling/orientation"},
+            {"name": "Guide Surface", "type": "selection", "description": "Optional surface to control profile axis"}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Orientation", "type": "dropdown", "options": ["perpendicular_to_path", "parallel", "guide_rail", "guide_surface"], "default": "perpendicular_to_path"},
+            {"name": "Profile Scaling", "type": "dropdown", "description": "How profile size changes along path (guide_rail mode)", "options": ["x_y", "x", "none"], "default": "x_y"},
+            {"name": "Twist Angle", "type": "numeric", "unit": "deg", "description": "Total twist about path tangent", "default": 0},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "description": "Profile draft along path", "default": 0},
+            {"name": "Distance Type", "type": "dropdown", "options": ["full_path", "partial_distance"], "default": "full_path"},
+            {"name": "Distance", "type": "numeric", "description": "Fraction (0..1) of path traversed when partial_distance", "min": 0, "max": 1}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "new_component", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Bodies", "type": "selection"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "LOFT": {
+      "description": "Smooth surface/solid blending between 2+ profiles along (optionally) rails or center-line curves. Profile end conditions control tangency. Used for ergonomic shapes, transitions, ducts, blades.",
+      "category": "Solid_Sweep",
+      "fusion_command": "Loft",
+      "python_api": "rootComp.features.loftFeatures.add | createInput",
+      "parameterCount": 16,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profiles", "type": "selection_list", "description": "Ordered list of 2+ profiles/faces/points", "required": true, "min": 2},
+            {"name": "Rails", "type": "selection_list", "description": "Optional guide curves connecting all profiles"},
+            {"name": "Centerline", "type": "selection", "description": "Optional center-line curve replacing rails"},
+            {"name": "Closed Loop", "type": "checkbox", "description": "Connect last profile back to first", "default": false}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Profile Start Condition", "type": "dropdown", "options": ["free", "tangent", "perpendicular", "tangent_to_face", "smooth_g2"], "default": "free"},
+            {"name": "Profile Start Weight", "type": "numeric", "description": "Tangent magnitude at first profile", "min": 0, "default": 1.0},
+            {"name": "Profile End Condition", "type": "dropdown", "options": ["free", "tangent", "perpendicular", "tangent_to_face", "smooth_g2"], "default": "free"},
+            {"name": "Profile End Weight", "type": "numeric", "min": 0, "default": 1.0},
+            {"name": "Rail Tangency", "type": "checkbox", "description": "Rails contribute to surface tangency", "default": true}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "new_component", "join", "cut", "intersect"], "default": "new_body"},
+            {"name": "Target Bodies", "type": "selection"},
+            {"name": "Output Type", "type": "dropdown", "description": "Solid or surface result", "options": ["solid", "surface"], "default": "solid"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Preview Quality", "type": "dropdown", "options": ["low", "medium", "high"], "default": "medium"}
+          ]
+        }
+      }
+    },
+    "RIB": {
+      "description": "Thin solid feature that thickens a sketch line into a rib structure between existing surfaces. Common for plastic/cast geometry. Direction normal to the sketch plane, thickness symmetric or one-sided.",
+      "category": "Thin_Feature",
+      "fusion_command": "Rib",
+      "python_api": "rootComp.features.ribFeatures.add | createInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Sketch Line", "type": "selection", "description": "Open sketch line(s) defining rib center plane", "required": true},
+            {"name": "Bounding Faces", "type": "selection", "description": "Surfaces between which the rib spans"}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "description": "Rib total thickness", "required": true, "min": 0.001},
+            {"name": "Thickness Direction", "type": "dropdown", "options": ["symmetric", "side_1", "side_2"], "default": "symmetric"},
+            {"name": "Sweep Direction", "type": "dropdown", "description": "Normal to sketch (parallel) or to part", "options": ["normal_to_sketch", "parallel_to_sketch"], "default": "normal_to_sketch"},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "description": "Side wall draft", "default": 0}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["join", "new_body"], "default": "join"},
+            {"name": "Target Body", "type": "selection", "description": "Body to join the rib to", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "WEB": {
+      "description": "Network of thin walls between bounding faces, defined by a sketch graph. Supports multiple ribs in one feature. Constant thickness. Common for stiffening structures in plastic enclosures.",
+      "category": "Thin_Feature",
+      "fusion_command": "Web",
+      "python_api": "rootComp.features.webFeatures.add | createInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Sketch Network", "type": "selection", "description": "Connected sketch lines defining web center planes", "required": true},
+            {"name": "Bounding Faces", "type": "selection_list", "description": "Faces between which webs span"}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Thickness Direction", "type": "dropdown", "options": ["symmetric", "side_1", "side_2"], "default": "symmetric"},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Extend Method", "type": "dropdown", "description": "How web ends meet bounding faces", "options": ["exact", "trim", "extend"], "default": "exact"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["join", "new_body"], "default": "join"},
+            {"name": "Target Body", "type": "selection", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "HOLE": {
+      "description": "Parametric hole feature with 5 head variants (simple/counterbore/countersink/cbore-csink/csink-cbore) and full ANSI/ISO drill-tap-clearance standard support. Independent depth/diameter for each head segment. Sketch-driven, edge-driven, or face-driven location.",
+      "category": "Hole_Thread",
+      "fusion_command": "Hole",
+      "python_api": "rootComp.features.holeFeatures.createSimpleInput | createCounterboreInput | createCountersinkInput | createCounterboreCountersinkInput | createCountersinkCounterboreInput",
+      "parameterCount": 22,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Hole Type", "type": "dropdown", "options": ["simple", "counterbore", "countersink", "cbore_csink", "csink_cbore"], "default": "simple"},
+            {"name": "Position Type", "type": "dropdown", "description": "How hole location is specified", "options": ["sketch_point", "from_edge", "from_face_center", "concentric_to_edge"], "default": "sketch_point"},
+            {"name": "Sketch Points", "type": "selection_list", "description": "One or more sketch points (sketch_point mode)"},
+            {"name": "From Edges", "type": "selection_list", "description": "Edge references for from_edge mode"},
+            {"name": "Reference Face", "type": "selection", "description": "Face on which the hole sits", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Hole Diameter", "type": "numeric", "unit": "mm", "description": "Through-hole diameter", "required": true, "min": 0.001},
+            {"name": "Hole Depth Type", "type": "dropdown", "options": ["distance", "through_all", "to_object"], "default": "distance"},
+            {"name": "Hole Depth", "type": "numeric", "unit": "mm", "description": "Depth value when distance mode"},
+            {"name": "Drill Tip Angle", "type": "numeric", "unit": "deg", "description": "Drill point angle (118° standard)", "default": 118, "min": 90, "max": 180},
+            {"name": "Counterbore Diameter", "type": "numeric", "unit": "mm", "description": "Outer cbore diameter (counterbore variants)"},
+            {"name": "Counterbore Depth", "type": "numeric", "unit": "mm", "description": "Cbore depth from start face"},
+            {"name": "Countersink Diameter", "type": "numeric", "unit": "mm", "description": "Csink top diameter (countersink variants)"},
+            {"name": "Countersink Angle", "type": "numeric", "unit": "deg", "description": "Csink included angle (82° UNC, 90° metric standard)", "default": 82},
+            {"name": "Direction Flip", "type": "checkbox", "description": "Reverse drill direction", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Tap Standard", "type": "dropdown", "description": "Pre-drill diameter for tapping", "options": ["none", "ANSI_unified_inch", "ANSI_metric", "ISO_metric", "ISO_inch", "JIS"], "default": "none"},
+            {"name": "Tap Designation", "type": "string", "description": "e.g. M6x1, 1/4-20-UNC, M8x1.25-fine"},
+            {"name": "Tap Class", "type": "dropdown", "options": ["external_2A", "external_3A", "internal_2B", "internal_3B"], "default": "internal_2B"},
+            {"name": "Modeled Thread", "type": "checkbox", "description": "Render thread visually (vs cosmetic-only)", "default": false},
+            {"name": "Operation", "type": "dropdown", "options": ["cut", "new_body"], "default": "cut"},
+            {"name": "Target Bodies", "type": "selection_list"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "THREAD": {
+      "description": "Adds cosmetic or modeled threads to existing cylindrical face. Supports ANSI/ISO/UNJ standards. Independent length / pitch / class. Internal (tap) or external (die) threading.",
+      "category": "Hole_Thread",
+      "fusion_command": "Thread",
+      "python_api": "rootComp.features.threadFeatures.add | createInput",
+      "parameterCount": 12,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Cylindrical Face", "type": "selection", "description": "Existing cylindrical face to thread", "required": true},
+            {"name": "Thread Side", "type": "dropdown", "options": ["external", "internal"], "default": "external"}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["ANSI_unified_inch", "ANSI_metric", "ISO_metric", "ISO_inch", "ANSI_pipe_NPT", "ISO_pipe_BSPP", "ACME", "trapezoidal"], "required": true},
+            {"name": "Designation", "type": "string", "description": "e.g. M10x1.5, 3/8-16-UNC, 1/2-NPT", "required": true},
+            {"name": "Class", "type": "dropdown", "options": ["1A", "2A", "3A", "1B", "2B", "3B", "6g", "6H"], "default": "2A"},
+            {"name": "Hand", "type": "dropdown", "options": ["right", "left"], "default": "right"},
+            {"name": "Length Type", "type": "dropdown", "options": ["full_length", "specified"], "default": "full_length"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Threaded length when specified mode"},
+            {"name": "Offset", "type": "numeric", "unit": "mm", "description": "Distance from face start to thread start", "default": 0}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Modeled Thread", "type": "checkbox", "description": "Render geometry vs cosmetic-only annotation", "default": false},
+            {"name": "Multiple Faces", "type": "checkbox", "description": "Apply same thread to multiple cylindrical faces", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SHELL": {
+      "description": "Hollows a solid body to a constant or per-face wall thickness, removing chosen faces. Direction inward (default), outward, or symmetric. Common for plastic-injection geometry.",
+      "category": "Modify_Removal",
+      "fusion_command": "Shell",
+      "python_api": "rootComp.features.shellFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Faces to Remove", "type": "selection_list", "description": "Faces opened by shelling (empty = closed shell)"},
+            {"name": "Bodies", "type": "selection_list", "description": "Bodies to shell", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Wall Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["inside", "outside", "symmetric"], "default": "inside"},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Auto-extend selection along tangent faces", "default": true},
+            {"name": "Per-Face Thickness Overrides", "type": "selection_pairs", "description": "Optional per-face thickness pairs"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "DRAFT": {
+      "description": "Adds a release angle to selected faces relative to a neutral plane. Required for moldability. Two split modes: from_neutral (single direction) or split (two directions about neutral).",
+      "category": "Modify_Removal",
+      "fusion_command": "Draft",
+      "python_api": "rootComp.features.draftFeatures.add | createInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Faces", "type": "selection_list", "description": "Side walls to draft", "required": true},
+            {"name": "Neutral Plane", "type": "selection", "description": "Reference plane / face that doesn't move", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["from_neutral", "split"], "default": "from_neutral"},
+            {"name": "Pull Direction", "type": "selection", "description": "Optional override of neutral-plane normal"},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "description": "Angle from neutral plane normal", "required": true, "min": -89, "max": 89},
+            {"name": "Split Angle", "type": "numeric", "unit": "deg", "description": "Second-direction angle when split mode"},
+            {"name": "Tangent Propagation", "type": "checkbox", "description": "Auto-extend selection along tangent edges", "default": true}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PATTERN_LINEAR": {
+      "description": "Replicates features/bodies/components along 1 or 2 linear directions with controllable spacing distribution (extent / spacing / count). Symmetric option centers the pattern on the seed.",
+      "category": "Pattern",
+      "fusion_command": "RectangularPattern",
+      "python_api": "rootComp.features.rectangularPatternFeatures.add | createInput",
+      "parameterCount": 13,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["features", "bodies", "components", "faces"], "default": "features"},
+            {"name": "Objects", "type": "selection_list", "description": "Seed entities to pattern", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Direction 1", "type": "selection", "description": "Edge / axis / line", "required": true},
+            {"name": "Distribution Type", "type": "dropdown", "options": ["extent", "spacing"], "default": "extent"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "description": "Total extent or spacing depending on mode", "required": true},
+            {"name": "Quantity 1", "type": "integer", "min": 1, "default": 2},
+            {"name": "Symmetric 1", "type": "checkbox", "description": "Mirror pattern about seed", "default": false},
+            {"name": "Direction 2", "type": "selection", "description": "Optional second axis"},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm"},
+            {"name": "Quantity 2", "type": "integer", "min": 1, "default": 1},
+            {"name": "Symmetric 2", "type": "checkbox", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Compute Type", "type": "dropdown", "description": "Optimize / identical / adjust", "options": ["optimized", "identical", "adjust"], "default": "optimized"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "PATTERN_CIRCULAR": {
+      "description": "Replicates features/bodies/components around an axis with full or partial sweep. Equal or specified spacing. Symmetric mode centers about seed.",
+      "category": "Pattern",
+      "fusion_command": "CircularPattern",
+      "python_api": "rootComp.features.circularPatternFeatures.add | createInput",
+      "parameterCount": 11,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["features", "bodies", "components", "faces"], "default": "features"},
+            {"name": "Objects", "type": "selection_list", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Axis", "type": "selection", "description": "Rotation axis (edge, axis, sketch line)", "required": true},
+            {"name": "Distribution Type", "type": "dropdown", "options": ["full", "angle", "symmetric"], "default": "full"},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "description": "Used when distribution = angle", "default": 360},
+            {"name": "Quantity", "type": "integer", "min": 1, "default": 6},
+            {"name": "Direction Reverse", "type": "checkbox", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Compute Type", "type": "dropdown", "options": ["optimized", "identical", "adjust"], "default": "optimized"},
+            {"name": "Suppress Instances", "type": "selection_list", "description": "Specific instance numbers to suppress"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "PATTERN_ON_PATH": {
+      "description": "Replicates objects along a path curve with optional orientation control. Supports start/end offset and orientation modes (path / identical / start_only).",
+      "category": "Pattern",
+      "fusion_command": "PathPattern",
+      "python_api": "rootComp.features.pathPatternFeatures.add | createInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["features", "bodies", "components", "faces"], "default": "features"},
+            {"name": "Objects", "type": "selection_list", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Path", "type": "selection", "description": "Edge or sketch curve chain", "required": true},
+            {"name": "Distribution Type", "type": "dropdown", "options": ["extent", "spacing"], "default": "extent"},
+            {"name": "Quantity", "type": "integer", "min": 1, "default": 4},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Total extent or spacing", "required": true},
+            {"name": "Start Point", "type": "numeric", "description": "Path-fraction start (0..1)", "min": 0, "max": 1, "default": 0},
+            {"name": "Orientation", "type": "dropdown", "options": ["identical", "path"], "default": "path"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Compute Type", "type": "dropdown", "options": ["optimized", "identical", "adjust"], "default": "optimized"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "PATTERN_ON_SKETCH": {
+      "description": "Replicates objects at locations defined by sketch points. Each point becomes one instance — no spacing math.",
+      "category": "Pattern",
+      "fusion_command": "SketchDrivenPattern",
+      "python_api": "rootComp.features.sketchPatternFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["features", "bodies", "components", "faces"], "default": "features"},
+            {"name": "Objects", "type": "selection_list", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Sketch Points", "type": "selection_list", "description": "Sketch points defining instance locations", "required": true},
+            {"name": "Reference Point", "type": "selection", "description": "Optional seed-position anchor on the seed"},
+            {"name": "Orientation", "type": "dropdown", "options": ["identical", "to_path"], "default": "identical"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Compute Type", "type": "dropdown", "options": ["optimized", "identical", "adjust"], "default": "optimized"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MIRROR": {
+      "description": "Reflects features/bodies/components/faces about a planar mirror plane.",
+      "category": "Pattern",
+      "fusion_command": "Mirror",
+      "python_api": "rootComp.features.mirrorFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["features", "bodies", "components", "faces"], "default": "features"},
+            {"name": "Objects", "type": "selection_list", "required": true},
+            {"name": "Mirror Plane", "type": "selection", "description": "Origin plane, planar face, or construction plane", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Compute Type", "type": "dropdown", "options": ["optimized", "identical", "adjust"], "default": "optimized"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "description": "Boolean against existing bodies (faces mode only)", "options": ["new_body", "join", "cut"], "default": "new_body"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "COMBINE": {
+      "description": "Boolean operation between two solid bodies: join / cut / intersect. Optional keep-tools preserves the non-target body for further operations.",
+      "category": "Boolean",
+      "fusion_command": "Combine",
+      "python_api": "rootComp.features.combineFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "description": "Body to modify", "required": true},
+            {"name": "Tool Bodies", "type": "selection_list", "description": "Bodies acting as the operator", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["join", "cut", "intersect"], "required": true},
+            {"name": "Keep Tools", "type": "checkbox", "description": "Preserve tool body geometry", "default": false},
+            {"name": "New Component", "type": "checkbox", "description": "Result becomes a new component", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SPLIT_BODY": {
+      "description": "Splits a solid body using a tool plane / surface / face. Resulting bodies are independently selectable. Used to separate manufactured halves of a part.",
+      "category": "Boolean",
+      "fusion_command": "SplitBody",
+      "python_api": "rootComp.features.splitBodyFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Bodies to Split", "type": "selection_list", "required": true},
+            {"name": "Splitting Tool Type", "type": "dropdown", "options": ["plane", "surface", "face", "sketch"], "default": "plane"},
+            {"name": "Splitting Tool", "type": "selection", "description": "Plane / surface / face / sketch curve", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Extend Splitting Tool", "type": "checkbox", "description": "Auto-extend tool surface to bound the bodies", "default": true}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["split"], "default": "split"},
+            {"name": "Keep Original", "type": "checkbox", "description": "Preserve original body (rare)", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "BOUNDARY_FILL": {
+      "description": "Combines surfaces and planes into closed regions, then fills selected regions with solid bodies. Each region can independently be filled, removed, or skipped.",
+      "category": "Boolean",
+      "fusion_command": "BoundaryFill",
+      "python_api": "rootComp.features.boundaryFillFeatures.add | createInput",
+      "parameterCount": 9,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Bounding Tools", "type": "selection_list", "description": "Surfaces, faces, planes that define the cells", "required": true},
+            {"name": "Cells to Fill", "type": "selection_list", "description": "Resulting cells to convert to solid bodies", "required": true}
+          ]
+        },
+        "Direction": {
+          "parameters": [
+            {"name": "Cell Operation", "type": "dropdown", "description": "How each cell is treated", "options": ["new_body", "join", "cut"], "default": "new_body"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "new_component", "join"], "default": "new_body"},
+            {"name": "Target Bodies", "type": "selection_list", "description": "Bodies to combine with when join"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Compute Type", "type": "dropdown", "options": ["optimized", "identical"], "default": "optimized"}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "design_workspace_required": true,
+    "form_workspace_compatible": false,
+    "sheet_metal_workspace_compatible": "partial — extrude/hole/pattern/mirror only via flange/face equivalents",
+    "supports_timeline_disabled_mode": true,
+    "supports_direct_modeling_mode": true
+  }
+}

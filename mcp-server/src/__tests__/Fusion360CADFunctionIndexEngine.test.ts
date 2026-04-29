@@ -7,6 +7,19 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Fusion360CADFunctionIndexEngine } from "../engines/Fusion360CADFunctionIndexEngine.js";
 
+// Sum parameters for a module across all ops and tabs (used by per-module drift assertion).
+function sumParamsForModule(moduleId: string): number {
+  const mod = Fusion360CADFunctionIndexEngine.getModule(moduleId);
+  if (!mod || !mod.operations) return 0;
+  let total = 0;
+  for (const op of Object.values(mod.operations)) {
+    for (const tab of Object.values(op.tabs ?? {})) {
+      total += (tab.parameters ?? tab.params ?? []).length;
+    }
+  }
+  return total;
+}
+
 const KNOWN_OPS = [
   "LINE",
   "RECTANGLE",
@@ -58,9 +71,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains exactly one module today (sketch_operations)", () => {
+    it("modules array contains exactly two modules (sketch_operations, feature_operations)", () => {
       const ids = Fusion360CADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
-      expect(ids).toEqual(["sketch_operations"]);
+      expect(ids).toEqual(["sketch_operations", "feature_operations"]);
     });
 
     it("returns same object identity on repeated calls (cache hit)", () => {
@@ -71,9 +84,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 5 deferred modules with non-empty scopes", () => {
+    it("declares exactly 4 remaining deferred modules with non-empty scopes (feature_operations was completed in U-CAD-FIDX-FUS-02)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(5);
+      expect(fm.length).toBe(4);
       for (const f of fm) {
         expect(f.scope.length).toBeGreaterThan(20);
         expect(f.estimated_params).toBeGreaterThan(0);
@@ -81,12 +94,11 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("planned_ids cover feature/modify/surface/mesh/assembly", () => {
+    it("planned_ids cover modify/surface/mesh/assembly (feature_operations now shipped)", () => {
       const fm = Fusion360CADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
       expect(ids).toEqual([
         "assembly_operations",
-        "feature_operations",
         "mesh_operations",
         "modify_operations",
         "surface_operations",
@@ -95,8 +107,11 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns exactly ['sketch_operations']", () => {
-      expect(Fusion360CADFunctionIndexEngine.listModules()).toEqual(["sketch_operations"]);
+    it("listModules returns exactly ['sketch_operations', 'feature_operations']", () => {
+      expect(Fusion360CADFunctionIndexEngine.listModules()).toEqual([
+        "sketch_operations",
+        "feature_operations",
+      ]);
     });
 
     it("getModuleEntry('sketch_operations') has the U-CAD-FIDX-FUS-01 tag", () => {
@@ -105,6 +120,15 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(entry?.path).toBe("cad-functions/fusion360/sketch-operations.json");
       expect(entry?.covered_units).toEqual(["U-CAD-FIDX-FUS-01"]);
       expect(entry?.parameter_count_estimate).toBe(115);
+    });
+
+    it("getModuleEntry('feature_operations') has the U-CAD-FIDX-FUS-02 tag and depends on sketch_operations", () => {
+      const entry = Fusion360CADFunctionIndexEngine.getModuleEntry("feature_operations");
+      expect(entry?.module_id).toBe("feature_operations");
+      expect(entry?.path).toBe("cad-functions/fusion360/feature-operations.json");
+      expect(entry?.covered_units).toEqual(["U-CAD-FIDX-FUS-02"]);
+      expect(entry?.parameter_count_estimate).toBe(206);
+      expect(entry?.dependencies).toEqual(["sketch_operations"]);
     });
 
     it("getModuleEntry returns null for unknown module", () => {
@@ -169,10 +193,14 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals listOperations of the only module (length match)", () => {
+    it("listAllOperations equals sum of listOperations across both modules (22 sketch + 18 feature = 40)", () => {
       const all = Fusion360CADFunctionIndexEngine.listAllOperations();
       const sketch = Fusion360CADFunctionIndexEngine.listOperations("sketch_operations");
-      expect(all.length).toBe(sketch.length);
+      const feature = Fusion360CADFunctionIndexEngine.listOperations("feature_operations");
+      expect(sketch.length).toBe(22);
+      expect(feature.length).toBe(18);
+      expect(all.length).toBe(sketch.length + feature.length);
+      expect(all.length).toBe(40);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -388,19 +416,115 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 115 parameters across all 22 sketch operations", () => {
-      // 22 ops, ~5 params/op average — sketch ops have fewer params than CAM toolpaths
+    it("counts exactly 321 parameters across all 40 operations (115 sketch + 206 feature)", () => {
       const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(115);
+      expect(total).toBe(321);
     });
 
-    it("computed total exactly equals metadata.totalParameters declaration", () => {
-      const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
-      const declared =
-        Fusion360CADFunctionIndexEngine.getModule("sketch_operations")?.metadata
-          ?.totalParameters ?? 0;
-      // Catalog author-curated number must match engine-computed reality
-      expect(declared).toBe(total);
+    it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
+      // Compute per-module totals by listing operations and summing per-tab params manually,
+      // then compare to each catalog's metadata.totalParameters. Catches catalog drift.
+      const sketchTotal = sumParamsForModule("sketch_operations");
+      const sketchDeclared = (Fusion360CADFunctionIndexEngine.getModule("sketch_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(sketchTotal).toBe(115);
+      expect(sketchDeclared).toBe(115);
+
+      const featureTotal = sumParamsForModule("feature_operations");
+      const featureDeclared = (Fusion360CADFunctionIndexEngine.getModule("feature_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(featureTotal).toBe(206);
+      expect(featureDeclared).toBe(206);
+
+      // Aggregate engine method must equal sum of per-module computed totals
+      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + featureTotal);
+    });
+  });
+
+  describe("feature_operations module (U-CAD-FIDX-FUS-02)", () => {
+    const FEATURE_OPS = [
+      "EXTRUDE", "REVOLVE", "SWEEP", "LOFT",
+      "RIB", "WEB",
+      "HOLE", "THREAD",
+      "SHELL", "DRAFT",
+      "PATTERN_LINEAR", "PATTERN_CIRCULAR", "PATTERN_ON_PATH", "PATTERN_ON_SKETCH",
+      "MIRROR",
+      "COMBINE", "SPLIT_BODY", "BOUNDARY_FILL",
+    ];
+
+    it("listOperations('feature_operations') returns exactly the 18 feature ops", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("feature_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(18);
+      expect(ops.sort()).toEqual([...FEATURE_OPS].sort());
+    });
+
+    it("HOLE op enumerates all 5 head variants in Hole Type dropdown", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("feature_operations", "HOLE");
+      const holeTypeParam = op?.tabs?.["Profile"]?.parameters?.find((p) => p.name === "Hole Type");
+      expect(holeTypeParam?.options).toEqual([
+        "simple", "counterbore", "countersink", "cbore_csink", "csink_cbore",
+      ]);
+    });
+
+    it("THREAD op enumerates the 8 supported standards", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("feature_operations", "THREAD");
+      const standardParam = op?.tabs?.["Direction"]?.parameters?.find((p) => p.name === "Standard");
+      expect(standardParam?.options).toEqual([
+        "ANSI_unified_inch", "ANSI_metric", "ISO_metric", "ISO_inch",
+        "ANSI_pipe_NPT", "ISO_pipe_BSPP", "ACME", "trapezoidal",
+      ]);
+    });
+
+    it("LOFT requires 2+ profiles (validation hint via min on Profiles param)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("feature_operations", "LOFT");
+      const profiles = op?.tabs?.["Profile"]?.parameters?.find((p) => p.name === "Profiles");
+      expect(profiles?.required).toBe(true);
+      // min:2 expressed as a numeric on the param schema — verifies the constraint is captured
+      expect((profiles as { min?: number })?.min).toBe(2);
+    });
+
+    it("EXTRUDE Boolean operation includes all 5 modes", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("feature_operations", "EXTRUDE");
+      const opParam = op?.tabs?.["Operation"]?.parameters?.find((p) => p.name === "Operation");
+      expect(opParam?.options).toEqual(["new_body", "new_component", "join", "cut", "intersect"]);
+    });
+
+    it("getOperationsByCategory enumerates exactly the 4 sweep categories", () => {
+      const sweeps = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Solid_Sweep", "feature_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(sweeps).toEqual(["EXTRUDE", "LOFT", "REVOLVE", "SWEEP"]);
+    });
+
+    it("getOperationsByCategory enumerates exactly the 4 pattern categories", () => {
+      const patterns = Fusion360CADFunctionIndexEngine
+        .getOperationsByCategory("Pattern", "feature_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(patterns).toEqual([
+        "MIRROR", "PATTERN_CIRCULAR", "PATTERN_LINEAR", "PATTERN_ON_PATH", "PATTERN_ON_SKETCH",
+      ].sort());
+    });
+
+    it("findParameter locates HOLE.Drill Tip Angle with correct unit, default, and bounds", () => {
+      const loc = Fusion360CADFunctionIndexEngine.findParameter(
+        "feature_operations",
+        "HOLE",
+        "Drill Tip Angle",
+      );
+      expect(loc?.tab_id).toBe("Direction");
+      expect(loc?.parameter.unit).toBe("deg");
+      expect(loc?.parameter.default).toBe(118);
+      expect((loc?.parameter as { min?: number }).min).toBe(90);
+      expect((loc?.parameter as { max?: number }).max).toBe(180);
+    });
+
+    it("searchParameters('Taper Angle') finds it in exactly EXTRUDE, RIB, SWEEP, WEB (DRAFT uses 'Draft Angle' instead)", () => {
+      const matches = Fusion360CADFunctionIndexEngine.searchParameters("Taper Angle");
+      const opsWithTaper = matches
+        .filter((m) => m.module_id === "feature_operations")
+        .map((m) => m.operation_id)
+        .sort();
+      expect(opsWithTaper).toEqual(["EXTRUDE", "RIB", "SWEEP", "WEB"]);
     });
   });
 

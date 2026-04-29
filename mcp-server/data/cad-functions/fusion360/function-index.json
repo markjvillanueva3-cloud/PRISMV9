@@ -13,6 +13,14 @@
       "parameter_count_estimate": 115,
       "description": "2D sketch creation and editing: Line, Rectangle (3 variants), Circle (5 variants), Polygon (3 variants), Arc (3 variants), Ellipse, Spline (2 variants), Slot (4 variants), Conic, Point, Project/Intersect/Project-to-Surface, Mirror, Offset, Trim/Extend/Break, Scale, Sketch Dimensions (linear/angular/radial/diameter), Geometric Constraints (13 types), Construction Geometry toggle.",
       "dependencies": []
+    },
+    {
+      "module_id": "feature_operations",
+      "path": "cad-functions/fusion360/feature-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-02"],
+      "parameter_count_estimate": 206,
+      "description": "3D feature creation: solid sweeps (Extrude, Revolve, Sweep, Loft), thin features (Rib, Web), holes/threads (Hole with 5 head variants, Thread with ANSI/ISO/UNJ standards), modify-by-removal (Shell, Draft), patterns (Linear/Circular/On-Path/On-Sketch), Mirror, Boolean (Combine, Split Body, Boundary Fill). 18 operations.",
+      "dependencies": ["sketch_operations"]
     }
   ],
   "global_cross_references": {
@@ -24,11 +32,22 @@
       "SKETCH_PLANE_DEFINITION",
       "PROJECTED_GEOMETRY",
       "SPLINE_INTERPOLATION",
-      "CONIC_SECTION"
+      "CONIC_SECTION",
+      "PARAMETRIC_SWEEP",
+      "PROFILE_CONSUMPTION",
+      "TAPER_ANGLE",
+      "BOOLEAN_OPERATION",
+      "GUIDE_RAIL",
+      "PATTERN_DISTRIBUTION",
+      "DRAFT_NEUTRAL_PLANE",
+      "SHELL_THICKNESS",
+      "HOLE_TYPE_VARIANT",
+      "THREAD_DESIGNATION"
     ],
     "dispatchers_touched": ["prism_cad", "prism_ai"],
     "engines_linked": [
       "Fusion360CADFunctionIndexEngine",
+      "AutodeskFusionMCPProxyEngine",
       "Fusion360CADGeneratorAdapter",
       "Fusion360CodeGeneratorEngine",
       "PartGeometryEngine",
@@ -37,17 +56,19 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 1,
-    "total_units_covered": ["U-CAD-FIDX-FUS-01"],
-    "estimated_parameter_total": 115,
+    "total_modules": 2,
+    "total_units_covered": ["U-CAD-FIDX-FUS-01", "U-CAD-FIDX-FUS-02"],
+    "estimated_parameter_total": 321,
     "api_surface": {
-      "python_api_items": 22,
+      "python_api_items": 40,
       "fusion_design_workspace": true
     },
     "pdf_sources_bound": [
       "Autodesk Fusion 360 Design Fundamentals.pdf",
       "Autodesk Fusion 360 Sketching Guide.pdf",
-      "Autodesk Fusion 360 Python API Reference — Sketches Module"
+      "Autodesk Fusion 360 Python API Reference — Sketches Module",
+      "Autodesk Fusion 360 Modeling Fundamentals.pdf",
+      "Autodesk Fusion 360 Python API Reference — Features Module"
     ]
   },
   "tribal_knowledge_integration": {
@@ -67,12 +88,6 @@
     "render_workspace": false
   },
   "future_modules": [
-    {
-      "planned_id": "feature_operations",
-      "scope": "Extrude, Revolve, Sweep, Loft, Rib, Web, Hole, Thread, Shell, Draft, Pattern (linear/circular/path/sketch-driven), Mirror, Combine, Split, Boundary Fill",
-      "estimated_params": 220,
-      "deferred_to": "U-CAD-FIDX-FUS-02"
-    },
     {
       "planned_id": "modify_operations",
       "scope": "Fillet, Chamfer, Press Pull, Move, Scale, Plane, Axis, Construction Geometry, Section Analysis",
