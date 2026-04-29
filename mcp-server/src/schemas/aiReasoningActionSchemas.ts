@@ -179,6 +179,15 @@ export const AI_REASONING_ACTIONS = [
   "stall_scan_one",              // U-WIRE43: lookup single job at now_ms
   "stall_stats",                 // U-WIRE43: tracker stats; optional now_ms toggles statsAt for live stall count
   "stall_clear",                 // U-WIRE43: reset all tracking (testing/dashboard)
+  // ENGINE-WIRE-MS0/U-WIRE44: SimulationStallDetectorEngine - sim-pipeline stage stall budgets
+  "sim_stall_start_tracking",    // U-WIRE44: begin tracking a simulation job at a stage
+  "sim_stall_mark_progress",     // U-WIRE44: reset stall clock without changing stage
+  "sim_stall_advance_stage",     // U-WIRE44: move job to next sim stage + reset clock
+  "sim_stall_complete_job",      // U-WIRE44: remove sim job from tracking
+  "sim_stall_scan",              // U-WIRE44: list all stalled sim jobs at now_ms
+  "sim_stall_scan_one",          // U-WIRE44: lookup single sim job at now_ms
+  "sim_stall_stats",             // U-WIRE44: tracker stats; optional now_ms toggles statsAt
+  "sim_stall_clear",             // U-WIRE44: reset all sim tracking
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1600,4 +1609,39 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
       .describe("When provided, response includes currently_stalled count via statsAt; omit for static stats only"),
   }).passthrough(),
   stall_clear: z.object({}).passthrough(),
+  // U-WIRE44 - SimulationStallDetectorEngine
+  // Same lifecycle as U-WIRE43 but with sim-pipeline stages: gcode_parse(5s),
+  // kinematics(10s), collision_check(30s), physics_validate(20s), finalize(5s).
+  // No special candidate_review case - all stages are machine-time so the
+  // priority formula uses the standard r>6/3/1.5 thresholds.
+  sim_stall_start_tracking: z.object({
+    job_id: z.string().min(1),
+    stage: z.enum(["gcode_parse", "kinematics", "collision_check", "physics_validate", "finalize"]),
+    now_ms: z.number().int().nonnegative(),
+    context: z.record(z.string(), z.unknown()).optional(),
+  }).passthrough(),
+  sim_stall_mark_progress: z.object({
+    job_id: z.string().min(1),
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  sim_stall_advance_stage: z.object({
+    job_id: z.string().min(1),
+    from_stage: z.enum(["gcode_parse", "kinematics", "collision_check", "physics_validate", "finalize"]),
+    to_stage: z.enum(["gcode_parse", "kinematics", "collision_check", "physics_validate", "finalize"]),
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  sim_stall_complete_job: z.object({
+    job_id: z.string().min(1),
+  }).passthrough(),
+  sim_stall_scan: z.object({
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  sim_stall_scan_one: z.object({
+    job_id: z.string().min(1),
+    now_ms: z.number().int().nonnegative(),
+  }).passthrough(),
+  sim_stall_stats: z.object({
+    now_ms: z.number().int().nonnegative().optional(),
+  }).passthrough(),
+  sim_stall_clear: z.object({}).passthrough(),
 };
