@@ -1121,6 +1121,45 @@ export async function executeAIReasoningAction(
         result = stats;
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE31: ExceptionLearningEngine — capture, analyze,
+      // and learn from unexpected events instead of failing. Singleton-only
+      // (the class is not exported as a value — only the instance + types).
+      // The lifecycle is: handle → record_outcome (writes), pending/stats
+      // (reads). recordOutcome on a 'success' outcome additionally synthesizes
+      // a tribal tip, and for parameter_outlier with data.value an envelope
+      // proposal at value × 1.10.
+      // ─────────────────────────────────────────────────────────────────────
+      case "exception_handle": {
+        const { exceptionLearningEngine } = await import("../../engines/ExceptionLearningEngine.js");
+        type Arg = Parameters<typeof exceptionLearningEngine.handleUnexpected>[0];
+        // Schema-validated upstream; cast to the engine's omit shape.
+        const response = exceptionLearningEngine.handleUnexpected(params as Arg);
+        result = response;
+        break;
+      }
+      case "exception_record_outcome": {
+        const { exceptionLearningEngine } = await import("../../engines/ExceptionLearningEngine.js");
+        const p = params as { eventId: string; outcome: "success" | "failure" | "neutral" };
+        const learned = exceptionLearningEngine.recordOutcome(p.eventId, p.outcome);
+        // Engine returns null when eventId is unknown; surface explicitly so
+        // the dispatcher result discriminates 'unknown event' from 'recorded'.
+        result = learned === null
+          ? { learned: null, recorded: false, reason: `Unknown eventId: ${p.eventId}` }
+          : { learned, recorded: true };
+        break;
+      }
+      case "exception_pending": {
+        const { exceptionLearningEngine } = await import("../../engines/ExceptionLearningEngine.js");
+        const pending = exceptionLearningEngine.getPendingExceptions();
+        result = { events: pending, count: pending.length };
+        break;
+      }
+      case "exception_stats": {
+        const { exceptionLearningEngine } = await import("../../engines/ExceptionLearningEngine.js");
+        result = exceptionLearningEngine.getStatistics();
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
