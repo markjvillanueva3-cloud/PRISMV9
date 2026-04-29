@@ -1,0 +1,71 @@
+{
+  "milestoneId": "CHATBUS-MS1",
+  "title": "ChatBus Upgrade Milestone 1: Direct Addressing & Threaded Messages",
+  "schemaVersion": "1.0.0",
+  "units": [
+    {
+      "unit_id": "U-CHATBUS-MS1-01",
+      "title": "Direct Addressing Parser & Dispatcher",
+      "mins": 35
+    },
+    {
+      "unit_id": "U-CHATBUS-MS1-02",
+      "title": "Thread Support with parent_message_id",
+      "mins": 32
+    },
+    {
+      "unit_id": "U-CHATBUS-MS1-03",
+      "title": "Message Query & Filter API",
+      "mins": 28
+    },
+    {
+      "unit_id": "U-CHATBUS-MS1-04",
+      "title": "Bus Health Dashboard & Metrics",
+      "mins": 25
+    },
+    {
+      "unit_id": "U-CHATBUS-MS1-05",
+      "title": "Cross-PC Sync Scaffold (H: & C:)",
+      "mins": 40
+    },
+    {
+      "unit_id": "U-CHATBUS-MS1-06",
+      "title": "Capability Advertisement Registry",
+      "mins": 38
+    },
+    {
+      "unit_id": "U-CHATBUS-MS1-07",
+      "title": "Pattern Subscription Wakeup Triggers",
+      "mins": 35
+    }
+  ],
+  "total_estimated_minutes": 233,
+  "parallel_execution_time": 97,
+  "key_features": [
+    "U-01: @claude-XXX direct addressing for targeted messaging",
+    "U-02: Threaded conversations with parent_message_id traversal",
+    "U-03: searchMessages(), filterMessages(), getByTimeRange() queries",
+    "U-04: getHealthStatus(), getMetrics() for observability",
+    "U-05: syncToRemote() and mergeFromRemote() for H: and C: drives",
+    "U-06: postCapabilityBroadcast() so chats advertise skills",
+    "U-07: subscribeToPattern() for event-driven handoffs"
+  ],
+  "design_guarantees": [
+    "All additive - no breaking changes to ChatBusEngine",
+    "Existing 1570 messages untouched",
+    "Schema version 1.0.0 maintained throughout",
+    "No conflicts with claude-379c35e0 (chat-bus-inject) or claude-72bb539a (compressor hooks)",
+    "Each unit has 10+ test assertions",
+    "New optional directories only (capabilities/, subscriptions/)",
+    "Full backward compatibility"
+  ],
+  "karpathy_discipline": [
+    "U-01 reduces routing ambiguity - clear peer targeting",
+    "U-02 groups conversations - better handoff clarity",
+    "U-03 enables duplication prevention via discovery",
+    "U-04 provides real-time conflict warnings",
+    "U-05 unblocks multi-machine workflows",
+    "U-06 intelligent work routing by capability",
+    "U-07 async event-driven handoffs"
+  ]
+}
