@@ -1,0 +1,969 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM 2D Milling Per-Op Tab Deep Pass — Strategy / Output / Holder / Ramp Coverage + Drill Family",
+    "description": "Deep-pass extension to 2d-operations.json (MS0/U-CAM21). Closes the input-exhaust gap by adding 4 previously-uncatalogued tabs (Strategy, Output/Manual-NC, Holder, Ramp) to the 11 existing 2D milling ops, AND introduces 4 net-new drill-family ops (DRILL_2D, TAP_2D, REAM_2D, COUNTERBORE_2D) that were missing entirely. Together brings Fusion 360 2D milling to 100% input-field coverage per the L2-CAMX-EXHAUST mandate.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-07",
+    "source": "Autodesk Fusion 360 Help — 2D Milling reference (Adaptive/Pocket/Contour/Face/Slot/Trace/Engrave/Bore/Circular/Thread/Chamfer) + Drilling reference (12 cycle codes: drill / counterbore / chip-break / deep-drill / gun-drill / tap / right-tap / left-tap / ream / fine-bore / back-bore / circular-pocket) + post.cps Manual NC reference + Holder Collision Check documentation + Ramp Entry Strategy documentation",
+    "totalParameters": 486,
+    "toolpathCount": 15,
+    "physics_links": [
+      "DRILLING_PECK_DEPTH_OPTIMIZATION",
+      "TAP_PITCH_VS_RPM_RIGID",
+      "REAMING_FEED_PER_REV",
+      "BORING_RADIAL_RUNOUT",
+      "RAMP_HELICAL_PITCH_VS_TOOL_DIA",
+      "STOCK_TO_LEAVE_RADIAL_VS_AXIAL",
+      "HOLDER_COLLISION_ENVELOPE",
+      "FINISH_PASS_REMAINING_STOCK"
+    ]
+  },
+  "commonTabs": {
+    "description": "New tabs added by the deep pass on top of the existing 5-tab base (Tool/Geometry/Heights/Passes/Linking). Drill-family ops use the full 8-tab structure including a Cycle tab.",
+    "tabs": ["Strategy", "Ramp", "Holder", "Output", "Cycle"],
+    "extends": ["Tool", "Geometry", "Heights", "Passes", "Linking"]
+  },
+  "toolpaths": {
+    "ADAPTIVE_2D_DEEP": {
+      "description": "Deep-tab extension to 2D_ADAPTIVE_CLEARING — adds Strategy (engagement / direction / order), Ramp (helical entry / lead-in detail), Holder (collision checks + safety distance), Output (pre/post events + manual NC).",
+      "category": "Roughing",
+      "parameterCount": 44,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Optimal Load", "type": "numeric", "description": "Target radial engagement (woc) for adaptive load control", "default": 0.4, "unit": "× tool diameter", "min": 0.05, "max": 0.95},
+            {"name": "Use Stock to Leave", "type": "checkbox", "description": "Reserve stock for finishing pass", "default": true},
+            {"name": "Stock to Leave Radial", "type": "numeric", "description": "Radial finishing allowance", "default": 0.5, "unit": "mm", "min": 0, "max": 5},
+            {"name": "Stock to Leave Axial", "type": "numeric", "description": "Axial finishing allowance (per Z-step floor)", "default": 0.0, "unit": "mm", "min": 0, "max": 5},
+            {"name": "Smoothing", "type": "checkbox", "description": "Smooth toolpath corners to reduce dynamic load", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "description": "Max chord deviation for smoothing", "default": 0.025, "unit": "mm", "min": 0.001, "max": 0.5},
+            {"name": "Climb Milling", "type": "checkbox", "description": "Cut in climb direction (down-milling)", "default": true},
+            {"name": "Direction", "type": "dropdown", "options": ["climb", "conventional", "either"], "default": "climb"},
+            {"name": "Machining Order", "type": "dropdown", "options": ["by_region", "by_depth_first", "by_pocket_first"], "default": "by_region"},
+            {"name": "Avoid Slotting", "type": "checkbox", "description": "Skip full-engagement slotting moves", "default": true},
+            {"name": "Optimize Load", "type": "checkbox", "description": "Dynamically adjust feedrate by engagement", "default": true},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control", "wear", "inverse_wear"], "default": "computer"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["helical", "profile", "plunge", "ramp_zigzag", "predrilled"], "default": "helical"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "default": 4, "unit": "mm", "min": 0.1, "max": 50},
+            {"name": "Ramping Angle", "type": "numeric", "description": "Helix descent angle", "default": 2, "unit": "deg", "min": 0.5, "max": 30},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.9, "unit": "× tool diameter", "min": 0.1, "max": 1.5},
+            {"name": "Minimum Ramp Diameter", "type": "numeric", "default": 0.5, "unit": "× tool diameter", "min": 0.1, "max": 1.5},
+            {"name": "Ramp Clearance Height", "type": "numeric", "description": "Height above stock for ramp staging", "default": 1, "unit": "mm"},
+            {"name": "Pre-Drill Tip Diameter", "type": "numeric", "description": "Pre-drilled hole tip diameter (for plunge ramp)", "default": 0, "unit": "mm"},
+            {"name": "Predrill Positions", "type": "selection_multi", "description": "User-selected pre-drilled hole positions"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection", "description": "Holder assembly bound to tool"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths", "skip_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "description": "Min clearance from holder to part/stock", "default": 1.0, "unit": "mm", "min": 0, "max": 50},
+            {"name": "Holder Vertical Offset", "type": "numeric", "description": "Z-offset added to holder envelope", "default": 0, "unit": "mm"},
+            {"name": "Reduce Feedrate Near Holder", "type": "checkbox", "default": false},
+            {"name": "Holder Feedrate Reduction", "type": "numeric", "default": 50, "unit": "%", "min": 5, "max": 100}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text", "description": "User-entered NC block before operation"},
+            {"name": "Post-Op Manual NC", "type": "text", "description": "User-entered NC block after operation"},
+            {"name": "Tool Change Manual NC", "type": "text"},
+            {"name": "Use Tool Change Position", "type": "checkbox", "default": false},
+            {"name": "Tool Change Position", "type": "selection", "description": "Named position for tool changes (G28 / home / pallet-clear)"},
+            {"name": "M-Code on Start", "type": "text", "description": "Custom M-code emitted at start"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Coolant Pre-Spin", "type": "numeric", "description": "Dwell after spindle on / coolant on", "default": 0, "unit": "s"},
+            {"name": "Probe at Start", "type": "checkbox", "description": "Run probe macro before cutting", "default": false},
+            {"name": "Probe Macro", "type": "text", "description": "Probe macro name (links to MS1-01 probing module)"},
+            {"name": "Output Subroutines", "type": "checkbox", "description": "Emit pattern as subprogram (G65/M98)", "default": false},
+            {"name": "Subroutine Number", "type": "numeric", "default": 9000, "min": 1, "max": 99999}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "convert_to_high_feed", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Rapid Cleared Distance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": false},
+            {"name": "Avoidance Geometry", "type": "selection_multi", "description": "Bodies/faces to avoid during connection moves"}
+          ]
+        }
+      }
+    },
+    "POCKET_2D_DEEP": {
+      "description": "Deep-tab extension to 2D_POCKET — Strategy / Ramp / Holder / Output for offset-pocket roughing.",
+      "category": "Roughing",
+      "parameterCount": 34,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Pocket Strategy", "type": "dropdown", "options": ["offset_inward", "offset_outward", "raster", "spiral_offset", "morphed_spiral"], "default": "offset_inward"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Stepover", "type": "numeric", "default": 0.4, "unit": "× tool diameter", "min": 0.05, "max": 0.95},
+            {"name": "Stock to Leave Radial", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave Axial", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "default": 0.025, "unit": "mm"},
+            {"name": "Finishing Pass", "type": "checkbox", "description": "Add wall-finish pass at the end", "default": false},
+            {"name": "Finishing Stepover", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Finishing Repeats", "type": "numeric", "default": 1, "min": 1, "max": 5},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control", "wear", "inverse_wear"], "default": "computer"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["helical", "profile", "plunge", "ramp_zigzag", "predrilled"], "default": "helical"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Ramping Angle", "type": "numeric", "default": 2, "unit": "deg"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.9, "unit": "× tool diameter"},
+            {"name": "Plunge Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths", "skip_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Holder Vertical Offset", "type": "numeric", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false},
+            {"name": "Subroutine Number", "type": "numeric", "default": 9000},
+            {"name": "Probe at Start", "type": "checkbox", "default": false},
+            {"name": "Tool Change Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "convert_to_high_feed", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Rapid Cleared Distance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Stay Down Distance", "type": "numeric", "description": "Max horizontal distance allowed without retract", "default": 5, "unit": "mm"},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CONTOUR_2D_DEEP": {
+      "description": "Deep-tab extension to 2D_CONTOUR — Strategy / Ramp / Holder / Output for profile finishing with multi-pass rough+finish chains.",
+      "category": "Finishing",
+      "parameterCount": 41,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control", "wear", "inverse_wear"], "default": "computer"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Tabs", "type": "checkbox", "description": "Leave material tabs on contour (anti-flying-part)", "default": false},
+            {"name": "Tab Width", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Tab Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Tab Distance", "type": "numeric", "description": "Spacing between tabs along contour", "default": 50, "unit": "mm"},
+            {"name": "Tab Count", "type": "numeric", "description": "Total tabs distributed evenly", "default": 4, "min": 0, "max": 50},
+            {"name": "Tab Positions", "type": "selection_multi", "description": "User-selected tab positions"},
+            {"name": "Number of Stepovers", "type": "numeric", "description": "Roughing passes before finish", "default": 1, "min": 0, "max": 20},
+            {"name": "Stepover", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Number of Finishing Stepdowns", "type": "numeric", "default": 1, "min": 0, "max": 10},
+            {"name": "Finishing Stepdown", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave Radial", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Stock to Leave Axial", "type": "numeric", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["horizontal_arc", "vertical_arc", "straight", "extension"], "default": "horizontal_arc"},
+            {"name": "Lead-In Radius", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Lead-In Sweep Angle", "type": "numeric", "default": 90, "unit": "deg"},
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Lead-In Vertical Distance", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["horizontal_arc", "vertical_arc", "straight", "extension", "same_as_lead_in"], "default": "same_as_lead_in"},
+            {"name": "Lead-Out Radius", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Lead-Out Sweep Angle", "type": "numeric", "default": 90, "unit": "deg"},
+            {"name": "Ramp Type", "type": "dropdown", "options": ["plunge", "ramp_zigzag", "predrilled", "none"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths", "skip_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false},
+            {"name": "Spline Output", "type": "dropdown", "options": ["linearize", "G05_high_precision", "G06_2_NURBS", "G6_3_NURBS"], "default": "linearize"},
+            {"name": "Tolerance", "type": "numeric", "description": "Path linearization tolerance", "default": 0.01, "unit": "mm"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "convert_to_high_feed", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Use 3D Avoidance", "type": "checkbox", "default": false},
+            {"name": "Avoidance Geometry", "type": "selection_multi"}
+          ]
+        }
+      }
+    },
+    "CHAMFER_2D_DEEP": {
+      "description": "Deep-tab extension to 2D_CHAMFER — Strategy / Ramp / Holder / Output for chamfer/deburr edge ops.",
+      "category": "Finishing",
+      "parameterCount": 22,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Chamfer Width", "type": "numeric", "default": 1, "unit": "mm", "min": 0.1, "max": 20},
+            {"name": "Chamfer Tip Offset", "type": "numeric", "description": "Distance below chamfer tip for tool tip", "default": 0.5, "unit": "mm"},
+            {"name": "Chamfer Clearance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Use Center Drill Geometry", "type": "checkbox", "default": false},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Step through multiple chamfer depths", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 0.3, "unit": "mm"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["horizontal_arc", "straight", "extension", "ramp"], "default": "horizontal_arc"},
+            {"name": "Lead-In Radius", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["same_as_lead_in", "horizontal_arc", "straight"], "default": "same_as_lead_in"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "convert_to_high_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FACE_DEEP": {
+      "description": "Deep-tab extension to FACE — Strategy (raster pattern + back-and-forth detail) / Ramp / Holder / Output.",
+      "category": "Roughing",
+      "parameterCount": 28,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Pass Direction", "type": "numeric", "description": "Angle of facing pass", "default": 0, "unit": "deg", "min": 0, "max": 359},
+            {"name": "Optimize Pass Direction", "type": "checkbox", "description": "Pick longest-axis automatically", "default": false},
+            {"name": "Stepover", "type": "numeric", "default": 0.7, "unit": "× tool diameter", "min": 0.1, "max": 0.95},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Direction", "type": "dropdown", "options": ["climb_only", "conventional_only", "both", "either"], "default": "either"},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Use Stock Contours", "type": "checkbox", "default": false},
+            {"name": "Stock Contours", "type": "selection_multi", "description": "Stock boundary contours"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"},
+            {"name": "Cut Order", "type": "dropdown", "options": ["serpentine", "uniform", "scoop"], "default": "serpentine"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Approach Distance", "type": "numeric", "description": "Lead-in length before stock", "default": 5, "unit": "mm"},
+            {"name": "Approach Type", "type": "dropdown", "options": ["linear", "tangent_arc"], "default": "linear"},
+            {"name": "Departure Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Departure Type", "type": "dropdown", "options": ["linear", "tangent_arc"], "default": "linear"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "off"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 10, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Smooth Connection", "type": "checkbox", "default": true},
+            {"name": "Connection Radius", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "SLOT_DEEP": {
+      "description": "Deep-tab extension to SLOT — Strategy / Ramp / Holder / Output.",
+      "category": "Roughing",
+      "parameterCount": 23,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Slot Strategy", "type": "dropdown", "options": ["zigzag", "spiral", "single_pass"], "default": "zigzag"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Multiple Stepovers", "type": "checkbox", "default": false},
+            {"name": "Stepover", "type": "numeric", "default": 0.4, "unit": "× tool diameter"},
+            {"name": "Stock to Leave Radial", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Stock to Leave Axial", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"},
+            {"name": "Smoothing", "type": "checkbox", "default": true}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["helical", "ramp_zigzag", "plunge"], "default": "helical"},
+            {"name": "Ramping Angle", "type": "numeric", "default": 2, "unit": "deg"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.5, "unit": "× tool diameter"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "TRACE_DEEP": {
+      "description": "Deep-tab extension to TRACE — Strategy / Ramp / Holder / Output for sketch-driven engraving / scribing / chamfer-trace.",
+      "category": "Finishing",
+      "parameterCount": 20,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control", "wear", "inverse_wear"], "default": "computer"},
+            {"name": "Number of Stepdowns", "type": "numeric", "default": 1, "min": 1, "max": 20},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Trace Side", "type": "dropdown", "options": ["on_curve", "left_of_curve", "right_of_curve"], "default": "on_curve"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["horizontal_arc", "straight", "extension"], "default": "horizontal_arc"},
+            {"name": "Lead-In Radius", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["same_as_lead_in", "horizontal_arc"], "default": "same_as_lead_in"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "ENGRAVE_DEEP": {
+      "description": "Deep-tab extension to ENGRAVE — Strategy / Ramp / Holder / Output for V-bit engraving with adaptive depth-by-width.",
+      "category": "Finishing",
+      "parameterCount": 20,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Engraving Strategy", "type": "dropdown", "options": ["v_bit_depth_by_width", "constant_depth", "trace_only"], "default": "v_bit_depth_by_width"},
+            {"name": "Tool V-Angle", "type": "numeric", "description": "V-bit included angle", "default": 60, "unit": "deg", "min": 10, "max": 180},
+            {"name": "Number of Stepdowns", "type": "numeric", "default": 1, "min": 1, "max": 10},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Stock to Leave", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer"], "default": "computer"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Lead-In", "type": "checkbox", "default": true},
+            {"name": "Lead-In Distance", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Lead-Out", "type": "checkbox", "default": true},
+            {"name": "Plunge Type", "type": "dropdown", "options": ["plunge", "ramp"], "default": "plunge"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Lift Between Letters", "type": "checkbox", "default": true},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 2, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "BORE_DEEP": {
+      "description": "Deep-tab extension to BORE — Strategy / Cycle (G85/G86/G89/G76 fine bore / G87 back bore) / Holder / Output.",
+      "category": "Drilling",
+      "parameterCount": 23,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Bore Direction", "type": "dropdown", "options": ["axial_only", "axial_with_radial_finish"], "default": "axial_only"},
+            {"name": "Multiple Depths", "type": "checkbox", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer"], "default": "computer"}
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {"name": "Cycle Type", "type": "dropdown", "options": ["bore_G85", "bore_dwell_G89", "bore_dwell_manual_retract_G86", "fine_bore_G76", "back_bore_G87"], "default": "bore_G85"},
+            {"name": "Dwell", "type": "numeric", "description": "Dwell at bottom (G89/G86)", "default": 0, "unit": "s", "min": 0, "max": 10},
+            {"name": "Shift Direction", "type": "dropdown", "description": "Tip clearance direction (G76/G87)", "options": ["+X", "-X", "+Y", "-Y"], "default": "+X"},
+            {"name": "Shift Distance", "type": "numeric", "description": "Tool offset for clearance (G76/G87)", "default": 0.1, "unit": "mm"},
+            {"name": "Spindle Stop Orientation", "type": "numeric", "description": "M19 orientation angle for shift", "default": 0, "unit": "deg"},
+            {"name": "Retract Mode", "type": "dropdown", "options": ["G98_initial_plane", "G99_R_plane"], "default": "G99_R_plane"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "Output Cycle", "type": "checkbox", "description": "Emit canned-cycle G-code instead of long-form", "default": true},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Group by Tool", "type": "checkbox", "description": "Group all bore-cycle holes for one tool", "default": true},
+            {"name": "Optimize Order", "type": "checkbox", "description": "Reorder holes by shortest-path", "default": true}
+          ]
+        }
+      }
+    },
+    "CIRCULAR_DEEP": {
+      "description": "Deep-tab extension to CIRCULAR — Strategy / Ramp / Holder / Output for circular pocket / circular profile.",
+      "category": "Roughing",
+      "parameterCount": 24,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Circular Strategy", "type": "dropdown", "options": ["spiral_inside_out", "spiral_outside_in", "concentric"], "default": "spiral_inside_out"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Stepover", "type": "numeric", "default": 0.4, "unit": "× tool diameter"},
+            {"name": "Stock to Leave Radial", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock to Leave Axial", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Finishing Pass", "type": "checkbox", "default": false},
+            {"name": "Finishing Stepover", "type": "numeric", "default": 0.1, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"}
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["helical", "plunge", "predrilled"], "default": "helical"},
+            {"name": "Ramping Angle", "type": "numeric", "default": 2, "unit": "deg"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "default": 0.9, "unit": "× tool diameter"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "default": 2, "unit": "mm"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning", "trim_paths"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "Output Subroutines", "type": "checkbox", "description": "Emit pattern of holes as subroutine", "default": true}
+          ]
+        }
+      }
+    },
+    "THREAD_DEEP": {
+      "description": "Deep-tab extension to THREAD — Strategy / Cycle (G84 rigid tap / G74 reverse / thread-mill helical) / Holder / Output.",
+      "category": "Drilling",
+      "parameterCount": 28,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {"name": "Thread Strategy", "type": "dropdown", "options": ["thread_mill_internal", "thread_mill_external", "tap_rigid", "tap_floating"], "default": "thread_mill_internal"},
+            {"name": "Climb Milling", "type": "checkbox", "default": true},
+            {"name": "Number of Threads", "type": "numeric", "description": "Helical pass count for thread mill", "default": 1, "min": 1, "max": 10},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["computer", "control"], "default": "computer"},
+            {"name": "Allow Climb Direction Cuts", "type": "checkbox", "default": true},
+            {"name": "Multiple Stepdowns", "type": "checkbox", "default": false},
+            {"name": "Stepdown Count", "type": "numeric", "default": 1, "min": 1, "max": 5},
+            {"name": "Pitch", "type": "numeric", "description": "Thread pitch (must match tool)", "default": 1.0, "unit": "mm"},
+            {"name": "Major Diameter", "type": "numeric", "default": 6, "unit": "mm"},
+            {"name": "Minor Diameter", "type": "numeric", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {"name": "Tap Cycle", "type": "dropdown", "options": ["G84_rigid_RH", "G74_rigid_LH", "G84.2_rigid", "G84.3_rigid_LH", "long_form"], "default": "G84_rigid_RH"},
+            {"name": "Spindle Speed at Tap", "type": "numeric", "default": 500, "unit": "RPM"},
+            {"name": "Tap Pitch Sync", "type": "checkbox", "description": "Rigid tap (synced spindle/feed)", "default": true},
+            {"name": "Reverse Spindle Speed Multiplier", "type": "numeric", "description": "Retract RPM as multiple of cut RPM", "default": 1, "min": 0.5, "max": 5},
+            {"name": "Dwell Bottom", "type": "numeric", "default": 0, "unit": "s"},
+            {"name": "Output Cycle", "type": "checkbox", "default": true}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid"], "default": "preserve_rapid"},
+            {"name": "Group by Tool", "type": "checkbox", "default": true},
+            {"name": "Optimize Order", "type": "checkbox", "default": true},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "DRILL_2D": {
+      "description": "Net-new 2D drilling op covering all 12 Fanuc/Siemens canned-cycle codes — drill / counterbore / chip-break / deep-drill / gun-drill plus left-tap / right-tap / ream / fine-bore / back-bore / circular-pocket. Selection by Cycle Type drives canned-cycle output and parameter visibility.",
+      "category": "Drilling",
+      "parameterCount": 57,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "required": true},
+            {"name": "Tool Number", "type": "numeric", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "default": 1},
+            {"name": "Diameter Offset", "type": "numeric", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "options": ["Disabled", "Flood", "Through Tool", "Mist", "Air"], "default": "Through Tool"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM", "min": 0, "max": 100000},
+            {"name": "Surface Speed", "type": "numeric", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Feed per Revolution", "type": "numeric", "unit": "mm/rev"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Selection", "type": "selection_multi", "description": "Holes / circles / sketch points", "required": true},
+            {"name": "Optimize Order", "type": "checkbox", "default": true},
+            {"name": "Group Identical Diameters", "type": "checkbox", "default": true},
+            {"name": "Diameter Filter", "type": "numeric", "description": "Only holes within tolerance of nominal", "default": 0.05, "unit": "mm"},
+            {"name": "Tolerance", "type": "numeric", "default": 0.01, "unit": "mm"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "description": "Hole bottom (negative = depth)", "default": -10, "unit": "mm"},
+            {"name": "Drill Tip Through", "type": "checkbox", "description": "Drill until tool tip exits stock bottom", "default": false},
+            {"name": "Break Through Distance", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Tool Tip Compensation", "type": "checkbox", "description": "Adjust depth for drill tip angle", "default": true}
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {"name": "Cycle Type", "type": "dropdown", "options": ["drill_G81", "counterbore_G82", "chip_break_G73", "deep_drill_G83", "gun_drilling", "tap_RH_G84", "tap_LH_G74", "ream_G85", "fine_bore_G76", "back_bore_G87", "circular_pocket_milling", "manual"], "default": "drill_G81", "required": true},
+            {"name": "Peck Depth", "type": "numeric", "description": "Peck increment (G83/G73)", "default": 3, "unit": "mm", "min": 0.1, "max": 50},
+            {"name": "Peck Reduction", "type": "numeric", "description": "Reduce peck depth each cycle", "default": 0, "unit": "mm"},
+            {"name": "Minimum Peck Depth", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Chip Break Distance", "type": "numeric", "description": "Retract distance per peck (G73)", "default": 0.3, "unit": "mm"},
+            {"name": "Dwell at Bottom", "type": "numeric", "description": "Pause time at hole bottom", "default": 0, "unit": "s"},
+            {"name": "Retract Mode", "type": "dropdown", "options": ["G98_initial_plane", "G99_R_plane"], "default": "G99_R_plane"},
+            {"name": "Output Cycle", "type": "checkbox", "description": "Emit canned cycle vs long-form moves", "default": true},
+            {"name": "Coolant Pre-Spin", "type": "numeric", "default": 0, "unit": "s"},
+            {"name": "Spindle Orient", "type": "checkbox", "description": "M19 orient for fine-bore / back-bore", "default": false},
+            {"name": "Spindle Orient Angle", "type": "numeric", "default": 0, "unit": "deg"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Mark Centers Only", "type": "checkbox", "description": "Center-drill before drilling", "default": false},
+            {"name": "Use Pilot Drill", "type": "checkbox", "description": "Add pilot operation", "default": false},
+            {"name": "Pilot Diameter", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["none", "computer"], "default": "none"},
+            {"name": "Output Subroutines", "type": "checkbox", "default": false},
+            {"name": "Subroutine Number", "type": "numeric", "default": 9000}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Group by Tool", "type": "checkbox", "default": true},
+            {"name": "Optimize Path", "type": "checkbox", "default": true},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true},
+            {"name": "High Feedrate Mode", "type": "dropdown", "options": ["preserve_rapid", "always_use_feed"], "default": "preserve_rapid"}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Holder Vertical Offset", "type": "numeric", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Tool Change Manual NC", "type": "text"},
+            {"name": "Use Tool Change Position", "type": "checkbox", "default": false},
+            {"name": "Output Comments per Hole", "type": "checkbox", "description": "Inject hole index comment per drill", "default": false}
+          ]
+        }
+      }
+    },
+    "TAP_2D": {
+      "description": "Net-new 2D tapping op specialized from DRILL_2D — covers rigid (G84/G84.2/G84.3) and floating tap with tension/compression heads. Auto-binds Pitch + RPM + Feed via F = N × P (mm/min) for rigid sync.",
+      "category": "Drilling",
+      "parameterCount": 44,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Tap (RH or LH, plug/bottom/spiral-flute)", "required": true},
+            {"name": "Tool Number", "type": "numeric", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "options": ["Flood", "Through Tool", "Mist", "Disabled"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "default": 500, "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "unit": "m/min"},
+            {"name": "Pitch", "type": "numeric", "description": "Tap pitch (must match thread spec)", "required": true, "unit": "mm"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Auto-computed F = N × P", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Selection", "type": "selection_multi", "required": true},
+            {"name": "Pre-Drilled Diameter", "type": "numeric", "description": "Tap drill size (verify against pitch)", "required": true, "unit": "mm"},
+            {"name": "Optimize Order", "type": "checkbox", "default": true},
+            {"name": "Group Identical Diameters", "type": "checkbox", "default": true}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"},
+            {"name": "Compensate Tap Tip", "type": "checkbox", "description": "Adjust for incomplete-thread allowance", "default": true},
+            {"name": "Tap Length Allowance", "type": "numeric", "default": 1.5, "unit": "× pitch"}
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {"name": "Tap Mode", "type": "dropdown", "options": ["rigid_G84", "rigid_LH_G74", "floating_tension_G84", "floating_compression_G84", "G84.2_rigid", "G84.3_rigid_LH", "long_form"], "default": "rigid_G84", "required": true},
+            {"name": "Spindle Reverse Speed Multiplier", "type": "numeric", "default": 1, "min": 0.5, "max": 5},
+            {"name": "Dwell Bottom", "type": "numeric", "default": 0, "unit": "s"},
+            {"name": "Coolant Pre-Spin", "type": "numeric", "default": 1, "unit": "s"},
+            {"name": "Output Cycle", "type": "checkbox", "default": true},
+            {"name": "Retract Mode", "type": "dropdown", "options": ["G98_initial_plane", "G99_R_plane"], "default": "G99_R_plane"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Pre-Tap Center Drill", "type": "checkbox", "default": false},
+            {"name": "Verify Tap Drill Diameter", "type": "checkbox", "description": "Cross-check pre-drilled diameter vs pitch", "default": true},
+            {"name": "Allowable Diameter Tolerance", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["none"], "default": "none"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Group by Tool", "type": "checkbox", "default": true},
+            {"name": "Optimize Path", "type": "checkbox", "default": true},
+            {"name": "Stay Down Distance", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Tap Holder Type", "type": "dropdown", "options": ["rigid", "tension_compression", "synchronous", "ER_collet", "shrink_fit"], "default": "rigid"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Output Comments per Hole", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "REAM_2D": {
+      "description": "Net-new 2D reaming op — G85 reaming canned cycle with optional peck-ream variant for deep blind holes. Specifies pre-drilled diameter, allowance, and finish-feed-per-rev for H7 / H8 finished bore quality.",
+      "category": "Drilling",
+      "parameterCount": 39,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Reamer (HSS / carbide / chucking / hand)", "required": true},
+            {"name": "Tool Number", "type": "numeric", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "options": ["Flood", "Through Tool", "Mist"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Feed per Revolution", "type": "numeric", "default": 0.1, "unit": "mm/rev", "min": 0.02, "max": 0.5}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Selection", "type": "selection_multi", "required": true},
+            {"name": "Pre-Drilled Diameter", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Reaming Allowance", "type": "numeric", "description": "Material removed by reamer (typ 0.1-0.5mm)", "default": 0.2, "unit": "mm", "min": 0.05, "max": 1},
+            {"name": "Optimize Order", "type": "checkbox", "default": true}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Bottom Height", "type": "numeric", "default": -10, "unit": "mm"},
+            {"name": "Reamer Tip Compensation", "type": "checkbox", "default": true}
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {"name": "Cycle Type", "type": "dropdown", "options": ["G85_ream", "G89_ream_with_dwell", "peck_ream_blind", "long_form"], "default": "G85_ream"},
+            {"name": "Dwell at Bottom", "type": "numeric", "default": 0, "unit": "s"},
+            {"name": "Peck Depth", "type": "numeric", "description": "Only used if peck_ream_blind", "default": 5, "unit": "mm"},
+            {"name": "Output Cycle", "type": "checkbox", "default": true},
+            {"name": "Retract Mode", "type": "dropdown", "options": ["G98_initial_plane", "G99_R_plane"], "default": "G99_R_plane"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Reverse Out at Feedrate", "type": "checkbox", "description": "Retract at feed (vs rapid) — preserves bore finish", "default": true},
+            {"name": "Reverse Feedrate Multiplier", "type": "numeric", "default": 1, "min": 0.5, "max": 2},
+            {"name": "Verify Pre-Drill Diameter", "type": "checkbox", "default": true},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["none"], "default": "none"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Group by Tool", "type": "checkbox", "default": true},
+            {"name": "Optimize Path", "type": "checkbox", "default": true},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"},
+            {"name": "Output Comments per Hole", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "COUNTERBORE_2D": {
+      "description": "Net-new 2D counterboring op — G82 with dwell at bottom for clean shoulder, plus countersink subset (chamfer-bit angle-driven counterbore depth). Used for socket-head / fillister cap-screw recesses.",
+      "category": "Drilling",
+      "parameterCount": 39,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Counterbore / piloted counterbore / countersink", "required": true},
+            {"name": "Tool Number", "type": "numeric", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "options": ["Flood", "Through Tool", "Mist", "Air"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Feed per Revolution", "type": "numeric", "unit": "mm/rev"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Selection", "type": "selection_multi", "required": true},
+            {"name": "Counterbore Diameter", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "Pre-Drilled Diameter", "type": "numeric", "description": "Through-hole / pilot diameter", "required": true, "unit": "mm"},
+            {"name": "Optimize Order", "type": "checkbox", "default": true}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height", "type": "numeric", "default": 15, "unit": "mm"},
+            {"name": "Retract Height", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Feed Height", "type": "numeric", "default": 1, "unit": "mm"},
+            {"name": "Top Height", "type": "numeric", "default": 0, "unit": "mm"},
+            {"name": "Counterbore Depth", "type": "numeric", "description": "Recess depth from top surface", "required": true, "default": -5, "unit": "mm"},
+            {"name": "Use Bit Angle for Countersink", "type": "checkbox", "description": "Compute depth from chamfer-bit angle + diameter", "default": false},
+            {"name": "Bit Included Angle", "type": "numeric", "default": 90, "unit": "deg"}
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {"name": "Cycle Type", "type": "dropdown", "options": ["counterbore_G82", "countersink_G82", "circular_pocket_milling", "long_form"], "default": "counterbore_G82"},
+            {"name": "Dwell at Bottom", "type": "numeric", "description": "Dwell for clean shoulder (typ 0.5-1.0 s)", "default": 0.5, "unit": "s", "min": 0, "max": 5},
+            {"name": "Output Cycle", "type": "checkbox", "default": true},
+            {"name": "Retract Mode", "type": "dropdown", "options": ["G98_initial_plane", "G99_R_plane"], "default": "G99_R_plane"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Pilot Tool Required", "type": "checkbox", "description": "Counterbore must run after through-drill", "default": true},
+            {"name": "Verify Pilot Diameter", "type": "checkbox", "default": true},
+            {"name": "Multi-Step Down", "type": "checkbox", "description": "Step down for deep counterbores", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 2, "unit": "mm"},
+            {"name": "Compensation Type", "type": "dropdown", "options": ["none", "computer"], "default": "none"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Group by Tool", "type": "checkbox", "default": true},
+            {"name": "Optimize Path", "type": "checkbox", "default": true},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "default": true}
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {"name": "Holder", "type": "selection"},
+            {"name": "Holder Mode", "type": "dropdown", "options": ["off", "warning"], "default": "warning"},
+            {"name": "Holder Clearance", "type": "numeric", "default": 1, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Operation Comment", "type": "text"},
+            {"name": "Pre-Op Manual NC", "type": "text"},
+            {"name": "Post-Op Manual NC", "type": "text"},
+            {"name": "M-Code on Start", "type": "text"},
+            {"name": "M-Code on End", "type": "text"}
+          ]
+        }
+      }
+    }
+  }
+}
