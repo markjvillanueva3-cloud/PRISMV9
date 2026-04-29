@@ -1,0 +1,512 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Inspection Toolpath Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 inspection-extension operations: CMM-style path planning, tolerance stack analysis (RSS + Monte Carlo), GD&T validation, surface-form analysis, point-cloud-to-CAD alignment, probe compensation calibration, and inspection reporting. Complements MS1-01 Probing (on-machine probe cycles) — focuses on planning, analysis, validation, and reporting layers above raw probe macros.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-04",
+    "source": "Autodesk Fusion 360 Help — Inspect & Verify workspace + Manufacturing Extension Inspection reference + ASME Y14.5-2018 + ISO 1101 + QIF 3.0 spec",
+    "totalParameters": 186,
+    "toolpathCount": 11,
+    "physics_links": [
+      "CMM_PROBE_CYCLE_TIME",
+      "TOLERANCE_STACKUP_RSS",
+      "TOLERANCE_STACKUP_MONTE_CARLO",
+      "GDT_TOLERANCE_ZONE",
+      "SURFACE_FORM_DEVIATION",
+      "PROBE_PRE_TRAVEL_BIAS",
+      "PROBE_DYNAMIC_ERROR",
+      "POINT_CLOUD_BEST_FIT_ALIGNMENT"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across inspection operations",
+    "tabs": ["Process", "Geometry", "Inspection", "Analysis", "Report"]
+  },
+  "toolpaths": {
+    "CMM_PLAN_GENERATE": {
+      "description": "Auto-generate a CMM inspection path from a GD&T-tagged CAD model. Plans probe approach order, sampling density, collision-aware retracts, and writes a portable inspection plan (DMIS / QIF). Used to convert an Inspect-tab feature list into a deterministic measurement program.",
+      "category": "Planning",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Probe Selection", "type": "selection", "description": "CMM probe head + tip from probe library", "required": true},
+            {"name": "Contact Mode", "type": "dropdown", "options": ["touch_trigger", "scanning", "non_contact_optical"], "default": "touch_trigger"},
+            {"name": "Approach Mode", "type": "dropdown", "options": ["normal_to_surface", "axis_aligned", "polar"], "default": "normal_to_surface"},
+            {"name": "Retract Distance", "type": "numeric", "description": "Standard retract clearance after each probe hit", "default": 5, "unit": "mm", "min": 1, "max": 50}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Part Geometry Input", "type": "selection", "description": "STEP / Fusion design body to inspect", "required": true},
+            {"name": "Datum Features", "type": "selection", "description": "Datums A/B/C from drawing", "required": true},
+            {"name": "GDT Features To Inspect", "type": "selection", "description": "Feature control frames to validate", "required": true},
+            {"name": "Exclusion Zones", "type": "selection", "description": "Fixture / clamp / no-probe areas"},
+            {"name": "Fixture Geometry", "type": "selection", "description": "Fixture solid for collision check"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Sampling Density", "type": "dropdown", "options": ["coarse_5pt", "standard_uniform", "fine_grid", "adaptive_curvature"], "default": "standard_uniform"},
+            {"name": "Path Optimization Method", "type": "dropdown", "options": ["nearest_neighbor", "tsp_2opt", "axis_priority", "manual_sequence"], "default": "tsp_2opt"},
+            {"name": "Collision Check", "type": "checkbox", "description": "Voxel-based collision check against fixture + part", "default": true},
+            {"name": "Retract Strategy", "type": "dropdown", "options": ["minimum_clearance", "safe_plane", "feature_local"], "default": "feature_local"},
+            {"name": "Simulation Mode", "type": "dropdown", "options": ["off", "kinematic_only", "full_collision"], "default": "kinematic_only"},
+            {"name": "Plan Uncertainty Budget", "type": "numeric", "description": "Max allowable plan-level measurement uncertainty (ISO 15530-3)", "default": 5, "unit": "um"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Plan Quality Score", "type": "numeric", "description": "Computed score 0-100 for coverage + path efficiency + uncertainty", "default": 0, "min": 0, "max": 100},
+            {"name": "Time Estimate Seconds", "type": "numeric", "description": "Predicted total cycle time including all probe approaches + retracts", "default": 0, "unit": "s"},
+            {"name": "Point Count Total", "type": "numeric", "description": "Sum of probe contacts across all features", "default": 0},
+            {"name": "Deviation Threshold", "type": "numeric", "description": "Plan flags features whose nominal sits within this band of GDT zone edge", "default": 0.5, "unit": "frac_zone"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Plan Format", "type": "dropdown", "options": ["DMIS_5_2", "QIF_3_0", "I++_DME", "Native_Fusion"], "default": "QIF_3_0"},
+            {"name": "Output Path", "type": "text", "description": "File path for generated plan"},
+            {"name": "Plan ID", "type": "text", "description": "Unique plan identifier for traceability"}
+          ]
+        }
+      }
+    },
+    "CMM_SAMPLING_STRATEGY": {
+      "description": "Define point-density, scan-pattern, and datum-sequence sampling strategy for a single feature or feature group. Drives how many points, where they land, and the order of measurement to satisfy gauge capability requirements (typically Cg ≥ 1.33).",
+      "category": "Planning",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Probe Type", "type": "dropdown", "options": ["touch_trigger", "scanning_analog", "laser_line", "optical_camera"], "default": "touch_trigger"},
+            {"name": "Contact Mode", "type": "dropdown", "options": ["single_point", "continuous_scan", "patch_scan"], "default": "single_point"},
+            {"name": "Scan Speed", "type": "numeric", "description": "Path velocity during scanning", "default": 5, "unit": "mm/s", "min": 0.5, "max": 100}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Feature Type", "type": "dropdown", "options": ["plane", "cylinder", "sphere", "cone", "torus", "freeform_surface", "edge"], "default": "plane"},
+            {"name": "Feature Size mm", "type": "numeric", "description": "Characteristic size — diameter for cylinder, side length for plane", "default": 25, "unit": "mm"},
+            {"name": "Datum Reference", "type": "dropdown", "options": ["primary_only", "primary_secondary", "ABC_full"], "default": "ABC_full"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Sampling Method", "type": "dropdown", "options": ["uniform_grid", "spiral_helix", "stratified_random", "adaptive_curvature", "feature_aware"], "default": "uniform_grid"},
+            {"name": "Point Count", "type": "numeric", "description": "Total measured points for this feature", "default": 25, "min": 4, "max": 10000},
+            {"name": "Point Distribution", "type": "dropdown", "options": ["uniform", "clustered_at_edges", "clustered_at_features", "high_curvature_weighted"], "default": "uniform"},
+            {"name": "Scan Pattern", "type": "dropdown", "options": ["raster", "zigzag", "spiral_in_out", "boustrophedon", "morphed"], "default": "raster"},
+            {"name": "Density Per Area", "type": "numeric", "description": "Points per square millimeter (overrides Point Count when > 0)", "default": 0, "unit": "pt/mm2"},
+            {"name": "Edge Buffer", "type": "numeric", "description": "Distance from feature edge to first probe point", "default": 0.5, "unit": "mm", "min": 0.05, "max": 5}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Coverage Percent", "type": "numeric", "description": "Predicted coverage of feature surface area (%)", "default": 0, "unit": "pct", "min": 0, "max": 100},
+            {"name": "Uniformity Index", "type": "numeric", "description": "0-1 score of how uniform actual sampling will be vs ideal", "default": 0, "min": 0, "max": 1},
+            {"name": "Gauge Capability Index", "type": "numeric", "description": "Predicted Cg from sampling plan + tolerance band", "default": 0, "min": 0}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["DMIS", "QIF", "I++_DME", "csv"], "default": "QIF"},
+            {"name": "Report Fields", "type": "selection", "description": "Which sampling-strategy fields to include in the inspection report"},
+            {"name": "Sample Log", "type": "checkbox", "description": "Write per-point log to CSV for traceability", "default": true}
+          ]
+        }
+      }
+    },
+    "TOLERANCE_STACK_ANALYZE": {
+      "description": "Closed-form tolerance stack-up analysis (root-sum-square + worst-case) of a dimensional chain. Computes the resultant tolerance on a target dimension given individual contributor tolerances and their fit assumptions. Used during DFM and inspection-budget allocation.",
+      "category": "Analysis",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Analysis Method", "type": "dropdown", "options": ["worst_case_arithmetic", "rss_root_sum_square", "modified_rss_benderized", "six_sigma_motorola"], "default": "rss_root_sum_square"},
+            {"name": "Contributor Basis", "type": "dropdown", "description": "Whether to interpret contributor values as ±range or as Cpk-derived 6σ", "options": ["nominal_plus_minus", "six_sigma_3sigma_each_side", "two_sigma", "one_sigma"], "default": "nominal_plus_minus"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Assembly Definition", "type": "selection", "description": "Assembly or part containing the dimensional chain", "required": true},
+            {"name": "Feature Chain", "type": "selection", "description": "Ordered list of features forming the chain", "required": true},
+            {"name": "Datum Sequence", "type": "selection", "description": "Datum reference frame defining chain origin"},
+            {"name": "Target Dimension", "type": "numeric", "description": "Resultant nominal dimension being analyzed", "unit": "mm"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Contributor Count", "type": "numeric", "description": "Number of dimensional contributors in the chain", "default": 0, "min": 1, "max": 200},
+            {"name": "Contributor Tolerances", "type": "selection", "description": "Per-contributor tolerance values (manual or auto-extracted)"},
+            {"name": "Fit Assumption", "type": "dropdown", "options": ["independent_contributors", "correlated_pairs", "fully_correlated"], "default": "independent_contributors"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Stack Type RSS Or Worstcase", "type": "dropdown", "options": ["rss", "worst_case", "report_both"], "default": "report_both"},
+            {"name": "Output Units", "type": "dropdown", "options": ["mm", "inch", "um"], "default": "mm"},
+            {"name": "Confidence Level", "type": "numeric", "description": "Statistical confidence for RSS interval", "default": 99.73, "unit": "pct", "min": 50, "max": 99.9999},
+            {"name": "Sigma Target", "type": "numeric", "description": "Target sigma level for resultant", "default": 3, "min": 1, "max": 6}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Output Table", "type": "checkbox", "description": "Emit contributor-by-contributor table", "default": true},
+            {"name": "Sensitivity Chart", "type": "checkbox", "description": "Emit per-contributor sensitivity / Pareto chart", "default": true},
+            {"name": "Contributor Ranking", "type": "checkbox", "description": "Rank contributors by impact for design-improvement focus", "default": true}
+          ]
+        }
+      }
+    },
+    "TOLERANCE_STACK_MONTE_CARLO": {
+      "description": "Monte Carlo statistical tolerance stack-up using per-contributor probability distributions (Normal, Uniform, Triangular, Lognormal, empirical). Outputs full result distribution including Cpk estimate, percentile bounds, and contributor-sensitivity indices (Sobol). Supersedes RSS when contributors are non-Gaussian or correlated.",
+      "category": "Analysis",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Sampling Method", "type": "dropdown", "options": ["pseudo_random_mt19937", "latin_hypercube", "sobol_quasi_random", "halton"], "default": "latin_hypercube"},
+            {"name": "Distribution Default", "type": "dropdown", "options": ["normal", "uniform", "triangular", "lognormal", "empirical_from_csv"], "default": "normal"},
+            {"name": "MC Seed", "type": "numeric", "description": "Random seed for reproducibility (0 = system time)", "default": 0}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Assembly Definition", "type": "selection", "required": true},
+            {"name": "Feature Chain", "type": "selection", "required": true},
+            {"name": "Datum Sequence", "type": "selection"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Contributor Distributions", "type": "selection", "description": "Per-contributor distribution type + parameters"},
+            {"name": "Sample Count", "type": "numeric", "description": "Number of Monte Carlo samples", "default": 100000, "min": 1000, "max": 10000000},
+            {"name": "Batch Size", "type": "numeric", "description": "Samples per batch for memory bounding", "default": 10000, "min": 100},
+            {"name": "Parallel Streams", "type": "numeric", "description": "Concurrent MC streams (0 = auto-detect cores)", "default": 0, "min": 0, "max": 64}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Result Metric", "type": "dropdown", "options": ["mean_only", "mean_stddev", "full_histogram", "tail_percentiles"], "default": "full_histogram"},
+            {"name": "Percentile Target", "type": "numeric", "description": "Tail percentile for spec-limit comparison", "default": 99.865, "unit": "pct", "min": 50, "max": 99.9999},
+            {"name": "Cpk Estimate", "type": "numeric", "description": "Computed process capability against spec limits", "default": 0, "min": 0},
+            {"name": "Mean Estimate", "type": "numeric", "description": "Computed mean of resultant distribution", "default": 0, "unit": "mm"},
+            {"name": "Stddev Estimate", "type": "numeric", "description": "Computed standard deviation of resultant", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Histogram Output", "type": "checkbox", "description": "Emit histogram + density-fit overlay", "default": true},
+            {"name": "Sensitivity Indices", "type": "dropdown", "options": ["none", "first_order_sobol", "first_and_total_sobol", "morris_screening"], "default": "first_and_total_sobol"},
+            {"name": "Run Log", "type": "checkbox", "description": "Per-batch RNG seed + summary log for reproducibility", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_FORM_ANALYZE": {
+      "description": "Surface form-control analysis (flatness, cylindricity, roundness, straightness) from a measured point cloud. Fits ideal geometry by least-squares (or minimum-zone), computes peak-to-valley deviation against the ideal, and reports against the GD&T zone tolerance.",
+      "category": "Analysis",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Form Type", "type": "dropdown", "options": ["flatness", "cylindricity", "roundness_circularity", "straightness", "profile_of_a_line", "profile_of_a_surface"], "default": "flatness"},
+            {"name": "Fitting Algorithm", "type": "dropdown", "options": ["least_squares_lsq", "minimum_zone_mz", "maximum_inscribed_mi", "minimum_circumscribed_mc"], "default": "least_squares_lsq"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Surface To Analyze", "type": "selection", "description": "Feature ID (face / surface) under analysis", "required": true},
+            {"name": "Ideal Geometry Reference", "type": "selection", "description": "Nominal CAD surface used as reference"},
+            {"name": "Datum Alignment", "type": "selection", "description": "How to align point cloud to ideal (datum-locked or best-fit)"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Point Cloud Input", "type": "selection", "description": "Measured points (CSV / PTS / E57 / MEA)", "required": true},
+            {"name": "Point Count Min", "type": "numeric", "description": "Minimum points for valid fit", "default": 25, "min": 3},
+            {"name": "Sampling Uniformity", "type": "numeric", "description": "Required uniformity index 0-1; below this, fit is flagged unreliable", "default": 0.6, "min": 0, "max": 1},
+            {"name": "Outlier Filtering", "type": "dropdown", "options": ["off", "z_score_3sigma", "iqr_1_5", "ransac"], "default": "z_score_3sigma"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Form Value Calculated", "type": "numeric", "description": "Peak-to-valley deviation against ideal", "default": 0, "unit": "mm"},
+            {"name": "Peak Deviation", "type": "numeric", "description": "Max above-ideal deviation", "default": 0, "unit": "mm"},
+            {"name": "Valley Deviation", "type": "numeric", "description": "Max below-ideal deviation", "default": 0, "unit": "mm"},
+            {"name": "Form Uncertainty", "type": "numeric", "description": "Form measurement uncertainty per ISO 15530", "default": 0, "unit": "um"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Form Map Output", "type": "checkbox", "description": "Emit color-coded deviation map", "default": true},
+            {"name": "Deviation Histogram", "type": "checkbox", "description": "Emit point-deviation histogram", "default": true},
+            {"name": "Pass Fail Against Tolerance", "type": "checkbox", "description": "Compare form value to GDT zone and emit pass/fail", "default": true}
+          ]
+        }
+      }
+    },
+    "COMPARE_TO_CAD": {
+      "description": "Best-fit alignment of a measured point cloud to a CAD model (ICP iterative closest point + datum-locked + least-squares variants). Outputs deviation heatmap, transformation matrix, and per-section deviation views. Used for first-article inspection and reverse-verification.",
+      "category": "Analysis",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Alignment Algorithm", "type": "dropdown", "options": ["icp_point_to_point", "icp_point_to_plane", "datum_locked_3_2_1", "feature_based_rps", "least_squares_global"], "default": "icp_point_to_plane"},
+            {"name": "Reference CAD", "type": "selection", "description": "Nominal CAD model (STEP / Fusion design)", "required": true},
+            {"name": "Comparison Mode", "type": "dropdown", "options": ["surface_only", "edges_only", "surface_plus_edges", "feature_based"], "default": "surface_plus_edges"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Point Cloud Input", "type": "selection", "required": true},
+            {"name": "CAD Surface Input", "type": "selection", "required": true},
+            {"name": "Alignment Features", "type": "selection", "description": "Datum / RPS features used to constrain alignment"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "ICP Iterations", "type": "numeric", "description": "Maximum ICP iterations", "default": 50, "min": 1, "max": 1000},
+            {"name": "Convergence Threshold", "type": "numeric", "description": "Stop when RMSE delta below this", "default": 0.001, "unit": "mm", "min": 0.0001},
+            {"name": "Outlier Rejection", "type": "dropdown", "options": ["none", "trimmed_icp", "ransac", "robust_huber"], "default": "trimmed_icp"},
+            {"name": "Point To Surface Method", "type": "dropdown", "options": ["nearest_neighbor", "kd_tree", "octree", "bvh"], "default": "kd_tree"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "RMSE Calculated", "type": "numeric", "description": "Final root-mean-square deviation", "default": 0, "unit": "mm"},
+            {"name": "Max Deviation", "type": "numeric", "description": "Peak point deviation in absolute value", "default": 0, "unit": "mm"},
+            {"name": "Deviation Distribution", "type": "dropdown", "options": ["histogram_only", "histogram_plus_kde", "qq_plot", "ecdf"], "default": "histogram_plus_kde"},
+            {"name": "Alignment Residual", "type": "numeric", "description": "Residual translation/rotation magnitude after alignment", "default": 0},
+            {"name": "Transformation Matrix", "type": "selection", "description": "4×4 homogeneous transform applied to align cloud to CAD"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Heatmap Output", "type": "checkbox", "description": "Emit color-coded surface heatmap", "default": true},
+            {"name": "Deviation Section Views", "type": "checkbox", "description": "Emit cross-section deviation profiles", "default": true},
+            {"name": "Alignment Report", "type": "checkbox", "description": "Emit alignment math + iteration log", "default": true}
+          ]
+        }
+      }
+    },
+    "GDT_VALIDATE": {
+      "description": "Validate GD&T feature control frames against ASME Y14.5 / ISO 1101 rules: datum-order legality, modifier compatibility (M/L/F/P), feature-of-size requirements, and tolerance-zone definition. Catches drawing errors before the part reaches inspection.",
+      "category": "Validation",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Validator Engine", "type": "dropdown", "options": ["asme_y14_5_2018", "asme_y14_5_2009", "iso_1101_2017", "iso_8015_2011"], "default": "asme_y14_5_2018"},
+            {"name": "GDT Standard", "type": "dropdown", "options": ["ASME", "ISO", "JIS_B_0021", "BS_8888"], "default": "ASME"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Drawing Input", "type": "selection", "description": "Fusion drawing or imported PMI", "required": true},
+            {"name": "Feature Control Frames", "type": "selection", "description": "FCFs to validate", "required": true},
+            {"name": "Datum Definitions", "type": "selection", "description": "Datum features A/B/C..."},
+            {"name": "Feature Of Size Modifiers", "type": "dropdown", "options": ["MMC_M", "LMC_L", "RFS_no_modifier", "auto_detect"], "default": "auto_detect"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Material Condition Check", "type": "checkbox", "description": "Verify M / L / RFS modifiers are legal for the FCF type", "default": true},
+            {"name": "Modifier Compatibility", "type": "checkbox", "description": "Cross-check modifier combinations (e.g. M on perpendicularity needs FOS)", "default": true},
+            {"name": "Datum Precedence", "type": "checkbox", "description": "Verify primary-secondary-tertiary order is legal", "default": true}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Validation Strict Mode", "type": "checkbox", "description": "Treat warnings as errors", "default": false},
+            {"name": "Common Errors Check", "type": "checkbox", "description": "Run database of common GD&T mistakes", "default": true},
+            {"name": "Ambiguity Flag", "type": "checkbox", "description": "Flag callouts that admit multiple interpretations", "default": true},
+            {"name": "ASME Y14_5 Year", "type": "dropdown", "options": ["2009", "2018", "2024"], "default": "2018"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Error Log", "type": "checkbox", "description": "Emit validation errors with line / FCF references", "default": true},
+            {"name": "Warning Log", "type": "checkbox", "description": "Emit non-blocking warnings", "default": true},
+            {"name": "Suggested Fixes", "type": "checkbox", "description": "Emit suggested corrections per detected issue", "default": true}
+          ]
+        }
+      }
+    },
+    "GDT_ZONE_CHECK": {
+      "description": "Check whether a measured feature lies within its GD&T tolerance zone (form, orientation, location, runout). Computes actual zone size from the point cloud, applies bonus tolerance from MMC/LMC modifiers when applicable, and reports pass/fail with deviation breakdown.",
+      "category": "Validation",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Tolerance Zone Type", "type": "dropdown", "options": ["form_flatness", "form_circularity", "form_cylindricity", "orientation_perpendicularity", "orientation_parallelism", "orientation_angularity", "location_position", "location_concentricity", "location_symmetry", "runout_circular", "runout_total", "profile_line", "profile_surface"], "default": "location_position"},
+            {"name": "Evaluation Method", "type": "dropdown", "options": ["least_squares", "minimum_zone", "maximum_inscribed", "minimum_circumscribed"], "default": "minimum_zone"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Feature To Check", "type": "selection", "required": true},
+            {"name": "Datum Alignment", "type": "selection", "description": "Datum reference frame from drawing"},
+            {"name": "GDT Callout", "type": "selection", "description": "FCF defining zone size + modifiers"},
+            {"name": "Mating Features", "type": "selection", "description": "Features whose actual size influences bonus tolerance"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Point Cloud Input", "type": "selection", "required": true},
+            {"name": "Fitted Geometry Method", "type": "dropdown", "options": ["lsq", "mz", "mi", "mc"], "default": "mz"},
+            {"name": "Feature Size Actual", "type": "numeric", "description": "Measured actual size of feature-of-size", "default": 0, "unit": "mm"},
+            {"name": "Datum Actual Position", "type": "selection", "description": "Measured datum position used for alignment"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Zone Size Calculated", "type": "numeric", "description": "Actual minimum-zone size enclosing the feature", "default": 0, "unit": "mm"},
+            {"name": "Deviation Max", "type": "numeric", "description": "Max single-point deviation from ideal", "default": 0, "unit": "mm"},
+            {"name": "Deviation Pattern", "type": "dropdown", "options": ["random", "tilt_dominant", "bow_dominant", "twist_dominant", "lobing", "stepped"], "default": "random"},
+            {"name": "In Tolerance", "type": "checkbox", "description": "Final pass/fail against zone tolerance + bonuses", "default": false},
+            {"name": "Modifier Bonus Applied", "type": "numeric", "description": "MMC/LMC bonus tolerance added to base zone", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Zone Visualization", "type": "checkbox", "description": "Emit 3D zone + measured-feature overlay", "default": true},
+            {"name": "Deviation Map", "type": "checkbox", "description": "Emit per-point deviation map", "default": true},
+            {"name": "Pass Fail Summary", "type": "checkbox", "description": "Emit pass/fail with margin to spec", "default": true}
+          ]
+        }
+      }
+    },
+    "PROBE_COMPENSATION_CALIBRATE": {
+      "description": "Calibrate probe pre-travel bias, dynamic-error coefficients, and repeatability against a traceable artifact (typically calibration sphere). Outputs compensation parameters used by all probing operations to remove probe-system error from raw measurements.",
+      "category": "Validation",
+      "parameterCount": 14,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Probe Model", "type": "dropdown", "options": ["renishaw_omp40", "renishaw_omp60", "renishaw_rmp60", "renishaw_mp250", "blum_tc52", "marposs_t36", "heidenhain_ts260"], "default": "renishaw_omp60"},
+            {"name": "Calibration Artifact", "type": "dropdown", "options": ["ceramic_sphere_25_4mm", "ruby_sphere_19mm", "steel_ring_gage", "step_block_grade_0"], "default": "ceramic_sphere_25_4mm"},
+            {"name": "Environmental Temperature", "type": "numeric", "description": "Recorded ambient temperature during calibration", "default": 20, "unit": "C", "min": 10, "max": 40}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Calibration Sphere Diameter", "type": "numeric", "description": "Traceable diameter of artifact", "default": 25.4, "unit": "mm"},
+            {"name": "Calibration Position", "type": "selection", "description": "Stable artifact location in machine work envelope", "required": true}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Calibration Speed", "type": "numeric", "description": "Approach feedrate during calibration probes", "default": 100, "unit": "mm/min", "min": 10, "max": 500},
+            {"name": "Sample Count", "type": "numeric", "description": "Probe contacts on artifact (typically 13 or 25)", "default": 13, "min": 5, "max": 50},
+            {"name": "Axis Directions", "type": "dropdown", "options": ["plus_minus_xyz_6dir", "plus_minus_xy_4dir_plus_minus_z", "13_point_isodyne", "25_point_extended"], "default": "13_point_isodyne"},
+            {"name": "Calibration Repeatability", "type": "numeric", "description": "Required 2σ repeatability for calibration to pass", "default": 1, "unit": "um", "min": 0.1}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Pre Travel Bias XYZ", "type": "selection", "description": "Computed XYZ pre-travel offsets in micrometers"},
+            {"name": "Dynamic Error At Speed", "type": "selection", "description": "Speed-dependent error vs feedrate curve"},
+            {"name": "Repeatability Uncertainty", "type": "numeric", "description": "Computed 2σ repeatability from calibration runs", "default": 0, "unit": "um"}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Calibration Certificate", "type": "checkbox", "description": "Emit signed calibration certificate", "default": true},
+            {"name": "Validity Period Days", "type": "numeric", "description": "Calibration valid for this many days", "default": 30, "min": 1, "max": 365}
+          ]
+        }
+      }
+    },
+    "GENERATE_INSPECTION_REPORT": {
+      "description": "Compile final inspection report from a completed measurement run: pass/fail summary across all FCFs, statistical roll-up, GD&T compliance status, and traceability links. Emits PDF (human-readable), QIF 3.0 (interchange), CSV (data analytics), and Excel (legacy shop floor).",
+      "category": "Reporting",
+      "parameterCount": 14,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Report Template", "type": "dropdown", "options": ["AS9102_FAIR", "PPAP_level_3", "internal_first_article", "AIAG_PPAP", "custom"], "default": "internal_first_article"},
+            {"name": "Output Format", "type": "dropdown", "options": ["PDF_only", "QIF_only", "CSV_only", "Excel_xlsx", "PDF_plus_QIF", "all_formats"], "default": "PDF_plus_QIF"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Part Metadata", "type": "selection", "description": "Part number / revision / customer", "required": true},
+            {"name": "Drawing Revision", "type": "text", "description": "Drawing revision under inspection"}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Measurement Data Source", "type": "selection", "description": "Inspection records to compile", "required": true},
+            {"name": "Measurement Uncertainty", "type": "numeric", "description": "Per-measurement uncertainty applied to pass/fail", "default": 0, "unit": "um"},
+            {"name": "Gauge Repeatability", "type": "numeric", "description": "Gauge R&R % included in report", "default": 0, "unit": "pct"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Pass Fail Logic", "type": "dropdown", "options": ["strict_no_uncertainty_credit", "tolerant_with_uncertainty", "iso_14253_decision_rule"], "default": "iso_14253_decision_rule"},
+            {"name": "GDT Summary", "type": "checkbox", "description": "Include FCF-by-FCF compliance table", "default": true},
+            {"name": "Statistical Summary", "type": "checkbox", "description": "Include Cpk + sigma roll-up", "default": true},
+            {"name": "Trend Analysis", "type": "checkbox", "description": "Include lot-over-lot trend if historical data available", "default": false}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Output Path", "type": "text", "description": "File path for generated report"},
+            {"name": "Distribution List", "type": "selection", "description": "Email / system distribution targets"},
+            {"name": "Signature Block", "type": "selection", "description": "Inspector / QC manager signatures + dates"}
+          ]
+        }
+      }
+    },
+    "CERTIFICATE_OF_CONFORMANCE": {
+      "description": "Generate a Certificate of Conformance (CoC) tying a delivered lot to its inspection records, calibration chain, traceability evidence, and any approved deviations. Required for AS9100 / ISO 9001 deliveries; emits human-signed PDF + machine-readable QIF traceability.",
+      "category": "Reporting",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Cert Template", "type": "dropdown", "options": ["AS9100_Rev_D", "ISO_9001_2015", "MIL_STD_45662", "internal_quality"], "default": "AS9100_Rev_D"},
+            {"name": "Output Format", "type": "dropdown", "options": ["PDF_signed", "PDF_unsigned", "QIF_traceability", "PDF_plus_QIF"], "default": "PDF_plus_QIF"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Part Number", "type": "text", "required": true},
+            {"name": "Drawing Rev", "type": "text", "required": true},
+            {"name": "Lot Quantity", "type": "numeric", "description": "Number of parts covered by this CoC", "default": 1, "min": 1}
+          ]
+        },
+        "Inspection": {
+          "parameters": [
+            {"name": "Inspection Records Link", "type": "selection", "description": "Pointer to inspection report for this lot", "required": true},
+            {"name": "Calibration Records", "type": "selection", "description": "Calibration certificates for all gauges used"},
+            {"name": "Traceability Chain", "type": "selection", "description": "Material cert + heat lot + serial number chain"}
+          ]
+        },
+        "Analysis": {
+          "parameters": [
+            {"name": "Conformance Statement", "type": "dropdown", "options": ["full_conformance", "conditional_with_deviations", "rework_required", "rejected"], "default": "full_conformance"},
+            {"name": "Exceptions List", "type": "selection", "description": "Any FCFs failing inspection but approved via deviation"},
+            {"name": "Deviation Authorizations", "type": "selection", "description": "Customer-signed deviation authorizations"},
+            {"name": "Deviation Quantity", "type": "numeric", "description": "Number of parts shipped under approved deviation", "default": 0, "min": 0}
+          ]
+        },
+        "Report": {
+          "parameters": [
+            {"name": "Certificate ID", "type": "text", "description": "Unique CoC tracking ID", "required": true},
+            {"name": "Signed By", "type": "text", "description": "Quality manager name / digital signature", "required": true},
+            {"name": "Signature Date", "type": "text", "description": "ISO 8601 date of signature"},
+            {"name": "Distribution", "type": "selection", "description": "Customer / internal / regulatory distribution"}
+          ]
+        }
+      }
+    }
+  }
+}

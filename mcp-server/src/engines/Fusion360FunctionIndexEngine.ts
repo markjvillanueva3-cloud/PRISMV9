@@ -569,6 +569,28 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get inspection toolpaths (CAM-EXHAUST-MS1-04).
+   * Covers CMM planning, tolerance-stack analysis (RSS + Monte Carlo),
+   * GD&T validation, surface-form analysis, point-cloud-to-CAD alignment,
+   * probe compensation calibration, and inspection reporting.
+   *
+   * Complements MS1-01 Probing (on-machine probe cycles) by adding the
+   * planning, analysis, validation, and reporting layers above raw probe
+   * macros. Anchored to ASME Y14.5-2018 / ISO 1101 / QIF 3.0.
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   *   Categories: "Planning" | "Analysis" | "Validation" | "Reporting"
+   */
+  static getInspectionOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("inspection.json", "getInspectionOperations");
+  }
+
+  /**
    * Get additive toolpaths (CAM-EXHAUST-MS1-02).
    * Reads additive.json catalog covering DED, PBF, FDM, and Hybrid
    * (additive+subtractive) operations.
