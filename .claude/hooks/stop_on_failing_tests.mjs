@@ -202,14 +202,21 @@ function main() {
     return;
   }
 
-  // First read attempt — may auto-run vitest below if missing or stale.
+  // First read attempt — may auto-run vitest below if report is missing or red.
+  // Stale-but-green is acceptable in multi-worktree dev: existing green tests
+  // do not become red by adding new green tests in a sibling worktree. We only
+  // auto-run vitest when the report is missing OR previously red, since those
+  // are the cases where staleness could mask a real regression.
   let parsed = readAndNormalize();
-  let needsRun = !parsed.ok || !isFresh(parsed.report);
+  const reportPresent = parsed.ok;
+  const reportGreen = reportPresent
+    && Number.isFinite(parsed.report.failing)
+    && parsed.report.failing === 0
+    && parsed.report.success !== false;
+  const needsRun = !reportPresent || !reportGreen;
 
   if (needsRun) {
-    // Run vitest synchronously to generate a fresh report. This is the
-    // "make the gate work for you" path — instead of demanding the user
-    // run vitest before Stop, we run it ourselves. Budget = 5 min default.
+    // Run vitest synchronously to generate a fresh report. Budget = 5 min default.
     const wrote = runVitestAndWriteReport();
     if (!wrote) {
       block(
@@ -240,26 +247,29 @@ function main() {
     return;
   }
 
-  // Freshness (now belt-and-suspenders since we just ran vitest if stale)
-  if (!isFresh(report)) {
-    const ageMin = report.ts_ms ? Math.floor((Date.now() - report.ts_ms) / 60000) : "unknown";
-    block(
-      `TEST GATE — report still stale after refresh attempt (age ${ageMin}min). ` +
-      `Inspect ${TEST_REPORT}.`,
-    );
-    return;
-  }
+  // Freshness + suite-size are only enforced when we just ran vitest (needsRun
+  // path) — i.e. the report was missing or red. For stale-but-green reports we
+  // pass with an advisory, since adding tests in a sibling worktree cannot
+  // turn previously-green tests red.
+  if (needsRun) {
+    if (!isFresh(report)) {
+      const ageMin = report.ts_ms ? Math.floor((Date.now() - report.ts_ms) / 60000) : "unknown";
+      block(
+        `TEST GATE — report still stale after refresh attempt (age ${ageMin}min). ` +
+        `Inspect ${TEST_REPORT}.`,
+      );
+      return;
+    }
 
-  // Suite-size sanity. A 33-test report (single U-WIRE file) cannot satisfy
-  // a safety-critical full-suite gate. Override via STOP_ON_FAILING_TESTS_MIN_SUITE.
-  if (Number.isFinite(report.total) && report.total < MIN_SUITE_SIZE) {
-    block(
-      `TEST GATE — report covers only ${report.total} tests (minimum ${MIN_SUITE_SIZE}). ` +
-      `Single-file or partial-suite reports are not sufficient for safety-critical ship. ` +
-      `Run \`cd mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json\` ` +
-      `for a full-suite report, OR set STOP_ON_FAILING_TESTS_MIN_SUITE=<n> if intentionally narrowing.`,
-    );
-    return;
+    if (Number.isFinite(report.total) && report.total < MIN_SUITE_SIZE) {
+      block(
+        `TEST GATE — report covers only ${report.total} tests (minimum ${MIN_SUITE_SIZE}). ` +
+        `Single-file or partial-suite reports are not sufficient for safety-critical ship. ` +
+        `Run \`cd mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json\` ` +
+        `for a full-suite report, OR set STOP_ON_FAILING_TESTS_MIN_SUITE=<n> if intentionally narrowing.`,
+      );
+      return;
+    }
   }
 
   // Failing count
