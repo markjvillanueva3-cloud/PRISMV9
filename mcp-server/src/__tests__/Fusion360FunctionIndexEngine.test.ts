@@ -967,4 +967,143 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_inspection_operations");
     });
   });
+
+  describe("getMillTurnOperations (CAM-EXHAUST-MS1-05)", () => {
+    it("returns exactly 12 mill-turn toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      expect(ops.length).toBe(12);
+    });
+
+    it("Synchronization category contains 4 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const syncIds = ops.filter((o) => o.category === "Synchronization").map((o) => o.toolpath_id).sort();
+      expect(syncIds).toEqual([
+        "BAR_FEED_ADVANCE",
+        "MILL_TURN_SYNC",
+        "TURNING_PART_CATCHER",
+        "TURNING_TRANSFER",
+      ]);
+    });
+
+    it("Auxiliary category contains 2 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const auxIds = ops.filter((o) => o.category === "Auxiliary").map((o) => o.toolpath_id).sort();
+      expect(auxIds).toEqual([
+        "STEADY_REST_ACTUATE",
+        "TAILSTOCK_ACTUATE",
+      ]);
+    });
+
+    it("C_Axis category contains 2 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const cAxisIds = ops.filter((o) => o.category === "C_Axis").map((o) => o.toolpath_id).sort();
+      expect(cAxisIds).toEqual([
+        "C_AXIS_INDEX_MILL",
+        "C_AXIS_INTERPOLATED_MILL",
+      ]);
+    });
+
+    it("Multi_Axis category contains 4 ops with sorted ids", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const multiIds = ops.filter((o) => o.category === "Multi_Axis").map((o) => o.toolpath_id).sort();
+      expect(multiIds).toEqual([
+        "CROSS_DRILLING_LIVE",
+        "POLYGON_TURNING",
+        "THREAD_WHIRLING",
+        "Y_AXIS_TURN_OFFCENTER",
+      ]);
+    });
+
+    it("THREAD_WHIRLING has exactly 22 parameters and Multi_Axis category", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const op = ops.find((o) => o.toolpath_id === "THREAD_WHIRLING");
+      expect(op?.parameter_count).toBe(22);
+      expect(op?.category).toBe("Multi_Axis");
+    });
+
+    it("TURNING_TRANSFER has exactly 22 parameters and Synchronization category", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const op = ops.find((o) => o.toolpath_id === "TURNING_TRANSFER");
+      expect(op?.parameter_count).toBe(22);
+      expect(op?.category).toBe("Synchronization");
+    });
+
+    it("TAILSTOCK_ACTUATE has exactly 12 parameters (smallest auxiliary op)", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const op = ops.find((o) => o.toolpath_id === "TAILSTOCK_ACTUATE");
+      expect(op?.parameter_count).toBe(12);
+      expect(op?.category).toBe("Auxiliary");
+    });
+
+    it("THREAD_WHIRLING description references whirl/multi-tooth/orbit kinematics", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const op = ops.find((o) => o.toolpath_id === "THREAD_WHIRLING");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("whirl") || text.includes("orbit") || text.includes("multi-tooth")).toBe(true);
+    });
+
+    it("parameter counts sum to 200 across all 12 mill-turn ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      const total = ops.reduce((sum, o) => sum + o.parameter_count, 0);
+      expect(total).toBe(200);
+    });
+
+    it("each mill-turn operation has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getMillTurnOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_mill_turn_operations returns 12 ops with THREAD_WHIRLING @ 22 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_mill_turn_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(12);
+      const threadWhirl = result.operations.find((o) => o.toolpath_id === "THREAD_WHIRLING");
+      expect(threadWhirl?.category).toBe("Multi_Axis");
+      expect(threadWhirl?.parameter_count).toBe(22);
+    });
+
+    it("mill_turn module is registered in fusion360 function-index with 200 estimated params", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const millTurnEntry = idx.modules.find((m) => m.module_id === "mill_turn");
+      expect(millTurnEntry?.parameter_count_estimate).toBe(200);
+      expect(millTurnEntry?.dependencies).toContain("turning_operations");
+      expect(millTurnEntry?.dependencies).toContain("multiaxis_operations");
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_mill_turn_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_mill_turn_operations");
+    });
+  });
 });

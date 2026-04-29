@@ -1,0 +1,554 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Mill-Turn Toolpath Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 mill-turn operations: multi-channel turning↔milling synchronization, dual-spindle part transfer, bar-feed coordination, tailstock + steady-rest actuation, C-axis indexed and interpolated milling, Y-axis off-center turning, polygon turning, thread whirling, and cross-drilling with live tooling. Complements MS0/U-CAM24 turning-operations and MS0/U-CAM23 multiaxis — focuses on the synchronization/auxiliary/C-axis/multi-axis layers required for true mill-turn (Integrex/NTX/CTX-class) machines.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-05",
+    "source": "Autodesk Fusion 360 Help — Multi-Axis Turning + Manufacturing Extension Mill-Turn reference + Mazak Integrex programming guide + DMG MORI NTX programming reference + ISO 10303-238 STEP-NC AP238 mill-turn supplement",
+    "totalParameters": 200,
+    "toolpathCount": 12,
+    "physics_links": [
+      "TURNING_POWER",
+      "KIENZLE_FORCE",
+      "THREAD_MILL_FORCE",
+      "C_AXIS_INTERPOLATION_ERROR",
+      "POLYGON_TURNING_LOBE_GEOMETRY",
+      "THREAD_WHIRLING_KINEMATICS",
+      "BAR_FEED_TIMING",
+      "LIVE_TOOL_DEFLECTION",
+      "DUAL_SPINDLE_TRANSFER_DYNAMICS"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across mill-turn operations",
+    "tabs": ["Process", "Geometry", "Synchronization", "Strategy", "Output"]
+  },
+  "toolpaths": {
+    "TURNING_TRANSFER": {
+      "description": "Synchronous part transfer from main to sub-spindle (or sub→main) on a dual-spindle mill-turn. Matches RPMs, aligns phase, advances sub-spindle into pickup position, clamps, and parts off. Used at the main↔second-op handoff on Integrex/CTX/NTX-class machines.",
+      "category": "Synchronization",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Main Spindle ID", "type": "selection", "description": "Source spindle (S1/main)", "required": true},
+            {"name": "Sub Spindle ID", "type": "selection", "description": "Destination spindle (S2/sub)", "required": true},
+            {"name": "Transfer Mode", "type": "dropdown", "options": ["pickup_running", "pickup_stopped", "phase_synced_running"], "default": "phase_synced_running"},
+            {"name": "Sync Method", "type": "dropdown", "options": ["g847_g847", "spindle_sync_macro", "controller_native"], "default": "controller_native"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Part Position Z", "type": "numeric", "description": "Z-position of part nose at transfer", "default": 0, "unit": "mm"},
+            {"name": "Gripping Length", "type": "numeric", "description": "Length of stock to grip in sub-spindle", "default": 15, "unit": "mm", "min": 3, "max": 200},
+            {"name": "Push Out Distance", "type": "numeric", "description": "Stock advance from main chuck before pickup", "default": 5, "unit": "mm", "min": 0, "max": 100},
+            {"name": "Fixture Clearance", "type": "numeric", "description": "Min radial clearance to fixtures during transfer", "default": 10, "unit": "mm"},
+            {"name": "Datum Frame", "type": "selection", "description": "WCS used for transfer geometry"}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "RPM Match Tolerance", "type": "numeric", "description": "Max delta RPM between spindles before pickup proceeds", "default": 5, "unit": "rpm", "min": 0, "max": 50},
+            {"name": "Phase Angle", "type": "numeric", "description": "Target phase offset between spindles (0 = aligned)", "default": 0, "unit": "deg", "min": 0, "max": 360},
+            {"name": "Dwell Time", "type": "numeric", "description": "Hold time after clamp before parting off", "default": 0.5, "unit": "s", "min": 0, "max": 5},
+            {"name": "Retract On Fail", "type": "checkbox", "description": "Auto-retract sub-spindle if sync fails", "default": true},
+            {"name": "Pickup Chuck Pressure", "type": "numeric", "description": "Sub-spindle clamp pressure (low for thin walls)", "default": 25, "unit": "bar", "min": 5, "max": 80},
+            {"name": "Retention Force", "type": "numeric", "description": "Min holding force after grip-confirm", "default": 1500, "unit": "N", "min": 100, "max": 20000}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Clamp Sequence", "type": "dropdown", "options": ["sub_grip_then_main_release", "simultaneous", "main_release_then_sub_grip"], "default": "sub_grip_then_main_release"},
+            {"name": "Cutoff Dwell", "type": "numeric", "description": "Dwell after parting before sub-spindle retract", "default": 0.2, "unit": "s"},
+            {"name": "Transfer Feedrate", "type": "numeric", "description": "Sub-spindle approach feedrate during pickup", "default": 200, "unit": "mm/min", "min": 10, "max": 5000},
+            {"name": "Retry Count", "type": "numeric", "description": "Attempts before abort on failed sync", "default": 2, "min": 0, "max": 5}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block Label", "type": "text", "description": "Post-processor block name for transfer macro"},
+            {"name": "M-Code Map", "type": "selection", "description": "Controller M-code mapping (Mazak / Fanuc / Siemens)"},
+            {"name": "NC Variable File", "type": "text", "description": "Common variables file written for transfer parameters"}
+          ]
+        }
+      }
+    },
+    "TURNING_PART_CATCHER": {
+      "description": "Actuate the part catcher (basket / chute / robot tray) at cutoff to receive the parted-off finished piece. Times the catcher open/close to the cutoff cycle, confirms part arrival, retries on miss.",
+      "category": "Synchronization",
+      "parameterCount": 14,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Catcher Type", "type": "dropdown", "options": ["basket", "chute", "robot_tray", "conveyor"], "default": "basket"},
+            {"name": "Mode", "type": "dropdown", "options": ["auto", "manual_trigger"], "default": "auto"},
+            {"name": "Machine", "type": "selection", "description": "Mill-turn machine identifier"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Catcher Position", "type": "numeric", "description": "Z-axis travel position", "default": 50, "unit": "mm"},
+            {"name": "Opening Width", "type": "numeric", "description": "Throat opening when extended", "default": 80, "unit": "mm", "min": 20, "max": 300},
+            {"name": "Depth", "type": "numeric", "description": "Catcher tray depth from spindle nose", "default": 60, "unit": "mm"},
+            {"name": "Eject Orientation", "type": "dropdown", "options": ["axial", "radial_+x", "radial_-x"], "default": "axial"}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Close Timing", "type": "numeric", "description": "Time before cutoff to extend catcher", "default": 1, "unit": "s"},
+            {"name": "Open Timing", "type": "numeric", "description": "Time after cutoff to retract", "default": 2, "unit": "s"},
+            {"name": "Hold Duration", "type": "numeric", "description": "Hold time at full extension", "default": 0.5, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Catch Confirm Method", "type": "dropdown", "options": ["sensor", "weight", "vision", "none"], "default": "sensor"},
+            {"name": "Retry On Miss", "type": "checkbox", "description": "Re-trigger catcher if confirm fails", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "M-Code", "type": "text", "description": "Controller M-code for catcher actuate"},
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"}
+          ]
+        }
+      }
+    },
+    "MILL_TURN_SYNC": {
+      "description": "Multi-channel synchronization between turning channel and milling channel on a true dual-channel mill-turn. Inserts wait codes, sync points, and queue management to coordinate independent turret + mill spindle operations without deadlock.",
+      "category": "Synchronization",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Channel A Type", "type": "dropdown", "options": ["turning", "milling", "y_axis_turn"], "default": "turning"},
+            {"name": "Channel B Type", "type": "dropdown", "options": ["turning", "milling", "y_axis_turn"], "default": "milling"},
+            {"name": "Controller", "type": "dropdown", "options": ["mazak_smoothx", "fanuc_31i_5", "siemens_840d", "mitsubishi_m800"], "default": "fanuc_31i_5"},
+            {"name": "Sync Mode", "type": "dropdown", "options": ["wait_code", "queue_sync", "balanced"], "default": "wait_code"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Channel A Reference", "type": "selection", "description": "Geometry / WCS used by channel A"},
+            {"name": "Channel B Reference", "type": "selection", "description": "Geometry / WCS used by channel B"},
+            {"name": "Common Datum", "type": "selection", "description": "Shared datum across both channels", "required": true}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Wait Code", "type": "text", "description": "Controller-specific wait directive (M100/!L1)", "default": "M100"},
+            {"name": "Sync Code", "type": "text", "description": "Controller sync directive (G117/M101)", "default": "G117"},
+            {"name": "Mark Resume", "type": "checkbox", "description": "Insert resume mark after sync point", "default": true},
+            {"name": "Queue Depth", "type": "numeric", "description": "Max queued operations per channel", "default": 4, "min": 1, "max": 32},
+            {"name": "Deadlock Timeout", "type": "numeric", "description": "Abort sync if no progress within this", "default": 30, "unit": "s", "min": 1, "max": 600}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Conflict Resolution", "type": "dropdown", "options": ["priority", "first_come", "manual_review"], "default": "priority"},
+            {"name": "Channel Priority", "type": "dropdown", "options": ["A_high", "B_high", "balanced"], "default": "balanced"},
+            {"name": "Simulation Mode", "type": "dropdown", "options": ["off", "kinematic", "full_collision"], "default": "kinematic"},
+            {"name": "Kinematic Check", "type": "checkbox", "description": "Verify reachability of both channels at each sync point", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Channel Post-Block Format", "type": "dropdown", "options": ["mazak_dual", "fanuc_dual", "siemens_dual"], "default": "fanuc_dual"},
+            {"name": "Sync Table File", "type": "text", "description": "Generated sync-table file path"}
+          ]
+        }
+      }
+    },
+    "BAR_FEED_ADVANCE": {
+      "description": "Coordinate bar feeder advance with main spindle for continuous-bar production. Measures remaining bar length, triggers advance when below threshold, sync's the advance with chuck open/close, handles end-of-bar conditions.",
+      "category": "Synchronization",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Bar Feeder Model", "type": "dropdown", "options": ["iemca_master", "lns_quickload", "edge_minuteman", "fmb_turbo"], "default": "lns_quickload"},
+            {"name": "Mode", "type": "dropdown", "options": ["auto_continuous", "single_cycle", "manual"], "default": "auto_continuous"},
+            {"name": "Control Link", "type": "dropdown", "options": ["m_code", "ethernet_io", "profibus", "ethercat"], "default": "m_code"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Stock Diameter", "type": "numeric", "description": "Bar stock OD", "default": 25.4, "unit": "mm", "min": 3, "max": 200},
+            {"name": "Total Length", "type": "numeric", "description": "Initial bar length", "default": 3000, "unit": "mm", "min": 100, "max": 6000},
+            {"name": "Advance Length", "type": "numeric", "description": "Length advanced per cycle", "default": 50, "unit": "mm", "min": 5, "max": 1000},
+            {"name": "Remaining Cutoff", "type": "numeric", "description": "Min remnant length to discard", "default": 200, "unit": "mm", "min": 50, "max": 500}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Trigger Code", "type": "text", "description": "M-code that initiates advance", "default": "M19"},
+            {"name": "Advance Signal", "type": "text", "description": "Signal name from feeder during advance"},
+            {"name": "Retract Signal", "type": "text", "description": "Signal name when feeder retracted"},
+            {"name": "Sync Ack", "type": "checkbox", "description": "Wait for feeder ACK before chuck close", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Retry Count", "type": "numeric", "description": "Attempts before abort on failed advance", "default": 2, "min": 0, "max": 5},
+            {"name": "End Of Bar Action", "type": "dropdown", "options": ["alarm_stop", "auto_load_next", "discharge_remnant"], "default": "alarm_stop"},
+            {"name": "Oversize Bar Warning", "type": "checkbox", "description": "Alert if measured OD exceeds spec", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "M-Code", "type": "text", "description": "Final NC M-code emitted"},
+            {"name": "Status Log", "type": "text", "description": "Path to bar-feed status log"}
+          ]
+        }
+      }
+    },
+    "TAILSTOCK_ACTUATE": {
+      "description": "Actuate the tailstock for centerline support of long workpieces. Engages live or dead center against the part end, applies controlled thrust force, retracts on cycle end.",
+      "category": "Auxiliary",
+      "parameterCount": 12,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Tailstock Type", "type": "dropdown", "options": ["live_center", "dead_center", "hydraulic_quill"], "default": "live_center"},
+            {"name": "Control Link", "type": "dropdown", "options": ["m_code", "hydraulic_only"], "default": "m_code"},
+            {"name": "Mode", "type": "dropdown", "options": ["auto", "manual"], "default": "auto"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "numeric", "description": "Z position of quill at engage", "default": 100, "unit": "mm"},
+            {"name": "Stroke", "type": "numeric", "description": "Quill extension distance", "default": 20, "unit": "mm", "min": 1, "max": 200},
+            {"name": "Contact Pressure", "type": "numeric", "description": "Hydraulic pressure at engage", "default": 30, "unit": "bar", "min": 5, "max": 80}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Engage Timing", "type": "numeric", "description": "Time after spindle start to engage", "default": 1, "unit": "s"},
+            {"name": "Retract Timing", "type": "numeric", "description": "Time before spindle stop to retract", "default": 1, "unit": "s"},
+            {"name": "Dwell", "type": "numeric", "description": "Hold time at full engage", "default": 0.3, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Retract On Fail", "type": "checkbox", "description": "Auto-retract on alarm or sync loss", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "M-Code", "type": "text", "description": "Tailstock advance/retract M-code"},
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"}
+          ]
+        }
+      }
+    },
+    "STEADY_REST_ACTUATE": {
+      "description": "Engage / disengage the steady rest (3-jaw or follow-rest) for mid-span support of long, slender turning work. Closes around stock, applies measured contact force, retracts when section finishes.",
+      "category": "Auxiliary",
+      "parameterCount": 12,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Steady Rest Type", "type": "dropdown", "options": ["3_jaw_static", "follow_rest", "self_centering"], "default": "3_jaw_static"},
+            {"name": "Control Link", "type": "dropdown", "options": ["m_code", "hydraulic_only"], "default": "m_code"},
+            {"name": "Mode", "type": "dropdown", "options": ["auto", "manual"], "default": "auto"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "numeric", "description": "Z position of steady rest", "default": 200, "unit": "mm"},
+            {"name": "Opening", "type": "numeric", "description": "Bore opening of jaws", "default": 30, "unit": "mm", "min": 5, "max": 250},
+            {"name": "Contact Force", "type": "numeric", "description": "Per-jaw contact force", "default": 200, "unit": "N", "min": 20, "max": 5000}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Engage Timing", "type": "numeric", "description": "Time after section start to engage", "default": 0.5, "unit": "s"},
+            {"name": "Retract Timing", "type": "numeric", "description": "Time before section end to retract", "default": 1, "unit": "s"},
+            {"name": "Dwell", "type": "numeric", "description": "Hold time at engage", "default": 0.3, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Retract On Fail", "type": "checkbox", "description": "Auto-retract on alarm or wear-out", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "M-Code", "type": "text", "description": "Steady rest advance/retract M-code"},
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"}
+          ]
+        }
+      }
+    },
+    "C_AXIS_INDEX_MILL": {
+      "description": "Index the C-axis of the main spindle to discrete angular positions for cross-drilling, slot milling, or radial feature creation. Locks C-axis at each index, runs live tooling, advances to next index.",
+      "category": "C_Axis",
+      "parameterCount": 14,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Controller", "type": "dropdown", "options": ["mazak_smoothx", "fanuc_31i_5", "siemens_840d", "mitsubishi_m800"], "default": "fanuc_31i_5"},
+            {"name": "C-Axis Enable Code", "type": "text", "description": "G-code that enables C-axis indexing", "default": "M19"},
+            {"name": "Primary Spindle", "type": "selection", "description": "Spindle whose C-axis is indexed", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Pattern Center", "type": "selection", "description": "Center of pattern in part frame"},
+            {"name": "Pattern Radius", "type": "numeric", "description": "Distance from spindle axis to feature", "default": 25, "unit": "mm", "min": 0.1, "max": 300},
+            {"name": "Hole Count", "type": "numeric", "description": "Number of features around circumference", "default": 6, "min": 1, "max": 360},
+            {"name": "Hole Diameter", "type": "numeric", "description": "Diameter of each feature", "default": 4, "unit": "mm", "min": 0.1, "max": 60}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Index Code", "type": "text", "description": "G-code used for index step", "default": "G00 C"},
+            {"name": "Position Tolerance", "type": "numeric", "description": "Max angle error after index", "default": 0.01, "unit": "deg"},
+            {"name": "Dwell After Index", "type": "numeric", "description": "Settle time after index complete", "default": 0.1, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Backlash Compensation", "type": "checkbox", "description": "Apply backlash comp at each index", "default": true},
+            {"name": "Lock During Mill", "type": "checkbox", "description": "Engage C-axis brake while live tool cuts", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block", "type": "text", "description": "Post-processor block for index sequence"},
+            {"name": "M-Code", "type": "text", "description": "C-axis enable / disable M-code"}
+          ]
+        }
+      }
+    },
+    "C_AXIS_INTERPOLATED_MILL": {
+      "description": "Polar / cylindrical interpolated milling using the C-axis simultaneously with X and Z. Cuts contours wrapped around the part OD or ID without unwrapping, including helical slots, spiral grooves, and curved cross-features.",
+      "category": "C_Axis",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Controller", "type": "dropdown", "options": ["mazak_smoothx", "fanuc_31i_5", "siemens_840d", "mitsubishi_m800"], "default": "fanuc_31i_5"},
+            {"name": "C-Axis Interpolation Mode", "type": "dropdown", "options": ["polar_g12_1", "cylindrical_g7_1", "transmit_traori"], "default": "polar_g12_1"},
+            {"name": "Mill Axis", "type": "dropdown", "options": ["x_y", "x_only", "z_only"], "default": "x_y"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Contour Curve", "type": "selection", "description": "Sketch / curve on cylindrical surface", "required": true},
+            {"name": "ZC Plane Offset", "type": "numeric", "description": "Z position of unwrapped contour origin", "default": 0, "unit": "mm"},
+            {"name": "C-Axis Range", "type": "numeric", "description": "Total angular sweep", "default": 360, "unit": "deg", "min": 1, "max": 36000},
+            {"name": "Mill Depth", "type": "numeric", "description": "Radial depth of cut into OD", "default": 1, "unit": "mm", "min": 0.05, "max": 20},
+            {"name": "Lead-In Angle", "type": "numeric", "description": "Tangent lead-in angle", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Polar Transform Code", "type": "text", "description": "Controller activation code", "default": "G12.1"},
+            {"name": "C-Axis Feedrate", "type": "numeric", "description": "C-axis tangential feedrate", "default": 500, "unit": "mm/min", "min": 1, "max": 10000},
+            {"name": "Simultaneous Limit", "type": "numeric", "description": "Max simultaneous axes (typ. 3 in polar)", "default": 3, "min": 2, "max": 5},
+            {"name": "Accel Limit", "type": "numeric", "description": "Max C-axis accel during interpolation", "default": 1000, "unit": "deg/s^2"},
+            {"name": "Lookahead Blocks", "type": "numeric", "description": "Controller lookahead block count", "default": 200, "min": 1, "max": 2000}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Lead-In/Out", "type": "dropdown", "options": ["tangent", "perpendicular", "helix", "none"], "default": "tangent"},
+            {"name": "Climb/Conventional", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"},
+            {"name": "Multi-Pass Strategy", "type": "dropdown", "options": ["single_pass", "stepdown", "spiral"], "default": "stepdown"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"},
+            {"name": "NC Format", "type": "dropdown", "options": ["polar_xy", "cylindrical_xc", "native"], "default": "polar_xy"}
+          ]
+        }
+      }
+    },
+    "Y_AXIS_TURN_OFFCENTER": {
+      "description": "Off-center turning using a Y-axis-equipped mill-turn for features whose centerline does not coincide with the spindle axis (eccentric bores, parallel offsets, D-flats). Uses Y to translate the turret away from spindle centerline while the part rotates.",
+      "category": "Multi_Axis",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Machine Model", "type": "selection", "description": "Y-axis mill-turn (NTX / Integrex / CTX)", "required": true},
+            {"name": "Y-Axis Enable", "type": "text", "description": "Activation code for Y-axis turning", "default": "G07.1"},
+            {"name": "Mode", "type": "dropdown", "options": ["off_center_bore", "d_flat", "eccentric_profile"], "default": "off_center_bore"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Offset Distance", "type": "numeric", "description": "Y-axis offset from spindle centerline", "default": 5, "unit": "mm", "min": 0.1, "max": 100},
+            {"name": "X Range", "type": "numeric", "description": "X travel during operation", "default": 20, "unit": "mm"},
+            {"name": "Y Range", "type": "numeric", "description": "Y travel during operation", "default": 5, "unit": "mm"},
+            {"name": "Z Range", "type": "numeric", "description": "Z travel during operation", "default": 30, "unit": "mm"},
+            {"name": "Contour", "type": "selection", "description": "Profile sketch in XZ plane", "required": true}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Tool Turret Align", "type": "checkbox", "description": "Verify turret aligned to Y-direction at start", "default": true},
+            {"name": "C-Axis Lock", "type": "checkbox", "description": "Lock C-axis (no spindle indexing during cut)", "default": false},
+            {"name": "Kinematic Check", "type": "checkbox", "description": "Run reach + interference check first", "default": true},
+            {"name": "Simulate First", "type": "checkbox", "description": "Force simulation pass before NC output", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Chip Evacuation", "type": "dropdown", "options": ["thru_coolant", "air_blast", "high_pressure_coolant", "minimum_quantity_lubrication"], "default": "thru_coolant"},
+            {"name": "Surface Speed Compensation", "type": "checkbox", "description": "CSS compensation for off-center cut radius", "default": true},
+            {"name": "Climb/Conventional", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"},
+            {"name": "Finish Allowance", "type": "numeric", "description": "Stock left for finish pass", "default": 0.2, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"},
+            {"name": "Format", "type": "dropdown", "options": ["xyc_native", "polar", "y_axis_turn"], "default": "y_axis_turn"}
+          ]
+        }
+      }
+    },
+    "POLYGON_TURNING": {
+      "description": "Polygon turning — synchronously rotated tool spindle and main spindle at integer ratios produce flats / hex / square cross-sections in a single pass without indexing. Critical for high-throughput hex-bar and square-shoulder production.",
+      "category": "Multi_Axis",
+      "parameterCount": 18,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Controller", "type": "dropdown", "options": ["mazak_smoothx", "fanuc_31i_5", "siemens_840d", "mitsubishi_m800"], "default": "fanuc_31i_5"},
+            {"name": "Mode", "type": "dropdown", "options": ["3_lobe_hex", "2_lobe_square", "4_lobe_octagon", "custom_ratio"], "default": "3_lobe_hex"},
+            {"name": "Primary Spindle", "type": "selection", "description": "Workpiece spindle"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Polygon Side Count", "type": "numeric", "description": "Resulting flats per revolution (3=hex, 4=sq)", "default": 6, "min": 2, "max": 12},
+            {"name": "Inscribed Diameter", "type": "numeric", "description": "Across-flats dimension", "default": 19.05, "unit": "mm", "min": 1, "max": 200},
+            {"name": "Axial Length", "type": "numeric", "description": "Length of polygon section", "default": 50, "unit": "mm", "min": 1, "max": 1000},
+            {"name": "Lead-In/Out Length", "type": "numeric", "description": "Run-on / run-off length", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Rotation Ratio", "type": "numeric", "description": "Tool RPM : Workpiece RPM (integer)", "default": 2, "min": 1, "max": 12},
+            {"name": "Phase", "type": "numeric", "description": "Tool/workpiece phase offset", "default": 0, "unit": "deg"},
+            {"name": "Sync Code", "type": "text", "description": "Polygon-turn sync directive (G50.2)", "default": "G50.2"},
+            {"name": "RPM Window", "type": "numeric", "description": "Allowable RPM drift before re-sync", "default": 5, "unit": "rpm"},
+            {"name": "Ratio Tolerance", "type": "numeric", "description": "Allowable ratio drift", "default": 0.01}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Finish Pass", "type": "checkbox", "description": "Add a finish pass at reduced DOC", "default": true},
+            {"name": "Profile Correction", "type": "checkbox", "description": "Compensate barreling at flat midpoint", "default": true},
+            {"name": "Lobe Correction", "type": "numeric", "description": "Tool radius compensation across lobes", "default": 0.05, "unit": "mm"},
+            {"name": "Deflection Compensation", "type": "checkbox", "description": "Apply tool deflection comp", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"},
+            {"name": "Lobe Geometry Log", "type": "text", "description": "Output file for lobe-shape diagnostics"}
+          ]
+        }
+      }
+    },
+    "THREAD_WHIRLING": {
+      "description": "Thread whirling — a multi-tooth whirling head orbits eccentrically around the workpiece while the workpiece rotates slowly. Cuts external threads in a single pass with very high rate and chip-free accuracy. Used for medical bone screws, ball screws, and worm gears.",
+      "category": "Multi_Axis",
+      "parameterCount": 22,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Whirling Head Type", "type": "dropdown", "options": ["3_insert", "4_insert", "5_insert", "single_pass_pcd"], "default": "4_insert"},
+            {"name": "Controller", "type": "dropdown", "options": ["mazak_smoothx", "tornos_tb_deco", "siemens_840d", "fanuc_30i"], "default": "tornos_tb_deco"},
+            {"name": "Sync Mode", "type": "dropdown", "options": ["css_locked", "ratio_locked", "phase_locked"], "default": "ratio_locked"},
+            {"name": "Channel", "type": "selection", "description": "Mill-turn channel hosting the whirling head"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Thread Diameter", "type": "numeric", "description": "Thread major diameter", "default": 6, "unit": "mm", "min": 0.5, "max": 80},
+            {"name": "Lead", "type": "numeric", "description": "Axial advance per revolution", "default": 1, "unit": "mm/rev", "min": 0.1, "max": 20},
+            {"name": "Length", "type": "numeric", "description": "Threaded section length", "default": 30, "unit": "mm"},
+            {"name": "Helix Angle", "type": "numeric", "description": "Computed from lead and diameter", "default": 3.0, "unit": "deg"},
+            {"name": "Multi-Start Count", "type": "numeric", "description": "Number of thread starts", "default": 1, "min": 1, "max": 8}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "Main RPM", "type": "numeric", "description": "Workpiece spindle RPM (slow)", "default": 30, "unit": "rpm", "min": 1, "max": 500},
+            {"name": "Whirl RPM", "type": "numeric", "description": "Whirling head RPM (fast)", "default": 3000, "unit": "rpm", "min": 100, "max": 12000},
+            {"name": "Ratio", "type": "numeric", "description": "Whirl:Main ratio (typically inserts × main side count)", "default": 100, "min": 4, "max": 1000},
+            {"name": "Phase", "type": "numeric", "description": "Phase offset of insert engage", "default": 0, "unit": "deg"},
+            {"name": "Sync Code", "type": "text", "description": "Whirling-thread sync directive", "default": "G35"},
+            {"name": "Axial Feedrate", "type": "numeric", "description": "Axial feedrate (= lead × main RPM)", "default": 30, "unit": "mm/min"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Roughing Passes", "type": "numeric", "description": "Whirl passes before finish", "default": 1, "min": 0, "max": 5},
+            {"name": "Finish Pass", "type": "checkbox", "description": "Add finish pass at reduced engagement", "default": true},
+            {"name": "Deflection Comp", "type": "checkbox", "description": "Apply slender-shaft deflection comp", "default": true},
+            {"name": "Vibration Mode", "type": "dropdown", "options": ["off", "passive_damper", "active_chatter_suppression"], "default": "passive_damper"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"},
+            {"name": "Helix Log", "type": "text", "description": "Generated helix path log"},
+            {"name": "Parameter File", "type": "text", "description": "Whirl head + ratio parameter file"}
+          ]
+        }
+      }
+    },
+    "CROSS_DRILLING_LIVE": {
+      "description": "Drill cross-holes (perpendicular to spindle axis) with a live tool while the C-axis indexes the workpiece. Common for cross-pin holes, lubrication ports, and radial bores. Coordinates spindle stop, C-axis index, live-tool start, peck cycle.",
+      "category": "Multi_Axis",
+      "parameterCount": 16,
+      "tabs": {
+        "Process": {
+          "parameters": [
+            {"name": "Live Tool ID", "type": "selection", "description": "Live tool from tool library", "required": true},
+            {"name": "Controller", "type": "dropdown", "options": ["mazak_smoothx", "fanuc_31i_5", "siemens_840d", "mitsubishi_m800"], "default": "fanuc_31i_5"},
+            {"name": "Channel", "type": "selection", "description": "Mill-turn channel hosting live tool"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Position Vector", "type": "selection", "description": "Center vector of cross-hole", "required": true},
+            {"name": "Bore Diameter", "type": "numeric", "description": "Drill bit diameter", "default": 4, "unit": "mm", "min": 0.1, "max": 60},
+            {"name": "Depth", "type": "numeric", "description": "Drilled depth from OD surface", "default": 10, "unit": "mm", "min": 0.1, "max": 200},
+            {"name": "Exit Clearance", "type": "numeric", "description": "Retract clearance after drill", "default": 5, "unit": "mm"}
+          ]
+        },
+        "Synchronization": {
+          "parameters": [
+            {"name": "C-Axis Index", "type": "numeric", "description": "Index angle for this hole", "default": 0, "unit": "deg"},
+            {"name": "Spindle Stop Code", "type": "text", "description": "Main spindle stop M-code", "default": "M5"},
+            {"name": "Live Tool Start", "type": "text", "description": "Live tool spindle start code", "default": "M133"},
+            {"name": "Peck Timing", "type": "numeric", "description": "Pause at each peck retract", "default": 0.1, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Peck Count", "type": "numeric", "description": "Number of pecks", "default": 3, "min": 1, "max": 30},
+            {"name": "Retract Distance", "type": "numeric", "description": "Distance retracted at each peck", "default": 1, "unit": "mm"},
+            {"name": "Chip Evacuation", "type": "dropdown", "options": ["thru_coolant", "air_blast", "high_pressure", "mql"], "default": "thru_coolant"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Block", "type": "text", "description": "Post-processor block name"},
+            {"name": "M-Code", "type": "text", "description": "Live tool start/stop M-codes"}
+          ]
+        }
+      }
+    }
+  }
+}

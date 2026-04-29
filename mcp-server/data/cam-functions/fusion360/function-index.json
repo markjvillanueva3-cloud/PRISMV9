@@ -85,6 +85,14 @@
       "parameter_count_estimate": 186,
       "description": "Inspection-extension toolpaths — CMM planning + sampling strategy (2 ops), tolerance stack analysis RSS + Monte Carlo + surface form + compare-to-CAD (4 ops), GD&T validate / zone-check + probe compensation calibrate (3 ops), inspection report + certificate of conformance (2 ops). 11 toolpaths complementing MS1-01 Probing — focuses on planning, analysis, validation, and reporting layers above raw probe macros.",
       "dependencies": ["probing"]
+    },
+    {
+      "module_id": "mill_turn",
+      "path": "cam-functions/fusion360/mill-turn.json",
+      "covered_units": ["U-CAM-MS1-05"],
+      "parameter_count_estimate": 200,
+      "description": "Mill-turn toolpaths — synchronization (4 ops: turning_transfer, part_catcher, mill_turn_sync, bar_feed_advance), auxiliary (2 ops: tailstock, steady_rest), C-axis (2 ops: indexed mill, interpolated mill), multi-axis (4 ops: Y-axis offcenter turning, polygon turning, thread whirling, cross-drilling live). 12 toolpaths covering true dual-channel mill-turn capability for Integrex/NTX/CTX-class machines.",
+      "dependencies": ["turning_operations", "multiaxis_operations"]
     }
   ],
   "global_cross_references": {
