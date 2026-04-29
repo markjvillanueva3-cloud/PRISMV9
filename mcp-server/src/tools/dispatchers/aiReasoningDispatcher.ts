@@ -1160,6 +1160,72 @@ export async function executeAIReasoningAction(
         result = exceptionLearningEngine.getStatistics();
         break;
       }
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE32: TransferLearningBridgeEngine — cross-domain
+      // analogy finder via cosine(0.7) + jaccard(0.3) + 10% cross-domain bonus.
+      // Singleton-only; the dispatcher uses the shared instance so
+      // registrations persist across calls. Engine throws on invalid
+      // SolvedProblem fields — wrap each write to surface the error message
+      // in the dispatcher result without crashing.
+      // ─────────────────────────────────────────────────────────────────────
+      case "analogy_register": {
+        const { transferLearningBridgeEngine } = await import("../../engines/TransferLearningBridgeEngine.js");
+        type Arg = Parameters<typeof transferLearningBridgeEngine.register>[0];
+        const p = params as { problem: Arg };
+        try {
+          transferLearningBridgeEngine.register(p.problem);
+          result = { registered: true, id: p.problem.id, size: transferLearningBridgeEngine.size() };
+        } catch (e) {
+          // Engine throws on missing/blank required fields. Surface message,
+          // do NOT swallow — dispatcher contract returns success:true with a
+          // structured failure payload so the caller can branch on registered.
+          result = {
+            registered: false,
+            id: p.problem.id,
+            error: e instanceof Error ? e.message : String(e),
+          };
+        }
+        break;
+      }
+      case "analogy_register_many": {
+        const { transferLearningBridgeEngine } = await import("../../engines/TransferLearningBridgeEngine.js");
+        type Arg = Parameters<typeof transferLearningBridgeEngine.register>[0];
+        const p = params as { problems: ReadonlyArray<Arg> };
+        const sizeBefore = transferLearningBridgeEngine.size();
+        try {
+          transferLearningBridgeEngine.registerMany(p.problems);
+          result = {
+            registered: true,
+            inserted: transferLearningBridgeEngine.size() - sizeBefore,
+            size: transferLearningBridgeEngine.size(),
+          };
+        } catch (e) {
+          // Engine throws on first invalid entry; prior inserts are kept (engine
+          // contract). Report partial-insert count so the caller can resume.
+          result = {
+            registered: false,
+            inserted: transferLearningBridgeEngine.size() - sizeBefore,
+            size: transferLearningBridgeEngine.size(),
+            error: e instanceof Error ? e.message : String(e),
+          };
+        }
+        break;
+      }
+      case "analogy_find": {
+        const { transferLearningBridgeEngine } = await import("../../engines/TransferLearningBridgeEngine.js");
+        type QueryArg = Parameters<typeof transferLearningBridgeEngine.findAnalogies>[0];
+        type OptsArg = Parameters<typeof transferLearningBridgeEngine.findAnalogies>[1];
+        const p = params as { query: QueryArg; options?: OptsArg };
+        const matches = transferLearningBridgeEngine.findAnalogies(p.query, p.options);
+        result = { matches, count: matches.length };
+        break;
+      }
+      case "analogy_inventory": {
+        const { transferLearningBridgeEngine } = await import("../../engines/TransferLearningBridgeEngine.js");
+        const problems = transferLearningBridgeEngine.list();
+        result = { problems, size: transferLearningBridgeEngine.size() };
+        break;
+      }
 
       default: {
         const _exhaustive: never = action;
