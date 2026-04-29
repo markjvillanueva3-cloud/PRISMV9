@@ -5,6 +5,29 @@
 COMMON_SH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ============================================================
+# PORTABLE PYTHON DISCOVERY
+# Bare `python3` invokes the Windows Store stub (which fails) and
+# bare `python` redirects there too on most Win11 boxes. Resolve to
+# the portable interpreter on H: with safe fallbacks.
+# ============================================================
+if [ -z "$PYTHON_BIN" ]; then
+  if [ -x "/h/Tools/python/python.exe" ]; then
+    PYTHON_BIN="/h/Tools/python/python.exe"
+  elif [ -x "H:/Tools/python/python.exe" ]; then
+    PYTHON_BIN="H:/Tools/python/python.exe"
+  elif command -v py >/dev/null 2>&1; then
+    PYTHON_BIN="py"
+  elif command -v python3 >/dev/null 2>&1 && python3 -c "" >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+  elif command -v python >/dev/null 2>&1 && python -c "" >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+  else
+    PYTHON_BIN="/h/Tools/python/python.exe"
+  fi
+  export PYTHON_BIN
+fi
+
+# ============================================================
 # JSON PARSING — extract all common fields from hook stdin JSON
 # Usage: parse_hook_input "$INPUT"
 # Sets: TOOL_NAME, FILE_PATH, COMMAND, CONTENT_LEN,
@@ -14,7 +37,7 @@ parse_hook_input() {
   local input="$1"
   local tmpvars="/tmp/.claude-hook-vars-$$"
   export _HOOK_INPUT="$input"
-  python3 << 'PYEOF' > "$tmpvars" 2>/dev/null
+  "$PYTHON_BIN" << 'PYEOF' > "$tmpvars" 2>/dev/null
 import json,os
 raw = os.environ.get("_HOOK_INPUT","")
 d = json.loads(raw) if raw else {}
@@ -56,7 +79,7 @@ PYEOF
 
 # Deny a PreToolUse action
 deny() {
-  python3 -c "
+  "$PYTHON_BIN" -c "
 import json,sys
 print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'deny','permissionDecisionReason':sys.argv[1]}}))
 " "$1"
@@ -65,7 +88,7 @@ print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','permission
 
 # Rewrite a Bash command
 rewrite() {
-  python3 -c "
+  "$PYTHON_BIN" -c "
 import json,sys
 print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','updatedInput':{'command':sys.argv[1]}}}))
 " "$1"
@@ -74,7 +97,7 @@ print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','updatedInp
 
 # Rewrite any tool's input (generic — pass JSON patch)
 rewrite_input() {
-  python3 -c "
+  "$PYTHON_BIN" -c "
 import json,sys
 patch = json.loads(sys.argv[1])
 print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','updatedInput':patch}}))
@@ -85,7 +108,7 @@ print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','updatedInp
 # Show a hint/context message (PostToolUse or SessionStart)
 hint() {
   local event="${2:-PostToolUse}"
-  python3 -c "
+  "$PYTHON_BIN" -c "
 import json,sys
 print(json.dumps({'hookSpecificOutput':{'hookEventName':sys.argv[2],'additionalContext':sys.argv[1]}}))
 " "$1" "$event"
@@ -94,7 +117,7 @@ print(json.dumps({'hookSpecificOutput':{'hookEventName':sys.argv[2],'additionalC
 
 # Auto-approve a PermissionRequest
 approve() {
-  python3 -c "
+  "$PYTHON_BIN" -c "
 import json,sys
 print(json.dumps({'hookSpecificOutput':{'hookEventName':'PermissionRequest','permissionDecision':'allow','permissionDecisionReason':sys.argv[1]}}))
 " "$1"
