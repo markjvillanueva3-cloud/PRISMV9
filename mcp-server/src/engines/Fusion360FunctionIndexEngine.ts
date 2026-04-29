@@ -627,6 +627,32 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get manufacturing-model / setup primitives (CAM-EXHAUST-MS1-06).
+   * Reads setup.json catalog covering workpiece/stock definition (from
+   * model, from previous setup, from body, from box, from cylinder),
+   * fixture binding (vise, chuck), work coordinate systems (single +
+   * multi-WCS schedules), machine kinematics + post binding, multi-setup
+   * Op1/Op2 grouping, and setup-sheet documentation.
+   *
+   * Anchors every downstream toolpath module to a concrete machine +
+   * workpiece + datum frame. Required precursor for any closed-loop
+   * CAM-to-shop-floor workflow. References ISO 6983-1 (G54-G59), ISO
+   * 230-1/2 (kinematics), ASME B5.54 (machine accuracy), and Fanuc
+   * G54.1 P1..P48 / Siemens G505..G599 / Mazak SHIFT extended offsets.
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   *   Categories: "Workpiece" | "Fixture" | "Coordinates" | "Kinematics" | "Multi_Setup" | "Documentation"
+   */
+  static getSetupOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("setup.json", "getSetupOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal

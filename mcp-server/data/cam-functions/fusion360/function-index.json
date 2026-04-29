@@ -93,6 +93,14 @@
       "parameter_count_estimate": 200,
       "description": "Mill-turn toolpaths — synchronization (4 ops: turning_transfer, part_catcher, mill_turn_sync, bar_feed_advance), auxiliary (2 ops: tailstock, steady_rest), C-axis (2 ops: indexed mill, interpolated mill), multi-axis (4 ops: Y-axis offcenter turning, polygon turning, thread whirling, cross-drilling live). 12 toolpaths covering true dual-channel mill-turn capability for Integrex/NTX/CTX-class machines.",
       "dependencies": ["turning_operations", "multiaxis_operations"]
+    },
+    {
+      "module_id": "setup",
+      "path": "cam-functions/fusion360/setup.json",
+      "covered_units": ["U-CAM-MS1-06"],
+      "parameter_count_estimate": 193,
+      "description": "Manufacturing-model / setup primitives — workpiece (5 ops: stock from model, from previous setup, from body, from box, from cylinder), fixture (2 ops: vise, chuck), coordinates (2 ops: WCS_DEFINE single G54-G59, WCS_OFFSET_SCHEDULE extended G54.1 P1..P48), kinematics (1 op: machine + post + axis-config bind), multi-setup (1 op: Op1/Op2 group with datum propagation), documentation (1 op: setup-sheet PDF/HTML/image bundle). 12 toolpaths anchoring every downstream module to a concrete machine + workpiece + datum frame.",
+      "dependencies": []
     }
   ],
   "global_cross_references": {

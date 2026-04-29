@@ -1,0 +1,546 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Manufacturing Model / Setup Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 manufacturing-model and setup operations: stock/workpiece definition (body, box, cylinder), fixture binding (vise, chuck), work coordinate systems (single + multi-WCS schedules), machine kinematics binding, multi-setup management (Op1/Op2 flips), and setup-sheet documentation. Anchors every downstream toolpath module (2D/3D/multiaxis/turning/probing/additive/cutting/inspection/mill-turn) to a concrete machine + workpiece + datum frame. Required precursor for any closed-loop CAM-to-shop-floor workflow.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-06",
+    "source": "Autodesk Fusion 360 Help — Setup + Stock + Fixture + Manufacturing Model reference + ISO 6983-1 (G54-G59 WCS) + ISO 230-1/2 (machine kinematics + axis acceptance) + ASME B5.54 (machine accuracy) + Fanuc 30i/31i G54.1 P1..P48 extended offsets manual + Mazak Smooth control kinematics manual",
+    "totalParameters": 193,
+    "toolpathCount": 12,
+    "physics_links": [
+      "WCS_OFFSET_TRANSFORM",
+      "KINEMATICS_REACHABILITY",
+      "FIXTURE_GRIP_FORCE_BUDGET",
+      "STOCK_VOLUME_VS_FINAL",
+      "COLLISION_ENVELOPE",
+      "DATUM_TRANSFORM_CHAIN",
+      "WORKHOLDING_STIFFNESS",
+      "MULTI_SETUP_DATUM_PROPAGATION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across manufacturing-model / setup operations",
+    "tabs": ["Setup", "Stock", "Fixture", "Coordinates", "Output"]
+  },
+  "toolpaths": {
+    "STOCK_FROM_MODEL": {
+      "description": "Default stock mode in Fusion — use the model itself as the stock silhouette with directional offsets. The most common workpiece definition for first-op machining when starting from a near-net or pre-formed billet that closely matches the part. Applies offsets uniformly or per-direction, supports multi-body and assembly setups. Drives stock model for adaptive clearing remaining-material logic.",
+      "category": "Workpiece",
+      "parameterCount": 14,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Setup Name", "type": "text", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["from_model", "from_model_offset"], "default": "from_model"},
+            {"name": "Stock Material", "type": "selection", "description": "Material library entry"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Model Source", "type": "dropdown", "options": ["single_body", "selected_bodies", "all_bodies", "active_component"], "default": "all_bodies"},
+            {"name": "Uniform Offset", "type": "numeric", "description": "Per-face offset added to model silhouette", "default": 0, "unit": "mm", "min": 0, "max": 25},
+            {"name": "Offset Mode", "type": "dropdown", "options": ["uniform", "per_face_directional"], "default": "uniform"},
+            {"name": "Axial Offset", "type": "numeric", "description": "Z-direction offset (overrides uniform when directional)", "default": 0, "unit": "mm"},
+            {"name": "Radial Offset", "type": "numeric", "description": "Radial offset for cylindrical-ish parts", "default": 0, "unit": "mm"},
+            {"name": "Treat As Final Shape", "type": "checkbox", "description": "Stock equals model exactly (no machining allowance)", "default": false}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Bodies", "type": "selection_multi", "description": "Bodies treated as fixtures"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "WCS Origin", "type": "selection", "description": "Setup origin point", "required": true},
+            {"name": "Z Orientation", "type": "dropdown", "options": ["+Z_up", "-Z_up", "+X_up", "-X_up", "+Y_up", "-Y_up"], "default": "+Z_up"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Setup Sheet Photo", "type": "checkbox", "default": true},
+            {"name": "Stock Volume Report", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "STOCK_FROM_PREVIOUS_SETUP": {
+      "description": "Inherit the post-machining stock model from the preceding setup in the operation chain (Op1 → Op2). Critical for accurate Op2 toolpath planning on flip / refixture / sub-spindle-transfer parts — Fusion carries the leftover stock state forward so adaptive clearing sees only the un-machined material. Pairs with SETUP_GROUP for op-chain management.",
+      "category": "Workpiece",
+      "parameterCount": 14,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Setup Name", "type": "text", "required": true},
+            {"name": "Parent Setup", "type": "selection", "description": "Source setup whose post-machining stock is inherited", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["from_previous_setup", "from_setup_chain"], "default": "from_previous_setup"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Source", "type": "dropdown", "options": ["post_machining_state", "pre_machining_state", "snapshot_id"], "default": "post_machining_state"},
+            {"name": "Additional Offset", "type": "numeric", "description": "Extra offset added on top of inherited stock", "default": 0, "unit": "mm", "min": 0, "max": 10},
+            {"name": "Propagate Cleared Regions", "type": "checkbox", "description": "Carry already-machined regions forward (no re-cut)", "default": true},
+            {"name": "Snapshot ID", "type": "text", "description": "Specific intermediate snapshot to inherit (advanced)"}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Mode", "type": "dropdown", "options": ["new_fixture_this_op", "inherit_fixture", "fixture_from_group"], "default": "new_fixture_this_op"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "WCS Mode", "type": "dropdown", "options": ["new_wcs_this_op", "inherit_with_transform", "re_probe_per_op"], "default": "new_wcs_this_op", "required": true},
+            {"name": "Inherited Transform", "type": "text", "description": "4x4 transform applied from parent WCS (read-only when inherited)"},
+            {"name": "Datum Frame Continuity", "type": "checkbox", "description": "Enforce datum frame from parent setup", "default": true},
+            {"name": "Flip Compensation", "type": "checkbox", "description": "Auto-flip stock when parent setup flipped part", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Delta Volume Report", "type": "checkbox", "description": "Report material removed in this setup vs inherited stock", "default": true},
+            {"name": "Setup Sheet Photo", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "STOCK_FROM_BODY": {
+      "description": "Define raw stock from a separate solid body in the model — used when the input is a forging, casting, near-net additive preform, or any non-prismatic billet. Binds the stock body to the manufacturing model so all downstream toolpaths see correct material removal volumes and remaining-material logic.",
+      "category": "Workpiece",
+      "parameterCount": 16,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Setup Name", "type": "text", "description": "Manufacturing-model setup identifier (matches Op1/Op2 chain)", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["from_body", "from_body_offset"], "default": "from_body"},
+            {"name": "Stock Material", "type": "selection", "description": "Material library entry — drives kc1.1, density, machinability"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Body", "type": "selection", "description": "Solid body to use as stock", "required": true},
+            {"name": "Oversize Offset", "type": "numeric", "description": "Uniform offset added to stock body before machining", "default": 0, "unit": "mm", "min": 0, "max": 25},
+            {"name": "Offset Mode", "type": "dropdown", "options": ["uniform", "axial_only", "radial_only", "directional"], "default": "uniform"},
+            {"name": "Surface Allowance", "type": "numeric", "description": "Per-face allowance left for finishing (kept on part)", "default": 0.5, "unit": "mm"},
+            {"name": "Treat As Fixture", "type": "checkbox", "description": "Render stock body as fixture (no removal)", "default": false}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Bodies", "type": "selection_multi", "description": "Bodies treated as fixtures (no cut)"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "WCS Origin", "type": "selection", "description": "Setup origin point (corner / center / face / feature)", "required": true},
+            {"name": "Z Orientation", "type": "dropdown", "options": ["+Z_up", "-Z_up", "+X_up", "-X_up", "+Y_up", "-Y_up"], "default": "+Z_up"},
+            {"name": "Datum Frame", "type": "text", "description": "ASME Y14.5 datum frame label (e.g. A|B|C)"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Setup Sheet Photo", "type": "checkbox", "description": "Capture image of stock-body alignment", "default": true},
+            {"name": "Stock Volume Report", "type": "checkbox", "description": "Compute initial vs final volume + scrap mass", "default": true},
+            {"name": "Document Template", "type": "selection", "description": "Setup-sheet template ID"},
+            {"name": "Operator Notes", "type": "text", "description": "Free-form notes printed on setup sheet"}
+          ]
+        }
+      }
+    },
+    "STOCK_FROM_BOX": {
+      "description": "Define rectangular bounding-box stock with directional offsets (Xmin/Xmax/Ymin/Ymax/Zmin/Zmax). The default for prismatic plate / block billets. Drives stock model for adaptive clearing and remaining-material visualizations.",
+      "category": "Workpiece",
+      "parameterCount": 17,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Setup Name", "type": "text", "required": true},
+            {"name": "Stock Material", "type": "selection", "description": "Material library entry"},
+            {"name": "Bounding Body Source", "type": "dropdown", "options": ["model", "selected_bodies", "all_bodies"], "default": "model"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "+X Offset", "type": "numeric", "default": 0, "unit": "mm", "min": 0, "max": 200},
+            {"name": "-X Offset", "type": "numeric", "default": 0, "unit": "mm", "min": 0, "max": 200},
+            {"name": "+Y Offset", "type": "numeric", "default": 0, "unit": "mm", "min": 0, "max": 200},
+            {"name": "-Y Offset", "type": "numeric", "default": 0, "unit": "mm", "min": 0, "max": 200},
+            {"name": "+Z Offset", "type": "numeric", "default": 1, "unit": "mm", "min": 0, "max": 200},
+            {"name": "-Z Offset", "type": "numeric", "default": 0, "unit": "mm", "min": 0, "max": 200},
+            {"name": "Round Up To", "type": "numeric", "description": "Snap stock dimensions to nearest standard plate size", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Bodies", "type": "selection_multi", "description": "Bodies treated as fixtures"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "WCS Origin", "type": "dropdown", "options": ["bottom_corner_minXminY", "top_corner_minXminY", "bottom_center", "top_center", "stock_center", "selected_point"], "default": "top_corner_minXminY", "required": true},
+            {"name": "Z Orientation", "type": "dropdown", "options": ["+Z_up", "-Z_up"], "default": "+Z_up"},
+            {"name": "X Axis", "type": "selection", "description": "Edge / face that defines +X"},
+            {"name": "Datum Frame", "type": "text"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Setup Sheet Photo", "type": "checkbox", "default": true},
+            {"name": "Stock Volume Report", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "STOCK_FROM_CYLINDER": {
+      "description": "Define round-bar stock for turning, mill-turn, or rotary milling — cylinder defined by axis + diameter + length, with optional ID for tubing/pre-bored stock. Drives bar-feed scheduling and turning rough-pass envelope.",
+      "category": "Workpiece",
+      "parameterCount": 17,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Setup Name", "type": "text", "required": true},
+            {"name": "Stock Material", "type": "selection"},
+            {"name": "Mode", "type": "dropdown", "options": ["solid_bar", "tube", "pre_bored", "casting"], "default": "solid_bar"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "OD", "type": "numeric", "description": "Outer diameter", "required": true, "unit": "mm", "min": 1, "max": 500},
+            {"name": "ID", "type": "numeric", "description": "Inner diameter (0 = solid bar)", "default": 0, "unit": "mm", "min": 0, "max": 500},
+            {"name": "Length", "type": "numeric", "description": "Total bar length", "required": true, "unit": "mm", "min": 5, "max": 6000},
+            {"name": "Axial Offset", "type": "numeric", "description": "Z-extension beyond part (machining allowance)", "default": 5, "unit": "mm", "min": 0, "max": 100},
+            {"name": "Radial Offset", "type": "numeric", "description": "Radial allowance (0 = exact OD)", "default": 0.5, "unit": "mm"},
+            {"name": "Bar Feed Cycle", "type": "checkbox", "description": "Use bar-feeder loop (multi-part)", "default": false},
+            {"name": "Parts Per Bar", "type": "numeric", "description": "Auto-computed parts per bar length", "default": 1, "min": 1, "max": 1000}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Chuck Bodies", "type": "selection_multi", "description": "Chuck/collet bodies"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Axis Vector", "type": "selection", "description": "Cylinder axis direction (typically +Z or -Z for lathe)", "required": true},
+            {"name": "WCS Origin", "type": "dropdown", "options": ["face_center", "chuck_face", "tail_center", "selected_point"], "default": "face_center"},
+            {"name": "Spindle Side", "type": "dropdown", "options": ["main", "sub"], "default": "main"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Setup Sheet Photo", "type": "checkbox", "default": true},
+            {"name": "Bar Feed Schedule", "type": "checkbox", "description": "Output bar-feed advance table", "default": true}
+          ]
+        }
+      }
+    },
+    "FIXTURE_VISE": {
+      "description": "Bind a vise (precision / Kurt-class / soft-jaw / dovetail) to the setup — defines jaw geometry, grip depth, parallels, and clamping force budget. Enables collision detection, soft-jaw machining workflow, and grip-force-vs-cutting-force budget validation against Kienzle.",
+      "category": "Fixture",
+      "parameterCount": 18,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Vise Type", "type": "dropdown", "options": ["kurt_d688", "kurt_anglock", "5c_collet_vise", "double_lock", "soft_jaw", "dovetail", "custom"], "default": "kurt_d688"},
+            {"name": "Vise Body", "type": "selection", "description": "Vise STEP / library entry"},
+            {"name": "Mounting", "type": "dropdown", "options": ["table_direct", "subplate", "tombstone_face", "rotary_a", "rotary_b"], "default": "table_direct"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Grip Depth", "type": "numeric", "description": "Depth of stock in jaws", "default": 12, "unit": "mm", "min": 3, "max": 80},
+            {"name": "Stickout", "type": "numeric", "description": "Stock above jaw top", "default": 25, "unit": "mm", "min": 1, "max": 200},
+            {"name": "Parallels Height", "type": "numeric", "default": 19.05, "unit": "mm", "min": 0, "max": 100},
+            {"name": "Parallels Width", "type": "numeric", "default": 9.5, "unit": "mm", "min": 0, "max": 50}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Jaw Width", "type": "numeric", "default": 152.4, "unit": "mm", "min": 25, "max": 600},
+            {"name": "Jaw Type", "type": "dropdown", "options": ["hard_steel", "soft_aluminum", "soft_steel_machinable", "machinable_grip", "serrated"], "default": "hard_steel"},
+            {"name": "Soft Jaw Body", "type": "selection", "description": "Solid body machined into custom soft jaw"},
+            {"name": "Clamp Force", "type": "numeric", "description": "Applied clamping force", "default": 22000, "unit": "N", "min": 500, "max": 80000},
+            {"name": "Friction Coefficient", "type": "numeric", "description": "Stock-to-jaw friction (drives slip budget)", "default": 0.15, "min": 0.05, "max": 0.5},
+            {"name": "Slip Safety Factor", "type": "numeric", "description": "Min ratio of grip force to peak Kienzle force", "default": 2.0, "min": 1.0, "max": 5.0}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Vise Center Datum", "type": "selection", "description": "Datum point used to align vise to WCS"},
+            {"name": "Stationary Jaw Side", "type": "dropdown", "options": ["+X", "-X", "+Y", "-Y"], "default": "-X"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Soft Jaw Toolpath Bind", "type": "checkbox", "description": "Auto-generate soft-jaw machining setup", "default": false},
+            {"name": "Grip Force Audit", "type": "checkbox", "description": "Run grip-vs-cut force check on every toolpath", "default": true},
+            {"name": "Setup Sheet Photo", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FIXTURE_CHUCK": {
+      "description": "Bind a lathe / mill-turn chuck or collet (3-jaw, 4-jaw, 6-jaw, ID-grip, OD-grip, hydraulic, pneumatic, dead-length collet) to the setup. Models jaw bite depth, grip diameter, runout budget, and clamp pressure for grip-force budgeting against turning loads.",
+      "category": "Fixture",
+      "parameterCount": 17,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Chuck Type", "type": "dropdown", "options": ["3_jaw_self_centering", "4_jaw_independent", "6_jaw_self_centering", "collet_5c", "collet_16c", "collet_dead_length", "diaphragm", "magnetic"], "default": "3_jaw_self_centering"},
+            {"name": "Actuation", "type": "dropdown", "options": ["manual", "hydraulic", "pneumatic", "servo"], "default": "hydraulic"},
+            {"name": "Mounting", "type": "dropdown", "options": ["main_spindle", "sub_spindle", "tailstock_chuck"], "default": "main_spindle"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Grip Diameter", "type": "numeric", "description": "Diameter at gripping point", "required": true, "unit": "mm", "min": 1, "max": 500},
+            {"name": "Jaw Bite Depth", "type": "numeric", "description": "Length of stock inside jaws", "default": 15, "unit": "mm", "min": 3, "max": 80},
+            {"name": "Stickout", "type": "numeric", "description": "Length of stock projecting from jaws", "default": 50, "unit": "mm", "min": 5, "max": 600},
+            {"name": "Grip Mode", "type": "dropdown", "options": ["OD_grip", "ID_grip", "step_grip"], "default": "OD_grip"}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Jaw Body", "type": "selection", "description": "Jaw STEP body for collision modeling"},
+            {"name": "Soft Jaws", "type": "checkbox", "description": "Custom-bored soft jaws", "default": false},
+            {"name": "Clamp Pressure", "type": "numeric", "description": "Hydraulic / pneumatic line pressure", "default": 25, "unit": "bar", "min": 5, "max": 80},
+            {"name": "Grip Force Estimate", "type": "numeric", "description": "Computed jaw force from pressure + jaw geometry", "default": 18000, "unit": "N"},
+            {"name": "Runout Budget", "type": "numeric", "description": "Max acceptable TIR after clamp", "default": 0.025, "unit": "mm", "min": 0.005, "max": 0.2},
+            {"name": "Slip Safety Factor", "type": "numeric", "description": "Min ratio of grip force to peak turning force", "default": 2.5, "min": 1.0, "max": 5.0}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Chuck Face Z", "type": "numeric", "description": "Z position of chuck face in machine coords", "default": 0, "unit": "mm"},
+            {"name": "WCS On Part Face", "type": "checkbox", "description": "Place WCS at part face vs chuck face", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Grip Force Audit", "type": "checkbox", "default": true},
+            {"name": "Setup Sheet Photo", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "WCS_DEFINE": {
+      "description": "Define a single Work Coordinate System (G54..G59) — origin, axis orientation, optional probing macro link. Anchors the setup to a machine offset table entry. Most basic setup primitive; required before any toolpath can post.",
+      "category": "Coordinates",
+      "parameterCount": 14,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "WCS Name", "type": "text", "required": true},
+            {"name": "G-Code Offset", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54", "required": true},
+            {"name": "Active Setup", "type": "checkbox", "description": "Mark as active (only one active per chain)", "default": true}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Inherit Stock", "type": "checkbox", "description": "Inherit stock model from parent setup", "default": true}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Inherit Fixture", "type": "checkbox", "default": true}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Origin Type", "type": "dropdown", "options": ["model_point", "edge_midpoint", "face_center", "circle_center", "plane_intersection", "probe_set"], "default": "model_point", "required": true},
+            {"name": "Origin Reference", "type": "selection", "description": "Geometric reference for origin"},
+            {"name": "X Axis Source", "type": "selection", "description": "Edge or face defining +X"},
+            {"name": "Z Axis Source", "type": "selection", "description": "Face or vector defining +Z"},
+            {"name": "Hand", "type": "dropdown", "options": ["right_handed", "left_handed"], "default": "right_handed"},
+            {"name": "Probe Set Macro", "type": "text", "description": "Probe macro to set this WCS at runtime (links to MS1-01)"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Post Variable", "type": "text", "description": "Post variable name for offset lookup"},
+            {"name": "Output To Setup Sheet", "type": "checkbox", "default": true},
+            {"name": "Datum Frame", "type": "text", "description": "ASME Y14.5 datum frame ID"}
+          ]
+        }
+      }
+    },
+    "WCS_OFFSET_SCHEDULE": {
+      "description": "Schedule extended work-coordinate offsets (Fanuc G54.1 P1..P48 / Siemens G505..G599 / Mazak SHIFT). Used for production fixtures with many parts (e.g., a 24-position fixture plate). Maps each P-number to a WCS origin and links it to a part instance for cycle counting.",
+      "category": "Coordinates",
+      "parameterCount": 16,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Schedule Name", "type": "text", "required": true},
+            {"name": "Controller Family", "type": "dropdown", "options": ["fanuc_30i", "fanuc_31i", "siemens_840d", "siemens_one", "mazak_smooth", "heidenhain_tnc7", "okuma_osp"], "default": "fanuc_30i"},
+            {"name": "Offset Group Mode", "type": "dropdown", "options": ["g54_1_p", "g505_g599", "shift_table", "custom_macro"], "default": "g54_1_p"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Per Position", "type": "checkbox", "description": "Independent stock model per position", "default": false}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Plate Body", "type": "selection", "description": "Common fixture plate"},
+            {"name": "Position Pattern", "type": "dropdown", "options": ["linear", "rectangular_grid", "circular", "custom_csv"], "default": "rectangular_grid"},
+            {"name": "Pattern Count X", "type": "numeric", "default": 4, "min": 1, "max": 100},
+            {"name": "Pattern Count Y", "type": "numeric", "default": 6, "min": 1, "max": 100},
+            {"name": "Pitch X", "type": "numeric", "default": 50, "unit": "mm"},
+            {"name": "Pitch Y", "type": "numeric", "default": 50, "unit": "mm"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Base WCS", "type": "dropdown", "options": ["G54", "G55", "G56", "G57"], "default": "G54", "description": "Anchor offset (P-numbers are relative to this)"},
+            {"name": "First P Number", "type": "numeric", "default": 1, "min": 1, "max": 48},
+            {"name": "Probe Each Position", "type": "checkbox", "description": "Run probe-set macro per position at runtime", "default": false},
+            {"name": "Cycle Counter", "type": "checkbox", "description": "Increment part counter on each position", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Offset Table CSV", "type": "text", "description": "Path to write computed offset table"},
+            {"name": "Macro File Output", "type": "checkbox", "description": "Generate controller macro file", "default": true},
+            {"name": "Schedule To Setup Sheet", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "KINEMATICS_BIND": {
+      "description": "Bind the setup to a specific machine + post-processor + kinematics model. Defines axis configuration (3/4/5-axis, head/table, table/table), travel limits, rotary limits, kinematic chain (for 5-axis transforms), and post-processor entry point. Required for collision sim, multi-axis index/sim, and post output.",
+      "category": "Kinematics",
+      "parameterCount": 18,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Machine ID", "type": "selection", "description": "Machine library entry", "required": true},
+            {"name": "Post Processor", "type": "selection", "description": "Post-processor module name", "required": true},
+            {"name": "Configuration", "type": "dropdown", "options": ["3_axis", "3+1_axis", "3+2_axis", "4_axis_continuous", "5_axis_continuous", "mill_turn", "lathe_with_y", "swiss_type"], "default": "3_axis"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Travel X", "type": "numeric", "default": 762, "unit": "mm", "min": 50, "max": 5000},
+            {"name": "Travel Y", "type": "numeric", "default": 432, "unit": "mm", "min": 50, "max": 3000},
+            {"name": "Travel Z", "type": "numeric", "default": 508, "unit": "mm", "min": 50, "max": 3000}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Table Build Sheet", "type": "selection", "description": "Tombstone or pallet body"},
+            {"name": "Pallet Index", "type": "numeric", "description": "Pallet position (multi-pallet machines)", "default": 1, "min": 1, "max": 10}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Kinematic Chain", "type": "dropdown", "options": ["head_head", "head_table", "table_table", "trunnion_table", "tilt_rotary", "rotary_only", "lathe_xz", "mill_turn_bcy"], "default": "head_table"},
+            {"name": "A Axis Range Min", "type": "numeric", "default": -120, "unit": "deg"},
+            {"name": "A Axis Range Max", "type": "numeric", "default": 120, "unit": "deg"},
+            {"name": "B Axis Range Min", "type": "numeric", "default": 0, "unit": "deg"},
+            {"name": "B Axis Range Max", "type": "numeric", "default": 360, "unit": "deg"},
+            {"name": "C Axis Range", "type": "dropdown", "options": ["unlimited", "0_to_360", "minus_360_to_360", "no_c_axis"], "default": "unlimited"},
+            {"name": "Pivot Distance", "type": "numeric", "description": "B-axis pivot offset for 5-axis transforms", "default": 0, "unit": "mm"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Collision Model", "type": "checkbox", "description": "Enable full machine collision sim", "default": true},
+            {"name": "Reachability Audit", "type": "checkbox", "description": "Pre-flight check toolpaths against axis limits", "default": true},
+            {"name": "Post Variables File", "type": "text", "description": "Path to controller-specific post variable map"},
+            {"name": "Setup Sheet Machine Block", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SETUP_GROUP": {
+      "description": "Group multiple setups into an operation chain (Op1 → Op2 → Op3) for parts requiring re-fixturing or flips. Manages datum propagation, stock-model handoff, transform between ops, and ensures GD&T datum frame consistency across the chain.",
+      "category": "Multi_Setup",
+      "parameterCount": 16,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Group Name", "type": "text", "required": true},
+            {"name": "Setup Sequence", "type": "selection_multi", "description": "Ordered list of child setups", "required": true},
+            {"name": "Group Strategy", "type": "dropdown", "options": ["op1_op2_flip", "fixture_change", "machine_transfer", "subspindle_transfer"], "default": "op1_op2_flip"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Inheritance", "type": "dropdown", "options": ["from_previous_op", "from_root", "fresh_per_op"], "default": "from_previous_op"},
+            {"name": "Carry Remaining Material", "type": "checkbox", "description": "Pass stock-model state between ops", "default": true}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Per Op", "type": "checkbox", "description": "Each op has its own fixture binding", "default": true},
+            {"name": "Operator Re-Fixture Notes", "type": "text", "description": "Step-by-step refixture instructions"}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Datum Propagation", "type": "dropdown", "options": ["preserve", "transform_with_flip", "re_probe_per_op", "controller_native_g68"], "default": "transform_with_flip"},
+            {"name": "Flip Axis", "type": "dropdown", "options": ["X", "Y", "Z", "none"], "default": "X", "description": "Axis the part flips around between Op1/Op2"},
+            {"name": "Flip Origin Carry", "type": "checkbox", "description": "Carry origin or re-probe", "default": false},
+            {"name": "Datum Frame Continuity", "type": "checkbox", "description": "Enforce same A|B|C datum frame across all ops", "default": true},
+            {"name": "Transform Matrix", "type": "text", "description": "Computed 4x4 transform Op1→Op2 (read-only)"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Group Setup Sheet", "type": "checkbox", "description": "Single multi-page setup sheet for whole group", "default": true},
+            {"name": "Per-Op Sheet", "type": "checkbox", "description": "Also emit individual sheets", "default": true},
+            {"name": "Group ID Tag", "type": "text", "description": "Identifier printed on every NC file in group"}
+          ]
+        }
+      }
+    },
+    "SETUP_DOCUMENT": {
+      "description": "Generate the operator setup sheet — PDF / HTML / image bundle covering machine, fixture, stock, WCS, tool list, photos, and operator notes. The shop-floor deliverable that closes the CAM-to-shop loop. Pulls data from every other setup primitive in the chain.",
+      "category": "Documentation",
+      "parameterCount": 16,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Document Name", "type": "text", "required": true},
+            {"name": "Output Format", "type": "dropdown", "options": ["pdf", "html", "image_bundle", "all"], "default": "pdf"},
+            {"name": "Template", "type": "selection", "description": "Setup-sheet template ID"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Include Stock Model Render", "type": "checkbox", "default": true},
+            {"name": "Include Stock Volume Report", "type": "checkbox", "default": true}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Include Fixture Photo", "type": "checkbox", "default": true},
+            {"name": "Include Soft Jaw Drawing", "type": "checkbox", "default": false},
+            {"name": "Include Grip Force Audit", "type": "checkbox", "default": true}
+          ]
+        },
+        "Coordinates": {
+          "parameters": [
+            {"name": "Include WCS Diagram", "type": "checkbox", "default": true},
+            {"name": "Include Probe Set Macro", "type": "checkbox", "default": true},
+            {"name": "Include Datum Frame", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Tool List", "type": "checkbox", "description": "Embed tool table with stickout, holder, gauge length", "default": true},
+            {"name": "Cycle Time Estimate", "type": "checkbox", "default": true},
+            {"name": "Operator Photos Path", "type": "text", "description": "Folder of shop-floor reference photos"},
+            {"name": "Output Path", "type": "text", "description": "Setup-sheet output location", "required": true},
+            {"name": "Watermark", "type": "text", "description": "Document watermark (e.g., DRAFT, REV-A)"}
+          ]
+        }
+      }
+    }
+  }
+}
