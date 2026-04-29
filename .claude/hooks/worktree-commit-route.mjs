@@ -101,6 +101,20 @@ if (!subject) exit(0);
 // acknowledged scope drift and still want to commit on the current tree.
 if (/^\s*\[\s*MAIN-FORCE\s*\]/i.test(subject)) exit(0);
 
+// Cross-cutting commit prefixes that legitimately belong on the active main
+// tree because they affect every chat in the fleet simultaneously. Listing
+// them explicitly is safer than relying on [MAIN-FORCE] for routine infra
+// work (which would train operators to add MAIN-FORCE to everything).
+//
+// Each pattern matches the leading scope token before the first ":" or "/".
+const CROSS_CUTTING_SCOPES = [
+  /^\s*INFRA-FIX\b/i,        // Hook/settings/build-system fixes affecting all chats
+  /^\s*INFRA-CLEANUP\b/i,    // Ghost-hook removal, dead-asset deletion, etc.
+  /^\s*HOOK-FIX\b/i,         // Same family — explicit hook category
+  /^\s*FLEET-FIX\b/i,        // Anything that targets the multi-chat fleet itself
+];
+if (CROSS_CUTTING_SCOPES.some((re) => re.test(subject))) exit(0);
+
 // Explicit override — but FIRST check whether [MAIN] is being used to mask
 // scope drift. The user's policy: [MAIN] should be reserved for genuinely
 // cross-cutting work, not as an easy bypass for misclassified work.
@@ -379,7 +393,22 @@ const matchedWts = worktrees.filter((w) => {
 // "node:process" it never returns, which means the callers do not need
 // `return` — `return` at module top-level is illegal in ES modules.
 function deny(reason) {
-  console.log(JSON.stringify({ continue: false, reason }));
+  // Emit BOTH continue:false AND decision:"block" + permissionDecision:"deny".
+  // Earlier behavior emitted only continue:false, which the harness treats
+  // as advisory — denied commits still went through. The decision/
+  // permissionDecision keys are what the harness actually enforces on
+  // PreToolUse blocks. Keeping continue:false for backward compat with
+  // any consumer that reads the legacy field.
+  console.log(JSON.stringify({
+    continue: false,
+    decision: "block",
+    reason,
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: reason,
+    },
+  }));
   exit(0);
 }
 
