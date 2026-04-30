@@ -21,6 +21,14 @@
       "parameter_count_estimate": 214,
       "description": "3D solid modeling: 6 primitives (Box / Cylinder / Cone / Sphere / Torus / stock-Block), 6 sweep features (Extrude / Revolve / Sweep / Loft / Pipe-Along-Curve / Helix), 5 modify ops (Fillet / Chamfer / Shell / Draft / Thicken), 3 Boolean ops (Union / Subtract / Intersect), 4 pattern ops (Linear / Circular / Mirror / Path), 3 direct-edit ops (Move-Face / Push-Pull / Replace-Face) for imported-geometry workflows, and 3 hole cycles (Simple / Counterbore / Tapped) that write hyperMILL feature-recognition attributes for automatic drill/tap cycle assignment.",
       "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/hypercad/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-03"],
+      "parameter_count_estimate": 148,
+      "description": "Surface modeling: 12 surface-creation ops (Patch / Boundary / Coons / Network / Sweep / Loft / Revolve / Extrude / Plane / Ruled / Tabulated / Helical), 13 modify ops (Trim / Extend / Untrim / Offset / Stitch / Unstitch / Reverse / Match / Blend / Fillet / Chamfer / Replace / Refit), and 3 conversion ops (Surface-to-Solid / Solid-to-Surface / Mesh-to-Surface). Continuity is first-class throughout: G0/G1/G2 selectors on Patch, Boundary, Network, Loft, Match, and Blend. MESH_TO_SURFACE feeds hyperMILL surface toolpaths on STL/OBJ imports.",
+      "dependencies": ["solid_operations"]
     }
   ],
   "global_cross_references": {
@@ -41,18 +49,19 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 2,
-    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02"],
-    "estimated_parameter_total": 456,
+    "total_modules": 3,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03"],
+    "estimated_parameter_total": 604,
     "api_surface": {
-      "macro_api_items": 62,
-      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler"
+      "macro_api_items": 90,
+      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler"
     },
     "pdf_sources_bound": [
       "OPEN MIND hyperCAD-S User Manual",
       "OPEN MIND hyperCAD-S Macro Reference",
       "hyperMILL Integration Reference",
-      "hyperMILL Hole Feature Reference"
+      "hyperMILL Hole Feature Reference",
+      "hyperMILL Surface Machining Reference"
     ]
   },
   "tribal_knowledge_integration": {
@@ -73,12 +82,6 @@
     "macro_recording": true
   },
   "future_modules": [
-    {
-      "planned_id": "surface_operations",
-      "scope": "Surface creation (Patch / Boundary / Coons / Network / Sweep / Loft / Revolve / Extrude / Plane / Ruled / Tabulated / Helical), modify (Trim / Extend / Untrim / Offset / Stitch / Unstitch / Reverse / Match / Blend / Surface-Fillet / Surface-Chamfer / Replace / Refit), conversion (Surface-to-Solid / Solid-to-Surface / Mesh-to-Surface)",
-      "estimated_params": 220,
-      "deferred_to": "U-CAD-FIDX-HCAD-03"
-    },
     {
       "planned_id": "healing_operations",
       "scope": "hyperCAD's killer feature — Auto-heal, Manual-gap-fill, Knit-faces, Remove-feature, Decimate-edge, Smooth-curve, Gap-detector, Remove-fillet, Replace-face, Edge-blend, Detect-non-manifold, Force-stitch, Fix-tangent, Snap-to-grid, Repair-self-intersect, Validate-watertight",
