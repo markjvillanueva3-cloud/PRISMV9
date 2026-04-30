@@ -58,6 +58,9 @@ const ACTIONS = [
   "turning_cpk_surrogate", "turning_insert_life",
   "turning_offset_wear", "turning_offset_probe",
   "turning_robust_optimize",
+  // INTEL-OLLAMA-OBSIDIAN-MS1/P1-U04: Swiss-type orphan engine wiring
+  "swiss_route_decide", "swiss_guide_feed_limits", "swiss_guide_clearance",
+  "swiss_part_transfer", "swiss_emit_channel_files",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -367,6 +370,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_robust_optimize": {
             const { turningRobustOptimizerEngine } = await import("../../engines/TurningRobustOptimizerEngine.js");
             result = turningRobustOptimizerEngine.run(params as Parameters<typeof turningRobustOptimizerEngine.run>[0]);
+            break;
+          }
+          // INTEL-OLLAMA-OBSIDIAN-MS1/P1-U04: Swiss-type orphan engine wiring
+          case "swiss_route_decide": {
+            const { swissTypeDecisionEngine } = await import("../../engines/SwissTypeDecisionEngine.js");
+            result = swissTypeDecisionEngine.decide(params as Parameters<typeof swissTypeDecisionEngine.decide>[0]);
+            break;
+          }
+          case "swiss_guide_feed_limits": {
+            const { swissGuideBushingPhysicsEngine } = await import("../../engines/SwissGuideBushingPhysicsEngine.js");
+            const mode = (params.mode ?? "gb_on") as "gb_on" | "gb_off";
+            const max_def = typeof params.max_deflection_mm === "number" ? params.max_deflection_mm : undefined;
+            result = swissGuideBushingPhysicsEngine.feedLimits(mode, params as never, max_def);
+            break;
+          }
+          case "swiss_guide_clearance": {
+            const { swissGuideBushingPhysicsEngine } = await import("../../engines/SwissGuideBushingPhysicsEngine.js");
+            result = swissGuideBushingPhysicsEngine.recommendClearance(params as never);
+            break;
+          }
+          case "swiss_part_transfer": {
+            const { swissPartTransferSequenceEngine } = await import("../../engines/SwissPartTransferSequenceEngine.js");
+            result = swissPartTransferSequenceEngine.generate(params as never);
+            break;
+          }
+          case "swiss_emit_channel_files": {
+            const { swissChannelFileEmitterEngine } = await import("../../engines/SwissChannelFileEmitterEngine.js");
+            result = swissChannelFileEmitterEngine.emit(params as never);
             break;
           }
           default:

@@ -213,6 +213,78 @@ const hard_turn_optimize = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS1/P1-U04 — Swiss-type orphan engine schemas
+// ============================================================================
+
+const SWISS_DIALECTS = ["citizen", "star", "tsugami", "mazak", "dmg_mori"] as const;
+
+const swiss_route_decide = z.object({
+  length_mm: posNum.describe("Finished part length in mm"),
+  max_diameter_mm: posNum.describe("Maximum finished diameter in mm"),
+  tightest_tolerance_mm: posNum.describe("Tightest diametric tolerance in mm"),
+  has_live_operations: z.boolean().describe("Has cross-drilled holes or live-tool ops"),
+  annual_quantity: posNum.describe("Annual production quantity"),
+  material: z.string().min(1).describe("Material name (informational)"),
+}).passthrough();
+
+const swiss_guide_feed_limits = z.object({
+  mode: z.enum(["gb_on", "gb_off"]).describe("Guide-bushing mode"),
+  bar_od_mm: posNum.describe("Bar stock outer diameter in mm"),
+  part_length_mm: posNum.describe("Part length from collet face to tool tip in mm"),
+  bushing_engagement_mm: optPosNum.describe("Bushing engagement (gb_on only); default 12 mm"),
+  youngs_modulus_gpa: posNum.describe("Material Young's modulus in GPa"),
+  yield_mpa: posNum.describe("Material yield strength in MPa"),
+  kc_mpa: posNum.describe("Specific cutting force kc1.1 in MPa"),
+  spindle_rpm: posNum.describe("Spindle speed in rev/min"),
+  feed_per_rev_mm: posNum.describe("Candidate feed per revolution in mm"),
+  ap_mm: posNum.describe("Radial depth of cut in mm"),
+  max_deflection_mm: optPosNum.describe("Override default deflection limit"),
+}).passthrough();
+
+const swiss_guide_clearance = z.object({
+  bar_od_mm: posNum.describe("Bar OD in mm (must be ≤80 mm)"),
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group"),
+  surface_speed_m_per_min: optPosNum.describe("Cutting surface speed in m/min (drives thermal bump)"),
+}).passthrough();
+
+const swiss_part_transfer = z.object({
+  dialect: z.enum(SWISS_DIALECTS).describe("Controller dialect"),
+  main_rpm: posNum.describe("Main-spindle cutoff RPM"),
+  sub_rpm: posNum.describe("Sub-spindle RPM during transfer"),
+  phase_sync: z.boolean().optional().describe("Phase-sync transfer for oriented features"),
+  grip_z_mm: z.number().describe("Z-position where sub-spindle grips part (mm)"),
+  cutoff_z_mm: z.number().describe("Z-position where cut-off tool engages (mm)"),
+  cutoff_feed_mm_rev: posNum.describe("Cut-off feedrate in mm/rev"),
+  retract_z_mm: z.number().describe("Sub-spindle retract Z target in mm"),
+  bar_pull_after: z.boolean().optional().describe("Use bar-pull before next cycle"),
+  collet_mu: z.number().min(0.1).max(0.3).optional().describe("Collet friction coefficient"),
+  sensor_confirm: z.boolean().optional().describe("Read grip-sensor M-code before cut-off"),
+}).passthrough();
+
+const swiss_emit_channel_files = z.object({
+  dialect: z.enum(SWISS_DIALECTS).describe("Controller dialect"),
+  program_number: z.number().int().min(1).max(9999).describe("Program number 0001-9999"),
+  program_comment: z.string().optional().describe("Program header comment"),
+  channels: z.array(z.object({
+    channel_id: z.number().int().min(1).describe("1-based channel index"),
+    label: z.string().optional(),
+    body: z.array(z.string()).describe("G-code body lines (header/footer added per dialect)"),
+    tools: z.array(z.object({
+      number: z.number().int().nonnegative(),
+      offset: z.number().int().optional(),
+      label: z.string().optional(),
+    })).optional(),
+  })).min(1).describe("Per-channel program bodies"),
+  sync_points: z.array(z.object({
+    after_op: z.string().min(1),
+    wait_channels: z.array(z.number().int().min(1)),
+    idle_time_s: optPosNum,
+    type: z.enum(["generic", "part_transfer", "tool_change", "simultaneous_start"]).optional(),
+  })).describe("Sync points in execution order"),
+  cycle_time_est_min: optPosNum.describe("Cycle time estimate for header comment"),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -226,4 +298,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   part_off_force,
   hard_turn_decide,
   hard_turn_optimize,
+  // INTEL-OLLAMA-OBSIDIAN-MS1/P1-U04: Swiss-type orphan engine wiring
+  swiss_route_decide,
+  swiss_guide_feed_limits,
+  swiss_guide_clearance,
+  swiss_part_transfer,
+  swiss_emit_channel_files,
 };
