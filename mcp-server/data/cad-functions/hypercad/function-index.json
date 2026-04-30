@@ -37,6 +37,14 @@
       "parameter_count_estimate": 83,
       "description": "Healing & repair (hyperCAD-S signature feature): 3 auto/diagnostic ops (Auto-Heal / Gap-Detector / Validate-Watertight), 8 manual repair ops (Manual-Gap-Fill / Knit-Faces / Force-Stitch / Remove-Feature / Remove-Fillet / Replace-Face / Edge-Blend / Repair-Self-Intersect), 5 edge/curve cleanup ops (Decimate-Edge / Smooth-Curve / Fix-Tangent / Snap-To-Grid / Detect-Non-Manifold). Validate-Watertight is the canonical gate before any volume-toolpath generation in hyperMILL.",
       "dependencies": ["surface_operations", "solid_operations"]
+    },
+    {
+      "module_id": "mesh_operations",
+      "path": "cad-functions/hypercad/mesh-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-05"],
+      "parameter_count_estimate": 66,
+      "description": "Mesh modeling: 1 import op (Insert STL/OBJ/PLY/3MF/scan), 2 conversion ops (Convert-to-BRep / Convert-to-Surface), 4 modify ops (Reduce / Smooth / Repair / Remesh), 1 Boolean op (mesh-mesh union/subtract/intersect), 2 cut ops (Plane-Cut / Clip-Volume), 1 feature-extraction op (Extract-Feature-Lines for hyperMILL toolpaths), and 1 additive prep op (Slice-For-Additive). Extract-Feature-Lines is a direct path from scan data to NC code without going through surface fit.",
+      "dependencies": ["surface_operations"]
     }
   ],
   "global_cross_references": {
@@ -57,20 +65,22 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 4,
-    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04"],
-    "estimated_parameter_total": 687,
+    "total_modules": 5,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05"],
+    "estimated_parameter_total": 753,
     "api_surface": {
-      "macro_api_items": 106,
-      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair"
+      "macro_api_items": 118,
+      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair + Mesh_Modeler"
     },
     "pdf_sources_bound": [
       "OPEN MIND hyperCAD-S User Manual",
       "OPEN MIND hyperCAD-S Macro Reference",
       "OPEN MIND hyperCAD-S Healing Reference",
+      "OPEN MIND hyperCAD-S Mesh Reference",
       "hyperMILL Integration Reference",
       "hyperMILL Hole Feature Reference",
-      "hyperMILL Surface Machining Reference"
+      "hyperMILL Surface Machining Reference",
+      "hyperMILL Feature-Line Toolpath Reference"
     ]
   },
   "tribal_knowledge_integration": {
@@ -91,12 +101,6 @@
     "macro_recording": true
   },
   "future_modules": [
-    {
-      "planned_id": "mesh_operations",
-      "scope": "Insert / Convert-to-BRep / Convert-to-Surface / Reduce / Smooth / Repair / Remesh / Boolean-mesh-mesh / Plane-Cut / Clip-Volume / Extract-Feature-Lines (for hyperMILL toolpath generation) / Slice-for-Additive",
-      "estimated_params": 80,
-      "deferred_to": "U-CAD-FIDX-HCAD-05"
-    },
     {
       "planned_id": "assembly_operations",
       "scope": "Insert-Component / Pattern / Mirror / Joint / Fix-Component / Group / Hide / Show-Only / Suppress / Replace-Component / Edit-In-Place / Component-Tree / BOM-extract / Mass-Properties / Interference-Check",
