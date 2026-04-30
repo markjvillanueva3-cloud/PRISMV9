@@ -59,6 +59,7 @@ export type OperationType =
   | "center_drill" | "chip_break"
   | "c_axis" | "live_tool"
   | "wire_rough" | "wire_skim"
+  | "probe"
   | "unknown";
 
 export type CoolantMode = "flood" | "mist" | "thru_spindle" | "off" | "unknown";
@@ -1203,14 +1204,15 @@ class UnifiedProgramParserEngineImpl {
       operations: cycleType ? [{
         type: { value: cycleType, source: "filename", confidence: 0.70 },
         sequence: 1,
-        tool: null,
-        speed_rpm: null,
-        feed_ipm: null,
-        doc_in: null,
-        woc_in: null,
+        tool_number: null,
+        spindle_speed: null,
+        spindle_mode: null,
+        feed_rate: null,
+        feed_mode: null,
+        depth_of_cut: null,
         coolant: { value: "unknown", source: "inferred", confidence: 0.1 },
         estimated_time_sec: null,
-        g_code: gCodes.length > 0 ? gCodes[0] : null,
+        g_code: gCodes.length > 0 ? gCodes[0] ?? null : null,
         line_number: 1,
       }] : [],
       tool_calls: [],
