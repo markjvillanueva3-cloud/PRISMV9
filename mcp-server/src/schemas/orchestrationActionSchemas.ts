@@ -246,6 +246,30 @@ const dlq_retry = z.object({
 }).passthrough();
 
 // ============================================================================
+// P1-U03 — Codex bridge action schemas
+// ============================================================================
+
+const codex_delegate = z.object({
+  prompt: z.string().optional().describe("Task prompt sent to Codex for planning/delegation"),
+  taskDescription: z.string().optional().describe("Alias for prompt"),
+  tier: z.enum(["shop_floor", "production", "proven_out", "sim"]).optional().describe("Safety tier — selects model + reasoning effort"),
+  timeoutMs: z.number().int().positive().optional().describe("Override default 120s timeout"),
+  configOverrides: z.record(z.string(), z.string()).optional().describe("Codex CLI -c key=value overrides"),
+}).passthrough();
+
+const codex_review = z.object({
+  prompt: z.string().optional().describe("Custom review instructions; defaults to a generic review prompt"),
+  tier: z.enum(["shop_floor", "production", "proven_out", "sim"]).optional().describe("Safety tier — selects model + reasoning effort"),
+  diffSource: z.union([
+    z.object({ kind: z.literal("uncommitted") }),
+    z.object({ kind: z.literal("base"), branch: z.string().min(1) }),
+    z.object({ kind: z.literal("commit"), sha: z.string().min(1) }),
+  ]).optional().describe("Which diff to review; codex picks if omitted"),
+  timeoutMs: z.number().int().positive().optional(),
+  configOverrides: z.record(z.string(), z.string()).optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT: ACTION_ORCHESTRATION_SCHEMAS
 // ============================================================================
 
@@ -287,4 +311,8 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
   pipeline_health,
   dlq_list,
   dlq_retry,
+
+  // P1-U03 — Codex bridge actions
+  codex_delegate,
+  codex_review,
 };

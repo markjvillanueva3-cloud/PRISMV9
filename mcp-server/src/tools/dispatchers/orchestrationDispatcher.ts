@@ -49,7 +49,9 @@ const ACTIONS = [
   "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate",
   "roadmap_list", "roadmap_load",
   "roadmap_claim", "roadmap_release", "roadmap_heartbeat", "roadmap_discover",
-  "roadmap_register", "roadmap_populate_context"
+  "roadmap_register", "roadmap_populate_context",
+  // P1-U03: PRISMCodexBridgeEngine bridge — delegate planning + adversarial review to Codex CLI
+  "codex_delegate", "codex_review"
 ] as const;
 
 function ok(data: any) {
@@ -642,6 +644,51 @@ export function registerOrchestrationDispatcher(server: any): void {
               return ok({ error: `roadmap_register failed: ${err.message}` });
             }
           }
+          // ============================================================================
+          // P1-U03 — PRISMCodexBridgeEngine wiring (delegate + review)
+          // ============================================================================
+
+          case "codex_delegate": {
+            const { PRISMCodexBridgeEngine } = await import("../../engines/PRISMCodexBridgeEngine.js");
+            const prompt = (params.prompt ?? params.taskDescription) as string | undefined;
+            const tier = params.tier as string | undefined;
+            if (typeof prompt !== "string" || prompt.length === 0) {
+              return ok({ error: "Missing prompt (or taskDescription) param" });
+            }
+            if (typeof tier !== "string" || tier.length === 0) {
+              return ok({ error: "Missing tier param (shop_floor|production|proven_out|sim)" });
+            }
+            const result = await PRISMCodexBridgeEngine.delegate({
+              prompt,
+              tier: tier as never,
+              timeoutMs: typeof params.timeoutMs === "number" ? params.timeoutMs : undefined,
+              configOverrides: (typeof params.configOverrides === "object" && params.configOverrides !== null)
+                ? params.configOverrides as Record<string, string>
+                : undefined,
+            });
+            return ok(result);
+          }
+
+          case "codex_review": {
+            const { PRISMCodexBridgeEngine } = await import("../../engines/PRISMCodexBridgeEngine.js");
+            const tier = params.tier as string | undefined;
+            if (typeof tier !== "string" || tier.length === 0) {
+              return ok({ error: "Missing tier param (shop_floor|production|proven_out|sim)" });
+            }
+            const result = await PRISMCodexBridgeEngine.review({
+              prompt: typeof params.prompt === "string" ? params.prompt : undefined,
+              tier: tier as never,
+              diffSource: (typeof params.diffSource === "object" && params.diffSource !== null)
+                ? params.diffSource as never
+                : undefined,
+              timeoutMs: typeof params.timeoutMs === "number" ? params.timeoutMs : undefined,
+              configOverrides: (typeof params.configOverrides === "object" && params.configOverrides !== null)
+                ? params.configOverrides as Record<string, string>
+                : undefined,
+            });
+            return ok(result);
+          }
+
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
       } catch (err: any) {
