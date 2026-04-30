@@ -1622,6 +1622,8 @@ export const ACTIONS = [
   "fusion360_function_index_get_turning_deep_operations",
   // CAM-EXHAUST-MS1-11 — Fusion360 Post-Processor + NC Output Surface
   "fusion360_function_index_get_post_processing_operations",
+  // CAM-EXHAUST-MS1-12 — Fusion360 Cloud + Manufacturing Extension + Vault + Generative Design
+  "fusion360_function_index_get_cloud_and_mfg_ext_operations",
   // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
   "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
   "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
@@ -12470,6 +12472,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "fusion360_function_index_get_post_processing_operations": {
             const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
             result = { success: true, operations: Fusion360FunctionIndexEngine.getPostProcessingOperations() };
+            break;
+          }
+          // CAM-EXHAUST-MS1-12 — Fusion360 Cloud + Manufacturing Extension + Vault + Generative Design
+          case "fusion360_function_index_get_cloud_and_mfg_ext_operations": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, operations: Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations() };
             break;
           }
 

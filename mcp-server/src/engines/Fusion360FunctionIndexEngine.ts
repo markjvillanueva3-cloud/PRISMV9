@@ -767,6 +767,26 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Returns Fusion 360 cloud-rendering, Manufacturing Extension, Vault PLM,
+   * and Generative Design operations from `cloud-and-mfg-ext.json`
+   * (CAM-EXHAUST-MS1-12). Closes Phase 1 of the L2-CAMX-EXHAUST roadmap by
+   * cataloguing the licensed / cloud-only surface that the desktop catalogues
+   * cannot describe alone. 10 ops, 211 params total.
+   *
+   * Categories: "Cloud" | "Strategy"
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getCloudAndMfgExtOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("cloud-and-mfg-ext.json", "getCloudAndMfgExtOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal
