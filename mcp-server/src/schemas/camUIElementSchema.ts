@@ -383,11 +383,16 @@ export function createMenuItem(
     parent_id?: string;
   }
 ): UIElement {
+  // UIElementSchema declares visible/enabled with .default(true). z.infer
+  // (which UIElement aliases) treats defaults as required, so the helper
+  // must supply them explicitly. options spread last lets callers override.
   return {
     id,
     name,
     type: "menu_item",
     region: "menu_bar",
+    visible: true,
+    enabled: true,
     ...options,
   };
 }
@@ -407,6 +412,8 @@ export function createToolbarButton(
     id,
     name,
     type: "toolbar_button",
+    visible: true,
+    enabled: true,
     ...options,
   };
 }
@@ -426,6 +433,8 @@ export function createRibbonButton(
     name,
     type: "ribbon_button",
     ribbon_path: ribbonPath,
+    visible: true,
+    enabled: true,
     ...options,
   };
 }
@@ -444,11 +453,14 @@ export function createSetting(
     prism_relevant?: boolean;
   }
 ): SettingsCategory["settings"][0] {
+  // prism_relevant has .default(false) on the schema; z.infer requires it
+  // explicitly. Callers pass it via options when they want to override.
   return {
     id,
     name,
     type,
     default_value: defaultValue,
+    prism_relevant: false,
     ...options,
   };
 }
