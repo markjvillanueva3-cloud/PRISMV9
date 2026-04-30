@@ -115,7 +115,12 @@ export interface ReasonedGenerationOutput {
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class CADReasoningChainEngine implements BaseEngine {
+// BaseEngine is abstract with `protected info` + abstract executeImpl/validate;
+// this class has its own readonly info and is exposed via CAD-specific
+// methods (queryWhy/getChain/listChains/generateWithReasoning), not
+// through BaseEngine.execute(). Drop the implements clause so the
+// surface compiles without the contract mismatch.
+class CADReasoningChainEngine {
   readonly info: EngineInfo = {
     name: "CADReasoningChainEngine",
     version: "1.0.0",
@@ -625,9 +630,14 @@ class CADReasoningChainEngine implements BaseEngine {
   ): DesignReasoningStep[] {
     const steps: DesignReasoningStep[] = [];
 
-    // Check for thin walls
+    // Check for thin walls. FeatureSpec.params is Record<string, number | string>
+    // so wall thickness has to be type-narrowed to number before comparing.
+    const wallOf = (f: FeatureSpec): number | undefined => {
+      const v = f.params.wallThickness ?? f.params.thickness;
+      return typeof v === "number" ? v : undefined;
+    };
     const hasSmallFeatures = features.some(f => {
-      const wall = f.params.wallThickness ?? f.params.thickness;
+      const wall = wallOf(f);
       return wall !== undefined && wall < 2;
     });
 
@@ -643,7 +653,10 @@ class CADReasoningChainEngine implements BaseEngine {
         alternatives: [
           { option: "Increase wall thickness", whyRejected: "May conflict with design intent" },
         ],
-        affectedFeatures: features.filter(f => (f.params.wallThickness ?? f.params.thickness) < 2).map(f => f.type),
+        affectedFeatures: features.filter(f => {
+          const w = wallOf(f);
+          return w !== undefined && w < 2;
+        }).map(f => f.type),
       }));
     }
 
