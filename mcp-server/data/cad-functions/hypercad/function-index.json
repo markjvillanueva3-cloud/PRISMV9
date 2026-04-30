@@ -53,6 +53,14 @@
       "parameter_count_estimate": 74,
       "description": "Assembly modeling: 4 component ops (Insert / Replace / Edit-In-Place / Fix), 1 joint op covering 6 kinematic types (rigid/revolute/slider/cylindrical/planar/ball), 2 pattern ops (Component-Pattern / Component-Mirror), 4 visibility ops (Hide / Show-Only / Suppress / Group), 1 tree-navigation op (Component-Tree), and 3 analysis ops (BOM-Extract / Mass-Properties / Interference-Check). Interference-Check is the QA gate before fixture / multi-part hyperMILL job submission.",
       "dependencies": ["solid_operations"]
+    },
+    {
+      "module_id": "drawing_operations",
+      "path": "cad-functions/hypercad/drawing-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-07"],
+      "parameter_count_estimate": 118,
+      "description": "2D drawing output: 6 view ops (Projection / Auxiliary / Section / Detail / Broken-Out / Crop), 8 annotation ops (Linear/Angular/Radius/Diameter/Chamfer dims + Note / Symbol / GD&T-Frame), 1 hatch op, 3 table ops (Title-Block / Revision-Table / BOM-Table), and 3 style ops (Layer / Linetype / Plot-Style). Section view supports full / half / aligned / offset / broken sub-types. GD&T_Frame covers all 14 ASME Y14.5-2018 / ISO 1101:2017 symbols with MMC/LMC/RFS material conditions.",
+      "dependencies": ["solid_operations", "assembly_operations"]
     }
   ],
   "global_cross_references": {
@@ -73,12 +81,12 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 6,
-    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05", "U-CAD-FIDX-HCAD-06"],
-    "estimated_parameter_total": 827,
+    "total_modules": 7,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05", "U-CAD-FIDX-HCAD-06", "U-CAD-FIDX-HCAD-07"],
+    "estimated_parameter_total": 945,
     "api_surface": {
-      "macro_api_items": 133,
-      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair + Mesh_Modeler + Assembly"
+      "macro_api_items": 154,
+      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair + Mesh_Modeler + Assembly + Drawing"
     },
     "pdf_sources_bound": [
       "OPEN MIND hyperCAD-S User Manual",
@@ -86,6 +94,9 @@
       "OPEN MIND hyperCAD-S Healing Reference",
       "OPEN MIND hyperCAD-S Mesh Reference",
       "OPEN MIND hyperCAD-S Assembly Reference",
+      "OPEN MIND hyperCAD-S Drawing Reference",
+      "ASME Y14.5-2018",
+      "ISO 1101:2017",
       "hyperMILL Integration Reference",
       "hyperMILL Hole Feature Reference",
       "hyperMILL Surface Machining Reference",
@@ -111,12 +122,6 @@
     "macro_recording": true
   },
   "future_modules": [
-    {
-      "planned_id": "drawing_operations",
-      "scope": "Standard-projection-views (front/top/right/iso), Auxiliary, Section (full / half / aligned / offset / broken), Detail, Broken-out, Crop. Annotations: Linear-dim / Angular-dim / Radius / Diameter / Chamfer / Note / Symbol / GD&T-frame / Hatching / Title-block / Revision-table / BOM-table. Layers, Linetypes, Plot-styles.",
-      "estimated_params": 210,
-      "deferred_to": "U-CAD-FIDX-HCAD-07"
-    },
     {
       "planned_id": "datum_operations",
       "scope": "Reference Plane (10 creation methods: offset / 3-points / tangent / midplane / normal-to-curve / 2-edges / angle / projection / coordinate / from-axes), Reference Axis (8 methods), Reference Point (12 methods), Coordinate System (origin + 3 directions, 6 alignment options), Reference Spline / Polyline (3D)",

@@ -1,0 +1,559 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Drawing Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S 2D Drawing workspace. Drawings are 2D-from-3D outputs for shop-floor documentation, fabrication prints, and inspection plans. Six categories: 6 view ops (Projection / Auxiliary / Section / Detail / Broken-Out / Crop), 8 annotation ops (Linear / Angular / Radius / Diameter / Chamfer dims + Note / Symbol / GD&T-Frame), 1 hatch op, 3 table ops (Title-Block / Revision-Table / BOM-Table), and 3 style ops (Layer / Linetype / Plot-Style). Section view supports full / half / aligned / offset / broken sub-types. GD&T frame supports the 14 ASME Y14.5 / ISO 1101 symbols.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-07",
+    "source": "OPEN MIND hyperCAD-S Drawing Reference, ASME Y14.5-2018, ISO 1101:2017",
+    "totalParameters": 118,
+    "operationCount": 21,
+    "cad_concepts_used": [
+      "ORTHOGRAPHIC_PROJECTION",
+      "AUXILIARY_VIEW",
+      "SECTION_VIEW",
+      "DETAIL_VIEW",
+      "DIMENSIONAL_TOLERANCE",
+      "GD_T_FRAME",
+      "HATCH_PATTERN",
+      "TITLE_BLOCK",
+      "DRAWING_LAYER",
+      "PLOT_STYLE_TABLE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S drawing operations",
+    "tabs": ["Source", "Geometry", "Style", "Properties"]
+  },
+  "operations": {
+    "VIEW_PROJECTION": {
+      "description": "Standard orthographic projection view of a 3D model. Auto-aligns child views (top / right / iso) to a chosen base view per first-angle or third-angle convention.",
+      "category": "Drawing_View",
+      "fusion_command": "n/a (hyperCAD-S macro: DRAWING.VIEW.PROJECTION)",
+      "python_api": "Drawing.createProjectionView",
+      "parameterCount": 8,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source Body", "type": "selection", "description": "3D body / assembly to project", "required": true},
+            {"name": "Configuration", "type": "text", "description": "Configuration name when source has multiple"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "View Type", "type": "dropdown", "options": ["front", "top", "right", "left", "back", "bottom", "iso_se", "iso_sw", "iso_ne", "iso_nw", "user_defined"], "default": "front", "required": true},
+            {"name": "User Direction", "type": "vector3d", "description": "View direction (View Type = user_defined)"},
+            {"name": "Scale", "type": "numeric", "description": "View scale factor (e.g. 1, 0.5, 2, 'sheet')", "default": 1, "min": 0.001},
+            {"name": "Projection Convention", "type": "dropdown", "options": ["first_angle", "third_angle"], "default": "third_angle"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Hidden Lines", "type": "dropdown", "options": ["off", "dashed", "all"], "default": "dashed"},
+            {"name": "Tangent Edges", "type": "dropdown", "options": ["off", "phantom", "solid"], "default": "phantom"}
+          ]
+        }
+      }
+    },
+    "VIEW_AUXILIARY": {
+      "description": "Auxiliary view projected normal to a selected edge / face. Used to show inclined features in true size.",
+      "category": "Drawing_View",
+      "fusion_command": "DRAWING.VIEW.AUXILIARY",
+      "python_api": "Drawing.createAuxiliaryView",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "description": "View on which the projector edge / face was selected", "required": true},
+            {"name": "Projector Reference", "type": "selection", "description": "Edge or face whose normal becomes the auxiliary projection direction", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Distance From Parent", "type": "numeric", "unit": "mm", "description": "Auxiliary view offset on sheet", "default": 50, "min": 0},
+            {"name": "Flip Direction", "type": "checkbox", "default": false},
+            {"name": "Inherit Scale", "type": "checkbox", "description": "Use parent view's scale (default) vs override per-view", "default": true}
+          ]
+        }
+      }
+    },
+    "VIEW_SECTION": {
+      "description": "Section view cut by a plane / step / aligned cutter. Five sub-types cover full / half / aligned / offset / broken sectioning.",
+      "category": "Drawing_View",
+      "fusion_command": "DRAWING.VIEW.SECTION",
+      "python_api": "Drawing.createSectionView",
+      "parameterCount": 8,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "required": true},
+            {"name": "Section Line", "type": "selection_list", "description": "Sketch line / chained edges defining the cut path", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Section Type", "type": "dropdown", "options": ["full", "half", "aligned", "offset", "broken"], "default": "full", "required": true},
+            {"name": "Cut Direction", "type": "dropdown", "options": ["arrow_direction", "opposite"], "default": "arrow_direction"},
+            {"name": "Show Section Line", "type": "checkbox", "description": "Draw cutting-plane line on parent view with end arrows", "default": true},
+            {"name": "Hatch Cut Faces", "type": "checkbox", "default": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Section Label", "type": "text", "description": "Letter pair (e.g. 'A-A')"},
+            {"name": "Label Position", "type": "dropdown", "options": ["above_view", "below_view", "left_view", "right_view"], "default": "above_view"}
+          ]
+        }
+      }
+    },
+    "VIEW_DETAIL": {
+      "description": "Magnified detail view of a region on a parent view. Boundary may be circular or freeform polygon.",
+      "category": "Drawing_View",
+      "fusion_command": "DRAWING.VIEW.DETAIL",
+      "python_api": "Drawing.createDetailView",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "required": true},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["circle", "polygon"], "default": "circle"},
+            {"name": "Center Point", "type": "point2d", "description": "Center of detail region (Boundary Type = circle)", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Circle radius on parent view (Boundary Type = circle)", "min": 0.001},
+            {"name": "Polygon Vertices", "type": "selection_list", "description": "Boundary polygon vertices (Boundary Type = polygon)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Magnification", "type": "numeric", "description": "Detail scale relative to parent (e.g. 2 = 2× larger)", "default": 2, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "VIEW_BROKEN_OUT": {
+      "description": "Broken-out section — local cut into a parent view, exposing internal features without splitting the whole view. Boundary closes the cut region back to outer geometry.",
+      "category": "Drawing_View",
+      "fusion_command": "DRAWING.VIEW.BROKEN_OUT",
+      "python_api": "Drawing.createBrokenOutView",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "required": true},
+            {"name": "Boundary Sketch", "type": "selection", "description": "Closed sketch on parent view defining cut boundary", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cut Depth Mode", "type": "dropdown", "options": ["to_geometry", "by_distance", "to_plane"], "default": "to_geometry"},
+            {"name": "Cut Depth", "type": "numeric", "unit": "mm", "description": "Cut depth (Cut Depth Mode = by_distance)"},
+            {"name": "Reference Plane", "type": "selection", "description": "Cut-to plane (Cut Depth Mode = to_plane)"}
+          ]
+        }
+      }
+    },
+    "VIEW_CROP": {
+      "description": "Crop view to a closed boundary — hides view geometry outside the crop while keeping references intact.",
+      "category": "Drawing_View",
+      "fusion_command": "DRAWING.VIEW.CROP",
+      "python_api": "Drawing.cropView",
+      "parameterCount": 4,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target View", "type": "selection", "required": true},
+            {"name": "Crop Boundary", "type": "selection", "description": "Closed sketch defining the crop region", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Region To Keep", "type": "dropdown", "options": ["inside", "outside"], "default": "inside"},
+            {"name": "Show Crop Boundary", "type": "checkbox", "description": "Draw crop boundary as a phantom line", "default": false}
+          ]
+        }
+      }
+    },
+    "DIM_LINEAR": {
+      "description": "Linear dimension between two points / two edges / parallel features. Supports tolerance display, fits, and reference dimension styling.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.DIM.LINEAR",
+      "python_api": "Drawing.dimLinear",
+      "parameterCount": 7,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Reference 1", "type": "selection", "required": true},
+            {"name": "Reference 2", "type": "selection", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["horizontal", "vertical", "aligned", "rotated"], "default": "aligned"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "description": "Dimension line position on the sheet", "required": true},
+            {"name": "Override Value", "type": "numeric", "description": "Force a value different from the measured (use sparingly)", "unit": "mm"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "limits", "plus_minus", "asymmetric", "iso_286_fit"], "default": "none"},
+            {"name": "Reference Dimension", "type": "checkbox", "description": "Display in parentheses, non-driving", "default": false}
+          ]
+        }
+      }
+    },
+    "DIM_ANGULAR": {
+      "description": "Angular dimension between two non-parallel edges / lines. Supports acute / obtuse / reflex angle selection.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.DIM.ANGULAR",
+      "python_api": "Drawing.dimAngular",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Reference 1", "type": "selection", "required": true},
+            {"name": "Reference 2", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Angle Sense", "type": "dropdown", "options": ["acute", "obtuse", "reflex"], "default": "acute"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "plus_minus", "asymmetric"], "default": "none"}
+          ]
+        }
+      }
+    },
+    "DIM_RADIUS": {
+      "description": "Radius dimension on a circular arc. Auto-prefixes 'R' per ASME / ISO drawing standards.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.DIM.RADIUS",
+      "python_api": "Drawing.dimRadius",
+      "parameterCount": 4,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Arc", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Show Center Mark", "type": "checkbox", "default": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "plus_minus", "asymmetric"], "default": "none"}
+          ]
+        }
+      }
+    },
+    "DIM_DIAMETER": {
+      "description": "Diameter dimension on a circle / cylindrical edge. Auto-prefixes 'Ø' per ASME / ISO.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.DIM.DIAMETER",
+      "python_api": "Drawing.dimDiameter",
+      "parameterCount": 4,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Circle Or Edge", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Display Mode", "type": "dropdown", "options": ["full", "leader_only"], "default": "leader_only"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "plus_minus", "asymmetric", "iso_286_fit"], "default": "none"}
+          ]
+        }
+      }
+    },
+    "DIM_CHAMFER": {
+      "description": "Chamfer dimension — distance × angle or two-distance form per drawing standard.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.DIM.CHAMFER",
+      "python_api": "Drawing.dimChamfer",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Chamfer Edge", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Format", "type": "dropdown", "options": ["distance_x_angle", "two_distance"], "default": "distance_x_angle"},
+            {"name": "Position", "type": "point2d", "required": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Symbol", "type": "dropdown", "options": ["X", "by"], "default": "X"},
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "plus_minus"], "default": "none"}
+          ]
+        }
+      }
+    },
+    "NOTE": {
+      "description": "Free-text note with optional leader. Supports parametric placeholders (e.g. revision, part number) resolved at plot time.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.NOTE",
+      "python_api": "Drawing.note",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Text", "type": "text", "description": "Note text (supports {{revision}}, {{part_no}} placeholders)", "required": true},
+            {"name": "Anchor Reference", "type": "selection", "description": "Optional leader anchor (face / edge / point)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Leader Style", "type": "dropdown", "options": ["none", "straight", "curved"], "default": "none"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Justification", "type": "dropdown", "options": ["left", "center", "right"], "default": "left"}
+          ]
+        }
+      }
+    },
+    "SYMBOL": {
+      "description": "Insert a drafting symbol (surface-finish symbol, weld symbol, datum target, datum-feature symbol). Symbol library follows ASME Y14.36M / Y14.5.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.SYMBOL",
+      "python_api": "Drawing.insertSymbol",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Symbol Type", "type": "dropdown", "options": ["surface_finish", "weld", "datum_target", "datum_feature", "centerline", "centermark"], "required": true},
+            {"name": "Anchor Reference", "type": "selection", "description": "Edge / face / point the symbol is attached to"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Annotation Text", "type": "text", "description": "Symbol-specific text (e.g. surface-finish Ra value, datum letter, weld designation)"}
+          ]
+        }
+      }
+    },
+    "GDT_FRAME": {
+      "description": "Geometric Dimensioning & Tolerancing frame per ASME Y14.5-2018 / ISO 1101:2017. Supports the 14 standard symbols across form / orientation / location / runout / profile categories.",
+      "category": "Drawing_Annotation",
+      "fusion_command": "DRAWING.GDT_FRAME",
+      "python_api": "Drawing.gdtFrame",
+      "parameterCount": 9,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Anchor Reference", "type": "selection", "description": "Feature on which the GD&T frame is placed", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Symbol", "type": "dropdown", "options": ["straightness", "flatness", "circularity", "cylindricity", "profile_line", "profile_surface", "perpendicularity", "angularity", "parallelism", "position", "concentricity", "symmetry", "circular_runout", "total_runout"], "required": true},
+            {"name": "Tolerance Value", "type": "numeric", "unit": "mm", "required": true, "min": 0},
+            {"name": "Material Condition", "type": "dropdown", "options": ["none", "MMC", "LMC", "RFS"], "default": "none"},
+            {"name": "Datum 1", "type": "text", "description": "Primary datum letter (A..Z)"},
+            {"name": "Datum 2", "type": "text", "description": "Secondary datum letter"},
+            {"name": "Datum 3", "type": "text", "description": "Tertiary datum letter"},
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Leader Style", "type": "dropdown", "options": ["none", "straight", "curved"], "default": "straight"}
+          ]
+        }
+      }
+    },
+    "HATCHING": {
+      "description": "Apply a hatch pattern to a closed boundary. Standard library includes ANSI31 (steel), ANSI32 (cast iron), ANSI33 (bronze), ANSI37 (lead), and user-defined.",
+      "category": "Drawing_Hatch",
+      "fusion_command": "DRAWING.HATCH",
+      "python_api": "Drawing.hatch",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Boundary", "type": "selection_list", "description": "Closed boundary curves / faces", "required": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Pattern", "type": "dropdown", "options": ["ANSI31_steel", "ANSI32_cast_iron", "ANSI33_bronze", "ANSI37_lead", "ISO_solid", "user_defined"], "default": "ANSI31_steel"},
+            {"name": "Pattern Scale", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "Pattern Angle", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Background Color", "type": "text", "description": "Optional background fill color (hex / named)"}
+          ]
+        }
+      }
+    },
+    "TITLE_BLOCK": {
+      "description": "Insert / update the sheet title block. Fields auto-populate from drawing properties (part number, revision, scale, drawer, date) and accept manual overrides.",
+      "category": "Drawing_Table",
+      "fusion_command": "DRAWING.TABLE.TITLE_BLOCK",
+      "python_api": "Drawing.titleBlock",
+      "parameterCount": 7,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Template Path", "type": "text", "description": "Path to title-block template file (.dwt / company-standard)", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "dropdown", "options": ["bottom_right", "bottom_left", "top_right", "top_left", "custom"], "default": "bottom_right"},
+            {"name": "Custom Position", "type": "point2d", "description": "Sheet coordinates (Position = custom)"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Field Overrides", "type": "table", "description": "Per-field override map (key = field id, value = string)"},
+            {"name": "Auto Update Revision", "type": "checkbox", "description": "Pull revision from drawing-properties on every save", "default": true},
+            {"name": "Auto Update Date", "type": "checkbox", "default": true},
+            {"name": "Drawing Standard", "type": "dropdown", "options": ["ASME_Y14.5", "ISO_1101", "DIN", "JIS", "company"], "default": "ASME_Y14.5"}
+          ]
+        }
+      }
+    },
+    "REVISION_TABLE": {
+      "description": "Revision history table. Auto-populates from version-control / PDM hooks and supports manual entry for shop-floor markups.",
+      "category": "Drawing_Table",
+      "fusion_command": "DRAWING.TABLE.REVISION",
+      "python_api": "Drawing.revisionTable",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source", "type": "dropdown", "options": ["pdm_history", "manual", "hybrid"], "default": "pdm_history"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Anchor Corner", "type": "dropdown", "options": ["top_left", "top_right", "bottom_left", "bottom_right"], "default": "top_right"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Columns", "type": "selection_list", "description": "Visible columns (rev, date, description, drawer, approver, ECN)", "default": ["rev", "date", "description", "drawer", "approver"]},
+            {"name": "Sort Order", "type": "dropdown", "options": ["chronological", "reverse_chronological"], "default": "reverse_chronological"}
+          ]
+        }
+      }
+    },
+    "BOM_TABLE": {
+      "description": "Bill-of-Materials table on the drawing sheet. Pulls from the assembly's BOM_EXTRACT output and groups linked instances per row.",
+      "category": "Drawing_Table",
+      "fusion_command": "DRAWING.TABLE.BOM",
+      "python_api": "Drawing.bomTable",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source Assembly", "type": "selection", "required": true},
+            {"name": "Aggregation", "type": "dropdown", "options": ["flat", "indented", "parts_only"], "default": "indented"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Position", "type": "point2d", "required": true},
+            {"name": "Anchor Corner", "type": "dropdown", "options": ["top_left", "top_right", "bottom_left", "bottom_right"], "default": "top_right"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Columns", "type": "selection_list", "description": "Visible columns (item_no, qty, part_no, description, material, vendor)", "default": ["item_no", "qty", "part_no", "description"]},
+            {"name": "Auto Balloon Items", "type": "checkbox", "description": "Auto-place balloons on referenced views matching item numbers", "default": true}
+          ]
+        }
+      }
+    },
+    "LAYER": {
+      "description": "Define a drawing layer with name, color, linetype, and visibility. Layers control plot output and on/off display.",
+      "category": "Drawing_Style",
+      "fusion_command": "DRAWING.STYLE.LAYER",
+      "python_api": "Drawing.defineLayer",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Layer Name", "type": "text", "required": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Color", "type": "text", "description": "Hex / named color (e.g. '#000000', 'red')", "default": "#000000"},
+            {"name": "Linetype", "type": "dropdown", "options": ["continuous", "dashed", "dashdot", "dotted", "phantom", "centerline"], "default": "continuous"},
+            {"name": "Lineweight", "type": "numeric", "unit": "mm", "description": "Print line weight", "default": 0.25, "min": 0},
+            {"name": "Plottable", "type": "checkbox", "description": "Include layer in plot output", "default": true},
+            {"name": "Visible", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "LINETYPE": {
+      "description": "Define a custom linetype with dash / gap pattern. Standard linetypes (continuous / dashed / centerline / phantom) are pre-defined.",
+      "category": "Drawing_Style",
+      "fusion_command": "DRAWING.STYLE.LINETYPE",
+      "python_api": "Drawing.defineLinetype",
+      "parameterCount": 4,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Linetype Name", "type": "text", "required": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Pattern", "type": "selection_list", "description": "Alternating dash / gap lengths in mm (e.g. [5, 2, 1, 2])", "required": true},
+            {"name": "Pattern Scale", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "Description", "type": "text", "description": "Human-readable description shown in linetype picker"}
+          ]
+        }
+      }
+    },
+    "PLOT_STYLE": {
+      "description": "Define a plot style table mapping screen colors / layers to printed output (line weight, screening, end style).",
+      "category": "Drawing_Style",
+      "fusion_command": "DRAWING.STYLE.PLOT",
+      "python_api": "Drawing.definePlotStyle",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Plot Style Name", "type": "text", "required": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Color Mode", "type": "dropdown", "options": ["use_object_color", "force_black", "grayscale", "color_table_override"], "default": "force_black"},
+            {"name": "Line Weight Mode", "type": "dropdown", "options": ["use_layer", "use_object", "force_value"], "default": "use_layer"},
+            {"name": "Forced Line Weight", "type": "numeric", "unit": "mm", "description": "Line weight override (Line Weight Mode = force_value)"},
+            {"name": "Screening", "type": "numeric", "description": "Print intensity 0..100 (100 = full opacity)", "default": 100, "min": 0, "max": 100}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "view_first": "Recommended workflow: VIEW_PROJECTION (front) → child views (top / right / iso) by VIEW_PROJECTION on the same sheet → annotations. SECTION / DETAIL / BROKEN_OUT views require a parent view and a sketch boundary.",
+    "gdt_standard": "GDT_FRAME enumerates the 14 ASME Y14.5-2018 / ISO 1101:2017 symbols. Material-condition modifiers (MMC / LMC / RFS) follow ASME convention.",
+    "title_block_template": "Title-block content is template-driven — company-standard templates enforce field layout while individual fields auto-populate from drawing-properties on every save."
+  }
+}
