@@ -104,7 +104,7 @@
     },
     "lint-staged": {
         "*.ts": [
-            "sh -c \"npx tsc --noEmit --pretty --target es2022 --module esnext --moduleResolution bundler --skipLibCheck --allowImportingTsExtensions false --strict false $@\" --"
+            "node mcp-server/scripts/hooks/lint-staged-tsc-delta.mjs"
         ]
     },
     "size-limit": [
