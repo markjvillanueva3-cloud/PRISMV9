@@ -39,12 +39,14 @@ For each candidate:
 
 **Verdict:** DELETE. These are hook-style files but are actually test fixtures. Zero registrations. Move to a proper `__tests__/` if the tests are still useful, otherwise delete.
 
-### A2. Hollow skills (3 skills)
-- `H:/.claude/commands/audit-task.md` — minimal, no header
-- `H:/.claude/commands/pick-task.md` — minimal, no header
-- `H:/.claude/commands/scripts.md` — generic, vague, no domain
+### A2. Hollow skills (3 skills) — RECLASSIFIED 2026-04-30, DO NOT DELETE
+- ❌ `H:/.claude/commands/audit-task.md` — VERIFIED: 163L, 129 non-blank. Comprehensive audit-mode skill for PRISM completed tasks. **KEEP.**
+- ❌ `H:/.claude/commands/pick-task.md` — VERIFIED: 157L, 113 non-blank. Task claiming via TaskClaimService for multi-Claude coordination. **KEEP.**
+- ❌ `H:/.claude/commands/scripts.md` — VERIFIED: 135L, 117 non-blank. Python script manager for PRISM scripts/. **KEEP.**
 
-**Verdict:** DELETE. These have no working content.
+**Lesson:** scout looked for YAML frontmatter (`---` block at top) and called files "hollow" if missing. These skills jump straight into instructions without frontmatter — that's a style choice, not absence of content. Future skill-deletion candidates need different validation: line count + content quality, not frontmatter presence.
+
+**Tier A2 effectively empty** after verification. Move to A3 (helper sweep) for the next batch.
 
 ### A3. Helpers with RefCount=0 (58 confirmed orphans)
 Top 30 (full list of 58 in scout report — re-grep to verify before each delete):
