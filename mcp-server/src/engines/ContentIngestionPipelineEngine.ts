@@ -342,6 +342,22 @@ class ContentIngestionPipelineEngineImpl {
       source: `ingestion:${source}`,
     });
 
+    // capture() returns null when its content-hash dedup catches a duplicate
+    // that slipped past the upstream similarity dedup (different algorithm).
+    if (!storedTip) {
+      return {
+        tip_id: "",
+        title: tipTitle,
+        body: text,
+        tags: flatTags,
+        category,
+        source,
+        confidence: 0,
+        dedup_action: "skip_duplicate",
+        similarity_score: 1.0,
+      };
+    }
+
     return {
       tip_id: storedTip.id,
       title: storedTip.title,
