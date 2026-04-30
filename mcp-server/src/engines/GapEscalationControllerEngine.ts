@@ -411,13 +411,25 @@ export class GapEscalationControllerEngine {
 
   private makeDecision(gap: GapAnalysis): EscalationDecision {
     const level = this.confidenceToLevel(gap.confidence);
+    // GapAnalysis (canonical) does not carry canHandle/reason fields directly.
+    // Derive them from hasCapability + matches[]/missingCapabilities[]:
+    //   canHandle  ≡ hasCapability
+    //   reason     ≡ matched capabilities (when hasCapability) | missing capabilities (otherwise)
+    const canHandle = gap.hasCapability;
+    const matchedReason = gap.matches.length > 0
+      ? gap.matches.map(m => m.capability).join(", ")
+      : "matched capability";
+    const missingReason = gap.missingCapabilities.length > 0
+      ? gap.missingCapabilities.join(", ")
+      : "no matching capability registered";
+    const reason = canHandle ? matchedReason : missingReason;
 
     return {
       level,
       confidence: gap.confidence,
-      can_proceed: gap.canHandle && (level === "PROCEED" || level === "CAUTION"),
+      can_proceed: canHandle && (level === "PROCEED" || level === "CAUTION"),
       requires_human: level === "HALT" || level === "WARNING",
-      reason: gap.canHandle ? gap.reason : `Gap detected: ${gap.reason}`,
+      reason: canHandle ? reason : `Gap detected: ${reason}`,
       suggestions: gap.suggestions,
       timestamp: new Date().toISOString(),
     };
