@@ -3359,7 +3359,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostAPIEngine } = await import(
               "../../engines/LatheMasterPostAPIEngine.js"
             );
-            const routeResult = LatheMasterPostAPIEngine.route(params);
+            const routeResult = LatheMasterPostAPIEngine.route(params as Parameters<typeof LatheMasterPostAPIEngine.route>[0]);
             result = {
               success: routeResult.success,
               selectedDialect: routeResult.selectedDialect,
@@ -3377,7 +3377,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostAPIEngine } = await import(
               "../../engines/LatheMasterPostAPIEngine.js"
             );
-            const emitResult = LatheMasterPostAPIEngine.emit(params);
+            const emitResult = LatheMasterPostAPIEngine.emit(params as Parameters<typeof LatheMasterPostAPIEngine.emit>[0]);
             result = {
               success: emitResult.success,
               gcode: emitResult.gcode,
@@ -3393,7 +3393,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostAPIEngine } = await import(
               "../../engines/LatheMasterPostAPIEngine.js"
             );
-            const validateResult = LatheMasterPostAPIEngine.validate(params);
+            const validateResult = LatheMasterPostAPIEngine.validate(params as Parameters<typeof LatheMasterPostAPIEngine.validate>[0]);
             result = {
               success: validateResult.success,
               valid: validateResult.valid,
@@ -3409,7 +3409,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostAPIEngine } = await import(
               "../../engines/LatheMasterPostAPIEngine.js"
             );
-            const explainResult = LatheMasterPostAPIEngine.explain(params);
+            const explainResult = LatheMasterPostAPIEngine.explain(params as Parameters<typeof LatheMasterPostAPIEngine.explain>[0]);
             result = {
               success: explainResult.success,
               selectedDialect: explainResult.selectedDialect,
@@ -3425,7 +3425,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostAPIEngine } = await import(
               "../../engines/LatheMasterPostAPIEngine.js"
             );
-            const crossCheckResult = LatheMasterPostAPIEngine.crossCheck(params);
+            const crossCheckResult = LatheMasterPostAPIEngine.crossCheck(params as Parameters<typeof LatheMasterPostAPIEngine.crossCheck>[0]);
             result = {
               success: crossCheckResult.success,
               candidateCount: crossCheckResult.candidateCount,
@@ -5437,8 +5437,14 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 ops as any,
                 (params as any).config
               );
+            } else if (model.includes("HURCO") || model.includes("VMX24") || model.includes("VM30I") || model.includes("V11")) {
+              const { hurcoV11MillMasterPostEngine } = await import("../../engines/HurcoV11MillMasterPostEngine.js");
+              result = hurcoV11MillMasterPostEngine.generateProgram(
+                (params as any).operations,
+                (params as any).config
+              );
             } else {
-              result = { success: false, error: `Unknown machine model: ${params.machine_model}. Supported: OKUMA_LB250, MITSUBISHI_MV1200R` };
+              result = { success: false, error: `Unknown machine model: ${params.machine_model}. Supported: OKUMA_LB250, MITSUBISHI_MV1200R, HURCO_VMX24_V11` };
             }
             break;
           }
