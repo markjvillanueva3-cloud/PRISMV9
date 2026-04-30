@@ -249,17 +249,20 @@ export class MarketMaterialPricingEngine {
     const formPrice = adjustedBase * formMult;
     const finalPrice = formPrice * regionMult * qtyDiscount;
 
-    // U-BIZREG1: Enrich with MaterialRegistry physical properties
+    // U-BIZREG1: Enrich with MaterialRegistry physical properties.
+    // resolveMaterial() returns MaterialEntry | undefined (no throw).
+    // machinability_factor is not stored on MaterialEntry — use the
+    // canonical free-cutting-steel baseline (1.0) for pricing display.
     let physics: PriceLookupResult["physics"];
-    try {
-      const mat = resolveMaterial(input.material);
+    const mat = resolveMaterial(input.material);
+    if (mat) {
       physics = {
         density_kg_m3: mat.density_kg_m3,
-        machinability_factor: mat.machinability_factor,
+        machinability_factor: 1.0,
         iso_group: mat.iso_group,
         source: "MaterialRegistry",
       };
-    } catch { /* material not in canonical DB — pricing-only entry */ }
+    }
 
     return {
       material: input.material,
