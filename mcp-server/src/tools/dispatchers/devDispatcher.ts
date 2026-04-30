@@ -86,7 +86,7 @@ export function registerDevDispatcher(server: any): void {
       // SYS-MS6: Validate params against per-action Zod schema
       const validation = validateActionParams(action, params, ACTION_DEV_SCHEMAS);
       if (!validation.valid) {
-        return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+        return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.error }) }] };
       }
       let result: any;
       try {
@@ -1996,7 +1996,7 @@ export function registerDevDispatcher(server: any): void {
             const srcRoot = params.srcRoot || params.src_root || SRC_DIR;
             const nodeCount = await editImpactPredictorEngine.buildGraph(srcRoot);
             const stats = editImpactPredictorEngine.getGraphStats();
-            result = { success: true, nodeCount, ...stats };
+            result = { ...stats, success: true, nodeCount };
             break;
           }
 
@@ -3321,7 +3321,7 @@ export function registerDevDispatcher(server: any): void {
               systemPrompt: typeof params.systemPrompt === "string" ? params.systemPrompt : undefined,
               temperature: typeof params.temperature === "number" ? params.temperature : undefined,
             });
-            result = { success: queryResult.success, ...queryResult };
+            result = { ...queryResult, success: queryResult.success };
             break;
           }
 
