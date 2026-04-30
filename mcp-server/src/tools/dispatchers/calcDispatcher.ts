@@ -8056,6 +8056,24 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "spc_capability_analyze": {
+            const { spcProcessCapabilityEngine } = await import("../../engines/SPCProcessCapabilityEngine.js");
+            const out = spcProcessCapabilityEngine.compute({
+              measurements: params.measurements,
+              nominal: params.nominal,
+              upper_tolerance: params.upper_tolerance,
+              lower_tolerance: params.lower_tolerance,
+              subgroup_size: params.subgroup_size,
+              specification: params.specification,
+              feature_name: params.feature_name,
+              measurement_uncertainty: params.measurement_uncertainty,
+            });
+            // Engine returns {value: SPCResult, unit, formula, confidence} — flatten so the
+            // slim-response branch (line 268) sees capability/predicted_defects/process_assessment directly.
+            result = { ...out.value, unit: out.unit, formula: out.formula, confidence: out.confidence };
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");

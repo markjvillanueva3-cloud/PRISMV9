@@ -2905,6 +2905,18 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     coolant: z.enum(["flood", "mist", "mql", "dry", "cryogenic"]).describe("Coolant delivery method"),
   }).passthrough(),
 
+  // ── SPC Process Capability Analyze (SPCProcessCapabilityEngine, ISO 22514-1) ──
+  spc_capability_analyze: z.object({
+    measurements: z.array(z.number()).min(2).describe("Measurement series (>= 2 values for std dev)"),
+    nominal: z.number().describe("Nominal/target dimension"),
+    upper_tolerance: z.number().nonnegative().describe("Upper tolerance (added to nominal for USL)"),
+    lower_tolerance: z.number().nonnegative().describe("Lower tolerance (subtracted from nominal for LSL)"),
+    subgroup_size: z.number().int().min(2).max(25).optional().describe("Subgroup size for X-bar/R chart (default min(5, n/5))"),
+    specification: optStr.describe("Optional spec identifier"),
+    feature_name: optStr.describe("Optional feature name for reporting"),
+    measurement_uncertainty: z.number().nonnegative().optional().describe("Measurement uncertainty +/-1sigma (ISO 22514-1)"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({
