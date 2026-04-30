@@ -62,6 +62,7 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  CANONICAL_MILLING_SPEEDS,
   type ISOGroup,
 } from "../physics/constants.js";
 import {
@@ -1179,7 +1180,8 @@ PROVENANCE TRACKING:
       const material = CANONICAL_MATERIAL_DB[input.material_iso];
       if (material && input.tool_diameter_mm) {
         // Rough check: max feed shouldn't exceed 2x theoretical
-        const theoreticalMax = material.Vc_typical * 1000 / (Math.PI * input.tool_diameter_mm) * 0.1 * 4; // fz * flutes * rpm
+        const Vc_typical = CANONICAL_MILLING_SPEEDS[material.iso_group].rough;
+        const theoreticalMax = Vc_typical * 1000 / (Math.PI * input.tool_diameter_mm) * 0.1 * 4; // fz * flutes * rpm
         if (maxFeed > theoreticalMax * 2) {
           warnings.push(`Feed rate ${maxFeed} mm/min may be excessive for ${input.material_iso} material`);
         }
@@ -1193,7 +1195,8 @@ PROVENANCE TRACKING:
       const material = CANONICAL_MATERIAL_DB[input.material_iso];
       if (material) {
         const surfaceSpeed = (Math.PI * input.tool_diameter_mm * maxRpm) / 1000;
-        if (surfaceSpeed > material.Vc_max * 1.5) {
+        const Vc_max = CANONICAL_MILLING_SPEEDS[material.iso_group].finish;
+        if (surfaceSpeed > Vc_max * 1.5) {
           warnings.push(`Surface speed ${surfaceSpeed.toFixed(0)} m/min exceeds safe limit for ${input.material_iso}`);
         }
       }
@@ -1292,7 +1295,7 @@ PROVENANCE TRACKING:
     if (/G43\.4|TRAORI|TCPM|G234/i.test(gcode) && profile.rtcp_mode && !gcode.includes(profile.rtcp_mode)) {
       suggestions.push({
         priority: "high",
-        category: "accuracy",
+        category: "quality",
         description: `Use ${input.controller} native RTCP mode`,
         impact_estimate: "Better tool vector control, reduced axis reversal",
         suggested_action: `Replace generic RTCP with ${profile.rtcp_mode}`,
