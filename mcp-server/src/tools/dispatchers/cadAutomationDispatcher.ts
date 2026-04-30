@@ -2648,8 +2648,17 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!flatInput || !flatInput.description) {
               throw new Error("cad_reasoning_generate requires 'input' with description");
             }
-            // ReasonedGenerationInput nests user-supplied bits under spec/context.
-            // Promote material/constraints into spec; targetSystem into context.
+            // ReasonedGenerationInput nests user-supplied bits under spec/context
+            // and carries verbosity at the top level. Promote material/constraints
+            // into spec; targetSystem into context.machineType. Map the dispatcher's
+            // legacy 'verbose' literal to the engine's 'detailed' equivalent so
+            // caller intent is preserved (engine defaults to 'standard' otherwise).
+            const verbosity: "minimal" | "standard" | "detailed" | undefined =
+              flatInput.verbosity === "verbose"
+                ? "detailed"
+                : flatInput.verbosity === "minimal" || flatInput.verbosity === "standard"
+                  ? flatInput.verbosity
+                  : undefined;
             const output = await cadReasoningChainEngine.generateWithReasoning({
               spec: {
                 description: flatInput.description,
@@ -2657,6 +2666,7 @@ Actions: ${ACTIONS.join(", ")}.`,
                 constraints: flatInput.constraints,
               },
               context: flatInput.targetSystem ? { machineType: flatInput.targetSystem } : undefined,
+              verbosity,
             });
             result = { ...output, source: "CADReasoningChainEngine.generateWithReasoning" };
             break;
