@@ -3,8 +3,8 @@
   "system_id": "hypermill",
   "module_id": "function_index",
   "module_name": "hyperMILL CAM Unified Function Index",
-  "description": "Top-level index cross-referencing extracted hyperMILL modules — tool database, stock + fixture, simulation, automation center, post processor. Consumed by HyperMillFunctionIndexEngine for parameter discovery, dependency tracing, and AI orchestration.",
-  "indexed_at": "2026-04-28T00:00:00Z",
+  "description": "Top-level index cross-referencing every extracted hyperMILL CAM module — tool database, stock + fixture, simulation, automation center, post processor, drilling/hole-making, 5-axis, mill-turn, MAXX (barrel-cutter). Consumed by HyperMillFunctionIndexEngine for parameter discovery, dependency tracing, and AI orchestration.",
+  "indexed_at": "2026-04-30T00:00:00Z",
   "modules": [
     {
       "module_id": "tool_database",
@@ -47,20 +47,36 @@
       "dependencies": ["simulation"]
     },
     {
-      "module_id": "2d_operations",
-      "path": "cam-functions/hypermill/2d-operations.json",
-      "covered_units": ["U-CAM-FIDX-31"],
-      "parameter_count_estimate": 75,
-      "description": "Complete 2D milling operations: face milling, pocket, contour, slot, thread, chamfer, rest machining. Sourced from hyperMILL CAM Manual.",
+      "module_id": "drilling",
+      "path": "cam-functions/hypermill/drilling-operations.json",
+      "covered_units": ["U-CAM06"],
+      "parameter_count_estimate": 476,
+      "description": "Drilling, hole-making, and probing cycles — 15 drilling cycles (spot/peck/deep-hole/gun/boring/reaming/tapping/thread-mill/countersink/counterbore/back-spot-face/chamfer/helical-bore/circular-pocket-drill/combined-cycle, 402 params) + 8 probing cycles (setup/bore/boss/web/surface probes, tool setter, tool breakage, datum probe, 74 params). Sourced from HyperMillDrillingProbingAutomationAPI.json.",
       "dependencies": ["tool_database"]
     },
     {
-      "module_id": "3d_operations",
-      "path": "cam-functions/hypermill/3d-operations.json",
-      "covered_units": ["U-CAM-FIDX-31"],
-      "parameter_count_estimate": 79,
-      "description": "Complete 3D milling operations: roughing/finishing strategies, equidistant, parallel, scallop, contour-line, pencil. Sourced from hyperMILL CAM Manual.",
+      "module_id": "5axis",
+      "path": "cam-functions/hypermill/5axis-operations.json",
+      "covered_units": ["U-CAM-MS3-01"],
+      "parameter_count_estimate": 512,
+      "description": "Full simultaneous 5-axis and 3+2 indexed strategies — swarf cutting, tool axis at point, normal-to-surface, contour milling, equidistant 5-axis, parallel-projection 5-axis, blade/blisk roughing+finishing, port/cavity 5-axis, deburring, plus impeller-specific cycles. 15 ops, 512 params. Schema v2 nested-module shape.",
       "dependencies": ["tool_database", "stock_fixture"]
+    },
+    {
+      "module_id": "millturn",
+      "path": "cam-functions/hypermill/turning-operations.json",
+      "covered_units": ["U-CAM-MS3-01"],
+      "parameter_count_estimate": 179,
+      "description": "Mill-Turn integrated turning + live-tooling cycles — turning roughing/finishing/grooving/threading/parting + driven-tool C-axis milling, polygon turning, sub-spindle synchronization. 10 ops, 179 params. Schema v2 nested-module shape. NOTE: file is named turning-operations.json but the module_id within is 'millturn' — the catalog covers full mill-turn capability, not turning-only.",
+      "dependencies": ["tool_database"]
+    },
+    {
+      "module_id": "maxx",
+      "path": "cam-functions/hypermill/maxx-machining.json",
+      "covered_units": ["U-CAM-MS3-01"],
+      "parameter_count_estimate": 156,
+      "description": "MAXX Machining — hyperMILL signature high-feed module using barrel/circle-segment cutters for large-radius blending and engagement-controlled finishing. 3 ops (MAXX Finishing, MAXX Roughing, MAXX Pre-Finishing), 156 params. Unique to hyperMILL — no Fusion 360 parallel. Schema v2 nested-module shape.",
+      "dependencies": ["tool_database"]
     }
   ],
   "global_cross_references": {
@@ -69,9 +85,21 @@
     "engines_linked": ["KienzleForceModelEngine", "TaylorToolLifeEngine", "ToolHolderRegistryEngine", "StockFixtureEngine", "PostProcessorPipelineEngine"]
   },
   "coverage_summary": {
-    "total_modules": 5,
-    "total_units_covered": ["U-CAM08", "U-CAM09", "U-CAM10", "U-CAM11", "U-CAM12"],
-    "estimated_parameter_total": 123,
-    "pdf_sources_bound": ["hyperMILL_2024_Tool_Database_Reference.pdf", "hyperMILL_AC_User_Guide.pdf", "OpenMind_PPG_Reference.pdf"]
-  }
+    "total_modules": 9,
+    "total_units_covered": ["U-CAM06", "U-CAM08", "U-CAM09", "U-CAM10", "U-CAM11", "U-CAM12", "U-CAM-MS3-01"],
+    "estimated_parameter_total": 1446,
+    "pdf_sources_bound": ["hyperMILL_2024_Tool_Database_Reference.pdf", "hyperMILL_AC_User_Guide.pdf", "OpenMind_PPG_Reference.pdf", "HyperMillDrillingProbingAutomationAPI.json", "hyperMILL_5Axis_Reference.pdf", "hyperMILL_MillTurn_Reference.pdf", "hyperMILL_MAXX_BarrelCutter_Reference.pdf"]
+  },
+  "deprecation_notes": [
+    {
+      "removed_module_id": "2d_operations",
+      "removed_at": "2026-04-30",
+      "reason": "Phantom entry — referenced cam-functions/hypermill/2d-operations.json which does not exist on disk. Tagged U-CAM-FIDX-31 was claimed but never delivered. Will be re-introduced by CAM-EXHAUST-MS3-02+ with proper Fusion-parity depth (target ~600 params)."
+    },
+    {
+      "removed_module_id": "3d_operations",
+      "removed_at": "2026-04-30",
+      "reason": "Phantom entry — referenced cam-functions/hypermill/3d-operations.json which does not exist on disk. Tagged U-CAM-FIDX-31 was claimed but never delivered. Will be re-introduced by CAM-EXHAUST-MS3-02+ with proper Fusion-parity depth (target ~400 params)."
+    }
+  ]
 }

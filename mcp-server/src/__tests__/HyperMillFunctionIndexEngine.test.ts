@@ -167,4 +167,151 @@ describe("HyperMillFunctionIndexEngine", () => {
       expect(result.source).toBe("hypermill_function_index");
     });
   });
+
+  describe("CAM-EXHAUST-MS3-01 integrity restoration", () => {
+    it("modules array contains exactly the 9 expected module ids in registration order", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      const ids = idx.modules.map((m) => m.module_id);
+      expect(ids).toEqual([
+        "tool_database",
+        "stock_fixture",
+        "simulation",
+        "automation_center",
+        "post_processor",
+        "drilling",
+        "5axis",
+        "millturn",
+        "maxx",
+      ]);
+    });
+
+    it("drilling entry resolves to drilling-operations.json with 476 params and tool_database dep", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "drilling");
+      if (!entry) throw new Error("drilling entry missing");
+      expect(entry.path).toBe("cam-functions/hypermill/drilling-operations.json");
+      expect(entry.parameter_count_estimate).toBe(476);
+      expect(entry.covered_units).toEqual(["U-CAM06"]);
+      expect(entry.dependencies).toEqual(["tool_database"]);
+    });
+
+    it("5axis entry resolves to 5axis-operations.json with 512 params and dual dep", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "5axis");
+      if (!entry) throw new Error("5axis entry missing");
+      expect(entry.path).toBe("cam-functions/hypermill/5axis-operations.json");
+      expect(entry.parameter_count_estimate).toBe(512);
+      expect(entry.dependencies).toEqual(["tool_database", "stock_fixture"]);
+    });
+
+    it("millturn entry resolves to turning-operations.json with 179 params (file-vs-module-id mismatch documented)", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "millturn");
+      if (!entry) throw new Error("millturn entry missing");
+      expect(entry.path).toBe("cam-functions/hypermill/turning-operations.json");
+      expect(entry.parameter_count_estimate).toBe(179);
+    });
+
+    it("maxx entry resolves to maxx-machining.json with 156 params (hyperMILL-unique signature module)", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "maxx");
+      if (!entry) throw new Error("maxx entry missing");
+      expect(entry.path).toBe("cam-functions/hypermill/maxx-machining.json");
+      expect(entry.parameter_count_estimate).toBe(156);
+    });
+
+    it("drilling catalog loads from disk with v2.0.0 schema and total_parameters=476 at top level", () => {
+      const mod = HyperMillFunctionIndexEngine.getModule("drilling");
+      if (!mod) throw new Error("drilling catalog failed to load");
+      const raw = mod as unknown as { schema_version: string; system_id: string; total_parameters: number };
+      expect(raw.schema_version).toBe("2.0.0");
+      expect(raw.system_id).toBe("hypermill");
+      expect(raw.total_parameters).toBe(476);
+    });
+
+    it("5axis catalog loads with v1-nested shape: system_id=hypermill, module.module_id=5axis, 512 params, 15 ops", () => {
+      const mod = HyperMillFunctionIndexEngine.getModule("5axis");
+      if (!mod) throw new Error("5axis catalog failed to load");
+      const raw = mod as unknown as {
+        system_id: string;
+        module: { module_id: string; total_parameters: number; total_operations: number };
+      };
+      expect(raw.system_id).toBe("hypermill");
+      expect(raw.module.module_id).toBe("5axis");
+      expect(raw.module.total_parameters).toBe(512);
+      expect(raw.module.total_operations).toBe(15);
+    });
+
+    it("millturn catalog loads with internal module_id=millturn, 179 params, 10 ops", () => {
+      const mod = HyperMillFunctionIndexEngine.getModule("millturn");
+      if (!mod) throw new Error("millturn catalog failed to load");
+      const raw = mod as unknown as {
+        module: { module_id: string; total_parameters: number; total_operations: number };
+      };
+      expect(raw.module.module_id).toBe("millturn");
+      expect(raw.module.total_parameters).toBe(179);
+      expect(raw.module.total_operations).toBe(10);
+    });
+
+    it("maxx catalog loads with internal module_id=maxx, 156 params, 3 ops", () => {
+      const mod = HyperMillFunctionIndexEngine.getModule("maxx");
+      if (!mod) throw new Error("maxx catalog failed to load");
+      const raw = mod as unknown as {
+        module: { module_id: string; total_parameters: number; total_operations: number };
+      };
+      expect(raw.module.module_id).toBe("maxx");
+      expect(raw.module.total_parameters).toBe(156);
+      expect(raw.module.total_operations).toBe(3);
+    });
+
+    it("loading drilling+5axis+millturn+maxx produces zero load errors", () => {
+      HyperMillFunctionIndexEngine.getModule("drilling");
+      HyperMillFunctionIndexEngine.getModule("5axis");
+      HyperMillFunctionIndexEngine.getModule("millturn");
+      HyperMillFunctionIndexEngine.getModule("maxx");
+      expect(HyperMillFunctionIndexEngine.getLoadErrors()).toHaveLength(0);
+    });
+
+    it("coverage_summary.total_modules equals 9 and matches modules.length exactly", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      expect(idx.coverage_summary.total_modules).toBe(9);
+      expect(idx.coverage_summary.total_modules).toBe(idx.modules.length);
+    });
+
+    it("coverage_summary.estimated_parameter_total equals 1446 and matches sum of per-entry estimates", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      expect(idx.coverage_summary.estimated_parameter_total).toBe(1446);
+      const sumFromEntries = idx.modules.reduce(
+        (acc, m) => acc + (m.parameter_count_estimate ?? 0),
+        0,
+      );
+      expect(sumFromEntries).toBe(1446);
+    });
+
+    it("covered_units list contains exactly the 7 expected unit tags in canonical order", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      expect(idx.coverage_summary.total_units_covered).toEqual([
+        "U-CAM06",
+        "U-CAM08",
+        "U-CAM09",
+        "U-CAM10",
+        "U-CAM11",
+        "U-CAM12",
+        "U-CAM-MS3-01",
+      ]);
+    });
+
+    it("drilling resolveDependencies returns tool_database before drilling and reports no cycle warning", () => {
+      const result = HyperMillFunctionIndexEngine.resolveDependencies("drilling");
+      expect(result.value).toEqual(["tool_database", "drilling"]);
+      expect(result.module_count).toBe(2);
+      expect(result.warning ?? "no_warning").toBe("no_warning");
+    });
+
+    it("5axis resolveDependencies puts tool_database AND stock_fixture before 5axis", () => {
+      const result = HyperMillFunctionIndexEngine.resolveDependencies("5axis");
+      expect(result.value).toEqual(["tool_database", "stock_fixture", "5axis"]);
+      expect(result.module_count).toBe(3);
+    });
+  });
 });
