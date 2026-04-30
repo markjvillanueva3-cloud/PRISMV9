@@ -19,6 +19,9 @@
 
 import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { recordOllamaEvent } from './lib/ollama-stats.mjs';
+
+const HOOK_NAME = 'ollama-context-aggregator';
 
 // ── Domain patterns (advisory context) ────────────────────────────────────
 const DOMAIN_CHECKS = {
@@ -113,10 +116,12 @@ function recommendAiEngines(prompt) {
   return matches;
 }
 
+// Returns { text, source } where source is 'pattern' | 'ollama' | 'ollama-fallback'.
+// Caller uses source to record the right decision in the stats ledger.
 async function queryOllamaPrioritization(prompt, signals) {
-  // Only worth the Ollama latency when 3+ domains match
   if (signals.length < 3) {
-    return signals.slice(0, 3).map(s => `**${s.domain}**: ${s.ctx}`).join('\n');
+    const text = signals.slice(0, 3).map(s => `**${s.domain}**: ${s.ctx}`).join('\n');
+    return { text, source: 'pattern' };
   }
   try {
     const ollamaPrompt = `Given the user prompt and these PRISM domain signals, return the 3 MOST relevant as a bulleted list.
@@ -143,11 +148,17 @@ Return only the 3 selected domain names, one per line:`;
         parsed.response.toLowerCase().includes(s.domain.toLowerCase())
       ).slice(0, 3);
       if (picked.length > 0) {
-        return picked.map(s => `**${s.domain}**: ${s.ctx}`).join('\n');
+        return {
+          text: picked.map(s => `**${s.domain}**: ${s.ctx}`).join('\n'),
+          source: 'ollama',
+        };
       }
     }
   } catch { /* ollama unavailable — fallback */ }
-  return signals.slice(0, 3).map(s => `**${s.domain}**: ${s.ctx}`).join('\n');
+  return {
+    text: signals.slice(0, 3).map(s => `**${s.domain}**: ${s.ctx}`).join('\n'),
+    source: 'ollama-fallback',
+  };
 }
 
 function readStdin() {
@@ -169,27 +180,55 @@ async function main() {
   const aiEngines = recommendAiEngines(prompt);
 
   if (signals.length === 0 && aiEngines.length === 0) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: 'keep', category: 'no-signal',
+      extras: { snippet: prompt.slice(0, 80) },
+    });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
   const blocks = [];
+  let priSource = 'pattern';
 
-  // (1) Domain context
   if (signals.length > 0) {
-    const domainBlock = await queryOllamaPrioritization(prompt, signals);
-    blocks.push(`## PRISM Context (${signals.length} domain${signals.length > 1 ? 's' : ''})\n${domainBlock}`);
+    const { text, source } = await queryOllamaPrioritization(prompt, signals);
+    priSource = source;
+    blocks.push(`## PRISM Context (${signals.length} domain${signals.length > 1 ? 's' : ''})\n${text}`);
   }
 
-  // (2) Route recommendation (dispatcher:action) from primary domain
   if (signals.length > 0) {
     const primary = signals[0];
     blocks.push(`**Route:** \`${primary.route}\` (alt: ${primary.routeAlt.slice(0, 2).join(', ')})`);
   }
 
-  // (3) AI engines
   if (aiEngines.length > 0) {
     blocks.push(`**AI engines:** ${aiEngines.join(' · ')}`);
+  }
+
+  // Record decision: Ollama-prioritized = offload (~75 tokens saved by avoiding
+  // re-prioritization round-trip); pattern-only = suggest-injected; ollama-down
+  // = suggest with ollama-down marker.
+  const primaryDomain = signals[0]?.domain || 'ai-engines';
+  if (priSource === 'ollama') {
+    const TOKENS_SAVED_OLLAMA_PRIORITIZE = 75;
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: 'offload',
+      category: primaryDomain, tokensSaved: TOKENS_SAVED_OLLAMA_PRIORITIZE,
+      extras: { mode: 'prioritize', domains: signals.length },
+    });
+  } else if (priSource === 'ollama-fallback') {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: 'suggest',
+      category: primaryDomain,
+      extras: { mode: 'ollama-down', domains: signals.length },
+    });
+  } else {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: 'suggest',
+      category: primaryDomain,
+      extras: { mode: 'injected', domains: signals.length, aiEngines: aiEngines.length },
+    });
   }
 
   console.log(JSON.stringify({

@@ -38,6 +38,14 @@ import {
   parseOllamaReviewVerdict,
   decideOllamaReviewSecondOpinion,
 } from "./lib/autonomous-foolproof-logic.mjs";
+import { recordOllamaEvent } from "./lib/ollama-stats.mjs";
+
+const HOOK_NAME = "ollama-reviewer-second-opinion";
+// A successful Ollama review of a staged diff substitutes for Claude doing
+// the same review on the autonomous-mode commit path. ~250 tokens saved per
+// review (the LLM-generated verdict reasoning that doesn't have to flow
+// through Claude).
+const TOKENS_SAVED_PER_REVIEW = 250;
 
 const STATE_RELATIVE = "state/shared/AUTONOMOUS_STATE.json";
 const VERDICTS_RELATIVE = "state/shared/REVIEWER_VERDICTS.json";
@@ -183,10 +191,39 @@ async function main() {
   const diffLineCount = diffText.split("\n").length;
 
   let ollamaVerdict = null;
+  let ollamaCalled = false;
+  let ollamaResponded = false;
   // Only call Ollama if the diff size is in the reviewable band — saves cycles.
   if (diffLineCount >= 5 && diffLineCount <= 5000) {
+    ollamaCalled = true;
     const rawResponse = await callOllamaForReview(diffText);
-    if (rawResponse) ollamaVerdict = parseOllamaReviewVerdict(rawResponse);
+    if (rawResponse) {
+      ollamaResponded = true;
+      ollamaVerdict = parseOllamaReviewVerdict(rawResponse);
+    }
+  }
+
+  if (!ollamaCalled) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "keep", category: "diff-out-of-band",
+      extras: { diffLineCount },
+    });
+  } else if (!ollamaResponded) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "suggest",
+      category: "review",
+      extras: { mode: "ollama-down", diffLineCount },
+    });
+  } else {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "offload",
+      category: "review", tokensSaved: TOKENS_SAVED_PER_REVIEW,
+      extras: {
+        mode: "review-completed",
+        verdict: ollamaVerdict?.verdict || "unparseable",
+        diffLineCount,
+      },
+    });
   }
 
   const decision = decideOllamaReviewSecondOpinion({

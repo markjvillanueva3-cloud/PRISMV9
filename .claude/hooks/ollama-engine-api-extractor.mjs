@@ -33,7 +33,13 @@ import {
   mergeContractCache,
   decideExtractRun,
 } from "./lib/autonomous-foolproof-logic.mjs";
+import { recordOllamaEvent } from "./lib/ollama-stats.mjs";
 
+const HOOK_NAME = "ollama-engine-api-extractor";
+// One contract extraction saves Claude from re-deriving the public surface
+// of an engine on subsequent reads — typically ~150 tokens of cache hit per
+// downstream Read instead of re-scanning the source.
+const TOKENS_SAVED_PER_EXTRACT = 150;
 const CACHE_RELATIVE = "state/shared/ENGINE_CONTRACTS_CACHE.json";
 const OLLAMA_TIMEOUT_MS = 8 * 1000; // 8s — extractor needs more than the 500ms hook default
 const OLLAMA_MAX_TOKENS = 800;
@@ -159,19 +165,34 @@ async function main() {
 
   const decision = decideExtractRun({ filePath, isAutonomous, cache });
   if (!decision.run) {
+    // Cache hit / not-needed branch is itself a win — Claude reads the cached
+    // contract instead of the engine source.
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "offload",
+      category: "cache-hit", tokensSaved: TOKENS_SAVED_PER_EXTRACT,
+      extras: { mode: "cache-hit", file: path.basename(filePath) },
+    });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
   const source = readEngineHead(filePath);
   if (!source) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "keep", category: "no-source",
+      extras: { file: path.basename(filePath) },
+    });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
   const rawResponse = await callOllamaForContract(source);
   if (!rawResponse) {
-    // Ollama unavailable — fail-OPEN.
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "suggest",
+      category: "contract-extract",
+      extras: { mode: "ollama-down", file: path.basename(filePath) },
+    });
     console.log(JSON.stringify({
       continue: true,
       hookSpecificOutput: {
@@ -185,6 +206,10 @@ async function main() {
 
   const parsed = parseOllamaEngineContract(rawResponse);
   if (!parsed.ok) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "keep", category: "parse-failed",
+      extras: { reason: parsed.reason, file: path.basename(filePath) },
+    });
     console.log(JSON.stringify({
       continue: true,
       hookSpecificOutput: {
@@ -197,6 +222,17 @@ async function main() {
 
   const next = mergeContractCache(cache, filePath, parsed.contract);
   writeCache(cachePath, next);
+
+  recordOllamaEvent({
+    hook: HOOK_NAME, decision: "offload",
+    category: "contract-extract", tokensSaved: TOKENS_SAVED_PER_EXTRACT,
+    extras: {
+      mode: "extracted",
+      file: path.basename(filePath),
+      methods: parsed.contract.methods.length,
+      enums: Object.keys(parsed.contract.enums).length,
+    },
+  });
 
   console.log(JSON.stringify({
     continue: true,
