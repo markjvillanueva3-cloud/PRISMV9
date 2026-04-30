@@ -48,12 +48,22 @@ export const WhatIfScenarioSchema = z.object({
     "increase_depth",
     "decrease_depth",
   ]),
-  /** Scenario parameters */
+  /** Scenario parameters — enums mirror LatheSpeedFeedInputSchema so assignments
+   *  back into the base input type-check without runtime casts. */
   params: z.object({
     material: z.string().optional(),
-    strategy: z.string().optional(),
-    type: z.string().optional(),
-    coolant: z.string().optional(),
+    strategy: z.enum(["conservative", "balanced", "aggressive", "maximum_mrr"]).optional(),
+    type: z.enum([
+      "roughing",
+      "semi_finishing",
+      "finishing",
+      "threading",
+      "grooving",
+      "parting",
+      "drilling",
+      "boring",
+    ]).optional(),
+    coolant: z.enum(["flood", "mist", "dry", "high_pressure", "cryogenic"]).optional(),
     nose_radius_mm: z.number().optional(),
     coating: z.string().optional(),
     max_rpm: z.number().optional(),
@@ -514,7 +524,7 @@ export class LatheSpeedFeedReasoningBridgeEngine {
           success: false,
           recommendation: { cutting_speed_m_min: 0, rpm: 0, feed_mm_rev: 0, depth_of_cut_mm: 0 },
           material_properties: {} as any,
-          band: { vc_min: 0, vc_max: 0, feed_min: 0, feed_max: 0 },
+          band: { vc_min: 0, vc_max: 0, feed_min: 0, feed_max: 0, doc_min: 0, doc_max: 0 },
           confidence: 0,
           sources: [],
           reasoning: [],
