@@ -20,7 +20,7 @@
  *   - AutomationChainEngine chain model
  */
 
-import { CANONICAL_MATERIAL_DB } from "../physics/constants.js";
+import { CANONICAL_MATERIAL_DB, CANONICAL_KIENZLE } from "../physics/constants.js";
 import type { TaskClass } from "./AutomationChainEngine.js";
 
 // ============================================================================
@@ -175,8 +175,12 @@ export class SpeedFeedAutopilotEngine {
       };
     }
 
-    // Hardness correction for kc1_1 (Kienzle)
-    let kc1_1 = db.kc1_1;
+    // kc1_1/mc live in CANONICAL_KIENZLE keyed by iso_group, not on the
+    // MaterialEntry itself. thermal conductivity is stored as
+    // thermal_conductivity_W_mK on MaterialEntry (the legacy 'k_thermal'
+    // alias never existed there).
+    const kienzle = CANONICAL_KIENZLE[db.iso_group];
+    let kc1_1 = kienzle.kc1_1;
     if (hardnessHRC && hardnessHRC > 45) {
       // Increase specific cutting force for hardened material
       kc1_1 *= 1.0 + (hardnessHRC - 45) * 0.015;
@@ -186,11 +190,11 @@ export class SpeedFeedAutopilotEngine {
       input_name: name,
       resolved_iso: db.iso_group,
       kc1_1,
-      mc: db.mc,
+      mc: kienzle.mc,
       taylor_C: db.taylor_C,
       taylor_n: db.taylor_n,
       density_kg_m3: db.density_kg_m3,
-      thermal_conductivity_W_mK: db.k_thermal,
+      thermal_conductivity_W_mK: db.thermal_conductivity_W_mK,
       confidence: 0.85,
       source: `CANONICAL_MATERIAL_DB[${dbKey}]`,
     };
