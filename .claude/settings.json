@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "enabledPlugins": {},
-  "description": "PRISM project settings â€” mirrors locally-developed hook registrations so the wiring-enforcement stop-hook detects them. Global roadmap hooks live in H:/.claude/settings.json.",
+  "description": "PRISM project settings — mirrors locally-developed hook registrations so the wiring-enforcement stop-hook detects them. Global roadmap hooks live in H:/.claude/settings.json.",
   "hooks": {
     "SessionStart": [
       {
@@ -60,6 +60,13 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-autostart.mjs",
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/awareness-snapshot.mjs",
+            "timeout": 3000,
+            "continueOnError": true,
+            "_wrapped": "WHY: emits PRISM engine/formula/material/tool counts + extraction status as additionalContext"
           }
         ]
       }
@@ -234,6 +241,20 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-legitimacy.mjs",
             "timeout": 3000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-duplication-guard.mjs",
+            "timeout": 3000,
+            "continueOnError": false,
+            "_wrapped": "WHY: HARD BLOCK on duplicate engines/hooks/skills/algorithms via Levenshtein + cross-session registry"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/h-drive-enforcement.mjs",
+            "timeout": 2000,
+            "continueOnError": false,
+            "_wrapped": "WHY: HARD BLOCK file writes to C: drive — all PRISM work must live on H:"
           }
         ]
       },
@@ -290,6 +311,20 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-engine-api-extractor.mjs",
             "timeout": 10000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-read-cache.mjs",
+            "timeout": 1500,
+            "continueOnError": true,
+            "_wrapped": "WHY: dedupe Read of same file+mtime+slice within session — token cache"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/json-read-summarizer.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: large-JSON preview on first read (>50KB) — emits structure/counts instead of full content"
           }
         ]
       },
@@ -337,6 +372,20 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-reviewer-second-opinion.mjs",
             "timeout": 15000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-result-cache.mjs",
+            "timeout": 1500,
+            "continueOnError": true,
+            "_wrapped": "WHY: dedupe read-only Bash (git log/diff/status/ls) within session — token cache"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/h-drive-enforcement.mjs",
+            "timeout": 2000,
+            "continueOnError": false,
+            "_wrapped": "WHY: HARD BLOCK Bash commands writing to C: drive within PRISM project"
           }
         ]
       },
