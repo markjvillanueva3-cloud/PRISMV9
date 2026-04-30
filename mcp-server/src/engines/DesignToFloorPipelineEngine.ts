@@ -34,10 +34,36 @@ import {
   cuttingPower,
   rpmFromVc,
   type MaterialPhysics,
+  type MaterialEntry,
   type ISOGroup,
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
 } from "../physics/constants.js";
+
+/**
+ * Adapt a registry MaterialEntry to the canonical MaterialPhysics shape.
+ *
+ * MaterialEntry stores hardness/density/thermal/Taylor directly but does NOT
+ * carry kc1_1/mc — those live in CANONICAL_KIENZLE keyed by ISO group.
+ * This is the same pattern used in LatheSpeedFeedCalculatorFacadeEngine
+ * (see entryToPhysics there).
+ */
+function entryToMaterialPhysics(entry: MaterialEntry): MaterialPhysics {
+  const k = CANONICAL_KIENZLE[entry.iso_group];
+  return {
+    iso_group: entry.iso_group,
+    kc1_1: k.kc1_1,
+    mc: k.mc,
+    taylor_C: entry.taylor_C,
+    taylor_n: entry.taylor_n,
+    density_kg_m3: entry.density_kg_m3,
+    thermal_conductivity_W_mK: entry.thermal_conductivity_W_mK,
+    specific_heat_J_kgK: entry.specific_heat_J_kgK,
+    hardness_HRC: entry.hardness_HRC,
+    tensile_strength_MPa: entry.tensile_strength_MPa,
+    name: entry.name,
+  };
+}
 
 // ─── Type Definitions ────────────────────────────────────────────────
 
@@ -682,12 +708,13 @@ export class DesignToFloorPipelineEngine {
     stages.push("PRE-PROCESS");
 
     const materialName = input.material || "steel_1045";
-    let matPhysics: MaterialPhysics;
-    try {
-      matPhysics = resolveMaterial(materialName);
-    } catch {
-      matPhysics = resolveMaterial("steel_1045");
+    // resolveMaterial returns MaterialEntry | undefined; adapt via canonical
+    // Kienzle table to obtain MaterialPhysics (which carries kc1_1/mc).
+    const entry = resolveMaterial(materialName) ?? resolveMaterial("steel_1045");
+    if (!entry) {
+      throw new Error(`DesignToFloorPipeline: could not resolve material '${materialName}' or fallback 'steel_1045'`);
     }
+    const matPhysics: MaterialPhysics = entryToMaterialPhysics(entry);
 
     const toolDia = input.tool_diameter_mm || 10;
     const toolLen = input.tool_length_mm || 75;
@@ -948,12 +975,12 @@ export class DesignToFloorPipelineEngine {
     }
 
     const material = job.material;
-    let matPhysics: MaterialPhysics;
-    try {
-      matPhysics = resolveMaterial(material);
-    } catch {
-      matPhysics = resolveMaterial("steel_1045");
+    // Adapt MaterialEntry → MaterialPhysics via canonical Kienzle table.
+    const entry = resolveMaterial(material) ?? resolveMaterial("steel_1045");
+    if (!entry) {
+      throw new Error(`DesignToFloorPipeline: could not resolve material '${material}' or fallback 'steel_1045'`);
     }
+    const matPhysics: MaterialPhysics = entryToMaterialPhysics(entry);
 
     // Initialize calibration state if needed
     if (!this.calibrationState.has(material)) {
