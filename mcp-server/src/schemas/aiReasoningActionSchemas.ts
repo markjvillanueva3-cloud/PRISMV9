@@ -192,6 +192,9 @@ export const AI_REASONING_ACTIONS = [
   "lathe_lora_validate",          // U-WIRE45: full ValidationResult with metrics/issues/recommendations
   "lathe_lora_validate_single",   // U-WIRE45: validate one example, return issues array only
   "lathe_lora_summary",           // U-WIRE45: render markdown summary from a ValidationResult
+  // ENGINE-WIRE-MS0/U-WIRE46: MillingLoRADatasetBuilderEngine - Alpaca dataset builder for milling fine-tune
+  "milling_lora_build_dataset",   // U-WIRE46: build train/val/test split from RawJob[] + return stats + fingerprint
+  "milling_lora_required_schema", // U-WIRE46: report required feature + actual keys (caller upstream contract)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1694,4 +1697,29 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
       recommendations: z.array(z.string()),
     }).passthrough(),
   }).passthrough(),
+  // U-WIRE46 - MillingLoRADatasetBuilderEngine
+  // jobs: RawJob[] from MachineLoRABaseEngine — id, fingerprint (string|number map),
+  //   features (free-form), actual (free-form), optional weight + labels.
+  // split: optional DatasetSplitConfig — engine validates ratios non-negative + sum=1
+  //   + finite seed. Defaults to DEFAULT_SPLIT (80/10/10, seed=1) when omitted.
+  // The engine drops jobs with non-null validate(); we mirror minimum required keys
+  // here so Zod catches obvious malformed inputs before reaching engine logic.
+  milling_lora_build_dataset: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1),
+      fingerprint: z.record(z.string(), z.union([z.string(), z.number()])),
+      features: z.record(z.string(), z.unknown()),
+      actual: z.record(z.string(), z.unknown()),
+      weight: z.number().finite().optional(),
+      labels: z.array(z.string()).optional(),
+    }).passthrough()).min(0).describe("Empty array yields a zero-row dataset with valid stats"),
+    split: z.object({
+      trainRatio: z.number().min(0).max(1),
+      valRatio: z.number().min(0).max(1),
+      testRatio: z.number().min(0).max(1),
+      seed: z.number().finite(),
+      stratifyBy: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  milling_lora_required_schema: z.object({}).passthrough(),
 };

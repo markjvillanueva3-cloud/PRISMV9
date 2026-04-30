@@ -1766,6 +1766,31 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE46: MillingLoRADatasetBuilderEngine — Alpaca-format
+      // dataset builder for milling fine-tune. Wraps BaseLoRADatasetBuilder with
+      // a milling-specific render (instruction = "Recommend milling feed/speed/
+      // strategy for <op_type> on <material>...") and a 4-axis fingerprint
+      // (material, tool_class, op_type, machine_class). Stateless.
+      // ─────────────────────────────────────────────────────────────────────
+      case "milling_lora_build_dataset": {
+        const { millingLoRADatasetBuilderEngine } = await import("../../engines/MillingLoRADatasetBuilderEngine.js");
+        type JobsArg = Parameters<typeof millingLoRADatasetBuilderEngine.buildDataset>[0];
+        type SplitArg = Parameters<typeof millingLoRADatasetBuilderEngine.buildDataset>[1];
+        const p = params as { jobs: JobsArg; split?: SplitArg };
+        result = p.split !== undefined
+          ? millingLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split)
+          : millingLoRADatasetBuilderEngine.buildDataset(p.jobs);
+        break;
+      }
+      case "milling_lora_required_schema": {
+        const { millingLoRADatasetBuilderEngine } = await import("../../engines/MillingLoRADatasetBuilderEngine.js");
+        const schema = millingLoRADatasetBuilderEngine.requiredSchema();
+        // Materialize readonly tuples so Zod-validated callers see plain arrays.
+        result = { features: [...schema.features], actuals: [...schema.actuals] };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
