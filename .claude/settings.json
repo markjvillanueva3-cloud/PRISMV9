@@ -257,6 +257,13 @@
             "timeout": 2000,
             "continueOnError": false,
             "_wrapped": "WHY: HARD BLOCK file writes to C: drive — all PRISM work must live on H:"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/critical-file-guard.mjs",
+            "timeout": 2000,
+            "continueOnError": false,
+            "_wrapped": "WHY: HARD BLOCK edits to safety-critical files (Kienzle/Taylor/S(x)/material constants per state/shared/CRITICAL_FILES.json) without CONFIRM_CRITICAL=true env or confirmCritical:true input flag"
           }
         ]
       },
