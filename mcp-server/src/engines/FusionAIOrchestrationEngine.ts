@@ -251,8 +251,10 @@ export class FusionAIOrchestrationEngine {
       });
 
       if (request.material_id) {
-        materialProfile = fusionMaterialBridgeEngine.getPhysicsProfile(request.material_id);
-        enginesInvoked.push("FusionMaterialBridgeEngine");
+        // getPhysicsProfile lives on FusionMaterialPhysicsBridge (kc1.1/Taylor profiles),
+        // not the catalog-level FusionMaterialBridgeEngine.
+        materialProfile = fusionMaterialPhysicsBridge.getPhysicsProfile(request.material_id);
+        enginesInvoked.push("FusionMaterialPhysicsBridge");
       }
     }
 
@@ -540,36 +542,42 @@ export class FusionAIOrchestrationEngine {
   }
 
   /**
-   * Map feature type to Fusion format
+   * Map feature type to canonical FusionFeatureType.
+   * Source of truth: FusionDeepLearningEngine.FusionFeatureType union.
    */
-  private mapFeatureType(feature: string): "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity" {
-    const mapping: Record<string, "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity"> = {
+  private mapFeatureType(feature: string): import("./FusionDeepLearningEngine.js").FusionFeatureType {
+    type FT = import("./FusionDeepLearningEngine.js").FusionFeatureType;
+    const mapping: Record<string, FT> = {
       "pocket": "closed_pocket",
       "pocket_2d": "closed_pocket",
       "contour": "open_pocket",
-      "slot": "slot",
+      "slot": "slot_through",
       "freeform": "freeform_surface",
       "3d_surface": "freeform_surface",
-      "steep": "steep_wall",
-      "flat": "flat_area",
+      "steep": "thin_wall",
+      "flat": "flat_face",
       "cavity": "deep_cavity",
       "mold": "deep_cavity",
-      "die": "deep_cavity"
+      "die": "deep_cavity",
     };
     return mapping[feature.toLowerCase()] || "closed_pocket";
   }
 
   /**
-   * Map machine type to Fusion format
+   * Map machine type to canonical FusionMachineType.
+   * Source of truth: FusionDeepLearningEngine.FusionMachineType union.
    */
-  private mapMachineType(machine: string): "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn" {
-    const mapping: Record<string, "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn"> = {
+  private mapMachineType(machine: string): import("./FusionDeepLearningEngine.js").FusionMachineType {
+    type MT = import("./FusionDeepLearningEngine.js").FusionMachineType;
+    const mapping: Record<string, MT> = {
       "3axis": "3axis_mill",
-      "4axis": "4axis_mill",
-      "5axis": "5axis_mill",
-      "5axis_table": "5axis_table_head",
+      "4axis": "4axis_rotary",
+      "5axis": "5axis_table_head",
+      "5axis_table": "5axis_table_table",
+      "5axis_head": "5axis_head_head",
       "mill_turn": "mill_turn",
-      "lathe": "mill_turn"
+      "lathe": "lathe_2axis",
+      "router": "router",
     };
     return mapping[machine.toLowerCase()] || "3axis_mill";
   }

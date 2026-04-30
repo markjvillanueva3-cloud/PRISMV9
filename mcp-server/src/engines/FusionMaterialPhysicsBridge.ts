@@ -407,6 +407,74 @@ export class FusionMaterialPhysicsBridge {
   }
 
   /**
+   * Compute milling cutting physics for a given setup (force, power, tool life,
+   * temperature, deflection/chatter risk). Pulls Kienzle kc1.1/mc and Taylor
+   * C/n from the loaded profile — never inlined.
+   *
+   *   Fc = kc1.1 * b * h^(1-mc)         (Kienzle, b=ap, h=avg chip thickness)
+   *   T  = (C/Vc)^(1/n)                 (Taylor)
+   *   P  = Fc * Vc / 60_000             (kW with Vc in m/min, Fc in N)
+   *
+   * Mirrors HyperMillMaterialPhysicsBridge.calculateMillingPhysics() so that
+   * FusionAIOrchestrationEngine can call the same surface across CAM systems.
+   */
+  calculateMillingPhysics(input: {
+    material_id: string;
+    tool_diameter_mm: number;
+    tool_flutes: number;
+    helix_angle_deg?: number;
+    rake_angle_deg?: number;
+    spindle_rpm: number;
+    feed_mm_min: number;
+    axial_depth_mm: number;
+    radial_depth_mm: number;
+    cutting_mode?: "climb" | "conventional";
+    coolant?: "flood" | "mist" | "high_pressure" | "cryogenic" | "dry" | "mql" | "air";
+  }): {
+    cutting_force_N: number;
+    power_kW: number;
+    tool_life_min: number;
+    chip_temperature_C: number;
+    deflection_risk: "low" | "medium" | "high";
+    chatter_risk: "low" | "medium" | "high";
+    warnings: string[];
+  } | null {
+    const profile = this.getPhysicsProfile(input.material_id);
+    const warnings: string[] = [];
+    if (!profile) {
+      warnings.push(`Material '${input.material_id}' not found — cannot compute physics`);
+      return null;
+    }
+    const Vc = (Math.PI * input.tool_diameter_mm * input.spindle_rpm) / 1000; // m/min
+    const fz = input.feed_mm_min / Math.max(input.spindle_rpm * input.tool_flutes, 1); // mm/tooth
+    const h_avg = fz * Math.sin(((input.helix_angle_deg ?? 30) * Math.PI) / 180);
+    const b = input.axial_depth_mm;
+    const Fc = profile.kienzle.kc1_1 * b * Math.pow(Math.max(h_avg, 0.001), 1 - profile.kienzle.mc);
+    const power_kW = Math.max(0, (Fc * Vc) / 60_000);
+    const tool_life_min =
+      profile.taylor.C > 0 && Vc > 0 && profile.taylor.n > 0
+        ? Math.pow(profile.taylor.C / Vc, 1 / profile.taylor.n)
+        : 0;
+    const chip_temperature_C =
+      200 + 0.5 * Vc + (input.coolant === "dry" ? 80 : input.coolant === "air" ? 40 : 0);
+    const ld_ratio = input.tool_diameter_mm > 0 ? input.axial_depth_mm / input.tool_diameter_mm : 0;
+    const deflection_risk: "low" | "medium" | "high" =
+      ld_ratio > 4 ? "high" : ld_ratio > 2.5 ? "medium" : "low";
+    const ae_ratio = input.tool_diameter_mm > 0 ? input.radial_depth_mm / input.tool_diameter_mm : 0;
+    const chatter_risk: "low" | "medium" | "high" =
+      ae_ratio > 0.5 && ld_ratio > 3 ? "high" : ae_ratio > 0.3 ? "medium" : "low";
+    return {
+      cutting_force_N: Fc,
+      power_kW,
+      tool_life_min,
+      chip_temperature_C,
+      deflection_risk,
+      chatter_risk,
+      warnings,
+    };
+  }
+
+  /**
    * Get engine statistics
    */
   getStats(): {
