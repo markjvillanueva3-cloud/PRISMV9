@@ -1887,4 +1887,168 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_turning_deep_operations");
     });
   });
+
+  describe("getPostProcessingOperations (CAM-EXHAUST-MS1-11)", () => {
+    it("returns exactly 10 post-processor toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      expect(ops.length).toBe(10);
+    });
+
+    it("returns the 10 expected post-processor operation IDs", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const ids = ops.map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "POST_CANNED_CYCLES",
+        "POST_CIRCULAR_MOTION",
+        "POST_CONTROLLER_VARIANT",
+        "POST_FORMATS_AND_OUTPUT",
+        "POST_KERNEL_DEFINE",
+        "POST_LINEAR_MOTION",
+        "POST_MODAL_COMMANDS",
+        "POST_NC_VALIDATION",
+        "POST_OUTPUT_DELIVERY",
+        "POST_SECTION_HEADERS",
+      ]);
+    });
+
+    it("Kernel category contains POST_KERNEL_DEFINE with 23 params", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const kernel = ops.filter((o) => o.category === "Kernel");
+      expect(kernel.length).toBe(1);
+      expect(kernel[0]?.toolpath_id).toBe("POST_KERNEL_DEFINE");
+      expect(kernel[0]?.parameter_count).toBe(23);
+    });
+
+    it("Motion category contains both linear and circular motion ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const motion = ops.filter((o) => o.category === "Motion").map((o) => o.toolpath_id).sort();
+      expect(motion).toEqual(["POST_CIRCULAR_MOTION", "POST_LINEAR_MOTION"]);
+    });
+
+    it("Validation category contains POST_NC_VALIDATION with 22 params (the safety gate)", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const validation = ops.filter((o) => o.category === "Validation");
+      expect(validation.length).toBe(1);
+      expect(validation[0]?.toolpath_id).toBe("POST_NC_VALIDATION");
+      expect(validation[0]?.parameter_count).toBe(22);
+    });
+
+    it("category coverage spans Kernel/Format/Controller/Section/Motion/Cycles/Modal/Validation/Delivery (9 categories)", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const categories = new Set(ops.map((o) => o.category));
+      expect(categories.has("Kernel")).toBe(true);
+      expect(categories.has("Format")).toBe(true);
+      expect(categories.has("Controller")).toBe(true);
+      expect(categories.has("Section")).toBe(true);
+      expect(categories.has("Motion")).toBe(true);
+      expect(categories.has("Cycles")).toBe(true);
+      expect(categories.has("Modal")).toBe(true);
+      expect(categories.has("Validation")).toBe(true);
+      expect(categories.has("Delivery")).toBe(true);
+      expect(categories.size).toBe(9);
+    });
+
+    it("each op exposes the documented parameter count", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const byId: Record<string, number> = {};
+      for (const op of ops) byId[op.toolpath_id] = op.parameter_count;
+      expect(byId).toEqual({
+        POST_KERNEL_DEFINE: 23,
+        POST_FORMATS_AND_OUTPUT: 24,
+        POST_CONTROLLER_VARIANT: 24,
+        POST_SECTION_HEADERS: 22,
+        POST_LINEAR_MOTION: 18,
+        POST_CIRCULAR_MOTION: 20,
+        POST_CANNED_CYCLES: 25,
+        POST_MODAL_COMMANDS: 22,
+        POST_NC_VALIDATION: 22,
+        POST_OUTPUT_DELIVERY: 18,
+      });
+    });
+
+    it("total parameter count across all 10 ops sums to 218", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const total = ops.reduce((acc, op) => acc + op.parameter_count, 0);
+      expect(total).toBe(218);
+    });
+
+    it("POST_CONTROLLER_VARIANT carries 24 params (the 21-controller-dialect table)", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const ctrl = ops.find((o) => o.toolpath_id === "POST_CONTROLLER_VARIANT");
+      expect(ctrl?.category).toBe("Controller");
+      expect(ctrl?.parameter_count).toBe(24);
+    });
+
+    it("POST_CANNED_CYCLES is in Cycles category and covers G81-G89 surface (25 params)", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const cycles = ops.find((o) => o.toolpath_id === "POST_CANNED_CYCLES");
+      expect(cycles?.category).toBe("Cycles");
+      expect(cycles?.parameter_count).toBe(25);
+    });
+
+    it("descriptions reference key post-processor concepts (post.cps grammar, controller dialects, NC output)", () => {
+      const ops = Fusion360FunctionIndexEngine.getPostProcessingOperations();
+      const kernel = ops.find((o) => o.toolpath_id === "POST_KERNEL_DEFINE");
+      const ctrl = ops.find((o) => o.toolpath_id === "POST_CONTROLLER_VARIANT");
+      const cycles = ops.find((o) => o.toolpath_id === "POST_CANNED_CYCLES");
+      const validation = ops.find((o) => o.toolpath_id === "POST_NC_VALIDATION");
+      expect(kernel?.description).toMatch(/post\.cps/i);
+      expect(ctrl?.description).toMatch(/Fanuc|Mazak|Heidenhain|Siemens|Okuma/);
+      expect(cycles?.description).toMatch(/G8[1-9]|G73/);
+      expect(validation?.description).toMatch(/safety|bounds/i);
+    });
+
+    it("dispatcher round-trip: fusion360_function_index_get_post_processing_operations returns 10 ops with POST_KERNEL_DEFINE @ 23 params", async () => {
+      const mod: any = await import("../tools/dispatchers/camDispatcher.js");
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer);
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_post_processing_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations).toHaveLength(10);
+      const kernel = result.operations.find((o) => o.toolpath_id === "POST_KERNEL_DEFINE");
+      expect(kernel?.category).toBe("Kernel");
+      expect(kernel?.parameter_count).toBe(23);
+      const ctrl = result.operations.find((o) => o.toolpath_id === "POST_CONTROLLER_VARIANT");
+      expect(ctrl?.category).toBe("Controller");
+      expect(ctrl?.parameter_count).toBe(24);
+    });
+
+    it("post_processing module is registered in fusion360 function-index with 218 estimated params and depends on every prior catalog", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "post_processing");
+      expect(entry?.parameter_count_estimate).toBe(218);
+      expect(entry?.dependencies).toContain("turning_deep");
+      expect(entry?.dependencies).toContain("multiaxis_deep");
+      expect(entry?.dependencies).toContain("milling_2d_deep");
+      expect(entry?.dependencies).toContain("milling_3d_deep");
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_post_processing_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_post_processing_operations");
+    });
+  });
 });

@@ -747,6 +747,26 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Returns Fusion 360 post-processor + NC-output operations from
+   * `post-processing.json` (CAM-EXHAUST-MS1-11). Closes the bottom of the
+   * Fusion CAM stack — every catalogued toolpath funnels through this surface
+   * to produce shop-ready NC code. 10 ops, 218 params total.
+   *
+   * Categories: "Kernel" | "Format" | "Controller" | "Section" | "Motion" |
+   *             "Cycles" | "Modal" | "Validation" | "Delivery"
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getPostProcessingOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("post-processing.json", "getPostProcessingOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal
