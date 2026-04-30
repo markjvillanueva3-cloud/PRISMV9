@@ -33,12 +33,19 @@ export function createPpgRouter(callTool: CallToolFn): Router {
     } catch (e: any) {
       // Fallback: return canonical materials from constants
       try {
-        const { CANONICAL_MATERIAL_DB } = await import("../physics/constants.js");
+        const { CANONICAL_MATERIAL_DB, CANONICAL_KIENZLE } = await import("../physics/constants.js");
         const query = (req.body.query ?? "").toLowerCase();
         const matches = Object.entries(CANONICAL_MATERIAL_DB)
           .filter(([key, mat]) => key.includes(query) || mat.name.toLowerCase().includes(query))
           .slice(0, 20)
-          .map(([key, mat]) => ({ id: key, name: mat.name, iso_group: mat.iso_group, kc1_1: mat.kc1_1, mc: mat.mc, hardness_HB: mat.hardness_HB }));
+          .map(([key, mat]) => ({
+            id: key,
+            name: mat.name,
+            iso_group: mat.iso_group,
+            kc1_1: CANONICAL_KIENZLE[mat.iso_group].kc1_1,
+            mc: CANONICAL_KIENZLE[mat.iso_group].mc,
+            hardness_HRC: mat.hardness_HRC,
+          }));
         res.json({ ok: true, data: { materials: matches, source: "canonical" } });
       } catch {
         res.status(500).json({ ok: false, error: e.message });
