@@ -329,20 +329,20 @@ export class PPSinkerEDMPostEngine {
         {
           stage: "rough", electrode_number: 1, electrode_name: "ROUGH_GRAPHITE",
           target_depth_mm: cavityDepth - 0.15,
-          orbit_pattern: "circle", orbit_radius: 0.30,
+          orbit_pattern: "circle", orbit_radius_mm: 0.30,
           start_z: 2, flush_cycle_sec: 5, retract_depth_mm: 2,
           suction_enabled: true,
         },
         {
           stage: "semi_finish", electrode_number: 2, electrode_name: "SEMI_GRAPHITE",
           target_depth_mm: cavityDepth - 0.03,
-          orbit_pattern: "circle", orbit_radius: 0.12,
+          orbit_pattern: "circle", orbit_radius_mm: 0.12,
           start_z: 2, flush_cycle_sec: 3, retract_depth_mm: 1,
         },
         {
           stage: "finish", electrode_number: 3, electrode_name: "FINISH_COPPER",
           target_depth_mm: cavityDepth,
-          orbit_pattern: "circle", orbit_radius: 0.05,
+          orbit_pattern: "circle", orbit_radius_mm: 0.05,
           start_z: 2, flush_cycle_sec: 0, // continuous for finish
         },
       ],
