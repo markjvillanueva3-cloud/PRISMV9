@@ -2793,6 +2793,35 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     }).optional().describe("Nested part spec (alternative to flat params)"),
   }).passthrough(),
 
+  // ── Machining Energy Model (MachiningEnergyModelEngine, Gutowski + Kienzle) ──
+  machining_energy_model: z.object({
+    cutting: z.object({
+      spindle_rpm: z.number().positive().describe("Spindle speed [RPM]"),
+      feed_rate_mmmin: z.number().positive().describe("Feed rate [mm/min]"),
+      axial_depth_mm: z.number().positive().describe("Axial depth of cut [mm]"),
+      radial_depth_mm: z.number().positive().describe("Radial depth of cut [mm]"),
+      cutting_speed_m_min: z.number().positive().describe("Cutting speed [m/min]"),
+    }).describe("Cutting parameters"),
+    tool: z.object({
+      diameter_mm: z.number().positive().describe("Tool diameter [mm]"),
+      flute_count: z.number().int().positive().describe("Number of flutes"),
+    }).describe("Tool geometry"),
+    material: z.object({
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+      volume_to_remove_cm3: z.number().positive().describe("Total volume to remove [cm^3]"),
+    }).describe("Workpiece material"),
+    machine: z.object({
+      standby_power_kw: z.number().nonnegative().describe("Standby/idle power [kW]"),
+      spindle_efficiency: z.number().min(0).max(1).optional().describe("Spindle drive efficiency (default 0.85)"),
+      axis_power_kw: optPosNum.describe("Axis drive power [kW] (default 1.5)"),
+      coolant_pump_kw: optPosNum.describe("Coolant pump power [kW] (default 2.5 for flood)"),
+      atc_time_s: optPosNum.describe("Tool change time per swap [s] (default 5)"),
+      tool_changes: z.number().int().nonnegative().describe("Total tool changes in cycle"),
+    }).describe("Machine power model"),
+    coolant_type: z.enum(["flood", "mist", "mql", "dry"]).describe("Coolant delivery method"),
+    electricity_cost_per_kwh: optPosNum.describe("Electricity cost [$/kWh] (default 0.12)"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({

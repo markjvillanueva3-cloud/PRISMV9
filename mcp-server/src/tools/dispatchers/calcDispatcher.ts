@@ -7974,6 +7974,42 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Machining Energy Model (MachiningEnergyModelEngine, Gutowski + Kienzle) ──
+          case "machining_energy_model": {
+            const { machiningEnergyModelEngine } = await import("../../engines/MachiningEnergyModelEngine.js");
+            const out = machiningEnergyModelEngine.compute({
+              cutting: {
+                spindle_rpm: params.cutting.spindle_rpm,
+                feed_rate_mmmin: params.cutting.feed_rate_mmmin,
+                axial_depth_mm: params.cutting.axial_depth_mm,
+                radial_depth_mm: params.cutting.radial_depth_mm,
+                cutting_speed_m_min: params.cutting.cutting_speed_m_min,
+              },
+              tool: {
+                diameter_mm: params.tool.diameter_mm,
+                flute_count: params.tool.flute_count,
+              },
+              material: {
+                iso_group: params.material.iso_group,
+                volume_to_remove_cm3: params.material.volume_to_remove_cm3,
+              },
+              machine: {
+                standby_power_kw: params.machine.standby_power_kw,
+                spindle_efficiency: params.machine.spindle_efficiency,
+                axis_power_kw: params.machine.axis_power_kw,
+                coolant_pump_kw: params.machine.coolant_pump_kw,
+                atc_time_s: params.machine.atc_time_s,
+                tool_changes: params.machine.tool_changes,
+              },
+              coolant_type: params.coolant_type,
+              electricity_cost_per_kwh: params.electricity_cost_per_kwh,
+            });
+            // Engine returns {value, unit, formula, confidence} — flatten so slim-response
+            // branch (line 290) and tests see total_kwh/sec_j_mm3/co2_kg/efficiency_pct directly.
+            result = { ...out.value, unit: out.unit, formula: out.formula, confidence: out.confidence };
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");
