@@ -563,8 +563,9 @@ for (const [localKey, profile] of Object.entries(MATERIAL_DB)) {
   const canonKey = CANONICAL_KEY_MAP[localKey];
   if (canonKey && CANONICAL_MATERIAL_DB[canonKey]) {
     const c = CANONICAL_MATERIAL_DB[canonKey];
-    profile.kc1_1 = c.kc1_1;
-    profile.mc = c.mc;
+    const k = CANONICAL_KIENZLE[c.iso_group];
+    profile.kc1_1 = k.kc1_1;
+    profile.mc = k.mc;
     profile.taylor_n_carbide = c.taylor_n;
     profile.taylor_C_carbide = c.taylor_C;
   } else {
