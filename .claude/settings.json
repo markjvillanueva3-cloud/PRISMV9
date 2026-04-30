@@ -120,6 +120,13 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-precompact-watchdog.mjs",
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/wiki-precheck-inject.mjs",
+            "timeout": 1500,
+            "continueOnError": true,
+            "_wrapped": "WHY: BM25-lite query against knowledge/wiki/index.md; injects top-3 matching entries on keyword overlap so Claude doesn't re-derive what the wiki already documents. Disable via PRISM_WIKI_PRECHECK=0."
           }
         ]
       },
@@ -593,6 +600,20 @@
       {
         "matcher": "",
         "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-pattern-promote.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: scans ERROR_LEARN_LEDGER.jsonl rolling 7-day window; drafts auto-{fingerprint}.md lesson stub when same error fingerprint hits ≥3 times. Closes capture→prevent loop. Disable via PRISM_ERROR_PROMOTE=0."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bash-orphan-cleaner.mjs",
+            "timeout": 12000,
+            "continueOnError": true,
+            "_wrapped": "WHY: kills stale bash.exe (age >30min, CPU <5s) at session end. Cross-session by design — peer chats' active work has fresh age or accrued CPU. Targets the ~50+ overnight leak class. Disable via PRISM_BASH_ORPHAN_DRY_RUN=1."
+          },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/leave-a-copy-behind-guard.mjs",
