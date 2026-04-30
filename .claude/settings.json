@@ -192,21 +192,9 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/coding-pattern-hint.mjs",
-            "timeout": 1500,
-            "continueOnError": true
-          },
-          {
-            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-schema-engine-sync-gate.mjs",
             "timeout": 5000,
             "continueOnError": false
-          },
-          {
-            "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pretool-gap-predictor.mjs",
-            "timeout": 2000,
-            "continueOnError": true
           },
           {
             "type": "command",
@@ -269,13 +257,6 @@
             "timeout": 2000,
             "continueOnError": false,
             "_wrapped": "WHY: HARD BLOCK file writes to C: drive — all PRISM work must live on H:"
-          },
-          {
-            "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/legacy-module-hook-adapter.mjs H:/prism/.claude/hooks/pre-rename-guard.mjs PreToolUse",
-            "timeout": 3000,
-            "continueOnError": true,
-            "_wrapped": "WHY: legacy-module hook via adapter — flags renames that would break dependents. continueOnError:true since the dependent-index can be stale"
           }
         ]
       },
