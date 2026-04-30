@@ -6,11 +6,24 @@
 import fs from "node:fs";
 
 const DEP_GRAPH = "H:/prism/mcp-server/data/state/DEP_GRAPH.json";
+const STDIN_TIMEOUT_MS = 1500;
+
+function readStdinJson(timeoutMs = STDIN_TIMEOUT_MS) {
+  return new Promise((resolve) => {
+    let buf = "", settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      try { resolve(JSON.parse(buf || "{}")); } catch { resolve({}); }
+    };
+    process.stdin.on("data", (c) => (buf += c));
+    process.stdin.on("end", finish);
+    setTimeout(finish, timeoutMs);
+  });
+}
 
 async function main() {
-  const input = JSON.parse(await new Promise(r => {
-    let d = ""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => r(d));
-  }));
+  const input = await readStdinJson();
 
   try {
     if (!fs.existsSync(DEP_GRAPH)) {

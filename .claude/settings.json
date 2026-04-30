@@ -200,23 +200,33 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/code-completeness-gate.mjs"
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/code-completeness-gate.mjs",
+            "timeout": 3000,
+            "continueOnError": false
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/duplication-hard-block.mjs"
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/duplication-hard-block.mjs",
+            "timeout": 3000,
+            "continueOnError": false
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-pattern-detector.mjs"
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-pattern-detector.mjs",
+            "timeout": 3000,
+            "continueOnError": false
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ban-facade-patterns.mjs"
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ban-facade-patterns.mjs",
+            "timeout": 3000,
+            "continueOnError": false
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-legitimacy.mjs"
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-legitimacy.mjs",
+            "timeout": 3000,
+            "continueOnError": false
           }
         ]
       },
@@ -525,27 +535,31 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-learning-feedback.mjs",
-            "timeout": 5000,
-            "continueOnError": true
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bg-runner.mjs H:/prism/.claude/hooks/session-learning-feedback.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: detached background runner — advisory hook, no need to block Stop"
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-obsidian-memory-extract.mjs",
-            "timeout": 15000,
-            "continueOnError": true
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bg-runner.mjs H:/prism/.claude/hooks/stop-obsidian-memory-extract.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: detached background runner — advisory hook, no need to block Stop"
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-consolidate-graph.mjs",
-            "timeout": 12000,
-            "continueOnError": true
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bg-runner.mjs H:/prism/.claude/hooks/session-consolidate-graph.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: detached background runner — advisory hook, no need to block Stop"
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-cleanup.mjs",
-            "timeout": 10000,
-            "continueOnError": true
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bg-runner.mjs H:/prism/.claude/hooks/session-cleanup.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: detached background runner — advisory hook, no need to block Stop"
           },
           {
             "type": "command",
@@ -622,15 +636,23 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-auto-wire.mjs",
-            "timeout": 5000,
-            "continueOnError": true
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bg-runner.mjs H:/prism/.claude/hooks/stop-auto-wire.mjs",
+            "timeout": 2000,
+            "continueOnError": true,
+            "_wrapped": "WHY: detached background runner — advisory hook, no need to block Stop"
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/scrutinize-before-stop.mjs",
             "timeout": 3000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-orphan-cleaner.mjs",
+            "timeout": 12000,
+            "continueOnError": true,
+            "_wrapped": "WHY: best-effort reaper for leaf bash.exe with no children, age>=60s, scoped to this claude.exe descendant tree (peer chats untouched). Cannot wrap with stop-bg-runner because detaching breaks ancestor-chain scoping."
           }
         ]
       }
