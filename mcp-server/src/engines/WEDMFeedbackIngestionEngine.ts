@@ -158,6 +158,9 @@ class WEDMFeedbackIngestionEngine {
         const actualVal = feedback.actual[key];
         const predictedVal = feedback.predicted[key];
         if (actualVal !== undefined && typeof actualVal === "number") {
+          // Per-observation prediction and error_pct are retained in
+          // groundTruthBuffer below (used by neural fusion). PostOptions
+          // only accepts ttlMs/confidence, so we forward the confidence.
           wedmBlackboardEngine.post(
             namespace,
             `ground_truth.${key}`,
@@ -165,8 +168,6 @@ class WEDMFeedbackIngestionEngine {
             "observation",
             `feedback:${feedbackId}`,
             {
-              predicted: predictedVal,
-              error_pct: predictedVal ? Math.abs((actualVal - predictedVal) / predictedVal) * 100 : undefined,
               confidence: feedback.confidence ?? 0.9,
             }
           );
