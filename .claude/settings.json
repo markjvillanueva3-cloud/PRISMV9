@@ -67,6 +67,13 @@
             "timeout": 3000,
             "continueOnError": true,
             "_wrapped": "WHY: emits PRISM engine/formula/material/tool counts + extraction status as additionalContext"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/legacy-module-hook-adapter.mjs H:/prism/.claude/hooks/awareness-bootstrap.mjs SessionStart",
+            "timeout": 3000,
+            "continueOnError": true,
+            "_wrapped": "WHY: legacy-module hook via adapter — bootstraps situational awareness context, emits {inject:{...}} → additionalContext"
           }
         ]
       }
@@ -255,6 +262,13 @@
             "timeout": 2000,
             "continueOnError": false,
             "_wrapped": "WHY: HARD BLOCK file writes to C: drive — all PRISM work must live on H:"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/legacy-module-hook-adapter.mjs H:/prism/.claude/hooks/pre-rename-guard.mjs PreToolUse",
+            "timeout": 3000,
+            "continueOnError": true,
+            "_wrapped": "WHY: legacy-module hook via adapter — flags renames that would break dependents. continueOnError:true since the dependent-index can be stale"
           }
         ]
       },
@@ -386,6 +400,13 @@
             "timeout": 2000,
             "continueOnError": false,
             "_wrapped": "WHY: HARD BLOCK Bash commands writing to C: drive within PRISM project"
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/legacy-module-hook-adapter.mjs H:/prism/.claude/hooks/pre-delete-guard.mjs PreToolUse",
+            "timeout": 3000,
+            "continueOnError": true,
+            "_wrapped": "WHY: legacy-module hook via adapter — flags engine deletions when dependents still reference. Advisory"
           }
         ]
       },
@@ -497,6 +518,13 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/gsd-section-update.mjs",
             "timeout": 5000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/legacy-module-hook-adapter.mjs H:/prism/.claude/hooks/signature-drift-detector.mjs PostToolUse",
+            "timeout": 3000,
+            "continueOnError": true,
+            "_wrapped": "WHY: legacy-module hook via adapter — warns when engine API changes break callers. Advisory PostToolUse"
           }
         ]
       },
