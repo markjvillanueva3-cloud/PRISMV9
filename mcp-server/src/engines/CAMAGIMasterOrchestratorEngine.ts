@@ -33,7 +33,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { hyperMillStrategyEngine } from "./HyperMillStrategyEngine.js";
+import { hyperMillStrategyEngine, type GeometryType as HyperMillGeometryType } from "./HyperMillStrategyEngine.js";
 import { mastercamStrategyEngine } from "./MastercamStrategyEngine.js";
 import { fusion360CodeGeneratorEngine } from "./Fusion360CodeGeneratorEngine.js";
 import { millTribalKnowledgeEngine } from "./MillTribalKnowledgeEngine.js";
@@ -724,23 +724,25 @@ export class CAMAGIMasterOrchestratorEngine {
       });
     } catch { /* hyperMILL not available */ }
 
-    // Mastercam strategy
+    // Mastercam strategy — uses selectStrategy() with iso/operation/feature shape.
+    // Result fields cycle_code/cycle_display_name/params replace the legacy
+    // strategyName/mastercamCycle/suggested* layout used in this orchestrator.
     try {
-      const mcResult = mastercamStrategyEngine.recommend({
-        geometryType: this.mapFeatureToMastercamGeometry(featureType),
-        operationGoal: operation,
-        materialGroup: request.material_iso ?? "P",
-        toolDiameterMm: request.tool_diameter_mm ?? 12,
+      const mcResult = mastercamStrategyEngine.selectStrategy({
+        operation: operation as "roughing" | "finishing" | "pocketing" | "contouring" | "drilling" | "peck_drilling" | "thread_milling" | "facing" | "slotting" | "chamfering",
+        iso_group: (request.material_iso ?? "P") as "P" | "M" | "K" | "N" | "S" | "H",
+        tool_diameter_mm: request.tool_diameter_mm ?? 12,
+        feature: this.mapFeatureToMastercamFeature(featureType),
       });
       strategies.push({
         cam_system: "mastercam",
-        strategy_name: mcResult.strategyName,
-        cycle_name: mcResult.mastercamCycle,
-        description: mcResult.description,
-        stepover_factor: mcResult.suggestedStepover,
-        stepdown_factor: mcResult.suggestedStepdown,
-        cutting_mode: mcResult.cuttingMode,
-        confidence: mcResult.confidence,
+        strategy_name: mcResult.cycle_display_name,
+        cycle_name: mcResult.cycle_code,
+        description: `${mcResult.category} cycle for ${operation}`,
+        stepover_factor: null,
+        stepdown_factor: null,
+        cutting_mode: "climb",
+        confidence: mcResult.success ? 0.85 : 0.4,
         strengths: this.getCAMStrengths("mastercam", featureType),
         weaknesses: this.getCAMWeaknesses("mastercam", featureType),
       });
@@ -823,6 +825,9 @@ export class CAMAGIMasterOrchestratorEngine {
       });
       if (Array.isArray(millTips)) {
         for (const tip of millTips.slice(0, 10)) {
+          // TribalTip from MillTribalKnowledgeEngine has machine_types/materials/cam_systems
+          // but no `operations` field — leave operations unset on the CAMTribalTip
+          // (it is optional) rather than fabricating data the source did not supply.
           tips.push({
             id: tip.id ?? `MTK-${tips.length}`,
             cam_system: "universal",
@@ -832,7 +837,6 @@ export class CAMAGIMasterOrchestratorEngine {
             source: tip.source,
             confidence: tip.confidence,
             materials: tip.materials,
-            operations: tip.operations,
           });
         }
       }
@@ -1050,8 +1054,8 @@ export class CAMAGIMasterOrchestratorEngine {
 
   // ── Helper Methods ───────────────────────────────────────────────────────
 
-  private mapFeatureToHyperMillGeometry(feature: FeatureType): string {
-    const mapping: Record<FeatureType, string> = {
+  private mapFeatureToHyperMillGeometry(feature: FeatureType): HyperMillGeometryType {
+    const mapping: Record<FeatureType, HyperMillGeometryType> = {
       pocket_2d: "pocket_2d",
       contour_2d: "contour_2d",
       face: "face",
@@ -1072,8 +1076,35 @@ export class CAMAGIMasterOrchestratorEngine {
     return mapping[feature] ?? "freeform_3d";
   }
 
-  private mapFeatureToMastercamGeometry(feature: FeatureType): string {
+  private mapFeatureToMastercamGeometry(feature: FeatureType): HyperMillGeometryType {
     return this.mapFeatureToHyperMillGeometry(feature);
+  }
+
+  /**
+   * Map our FeatureType to Mastercam's narrow StrategyRequest.feature union.
+   * Mastercam categorises features at a coarser level than hyperMILL:
+   * pocket_2d|pocket_3d|contour_2d|contour_3d|hole|slot.
+   */
+  private mapFeatureToMastercamFeature(feature: FeatureType): "pocket_2d" | "pocket_3d" | "contour_2d" | "contour_3d" | "hole" | "slot" {
+    const mapping: Record<FeatureType, "pocket_2d" | "pocket_3d" | "contour_2d" | "contour_3d" | "hole" | "slot"> = {
+      pocket_2d: "pocket_2d",
+      contour_2d: "contour_2d",
+      face: "contour_2d",
+      freeform_3d: "pocket_3d",
+      steep_wall: "contour_3d",
+      impeller: "pocket_3d",
+      turbine_blade: "pocket_3d",
+      mold_core: "pocket_3d",
+      mold_cavity: "pocket_3d",
+      hole_pattern: "hole",
+      thread: "hole",
+      chamfer: "contour_2d",
+      fillet: "contour_3d",
+      slot: "slot",
+      rib: "contour_3d",
+      groove: "slot",
+    };
+    return mapping[feature] ?? "pocket_3d";
   }
 
   private mapFeatureToFusionStrategy(feature: FeatureType, operation: string): string {
@@ -1173,16 +1204,24 @@ export class CAMAGIMasterOrchestratorEngine {
   }
 
   private performAnalysis(request: CAMOrchestrationRequest, steps: ReasoningStep[]): unknown {
-    // Delegate to MillMasterOrchestratorFacadeEngine for physics analysis
+    // Delegate to MillMasterOrchestratorFacadeEngine for physics analysis.
+    // MillOrchestrationRequest groups cutting/tool fields into nested shapes:
+    //   tool: ToolGeometry (diameter_mm, flutes, ...)
+    //   params: CuttingParams (rpm, feed_per_tooth, doc_mm, woc_mm, ...)
+    // The legacy flat layout below was the pre-facade-extend shape.
+    const dia = request.tool_diameter_mm ?? 12;
     const result = millMasterOrchestratorFacadeEngine.orchestrate({
-      type: "scientific",
+      request_type: "scientific",
       material: request.material ?? "4140",
-      operation: request.operation,
-      tool_diameter_mm: request.tool_diameter_mm,
-      cutting_speed_m_min: 100,
-      feed_per_tooth_mm: 0.1,
-      axial_depth_mm: 2,
-      radial_depth_mm: request.tool_diameter_mm ? request.tool_diameter_mm * 0.5 : 6,
+      tool: {
+        diameter_mm: dia,
+        flutes: 4,
+      },
+      params: {
+        feed_per_tooth: 0.1,
+        doc_mm: 2,
+        woc_mm: dia * 0.5,
+      },
     });
     return result;
   }
