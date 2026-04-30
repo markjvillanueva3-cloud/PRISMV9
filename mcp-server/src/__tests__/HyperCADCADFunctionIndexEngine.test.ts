@@ -4,7 +4,7 @@
  * @see U-CAD-FIDX-HCAD-01 (sketch_operations), U-CAD-FIDX-HCAD-02 (solid_operations),
  *      U-CAD-FIDX-HCAD-03 (surface_operations), U-CAD-FIDX-HCAD-04 (healing_operations),
  *      U-CAD-FIDX-HCAD-05 (mesh_operations), U-CAD-FIDX-HCAD-06 (assembly_operations),
- *      U-CAD-FIDX-HCAD-07 (drawing_operations)
+ *      U-CAD-FIDX-HCAD-07 (drawing_operations), U-CAD-FIDX-HCAD-08 (datum_operations) — COMPLETE
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -75,6 +75,15 @@ const KNOWN_DRAWING_OPS = [
   "LAYER", "LINETYPE", "PLOT_STYLE",
 ];
 
+const KNOWN_DATUM_OPS = [
+  "REFERENCE_PLANE",
+  "REFERENCE_AXIS",
+  "REFERENCE_POINT",
+  "COORDINATE_SYSTEM",
+  "REFERENCE_SPLINE_3D",
+  "REFERENCE_POLYLINE_3D",
+];
+
 function sumParamsForModule(moduleId: string): number {
   const mod = HyperCADCADFunctionIndexEngine.getModule(moduleId);
   if (!mod || !mod.operations) return 0;
@@ -113,12 +122,12 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains the seven shipped modules (sketch + solid + surface + healing + mesh + assembly + drawing)", () => {
+    it("modules array contains all eight shipped modules — hyperCAD-S coverage COMPLETE", () => {
       const ids = HyperCADCADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
       expect(ids).toEqual([
         "sketch_operations", "solid_operations", "surface_operations",
         "healing_operations", "mesh_operations", "assembly_operations",
-        "drawing_operations",
+        "drawing_operations", "datum_operations",
       ]);
     });
 
@@ -129,21 +138,37 @@ describe("HyperCADCADFunctionIndexEngine", () => {
     });
   });
 
-  describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 1 deferred module with non-empty scope (only datum_operations remains)", () => {
-      const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(1);
-      for (const f of fm) {
-        expect(f.scope.length).toBeGreaterThan(20);
-        expect(f.estimated_params).toBeGreaterThan(0);
-        expect(f.deferred_to).toMatch(/^U-CAD-FIDX-HCAD-\d+$/);
+  describe("future_modules — expansion roadmap COMPLETE", () => {
+    it("future_modules is empty AND all 8 historically planned modules are now shipped (HCAD-01..HCAD-08)", () => {
+      const idx = HyperCADCADFunctionIndexEngine.getIndex();
+      const fm = idx.future_modules ?? [];
+      // Negative half: nothing left to ship
+      expect(fm).toEqual([]);
+      // Positive half: every historically planned module ID appears in shipped modules with substantive metadata
+      const shippedIds = idx.modules.map((m) => m.module_id);
+      const HISTORICAL_PLAN = [
+        "sketch_operations", "solid_operations", "surface_operations",
+        "healing_operations", "mesh_operations", "assembly_operations",
+        "drawing_operations", "datum_operations",
+      ];
+      for (const planned of HISTORICAL_PLAN) {
+        expect(shippedIds).toContain(planned);
+        const entry = idx.modules.find((m) => m.module_id === planned);
+        expect(entry?.parameter_count_estimate ?? 0).toBeGreaterThan(0);
+        expect((entry?.description ?? "").length).toBeGreaterThan(20);
       }
     });
 
-    it("planned_ids cover datum only (drawing moved to shipped)", () => {
-      const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
-      const ids = fm.map((f) => f.planned_id).sort();
-      expect(ids).toEqual(["datum_operations"]);
+    it("coverage_summary marks the api_surface as COMPLETE with all 8 unit tags accounted for", () => {
+      const idx = HyperCADCADFunctionIndexEngine.getIndex();
+      const cs = idx.coverage_summary;
+      expect(cs.total_modules).toBe(8);
+      expect(cs.total_units_covered).toEqual([
+        "U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03",
+        "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05", "U-CAD-FIDX-HCAD-06",
+        "U-CAD-FIDX-HCAD-07", "U-CAD-FIDX-HCAD-08",
+      ]);
+      expect((cs.api_surface as { coverage_state?: string }).coverage_state).toBe("COMPLETE");
     });
 
     it("healing_operations promoted from future_modules to shipped (HCAD-04) — appears in modules with U-CAD-FIDX-HCAD-04 tag and >=80 params", () => {
@@ -160,7 +185,7 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns the seven shipped modules in declared order", () => {
+    it("listModules returns all eight shipped modules in declared order", () => {
       expect(HyperCADCADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "solid_operations",
@@ -169,6 +194,7 @@ describe("HyperCADCADFunctionIndexEngine", () => {
         "mesh_operations",
         "assembly_operations",
         "drawing_operations",
+        "datum_operations",
       ]);
     });
 
@@ -234,6 +260,15 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(entry?.dependencies).toEqual(["solid_operations", "assembly_operations"]);
     });
 
+    it("getModuleEntry('datum_operations') has the U-CAD-FIDX-HCAD-08 tag and 56 params with no dependencies (foundational scaffolding)", () => {
+      const entry = HyperCADCADFunctionIndexEngine.getModuleEntry("datum_operations");
+      expect(entry?.module_id).toBe("datum_operations");
+      expect(entry?.path).toBe("cad-functions/hypercad/datum-operations.json");
+      expect(entry?.covered_units).toEqual(["U-CAD-FIDX-HCAD-08"]);
+      expect(entry?.parameter_count_estimate).toBe(56);
+      expect(entry?.dependencies).toEqual([]);
+    });
+
     it("getModuleEntry returns null for unknown module", () => {
       expect(HyperCADCADFunctionIndexEngine.getModuleEntry("nonexistent_xyz")).toBeNull();
     });
@@ -246,7 +281,7 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(ops.sort()).toEqual([...KNOWN_SKETCH_OPS].sort());
     });
 
-    it("listAllOperations sums sketch + solid + surface + healing + mesh + assembly + drawing module operation counts", () => {
+    it("listAllOperations sums all 8 module operation counts", () => {
       const all = HyperCADCADFunctionIndexEngine.listAllOperations();
       const sketch = HyperCADCADFunctionIndexEngine.listOperations("sketch_operations");
       const solid = HyperCADCADFunctionIndexEngine.listOperations("solid_operations");
@@ -255,10 +290,12 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       const mesh = HyperCADCADFunctionIndexEngine.listOperations("mesh_operations");
       const assembly = HyperCADCADFunctionIndexEngine.listOperations("assembly_operations");
       const drawing = HyperCADCADFunctionIndexEngine.listOperations("drawing_operations");
+      const datum = HyperCADCADFunctionIndexEngine.listOperations("datum_operations");
       expect(all.length).toBe(
-        sketch.length + solid.length + surface.length + healing.length + mesh.length + assembly.length + drawing.length,
+        sketch.length + solid.length + surface.length + healing.length + mesh.length
+        + assembly.length + drawing.length + datum.length,
       );
-      expect(all.length).toBe(154);
+      expect(all.length).toBe(160);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -1508,6 +1545,162 @@ describe("HyperCADCADFunctionIndexEngine", () => {
     });
   });
 
+  describe("listOperations — datum_operations module", () => {
+    it("returns exactly 6 datum operations matching the canonical hyperCAD-S datum list", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("datum_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(6);
+      expect(ops.sort()).toEqual([...KNOWN_DATUM_OPS].sort());
+    });
+  });
+
+  describe("Datum_Plane — 10-mode reference plane", () => {
+    it("REFERENCE_PLANE enumerates all 10 standard creation modes per OPEN MIND reference manual", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_PLANE");
+      const mode = op?.tabs?.["References"]?.parameters?.find((p) => p.name === "Mode");
+      expect(mode?.options).toEqual([
+        "offset_from_plane",
+        "three_points",
+        "tangent_to_face",
+        "midplane",
+        "normal_to_curve",
+        "through_two_edges",
+        "angle_to_plane",
+        "projection_of_curve",
+        "coordinate_aligned",
+        "from_axis_pair",
+      ]);
+      expect(mode?.options).toHaveLength(10);
+      expect(mode?.required).toBe(true);
+    });
+
+    it("REFERENCE_PLANE Curve Parameter is bounded [0, 1] for normal_to_curve mode", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_PLANE");
+      const cp = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Curve Parameter");
+      expect(cp?.min).toBe(0);
+      expect(cp?.max).toBe(1);
+      expect(cp?.default).toBe(0.5);
+    });
+
+    it("REFERENCE_PLANE coordinate_aligned mode exposes XY/XZ/YZ origin-plane choices", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_PLANE");
+      const cp = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Coordinate Plane");
+      expect(cp?.options).toEqual(["XY", "XZ", "YZ"]);
+    });
+  });
+
+  describe("Datum_Axis — 8-mode reference axis", () => {
+    it("REFERENCE_AXIS enumerates all 8 standard creation modes per OPEN MIND reference manual", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_AXIS");
+      const mode = op?.tabs?.["References"]?.parameters?.find((p) => p.name === "Mode");
+      expect(mode?.options).toEqual([
+        "two_points",
+        "edge_or_line",
+        "intersection_two_planes",
+        "normal_to_face_at_point",
+        "through_cylindrical_face",
+        "through_conical_face_axis",
+        "from_three_points_normal",
+        "coordinate_axis",
+      ]);
+      expect(mode?.options).toHaveLength(8);
+    });
+
+    it("REFERENCE_AXIS supports finite/ray/infinite length modes (default finite for editor display)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_AXIS");
+      const lm = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Length Mode");
+      expect(lm?.options).toEqual(["finite", "ray", "infinite"]);
+      expect(lm?.default).toBe("finite");
+    });
+
+    it("REFERENCE_AXIS coordinate_axis mode targets X / Y / Z world axes", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_AXIS");
+      const ca = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Coordinate Axis");
+      expect(ca?.options).toEqual(["X", "Y", "Z"]);
+    });
+  });
+
+  describe("Datum_Point — 12-mode reference point", () => {
+    it("REFERENCE_POINT enumerates all 12 standard creation modes per OPEN MIND reference manual", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_POINT");
+      const mode = op?.tabs?.["References"]?.parameters?.find((p) => p.name === "Mode");
+      expect(mode?.options).toEqual([
+        "absolute_xyz",
+        "relative_to_point",
+        "midpoint_of_edge",
+        "endpoint_of_edge",
+        "intersection_of_lines",
+        "intersection_curve_surface",
+        "projection_to_face",
+        "center_of_circle_arc",
+        "center_of_face",
+        "centroid_of_body",
+        "by_curve_parameter",
+        "by_face_uv",
+      ]);
+      expect(mode?.options).toHaveLength(12);
+    });
+
+    it("REFERENCE_POINT by_face_uv exposes both U and V bounded to [0, 1]", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_POINT");
+      const u = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "U");
+      const v = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "V");
+      expect(u?.min).toBe(0);
+      expect(u?.max).toBe(1);
+      expect(v?.min).toBe(0);
+      expect(v?.max).toBe(1);
+    });
+  });
+
+  describe("Datum_CoordSys — 6-mode coordinate system with hyperMILL WCS bridge", () => {
+    it("COORDINATE_SYSTEM enumerates all 6 standard alignment strategies", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "COORDINATE_SYSTEM");
+      const mode = op?.tabs?.["References"]?.parameters?.find((p) => p.name === "Mode");
+      expect(mode?.options).toEqual([
+        "origin_x_y",
+        "origin_two_axes",
+        "three_points",
+        "from_face",
+        "aligned_to_world",
+        "from_existing_coordsys",
+      ]);
+      expect(mode?.options).toHaveLength(6);
+    });
+
+    it("COORDINATE_SYSTEM exposes WCS Tag for hyperMILL post-processor offset register emission", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "COORDINATE_SYSTEM");
+      const tag = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "WCS Tag");
+      expect(tag?.type).toBe("text");
+      expect(tag?.description ?? "").toMatch(/G54|WCS|NC/i);
+    });
+  });
+
+  describe("Datum_Curve — 3D reference spline + polyline", () => {
+    it("getOperationsByCategory enumerates exactly 2 Datum_Curve operations", () => {
+      const curves = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Datum_Curve", "datum_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(curves).toEqual(["REFERENCE_POLYLINE_3D", "REFERENCE_SPLINE_3D"]);
+    });
+
+    it("REFERENCE_SPLINE_3D shares 3-mode + knot-vector taxonomy with sketch SPLINE op", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_SPLINE_3D");
+      const mode = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Mode");
+      const knot = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Knot Vector Type");
+      expect(mode?.options).toEqual(["interpolation", "control_polygon"]);
+      expect(mode?.default).toBe("interpolation");
+      expect(knot?.options).toEqual(["uniform", "centripetal", "chord_length"]);
+      expect(knot?.default).toBe("centripetal");
+    });
+
+    it("REFERENCE_POLYLINE_3D supports auto-smoothing of sharp corners (off by default to preserve facets)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", "REFERENCE_POLYLINE_3D");
+      const smooth = op?.tabs?.["Geometry"]?.parameters?.find((p) => p.name === "Auto Smooth Sharp Corners");
+      expect(smooth?.type).toBe("checkbox");
+      expect(smooth?.default).toBe(false);
+    });
+  });
+
   describe("findParameter — happy path + 3 failure modes", () => {
     it("locates LINE.Mode with full option set", () => {
       const loc = HyperCADCADFunctionIndexEngine.findParameter("sketch_operations", "LINE", "Mode");
@@ -1546,8 +1739,8 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount + per-module drift guard", () => {
-    it("counts exactly 945 parameters across all 7 shipped modules (242 sketch + 214 solid + 148 surface + 83 healing + 66 mesh + 74 assembly + 118 drawing)", () => {
-      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(945);
+    it("counts exactly 1001 parameters across all 8 shipped modules (242+214+148+83+66+74+118+56)", () => {
+      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(1001);
     });
 
     it("sketch module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
@@ -1599,7 +1792,14 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(drawingDeclared).toBe(118);
     });
 
-    it("getTotalParameterCount equals the sum of per-module computed totals", () => {
+    it("datum module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
+      const datumTotal = sumParamsForModule("datum_operations");
+      const datumDeclared = (HyperCADCADFunctionIndexEngine.getModule("datum_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(datumTotal).toBe(56);
+      expect(datumDeclared).toBe(56);
+    });
+
+    it("getTotalParameterCount equals the sum of per-module computed totals across all 8 modules", () => {
       const sketchTotal = sumParamsForModule("sketch_operations");
       const solidTotal = sumParamsForModule("solid_operations");
       const surfaceTotal = sumParamsForModule("surface_operations");
@@ -1607,8 +1807,10 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       const meshTotal = sumParamsForModule("mesh_operations");
       const assemblyTotal = sumParamsForModule("assembly_operations");
       const drawingTotal = sumParamsForModule("drawing_operations");
+      const datumTotal = sumParamsForModule("datum_operations");
       expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        sketchTotal + solidTotal + surfaceTotal + healingTotal + meshTotal + assemblyTotal + drawingTotal,
+        sketchTotal + solidTotal + surfaceTotal + healingTotal + meshTotal
+        + assemblyTotal + drawingTotal + datumTotal,
       );
     });
   });
@@ -1696,6 +1898,17 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       const failures: string[] = [];
       for (const opInfo of ops) {
         const op = HyperCADCADFunctionIndexEngine.getOperation("drawing_operations", opInfo.operation_id);
+        const desc = op?.description ?? "";
+        if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
+      }
+      expect(failures).toEqual([]);
+    });
+
+    it("every datum op has a substantive description", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("datum_operations");
+      const failures: string[] = [];
+      for (const opInfo of ops) {
+        const op = HyperCADCADFunctionIndexEngine.getOperation("datum_operations", opInfo.operation_id);
         const desc = op?.description ?? "";
         if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
       }
