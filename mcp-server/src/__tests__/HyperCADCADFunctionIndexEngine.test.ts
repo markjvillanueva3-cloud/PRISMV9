@@ -3,7 +3,7 @@
  * @see src/engines/HyperCADCADFunctionIndexEngine.ts
  * @see U-CAD-FIDX-HCAD-01 (sketch_operations), U-CAD-FIDX-HCAD-02 (solid_operations),
  *      U-CAD-FIDX-HCAD-03 (surface_operations), U-CAD-FIDX-HCAD-04 (healing_operations),
- *      U-CAD-FIDX-HCAD-05 (mesh_operations)
+ *      U-CAD-FIDX-HCAD-05 (mesh_operations), U-CAD-FIDX-HCAD-06 (assembly_operations)
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -55,6 +55,15 @@ const KNOWN_MESH_OPS = [
   "MESH_SLICE_FOR_ADDITIVE",
 ];
 
+const KNOWN_ASSEMBLY_OPS = [
+  "INSERT_COMPONENT", "REPLACE_COMPONENT", "EDIT_IN_PLACE", "FIX_COMPONENT",
+  "JOINT",
+  "COMPONENT_PATTERN", "COMPONENT_MIRROR",
+  "HIDE_COMPONENT", "SHOW_ONLY", "SUPPRESS_COMPONENT", "GROUP_COMPONENTS",
+  "COMPONENT_TREE",
+  "BOM_EXTRACT", "MASS_PROPERTIES", "INTERFERENCE_CHECK",
+];
+
 function sumParamsForModule(moduleId: string): number {
   const mod = HyperCADCADFunctionIndexEngine.getModule(moduleId);
   if (!mod || !mod.operations) return 0;
@@ -93,11 +102,11 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains the five shipped modules (sketch + solid + surface + healing + mesh)", () => {
+    it("modules array contains the six shipped modules (sketch + solid + surface + healing + mesh + assembly)", () => {
       const ids = HyperCADCADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
       expect(ids).toEqual([
         "sketch_operations", "solid_operations", "surface_operations",
-        "healing_operations", "mesh_operations",
+        "healing_operations", "mesh_operations", "assembly_operations",
       ]);
     });
 
@@ -109,9 +118,9 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 3 deferred modules with non-empty scopes (sketch+solid+surface+healing+mesh now shipped)", () => {
+    it("declares exactly 2 deferred modules with non-empty scopes (sketch+solid+surface+healing+mesh+assembly now shipped)", () => {
       const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(3);
+      expect(fm.length).toBe(2);
       for (const f of fm) {
         expect(f.scope.length).toBeGreaterThan(20);
         expect(f.estimated_params).toBeGreaterThan(0);
@@ -119,11 +128,10 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       }
     });
 
-    it("planned_ids cover assembly/drawing/datum (mesh moved to shipped)", () => {
+    it("planned_ids cover drawing/datum (assembly moved to shipped)", () => {
       const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
       expect(ids).toEqual([
-        "assembly_operations",
         "datum_operations",
         "drawing_operations",
       ]);
@@ -143,13 +151,14 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns the five shipped modules in declared order", () => {
+    it("listModules returns the six shipped modules in declared order", () => {
       expect(HyperCADCADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "solid_operations",
         "surface_operations",
         "healing_operations",
         "mesh_operations",
+        "assembly_operations",
       ]);
     });
 
@@ -197,6 +206,15 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(entry?.dependencies).toEqual(["surface_operations"]);
     });
 
+    it("getModuleEntry('assembly_operations') has the U-CAD-FIDX-HCAD-06 tag and 74 params with solid dependency", () => {
+      const entry = HyperCADCADFunctionIndexEngine.getModuleEntry("assembly_operations");
+      expect(entry?.module_id).toBe("assembly_operations");
+      expect(entry?.path).toBe("cad-functions/hypercad/assembly-operations.json");
+      expect(entry?.covered_units).toEqual(["U-CAD-FIDX-HCAD-06"]);
+      expect(entry?.parameter_count_estimate).toBe(74);
+      expect(entry?.dependencies).toEqual(["solid_operations"]);
+    });
+
     it("getModuleEntry returns null for unknown module", () => {
       expect(HyperCADCADFunctionIndexEngine.getModuleEntry("nonexistent_xyz")).toBeNull();
     });
@@ -209,15 +227,18 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(ops.sort()).toEqual([...KNOWN_SKETCH_OPS].sort());
     });
 
-    it("listAllOperations sums sketch + solid + surface + healing + mesh module operation counts", () => {
+    it("listAllOperations sums sketch + solid + surface + healing + mesh + assembly module operation counts", () => {
       const all = HyperCADCADFunctionIndexEngine.listAllOperations();
       const sketch = HyperCADCADFunctionIndexEngine.listOperations("sketch_operations");
       const solid = HyperCADCADFunctionIndexEngine.listOperations("solid_operations");
       const surface = HyperCADCADFunctionIndexEngine.listOperations("surface_operations");
       const healing = HyperCADCADFunctionIndexEngine.listOperations("healing_operations");
       const mesh = HyperCADCADFunctionIndexEngine.listOperations("mesh_operations");
-      expect(all.length).toBe(sketch.length + solid.length + surface.length + healing.length + mesh.length);
-      expect(all.length).toBe(118);
+      const assembly = HyperCADCADFunctionIndexEngine.listOperations("assembly_operations");
+      expect(all.length).toBe(
+        sketch.length + solid.length + surface.length + healing.length + mesh.length + assembly.length,
+      );
+      expect(all.length).toBe(133);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -1079,6 +1100,192 @@ describe("HyperCADCADFunctionIndexEngine", () => {
     });
   });
 
+  describe("listOperations — assembly_operations module", () => {
+    it("returns exactly 15 assembly operations matching the canonical hyperCAD-S assembly list", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("assembly_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(15);
+      expect(ops.sort()).toEqual([...KNOWN_ASSEMBLY_OPS].sort());
+    });
+  });
+
+  describe("Assembly_Component — 4 component lifecycle ops", () => {
+    it("getOperationsByCategory enumerates exactly 4 Assembly_Component operations", () => {
+      const comp = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Assembly_Component", "assembly_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(comp).toEqual(["EDIT_IN_PLACE", "FIX_COMPONENT", "INSERT_COMPONENT", "REPLACE_COMPONENT"]);
+    });
+
+    it("INSERT_COMPONENT exposes 3 reference modes with linked default", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "INSERT_COMPONENT");
+      const ref = op?.tabs?.["Component"]?.parameters?.find((p) => p.name === "Reference Mode");
+      expect(ref?.options).toEqual(["linked", "embedded", "linked_with_local_overrides"]);
+      expect(ref?.default).toBe("linked");
+    });
+
+    it("REPLACE_COMPONENT mate-resolution covers 4 strategies, defaulting to topology-based preservation", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "REPLACE_COMPONENT");
+      const res = op?.tabs?.["Constraint"]?.parameters?.find((p) => p.name === "Mate Resolution");
+      expect(res?.options).toEqual([
+        "preserve_by_face_id", "preserve_by_name", "preserve_by_topology", "drop_unresolved",
+      ]);
+      expect(res?.default).toBe("preserve_by_topology");
+    });
+
+    it("FIX_COMPONENT supports 3 lock modes (full_6dof / translation / rotation)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "FIX_COMPONENT");
+      const mode = op?.tabs?.["Component"]?.parameters?.find((p) => p.name === "Fix Mode");
+      expect(mode?.options).toEqual(["full_6dof", "translation_only", "rotation_only"]);
+      expect(mode?.default).toBe("full_6dof");
+    });
+
+    it("EDIT_IN_PLACE locks siblings by default to prevent cross-edits", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "EDIT_IN_PLACE");
+      const lock = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Lock Other Components");
+      expect(lock?.type).toBe("checkbox");
+      expect(lock?.default).toBe(true);
+    });
+  });
+
+  describe("Assembly_Joint — 6-kinematics joint op", () => {
+    it("JOINT enumerates the 6 standard kinematic types covering machinist + fixture needs", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "JOINT");
+      const jtype = op?.tabs?.["Constraint"]?.parameters?.find((p) => p.name === "Joint Type");
+      expect(jtype?.options).toEqual([
+        "rigid", "revolute", "slider", "cylindrical", "planar", "ball",
+      ]);
+      expect(jtype?.default).toBe("rigid");
+      expect(jtype?.required).toBe(true);
+    });
+
+    it("JOINT requires both component selections and a per-component reference frame", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "JOINT");
+      const compA = op?.tabs?.["Component"]?.parameters?.find((p) => p.name === "Component A");
+      const compB = op?.tabs?.["Component"]?.parameters?.find((p) => p.name === "Component B");
+      const refA = op?.tabs?.["Component"]?.parameters?.find((p) => p.name === "Reference A");
+      const refB = op?.tabs?.["Component"]?.parameters?.find((p) => p.name === "Reference B");
+      expect(compA?.required).toBe(true);
+      expect(compB?.required).toBe(true);
+      expect(refA?.required).toBe(true);
+      expect(refB?.required).toBe(true);
+    });
+  });
+
+  describe("Assembly_Pattern — 2 instancing ops", () => {
+    it("getOperationsByCategory enumerates exactly 2 Assembly_Pattern operations", () => {
+      const pat = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Assembly_Pattern", "assembly_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(pat).toEqual(["COMPONENT_MIRROR", "COMPONENT_PATTERN"]);
+    });
+
+    it("COMPONENT_PATTERN exposes 4 layout types (linear/circular/sketch_points/along_path)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "COMPONENT_PATTERN");
+      const ptype = op?.tabs?.["Placement"]?.parameters?.find((p) => p.name === "Pattern Type");
+      expect(ptype?.options).toEqual(["linear", "circular", "sketch_points", "along_path"]);
+      expect(ptype?.required).toBe(true);
+    });
+
+    it("COMPONENT_MIRROR defaults to linked instances, with a 'Create New Components' opt-in for handed parts", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "COMPONENT_MIRROR");
+      const newComp = op?.tabs?.["Placement"]?.parameters?.find((p) => p.name === "Create New Components");
+      const suffix = op?.tabs?.["Placement"]?.parameters?.find((p) => p.name === "Suffix For New Components");
+      expect(newComp?.default).toBe(false);
+      expect(suffix?.default).toBe("_mirror");
+    });
+  });
+
+  describe("Assembly_Visibility — 4 visibility/organization ops", () => {
+    it("getOperationsByCategory enumerates exactly 4 Assembly_Visibility operations", () => {
+      const vis = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Assembly_Visibility", "assembly_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(vis).toEqual([
+        "GROUP_COMPONENTS", "HIDE_COMPONENT", "SHOW_ONLY", "SUPPRESS_COMPONENT",
+      ]);
+    });
+
+    it("HIDE_COMPONENT scope distinguishes active_viewport vs all_viewports (default active only)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "HIDE_COMPONENT");
+      const scope = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Scope");
+      expect(scope?.options).toEqual(["active_viewport", "all_viewports"]);
+      expect(scope?.default).toBe("active_viewport");
+    });
+
+    it("SHOW_ONLY includes both ancestors and descendants by default for a clean isolation view", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "SHOW_ONLY");
+      const anc = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Include Ancestors");
+      const desc = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Include Descendants");
+      expect(anc?.default).toBe(true);
+      expect(desc?.default).toBe(true);
+    });
+
+    it("SUPPRESS_COMPONENT supports an audit reason tag (distinguishes design intent vs forgotten suppression)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "SUPPRESS_COMPONENT");
+      const reason = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Reason Tag");
+      expect(reason?.type).toBe("text");
+      expect(reason?.description ?? "").toMatch(/audit|why/i);
+    });
+  });
+
+  describe("Assembly_Tree — component-tree query", () => {
+    it("COMPONENT_TREE supports 3 output formats with nested_json default for downstream tooling", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "COMPONENT_TREE");
+      const fmt = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Output Format");
+      expect(fmt?.options).toEqual(["nested_json", "flat_list", "indented_text"]);
+      expect(fmt?.default).toBe("nested_json");
+    });
+
+    it("COMPONENT_TREE Max Depth is non-negative and 0 means unlimited recursion", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "COMPONENT_TREE");
+      const d = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Max Depth");
+      expect(d?.min).toBe(0);
+      expect(d?.default).toBe(0);
+      expect(d?.description ?? "").toMatch(/unlimited|0\s*=/i);
+    });
+  });
+
+  describe("Assembly_Analysis — 3 BOM/mass/interference QA ops", () => {
+    it("getOperationsByCategory enumerates exactly 3 Assembly_Analysis operations", () => {
+      const ana = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Assembly_Analysis", "assembly_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ana).toEqual(["BOM_EXTRACT", "INTERFERENCE_CHECK", "MASS_PROPERTIES"]);
+    });
+
+    it("BOM_EXTRACT supports 3 aggregations and 3 output formats for ERP handoff", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "BOM_EXTRACT");
+      const agg = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Aggregation");
+      const fmt = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Output Format");
+      expect(agg?.options).toEqual(["flat", "indented", "parts_only"]);
+      expect(agg?.default).toBe("indented");
+      expect(fmt?.options).toEqual(["json", "csv", "excel"]);
+      expect(fmt?.default).toBe("csv");
+    });
+
+    it("MASS_PROPERTIES supports 3 reference frames for inertia-tensor expression", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "MASS_PROPERTIES");
+      const frame = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Reference Frame");
+      expect(frame?.options).toEqual(["world", "assembly_origin", "selected_axis_system"]);
+      expect(frame?.default).toBe("world");
+    });
+
+    it("INTERFERENCE_CHECK supports both interference and clearance modes with sane minimum-clearance default", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", "INTERFERENCE_CHECK");
+      const mode = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Mode");
+      const clear = op?.tabs?.["Properties"]?.parameters?.find((p) => p.name === "Minimum Clearance");
+      expect(mode?.options).toEqual(["interference_only", "clearance_check", "both"]);
+      expect(mode?.default).toBe("interference_only");
+      expect(clear?.unit).toBe("mm");
+      expect(clear?.default).toBe(0.5);
+      expect(clear?.min).toBe(0);
+    });
+  });
+
   describe("findParameter — happy path + 3 failure modes", () => {
     it("locates LINE.Mode with full option set", () => {
       const loc = HyperCADCADFunctionIndexEngine.findParameter("sketch_operations", "LINE", "Mode");
@@ -1117,8 +1324,8 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount + per-module drift guard", () => {
-    it("counts exactly 753 parameters across all 5 shipped modules (242 sketch + 214 solid + 148 surface + 83 healing + 66 mesh)", () => {
-      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(753);
+    it("counts exactly 827 parameters across all 6 shipped modules (242 sketch + 214 solid + 148 surface + 83 healing + 66 mesh + 74 assembly)", () => {
+      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(827);
     });
 
     it("sketch module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
@@ -1156,14 +1363,22 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(meshDeclared).toBe(66);
     });
 
+    it("assembly module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
+      const assemblyTotal = sumParamsForModule("assembly_operations");
+      const assemblyDeclared = (HyperCADCADFunctionIndexEngine.getModule("assembly_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(assemblyTotal).toBe(74);
+      expect(assemblyDeclared).toBe(74);
+    });
+
     it("getTotalParameterCount equals the sum of per-module computed totals", () => {
       const sketchTotal = sumParamsForModule("sketch_operations");
       const solidTotal = sumParamsForModule("solid_operations");
       const surfaceTotal = sumParamsForModule("surface_operations");
       const healingTotal = sumParamsForModule("healing_operations");
       const meshTotal = sumParamsForModule("mesh_operations");
+      const assemblyTotal = sumParamsForModule("assembly_operations");
       expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        sketchTotal + solidTotal + surfaceTotal + healingTotal + meshTotal,
+        sketchTotal + solidTotal + surfaceTotal + healingTotal + meshTotal + assemblyTotal,
       );
     });
   });
@@ -1229,6 +1444,17 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       const failures: string[] = [];
       for (const opInfo of ops) {
         const op = HyperCADCADFunctionIndexEngine.getOperation("mesh_operations", opInfo.operation_id);
+        const desc = op?.description ?? "";
+        if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
+      }
+      expect(failures).toEqual([]);
+    });
+
+    it("every assembly op has a substantive description", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("assembly_operations");
+      const failures: string[] = [];
+      for (const opInfo of ops) {
+        const op = HyperCADCADFunctionIndexEngine.getOperation("assembly_operations", opInfo.operation_id);
         const desc = op?.description ?? "";
         if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
       }

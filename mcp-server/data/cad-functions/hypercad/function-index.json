@@ -45,6 +45,14 @@
       "parameter_count_estimate": 66,
       "description": "Mesh modeling: 1 import op (Insert STL/OBJ/PLY/3MF/scan), 2 conversion ops (Convert-to-BRep / Convert-to-Surface), 4 modify ops (Reduce / Smooth / Repair / Remesh), 1 Boolean op (mesh-mesh union/subtract/intersect), 2 cut ops (Plane-Cut / Clip-Volume), 1 feature-extraction op (Extract-Feature-Lines for hyperMILL toolpaths), and 1 additive prep op (Slice-For-Additive). Extract-Feature-Lines is a direct path from scan data to NC code without going through surface fit.",
       "dependencies": ["surface_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/hypercad/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-06"],
+      "parameter_count_estimate": 74,
+      "description": "Assembly modeling: 4 component ops (Insert / Replace / Edit-In-Place / Fix), 1 joint op covering 6 kinematic types (rigid/revolute/slider/cylindrical/planar/ball), 2 pattern ops (Component-Pattern / Component-Mirror), 4 visibility ops (Hide / Show-Only / Suppress / Group), 1 tree-navigation op (Component-Tree), and 3 analysis ops (BOM-Extract / Mass-Properties / Interference-Check). Interference-Check is the QA gate before fixture / multi-part hyperMILL job submission.",
+      "dependencies": ["solid_operations"]
     }
   ],
   "global_cross_references": {
@@ -65,22 +73,24 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 5,
-    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05"],
-    "estimated_parameter_total": 753,
+    "total_modules": 6,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05", "U-CAD-FIDX-HCAD-06"],
+    "estimated_parameter_total": 827,
     "api_surface": {
-      "macro_api_items": 118,
-      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair + Mesh_Modeler"
+      "macro_api_items": 133,
+      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair + Mesh_Modeler + Assembly"
     },
     "pdf_sources_bound": [
       "OPEN MIND hyperCAD-S User Manual",
       "OPEN MIND hyperCAD-S Macro Reference",
       "OPEN MIND hyperCAD-S Healing Reference",
       "OPEN MIND hyperCAD-S Mesh Reference",
+      "OPEN MIND hyperCAD-S Assembly Reference",
       "hyperMILL Integration Reference",
       "hyperMILL Hole Feature Reference",
       "hyperMILL Surface Machining Reference",
-      "hyperMILL Feature-Line Toolpath Reference"
+      "hyperMILL Feature-Line Toolpath Reference",
+      "hyperMILL Multi-Part Machining Guide"
     ]
   },
   "tribal_knowledge_integration": {
@@ -101,12 +111,6 @@
     "macro_recording": true
   },
   "future_modules": [
-    {
-      "planned_id": "assembly_operations",
-      "scope": "Insert-Component / Pattern / Mirror / Joint / Fix-Component / Group / Hide / Show-Only / Suppress / Replace-Component / Edit-In-Place / Component-Tree / BOM-extract / Mass-Properties / Interference-Check",
-      "estimated_params": 120,
-      "deferred_to": "U-CAD-FIDX-HCAD-06"
-    },
     {
       "planned_id": "drawing_operations",
       "scope": "Standard-projection-views (front/top/right/iso), Auxiliary, Section (full / half / aligned / offset / broken), Detail, Broken-out, Crop. Annotations: Linear-dim / Angular-dim / Radius / Diameter / Chamfer / Note / Symbol / GD&T-frame / Hatching / Title-block / Revision-table / BOM-table. Layers, Linetypes, Plot-styles.",
