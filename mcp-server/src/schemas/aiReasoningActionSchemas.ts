@@ -201,6 +201,9 @@ export const AI_REASONING_ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE48: LaserLoRADatasetBuilderEngine - thickness-bucket-stratified, pierce-fail-boosted builder
   "laser_lora_build_dataset",      // U-WIRE48: build dataset; thicknessBucket (thin/medium/thick/heavy) stratifies; pierce-fail boosts weight to ≥3.0
   "laser_lora_required_schema",    // U-WIRE48: report required feature + actual keys (laser-specific; pierce_success is boolean)
+  // ENGINE-WIRE-MS0/U-WIRE49: SinkerEDMLoRADatasetBuilderEngine - aspect-ratio-stratified, deep-cavity-boosted builder
+  "sinker_edm_lora_build_dataset",   // U-WIRE49: build dataset; complexity (simple/moderate/deep) stratifies; depth/width>5 boosts weight to ≥2.0
+  "sinker_edm_lora_required_schema", // U-WIRE49: report required feature + actual keys (sinker-EDM-specific)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1776,4 +1779,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
   }).passthrough(),
   laser_lora_required_schema: z.object({}).passthrough(),
+  // U-WIRE49 - SinkerEDMLoRADatasetBuilderEngine
+  // Same RawJob umbrella shape. Engine-layer enforces feature keys
+  // (material/electrode_material/cavity_depth_mm/cavity_width_mm/
+  // electrode_count) and three actuals (total_wear_mm/achieved_ra_um/
+  // cycle_time_min) all finite numbers ≥0. Deep cavities (depth/width
+  // > 5) get auto-labeled "deep-cavity" and weight-boosted to ≥2.0.
+  sinker_edm_lora_build_dataset: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1),
+      fingerprint: z.record(z.string(), z.union([z.string(), z.number()])),
+      features: z.record(z.string(), z.unknown()),
+      actual: z.record(z.string(), z.unknown()),
+      weight: z.number().finite().optional(),
+      labels: z.array(z.string()).optional(),
+    }).passthrough()).min(0).describe("Empty array yields a zero-row dataset with valid stats"),
+    split: z.object({
+      trainRatio: z.number().min(0).max(1),
+      valRatio: z.number().min(0).max(1),
+      testRatio: z.number().min(0).max(1),
+      seed: z.number().finite(),
+      stratifyBy: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  sinker_edm_lora_required_schema: z.object({}).passthrough(),
 };

@@ -1843,6 +1843,32 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE49: SinkerEDMLoRADatasetBuilderEngine — aspect-
+      // ratio-stratified Alpaca dataset builder. enrichFingerprint() bins the
+      // depth/width aspect ratio into simple (≤2) / moderate (2-5) / deep
+      // (>5) and stamps the bucket as fingerprint.complexity. Validate()
+      // side-effect: deep cavities (aspect > 5) auto-label "deep-cavity"
+      // and boost weight to max(weight, 2.0) — preserves rare deep-pocket
+      // training examples that would otherwise be drowned by simple cavities.
+      // ─────────────────────────────────────────────────────────────────────
+      case "sinker_edm_lora_build_dataset": {
+        const { sinkerEDMLoRADatasetBuilderEngine } = await import("../../engines/SinkerEDMLoRADatasetBuilderEngine.js");
+        type JobsArg = Parameters<typeof sinkerEDMLoRADatasetBuilderEngine.buildDataset>[0];
+        type SplitArg = Parameters<typeof sinkerEDMLoRADatasetBuilderEngine.buildDataset>[1];
+        const p = params as { jobs: JobsArg; split?: SplitArg };
+        result = p.split !== undefined
+          ? sinkerEDMLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split)
+          : sinkerEDMLoRADatasetBuilderEngine.buildDataset(p.jobs);
+        break;
+      }
+      case "sinker_edm_lora_required_schema": {
+        const { sinkerEDMLoRADatasetBuilderEngine } = await import("../../engines/SinkerEDMLoRADatasetBuilderEngine.js");
+        const schema = sinkerEDMLoRADatasetBuilderEngine.requiredSchema();
+        result = { features: [...schema.features], actuals: [...schema.actuals] };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
