@@ -40,6 +40,7 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  CANONICAL_MILLING_SPEEDS,
 } from "../physics/constants.js";
 
 // ════════════════════════════════════════════════════════════════════════════════
@@ -328,12 +329,16 @@ function resolveMaterial(mat: iMachiningMaterial): {
   let taylor_C = taylor.C;
   let taylor_n = taylor.n;
 
-  // Override from material DB if key provided
+  // Override from material DB if key provided. MaterialEntry carries
+  // taylor_C/taylor_n directly (denormalised) but kc1_1/mc/vc_base live
+  // in iso-keyed canonical tables — read them via the entry's iso_group.
   if (mat.material_key && CANONICAL_MATERIAL_DB[mat.material_key]) {
     const db = CANONICAL_MATERIAL_DB[mat.material_key];
-    kc1_1 = db.kc1_1;
-    mc = db.mc;
-    vc_base = db.vc_base_roughing;
+    const dbKienzle = CANONICAL_KIENZLE[db.iso_group];
+    const dbSpeeds = CANONICAL_MILLING_SPEEDS[db.iso_group];
+    kc1_1 = dbKienzle.kc1_1;
+    mc = dbKienzle.mc;
+    vc_base = dbSpeeds.rough;
     taylor_C = db.taylor_C;
     taylor_n = db.taylor_n;
   }
@@ -477,9 +482,10 @@ function technologyWizard(
   const ap_mm = ap_factor * D;
   const vc_factor = base.vc_factor * vc_scale * rigidity;
 
-  // Get base Vc from canonical DB
+  // Get base Vc from canonical milling speeds table (keyed by ISO group).
+  // CANONICAL_MATERIAL_DB lookup just confirms the ISO group is present.
   const mat = Object.values(CANONICAL_MATERIAL_DB).find(m => m.iso_group === material_iso);
-  const vc_base = mat?.vc_base_roughing ?? 200;
+  const vc_base = mat ? CANONICAL_MILLING_SPEEDS[mat.iso_group].rough : 200;
   const Vc = vc_base * vc_factor;
 
   const fz_mm = base.fz_base_mm * fz_scale * rigidity;
