@@ -29,6 +29,7 @@
 import {
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  CANONICAL_MILLING_SPEEDS,
   type ISOGroup,
 } from "../physics/constants.js";
 import { toolHolderDatabaseEngine, type ToolHolderSpec } from "./ToolHolderDatabaseEngine.js";
@@ -544,8 +545,10 @@ export class ToolEnrichmentEngine {
     // Extended Taylor (variable speed, hardness, coolant, Weibull) handled by SpeedFeedOrchestratorEngine.
     const scaleFactor = subCorr * Math.sqrt(speedMult);
 
-    let vcMin = Math.round(matEntry.vc_base_roughing * scaleFactor * 0.7);
-    let vcMax = Math.round(matEntry.vc_base_finishing * scaleFactor * 1.1);
+    // vc_base_roughing/finishing live on CANONICAL_MILLING_SPEEDS, not MaterialEntry.
+    const speeds = CANONICAL_MILLING_SPEEDS[group];
+    let vcMin = Math.round(speeds.rough * scaleFactor * 0.7);
+    let vcMax = Math.round(speeds.finish * scaleFactor * 1.1);
 
     // Per-ISO-group Vc ceiling — S/H groups physically cannot exceed 500 m/min
     // (titanium/Inconel/hardened steel). P/M/K/N allow higher speeds.
@@ -580,9 +583,12 @@ export class ToolEnrichmentEngine {
     const speedMult = this._getCoatingSpeedMultiplier(coatingId);
     const cAdjusted = Math.round(canonical.C * subCorr * speedMult * 10) / 10;
 
+    // vc_base_roughing/finishing live on CANONICAL_MILLING_SPEEDS keyed by iso_group,
+    // not on MaterialEntry. The CANONICAL_MATERIAL_DB lookup just confirms the iso
+    // is present; mid-Vc is derived from the speeds table.
     const matEntry = Object.values(CANONICAL_MATERIAL_DB).find(m => m.iso_group === group);
     const vcMid = matEntry
-      ? (matEntry.vc_base_roughing + matEntry.vc_base_finishing) / 2 * subCorr * Math.sqrt(speedMult)
+      ? (CANONICAL_MILLING_SPEEDS[group].rough + CANONICAL_MILLING_SPEEDS[group].finish) / 2 * subCorr * Math.sqrt(speedMult)
       : cAdjusted * 0.5;
 
     const expectedLife = vcMid > 0 ? Math.round(Math.pow(cAdjusted / vcMid, 1 / canonical.n)) : 60;
