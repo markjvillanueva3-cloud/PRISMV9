@@ -1,0 +1,459 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Post-Processor + NC Output Surface — Complete Enumeration",
+    "description": "Comprehensive parameter catalog for the Fusion 360 post-processor (post.cps) grammar surface and NC output pipeline: kernel definition, number-format / output rules, controller-dialect variant selection (Fanuc 0i/30i, Mazak Smooth-G, Okuma OSP-P300, Heidenhain TNC 640, Siemens 840D, Haas NGC), section headers (tool change, WCS, comments), linear / rapid / 5-axis motion, circular / helical motion (I-J-K vs R), canned cycles (G73/G81/G82/G83/G84/G85/G86/G87/G89), modal commands (spindle, coolant, dwell, probe), pre-emit safety validation, and file-delivery + simulation hooks. Closes the bottom of the Fusion 360 CAM stack — every toolpath catalogued in MS0/MS1-01..10 ultimately funnels through this surface to produce shop-ready NC code.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-30",
+    "milestone": "CAM-EXHAUST-MS1-11",
+    "source": "Autodesk Fusion 360 Manual NC Reference + post.cps Post Processor SDK + Autodesk HSM Post Library (FANUC.cps, MAZAK.cps, OKUMA.cps, HEIDENHAIN.cps, SINUMERIK.cps, HAAS_NEXT_GEN.cps) + ISO 6983-1 (G-code basics) + ISO 14649 (STEP-NC) + Fanuc 30i/31i/0i Operators Manual + Mazak Smooth-G Programming Manual + Okuma OSP-P300 Programming Manual + Heidenhain TNC 640 User Manual + Siemens 840D sl Operating Manual + Haas Mill / Lathe Operators Manual",
+    "totalParameters": 218,
+    "toolpathCount": 10,
+    "physics_links": [
+      "POST_FEED_FORMAT_CONVERT",
+      "POST_ARC_DECOMPOSITION_RADIUS_LIMIT",
+      "POST_HELIX_TO_LINEAR_FALLBACK",
+      "POST_RAPID_DOGLEG_TIMING",
+      "POST_MODAL_STATE_TRACKING",
+      "POST_CANNED_CYCLE_CODE_MAP",
+      "POST_NUMBER_PRECISION_TRUNCATION",
+      "POST_5AXIS_TCP_ROTATION_COMPENSATION",
+      "POST_BACKPLOT_DELTA_TIME",
+      "POST_FILENAME_RESOLUTION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across post-processor / NC output operations. Grammar = kernel handler hooks. Format = numeric output rules. Output = block / comment / modal emission. Controller = vendor-dialect overrides. Simulation = pre-emit validation + backplot.",
+    "tabs": ["Grammar", "Format", "Output", "Controller", "Simulation"]
+  },
+  "toolpaths": {
+    "POST_KERNEL_DEFINE": {
+      "description": "Top-level post.cps kernel definition — declares the post processor identity, capabilities, supported operations, and entry-point handler functions (onOpen, onSection, onClose, onParameter, onCommand). Sets the contract every controller variant inherits.",
+      "category": "Kernel",
+      "parameterCount": 23,
+      "tabs": {
+        "Grammar": {
+          "parameters": [
+            {"name": "Post Description", "type": "text", "description": "Human-readable post name (e.g. 'Generic Fanuc 30i Mill')", "required": true},
+            {"name": "Vendor", "type": "text", "description": "Vendor brand (Autodesk, machine builder, third party)", "required": true},
+            {"name": "Legal Notice", "type": "text", "description": "Copyright / licence string emitted in NC header"},
+            {"name": "Certification Level", "type": "dropdown", "options": ["uncertified", "verified", "certified", "production"], "default": "verified"},
+            {"name": "Long Description", "type": "text", "description": "Multi-line description of capabilities and limits"},
+            {"name": "Extension", "type": "text", "description": "Default NC file extension (nc, mpf, h, ngc, eia)", "default": "nc"},
+            {"name": "Set Code Page", "type": "dropdown", "options": ["ascii", "ansi", "utf-8", "utf-16-le"], "default": "ansi"},
+            {"name": "Capabilities Bitmask", "type": "dropdown", "options": ["CAPABILITY_MILLING", "CAPABILITY_TURNING", "CAPABILITY_JET", "CAPABILITY_INTERMEDIATE", "CAPABILITY_PROBING", "CAPABILITY_ADDITIVE", "CAPABILITY_INSPECTION"], "multi": true, "required": true},
+            {"name": "Tolerance Default", "type": "numeric", "description": "Internal arc-fit linearisation tolerance", "default": 0.002, "unit": "mm"},
+            {"name": "Minimum Chord Length", "type": "numeric", "description": "Below this length a linear move is collapsed", "default": 0.001, "unit": "mm"},
+            {"name": "Minimum Circular Radius", "type": "numeric", "default": 0.01, "unit": "mm"},
+            {"name": "Maximum Circular Radius", "type": "numeric", "default": 1000, "unit": "mm"},
+            {"name": "Minimum Circular Sweep", "type": "numeric", "default": 0.01, "unit": "deg"},
+            {"name": "Maximum Circular Sweep", "type": "numeric", "default": 180, "unit": "deg"}
+          ]
+        },
+        "Format": {
+          "parameters": [
+            {"name": "Allow Helical Moves", "type": "checkbox", "default": true},
+            {"name": "Allow Spiral Moves", "type": "checkbox", "default": false},
+            {"name": "Allow Full Circular Moves", "type": "checkbox", "description": "G2/G3 with sweep=360°", "default": false}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Highfeed Mapping", "type": "dropdown", "options": ["highfeed_no_mapping", "highfeed_mapping_all", "highfeed_mapping_only_g00"], "default": "highfeed_no_mapping"},
+            {"name": "Highfeed Rate", "type": "numeric", "description": "Mapped highfeed value when mapping enabled", "default": 5000, "unit": "mm/min"}
+          ]
+        },
+        "Simulation": {
+          "parameters": [
+            {"name": "Probe Generates Machine Coordinates", "type": "checkbox", "default": true},
+            {"name": "Probe Use Machine WCS", "type": "checkbox", "default": false},
+            {"name": "Generate XML Document Reference", "type": "checkbox", "description": "Emit doc.xml alongside NC file", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Allow Machine Change Position", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "POST_FORMATS_AND_OUTPUT": {
+      "description": "Number-format and output emission rules — decimal precision per quantity (XYZ, IJK, F, S, A/B/C, R, P, Q), unit system (mm/inch), feed mode (per-minute / per-rev / inverse-time / FRN), modal vs non-modal G-codes, block numbering, comment style. Drives every numeric token written to the NC file.",
+      "category": "Format",
+      "parameterCount": 24,
+      "tabs": {
+        "Format": {
+          "parameters": [
+            {"name": "Unit", "type": "dropdown", "options": ["MM", "IN"], "default": "MM"},
+            {"name": "XYZ Decimals", "type": "numeric", "default": 3, "min": 0, "max": 6},
+            {"name": "ABC Decimals", "type": "numeric", "default": 3, "min": 0, "max": 6, "description": "Rotary axis decimal digits"},
+            {"name": "IJK Decimals", "type": "numeric", "default": 4, "min": 0, "max": 6, "description": "Arc-centre incremental decimal digits"},
+            {"name": "Feedrate Decimals", "type": "numeric", "default": 0, "min": 0, "max": 4},
+            {"name": "Spindle Decimals", "type": "numeric", "default": 0, "min": 0, "max": 4},
+            {"name": "Tool Number Format", "type": "text", "description": "T## / T#### printf-style", "default": "%02d"},
+            {"name": "Decimal Separator", "type": "dropdown", "options": [".", ","], "default": "."},
+            {"name": "Force Sign on Positive", "type": "checkbox", "default": false},
+            {"name": "Strip Trailing Zeros", "type": "checkbox", "default": true},
+            {"name": "Strip Leading Zero on Decimal", "type": "checkbox", "description": "0.5 → .5", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Feed Output Mode", "type": "dropdown", "options": ["per_minute", "per_rev", "inverse_time", "FRN"], "default": "per_minute"},
+            {"name": "Show Sequence Numbers", "type": "checkbox", "default": true},
+            {"name": "Sequence Number Start", "type": "numeric", "default": 10, "min": 1, "max": 99999},
+            {"name": "Sequence Number Increment", "type": "numeric", "default": 5, "min": 1, "max": 99},
+            {"name": "Restart Sequence Numbers Per Section", "type": "checkbox", "default": false},
+            {"name": "Comment Open", "type": "text", "description": "Block-comment opener (e.g. '(' or ';')", "default": "("},
+            {"name": "Comment Close", "type": "text", "default": ")"},
+            {"name": "Use Block Skip", "type": "checkbox", "description": "Emit '/' on optional blocks", "default": false},
+            {"name": "Use M03 / M04 Direction", "type": "checkbox", "default": true},
+            {"name": "Always Output Modal", "type": "checkbox", "description": "Re-emit even when state unchanged", "default": false}
+          ]
+        },
+        "Grammar": {
+          "parameters": [
+            {"name": "Maximum Line Length", "type": "numeric", "description": "NC controller line buffer cap", "default": 80, "min": 40, "max": 256, "unit": "chars"},
+            {"name": "Use Parentheses In Comments", "type": "checkbox", "default": true},
+            {"name": "Show Notes", "type": "checkbox", "description": "Emit user-authored note comments", "default": true}
+          ]
+        }
+      }
+    },
+    "POST_CONTROLLER_VARIANT": {
+      "description": "Controller-dialect variant table — Fanuc 0i / 30i / 31i, Mazak Smooth-G + EIA-Mazatrol, Okuma OSP-P200 / OSP-P300, Heidenhain TNC 640 / iTNC 530, Siemens 840D / Sinumerik, Haas NGC, Doosan, Hurco. Resolves vendor-specific G/M code overrides, axis letter mapping, WCS schedule format (G54-G59 vs G54.1 P1..P48 vs G500), spindle command syntax, and tool-change ritual.",
+      "category": "Controller",
+      "parameterCount": 24,
+      "tabs": {
+        "Controller": {
+          "parameters": [
+            {"name": "Controller Family", "type": "dropdown", "options": ["fanuc_0i", "fanuc_30i", "fanuc_31i", "fanuc_15i", "mazak_smooth_g", "mazak_smooth_x", "mazatrol", "okuma_osp_p200", "okuma_osp_p300", "heidenhain_tnc640", "heidenhain_itnc530", "siemens_840d_sl", "siemens_828d", "haas_ngc", "haas_classic", "doosan_fanuc", "hurco_winmax", "centroid_acorn", "linuxcnc", "mach3", "mach4"], "default": "fanuc_30i", "required": true},
+            {"name": "Controller Sub Variant", "type": "text", "description": "Free-form sub-variant identifier (e.g. 'mazak_integrex_i200s_smooth_g')"},
+            {"name": "Machine Builder", "type": "text", "description": "Builder brand (Mori Seiki, DMG, Hurco, Haas, Mazak, Doosan, Makino)"},
+            {"name": "Conversational Mode", "type": "dropdown", "options": ["iso_g_code", "mazatrol", "tnc_klartext", "winmax_conversational"], "default": "iso_g_code"},
+            {"name": "Use Extended WCS", "type": "checkbox", "description": "Enable G54.1 P1..P48 (Fanuc) / G500-G599 (Siemens)", "default": false},
+            {"name": "Extended WCS Count", "type": "numeric", "default": 48, "min": 6, "max": 300},
+            {"name": "Default WCS Code", "type": "dropdown", "options": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54"},
+            {"name": "Tool Change Style", "type": "dropdown", "options": ["fanuc_M06", "mazak_M06_with_T", "okuma_M06_with_TC", "heidenhain_TOOL_CALL", "siemens_T_then_M06", "haas_M06_after_T"], "default": "fanuc_M06"},
+            {"name": "Axis Letter A", "type": "text", "description": "Override rotary letter (A, B, C, U, V, W)", "default": "A"},
+            {"name": "Axis Letter B", "type": "text", "default": "B"},
+            {"name": "Axis Letter C", "type": "text", "default": "C"},
+            {"name": "Spindle CW Code", "type": "text", "default": "M03"},
+            {"name": "Spindle CCW Code", "type": "text", "default": "M04"},
+            {"name": "Spindle Stop Code", "type": "text", "default": "M05"},
+            {"name": "Coolant Flood Code", "type": "text", "default": "M08"},
+            {"name": "Coolant Mist Code", "type": "text", "default": "M07"},
+            {"name": "Coolant Through Spindle Code", "type": "text", "description": "TSC / HPC code (often M88 / M51 / M120)", "default": "M88"},
+            {"name": "Coolant Off Code", "type": "text", "default": "M09"},
+            {"name": "End Of Program Code", "type": "text", "description": "M02 vs M30 vs M99 (subprogram)", "default": "M30"},
+            {"name": "Optional Stop Code", "type": "text", "default": "M01"},
+            {"name": "Use TCP Compensation", "type": "checkbox", "description": "Enable G43.4 / TCPM / TRAORI / RTCP", "default": false},
+            {"name": "TCP Code Variant", "type": "dropdown", "options": ["fanuc_G43_4", "fanuc_G43_5", "heidenhain_M128", "heidenhain_FUNCTION_TCPM", "siemens_TRAORI", "siemens_TRAFOOF", "okuma_G169"], "default": "fanuc_G43_4"},
+            {"name": "Safe Retract Code", "type": "text", "description": "Safe-Z retract on tool change / E-stop recovery", "default": "G53 G00 Z0"},
+            {"name": "Program Number Format", "type": "text", "description": "O#### vs %#### vs N#### header", "default": "O%04d"}
+          ]
+        }
+      }
+    },
+    "POST_SECTION_HEADERS": {
+      "description": "onSection() emission — fires at the start of each toolpath operation. Emits operation comment, tool-change block, WCS selection (G54..G59 / G54.1 Pn), spindle / coolant start, work-plane / TCP activation, safe-Z retract, and pre-positioning rapid. Owns the boundary between operations.",
+      "category": "Section",
+      "parameterCount": 22,
+      "tabs": {
+        "Output": {
+          "parameters": [
+            {"name": "Show Operation Notes", "type": "checkbox", "default": true},
+            {"name": "Show Tool Description", "type": "checkbox", "description": "Emit '(T## D=12 R=0.5 FLUTES=4 CR=0)' style banner", "default": true},
+            {"name": "Show Coolant Comment", "type": "checkbox", "default": false},
+            {"name": "Use Operation Comment", "type": "checkbox", "default": true},
+            {"name": "Operation Comment Template", "type": "text", "description": "printf template, %s = strategy, %s = comment", "default": "(%s : %s)"},
+            {"name": "Show Section Header", "type": "checkbox", "description": "Emit boxed section banner '(========)'", "default": true},
+            {"name": "Header Banner Char", "type": "text", "default": "="},
+            {"name": "Show Multiple Tool Comment", "type": "checkbox", "description": "Warn when re-using same tool number", "default": true}
+          ]
+        },
+        "Grammar": {
+          "parameters": [
+            {"name": "Force Spindle On Tool Change", "type": "checkbox", "description": "Always re-emit M03 even if modal", "default": true},
+            {"name": "Force Coolant On Tool Change", "type": "checkbox", "default": true},
+            {"name": "Force WCS On Tool Change", "type": "checkbox", "default": true},
+            {"name": "Force Plane On Section", "type": "checkbox", "description": "Re-emit G17/G18/G19", "default": false},
+            {"name": "Stop Spindle On Tool Change", "type": "checkbox", "description": "Insert M05 before T## M06", "default": true},
+            {"name": "Use M01 Between Sections", "type": "checkbox", "description": "Optional-stop between operations for prove-out", "default": false}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Pre Tool Change Sequence", "type": "text", "description": "Lines emitted before T## M06 (e.g. 'M09\\nG28 G91 Z0')", "default": "M09\nG91 G28 Z0"},
+            {"name": "Post Tool Change Sequence", "type": "text", "description": "Lines emitted after T## M06"},
+            {"name": "Tool Length Compensation Code", "type": "dropdown", "options": ["G43", "G44", "G43_negative", "no_comp_inline_offset"], "default": "G43"},
+            {"name": "Length Comp Register Format", "type": "text", "description": "H#### offset register format", "default": "H%02d"},
+            {"name": "Cutter Comp G Code", "type": "dropdown", "options": ["G40", "G41", "G42"], "default": "G40", "description": "Cutter-compensation default off-state per section"},
+            {"name": "First Section Force Header", "type": "checkbox", "description": "Always emit full preamble on first section", "default": true},
+            {"name": "Section End Retract Mode", "type": "dropdown", "options": ["clearance_height", "safe_z_g53", "machine_home", "tool_change_height"], "default": "safe_z_g53"},
+            {"name": "Emit Work Offset On Section", "type": "checkbox", "description": "Re-emit G54..G59 each section", "default": true}
+          ]
+        }
+      }
+    },
+    "POST_LINEAR_MOTION": {
+      "description": "Linear motion emission — onLinear (G01), onLinearRapid / onRapid (G00), onLinear5D (with rotary axes). Owns axis word ordering (X then Y then Z then ABC), feed-rate emission, modal preservation, and rapid-vs-feed boundary detection. Includes 5-axis simultaneous moves with TCP/RTCP compensation when enabled.",
+      "category": "Motion",
+      "parameterCount": 18,
+      "tabs": {
+        "Grammar": {
+          "parameters": [
+            {"name": "Axis Output Order", "type": "text", "description": "Axis word emit order (XYZABCUVW)", "default": "XYZABC"},
+            {"name": "Allow Rapid Diagonal", "type": "checkbox", "description": "Allow G00 with multi-axis (false = decompose to single-axis sequence)", "default": true},
+            {"name": "Maximum Rapid Block", "type": "numeric", "description": "Cap rapid distance per block (chunked beyond)", "default": 0, "unit": "mm", "description_extra": "0 = no cap"},
+            {"name": "Force Linear Mode On First Move", "type": "checkbox", "description": "Always emit G01 on first cutting move", "default": true},
+            {"name": "Force XYZ Output On Move", "type": "checkbox", "description": "Re-emit unchanged axis word", "default": false}
+          ]
+        },
+        "Format": {
+          "parameters": [
+            {"name": "Linear G Code", "type": "text", "default": "G01"},
+            {"name": "Rapid G Code", "type": "text", "default": "G00"},
+            {"name": "5-Axis Linear G Code", "type": "text", "description": "G01 in 5-axis context, may differ for some controllers", "default": "G01"},
+            {"name": "Feed Word", "type": "text", "default": "F"}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Use Inverse Time Feed In 5D", "type": "checkbox", "description": "Switch to FRN (G93) for 5-axis simultaneous", "default": false},
+            {"name": "G93 Code", "type": "text", "default": "G93"},
+            {"name": "G94 Code", "type": "text", "description": "Feed/min", "default": "G94"},
+            {"name": "G95 Code", "type": "text", "description": "Feed/rev", "default": "G95"},
+            {"name": "Rapid Override Cap", "type": "numeric", "description": "Cap rapid traverse rate (machine-specific)", "default": 0, "unit": "mm/min", "description_extra": "0 = controller default"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Highlight Rapid With Comment", "type": "checkbox", "description": "Append '(rapid)' on G00 lines", "default": false},
+            {"name": "Use Highfeed Instead Of Rapid", "type": "checkbox", "description": "Emit G01 F<highfeed> instead of G00 (machines without rapid override)", "default": false},
+            {"name": "Highfeed Override Override", "type": "numeric", "default": 8000, "unit": "mm/min"},
+            {"name": "Decompose Rapid Above Distance", "type": "numeric", "description": "Force linear decomposition for rapid moves > N mm", "default": 0, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "POST_CIRCULAR_MOTION": {
+      "description": "onCircular emission — G02 (CW) / G03 (CCW), I-J-K incremental arc-centre vs R radius mode, plane selection (G17 XY / G18 XZ / G19 YZ), helical interpolation (Z incremental on arc), full-circle splitting (sweep=360° → 2× 180° if controller doesn't support full circles), arc decomposition fallback when radius outside controller's [min, max] window.",
+      "category": "Motion",
+      "parameterCount": 20,
+      "tabs": {
+        "Grammar": {
+          "parameters": [
+            {"name": "G2 Code", "type": "text", "description": "Clockwise arc", "default": "G02"},
+            {"name": "G3 Code", "type": "text", "description": "Counter-clockwise arc", "default": "G03"},
+            {"name": "Plane Code XY", "type": "text", "default": "G17"},
+            {"name": "Plane Code XZ", "type": "text", "default": "G18"},
+            {"name": "Plane Code YZ", "type": "text", "default": "G19"},
+            {"name": "Force Plane On Arc", "type": "checkbox", "default": true}
+          ]
+        },
+        "Format": {
+          "parameters": [
+            {"name": "Arc Center Mode", "type": "dropdown", "options": ["IJK_incremental", "IJK_absolute", "R_radius", "auto_choose"], "default": "IJK_incremental"},
+            {"name": "Allow R Radius On Same Quadrant", "type": "checkbox", "description": "Use R when sweep ≤ 90°, fall back to IJK otherwise", "default": false},
+            {"name": "I Word", "type": "text", "default": "I"},
+            {"name": "J Word", "type": "text", "default": "J"},
+            {"name": "K Word", "type": "text", "default": "K"},
+            {"name": "R Word", "type": "text", "default": "R"}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Allow Helical Output", "type": "checkbox", "default": true},
+            {"name": "Allow Spiral Output", "type": "checkbox", "description": "G02/G03 with non-equal start/end radii", "default": false},
+            {"name": "Allow Full Circle Output", "type": "checkbox", "description": "Emit single G02/G03 with sweep=360° rather than splitting", "default": false},
+            {"name": "Maximum Helical Pitch", "type": "numeric", "description": "Helical Z-incremental cap per revolution", "default": 0, "unit": "mm", "description_extra": "0 = no cap"}
+          ]
+        },
+        "Simulation": {
+          "parameters": [
+            {"name": "Linearise Below Min Radius", "type": "checkbox", "description": "Decompose to G01 chain when R < minimumCircularRadius", "default": true},
+            {"name": "Linearise Above Max Radius", "type": "checkbox", "default": true},
+            {"name": "Linearise Below Min Sweep", "type": "checkbox", "default": true},
+            {"name": "Linearise Tolerance", "type": "numeric", "description": "Chord-error tolerance during arc → linear fallback", "default": 0.002, "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "POST_CANNED_CYCLES": {
+      "description": "onCycle / onCyclePoint emission — drilling and boring canned cycles. G73 high-speed peck, G81 simple drill, G82 dwell drill (counterbore), G83 deep peck (full retract), G84 right-hand tap, G85 boring (in/out feed), G86 boring with spindle stop, G87 back boring, G89 boring with dwell. Each cycle has its own R-plane, Q (peck depth), P (dwell), and retract logic. Cancel with G80.",
+      "category": "Cycles",
+      "parameterCount": 25,
+      "tabs": {
+        "Grammar": {
+          "parameters": [
+            {"name": "Use Canned Cycles", "type": "checkbox", "description": "Emit G81-G89; false = decompose to G00/G01 chain", "default": true},
+            {"name": "Force Cycle End Block", "type": "checkbox", "description": "Always emit G80 between cycle types", "default": true},
+            {"name": "Cancel Code", "type": "text", "default": "G80"}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Drill Code (G81)", "type": "text", "default": "G81"},
+            {"name": "Drill Dwell Code (G82)", "type": "text", "default": "G82"},
+            {"name": "Peck Drill Code (G83)", "type": "text", "default": "G83"},
+            {"name": "High Speed Peck Code (G73)", "type": "text", "default": "G73"},
+            {"name": "Right Tap Code (G84)", "type": "text", "default": "G84"},
+            {"name": "Left Tap Code (G74)", "type": "text", "description": "Left-hand tap (often G74 mill / G84.2 rigid)", "default": "G74"},
+            {"name": "Rigid Tap Prefix", "type": "text", "description": "M29 S<rpm> on Fanuc, M53/M54 on Okuma", "default": "M29 S"},
+            {"name": "Boring G85", "type": "text", "default": "G85"},
+            {"name": "Boring G86 Stop", "type": "text", "default": "G86"},
+            {"name": "Back Boring G87", "type": "text", "default": "G87"},
+            {"name": "Boring G89 Dwell", "type": "text", "default": "G89"},
+            {"name": "Cycle R Plane Mode", "type": "dropdown", "options": ["G98_initial_plane", "G99_R_plane"], "default": "G98_initial_plane"}
+          ]
+        },
+        "Format": {
+          "parameters": [
+            {"name": "Q Word (Peck Depth)", "type": "text", "default": "Q"},
+            {"name": "P Word (Dwell)", "type": "text", "default": "P"},
+            {"name": "R Word (Retract Plane)", "type": "text", "default": "R"},
+            {"name": "F Word (Cycle Feed)", "type": "text", "default": "F"},
+            {"name": "Dwell Format Style", "type": "dropdown", "options": ["seconds", "milliseconds_integer", "spindle_revs"], "default": "milliseconds_integer"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Force Modal Cycle Words", "type": "checkbox", "description": "Re-emit Q/R/P each point", "default": false},
+            {"name": "Allow Modal Hole Pattern", "type": "checkbox", "description": "Drop XY-only blocks under modal cycle", "default": true},
+            {"name": "Use Subprogram For Hole Pattern", "type": "checkbox", "description": "Wrap repeat hole sequence in M98 subprogram", "default": false},
+            {"name": "Hole Pattern Subprogram Number", "type": "text", "default": "O8001"},
+            {"name": "Cycle Comment On Entry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "POST_MODAL_COMMANDS": {
+      "description": "Modal command emission — onSpindleSpeed (S word + M03/M04), onCoolant (M07/M08/M09 + TSC variants), onDwell (G04 P/X), onCommand (probe enable, axis lock, gauge zero), onParameter (universal hook). Owns modal-state tracking — only emits the change, not the full modal frame, unless forceMidalReoutput is true.",
+      "category": "Modal",
+      "parameterCount": 22,
+      "tabs": {
+        "Grammar": {
+          "parameters": [
+            {"name": "Spindle Word", "type": "text", "default": "S"},
+            {"name": "Coolant Off Code", "type": "text", "default": "M09"},
+            {"name": "Coolant Flood Code", "type": "text", "default": "M08"},
+            {"name": "Coolant Mist Code", "type": "text", "default": "M07"},
+            {"name": "Coolant TSC Code", "type": "text", "default": "M88"},
+            {"name": "Coolant Air Code", "type": "text", "description": "Compressed-air blast", "default": "M07"},
+            {"name": "Coolant Cryogenic Code", "type": "text", "description": "LN2 / LCO2 supply", "default": "M51"}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Allow Multiple Coolant States", "type": "checkbox", "description": "Permit M08+M88 simultaneous", "default": true},
+            {"name": "Spindle Ramp Up Wait", "type": "numeric", "description": "Dwell after spindle on, before motion", "default": 0, "unit": "s"},
+            {"name": "Use M3/M4 Direction", "type": "checkbox", "default": true},
+            {"name": "Stop Spindle Code", "type": "text", "default": "M05"},
+            {"name": "Use Constant Surface Speed", "type": "checkbox", "description": "Emit G96/G97 (turning)", "default": false},
+            {"name": "G96 Code", "type": "text", "default": "G96"},
+            {"name": "G97 Code", "type": "text", "default": "G97"},
+            {"name": "Maximum Spindle Cap In CSS", "type": "text", "description": "G50 S<rpm> cap when CSS active", "default": "G50"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Dwell G Code", "type": "text", "default": "G04"},
+            {"name": "Dwell Word", "type": "text", "default": "P"},
+            {"name": "Dwell Default Time", "type": "numeric", "default": 100, "unit": "ms"},
+            {"name": "Probe Activate Command", "type": "text", "description": "M19 S<spindle_orient_angle> + M51 / M75 / M_CUSTOM", "default": "M19"},
+            {"name": "Probe Deactivate Command", "type": "text", "default": "M77"},
+            {"name": "Allow Spindle Override Output", "type": "checkbox", "description": "Emit Sxxx on existing modal direction", "default": true},
+            {"name": "Allow Inline Modal Block", "type": "checkbox", "description": "Combine G G F S M into one block when possible", "default": true}
+          ]
+        }
+      }
+    },
+    "POST_NC_VALIDATION": {
+      "description": "Pre-emit safety / sanity validation — bounds-check every block before write. Catches: rapid above feed-rate cap, feed below minimum, spindle outside [min, max] of selected machine, axis travel beyond work envelope, coolant requested without machine support, TCP mode on machine without RTCP, cycle on plane mismatch, missing modal preconditions. Hard-fails the post if a block violates safety thresholds.",
+      "category": "Validation",
+      "parameterCount": 22,
+      "tabs": {
+        "Simulation": {
+          "parameters": [
+            {"name": "Validate Rapid Bounds", "type": "checkbox", "default": true},
+            {"name": "Maximum Rapid Velocity", "type": "numeric", "description": "Hard cap; per-axis caps in machine profile", "default": 30000, "unit": "mm/min"},
+            {"name": "Validate Feed Bounds", "type": "checkbox", "default": true},
+            {"name": "Minimum Feed Rate", "type": "numeric", "default": 1, "unit": "mm/min"},
+            {"name": "Maximum Feed Rate", "type": "numeric", "default": 15000, "unit": "mm/min"},
+            {"name": "Validate Spindle Bounds", "type": "checkbox", "default": true},
+            {"name": "Minimum Spindle RPM", "type": "numeric", "default": 50, "unit": "rpm"},
+            {"name": "Maximum Spindle RPM", "type": "numeric", "default": 12000, "unit": "rpm"},
+            {"name": "Validate Work Envelope", "type": "checkbox", "default": true},
+            {"name": "Validate Modal Preconditions", "type": "checkbox", "description": "Reject G81 without prior G17/G18/G19", "default": true}
+          ]
+        },
+        "Grammar": {
+          "parameters": [
+            {"name": "Allow Soft Limit Override", "type": "checkbox", "description": "Bypass machine soft-limit check (DANGEROUS)", "default": false},
+            {"name": "Allow Modal Implicit", "type": "checkbox", "description": "Permit cycle blocks without explicit plane code", "default": false}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Validate TCP Capability", "type": "checkbox", "default": true},
+            {"name": "Validate Cycle Plane Match", "type": "checkbox", "description": "G81 must be on G17 unless G87 (back bore)", "default": true},
+            {"name": "Validate Coolant Support", "type": "checkbox", "default": true},
+            {"name": "Validate Tool Magazine Cap", "type": "checkbox", "description": "Reject T## > magazine size", "default": true},
+            {"name": "Validate Helical Pitch", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Failure Action", "type": "dropdown", "options": ["hard_fail", "warn_and_continue", "comment_only", "rewrite_to_safe"], "default": "hard_fail"},
+            {"name": "Validation Report Path", "type": "text", "description": "Where to write violation log", "default": "post-validation.log"},
+            {"name": "Include Safety Banner", "type": "checkbox", "description": "Emit '(SAFETY: VALIDATED)' header on success", "default": true},
+            {"name": "Include Block Numbers In Report", "type": "checkbox", "default": true},
+            {"name": "Halt On First Critical", "type": "checkbox", "description": "Stop validation walk on first hard-fail", "default": true}
+          ]
+        }
+      }
+    },
+    "POST_OUTPUT_DELIVERY": {
+      "description": "File-output and simulation hook delivery — writes the rendered NC file to disk (single-file, multi-file per-section, multi-file per-tool), appends setup-sheet HTML/PDF, exports backplot data for Vericut/NCSimul/Cimco, writes operator notes file, and signs the output with optional checksum + post-fingerprint banner.",
+      "category": "Delivery",
+      "parameterCount": 18,
+      "tabs": {
+        "Output": {
+          "parameters": [
+            {"name": "Output Mode", "type": "dropdown", "options": ["single_file", "file_per_setup", "file_per_tool", "file_per_operation"], "default": "single_file"},
+            {"name": "Output File Name Pattern", "type": "text", "description": "printf template; %s = part-name, %02d = setup index", "default": "%s.nc"},
+            {"name": "Output Directory", "type": "text", "description": "Resolved relative to CAM project", "default": "."},
+            {"name": "Overwrite Mode", "type": "dropdown", "options": ["overwrite", "append_timestamp", "fail_if_exists", "auto_increment"], "default": "overwrite"},
+            {"name": "Emit Setup Sheet", "type": "checkbox", "description": "Companion HTML/PDF setup-sheet document", "default": true},
+            {"name": "Setup Sheet Format", "type": "dropdown", "options": ["html", "pdf", "xml", "csv", "none"], "default": "html"},
+            {"name": "Setup Sheet Path Pattern", "type": "text", "default": "%s-setup.html"},
+            {"name": "Emit Tool List", "type": "checkbox", "default": true},
+            {"name": "Tool List Format", "type": "dropdown", "options": ["plain_text", "csv", "iso13399_xml", "tdm_xml", "zoller_xml"], "default": "plain_text"}
+          ]
+        },
+        "Simulation": {
+          "parameters": [
+            {"name": "Emit Vericut Project", "type": "checkbox", "description": "Companion .vcproject for Vericut simulation", "default": false},
+            {"name": "Emit NCSimul Project", "type": "checkbox", "default": false},
+            {"name": "Emit Backplot CSV", "type": "checkbox", "description": "Per-block X/Y/Z/A/B/C/F/S/T trace", "default": false},
+            {"name": "Backplot Sample Rate", "type": "numeric", "description": "Time interval; 0 = per-block only", "default": 0, "unit": "ms"},
+            {"name": "Emit Cycle Time Estimate", "type": "checkbox", "description": "Append '(EST CYCLE: hh:mm:ss)' header", "default": true}
+          ]
+        },
+        "Grammar": {
+          "parameters": [
+            {"name": "Append Checksum", "type": "checkbox", "description": "Emit '(CHECKSUM: <sha256>)' footer", "default": false},
+            {"name": "Include Post Fingerprint", "type": "checkbox", "description": "Emit '(POST: <name> v<version>)' header", "default": true}
+          ]
+        },
+        "Controller": {
+          "parameters": [
+            {"name": "Line Ending Mode", "type": "dropdown", "options": ["LF", "CRLF", "CR", "auto_detect_controller"], "default": "auto_detect_controller"},
+            {"name": "BOM Mode", "type": "dropdown", "options": ["none", "utf8_bom", "utf16_bom"], "default": "none"}
+          ]
+        }
+      }
+    }
+  }
+}

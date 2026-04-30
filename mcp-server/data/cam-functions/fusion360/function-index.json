@@ -133,6 +133,14 @@
       "parameter_count_estimate": 364,
       "description": "Turning per-op tab deep pass — closes the input-exhaust gap on existing turning-operations.json by adding 6 standard deep tabs (Strategy, Cycle for G70/G71/G72/G74/G75/G76 canned cycles, Ramp, Holder, Output, Connections) to the 5 existing turning ops via _DEEP entries (Profile_Roughing/Profile_Finishing/Face/Groove/Thread), AND introduces 6 net-new turning ops missing entirely: TURNING_CUTOFF (parting-off with peck, center-feed-reduction, part-catcher), TURNING_BORE (internal turning with bar-deflection budget), TURNING_DRILL (axial centerline drilling with G74/G83/G73), TURNING_TAP (rigid + tension-compression axial tap), TURNING_SECONDARY_SPINDLE_TRANSFER (sub-spindle handoff turning subset), TURNING_LIVE_TOOLING (C-axis driven-tool ops). 11 toolpaths total. Lathe-specific extras: G96/G97 surface-speed control, M3/M4 spindle direction, BMT/VDI live-tool holder orientations, insert-style enums (CNMG/DNMG/MGMN/etc).",
       "dependencies": ["turning_operations"]
+    },
+    {
+      "module_id": "post_processing",
+      "path": "cam-functions/fusion360/post-processing.json",
+      "covered_units": ["U-CAM-MS1-11"],
+      "parameter_count_estimate": 218,
+      "description": "Post-processor (post.cps) grammar surface + NC output pipeline — closes the bottom of the Fusion 360 CAM stack. Every catalogued toolpath funnels through this surface to produce shop-ready NC code. 10 ops covering: kernel definition (capabilities, tolerance, identity), number formats / output rules (decimals, modal, sequence numbers, comments), controller-dialect variant table (Fanuc 0i/30i/31i, Mazak Smooth-G + Mazatrol, Okuma OSP-P200/P300, Heidenhain TNC 640/iTNC 530, Siemens 840D, Haas NGC, Doosan, Hurco, LinuxCNC, Mach3/4 — 21 variants total), section headers (tool change, WCS, spindle/coolant start, TCP activation), linear / rapid / 5-axis motion (axis word ordering, RTCP, inverse-time feed), circular / helical motion (G2/G3, IJK vs R, plane G17/G18/G19, full-circle splitting), canned cycles (G73/G81/G82/G83/G84/G85/G86/G87/G89, rigid-tap M29 prefix, hole-pattern subprograms), modal commands (spindle direction, coolant variants including TSC/MQL/cryogenic, dwell, probe activate/deactivate, G96/G97 CSS), pre-emit safety validation (rapid/feed/spindle bounds, work-envelope check, modal-precondition check), and file-output delivery (single-file vs per-setup vs per-tool, setup-sheet HTML/PDF/XML, Vericut/NCSimul project export, backplot CSV, checksum). 218 params total.",
+      "dependencies": ["2d_operations", "3d_operations", "multiaxis_operations", "turning_operations", "milling_2d_deep", "milling_3d_deep", "multiaxis_deep", "turning_deep"]
     }
   ],
   "global_cross_references": {
