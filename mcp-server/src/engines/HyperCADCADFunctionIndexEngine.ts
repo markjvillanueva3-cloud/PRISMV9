@@ -2,15 +2,22 @@
  * HyperCADCADFunctionIndexEngine — CAD-side parity to Fusion360FunctionIndexEngine.
  *
  * Loads the hyperCAD-S (OPEN MIND CAM-oriented CAD) operation catalog under
- * `data/cad-functions/hypercad/` and exposes typed lookups for AI orchestration:
- * sketch operations, solid operations, and (planned) surface / healing / mesh /
- * assembly / drawing / datum modules.
+ * `data/cad-functions/hypercad/` and exposes typed lookups for AI orchestration
+ * across all 8 hyperCAD-S workspaces: sketch, solid, surface, healing, mesh,
+ * assembly, drawing, and datum / reference geometry.
  *
  * This engine is pure: lazy JSON load + in-process cache, no I/O beyond initial
  * read, no state mutation, no dispatcher imports.
  *
- * Coverage: U-CAD-FIDX-HCAD-01 (sketch_operations) + U-CAD-FIDX-HCAD-02
- * (solid_operations).
+ * Coverage state: COMPLETE — 8 modules / 160 operations / 1001 parameters.
+ *   U-CAD-FIDX-HCAD-01 sketch_operations    32 ops / 242 params
+ *   U-CAD-FIDX-HCAD-02 solid_operations     30 ops / 214 params
+ *   U-CAD-FIDX-HCAD-03 surface_operations   28 ops / 148 params
+ *   U-CAD-FIDX-HCAD-04 healing_operations   16 ops /  83 params
+ *   U-CAD-FIDX-HCAD-05 mesh_operations      12 ops /  66 params
+ *   U-CAD-FIDX-HCAD-06 assembly_operations  15 ops /  74 params
+ *   U-CAD-FIDX-HCAD-07 drawing_operations   21 ops / 118 params
+ *   U-CAD-FIDX-HCAD-08 datum_operations      6 ops /  56 params
  *
  * @see data/cad-functions/hypercad/function-index.json
  * @see Fusion360FunctionIndexEngine (sister CAD function-index for Fusion 360)
