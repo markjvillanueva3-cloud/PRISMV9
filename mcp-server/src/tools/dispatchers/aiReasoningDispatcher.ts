@@ -1897,6 +1897,34 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE51: FiveAxisLoRADatasetBuilderEngine — tilt-
+      // bucketed Alpaca dataset builder. enrichFingerprint() rounds tilt_deg
+      // to 10° increments and stamps `tilt_bucket: "t<n>"` so train/val/test
+      // splits stratify across all observed tilt regimes. Validate() side-
+      // effect: |tilt - 90| < 5 (gimbal-lock proximity) auto-labels "near-
+      // singularity" and boosts weight to max(weight, 2.0). The engine
+      // accepts only one actual (surface_ra_um) and enforces strict >0
+      // (zero is rejected because Ra=0 is physically meaningless for cut
+      // surfaces — flat-mirror surfaces would still register submicron Ra).
+      // ─────────────────────────────────────────────────────────────────────
+      case "fiveaxis_lora_build_dataset": {
+        const { fiveAxisLoRADatasetBuilderEngine } = await import("../../engines/FiveAxisLoRADatasetBuilderEngine.js");
+        type JobsArg = Parameters<typeof fiveAxisLoRADatasetBuilderEngine.buildDataset>[0];
+        type SplitArg = Parameters<typeof fiveAxisLoRADatasetBuilderEngine.buildDataset>[1];
+        const p = params as { jobs: JobsArg; split?: SplitArg };
+        result = p.split !== undefined
+          ? fiveAxisLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split)
+          : fiveAxisLoRADatasetBuilderEngine.buildDataset(p.jobs);
+        break;
+      }
+      case "fiveaxis_lora_required_schema": {
+        const { fiveAxisLoRADatasetBuilderEngine } = await import("../../engines/FiveAxisLoRADatasetBuilderEngine.js");
+        const schema = fiveAxisLoRADatasetBuilderEngine.requiredSchema();
+        result = { features: [...schema.features], actuals: [...schema.actuals] };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

@@ -207,6 +207,9 @@ export const AI_REASONING_ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE50: MillTurnLoRADatasetBuilderEngine - channel-count + sub-spindle stratified, imbalance-labeled builder
   "millturn_dataset_lora_build_dataset",   // U-WIRE50: build dataset; channels/subSpindle stratify fingerprint; imbalance>0.95 auto-labels "imbalanced"
   "millturn_dataset_lora_required_schema", // U-WIRE50: report required feature + actual keys (mill-turn dataset-builder-specific)
+  // ENGINE-WIRE-MS0/U-WIRE51: FiveAxisLoRADatasetBuilderEngine - tilt-bucketed, singularity-boosted builder
+  "fiveaxis_lora_build_dataset",   // U-WIRE51: build dataset; tilt_deg bucketed in 10° increments; |tilt-90|<5 boosts weight to ≥2.0 + "near-singularity" label
+  "fiveaxis_lora_required_schema", // U-WIRE51: report required feature + actual keys (5-axis-specific; surface_ra_um strict >0)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1831,4 +1834,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
   }).passthrough(),
   millturn_dataset_lora_required_schema: z.object({}).passthrough(),
+  // U-WIRE51 - FiveAxisLoRADatasetBuilderEngine
+  // Same RawJob umbrella shape. Engine-layer enforces 6 required feature
+  // keys (material/tool_class/op_type/machine_class/tilt_deg/tcpc_enabled)
+  // and ONE actual (surface_ra_um) which must be finite NUMBER > 0 (strict
+  // — zero rejected). Empty-string features also drop. |tilt-90|<5 (gimbal-
+  // lock proximity) auto-labels "near-singularity" and boosts weight to ≥2.0.
+  fiveaxis_lora_build_dataset: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1),
+      fingerprint: z.record(z.string(), z.union([z.string(), z.number()])),
+      features: z.record(z.string(), z.unknown()),
+      actual: z.record(z.string(), z.unknown()),
+      weight: z.number().finite().optional(),
+      labels: z.array(z.string()).optional(),
+    }).passthrough()).min(0).describe("Empty array yields a zero-row dataset with valid stats"),
+    split: z.object({
+      trainRatio: z.number().min(0).max(1),
+      valRatio: z.number().min(0).max(1),
+      testRatio: z.number().min(0).max(1),
+      seed: z.number().finite(),
+      stratifyBy: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  fiveaxis_lora_required_schema: z.object({}).passthrough(),
 };
