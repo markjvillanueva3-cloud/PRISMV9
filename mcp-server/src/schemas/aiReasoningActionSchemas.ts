@@ -198,6 +198,9 @@ export const AI_REASONING_ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE47: WaterjetLoRADatasetBuilderEngine - Q1-Q5 quality-stratified dataset builder
   "waterjet_lora_build_dataset",   // U-WIRE47: build dataset; quality_level 1-5 stratifies fingerprint (preserves rare Q5)
   "waterjet_lora_required_schema", // U-WIRE47: report required feature + actual keys (waterjet-specific)
+  // ENGINE-WIRE-MS0/U-WIRE48: LaserLoRADatasetBuilderEngine - thickness-bucket-stratified, pierce-fail-boosted builder
+  "laser_lora_build_dataset",      // U-WIRE48: build dataset; thicknessBucket (thin/medium/thick/heavy) stratifies; pierce-fail boosts weight to ≥3.0
+  "laser_lora_required_schema",    // U-WIRE48: report required feature + actual keys (laser-specific; pierce_success is boolean)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1749,4 +1752,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
   }).passthrough(),
   waterjet_lora_required_schema: z.object({}).passthrough(),
+  // U-WIRE48 - LaserLoRADatasetBuilderEngine
+  // Same RawJob umbrella shape. Engine-layer enforces feature keys
+  // (material/thickness_mm/laser_power_w/assist_gas/pierce_type) and
+  // actual types (pierce_success: boolean, edge_quality_score: 0-10,
+  // dross_events: number ≥ 0). Pierce-fail jobs get auto-labeled
+  // "pierce-fail" and weight-boosted to ≥3.0 inside validate().
+  laser_lora_build_dataset: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1),
+      fingerprint: z.record(z.string(), z.union([z.string(), z.number()])),
+      features: z.record(z.string(), z.unknown()),
+      actual: z.record(z.string(), z.unknown()),
+      weight: z.number().finite().optional(),
+      labels: z.array(z.string()).optional(),
+    }).passthrough()).min(0).describe("Empty array yields a zero-row dataset with valid stats"),
+    split: z.object({
+      trainRatio: z.number().min(0).max(1),
+      valRatio: z.number().min(0).max(1),
+      testRatio: z.number().min(0).max(1),
+      seed: z.number().finite(),
+      stratifyBy: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  laser_lora_required_schema: z.object({}).passthrough(),
 };

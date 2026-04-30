@@ -1817,6 +1817,32 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE48: LaserLoRADatasetBuilderEngine — thickness-
+      // bucket-stratified Alpaca dataset builder. enrichFingerprint() bins
+      // thickness into thin (<3mm) / medium (3-10mm) / thick (10-25mm) /
+      // heavy (>=25mm) so the geometry hash stratifies across cutting
+      // regimes. Validate() side-effects: when pierce_success is false the
+      // job gets a "pierce-fail" label and weight is boosted to ≥3.0
+      // (pierce failures are the highest-cost laser failure mode).
+      // ─────────────────────────────────────────────────────────────────────
+      case "laser_lora_build_dataset": {
+        const { laserLoRADatasetBuilderEngine } = await import("../../engines/LaserLoRADatasetBuilderEngine.js");
+        type JobsArg = Parameters<typeof laserLoRADatasetBuilderEngine.buildDataset>[0];
+        type SplitArg = Parameters<typeof laserLoRADatasetBuilderEngine.buildDataset>[1];
+        const p = params as { jobs: JobsArg; split?: SplitArg };
+        result = p.split !== undefined
+          ? laserLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split)
+          : laserLoRADatasetBuilderEngine.buildDataset(p.jobs);
+        break;
+      }
+      case "laser_lora_required_schema": {
+        const { laserLoRADatasetBuilderEngine } = await import("../../engines/LaserLoRADatasetBuilderEngine.js");
+        const schema = laserLoRADatasetBuilderEngine.requiredSchema();
+        result = { features: [...schema.features], actuals: [...schema.actuals] };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
