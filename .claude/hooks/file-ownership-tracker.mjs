@@ -20,13 +20,27 @@ import { hostname } from "node:os";
 const REPO = "H:/prism";
 const STATE_FILE = join(REPO, "mcp-server/data/state/session-file-ownership.json");
 
-function getSessionId() {
+function getSessionId(hookInput) {
+  // SESSION-ID-UNIFY: Mirror commit-ownership-guard.mjs resolution exactly so
+  // tracker (writer) and guard (reader) always see the same identity for the
+  // same edit. Previous tracker only read env+host, while guard reads
+  // hookInput+env+host — that mismatch caused tracker to attribute edits to
+  // one ID and guard to read another, blocking the editor's own commits.
+  //
+  // 1) Hook payload session_id — most stable, anchors to the conversation
+  const sid = hookInput?.session_id;
+  if (typeof sid === "string" && sid.length >= 8) {
+    return sid.startsWith("claude-") ? sid : ("claude-" + sid.slice(0, 8));
+  }
+  // 2) Env override
   if (process.env.CLAUDE_SESSION_ID) {
     return process.env.CLAUDE_SESSION_ID;
   }
-  // HOOK-FIX-5/B: stable host-only ID. Per-subprocess PID would tag every
-  // tool invocation with a different session, causing each chat to block
-  // its own commits. Aligns with .claude/hooks/commit-ownership-guard.mjs.
+  // 3) Host-based fallback. We previously used hostname-PID here, but each
+  //    Bash subprocess gets a new PID, so successive commit attempts from
+  //    the same Claude Code instance got different IDs and the hook
+  //    false-positive-blocked its own commits. host-hostname is stable
+  //    across subprocess invocations on the same machine.
   return `host-${hostname()}`;
 }
 
@@ -107,7 +121,7 @@ function main() {
   }
 
   // Update ownership
-  const sessionId = getSessionId();
+  const sessionId = getSessionId(hookInput);
   const now = Date.now();
   const state = loadOwnership();
 
