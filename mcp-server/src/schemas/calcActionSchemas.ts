@@ -2851,6 +2851,34 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     grid_resolution: z.number().int().min(2).max(20).optional().describe("Grid points per dimension (default 8)"),
   }).passthrough(),
 
+  // ── Chatter Stability Lobe Diagram (ChatterStabilityLobeEngine, Altintas-Budak) ──
+  chatter_stability_sld: z.object({
+    tool: z.object({
+      diameter_mm: z.number().positive().describe("Tool diameter [mm]"),
+      flute_count: z.number().int().positive().describe("Number of flutes"),
+      overhang_mm: z.number().positive().describe("Tool overhang from holder [mm]"),
+      material: z.enum(["carbide", "hss", "cermet"]).describe("Tool body material"),
+    }).describe("Cutting tool geometry"),
+    workpiece: z.object({
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+      kc11_mpa: optPosNum.describe("Optional Kienzle kc1.1 override [N/mm^2]"),
+    }).describe("Workpiece material"),
+    machine: z.object({
+      machine_id: optStr.describe("Optional machine ID for FRF registry lookup"),
+      natural_frequency_hz: optPosNum.describe("Manual natural frequency override [Hz]"),
+      damping_ratio: z.number().positive().max(1).optional().describe("Manual damping ratio override (0-1)"),
+      stiffness_n_um: optPosNum.describe("Manual stiffness override [N/um]"),
+      max_rpm: z.number().positive().describe("Machine max spindle RPM"),
+      min_rpm: optPosNum.describe("Machine min spindle RPM (default 2000)"),
+    }).describe("Machine spindle dynamics"),
+    cutting: z.object({
+      radial_immersion_ratio: z.number().min(0).max(1).describe("Radial immersion ae/D (0-1)"),
+      up_milling: z.boolean().describe("True for up-milling, false for down-milling"),
+    }).describe("Cutting strategy"),
+    rpm_range: z.tuple([z.number().positive(), z.number().positive()]).optional().describe("Optional RPM sweep range [min, max]"),
+    rpm_points: z.number().int().min(10).max(1000).optional().describe("Number of RPM points to evaluate (default 100)"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({

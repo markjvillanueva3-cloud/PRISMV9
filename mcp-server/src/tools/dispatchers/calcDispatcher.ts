@@ -8025,6 +8025,22 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "chatter_stability_sld": {
+            const { chatterStabilityLobeEngine } = await import("../../engines/ChatterStabilityLobeEngine.js");
+            const out = chatterStabilityLobeEngine.compute({
+              tool: params.tool,
+              workpiece: params.workpiece,
+              machine: params.machine,
+              cutting: params.cutting,
+              rpm_range: params.rpm_range,
+              rpm_points: params.rpm_points,
+            });
+            // Engine returns {value: ChatterResult, unit, formula, confidence} — flatten so the
+            // slim-response branch (line 273) sees optimal_rpm/max_stable_ap_mm/lobes/stable_pockets directly.
+            result = { ...out.value, unit: out.unit, formula: out.formula, confidence: out.confidence };
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");
