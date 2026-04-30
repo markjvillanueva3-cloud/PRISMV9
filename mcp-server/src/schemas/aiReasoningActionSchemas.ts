@@ -195,6 +195,9 @@ export const AI_REASONING_ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE46: MillingLoRADatasetBuilderEngine - Alpaca dataset builder for milling fine-tune
   "milling_lora_build_dataset",   // U-WIRE46: build train/val/test split from RawJob[] + return stats + fingerprint
   "milling_lora_required_schema", // U-WIRE46: report required feature + actual keys (caller upstream contract)
+  // ENGINE-WIRE-MS0/U-WIRE47: WaterjetLoRADatasetBuilderEngine - Q1-Q5 quality-stratified dataset builder
+  "waterjet_lora_build_dataset",   // U-WIRE47: build dataset; quality_level 1-5 stratifies fingerprint (preserves rare Q5)
+  "waterjet_lora_required_schema", // U-WIRE47: report required feature + actual keys (waterjet-specific)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1722,4 +1725,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
   }).passthrough(),
   milling_lora_required_schema: z.object({}).passthrough(),
+  // U-WIRE47 - WaterjetLoRADatasetBuilderEngine
+  // Same RawJob shape as U-WIRE46. Engine adds a quality_level integer
+  // constraint (1..5) and validates all 3 actuals (edge_taper_deg /
+  // cycle_time_s / achieved_quality) as finite non-negative numbers.
+  // We mirror the rawjob baseline here; waterjet-specific feature checks
+  // happen at engine layer (Zod just enforces the umbrella shape).
+  waterjet_lora_build_dataset: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1),
+      fingerprint: z.record(z.string(), z.union([z.string(), z.number()])),
+      features: z.record(z.string(), z.unknown()),
+      actual: z.record(z.string(), z.unknown()),
+      weight: z.number().finite().optional(),
+      labels: z.array(z.string()).optional(),
+    }).passthrough()).min(0).describe("Empty array yields a zero-row dataset with valid stats"),
+    split: z.object({
+      trainRatio: z.number().min(0).max(1),
+      valRatio: z.number().min(0).max(1),
+      testRatio: z.number().min(0).max(1),
+      seed: z.number().finite(),
+      stratifyBy: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  waterjet_lora_required_schema: z.object({}).passthrough(),
 };

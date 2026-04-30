@@ -1791,6 +1791,32 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE47: WaterjetLoRADatasetBuilderEngine — Q1-Q5
+      // quality-stratified Alpaca dataset builder. Wraps BaseLoRADatasetBuilder
+      // with a waterjet render (instruction = "Recommend waterjet feed for
+      // <material> <thickness>mm at Q<level>.") and adds quality_level (1-5)
+      // to the fingerprint via enrichFingerprint() so the train/val/test
+      // split stratifies across all 5 quality regimes (preserves rare Q5
+      // finishing data). Stateless.
+      // ─────────────────────────────────────────────────────────────────────
+      case "waterjet_lora_build_dataset": {
+        const { waterjetLoRADatasetBuilderEngine } = await import("../../engines/WaterjetLoRADatasetBuilderEngine.js");
+        type JobsArg = Parameters<typeof waterjetLoRADatasetBuilderEngine.buildDataset>[0];
+        type SplitArg = Parameters<typeof waterjetLoRADatasetBuilderEngine.buildDataset>[1];
+        const p = params as { jobs: JobsArg; split?: SplitArg };
+        result = p.split !== undefined
+          ? waterjetLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split)
+          : waterjetLoRADatasetBuilderEngine.buildDataset(p.jobs);
+        break;
+      }
+      case "waterjet_lora_required_schema": {
+        const { waterjetLoRADatasetBuilderEngine } = await import("../../engines/WaterjetLoRADatasetBuilderEngine.js");
+        const schema = waterjetLoRADatasetBuilderEngine.requiredSchema();
+        result = { features: [...schema.features], actuals: [...schema.actuals] };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
