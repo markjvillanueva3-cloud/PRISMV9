@@ -13,6 +13,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { recordOllamaEvent } from './lib/ollama-stats.mjs';
+
+const HOOK_NAME = 'ollama-obsidian-rag';
+// Conservative estimate: 5 memory files × ~200 tokens each = ~1000 tokens raw.
+// RAG summary is ~150 tokens. Net Claude-context savings ~400 tokens after
+// accounting for the summary still being injected.
+const TOKENS_SAVED_PER_RAG = 400;
 
 const OBSIDIAN_VAULT = 'H:/prism/knowledge';
 const RATE_FILE = 'H:/prism/.claude/cache/obsidian-rag-last.json';
@@ -215,13 +222,21 @@ async function main() {
   memories.sort((a, b) => b.score - a.score);
   const top = memories.slice(0, 5);
   if (!top.length) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: 'keep', category: 'no-memory-hits',
+      extras: { snippet: prompt.slice(0, 80) },
+    });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
   const answer = await queryOllamaRAG(prompt, top);
   if (!answer) {
-    // Fallback: just list memory files found
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: 'suggest',
+      category: 'memory-rag',
+      extras: { mode: 'ollama-down', memoriesFound: top.length },
+    });
     const fileList = top.map(m => m.path.split('/').pop()).join(', ');
     console.log(JSON.stringify({
       continue: true,
@@ -232,6 +247,12 @@ async function main() {
     }));
     return;
   }
+
+  recordOllamaEvent({
+    hook: HOOK_NAME, decision: 'offload',
+    category: 'memory-rag', tokensSaved: TOKENS_SAVED_PER_RAG,
+    extras: { mode: 'rag-hit', memoriesUsed: top.length },
+  });
 
   console.log(JSON.stringify({
     continue: true,

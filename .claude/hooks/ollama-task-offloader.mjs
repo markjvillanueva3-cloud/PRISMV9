@@ -21,39 +21,14 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import { recordOllamaEvent } from "./lib/ollama-stats.mjs";
 
 // OLLAMA-DEV-01: prefer 127.0.0.1 over `localhost` — on Windows the latter
 // often resolves to ::1 (IPv6) but Ollama binds IPv4 by default, causing
 // a silent 2s timeout that masquerades as "Ollama not installed".
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const STATS_PATH = "H:/prism/mcp-server/data/state/ollama-offload-stats.json";
-
-// P0-U03: per-hook fire counts + rolling 24h event log
 const HOOK_NAME = "ollama-task-offloader";
-const EVENT_RETENTION_MS = 24 * 60 * 60 * 1000;
-function bumpHookCounter(stats, decision, tokensSaved = 0) {
-  if (!stats.byHook) stats.byHook = {};
-  if (!stats.byHook[HOOK_NAME]) {
-    stats.byHook[HOOK_NAME] = { fired: 0, offloaded: 0, kept: 0, suggested: 0, tokensSaved: 0 };
-  }
-  const h = stats.byHook[HOOK_NAME];
-  h.fired = (h.fired || 0) + 1;
-  if (decision === "offload") h.offloaded = (h.offloaded || 0) + 1;
-  else if (decision === "keep") h.kept = (h.kept || 0) + 1;
-  else if (decision === "suggest") h.suggested = (h.suggested || 0) + 1;
-  h.tokensSaved = (h.tokensSaved || 0) + (tokensSaved || 0);
-}
-function pushEvent(stats, decision, extras = {}) {
-  if (!Array.isArray(stats.events)) stats.events = [];
-  const now = Date.now();
-  stats.events.push({ ts: new Date(now).toISOString(), hook: HOOK_NAME, decision, ...extras });
-  // Prune events older than 24h
-  const cutoff = now - EVENT_RETENTION_MS;
-  stats.events = stats.events.filter((e) => {
-    const t = Date.parse(e.ts);
-    return Number.isFinite(t) && t >= cutoff;
-  });
-}
 const RATE_LIMIT_PATH = "H:/prism/mcp-server/data/state/ollama-rate-limits.json";
 // OLLAMA-DEV-01: bumped from 2s to 4s — qwen2.5-coder:32b cold-load can
 // take 3+s, and the /api/tags probe should never be the bottleneck.
@@ -62,7 +37,22 @@ const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes per category
 const CONFIDENCE_THRESHOLD = 0.80;
 const INJECT_THRESHOLD = 0.90; // Only inject context above this score
 
+// Patterns evaluated in order — first match wins. PRISM-specific patterns
+// MUST come before generic catalog patterns: a prompt like
+// "list all WEDM engines" should match `prism_inventory` (savings 0.85) and
+// not the generic `list all/the` catalog pattern (savings 0.75, below
+// CONFIDENCE_THRESHOLD → recorded as silent suggest instead of offload).
 const OFFLOADABLE_PATTERNS = [
+  // PRISM-specific (added 2026-04-30 after audit found 26/27 keeps were
+  // category="unknown" because the catalog patterns matched none of the
+  // user's actual orchestration prompts). Higher confidence — catch first.
+  { pattern: /\b(list|show|enumerate)\s+.*(engines?|dispatchers?|hooks?|skills?|actions?)\b/i, category: "prism_inventory", savings: 0.85 },
+  { pattern: /\bwhat\s+(actions?|methods?|fields?)\s+.*(in|on|of|does)\s+\w+(dispatcher|engine|registry|schema)/i, category: "prism_introspect", savings: 0.85 },
+  { pattern: /\b(summarize|recap|what.*happened in)\s+.*(git\s+log|commits?|changes?|session|handoff)\b/i, category: "git_summary", savings: 0.88 },
+  { pattern: /\b(check|verify|audit)\s+.*(inventory|count|digest|orphan|wiring)\b/i, category: "prism_audit", savings: 0.82 },
+  { pattern: /\bdescribe\s+(this|the)\s+(file|module|function|class|engine|hook)\b/i, category: "explanation", savings: 0.88 },
+
+  // Generic catalog patterns
   { pattern: /explain\s+(this|the|what|how|why)/i, category: "explanation", savings: 0.90 },
   { pattern: /what\s+(does|is|are)\s+/i, category: "explanation", savings: 0.85 },
   { pattern: /summarize|summary|tldr|overview/i, category: "summary", savings: 0.88 },
@@ -111,15 +101,6 @@ function loadStats() {
     silentSuggestions: 0, // Suggestions logged but not injected
     injectedSuggestions: 0, // Suggestions actually injected into context
   };
-}
-
-function saveStats(stats) {
-  try {
-    const dir = dirname(STATS_PATH);
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    stats.lastUpdated = new Date().toISOString();
-    writeFileSync(STATS_PATH, JSON.stringify(stats, null, 2));
-  } catch { /* ignore */ }
 }
 
 function loadRateLimits() {
@@ -221,28 +202,24 @@ async function main() {
   }
 
   const classification = classifyPrompt(prompt);
-  const stats = loadStats();
 
   if (!classification.offloadable) {
-    stats.keptOnClaude++; bumpHookCounter(stats, "keep");
-    pushEvent(stats, "keep", { category: classification.category, snippet: prompt.slice(0, 80) });
-    saveStats(stats);
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "keep", category: classification.category,
+      extras: { snippet: prompt.slice(0, 80) },
+    });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  // Rate limiting: max 1 suggestion per 5 minutes per category
   if (isRateLimited(classification.category)) {
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "silent" });
-    saveStats(stats);
+    recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "rate-limited" } });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  // Confidence threshold: only proceed if savings > 80%
   if (classification.savings < CONFIDENCE_THRESHOLD) {
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "silent" });
-    saveStats(stats);
+    recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "below-confidence" } });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
@@ -250,17 +227,12 @@ async function main() {
   const ollama = await isOllamaAvailable();
   if (!ollama.available) {
     // OLLAMA-DEV-01: record the would-be-offloaded event so dashboards
-    // show the lost-opportunity volume. Previously this branch returned
-    // silently, hiding the most common failure mode (Ollama daemon not
-    // running) from operators.
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1;
-    bumpHookCounter(stats, "suggest");
-    pushEvent(stats, "suggest", {
-      mode: "ollama-down",
+    // show the lost-opportunity volume.
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "suggest",
       category: classification.category,
-      snippet: prompt.slice(0, 80),
+      extras: { mode: "ollama-down", snippet: prompt.slice(0, 80) },
     });
-    saveStats(stats);
     console.log(JSON.stringify({ continue: true }));
     return;
   }
@@ -269,39 +241,34 @@ async function main() {
   const estimatedTokens = Math.ceil(prompt.length / 4) * 2;
   const savedTokens = Math.round(estimatedTokens * classification.savings);
 
-  // Record the suggestion for rate limiting
   recordSuggestion(classification.category);
 
-  // Update stats. OLLAMA-DEV-01: defensive guard for byCategory — older
-  // stats files (before 2026-04-28) lacked the field, and assigning into
-  // undefined.byCategory[...] threw silently into main().catch(), losing
-  // the offload event AND masking 14/14 prompts as "kept".
-  stats.offloaded++;
-  stats.estimatedTokensSaved += savedTokens;
-  if (!stats.byCategory) stats.byCategory = {};
-  stats.byCategory[classification.category] = (stats.byCategory[classification.category] || 0) + 1;
-  bumpHookCounter(stats, "offload", savedTokens);
-  pushEvent(stats, "offload", { category: classification.category, tokensSaved: savedTokens });
+  recordOllamaEvent({
+    hook: HOOK_NAME, decision: "offload",
+    category: classification.category, tokensSaved: savedTokens,
+  });
 
-  // Silent mode: only inject context if offload_score > 0.9
-  // Otherwise just log silently and continue
   if (classification.savings < INJECT_THRESHOLD) {
-    stats.silentSuggestions = (stats.silentSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "silent" });
-    saveStats(stats);
-    // Log to file but don't inject into context
+    recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "below-inject-threshold" } });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  // High-value suggestion: inject into context
-  stats.injectedSuggestions = (stats.injectedSuggestions || 0) + 1; bumpHookCounter(stats, "suggest"); pushEvent(stats, "suggest", { mode: "injected" });
-  saveStats(stats);
+  recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "injected" } });
+
+  // Reload stats just for the cumulative-savings display in the injected note.
+  // Tolerate read failure (best-effort cosmetic only).
+  let totalSaved = savedTokens;
+  try {
+    const cur = loadStats();
+    totalSaved = cur.estimatedTokensSaved || savedTokens;
+  } catch { /* best-effort */ }
 
   const ctx = [
     `💡 OFFLOAD OPPORTUNITY (${classification.category})`,
     `This "${classification.category}" task could run on local Ollama (${model})`,
     `Est. token savings: ~${savedTokens} tokens (${Math.round(classification.savings * 100)}%)`,
-    `Total saved this session: ~${stats.estimatedTokensSaved} tokens`,
+    `Total saved this session: ~${totalSaved} tokens`,
     "",
     "To use: the prompt-rewriter-ollama hook may already handle this.",
     "Or manually: ask Claude to delegate explanations/summaries to Ollama.",
