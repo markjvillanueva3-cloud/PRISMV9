@@ -265,21 +265,27 @@ export class LathePostGeneratorDialectEngine {
 
   /**
    * Generate dialect-specific G-code for a canned cycle.
+   *
+   * Accepts the schema's *input* shape so that fields with `.default()`
+   * (line_number_start, line_number_increment, include_comments,
+   * use_line_numbers) are optional at the call site. After validation,
+   * the local `input` is the *parsed* shape with all defaults applied.
    */
-  static generate(input: DialectGenerationInput): GeneratedGCode {
-    const validation = DialectGenerationInputSchema.safeParse(input);
+  static generate(rawInput: z.input<typeof DialectGenerationInputSchema>): GeneratedGCode {
+    const validation = DialectGenerationInputSchema.safeParse(rawInput);
     if (!validation.success) {
       return {
         success: false,
         gcode: [],
         dialect: "unknown",
-        cycle_code: input.cycle_code,
-        controller_id: input.controller_id,
+        cycle_code: rawInput.cycle_code,
+        controller_id: rawInput.controller_id,
         warnings: [],
         errors: [`Input validation failed: ${validation.error.message}`],
         metadata: { total_lines: 0, parameters_used: [] },
       };
     }
+    const input: DialectGenerationInput = validation.data;
 
     const spec = lathePostGeneratorSpecIngestEngine.getBuiltinSpec(input.controller_id);
     if (!spec) {
