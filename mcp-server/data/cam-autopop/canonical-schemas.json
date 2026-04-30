@@ -1,0 +1,308 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "PRISM CAM Auto-Population — Canonical Entity Schemas",
+    "description": "Universal canonical schemas for the five CAM autopop entity types — Tool, Holder, Fixture, Machine, CAD Part. These schemas are the contract every per-CAM mapping (Fusion 360, hyperMILL, Mastercam, Inventor HSM, Esprit, SolidCAM) translates to and from. Every field has unit, range, and source-citation metadata so a PRISM canonical record can be losslessly written to or read from any of the six CAM systems. Foundation for Phase 2 (CAM-AUTOPOP-CORE) of L2-CAMX-EXHAUST roadmap; unblocks Phases 3-8 per-CAM rollouts.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-30",
+    "milestone": "CAM-AUTOPOP-CORE-MS0",
+    "source": "ISO 13399 (cutting tool data representation) + ISO 26623 (modular tool interfaces, Capto) + DIN 69893 (HSK tool holders) + DIN 69871 + JIS B 6339 (BT taper) + ANSI/ASME B5.50 (CAT taper) + ISO 230-1 / 230-2 (machine kinematics, axis acceptance) + ASME B5.54 (machine accuracy) + STEP AP242 (CAD model exchange) + Autodesk Fusion 360 Tool Library JSON schema + Mastercam .tools-9 reference + hyperMILL Virtual Tool Library (VTL) reference + Autodesk Inventor HSM Tool Library schema + DP Technology Esprit tool DB + SolidCAM Tool Manager schema",
+    "entityCount": 5,
+    "totalFieldCount": 156,
+    "physics_links": [
+      "TOOL_GEOMETRY_KIENZLE_MAPPING",
+      "HOLDER_TAPER_RUNOUT_BUDGET",
+      "FIXTURE_GRIP_FORCE_VS_PART_GEOMETRY",
+      "MACHINE_ENVELOPE_REACHABILITY",
+      "CAD_MODEL_INERTIA_FROM_GEOMETRY",
+      "ISO13399_FIELD_NORMALIZATION",
+      "TAPER_INTERFACE_INTERCHANGEABILITY",
+      "BALANCE_GRADE_VS_RPM_LIMIT"
+    ]
+  },
+  "entities": {
+    "TOOL": {
+      "description": "Canonical cutting-tool record. Bridges Fusion .json tool library, Mastercam .tools-9, hyperMILL VTL, Inventor HSM tool DB, Esprit tool DB, SolidCAM Tool Manager. Field surface follows ISO 13399 representation with vendor-neutral additions for coating layers and tip geometry.",
+      "fieldCount": 38,
+      "groups": {
+        "Identity": {
+          "fields": [
+            {"name": "tool_id", "type": "string", "description": "PRISM canonical UUID for this tool record", "required": true},
+            {"name": "tool_number", "type": "integer", "description": "Tool magazine pocket number (T-word in NC)", "required": true, "min": 1, "max": 999},
+            {"name": "description", "type": "string", "description": "Free-form human-readable label"},
+            {"name": "vendor_brand", "type": "string", "description": "Manufacturer brand (Sandvik, Kennametal, ISCAR, Walter, etc.)"},
+            {"name": "vendor_part_number", "type": "string", "description": "Manufacturer order code"},
+            {"name": "iso13399_ref", "type": "string", "description": "ISO 13399 GTC reference if catalogued"},
+            {"name": "catalog_url", "type": "string", "description": "Web link to vendor catalogue page"}
+          ]
+        },
+        "Type_Geometry": {
+          "fields": [
+            {"name": "tool_type", "type": "enum", "values": ["endmill_flat", "endmill_ball", "endmill_bullnose", "endmill_radius", "drill_twist", "drill_indexable", "drill_step", "centerdrill", "spotdrill", "tap_cut", "tap_form", "thread_mill", "reamer", "boring_bar", "facemill", "shellmill", "chamfer_mill", "engraver", "lollipop", "barrel", "tslot_cutter", "dovetail_cutter", "saw", "form_cutter", "turning_insert", "grooving_insert", "threading_insert"], "required": true},
+            {"name": "diameter_mm", "type": "numeric", "description": "Cutting diameter — major for taper, OD for endmill", "required": true, "min": 0.05, "max": 200, "unit": "mm"},
+            {"name": "length_overall_mm", "type": "numeric", "description": "Total physical length", "required": true, "min": 1, "max": 500, "unit": "mm"},
+            {"name": "length_cutting_mm", "type": "numeric", "description": "Flute/cutting-edge engaged length", "min": 0.5, "max": 300, "unit": "mm"},
+            {"name": "length_gauge_mm", "type": "numeric", "description": "Distance from holder gauge line to tool tip", "min": 1, "max": 500, "unit": "mm"},
+            {"name": "shank_diameter_mm", "type": "numeric", "min": 1, "max": 100, "unit": "mm"},
+            {"name": "neck_diameter_mm", "type": "numeric", "description": "Reduced shank for clearance"},
+            {"name": "neck_length_mm", "type": "numeric"},
+            {"name": "flute_count", "type": "integer", "min": 1, "max": 16},
+            {"name": "helix_angle_deg", "type": "numeric", "min": 0, "max": 70, "unit": "deg"},
+            {"name": "rake_angle_deg", "type": "numeric", "min": -20, "max": 30, "unit": "deg"},
+            {"name": "corner_radius_mm", "type": "numeric", "description": "Tip corner radius (0 for sharp endmill, full radius for ball)", "min": 0, "max": 25, "unit": "mm"},
+            {"name": "taper_angle_deg", "type": "numeric", "description": "Half-angle for taper / chamfer cutters", "min": 0, "max": 90, "unit": "deg"},
+            {"name": "tip_geometry", "type": "enum", "values": ["flat", "ball", "bullnose", "tapered_flat", "tapered_ball", "drill_118deg", "drill_135deg", "drill_140deg", "split_point"]}
+          ]
+        },
+        "Material_Coating": {
+          "fields": [
+            {"name": "substrate", "type": "enum", "values": ["carbide_solid", "carbide_micrograin", "hss", "hss_co5", "hss_co8", "ceramic", "cbn", "pcd", "diamond_coated", "cermet"]},
+            {"name": "substrate_grade", "type": "string", "description": "Vendor-specific grade (e.g. 'GC1130', 'IC907', 'WPP30S')"},
+            {"name": "coating_layers", "type": "array", "description": "Ordered list of coating layers from substrate outward", "items": {"layer": "enum (TiN/TiAlN/AlCrN/AlTiN/TiCN/CrN/diamond/diamond_like_carbon/TiSiN/uncoated)", "thickness_um": "numeric"}},
+            {"name": "coating_total_thickness_um", "type": "numeric", "description": "Sum of layer thicknesses", "min": 0, "max": 30, "unit": "um"},
+            {"name": "coating_color", "type": "string", "description": "Visual identifier (gold, bronze, dark-grey, multi-rainbow)"}
+          ]
+        }
+      }
+    },
+    "HOLDER": {
+      "description": "Canonical tool-holder record. Bridges Fusion holder library, hyperMILL TDM, Mastercam .holders, Inventor HSM holder DB, SolidCAM Holder Manager. Specifies taper interface, gauge geometry, balance class, runout budget, and collision profile.",
+      "fieldCount": 28,
+      "groups": {
+        "Identity": {
+          "fields": [
+            {"name": "holder_id", "type": "string", "required": true},
+            {"name": "description", "type": "string"},
+            {"name": "vendor_brand", "type": "string"},
+            {"name": "vendor_part_number", "type": "string"},
+            {"name": "iso26623_ref", "type": "string", "description": "Capto reference per ISO 26623 if applicable"}
+          ]
+        },
+        "Taper_Interface": {
+          "fields": [
+            {"name": "taper_type", "type": "enum", "values": ["HSK_A", "HSK_B", "HSK_C", "HSK_E", "HSK_F", "HSK_T", "CAT_V", "CAT_BT", "BT_30", "BT_40", "BT_50", "CAT_30", "CAT_40", "CAT_50", "CAT_60", "Capto_C3", "Capto_C4", "Capto_C5", "Capto_C6", "Capto_C8", "KM_25", "KM_32", "KM_40", "KM_50", "KM_63", "KM_80", "ER_collet", "VDI_30", "VDI_40", "VDI_50", "BMT_55", "BMT_65", "BMT_75", "Polygonal_PSC", "morse_taper"], "required": true},
+            {"name": "taper_designation", "type": "string", "description": "Full designation (e.g. 'HSK63A', 'CAT40 V-flange', 'BT30 standard')"},
+            {"name": "drawbar_force_N", "type": "numeric", "description": "Min drawbar pull required", "unit": "N"}
+          ]
+        },
+        "Geometry": {
+          "fields": [
+            {"name": "holder_type", "type": "enum", "values": ["shrinkfit", "collet_ER", "collet_TG", "hydraulic", "milling_chuck", "side_lock", "shell_mill_arbor", "tap_holder_floating", "tap_holder_rigid", "drill_chuck_jacobs", "live_center_holder", "boring_bar_holder", "extension", "reduction_sleeve"], "required": true},
+            {"name": "gauge_length_mm", "type": "numeric", "description": "Holder gauge line to clamping bore tip", "required": true, "min": 20, "max": 300, "unit": "mm"},
+            {"name": "body_diameter_mm", "type": "numeric", "description": "OD of holder body (for collision check)", "min": 10, "max": 200, "unit": "mm"},
+            {"name": "nose_diameter_mm", "type": "numeric", "description": "OD at clamping nose"},
+            {"name": "nose_length_mm", "type": "numeric"},
+            {"name": "clamping_diameter_min_mm", "type": "numeric", "min": 1, "max": 50, "unit": "mm"},
+            {"name": "clamping_diameter_max_mm", "type": "numeric"},
+            {"name": "profile_polyline_mm", "type": "array", "description": "2D radius-vs-z polyline for collision check"}
+          ]
+        },
+        "Performance": {
+          "fields": [
+            {"name": "max_rpm", "type": "integer", "description": "Manufacturer-rated speed cap", "min": 1000, "max": 80000, "unit": "rpm"},
+            {"name": "balance_grade_iso1940", "type": "enum", "values": ["G2.5", "G6.3", "G16", "G40", "G100", "unbalanced"], "description": "ISO 1940-1 balance grade"},
+            {"name": "balance_speed_rpm", "type": "integer", "description": "Speed at which balance grade was certified"},
+            {"name": "runout_um_at_3xD", "type": "numeric", "description": "TIR at 3× diameter from nose (vendor spec)", "min": 0, "max": 50, "unit": "um"},
+            {"name": "max_torque_Nm", "type": "numeric", "description": "Tool-side torque rating"}
+          ]
+        },
+        "Coolant": {
+          "fields": [
+            {"name": "coolant_through_capability", "type": "enum", "values": ["none", "through_holder", "through_holder_and_tool", "external_only"]},
+            {"name": "coolant_max_pressure_bar", "type": "numeric", "min": 0, "max": 250, "unit": "bar"},
+            {"name": "coolant_port_count", "type": "integer", "min": 0, "max": 12}
+          ]
+        },
+        "Lifecycle": {
+          "fields": [
+            {"name": "service_hours_max", "type": "numeric", "description": "Manufacturer-recommended life cap", "unit": "h"},
+            {"name": "lubrication_required", "type": "boolean", "description": "Some hydraulic / shrinkfit holders need periodic service"},
+            {"name": "inspection_interval_h", "type": "numeric", "unit": "h"}
+          ]
+        }
+      }
+    },
+    "FIXTURE": {
+      "description": "Canonical workholding fixture record. Bridges Fusion fixture library, hyperMILL fixture browser, Mastercam vise/chuck templates, Inventor HSM fixture DB. Covers vise / chuck / collet-block / tombstone / vacuum / magnetic / 3D-printed soft-jaw / modular subplate.",
+      "fieldCount": 26,
+      "groups": {
+        "Identity": {
+          "fields": [
+            {"name": "fixture_id", "type": "string", "required": true},
+            {"name": "description", "type": "string"},
+            {"name": "vendor_brand", "type": "string"},
+            {"name": "vendor_part_number", "type": "string"}
+          ]
+        },
+        "Type_Geometry": {
+          "fields": [
+            {"name": "fixture_type", "type": "enum", "values": ["vise_machinist", "vise_5axis", "vise_double_station", "chuck_3jaw", "chuck_4jaw_independent", "chuck_collet", "chuck_diaphragm", "chuck_magnetic", "tombstone", "subplate_modular", "vacuum_table", "vacuum_pod", "soft_jaw_3DP", "soft_jaw_machined", "indexer_4axis", "trunnion_5axis", "expanding_mandrel", "live_tailstock_center", "steady_rest", "follower_rest", "v_block", "magnetic_chuck", "fixture_plate_universal"], "required": true},
+            {"name": "bbox_x_mm", "type": "numeric", "description": "Bounding box X dimension", "min": 10, "max": 5000, "unit": "mm"},
+            {"name": "bbox_y_mm", "type": "numeric"},
+            {"name": "bbox_z_mm", "type": "numeric"},
+            {"name": "wcs_origin_xyz_mm", "type": "array", "description": "Default WCS origin offset from fixture base [x,y,z]"},
+            {"name": "wcs_origin_face", "type": "enum", "values": ["top_center", "top_left", "bottom_left", "front_center", "user_defined"]},
+            {"name": "fixture_cad_uri", "type": "string", "description": "Path/URL to fixture STEP/STL"}
+          ]
+        },
+        "Clamping": {
+          "fields": [
+            {"name": "clamp_force_N", "type": "numeric", "description": "Per-jaw clamp force at rated torque", "min": 100, "max": 200000, "unit": "N"},
+            {"name": "max_clamp_force_N", "type": "numeric"},
+            {"name": "clamping_range_min_mm", "type": "numeric", "min": 0, "max": 1000, "unit": "mm"},
+            {"name": "clamping_range_max_mm", "type": "numeric"},
+            {"name": "clamp_friction_mu", "type": "numeric", "description": "Static friction at jaw/part interface", "min": 0, "max": 1.5},
+            {"name": "contact_point_count", "type": "integer", "min": 1, "max": 200, "description": "Discrete contact patches (jaws, vacuum pods, magnets)"},
+            {"name": "vacuum_capacity_kPa", "type": "numeric", "description": "Vacuum table only — pressure differential", "unit": "kPa"},
+            {"name": "magnetic_force_N_per_cm2", "type": "numeric", "description": "Magnetic chuck only", "unit": "N/cm^2"}
+          ]
+        },
+        "Performance": {
+          "fields": [
+            {"name": "stiffness_N_per_mm", "type": "numeric", "description": "Static stiffness at part-clamping plane"},
+            {"name": "max_part_mass_kg", "type": "numeric", "min": 0, "max": 10000, "unit": "kg"},
+            {"name": "max_rpm_safe", "type": "integer", "description": "Spinning-fixture rated speed (chuck/collet block/4-axis)", "unit": "rpm"},
+            {"name": "balance_grade_iso1940", "type": "enum", "values": ["G2.5", "G6.3", "G16", "G40", "G100", "unbalanced"]}
+          ]
+        },
+        "Compatibility": {
+          "fields": [
+            {"name": "machine_compatibility", "type": "array", "description": "List of machine_id strings this fixture mounts on"},
+            {"name": "subplate_grid_pattern", "type": "string", "description": "M12x50 grid / 5/8-11 grid / metric tooling-plate spec"},
+            {"name": "modular_baseplate_compat", "type": "array", "description": "Schunk VERO-S / Erowa / 3R / Hainbuch series codes"}
+          ]
+        }
+      }
+    },
+    "MACHINE": {
+      "description": "Canonical machine-tool profile. Bridges Fusion machine library, hyperMILL machine kinematics, Mastercam machine definition, Inventor HSM machine DB, Esprit kernel, SolidCAM machine library. Covers 3-axis / 3+2 / simultaneous 5-axis / Swiss / mill-turn / EDM / waterjet / additive / lathe.",
+      "fieldCount": 36,
+      "groups": {
+        "Identity": {
+          "fields": [
+            {"name": "machine_id", "type": "string", "required": true},
+            {"name": "manufacturer", "type": "string"},
+            {"name": "model", "type": "string"},
+            {"name": "year_manufactured", "type": "integer", "min": 1980, "max": 2100},
+            {"name": "serial_number", "type": "string"},
+            {"name": "controller", "type": "enum", "values": ["fanuc_0i", "fanuc_30i", "fanuc_31i", "fanuc_15i", "mazak_smooth_g", "mazak_smooth_x", "mazatrol", "okuma_osp_p200", "okuma_osp_p300", "heidenhain_tnc640", "heidenhain_itnc530", "siemens_840d_sl", "siemens_828d", "haas_ngc", "haas_classic", "doosan_fanuc", "hurco_winmax", "centroid_acorn", "linuxcnc", "mach3", "mach4", "agie_charmilles_AC_form", "sodick_LH", "makino_pro6", "fanuc_31i_TF_lathe"], "required": true}
+          ]
+        },
+        "Kinematics": {
+          "fields": [
+            {"name": "kinematics_type", "type": "enum", "values": ["3axis_vmc", "3axis_hmc", "3plus2_indexed", "5axis_table_table", "5axis_table_head", "5axis_head_head", "swiss_8axis", "lathe_2axis", "lathe_with_c_axis", "lathe_with_y_axis", "millturn_3turret", "wedm_4axis", "wedm_5axis", "sinker_edm_3axis", "additive_5axis", "waterjet_5axis", "horizontal_boring", "vertical_lathe", "double_column"], "required": true},
+            {"name": "rotary_axes", "type": "array", "description": "Rotary axis descriptors [{letter:'A', placement:'table', limit_low_deg:-120, limit_high_deg:120}, ...]"},
+            {"name": "axis_letters", "type": "array", "description": "Linear+rotary letters in machine convention (X,Y,Z,A,B,C,U,V,W)"},
+            {"name": "rtcp_supported", "type": "boolean", "description": "G43.4 / TCPM / TRAORI runtime tool center point"},
+            {"name": "rtcp_variant", "type": "enum", "values": ["fanuc_G43_4", "fanuc_G43_5", "heidenhain_M128", "heidenhain_FUNCTION_TCPM", "siemens_TRAORI", "okuma_G169", "none"]}
+          ]
+        },
+        "Envelope": {
+          "fields": [
+            {"name": "travel_x_mm", "type": "numeric", "min": 50, "max": 20000, "unit": "mm"},
+            {"name": "travel_y_mm", "type": "numeric", "min": 50, "max": 10000, "unit": "mm"},
+            {"name": "travel_z_mm", "type": "numeric", "min": 50, "max": 10000, "unit": "mm"},
+            {"name": "travel_a_deg", "type": "numeric", "description": "Rotary A-axis range (range, not absolute limits)"},
+            {"name": "travel_b_deg", "type": "numeric"},
+            {"name": "travel_c_deg", "type": "numeric"},
+            {"name": "max_table_load_kg", "type": "numeric", "unit": "kg"},
+            {"name": "table_size_mm", "type": "string", "description": "T-slot table dimensions, e.g. '500x800'"},
+            {"name": "swing_diameter_mm", "type": "numeric", "description": "Lathe swing-over-bed", "unit": "mm"},
+            {"name": "between_centers_mm", "type": "numeric", "description": "Lathe distance between centers", "unit": "mm"}
+          ]
+        },
+        "Spindle": {
+          "fields": [
+            {"name": "spindle_max_rpm", "type": "integer", "min": 100, "max": 80000, "unit": "rpm"},
+            {"name": "spindle_max_torque_Nm", "type": "numeric", "min": 1, "max": 5000, "unit": "Nm"},
+            {"name": "spindle_max_power_kW", "type": "numeric", "min": 0.1, "max": 200, "unit": "kW"},
+            {"name": "spindle_taper", "type": "enum", "values": ["HSK_A_25", "HSK_A_32", "HSK_A_40", "HSK_A_50", "HSK_A_63", "HSK_A_80", "HSK_A_100", "HSK_A_125", "BT_30", "BT_40", "BT_50", "CAT_30", "CAT_40", "CAT_50", "Capto_C3", "Capto_C5", "Capto_C6", "Capto_C8"]},
+            {"name": "spindle_balance_class", "type": "enum", "values": ["G2.5", "G6.3", "G16"]}
+          ]
+        },
+        "Magazine": {
+          "fields": [
+            {"name": "tool_count", "type": "integer", "min": 1, "max": 400},
+            {"name": "max_tool_diameter_mm", "type": "numeric", "min": 5, "max": 300, "unit": "mm"},
+            {"name": "max_tool_length_mm", "type": "numeric", "min": 10, "max": 800, "unit": "mm"},
+            {"name": "max_tool_weight_kg", "type": "numeric", "unit": "kg"},
+            {"name": "tool_change_time_s", "type": "numeric", "min": 0.5, "max": 30, "unit": "s"}
+          ]
+        },
+        "Post": {
+          "fields": [
+            {"name": "post_processor_id", "type": "string", "description": "Bound post.cps file or post variant"},
+            {"name": "controller_dialect_id", "type": "string", "description": "Cross-ref to POST_CONTROLLER_VARIANT entry"},
+            {"name": "machine_simulation_enabled", "type": "boolean", "description": "Vericut / NCSimul / desktop simulation profile available"},
+            {"name": "machine_kinematics_xml_uri", "type": "string", "description": "Path to .machinekin / Heidenhain MaschinenKonfig file"}
+          ]
+        }
+      }
+    },
+    "CAD_PART": {
+      "description": "Canonical CAD-part record. Bridges STEP/IGES/STL/BREP imports across all 6 CAMs. Captures geometry envelope, mass properties, feature inventory, GD&T extraction, material callout, and per-CAM native-format references.",
+      "fieldCount": 28,
+      "groups": {
+        "Identity": {
+          "fields": [
+            {"name": "cad_part_id", "type": "string", "required": true},
+            {"name": "part_number", "type": "string", "description": "Customer / shop part number"},
+            {"name": "revision", "type": "string"},
+            {"name": "description", "type": "string"},
+            {"name": "source_file_uri", "type": "string", "description": "Path/URL to source CAD file", "required": true},
+            {"name": "format", "type": "enum", "values": ["step_ap214", "step_ap242", "iges_5_3", "stl_binary", "stl_ascii", "obj", "ply", "brep_native_fusion", "brep_native_solidworks", "brep_native_inventor", "brep_native_creo", "brep_native_nx", "brep_native_catia", "x_t_parasolid", "x_b_parasolid_binary", "ply_pointcloud", "3mf"], "required": true},
+            {"name": "sha256", "type": "string", "description": "File integrity hash"}
+          ]
+        },
+        "Units_Bbox": {
+          "fields": [
+            {"name": "units", "type": "enum", "values": ["mm", "cm", "m", "in", "ft"], "required": true},
+            {"name": "bbox_x_mm", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "bbox_y_mm", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "bbox_z_mm", "type": "numeric", "required": true, "unit": "mm"},
+            {"name": "bbox_diagonal_mm", "type": "numeric"}
+          ]
+        },
+        "Mass_Properties": {
+          "fields": [
+            {"name": "volume_mm3", "type": "numeric", "min": 0, "unit": "mm^3"},
+            {"name": "surface_area_mm2", "type": "numeric", "min": 0, "unit": "mm^2"},
+            {"name": "mass_kg", "type": "numeric", "description": "Computed from volume × material density", "min": 0, "unit": "kg"},
+            {"name": "density_kg_per_m3", "type": "numeric", "description": "Source density used for mass", "unit": "kg/m^3"},
+            {"name": "centroid_xyz_mm", "type": "array", "description": "[cx, cy, cz] in source coords"},
+            {"name": "principal_inertia_kg_mm2", "type": "array", "description": "[Ixx, Iyy, Izz] principal axes"}
+          ]
+        },
+        "Feature_Inventory": {
+          "fields": [
+            {"name": "face_count", "type": "integer"},
+            {"name": "edge_count", "type": "integer"},
+            {"name": "vertex_count", "type": "integer"},
+            {"name": "hole_count", "type": "integer", "description": "Distinct hole feature instances"},
+            {"name": "pocket_count", "type": "integer"},
+            {"name": "boss_count", "type": "integer"},
+            {"name": "fillet_count", "type": "integer"},
+            {"name": "thread_feature_count", "type": "integer", "description": "Tapped/threaded holes detected"}
+          ]
+        },
+        "Material_Callout": {
+          "fields": [
+            {"name": "material_callout_text", "type": "string", "description": "Raw text extracted from drawing TBLOCK or 3D PMI"},
+            {"name": "material_iso_group", "type": "enum", "values": ["P_steel", "M_stainless", "K_cast_iron", "N_non_ferrous", "S_superalloy", "H_hardened"]},
+            {"name": "material_canonical_id", "type": "string", "description": "PRISM material registry FK (e.g. 'AISI4140_QT', 'AL6061T6', 'Ti6Al4V')"}
+          ]
+        },
+        "GDT_Extracted": {
+          "fields": [
+            {"name": "datum_frame", "type": "string", "description": "Primary-Secondary-Tertiary datum letters (e.g. 'A|B|C')"},
+            {"name": "iso_2768_grade", "type": "enum", "values": ["fine", "medium", "coarse", "very_coarse", "not_specified"]},
+            {"name": "tightest_bilateral_tol_mm", "type": "numeric", "description": "Smallest +/- tolerance found"},
+            {"name": "tightest_iso286_fit", "type": "string", "description": "Tightest ISO 286 fit class (e.g. 'H6', 'g6')"},
+            {"name": "surface_finish_callouts", "type": "array", "description": "Distinct Ra/Rz callouts found"},
+            {"name": "gdt_frame_count", "type": "integer", "description": "Total GD&T feature-control-frames"}
+          ]
+        }
+      }
+    }
+  }
+}

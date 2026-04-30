@@ -1,0 +1,777 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "PRISM CAM Auto-Population — Per-CAM Field Mapping Rules",
+    "description": "Bidirectional field-mapping rules between PRISM canonical schemas (canonical-schemas.json) and the six target CAM systems' native libraries. Each rule names: native_format (file/DB the CAM uses for that entity), field_map (canonical → native field path), and quirks (CAM-specific behaviors that affect import/export). These rules are the contract that CAMAutopopSchemaEngine + downstream import/export/sync engines compile against. Lossless round-trip is the design target; lossy fields are explicitly tagged so export logic can warn the user before round-tripping.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-30",
+    "milestone": "CAM-AUTOPOP-CORE-MS0",
+    "depends_on": ["canonical-schemas.json"],
+    "source": "Autodesk Fusion 360 Tool Library JSON (publicly documented schema, manage-tab Tools dialog) + Mastercam .tools-9 / .stl + .holders-9 reference (CNCSoftware KB, ToolManager XML export) + hyperMILL Virtual Tool Library (VTL .htl XML) + hyperMILL TDM Tool Data Management bridge + Autodesk Inventor HSM Tool Library (HSMUtility.exe) + DP Technology Esprit Tool DB (.esp tool table, ProfitMilling tool definition) + SolidCAM Tool Manager (.prj tool block) + STEP AP242 (CAD), STEP-NC (machining model)",
+    "cam_count": 6,
+    "entity_count": 5,
+    "cams": [
+      {"id": "fusion360", "name": "Autodesk Fusion 360 / Manufacturing Extension", "vendor": "Autodesk", "tool_format": "Fusion Tool Library JSON (.json)", "post_format": "post.cps (Autodesk PostBuilder JS)", "machine_format": "Fusion Machine Library JSON"},
+      {"id": "hypermill", "name": "OPEN MIND hyperMILL / hyperCAD-S", "vendor": "OPEN MIND Technologies", "tool_format": "VTL XML (.htl) + TDM bridge", "post_format": "hyperMILL Postprocessor (.ppd / .pst)", "machine_format": "hyperMILL Machine Configuration (.mcf XML)"},
+      {"id": "mastercam", "name": "Mastercam X9–2026", "vendor": "CNC Software", "tool_format": ".tools-9 (binary) + ToolManager XML export", "post_format": ".pst (Mastercam Post)", "machine_format": ".mcam-mmd (Machine Definition)"},
+      {"id": "inventor_hsm", "name": "Autodesk Inventor HSM / Inventor CAM", "vendor": "Autodesk", "tool_format": "Fusion-compatible Tool Library JSON + HSMUtility legacy XML", "post_format": "post.cps (shares Autodesk post kernel)", "machine_format": "Inventor HSM Machine Library JSON"},
+      {"id": "esprit", "name": "DP Technology Esprit / Esprit Edge", "vendor": "DP Technology (Hexagon)", "tool_format": ".esp tool table (XML) + ProfitMilling kernel", "post_format": ".pst (Esprit post)", "machine_format": "Esprit MTM kernel (.mtm XML)"},
+      {"id": "solidcam", "name": "SolidCAM (SolidWorks/Inventor add-in)", "vendor": "SolidCAM Ltd.", "tool_format": ".prj tool block + Tool Manager XML", "post_format": ".gpp (Generic Post Processor)", "machine_format": ".prj machine definition + MAC files"}
+    ]
+  },
+  "rules": {
+    "TOOL": {
+      "fusion360": {
+        "native_format": "fusion_tool_library_json",
+        "native_root": "data[].name (tool array)",
+        "field_map": {
+          "tool_id": "guid",
+          "tool_number": "post-process-info.number",
+          "description": "description",
+          "vendor_brand": "vendor",
+          "vendor_part_number": "product-id",
+          "tool_type": "type (mapped via tool-type-enum)",
+          "diameter_mm": "geometry.DC",
+          "length_overall_mm": "geometry.OAL",
+          "length_cutting_mm": "geometry.LCF",
+          "length_gauge_mm": "geometry.HSGL",
+          "shank_diameter_mm": "geometry.SFDM",
+          "flute_count": "geometry.NOF",
+          "helix_angle_deg": "geometry.HAND (lead angle)",
+          "corner_radius_mm": "geometry.RE",
+          "tip_geometry": "geometry.tip-type",
+          "substrate": "BMC (mapped: 'carbide'→carbide_solid, 'hss'→hss)",
+          "coating_layers": "coating (single-string field; multi-layer must be encoded vendor-side)"
+        },
+        "quirks": [
+          "Fusion stores cutter compensation as separate 'wear' / 'length' offsets; canonical does not — preserved in extras",
+          "tool-type-enum is Fusion-internal (e.g. 'flat end mill', 'ball end mill'); enum mapping table maintained in engine",
+          "GUID generation: Fusion auto-generates if absent on import; engine must preserve canonical tool_id"
+        ],
+        "lossy_fields": ["coating_layers (Fusion stores as flat string; multi-layer encoding lost)", "substrate_grade (no native field; round-trips via description suffix)"]
+      },
+      "hypermill": {
+        "native_format": "vtl_htl_xml",
+        "native_root": "VirtualToolLibrary > Tool",
+        "field_map": {
+          "tool_id": "@ID (UUID attribute on Tool element)",
+          "tool_number": "ToolNumber",
+          "description": "Description",
+          "vendor_brand": "Manufacturer",
+          "vendor_part_number": "ManufacturerPartNumber",
+          "tool_type": "ToolClass (e.g. 'EndMill_Flat', 'EndMill_Ball', mapped via class-enum)",
+          "diameter_mm": "Geometry/Diameter",
+          "length_overall_mm": "Geometry/TotalLength",
+          "length_cutting_mm": "Geometry/CuttingLength",
+          "length_gauge_mm": "Geometry/UsableLength",
+          "shank_diameter_mm": "Geometry/ShankDiameter",
+          "flute_count": "Geometry/NumberOfTeeth",
+          "helix_angle_deg": "Geometry/HelixAngle",
+          "corner_radius_mm": "Geometry/CornerRadius",
+          "substrate": "Material/Substrate",
+          "coating_layers": "Material/Coatings/Coating[] (full multi-layer support)",
+          "coating_total_thickness_um": "Material/Coatings/TotalThickness"
+        },
+        "quirks": [
+          "hyperMILL VTL fully supports multi-layer coatings (lossless round-trip)",
+          "TDM bridge provides per-tool service-life counters via separate ToolLifeData section",
+          "ToolClass enum is OPEN MIND-specific; canonical tool_type maps via deterministic table"
+        ],
+        "lossy_fields": []
+      },
+      "mastercam": {
+        "native_format": "tools-9_binary",
+        "native_root": ".tools-9 (binary) — accessed via ToolManager XML export",
+        "field_map": {
+          "tool_id": "ToolGUID (in XML export)",
+          "tool_number": "ToolNumber",
+          "description": "Description",
+          "vendor_brand": "ManufacturerName",
+          "vendor_part_number": "ManufacturerNumber",
+          "tool_type": "ToolType (Mastercam type code 1-99, mapped via type-code table)",
+          "diameter_mm": "Diameter",
+          "length_overall_mm": "OverallLength",
+          "length_cutting_mm": "FluteLength",
+          "length_gauge_mm": "GageLength",
+          "shank_diameter_mm": "ShankDiameter",
+          "flute_count": "NumberOfFlutes",
+          "helix_angle_deg": "HelixAngle",
+          "corner_radius_mm": "CornerRadius",
+          "tip_geometry": "TipType (subset of tool-type code)"
+        },
+        "quirks": [
+          ".tools-9 is binary; canonical export uses ToolManager XML which is the documented bridge",
+          "Mastercam tool-type code is a single integer; sub-attributes (e.g. ball vs bullnose) inferred from corner_radius_mm",
+          "Coating support is single-string ('Coating' field); multi-layer encoded vendor-side",
+          "Per-machine-group tool overrides not represented in canonical (machine-group scope)"
+        ],
+        "lossy_fields": ["coating_layers (single-string)", "substrate_grade (vendor-side encoding only)", "machine-group-scoped overrides"]
+      },
+      "inventor_hsm": {
+        "native_format": "fusion_compatible_json",
+        "native_root": "data[] (shares Fusion schema)",
+        "field_map": {
+          "tool_id": "guid",
+          "tool_number": "post-process-info.number",
+          "description": "description",
+          "vendor_brand": "vendor",
+          "vendor_part_number": "product-id",
+          "tool_type": "type",
+          "diameter_mm": "geometry.DC",
+          "length_overall_mm": "geometry.OAL",
+          "length_cutting_mm": "geometry.LCF",
+          "length_gauge_mm": "geometry.HSGL",
+          "shank_diameter_mm": "geometry.SFDM",
+          "flute_count": "geometry.NOF",
+          "corner_radius_mm": "geometry.RE",
+          "substrate": "BMC"
+        },
+        "quirks": [
+          "Inventor HSM and Fusion 360 share the Autodesk Tool Library schema (canonical bridge is identical)",
+          "Legacy HSMUtility XML format also supported; modern Fusion JSON preferred",
+          "Tool number namespace is per-document; HSM allows multi-document tool sharing via Library reference"
+        ],
+        "lossy_fields": ["coating_layers (single-string, same as Fusion)"]
+      },
+      "esprit": {
+        "native_format": "esp_xml_tool_table",
+        "native_root": ".esp > Tools > Tool",
+        "field_map": {
+          "tool_id": "@id",
+          "tool_number": "ToolNumber",
+          "description": "Comment",
+          "vendor_brand": "Vendor",
+          "vendor_part_number": "PartNumber",
+          "tool_type": "ToolType (Esprit code: 'EndMill', 'Drill', 'Tap', 'Insert', etc.)",
+          "diameter_mm": "Diameter",
+          "length_overall_mm": "Length",
+          "length_cutting_mm": "FluteLength",
+          "length_gauge_mm": "GaugeLength",
+          "shank_diameter_mm": "ShankDiameter",
+          "flute_count": "NumFlutes",
+          "helix_angle_deg": "HelixAngle",
+          "corner_radius_mm": "Radius",
+          "substrate": "Material"
+        },
+        "quirks": [
+          "Esprit has a separate 'KnowledgeBase' for ProfitMilling parameters per tool; canonical exposes via extras.profit_milling",
+          "ESP files are XML; round-trip is straightforward",
+          "Tool insert vs holder can be split into separate tool records in Esprit (canonical merges)"
+        ],
+        "lossy_fields": ["coating_layers (single-string)", "ProfitMilling KB references (preserved in extras only)"]
+      },
+      "solidcam": {
+        "native_format": "prj_tool_block",
+        "native_root": ".prj > ToolList > Tool (or Tool Manager XML export)",
+        "field_map": {
+          "tool_id": "ToolID",
+          "tool_number": "Number",
+          "description": "Name",
+          "vendor_brand": "Manufacturer",
+          "vendor_part_number": "PartNo",
+          "tool_type": "Type (SolidCAM enum: 'EndMill', 'BallEndMill', 'BullEndMill', etc.)",
+          "diameter_mm": "Diameter",
+          "length_overall_mm": "TotalLength",
+          "length_cutting_mm": "FluteLength",
+          "length_gauge_mm": "OutsideHolder",
+          "shank_diameter_mm": "ShankDiameter",
+          "flute_count": "NumFlutes",
+          "helix_angle_deg": "Helix",
+          "corner_radius_mm": "CornerRadius",
+          "substrate": "Material"
+        },
+        "quirks": [
+          ".prj is project-scoped; tool definitions live inside the project file unless promoted to Tool Manager Library",
+          "Tool Manager XML export is the documented bridge for cross-project / cross-CAM transfer",
+          "Coolant strategy stored at tool level (not holder level) — captured via extras.solidcam_coolant"
+        ],
+        "lossy_fields": ["coating_layers (single-string)", "tool-level coolant strategy if exporting to non-SolidCAM"]
+      }
+    },
+    "HOLDER": {
+      "fusion360": {
+        "native_format": "fusion_holder_library_json",
+        "native_root": "data[] (holder array, separate from tool array)",
+        "field_map": {
+          "holder_id": "guid",
+          "description": "description",
+          "vendor_brand": "vendor",
+          "vendor_part_number": "product-id",
+          "taper_type": "taper-type (Fusion enum)",
+          "holder_type": "type (Fusion holder-type enum)",
+          "gauge_length_mm": "BLU (body length usable)",
+          "body_diameter_mm": "geometry max diameter (computed from segments)",
+          "profile_polyline_mm": "geometry.segments[] (z, lower-diameter, upper-diameter triples)"
+        },
+        "quirks": [
+          "Fusion holders are defined as a sequence of conical/cylindrical segments — full polyline reconstructed from segments",
+          "max_rpm and balance_grade are not first-class fields; stored in description or extras",
+          "RTCP / dynamic holder switching at runtime supported via post.cps"
+        ],
+        "lossy_fields": ["max_rpm", "balance_grade_iso1940", "runout_um_at_3xD", "max_torque_Nm", "coolant_through_capability (single boolean only)"]
+      },
+      "hypermill": {
+        "native_format": "vtl_htl_xml",
+        "native_root": "VirtualToolLibrary > Holder",
+        "field_map": {
+          "holder_id": "@ID",
+          "description": "Description",
+          "vendor_brand": "Manufacturer",
+          "vendor_part_number": "ManufacturerPartNumber",
+          "taper_type": "TaperInterface/Type",
+          "taper_designation": "TaperInterface/Designation",
+          "holder_type": "HolderClass",
+          "gauge_length_mm": "Geometry/GaugeLength",
+          "body_diameter_mm": "Geometry/BodyDiameter",
+          "nose_diameter_mm": "Geometry/NoseDiameter",
+          "profile_polyline_mm": "Geometry/Profile/Polyline",
+          "max_rpm": "Performance/MaxRPM",
+          "balance_grade_iso1940": "Performance/BalanceGrade",
+          "balance_speed_rpm": "Performance/BalanceSpeed",
+          "runout_um_at_3xD": "Performance/Runout3xD",
+          "max_torque_Nm": "Performance/MaxTorque",
+          "coolant_through_capability": "Coolant/Capability",
+          "coolant_max_pressure_bar": "Coolant/MaxPressure"
+        },
+        "quirks": [
+          "hyperMILL VTL has first-class fields for every canonical holder property (lossless round-trip)",
+          "Profile polyline supports up to 64 segments natively",
+          "TDM bridge supplies service-life counters separately"
+        ],
+        "lossy_fields": []
+      },
+      "mastercam": {
+        "native_format": "holders-9_binary",
+        "native_root": ".holders-9 — accessed via ToolManager XML export",
+        "field_map": {
+          "holder_id": "HolderGUID",
+          "description": "Description",
+          "vendor_brand": "Manufacturer",
+          "taper_type": "TaperType (Mastercam taper-code)",
+          "holder_type": "HolderType",
+          "gauge_length_mm": "GaugeLength",
+          "body_diameter_mm": "MaxDiameter (computed)",
+          "profile_polyline_mm": "Segments[] (z, dia pairs)",
+          "max_rpm": "MaxSpindleSpeed"
+        },
+        "quirks": [
+          "Mastercam holder is segment-based (similar to Fusion)",
+          "Balance grade not a first-class field; encoded in Manufacturer string",
+          "Mastercam allows assembly-level holder (tool + holder + extension)"
+        ],
+        "lossy_fields": ["balance_grade_iso1940", "runout_um_at_3xD", "coolant_through_capability"]
+      },
+      "inventor_hsm": {
+        "native_format": "fusion_compatible_json",
+        "native_root": "data[] (shares Fusion holder schema)",
+        "field_map": {
+          "holder_id": "guid",
+          "description": "description",
+          "vendor_brand": "vendor",
+          "taper_type": "taper-type",
+          "holder_type": "type",
+          "gauge_length_mm": "BLU",
+          "profile_polyline_mm": "geometry.segments[]"
+        },
+        "quirks": [
+          "Identical to Fusion 360 (Autodesk shared schema)"
+        ],
+        "lossy_fields": ["max_rpm", "balance_grade_iso1940", "runout_um_at_3xD"]
+      },
+      "esprit": {
+        "native_format": "esp_xml_holder_table",
+        "native_root": ".esp > Holders > Holder",
+        "field_map": {
+          "holder_id": "@id",
+          "description": "Comment",
+          "vendor_brand": "Vendor",
+          "taper_type": "TaperType",
+          "holder_type": "Type",
+          "gauge_length_mm": "GaugeLength",
+          "body_diameter_mm": "BodyDiameter",
+          "profile_polyline_mm": "Profile/Points"
+        },
+        "quirks": [
+          "Esprit holder polyline supports unlimited segments",
+          "Performance fields (max_rpm, balance) optional"
+        ],
+        "lossy_fields": ["balance_grade_iso1940 (optional)", "coolant_through_capability"]
+      },
+      "solidcam": {
+        "native_format": "prj_holder_block",
+        "native_root": ".prj > HolderList > Holder",
+        "field_map": {
+          "holder_id": "HolderID",
+          "description": "Name",
+          "taper_type": "Taper",
+          "holder_type": "Type",
+          "gauge_length_mm": "GaugeLength",
+          "profile_polyline_mm": "Profile",
+          "max_rpm": "MaxRPM"
+        },
+        "quirks": [
+          "Holder profile is segment-based",
+          "Holder collision check is part of SolidVerify simulation"
+        ],
+        "lossy_fields": ["balance_grade_iso1940", "runout_um_at_3xD", "coolant_through_capability"]
+      }
+    },
+    "FIXTURE": {
+      "fusion360": {
+        "native_format": "fusion_setup_fixture",
+        "native_root": "Setup > Fixture (per-Setup, not library)",
+        "field_map": {
+          "fixture_id": "fixture-component-occurrence-id",
+          "description": "name",
+          "fixture_type": "user-tag (no enum; canonical type derived from CAD geometry)",
+          "bbox_x_mm": "bounding-box.x",
+          "bbox_y_mm": "bounding-box.y",
+          "bbox_z_mm": "bounding-box.z",
+          "wcs_origin_xyz_mm": "wcs-offset",
+          "fixture_cad_uri": "linked-component-uri"
+        },
+        "quirks": [
+          "Fusion has no first-class fixture library — fixtures are CAD components tagged 'fixture' in setup",
+          "Most performance fields (clamp force, friction) live outside Fusion (canonical bridge is one-way export)",
+          "Vacuum / magnetic / soft-jaw distinctions inferred from CAD callout text"
+        ],
+        "lossy_fields": ["clamp_force_N", "max_clamp_force_N", "clamp_friction_mu", "stiffness_N_per_mm", "max_part_mass_kg", "vacuum_capacity_kPa", "magnetic_force_N_per_cm2", "balance_grade_iso1940", "modular_baseplate_compat"]
+      },
+      "hypermill": {
+        "native_format": "hypermill_fixture_browser",
+        "native_root": "FixtureLibrary > Fixture",
+        "field_map": {
+          "fixture_id": "@ID",
+          "description": "Description",
+          "vendor_brand": "Manufacturer",
+          "fixture_type": "FixtureClass (vise / chuck / tombstone / vacuum / magnetic enum)",
+          "bbox_x_mm": "Geometry/BBox/X",
+          "bbox_y_mm": "Geometry/BBox/Y",
+          "bbox_z_mm": "Geometry/BBox/Z",
+          "wcs_origin_xyz_mm": "Geometry/WCSOffset",
+          "fixture_cad_uri": "Geometry/CADReference",
+          "clamp_force_N": "Performance/ClampForce",
+          "clamping_range_min_mm": "Performance/ClampRangeMin",
+          "clamping_range_max_mm": "Performance/ClampRangeMax",
+          "max_part_mass_kg": "Performance/MaxPartMass",
+          "max_rpm_safe": "Performance/MaxRPM",
+          "machine_compatibility": "Compatibility/Machines"
+        },
+        "quirks": [
+          "hyperMILL has the most complete fixture library among the 6 CAMs",
+          "Soft-jaw 3DP fixtures supported via STL reference",
+          "Modular baseplate (VERO-S, Erowa) library bundled"
+        ],
+        "lossy_fields": ["clamp_friction_mu (optional)", "balance_grade_iso1940 (optional)"]
+      },
+      "mastercam": {
+        "native_format": "mastercam_fixture_template",
+        "native_root": ".mcam-mt fixture template",
+        "field_map": {
+          "fixture_id": "TemplateGUID",
+          "description": "Description",
+          "fixture_type": "Type (vise/chuck/custom)",
+          "bbox_x_mm": "BoundingBox.X",
+          "bbox_y_mm": "BoundingBox.Y",
+          "bbox_z_mm": "BoundingBox.Z",
+          "wcs_origin_xyz_mm": "OriginOffset",
+          "fixture_cad_uri": "CADFile"
+        },
+        "quirks": [
+          "Mastercam fixture is mostly geometric (collision-check focus)",
+          "Performance fields not first-class; preserved in extras"
+        ],
+        "lossy_fields": ["clamp_force_N", "clamp_friction_mu", "stiffness_N_per_mm", "max_rpm_safe", "balance_grade_iso1940"]
+      },
+      "inventor_hsm": {
+        "native_format": "inventor_setup_fixture",
+        "native_root": "Setup > Fixture (per-Setup, like Fusion)",
+        "field_map": {
+          "fixture_id": "fixture-component-id",
+          "description": "name",
+          "bbox_x_mm": "bounding-box.x",
+          "bbox_y_mm": "bounding-box.y",
+          "bbox_z_mm": "bounding-box.z",
+          "wcs_origin_xyz_mm": "wcs-offset",
+          "fixture_cad_uri": "linked-component-uri"
+        },
+        "quirks": [
+          "Identical pattern to Fusion 360 (Autodesk shared model)",
+          "iLogic rules can drive fixture parameters; canonical exposes via extras.ilogic"
+        ],
+        "lossy_fields": ["clamp_force_N", "clamp_friction_mu", "max_part_mass_kg", "balance_grade_iso1940"]
+      },
+      "esprit": {
+        "native_format": "esprit_fixture_db",
+        "native_root": ".esp > Fixtures > Fixture",
+        "field_map": {
+          "fixture_id": "@id",
+          "description": "Comment",
+          "fixture_type": "Type",
+          "bbox_x_mm": "BBox/X",
+          "bbox_y_mm": "BBox/Y",
+          "bbox_z_mm": "BBox/Z",
+          "wcs_origin_xyz_mm": "WCSOrigin",
+          "fixture_cad_uri": "CAD",
+          "clamp_force_N": "ClampForce",
+          "max_rpm_safe": "MaxRPM"
+        },
+        "quirks": [
+          "Esprit fixture DB integrates with KnowledgeBase for clamp-force advisory",
+          "Mill-turn fixtures (chucks, sub-spindles) have dedicated fixture types"
+        ],
+        "lossy_fields": ["clamp_friction_mu (optional)", "balance_grade_iso1940"]
+      },
+      "solidcam": {
+        "native_format": "prj_fixture_block",
+        "native_root": ".prj > FixtureList > Fixture",
+        "field_map": {
+          "fixture_id": "FixtureID",
+          "description": "Name",
+          "fixture_type": "Type",
+          "bbox_x_mm": "BBox.X",
+          "bbox_y_mm": "BBox.Y",
+          "bbox_z_mm": "BBox.Z",
+          "wcs_origin_xyz_mm": "Origin",
+          "fixture_cad_uri": "CADFile",
+          "max_rpm_safe": "MaxRPM"
+        },
+        "quirks": [
+          "Fixture is per-project; library promotion is manual",
+          "SolidVerify uses fixture geometry for collision check"
+        ],
+        "lossy_fields": ["clamp_force_N", "clamp_friction_mu", "balance_grade_iso1940"]
+      }
+    },
+    "MACHINE": {
+      "fusion360": {
+        "native_format": "fusion_machine_library_json",
+        "native_root": "data[] (machine array)",
+        "field_map": {
+          "machine_id": "guid",
+          "manufacturer": "vendor",
+          "model": "model",
+          "controller": "control (Fusion enum: 'fanuc', 'haas', 'heidenhain', etc., narrower than canonical)",
+          "kinematics_type": "type (e.g. 'milling', 'turning', 'mill-turn'); detailed kinematics via post.cps",
+          "rotary_axes": "kinematics.rotary-axes[]",
+          "rtcp_supported": "post-properties.use-rotary-axis (post-side flag)",
+          "travel_x_mm": "kinematics.x.range",
+          "travel_y_mm": "kinematics.y.range",
+          "travel_z_mm": "kinematics.z.range",
+          "max_table_load_kg": "machine-properties.max-load (optional)",
+          "spindle_max_rpm": "spindle.max-rpm",
+          "spindle_max_power_kW": "spindle.max-power",
+          "spindle_taper": "spindle.taper",
+          "tool_count": "tool-changer.capacity",
+          "post_processor_id": "post-processor (filename of bound post.cps)"
+        },
+        "quirks": [
+          "Fusion machine library is lighter than vendor-grade (e.g. NX/Esprit) — most kinematic detail lives in post.cps",
+          "controller enum is sparse; canonical maps via lookup table",
+          "Multi-channel mill-turn requires post.cps customization (not first-class in machine JSON)"
+        ],
+        "lossy_fields": ["spindle_max_torque_Nm (optional)", "machine_kinematics_xml_uri (filename only, not Heidenhain MaschinenKonfig)"]
+      },
+      "hypermill": {
+        "native_format": "hypermill_mcf_xml",
+        "native_root": "MachineConfiguration",
+        "field_map": {
+          "machine_id": "@ID",
+          "manufacturer": "Manufacturer",
+          "model": "Model",
+          "controller": "Controller/Type",
+          "kinematics_type": "Kinematics/Type",
+          "rotary_axes": "Kinematics/RotaryAxes",
+          "axis_letters": "Kinematics/Axes",
+          "rtcp_supported": "Kinematics/RTCPSupported",
+          "rtcp_variant": "Kinematics/RTCPVariant",
+          "travel_x_mm": "Envelope/X",
+          "travel_y_mm": "Envelope/Y",
+          "travel_z_mm": "Envelope/Z",
+          "travel_a_deg": "Envelope/A",
+          "travel_b_deg": "Envelope/B",
+          "travel_c_deg": "Envelope/C",
+          "max_table_load_kg": "Envelope/MaxLoad",
+          "table_size_mm": "Envelope/TableSize",
+          "spindle_max_rpm": "Spindle/MaxRPM",
+          "spindle_max_torque_Nm": "Spindle/MaxTorque",
+          "spindle_max_power_kW": "Spindle/MaxPower",
+          "spindle_taper": "Spindle/Taper",
+          "spindle_balance_class": "Spindle/BalanceClass",
+          "tool_count": "Magazine/Count",
+          "max_tool_diameter_mm": "Magazine/MaxDiameter",
+          "max_tool_length_mm": "Magazine/MaxLength",
+          "tool_change_time_s": "Magazine/ChangeTime",
+          "post_processor_id": "PostProcessor",
+          "machine_kinematics_xml_uri": "KinematicsFile"
+        },
+        "quirks": [
+          "hyperMILL MCF is the most complete machine description format among the 6 CAMs",
+          "Full kinematic chain (DH parameters) supported",
+          "RTCP variants enumerated explicitly"
+        ],
+        "lossy_fields": []
+      },
+      "mastercam": {
+        "native_format": "mastercam_mmd",
+        "native_root": ".mcam-mmd Machine Definition",
+        "field_map": {
+          "machine_id": "MachineGUID",
+          "manufacturer": "Manufacturer",
+          "model": "Model",
+          "controller": "ControlDef",
+          "kinematics_type": "MachineType (Mill / Lathe / MillTurn / Wire / Router)",
+          "rotary_axes": "RotaryAxes",
+          "travel_x_mm": "AxisLimits.X.Travel",
+          "travel_y_mm": "AxisLimits.Y.Travel",
+          "travel_z_mm": "AxisLimits.Z.Travel",
+          "spindle_max_rpm": "SpindleDef.MaxRPM",
+          "spindle_max_torque_Nm": "SpindleDef.MaxTorque",
+          "spindle_taper": "SpindleDef.Taper",
+          "tool_count": "ToolChanger.Capacity",
+          "post_processor_id": "ActivePost"
+        },
+        "quirks": [
+          "Mastercam Machine Definition (.mcam-mmd) ties post + machine + control together",
+          "Multi-channel mill-turn supported via Stream definitions",
+          "Probing macros bound at machine level (not per-toolpath)"
+        ],
+        "lossy_fields": ["spindle_balance_class", "machine_kinematics_xml_uri (Mastercam uses internal kinematics, no XML export)"]
+      },
+      "inventor_hsm": {
+        "native_format": "inventor_hsm_machine_library_json",
+        "native_root": "data[] (shares Fusion schema)",
+        "field_map": {
+          "machine_id": "guid",
+          "manufacturer": "vendor",
+          "model": "model",
+          "controller": "control",
+          "kinematics_type": "type",
+          "travel_x_mm": "kinematics.x.range",
+          "travel_y_mm": "kinematics.y.range",
+          "travel_z_mm": "kinematics.z.range",
+          "spindle_max_rpm": "spindle.max-rpm",
+          "spindle_max_power_kW": "spindle.max-power",
+          "spindle_taper": "spindle.taper",
+          "post_processor_id": "post-processor"
+        },
+        "quirks": [
+          "Identical to Fusion 360 machine library schema",
+          "Inventor iLogic can drive machine selection (canonical exposes via extras.ilogic)"
+        ],
+        "lossy_fields": ["spindle_max_torque_Nm (optional)", "machine_kinematics_xml_uri"]
+      },
+      "esprit": {
+        "native_format": "esprit_mtm_xml",
+        "native_root": "MTMConfiguration",
+        "field_map": {
+          "machine_id": "@id",
+          "manufacturer": "Manufacturer",
+          "model": "Model",
+          "controller": "Controller",
+          "kinematics_type": "MachineType",
+          "rotary_axes": "RotaryAxes",
+          "axis_letters": "Axes",
+          "rtcp_supported": "RTCPEnabled",
+          "travel_x_mm": "Travel/X",
+          "travel_y_mm": "Travel/Y",
+          "travel_z_mm": "Travel/Z",
+          "spindle_max_rpm": "Spindle/MaxRPM",
+          "spindle_max_torque_Nm": "Spindle/MaxTorque",
+          "spindle_max_power_kW": "Spindle/MaxPower",
+          "spindle_taper": "Spindle/Taper",
+          "tool_count": "ToolMagazine/Count",
+          "post_processor_id": "PostProcessor"
+        },
+        "quirks": [
+          "Esprit MTM kernel is best-in-class for multi-channel mill-turn (sub-spindle, sync, polar)",
+          "Swiss machine kinematics fully supported",
+          "Probing routines part of MTM kernel (vendor-extended)"
+        ],
+        "lossy_fields": ["spindle_balance_class (optional)"]
+      },
+      "solidcam": {
+        "native_format": "solidcam_mac_file",
+        "native_root": ".prj machine block + .MAC config file",
+        "field_map": {
+          "machine_id": "MachineID",
+          "manufacturer": "Manufacturer",
+          "model": "Model",
+          "controller": "Control",
+          "kinematics_type": "MachineType",
+          "rotary_axes": "RotaryAxes",
+          "travel_x_mm": "TravelX",
+          "travel_y_mm": "TravelY",
+          "travel_z_mm": "TravelZ",
+          "spindle_max_rpm": "MaxRPM",
+          "spindle_taper": "Taper",
+          "tool_count": "MagazineSize",
+          "post_processor_id": "GPP"
+        },
+        "quirks": [
+          ".MAC files define controller-specific G/M codes; bundled with .gpp post",
+          "SolidCAM iMachining requires per-machine calibration data (canonical exposes via extras.imachining_cal)"
+        ],
+        "lossy_fields": ["spindle_max_torque_Nm", "spindle_balance_class", "machine_kinematics_xml_uri"]
+      }
+    },
+    "CAD_PART": {
+      "fusion360": {
+        "native_format": "fusion_design_f3d",
+        "native_root": ".f3d (zip-archive of Autodesk binary)",
+        "field_map": {
+          "cad_part_id": "design-id (Fusion GUID)",
+          "part_number": "properties.partnumber",
+          "revision": "properties.revisionid",
+          "description": "properties.description",
+          "source_file_uri": "design-uri",
+          "format": "always 'brep_native_fusion' on native; STEP exports use 'step_ap214' or 'step_ap242'",
+          "units": "design.units",
+          "bbox_x_mm": "boundingbox.size.x",
+          "bbox_y_mm": "boundingbox.size.y",
+          "bbox_z_mm": "boundingbox.size.z",
+          "volume_mm3": "physicalproperties.volume",
+          "surface_area_mm2": "physicalproperties.area",
+          "mass_kg": "physicalproperties.mass",
+          "density_kg_per_m3": "appearance.density",
+          "centroid_xyz_mm": "physicalproperties.centerofmass",
+          "principal_inertia_kg_mm2": "physicalproperties.momentsofinertia",
+          "face_count": "brep-counts.faces",
+          "edge_count": "brep-counts.edges",
+          "vertex_count": "brep-counts.vertices",
+          "material_callout_text": "appearance.materialname"
+        },
+        "quirks": [
+          "Fusion native format is .f3d (proprietary) — STEP AP242 export is the canonical bridge",
+          "Feature inventory available via Fusion API (Manufacturing Extension; otherwise must be re-derived from BREP)",
+          "GD&T captured in 3D PMI; full extraction requires Manufacturing Extension"
+        ],
+        "lossy_fields": ["thread_feature_count (only via MFG_EXT)", "datum_frame", "iso_2768_grade", "tightest_iso286_fit"]
+      },
+      "hypermill": {
+        "native_format": "step_or_brep_native",
+        "native_root": "imported geometry — no native part DB; uses external CAD",
+        "field_map": {
+          "cad_part_id": "ImportedFile.Hash",
+          "part_number": "Properties/PartNumber (from STEP PMI or hyperCAD-S props)",
+          "source_file_uri": "ImportedFile.URI",
+          "format": "STEP / IGES / native (Solidworks, Inventor, Creo, NX, Catia)",
+          "units": "ImportedGeometry.Units",
+          "bbox_x_mm": "BoundingBox.X",
+          "bbox_y_mm": "BoundingBox.Y",
+          "bbox_z_mm": "BoundingBox.Z",
+          "volume_mm3": "MassProperties.Volume",
+          "mass_kg": "MassProperties.Mass",
+          "centroid_xyz_mm": "MassProperties.Centroid",
+          "face_count": "BREPCounts.Faces",
+          "edge_count": "BREPCounts.Edges"
+        },
+        "quirks": [
+          "hyperMILL imports via hyperCAD-S; native CAD-format support is broadest among the 6 (SW/Inv/Creo/NX/CATIA direct)",
+          "PMI extraction supported for STEP AP242 + native CATIA",
+          "Auto-feature recognition (AFR) in hyperMILL maps holes/pockets/bosses (canonical feature_inventory populated)"
+        ],
+        "lossy_fields": ["principal_inertia_kg_mm2 (computed if requested, else absent)"]
+      },
+      "mastercam": {
+        "native_format": "mcam",
+        "native_root": ".mcam (proprietary) — STEP/IGES bridge for cross-CAM",
+        "field_map": {
+          "cad_part_id": "FileGUID",
+          "part_number": "Properties.PartNumber",
+          "revision": "Properties.Revision",
+          "source_file_uri": "FilePath",
+          "format": ".mcam native, or imported STEP/IGES/SW/Inventor/Creo",
+          "units": "FileUnits",
+          "bbox_x_mm": "Bounds.X",
+          "bbox_y_mm": "Bounds.Y",
+          "bbox_z_mm": "Bounds.Z",
+          "volume_mm3": "Analysis.Volume",
+          "mass_kg": "Analysis.Mass",
+          "centroid_xyz_mm": "Analysis.Centroid",
+          "face_count": "FaceCount"
+        },
+        "quirks": [
+          "Mastercam can be solid or surface; canonical uses BREP-aware fields when solid available",
+          "Mastercam Drill Wizard / Pocket Wizard provides feature recognition (canonical feature_inventory populated)",
+          "GD&T extraction via Verify or imported STEP AP242"
+        ],
+        "lossy_fields": ["principal_inertia_kg_mm2", "datum_frame (only if AP242 imported)", "thread_feature_count (only via Drill Wizard recognition)"]
+      },
+      "inventor_hsm": {
+        "native_format": "inventor_ipt_or_iam",
+        "native_root": ".ipt (part) or .iam (assembly)",
+        "field_map": {
+          "cad_part_id": "iProperties.PartNumber",
+          "part_number": "iProperties.PartNumber",
+          "revision": "iProperties.Revision",
+          "description": "iProperties.Description",
+          "source_file_uri": "FilePath",
+          "format": "brep_native_inventor (or imported STEP)",
+          "units": "DocumentUnits",
+          "bbox_x_mm": "BoundingBox.X",
+          "bbox_y_mm": "BoundingBox.Y",
+          "bbox_z_mm": "BoundingBox.Z",
+          "volume_mm3": "MassProperties.Volume",
+          "mass_kg": "MassProperties.Mass",
+          "density_kg_per_m3": "PhysicalMaterial.Density",
+          "centroid_xyz_mm": "MassProperties.CenterOfGravity",
+          "principal_inertia_kg_mm2": "MassProperties.PrincipalMomentsOfInertia",
+          "material_callout_text": "PhysicalMaterial.Name"
+        },
+        "quirks": [
+          "Inventor stores material as iProperty (full material library available)",
+          "iLogic rules can drive any iProperty (canonical exposes via extras.ilogic)",
+          "Inventor Drawing (.idw) supplies datum_frame + GD&T (canonical bridge needs drawing context)"
+        ],
+        "lossy_fields": ["thread_feature_count (only with FeatureRecognition extension)", "datum_frame (drawing-only)"]
+      },
+      "esprit": {
+        "native_format": "step_iges_or_native",
+        "native_root": "imported geometry (Esprit imports STEP, IGES, Parasolid, Solidworks, Inventor)",
+        "field_map": {
+          "cad_part_id": "ImportedFile.Hash",
+          "source_file_uri": "ImportedFile.Path",
+          "format": "STEP / IGES / Parasolid / native",
+          "units": "Units",
+          "bbox_x_mm": "BBox.X",
+          "bbox_y_mm": "BBox.Y",
+          "bbox_z_mm": "BBox.Z",
+          "volume_mm3": "Volume",
+          "mass_kg": "Mass",
+          "face_count": "FaceCount"
+        },
+        "quirks": [
+          "Esprit Auto Feature Recognition (AFR) is best-in-class for mill-turn (canonical feature_inventory fully populated)",
+          "Profitmilling toolpath needs precise BREP face access",
+          "GD&T from STEP AP242 is supported"
+        ],
+        "lossy_fields": ["principal_inertia_kg_mm2 (computed if requested)", "datum_frame (only if AP242)"]
+      },
+      "solidcam": {
+        "native_format": "host_cad_native",
+        "native_root": "SolidWorks .sldprt or Inventor .ipt (SolidCAM is an add-in, not standalone)",
+        "field_map": {
+          "cad_part_id": "HostCAD.PartGUID",
+          "part_number": "HostCAD.Properties.PartNumber",
+          "revision": "HostCAD.Properties.Revision",
+          "source_file_uri": "HostCAD.FilePath",
+          "format": "brep_native_solidworks or brep_native_inventor",
+          "units": "HostCAD.Units",
+          "bbox_x_mm": "HostCAD.BBox.X",
+          "bbox_y_mm": "HostCAD.BBox.Y",
+          "bbox_z_mm": "HostCAD.BBox.Z",
+          "volume_mm3": "HostCAD.Volume",
+          "mass_kg": "HostCAD.Mass",
+          "material_callout_text": "HostCAD.Material"
+        },
+        "quirks": [
+          "SolidCAM relies on host CAD for geometry; field map mostly delegates to SW/Inventor",
+          "Sketches and configurations from host CAD drive iMachining strategy",
+          "Material from host CAD library populates canonical material_callout_text directly"
+        ],
+        "lossy_fields": ["principal_inertia_kg_mm2 (host-CAD-dependent)", "datum_frame (host-drawing-dependent)", "thread_feature_count (host-CAD recognition required)"]
+      }
+    }
+  }
+}
