@@ -2,7 +2,7 @@
  * Tests for HyperCADCADFunctionIndexEngine — hyperCAD-S CAD Function Index.
  * @see src/engines/HyperCADCADFunctionIndexEngine.ts
  * @see U-CAD-FIDX-HCAD-01 (sketch_operations), U-CAD-FIDX-HCAD-02 (solid_operations),
- *      U-CAD-FIDX-HCAD-03 (surface_operations)
+ *      U-CAD-FIDX-HCAD-03 (surface_operations), U-CAD-FIDX-HCAD-04 (healing_operations)
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -35,6 +35,13 @@ const KNOWN_SURFACE_OPS = [
   "REVERSE", "SURFACE_MATCH", "BLEND", "SURFACE_FILLET", "SURFACE_CHAMFER",
   "SURFACE_REPLACE", "REFIT",
   "SURFACE_TO_SOLID", "SOLID_TO_SURFACE", "MESH_TO_SURFACE",
+];
+
+const KNOWN_HEALING_OPS = [
+  "AUTO_HEAL", "GAP_DETECTOR", "VALIDATE_WATERTIGHT",
+  "MANUAL_GAP_FILL", "KNIT_FACES", "FORCE_STITCH", "REMOVE_FEATURE",
+  "REMOVE_FILLET", "HEAL_REPLACE_FACE", "EDGE_BLEND", "REPAIR_SELF_INTERSECT",
+  "DECIMATE_EDGE", "SMOOTH_CURVE", "FIX_TANGENT", "SNAP_TO_GRID", "DETECT_NON_MANIFOLD",
 ];
 
 function sumParamsForModule(moduleId: string): number {
@@ -75,9 +82,9 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains the three shipped modules (sketch + solid + surface)", () => {
+    it("modules array contains the four shipped modules (sketch + solid + surface + healing)", () => {
       const ids = HyperCADCADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
-      expect(ids).toEqual(["sketch_operations", "solid_operations", "surface_operations"]);
+      expect(ids).toEqual(["sketch_operations", "solid_operations", "surface_operations", "healing_operations"]);
     });
 
     it("returns same object identity on repeated calls (cache hit)", () => {
@@ -88,9 +95,9 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("future_modules — expansion roadmap", () => {
-    it("declares exactly 5 deferred modules with non-empty scopes (sketch+solid+surface now shipped)", () => {
+    it("declares exactly 4 deferred modules with non-empty scopes (sketch+solid+surface+healing now shipped)", () => {
       const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
-      expect(fm.length).toBe(5);
+      expect(fm.length).toBe(4);
       for (const f of fm) {
         expect(f.scope.length).toBeGreaterThan(20);
         expect(f.estimated_params).toBeGreaterThan(0);
@@ -98,35 +105,37 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       }
     });
 
-    it("planned_ids cover healing/mesh/assembly/drawing/datum (surface moved to shipped)", () => {
+    it("planned_ids cover mesh/assembly/drawing/datum (healing moved to shipped)", () => {
       const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
       const ids = fm.map((f) => f.planned_id).sort();
       expect(ids).toEqual([
         "assembly_operations",
         "datum_operations",
         "drawing_operations",
-        "healing_operations",
         "mesh_operations",
       ]);
     });
 
-    it("healing_operations is captured as hyperCAD's distinctive feature with substantive scope", () => {
-      const fm = HyperCADCADFunctionIndexEngine.getIndex().future_modules ?? [];
-      const healing = fm.find((f) => f.planned_id === "healing_operations");
-      // Substantive existence assertion: must be present with all fields
-      expect(healing?.planned_id).toBe("healing_operations");
-      expect(healing?.scope ?? "").toMatch(/healing|gap.*fill|knit/i);
-      expect(healing?.estimated_params ?? 0).toBeGreaterThanOrEqual(80);
-      expect(healing?.deferred_to).toBe("U-CAD-FIDX-HCAD-04");
+    it("healing_operations promoted from future_modules to shipped (HCAD-04) — appears in modules with U-CAD-FIDX-HCAD-04 tag and >=80 params", () => {
+      const idx = HyperCADCADFunctionIndexEngine.getIndex();
+      // Negative half: removed from future_modules
+      const stillDeferred = (idx.future_modules ?? []).map((f) => f.planned_id);
+      expect(stillDeferred).not.toContain("healing_operations");
+      // Positive half: present in shipped modules with concrete metadata (matches the original >=80 params bar)
+      const shipped = idx.modules.find((m) => m.module_id === "healing_operations");
+      expect(shipped?.covered_units).toEqual(["U-CAD-FIDX-HCAD-04"]);
+      expect(shipped?.parameter_count_estimate ?? 0).toBeGreaterThanOrEqual(80);
+      expect(shipped?.description ?? "").toMatch(/healing|gap.*fill|knit|watertight/i);
     });
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns the three shipped modules in declared order", () => {
+    it("listModules returns the four shipped modules in declared order", () => {
       expect(HyperCADCADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "solid_operations",
         "surface_operations",
+        "healing_operations",
       ]);
     });
 
@@ -156,6 +165,15 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(entry?.dependencies).toEqual(["solid_operations"]);
     });
 
+    it("getModuleEntry('healing_operations') has the U-CAD-FIDX-HCAD-04 tag and 83 params with surface+solid dependencies", () => {
+      const entry = HyperCADCADFunctionIndexEngine.getModuleEntry("healing_operations");
+      expect(entry?.module_id).toBe("healing_operations");
+      expect(entry?.path).toBe("cad-functions/hypercad/healing-operations.json");
+      expect(entry?.covered_units).toEqual(["U-CAD-FIDX-HCAD-04"]);
+      expect(entry?.parameter_count_estimate).toBe(83);
+      expect(entry?.dependencies).toEqual(["surface_operations", "solid_operations"]);
+    });
+
     it("getModuleEntry returns null for unknown module", () => {
       expect(HyperCADCADFunctionIndexEngine.getModuleEntry("nonexistent_xyz")).toBeNull();
     });
@@ -168,13 +186,14 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(ops.sort()).toEqual([...KNOWN_SKETCH_OPS].sort());
     });
 
-    it("listAllOperations sums sketch + solid + surface module operation counts", () => {
+    it("listAllOperations sums sketch + solid + surface + healing module operation counts", () => {
       const all = HyperCADCADFunctionIndexEngine.listAllOperations();
       const sketch = HyperCADCADFunctionIndexEngine.listOperations("sketch_operations");
       const solid = HyperCADCADFunctionIndexEngine.listOperations("solid_operations");
       const surface = HyperCADCADFunctionIndexEngine.listOperations("surface_operations");
-      expect(all.length).toBe(sketch.length + solid.length + surface.length);
-      expect(all.length).toBe(90);
+      const healing = HyperCADCADFunctionIndexEngine.listOperations("healing_operations");
+      expect(all.length).toBe(sketch.length + solid.length + surface.length + healing.length);
+      expect(all.length).toBe(106);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -701,6 +720,163 @@ describe("HyperCADCADFunctionIndexEngine", () => {
     });
   });
 
+  describe("listOperations — healing_operations module", () => {
+    it("returns exactly 16 healing operations matching the canonical hyperCAD-S healing list", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("healing_operations").map((o) => o.operation_id);
+      expect(ops).toHaveLength(16);
+      expect(ops.sort()).toEqual([...KNOWN_HEALING_OPS].sort());
+    });
+  });
+
+  describe("Healing_Auto — 3 auto/diagnostic ops (AUTO_HEAL/GAP_DETECTOR/VALIDATE_WATERTIGHT)", () => {
+    it("getOperationsByCategory enumerates exactly 3 Healing_Auto operations", () => {
+      const auto = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Healing_Auto", "healing_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(auto).toEqual(["AUTO_HEAL", "GAP_DETECTOR", "VALIDATE_WATERTIGHT"]);
+    });
+
+    it("AUTO_HEAL exposes 3 aggressiveness levels with 'balanced' as the default", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "AUTO_HEAL");
+      const agg = op?.tabs?.["Tolerance"]?.parameters?.find((p) => p.name === "Aggressiveness");
+      expect(agg?.options).toEqual(["conservative", "balanced", "aggressive"]);
+      expect(agg?.default).toBe("balanced");
+      expect(agg?.required).toBe(true);
+    });
+
+    it("AUTO_HEAL stages enumerate the 6 pipeline stages with safe default subset", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "AUTO_HEAL");
+      const stages = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Stages");
+      expect(stages?.options).toEqual([
+        "stitch_gaps", "knit_faces", "fix_tangent", "decimate_edges", "remove_slivers", "validate_watertight",
+      ]);
+      expect(stages?.default).toEqual(["stitch_gaps", "knit_faces", "fix_tangent", "validate_watertight"]);
+    });
+
+    it("GAP_DETECTOR is read-only and offers 3 output modes for downstream pipelines", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "GAP_DETECTOR");
+      const out = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Output Mode");
+      expect(out?.options).toEqual(["summary_only", "edge_pair_list", "marked_geometry"]);
+      expect(out?.default).toBe("edge_pair_list");
+    });
+
+    it("VALIDATE_WATERTIGHT exposes 3 on-failure strategies including auto_invoke_heal escalation", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "VALIDATE_WATERTIGHT");
+      const onFail = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "On Failure");
+      expect(onFail?.options).toEqual(["report_only", "raise_error", "auto_invoke_heal"]);
+      expect(onFail?.default).toBe("report_only");
+    });
+  });
+
+  describe("Healing_Manual — 8 targeted repair ops", () => {
+    it("getOperationsByCategory enumerates exactly 8 Healing_Manual operations", () => {
+      const manual = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Healing_Manual", "healing_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(manual).toEqual([
+        "EDGE_BLEND", "FORCE_STITCH", "HEAL_REPLACE_FACE", "KNIT_FACES",
+        "MANUAL_GAP_FILL", "REMOVE_FEATURE", "REMOVE_FILLET", "REPAIR_SELF_INTERSECT",
+      ]);
+    });
+
+    it("MANUAL_GAP_FILL supports G0/G1/G2 continuity with G1 default for fairness", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "MANUAL_GAP_FILL");
+      const cont = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Continuity");
+      expect(cont?.options).toEqual(["g0_position", "g1_tangent", "g2_curvature"]);
+      expect(cont?.default).toBe("g1_tangent");
+    });
+
+    it("KNIT_FACES result mode prefers solid output when shell closes (vs sheet body)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "KNIT_FACES");
+      const result = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Result Mode");
+      expect(result?.options).toEqual(["sheet_body", "solid_if_closed"]);
+      expect(result?.default).toBe("solid_if_closed");
+    });
+
+    it("FORCE_STITCH bounds Max Forced Gap (mm) with safe default", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "FORCE_STITCH");
+      const maxGap = op?.tabs?.["Tolerance"]?.parameters?.find((p) => p.name === "Max Forced Gap");
+      expect(maxGap?.unit).toBe("mm");
+      expect(maxGap?.default).toBe(0.5);
+      expect(maxGap?.min).toBe(0);
+    });
+
+    it("REMOVE_FEATURE supports 3 closure modes (extend / blend / fill_with_plane)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "REMOVE_FEATURE");
+      const mode = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Closure Mode");
+      expect(mode?.options).toEqual(["extend_adjacent", "blend_adjacent", "fill_with_plane"]);
+      expect(mode?.default).toBe("extend_adjacent");
+    });
+
+    it("REPAIR_SELF_INTERSECT exposes 4 strategies and bounds repair iterations [1, 20]", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "REPAIR_SELF_INTERSECT");
+      const strategy = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Strategy");
+      const maxIter = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Max Repair Iterations");
+      expect(strategy?.options).toEqual(["trim_overlap", "refit_smooth", "remove_face", "report_only"]);
+      expect(strategy?.default).toBe("trim_overlap");
+      expect(maxIter?.min).toBe(1);
+      expect(maxIter?.max).toBe(20);
+      expect(maxIter?.default).toBe(5);
+    });
+  });
+
+  describe("Healing_Edge — 5 edge/curve cleanup ops", () => {
+    it("getOperationsByCategory enumerates exactly 5 Healing_Edge operations", () => {
+      const edge = HyperCADCADFunctionIndexEngine
+        .getOperationsByCategory("Healing_Edge", "healing_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(edge).toEqual([
+        "DECIMATE_EDGE", "DETECT_NON_MANIFOLD", "FIX_TANGENT", "SMOOTH_CURVE", "SNAP_TO_GRID",
+      ]);
+    });
+
+    it("DECIMATE_EDGE preserves endpoints by default and exposes 3 aggressiveness levels", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "DECIMATE_EDGE");
+      const preserve = op?.tabs?.["Tolerance"]?.parameters?.find((p) => p.name === "Preserve Endpoints");
+      const agg = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Aggressiveness");
+      expect(preserve?.default).toBe(true);
+      expect(agg?.options).toEqual(["conservative", "balanced", "aggressive"]);
+    });
+
+    it("SMOOTH_CURVE bounds Smoothing Weight to [0, 1] for shape preservation control", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "SMOOTH_CURVE");
+      const w = op?.tabs?.["Tolerance"]?.parameters?.find((p) => p.name === "Smoothing Weight");
+      expect(w?.min).toBe(0);
+      expect(w?.max).toBe(1);
+      expect(w?.default).toBe(0.2);
+    });
+
+    it("FIX_TANGENT continuity target enumerates G1/G2 only (G0 not applicable)", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "FIX_TANGENT");
+      const target = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Continuity Target");
+      expect(target?.options).toEqual(["g1_tangent", "g2_curvature"]);
+      expect(target?.default).toBe("g1_tangent");
+    });
+
+    it("SNAP_TO_GRID requires a grid spacing in mm with non-negative bound", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "SNAP_TO_GRID");
+      const spacing = op?.tabs?.["Tolerance"]?.parameters?.find((p) => p.name === "Grid Spacing");
+      expect(spacing?.required).toBe(true);
+      expect(spacing?.unit).toBe("mm");
+      expect(spacing?.min).toBe(0);
+      expect(spacing?.default).toBe(0.001);
+    });
+
+    it("DETECT_NON_MANIFOLD covers 5 categories including zero-area-face and zero-length-edge", () => {
+      const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", "DETECT_NON_MANIFOLD");
+      const cats = op?.tabs?.["Action"]?.parameters?.find((p) => p.name === "Categories To Detect");
+      expect(cats?.options).toEqual([
+        "edge_3plus_faces", "vertex_2_faces", "self_overlap", "zero_area_face", "zero_length_edge",
+      ]);
+      expect(cats?.default).toEqual([
+        "edge_3plus_faces", "vertex_2_faces", "zero_area_face", "zero_length_edge",
+      ]);
+    });
+  });
+
   describe("findParameter — happy path + 3 failure modes", () => {
     it("locates LINE.Mode with full option set", () => {
       const loc = HyperCADCADFunctionIndexEngine.findParameter("sketch_operations", "LINE", "Mode");
@@ -739,8 +915,8 @@ describe("HyperCADCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount + per-module drift guard", () => {
-    it("counts exactly 604 parameters across all 3 shipped modules (242 sketch + 214 solid + 148 surface)", () => {
-      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(604);
+    it("counts exactly 687 parameters across all 4 shipped modules (242 sketch + 214 solid + 148 surface + 83 healing)", () => {
+      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(687);
     });
 
     it("sketch module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
@@ -764,11 +940,19 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       expect(surfaceDeclared).toBe(148);
     });
 
+    it("healing module: computed sum exactly equals metadata.totalParameters (catches catalog drift)", () => {
+      const healingTotal = sumParamsForModule("healing_operations");
+      const healingDeclared = (HyperCADCADFunctionIndexEngine.getModule("healing_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(healingTotal).toBe(83);
+      expect(healingDeclared).toBe(83);
+    });
+
     it("getTotalParameterCount equals the sum of per-module computed totals", () => {
       const sketchTotal = sumParamsForModule("sketch_operations");
       const solidTotal = sumParamsForModule("solid_operations");
       const surfaceTotal = sumParamsForModule("surface_operations");
-      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + solidTotal + surfaceTotal);
+      const healingTotal = sumParamsForModule("healing_operations");
+      expect(HyperCADCADFunctionIndexEngine.getTotalParameterCount()).toBe(sketchTotal + solidTotal + surfaceTotal + healingTotal);
     });
   });
 
@@ -811,6 +995,17 @@ describe("HyperCADCADFunctionIndexEngine", () => {
       const failures: string[] = [];
       for (const opInfo of ops) {
         const op = HyperCADCADFunctionIndexEngine.getOperation("surface_operations", opInfo.operation_id);
+        const desc = op?.description ?? "";
+        if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
+      }
+      expect(failures).toEqual([]);
+    });
+
+    it("every healing op has a substantive description", () => {
+      const ops = HyperCADCADFunctionIndexEngine.listOperations("healing_operations");
+      const failures: string[] = [];
+      for (const opInfo of ops) {
+        const op = HyperCADCADFunctionIndexEngine.getOperation("healing_operations", opInfo.operation_id);
         const desc = op?.description ?? "";
         if (desc.length < 20) failures.push(`${opInfo.operation_id}: '${desc}'`);
       }

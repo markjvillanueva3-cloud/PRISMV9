@@ -1,0 +1,429 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Healing Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S Healing & Repair workspace. Healing is hyperCAD's signature feature — designed for the reality that hyperMILL operators routinely receive STEP / IGES / Parasolid imports from upstream CAD with gaps, slivers, non-manifold edges, and self-intersections that block toolpath kernels. Catalog covers: 3 auto/diagnostic ops (Auto-Heal / Gap-Detector / Validate-Watertight), 8 manual repair ops (Manual-Gap-Fill / Knit-Faces / Force-Stitch / Remove-Feature / Remove-Fillet / Replace-Face / Edge-Blend / Repair-Self-Intersect), and 5 edge / curve cleanup ops (Decimate-Edge / Smooth-Curve / Fix-Tangent / Snap-To-Grid / Detect-Non-Manifold). Auto-Heal is the canonical first pass on imported geometry; the manual ops handle anything Auto-Heal couldn't resolve.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-04",
+    "source": "OPEN MIND hyperCAD-S Healing Reference, OPEN MIND hyperCAD-S User Manual",
+    "totalParameters": 83,
+    "operationCount": 16,
+    "cad_concepts_used": [
+      "WATERTIGHT_VALIDATION",
+      "GAP_TOLERANCE",
+      "NON_MANIFOLD_EDGE",
+      "SELF_INTERSECTION",
+      "TANGENT_DEFICIENCY",
+      "STITCH_HEAL",
+      "DECIMATION_TOLERANCE",
+      "FEATURE_REMOVAL_PROPAGATION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S healing operations",
+    "tabs": ["Target", "Tolerance", "Action", "Properties"]
+  },
+  "operations": {
+    "AUTO_HEAL": {
+      "description": "Automatic geometry healing pass. Applies a pipeline of gap-stitch, knit, fix-tangent, decimate, and watertight-validate stages on imported bodies. First-pass tool for any STEP / IGES / Parasolid import.",
+      "category": "Healing_Auto",
+      "fusion_command": "n/a (hyperCAD-S macro: HEAL.AUTO)",
+      "python_api": "Heal.auto",
+      "parameterCount": 8,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Bodies", "type": "selection_list", "description": "Bodies to heal (solids, sheets, mixed)", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Aggressiveness", "type": "dropdown", "options": ["conservative", "balanced", "aggressive"], "default": "balanced", "required": true},
+            {"name": "Gap Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum gap that gets stitched (overrides aggressiveness preset)", "default": 0.01, "min": 0},
+            {"name": "Tangent Tolerance", "type": "numeric", "unit": "deg", "description": "Maximum angle defect treated as tangent-fixable", "default": 0.5, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Stages", "type": "selection_list", "description": "Pipeline stages to run", "options": ["stitch_gaps", "knit_faces", "fix_tangent", "decimate_edges", "remove_slivers", "validate_watertight"], "default": ["stitch_gaps", "knit_faces", "fix_tangent", "validate_watertight"]},
+            {"name": "Stop On First Failure", "type": "checkbox", "description": "Halt pipeline if any stage cannot complete (vs continue with warnings)", "default": false},
+            {"name": "Preserve Original", "type": "checkbox", "description": "Keep original body alongside healed copy", "default": false},
+            {"name": "Report Detail", "type": "dropdown", "options": ["summary", "per_stage", "per_edge"], "default": "summary"}
+          ]
+        }
+      }
+    },
+    "GAP_DETECTOR": {
+      "description": "Diagnostic — locate edge gaps in target body without modifying geometry. Returns edge-pair list + gap distances. Read-only feeder for MANUAL_GAP_FILL.",
+      "category": "Healing_Auto",
+      "fusion_command": "HEAL.DETECT.GAPS",
+      "python_api": "Heal.detectGaps",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Bodies", "type": "selection_list", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Min Gap", "type": "numeric", "unit": "mm", "description": "Smallest gap to report", "default": 0.001, "min": 0},
+            {"name": "Max Gap", "type": "numeric", "unit": "mm", "description": "Largest gap to report (above this counts as missing-face, not gap)", "default": 1, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Highlight In Viewport", "type": "checkbox", "description": "Color-code gap edges by severity in active viewport", "default": true},
+            {"name": "Output Mode", "type": "dropdown", "options": ["summary_only", "edge_pair_list", "marked_geometry"], "default": "edge_pair_list"}
+          ]
+        }
+      }
+    },
+    "VALIDATE_WATERTIGHT": {
+      "description": "Diagnostic — verify a body / shell is watertight (closed manifold). Returns pass / fail plus list of open edges. Required gate before SURFACE_TO_SOLID and before hyperMILL volume-toolpath generation.",
+      "category": "Healing_Auto",
+      "fusion_command": "HEAL.VALIDATE.WATERTIGHT",
+      "python_api": "Heal.validateWatertight",
+      "parameterCount": 4,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Bodies", "type": "selection_list", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Edge Tolerance", "type": "numeric", "unit": "mm", "description": "Edges closer than this are treated as joined", "default": 0.001, "min": 0},
+            {"name": "Require Outward Orientation", "type": "checkbox", "description": "Also verify face normals all point outward (consistent shell orientation)", "default": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "On Failure", "type": "dropdown", "options": ["report_only", "raise_error", "auto_invoke_heal"], "default": "report_only"}
+          ]
+        }
+      }
+    },
+    "MANUAL_GAP_FILL": {
+      "description": "Manually close a single gap between two edges with a stitched face strip. Optional G1 / G2 continuity to adjacent surfaces.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.GAP_FILL",
+      "python_api": "Heal.fillGap",
+      "parameterCount": 6,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Edge 1", "type": "selection", "required": true},
+            {"name": "Edge 2", "type": "selection", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "Strip Width Mode", "type": "dropdown", "options": ["minimum", "uniform", "follow_edges"], "default": "follow_edges"},
+            {"name": "Uniform Width", "type": "numeric", "unit": "mm", "description": "Fixed strip width (Strip Width Mode = uniform)", "min": 0.001},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "KNIT_FACES": {
+      "description": "Knit (sew) selected faces / surfaces into a unified shell along shared edges. More targeted than Auto-Heal stitch — operator chooses which faces to combine.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.KNIT",
+      "python_api": "Heal.knitFaces",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Faces to Knit", "type": "selection_list", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Knit Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0},
+            {"name": "Adjust Surfaces If Needed", "type": "checkbox", "description": "Allow small surface re-fit to close marginal gaps during knit", "default": false}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Result Mode", "type": "dropdown", "options": ["sheet_body", "solid_if_closed"], "default": "solid_if_closed"},
+            {"name": "Preserve Source Faces", "type": "checkbox", "description": "Keep source faces alongside knit result", "default": false}
+          ]
+        }
+      }
+    },
+    "FORCE_STITCH": {
+      "description": "Aggressive stitch — close gaps even when above standard tolerance by inserting a blend strip. Last-resort tool when AUTO_HEAL aggressive mode cannot close watertight.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.FORCE_STITCH",
+      "python_api": "Heal.forceStitch",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Gap Edges", "type": "selection_list", "description": "Specific gap-edge pairs to force-close (empty = all detected gaps)"}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Max Forced Gap", "type": "numeric", "unit": "mm", "description": "Upper bound on gap size that will be force-closed (safety guard)", "default": 0.5, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Blend Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent"], "default": "g0_position"},
+            {"name": "Mark Forced Edges", "type": "checkbox", "description": "Tag forced-close edges for downstream review", "default": true}
+          ]
+        }
+      }
+    },
+    "REMOVE_FEATURE": {
+      "description": "Remove a feature (hole, fillet, chamfer, pocket) from a body and re-extend adjacent faces to close the void. History-free operation suitable for imported solids.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.REMOVE_FEATURE",
+      "python_api": "Heal.removeFeature",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Feature Faces", "type": "selection_list", "description": "Faces composing the feature to remove", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Closure Mode", "type": "dropdown", "options": ["extend_adjacent", "blend_adjacent", "fill_with_plane"], "default": "extend_adjacent"},
+            {"name": "Maintain Adjacent Tangency", "type": "checkbox", "description": "Preserve tangent continuity on faces that bordered the removed feature", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "REMOVE_FILLET": {
+      "description": "Specialized REMOVE_FEATURE for fillet faces. Detects fillet face-set automatically by curvature continuity and removes the rolling-ball blend, restoring sharp edges.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.REMOVE_FILLET",
+      "python_api": "Heal.removeFillet",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Fillet Edge Or Face", "type": "selection", "description": "Any edge or face on the fillet — auto-detects rest of fillet face-set", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Auto Extend Faces", "type": "checkbox", "description": "Auto-extend adjacent flat faces to recover sharp edge", "default": true},
+            {"name": "Detection Tolerance", "type": "numeric", "unit": "deg", "description": "Curvature variation within face-set treated as fillet", "default": 1, "min": 0},
+            {"name": "Fail If Variable Radius", "type": "checkbox", "description": "Refuse removal if fillet has variable radius (safety guard)", "default": false}
+          ]
+        }
+      }
+    },
+    "HEAL_REPLACE_FACE": {
+      "description": "Replace one or more healing-target faces with a clean replacement surface. Healing-domain alias for SURFACE_REPLACE — narrows the workflow to repair contexts and emits healing audit metadata.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.REPLACE_FACE",
+      "python_api": "Heal.replaceFace",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Faces", "type": "selection_list", "required": true},
+            {"name": "Replacement Surface", "type": "selection", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.01},
+            {"name": "Extend If Short", "type": "checkbox", "description": "Auto-extend replacement to fully cover target faces", "default": true},
+            {"name": "Tag As Repair", "type": "checkbox", "description": "Emit healing-audit metadata (face was a repair, not original geometry)", "default": true}
+          ]
+        }
+      }
+    },
+    "EDGE_BLEND": {
+      "description": "Insert a small smooth blend across a sharp tangent break between adjacent faces. Healing-domain analog of fillet, optimized for fairing imperfect imports rather than design-time edge breaks.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.EDGE_BLEND",
+      "python_api": "Heal.edgeBlend",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Edges", "type": "selection_list", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Blend Width", "type": "numeric", "unit": "mm", "description": "Effective fillet radius along edges", "required": true, "min": 0.001},
+            {"name": "Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "Detect Sharp Only", "type": "checkbox", "description": "Skip edges already with tangent continuity better than threshold", "default": true},
+            {"name": "Sharpness Threshold", "type": "numeric", "unit": "deg", "description": "Min angle defect that qualifies an edge for blending", "default": 5, "min": 0}
+          ]
+        }
+      }
+    },
+    "REPAIR_SELF_INTERSECT": {
+      "description": "Detect and resolve self-intersecting faces / surfaces. Strategy: trim crossing region, re-fit cleaner surface, or remove offending face entirely. Critical for offset / shell results that overlap themselves.",
+      "category": "Healing_Manual",
+      "fusion_command": "HEAL.MANUAL.REPAIR_SELF_INTERSECT",
+      "python_api": "Heal.repairSelfIntersect",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Detection Tolerance", "type": "numeric", "unit": "mm", "description": "Minimum overlap distance to flag as self-intersection", "default": 0.001, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Strategy", "type": "dropdown", "options": ["trim_overlap", "refit_smooth", "remove_face", "report_only"], "default": "trim_overlap"},
+            {"name": "Preserve Volume", "type": "checkbox", "description": "Bias repair toward preserving enclosed volume vs preserving area", "default": true},
+            {"name": "Max Repair Iterations", "type": "numeric", "description": "Cap on repair passes (safety guard against pathological inputs)", "default": 5, "min": 1, "max": 20}
+          ]
+        }
+      }
+    },
+    "DECIMATE_EDGE": {
+      "description": "Reduce control-point density on edge / curve geometry without exceeding tolerance. Used to clean over-sampled imports (typical of converted scan data).",
+      "category": "Healing_Edge",
+      "fusion_command": "HEAL.EDGE.DECIMATE",
+      "python_api": "Heal.decimateEdge",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Edges", "type": "selection_list", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Maximum Deviation", "type": "numeric", "unit": "mm", "description": "Max distance decimated curve may deviate from original", "default": 0.005, "min": 0},
+            {"name": "Preserve Endpoints", "type": "checkbox", "default": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Aggressiveness", "type": "dropdown", "options": ["conservative", "balanced", "aggressive"], "default": "balanced"},
+            {"name": "Preserve Tangents At Joins", "type": "checkbox", "description": "Hold tangent continuity at endpoints when joining adjacent edges", "default": true}
+          ]
+        }
+      }
+    },
+    "SMOOTH_CURVE": {
+      "description": "Smooth high-frequency oscillation in target curves while staying within tolerance. Used after scan-to-curve fits to remove digitizer noise.",
+      "category": "Healing_Edge",
+      "fusion_command": "HEAL.EDGE.SMOOTH",
+      "python_api": "Heal.smoothCurve",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Curves", "type": "selection_list", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Smoothing Weight", "type": "numeric", "description": "0 = preserve shape exactly, 1 = maximum smoothing", "default": 0.2, "min": 0, "max": 1},
+            {"name": "Maximum Deviation", "type": "numeric", "unit": "mm", "description": "Hard upper bound on curve displacement", "default": 0.01, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Iterations", "type": "numeric", "default": 3, "min": 1, "max": 100},
+            {"name": "Preserve Inflection Points", "type": "checkbox", "description": "Lock points of curvature reversal during smoothing", "default": true}
+          ]
+        }
+      }
+    },
+    "FIX_TANGENT": {
+      "description": "Adjust adjacent edge / face pairs to recover tangent continuity that was lost in import (typical of mismatched STEP curve degrees).",
+      "category": "Healing_Edge",
+      "fusion_command": "HEAL.EDGE.FIX_TANGENT",
+      "python_api": "Heal.fixTangent",
+      "parameterCount": 5,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Edges", "type": "selection_list", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Tangent Tolerance", "type": "numeric", "unit": "deg", "description": "Maximum angle defect treated as fixable (above this needs blend / fillet, not tangent fix)", "default": 0.5, "min": 0},
+            {"name": "Maximum Deviation", "type": "numeric", "unit": "mm", "description": "Hard upper bound on geometry displacement during fix", "default": 0.001, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Continuity Target", "type": "dropdown", "options": ["g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "Lock One Side", "type": "checkbox", "description": "Adjust only the second edge of each pair (vs symmetric adjustment)", "default": false}
+          ]
+        }
+      }
+    },
+    "SNAP_TO_GRID": {
+      "description": "Snap point coordinates to a regular grid. Used to clean drift in vertex coordinates introduced by upstream floating-point round-trips.",
+      "category": "Healing_Edge",
+      "fusion_command": "HEAL.EDGE.SNAP_TO_GRID",
+      "python_api": "Heal.snapToGrid",
+      "parameterCount": 6,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Points", "type": "selection_list", "description": "Vertices / control points (empty = all vertices in target body)"},
+            {"name": "Target Body", "type": "selection", "description": "Body whose vertices should snap (alternative to Target Points)"}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Grid Spacing", "type": "numeric", "unit": "mm", "description": "Snap-grid resolution", "required": true, "min": 0, "default": 0.001},
+            {"name": "Maximum Snap Distance", "type": "numeric", "unit": "mm", "description": "Cap on per-point displacement (safety guard)", "default": 0.005, "min": 0}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Grid Origin", "type": "point3d", "description": "Origin of snap grid (defaults to world origin)"},
+            {"name": "Re-Fit Affected Curves", "type": "checkbox", "description": "Re-fit curves whose endpoints moved to maintain edge continuity", "default": true}
+          ]
+        }
+      }
+    },
+    "DETECT_NON_MANIFOLD": {
+      "description": "Diagnostic — locate non-manifold edges (edges shared by 3+ faces or otherwise topologically invalid). Read-only feeder for downstream repair operations.",
+      "category": "Healing_Edge",
+      "fusion_command": "HEAL.EDGE.DETECT_NON_MANIFOLD",
+      "python_api": "Heal.detectNonManifold",
+      "parameterCount": 4,
+      "tabs": {
+        "Target": {
+          "parameters": [
+            {"name": "Target Bodies", "type": "selection_list", "required": true}
+          ]
+        },
+        "Action": {
+          "parameters": [
+            {"name": "Categories To Detect", "type": "selection_list", "options": ["edge_3plus_faces", "vertex_2_faces", "self_overlap", "zero_area_face", "zero_length_edge"], "default": ["edge_3plus_faces", "vertex_2_faces", "zero_area_face", "zero_length_edge"]},
+            {"name": "Highlight In Viewport", "type": "checkbox", "default": true},
+            {"name": "Output Mode", "type": "dropdown", "options": ["summary_only", "categorized_list", "marked_geometry"], "default": "categorized_list"}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "auto_first": "Recommended workflow: AUTO_HEAL first, GAP_DETECTOR + DETECT_NON_MANIFOLD on what remains, then targeted manual ops.",
+    "watertight_gate": "VALIDATE_WATERTIGHT is required before any volume-toolpath generation in hyperMILL. Auto-Heal with the validate_watertight stage emits this gate as part of the pipeline.",
+    "history_free": "All healing operations are history-free — they bypass the parametric history tree because healing inputs are typically imported solids without history."
+  }
+}
