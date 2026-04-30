@@ -22,9 +22,32 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { hostname } from "node:os";
 
-const REPO = "H:/prism";
-const STATE_FILE = join(REPO, "mcp-server/data/state/session-file-ownership.json");
+// Canonical PRISM repo root holds the shared ownership ledger. We deliberately
+// keep it cross-worktree singular so every worktree publishes claims to the
+// same place (other guards rely on this).
+const SHARED_REPO = "H:/prism";
+const STATE_FILE = join(SHARED_REPO, "mcp-server/data/state/session-file-ownership.json");
 const STALE_THRESHOLD_MS = 4 * 60 * 60 * 1000; // 4 hours — files older than this are fair game
+
+// The git index is per-worktree, NOT shared. Resolve the worktree the user
+// is committing in via `git rev-parse --show-toplevel` from process.cwd().
+// Falls back to SHARED_REPO when cwd is not a git checkout (defensive — the
+// guard then matches its old behavior).
+function resolveWorktreeRoot() {
+  try {
+    const out = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 5000,
+    }).trim();
+    if (out) return out;
+  } catch {
+    // not in a git tree — use shared root
+  }
+  return SHARED_REPO;
+}
+const REPO = resolveWorktreeRoot();
 
 // Get stable session ID. Prefer the hook payload's session_id (Claude Code's own
 // stable conversation ID), then env, then PID. The PID fallback is the bug:

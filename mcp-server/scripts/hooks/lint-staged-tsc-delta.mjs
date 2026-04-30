@@ -110,7 +110,13 @@ function main() {
   const fileArgs = stagedFiles.map((f) => relative(MCP, resolve(REPO_ROOT, f))).filter(Boolean);
 
   // 1. Snapshot working tree (only edits, keep index intact for the commit).
-  const stashed = tryGit(["stash", "push", "--keep-index", "--include-untracked", "-m", "lint-staged-tsc-delta"]).includes("Saved working directory");
+  // Intentionally NOT --include-untracked: in multi-worktree setups other
+  // chats' untracked files can land in this worktree's `git ls-files
+  // --others`, and the stash pop creates spurious merge conflicts on
+  // names that overlap with sibling-branch work. The delta gate only
+  // cares about modifications to staged files, not untracked ones, so
+  // skipping untracked keeps the snapshot focused.
+  const stashed = tryGit(["stash", "push", "--keep-index", "-m", "lint-staged-tsc-delta"]).includes("Saved working directory");
 
   let baselineErrors = [];
   try {
