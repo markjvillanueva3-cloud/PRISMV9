@@ -722,6 +722,31 @@ export class Fusion360FunctionIndexEngine {
   }
 
   /**
+   * Get turning per-op tab deep-pass operations (CAM-EXHAUST-MS1-10).
+   * Reads turning-deep.json catalog covering the 6 standard deep tabs
+   * (Strategy, Cycle for G70/G71/G72/G74/G75/G76 canned cycles, Ramp,
+   * Holder, Output, Connections) for the 5 existing turning ops, plus
+   * 6 net-new turning ops: TURNING_CUTOFF, TURNING_BORE, TURNING_DRILL,
+   * TURNING_TAP, TURNING_SECONDARY_SPINDLE_TRANSFER, TURNING_LIVE_TOOLING.
+   * Closes the input-exhaust gap left by the original MS0/U-CAM24
+   * turning-operations.json.
+   *
+   * Categories: "Roughing" | "Finishing" | "Grooving" | "Threading" |
+   *             "Cutoff" | "Boring" | "Drilling" | "Synchronization" |
+   *             "Live_Tooling"
+   *
+   * @returns Array of { toolpath_id, category, parameter_count, description }
+   */
+  static getTurningDeepOperations(): Array<{
+    toolpath_id: string;
+    category: string;
+    parameter_count: number;
+    description: string;
+  }> {
+    return this.loadFusionToolpathCatalog("turning-deep.json", "getTurningDeepOperations");
+  }
+
+  /**
    * Shared loader for Fusion-toolpath-schema catalogs (probing.json,
    * additive.json, etc). Returns flattened operation summaries.
    * @internal

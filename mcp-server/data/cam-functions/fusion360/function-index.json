@@ -125,6 +125,14 @@
       "parameter_count_estimate": 320,
       "description": "Multiaxis per-op tab deep pass — closes the input-exhaust gap on existing multiaxis-operations.json by adding 5 standard deep tabs (Strategy, Ramp, Holder, Output, Connections) to the 7 existing multiaxis ops via _DEEP entries (Swarf / Multi-Axis Contour / Flow / Morphed-Spiral-Multiaxis / Rotary-4axis / Trimming / Impeller-Machining), AND introduces 2 net-new ops (BLADE_5AX for turbine-blade-specific 5-axis finishing with leading/trailing-edge blend, MULTI_AXIS_POCKET for 5-axis adaptive pocket roughing with tilt-to-avoid). 9 toolpaths total. The 5 simpler _DEEP ops also fill in missing Heights/Linking tabs the parent catalog omitted. Adds RTCP (G43.4 Runtime Tool Center Point) output controls to every op for proper 5-axis NC output.",
       "dependencies": ["multiaxis_operations"]
+    },
+    {
+      "module_id": "turning_deep",
+      "path": "cam-functions/fusion360/turning-deep.json",
+      "covered_units": ["U-CAM-MS1-10"],
+      "parameter_count_estimate": 364,
+      "description": "Turning per-op tab deep pass — closes the input-exhaust gap on existing turning-operations.json by adding 6 standard deep tabs (Strategy, Cycle for G70/G71/G72/G74/G75/G76 canned cycles, Ramp, Holder, Output, Connections) to the 5 existing turning ops via _DEEP entries (Profile_Roughing/Profile_Finishing/Face/Groove/Thread), AND introduces 6 net-new turning ops missing entirely: TURNING_CUTOFF (parting-off with peck, center-feed-reduction, part-catcher), TURNING_BORE (internal turning with bar-deflection budget), TURNING_DRILL (axial centerline drilling with G74/G83/G73), TURNING_TAP (rigid + tension-compression axial tap), TURNING_SECONDARY_SPINDLE_TRANSFER (sub-spindle handoff turning subset), TURNING_LIVE_TOOLING (C-axis driven-tool ops). 11 toolpaths total. Lathe-specific extras: G96/G97 surface-speed control, M3/M4 spindle direction, BMT/VDI live-tool holder orientations, insert-style enums (CNMG/DNMG/MGMN/etc).",
+      "dependencies": ["turning_operations"]
     }
   ],
   "global_cross_references": {

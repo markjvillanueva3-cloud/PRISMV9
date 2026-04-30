@@ -1,0 +1,2832 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Turning Per-Op Tab Deep Pass — Strategy / Cycle / Ramp / Holder / Output / Connections + 6 net-new turning ops",
+    "description": "Deep-pass extension to turning-operations.json (MS0/U-CAM24). Closes the input-exhaust gap on the 5 existing turning ops by adding 6 previously-uncatalogued tabs (Strategy, Cycle for canned G70/G71/G72/G74/G75/G76 cycles, Ramp, Holder, Output, Connections), AND introduces 6 net-new turning ops (TURNING_CUTOFF parting-off, TURNING_BORE internal turning, TURNING_DRILL axial centerline, TURNING_TAP axial tap, TURNING_SECONDARY_SPINDLE_TRANSFER sub-spindle handoff turning subset, TURNING_LIVE_TOOLING C-axis driven-tool ops) that were missing entirely. Brings Fusion 360 turning toward 100% input-field coverage per L2-CAMX-EXHAUST mandate.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "CAM-EXHAUST-MS1-10",
+    "source": "Autodesk Fusion 360 Help — Turning reference (Profile Roughing/Finishing, Face, Groove, Thread, Cutoff, Bore, Drill, Tap, Secondary Spindle, Live Tooling) + Fanuc 0i-TF / 30i-TF / 31i-TB G-code reference (G70 finish, G71 stock removal, G72 face stock removal, G74 peck drill, G75 grooving, G76 thread cycle) + Mazak Smooth-G turning manual + Okuma OSP-P300 turning manual + post.cps Manual NC reference + Sandvik Coromant turning insert geometry guide",
+    "totalParameters": 364,
+    "toolpathCount": 11,
+    "physics_links": [
+      "TURNING_FORCE_KIENZLE_F_T",
+      "TAYLOR_TOOL_LIFE_TURNING",
+      "THREAD_HELIX_PITCH_VS_RPM",
+      "INSERT_NOSE_RADIUS_VS_FINISH",
+      "PART_OFF_RADIAL_DEFLECTION",
+      "BAR_DEFLECTION_VS_STICKOUT",
+      "GROOVE_WIDTH_VS_INSERT_WIDTH",
+      "C_AXIS_LIVE_TOOL_RPM_RATIO",
+      "SUB_SPINDLE_PHASE_SYNC",
+      "AXIAL_DRILL_PECK_DEPTH",
+      "RIGID_TAP_FEED_SYNC"
+    ]
+  },
+  "commonTabs": {
+    "description": "New tabs added by the deep pass on top of existing base (tool/geometry/passes; only profile_roughing has heights). The deep pass adds Strategy/Cycle/Ramp/Holder/Output/Connections to all ops; net-new ops use the full turning tab structure (Tool/Geometry/Heights/Passes/Cycle/Strategy/Ramp/Holder/Output/Connections).",
+    "tabs": [
+      "Strategy",
+      "Cycle",
+      "Ramp",
+      "Holder",
+      "Output",
+      "Connections",
+      "Heights",
+      "Linking"
+    ],
+    "extends": [
+      "Tool",
+      "Geometry",
+      "Passes"
+    ]
+  },
+  "toolpaths": {
+    "TURNING_PROFILE_ROUGHING_DEEP": {
+      "description": "Deep-tab extension to turning_profile_roughing — Strategy / Cycle (G71 stock-removal cycle) / Ramp / Holder / Output / Connections.",
+      "category": "Roughing",
+      "parameterCount": 33,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Roughing Strategy",
+              "type": "dropdown",
+              "options": [
+                "axial",
+                "radial",
+                "contour_parallel"
+              ],
+              "default": "axial"
+            },
+            {
+              "name": "Stock to Leave Radial",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Axial",
+              "type": "numeric",
+              "default": 0.1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 1.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Cutting",
+              "type": "checkbox",
+              "description": "Cutting direction relative to spindle rotation",
+              "default": true
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control",
+                "wear"
+              ],
+              "default": "computer"
+            },
+            {
+              "name": "Allow Back Machining",
+              "type": "checkbox",
+              "description": "Allow undercut / back-of-shoulder cuts",
+              "default": false
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.025,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G71_stock_removal",
+                "G72_face_stock_removal",
+                "long_form"
+              ],
+              "default": "G71_stock_removal"
+            },
+            {
+              "name": "G71 Depth of Cut",
+              "type": "numeric",
+              "description": "G71 D-word — peck depth",
+              "default": 1.5,
+              "unit": "mm"
+            },
+            {
+              "name": "G71 Retract Distance",
+              "type": "numeric",
+              "description": "G71 R-word — retract amount per peck",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "description": "Emit canned cycle vs long-form",
+              "default": true
+            },
+            {
+              "name": "Tool Nose Radius Compensation",
+              "type": "checkbox",
+              "description": "G41/G42 enable",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "radial_approach",
+                "linear",
+                "tangent_arc"
+              ],
+              "default": "radial_approach"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-Out Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection",
+              "description": "Toolholder shank + insert geometry"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning",
+                "trim_paths"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Insert Style",
+              "type": "dropdown",
+              "options": [
+                "CNMG",
+                "DNMG",
+                "VNMG",
+                "WNMG",
+                "TNMG",
+                "RCMT"
+              ],
+              "default": "CNMG"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "M-Code on Start",
+              "type": "text"
+            },
+            {
+              "name": "M-Code on End",
+              "type": "text"
+            },
+            {
+              "name": "Spindle Direction",
+              "type": "dropdown",
+              "options": [
+                "M3_CW",
+                "M4_CCW"
+              ],
+              "default": "M3_CW"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "description": "G96 — auto-adjust RPM to maintain SFM",
+              "default": true
+            },
+            {
+              "name": "Max RPM Cap",
+              "type": "numeric",
+              "description": "G50 S-word cap on G96",
+              "default": 4000,
+              "unit": "RPM"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Safe Tool Change Position",
+              "type": "selection"
+            },
+            {
+              "name": "Use Tool Change Position",
+              "type": "checkbox",
+              "default": false
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_PROFILE_FINISHING_DEEP": {
+      "description": "Deep-tab extension to turning_profile_finishing — Strategy / Cycle (G70 finish cycle) / Ramp / Holder / Output / Connections.",
+      "category": "Finishing",
+      "parameterCount": 25,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Finishing Direction",
+              "type": "dropdown",
+              "options": [
+                "from_tail_to_chuck",
+                "from_chuck_to_tail"
+              ],
+              "default": "from_chuck_to_tail"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control",
+                "wear"
+              ],
+              "default": "control"
+            },
+            {
+              "name": "Use Tool Nose Radius Compensation",
+              "type": "checkbox",
+              "description": "G41/G42 enable for sharp corners",
+              "default": true
+            },
+            {
+              "name": "Number of Finishing Passes",
+              "type": "numeric",
+              "default": 1,
+              "min": 1,
+              "max": 5
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.005,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G70_finish_cycle",
+                "long_form"
+              ],
+              "default": "G70_finish_cycle"
+            },
+            {
+              "name": "Reference Roughing Op",
+              "type": "selection",
+              "description": "G71/G72 op that defined the contour"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "tangent_arc",
+                "linear",
+                "radial"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Radius",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-Out Type",
+              "type": "dropdown",
+              "options": [
+                "same_as_lead_in",
+                "tangent_arc",
+                "linear"
+              ],
+              "default": "same_as_lead_in"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Max RPM Cap",
+              "type": "numeric",
+              "default": 4000,
+              "unit": "RPM"
+            },
+            {
+              "name": "Spindle Direction",
+              "type": "dropdown",
+              "options": [
+                "M3_CW",
+                "M4_CCW"
+              ],
+              "default": "M3_CW"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_FACE_DEEP": {
+      "description": "Deep-tab extension to turning_face — Strategy / Cycle (G72 face-stock-removal) / Ramp / Holder / Output / Connections.",
+      "category": "Roughing",
+      "parameterCount": 22,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Face Direction",
+              "type": "dropdown",
+              "options": [
+                "outside_to_center",
+                "center_to_outside"
+              ],
+              "default": "outside_to_center"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0.1,
+              "unit": "mm"
+            },
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control"
+              ],
+              "default": "computer"
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G72_face_cycle",
+                "long_form"
+              ],
+              "default": "G72_face_cycle"
+            },
+            {
+              "name": "G72 Depth of Cut",
+              "type": "numeric",
+              "description": "G72 D-word",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "G72 Retract Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "radial_approach",
+                "linear"
+              ],
+              "default": "radial_approach"
+            },
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-Out Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Max RPM Cap",
+              "type": "numeric",
+              "default": 4000,
+              "unit": "RPM"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_GROOVE_DEEP": {
+      "description": "Deep-tab extension to turning_groove — Strategy / Cycle (G75 grooving) / Ramp / Holder / Output / Connections.",
+      "category": "Grooving",
+      "parameterCount": 28,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Groove Strategy",
+              "type": "dropdown",
+              "options": [
+                "plunge_only",
+                "multi_plunge_with_finish",
+                "trochoidal"
+              ],
+              "default": "multi_plunge_with_finish"
+            },
+            {
+              "name": "Plunge Stepover",
+              "type": "numeric",
+              "default": 0.7,
+              "unit": "× insert width"
+            },
+            {
+              "name": "Finish Pass",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stock to Leave Radial",
+              "type": "numeric",
+              "default": 0.1,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Axial",
+              "type": "numeric",
+              "default": 0.05,
+              "unit": "mm"
+            },
+            {
+              "name": "Insert Width",
+              "type": "numeric",
+              "description": "Critical for groove-width planning",
+              "required": true,
+              "default": 3,
+              "unit": "mm"
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control"
+              ],
+              "default": "computer"
+            },
+            {
+              "name": "Peck Grooving",
+              "type": "checkbox",
+              "description": "Chip-break peck on deep grooves",
+              "default": true
+            },
+            {
+              "name": "Peck Depth",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G75_grooving_cycle",
+                "long_form"
+              ],
+              "default": "G75_grooving_cycle"
+            },
+            {
+              "name": "G75 Depth Per Peck",
+              "type": "numeric",
+              "description": "G75 P-word",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "G75 Stepover",
+              "type": "numeric",
+              "description": "G75 Q-word",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "G75 Retract",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "radial_plunge",
+                "tangent_arc"
+              ],
+              "default": "radial_plunge"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Insert Style",
+              "type": "dropdown",
+              "options": [
+                "GTN",
+                "GTM",
+                "MGMN",
+                "GFR",
+                "GFL",
+                "TGF"
+              ],
+              "default": "MGMN"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "default": false,
+              "description": "G96 not recommended for narrow grooves; prefer G97 fixed RPM"
+            },
+            {
+              "name": "Max RPM Cap",
+              "type": "numeric",
+              "default": 3000,
+              "unit": "RPM"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Coolant Pre-Spin",
+              "type": "numeric",
+              "default": 1,
+              "unit": "s"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_THREAD_DEEP": {
+      "description": "Deep-tab extension to turning_thread — Strategy / Cycle (G76 multi-repetitive thread) / Ramp / Holder / Output / Connections. Covers single-point threading with infeed angle, multi-pass depth schedule, and Fanuc/Mazak/Okuma cycle variants.",
+      "category": "Threading",
+      "parameterCount": 30,
+      "tabs": {
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Thread Type",
+              "type": "dropdown",
+              "options": [
+                "external",
+                "internal",
+                "ID_taper",
+                "OD_taper",
+                "buttress",
+                "acme",
+                "trapezoidal",
+                "API_round"
+              ],
+              "default": "external"
+            },
+            {
+              "name": "Thread Standard",
+              "type": "dropdown",
+              "options": [
+                "UN",
+                "UNF",
+                "UNC",
+                "UNEF",
+                "UNJ",
+                "M_metric",
+                "MJ",
+                "BSPP",
+                "BSPT",
+                "NPT",
+                "NPTF",
+                "ACME",
+                "STUB_ACME"
+              ],
+              "default": "M_metric"
+            },
+            {
+              "name": "Pitch",
+              "type": "numeric",
+              "description": "Thread pitch",
+              "required": true,
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Major Diameter",
+              "type": "numeric",
+              "default": 12,
+              "unit": "mm"
+            },
+            {
+              "name": "Minor Diameter",
+              "type": "numeric",
+              "default": 10.4,
+              "unit": "mm"
+            },
+            {
+              "name": "Thread Depth",
+              "type": "numeric",
+              "description": "Total radial depth = (major - minor) / 2",
+              "default": 0.8,
+              "unit": "mm"
+            },
+            {
+              "name": "Number of Passes",
+              "type": "numeric",
+              "default": 6,
+              "min": 1,
+              "max": 30
+            },
+            {
+              "name": "Pass Schedule",
+              "type": "dropdown",
+              "options": [
+                "constant_volume",
+                "constant_depth",
+                "decreasing_depth"
+              ],
+              "default": "constant_volume"
+            },
+            {
+              "name": "Infeed Angle",
+              "type": "numeric",
+              "description": "Half-thread-angle infeed (29° for ACME, 30° for UN/M)",
+              "default": 30,
+              "unit": "deg"
+            },
+            {
+              "name": "Spring Pass",
+              "type": "checkbox",
+              "description": "Final zero-depth pass to clean up",
+              "default": true
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G76_multi_repetitive",
+                "G92_simple_cycle",
+                "G33_threading_with_chamfer",
+                "long_form"
+              ],
+              "default": "G76_multi_repetitive"
+            },
+            {
+              "name": "G76 Pullout Distance",
+              "type": "numeric",
+              "description": "G76 R-word — chamfer pullout at thread end",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "G76 Minimum Cut Depth",
+              "type": "numeric",
+              "description": "G76 D-word minimum increment",
+              "default": 0.05,
+              "unit": "mm"
+            },
+            {
+              "name": "G76 First Cut Depth",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "description": "Pre-thread approach distance for spindle sync",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-Out Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-Out Angle",
+              "type": "numeric",
+              "description": "Pullout angle from thread axis",
+              "default": 45,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Insert Style",
+              "type": "dropdown",
+              "options": [
+                "16ER",
+                "16IR",
+                "22ER",
+                "22IR",
+                "08ER",
+                "16NR",
+                "TNMA"
+              ],
+              "default": "16ER"
+            },
+            {
+              "name": "Insert Designation",
+              "type": "text",
+              "description": "Free-form thread-form designation (e.g. 16ER1.5ISO)"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "description": "G97 fixed RPM required for threading — disable G96",
+              "default": false
+            },
+            {
+              "name": "Threading RPM",
+              "type": "numeric",
+              "description": "Fixed spindle speed (must remain stable for pitch sync)",
+              "default": 800,
+              "unit": "RPM"
+            }
+          ]
+        },
+        "Connections": {
+          "parameters": [
+            {
+              "name": "Allow Rapid Retract",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Stay Down Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Coolant Pre-Spin",
+              "type": "numeric",
+              "default": 1,
+              "unit": "s"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_CUTOFF": {
+      "description": "Net-new turning op — parting-off (cutoff). Cuts the finished part from the bar stock with controlled radial plunge, peck-cutoff for chip control, and optional dwell at center for clean break. Critical for bar-fed production.",
+      "category": "Cutoff",
+      "parameterCount": 40,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "description": "Cutoff blade",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Flood",
+                "Through Tool",
+                "Mist"
+              ],
+              "default": "Flood"
+            },
+            {
+              "name": "Spindle Speed",
+              "type": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "name": "Surface Speed",
+              "type": "numeric",
+              "unit": "m/min"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Feed per Revolution",
+              "type": "numeric",
+              "default": 0.1,
+              "unit": "mm/rev"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Cutoff Z Position",
+              "type": "numeric",
+              "description": "Z-axis position of the cutoff plane",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock OD",
+              "type": "numeric",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Cutoff to ID",
+              "type": "numeric",
+              "description": "Final radius (0 = full cutoff to center)",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Tool Width",
+              "type": "numeric",
+              "description": "Cutoff blade width — drives tool wear",
+              "default": 3,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Approach Distance",
+              "type": "numeric",
+              "description": "Radial distance above stock OD for rapid approach",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Diameter",
+              "type": "numeric",
+              "description": "Radial retract after cutoff",
+              "default": 50,
+              "unit": "mm"
+            },
+            {
+              "name": "Z Clearance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {
+              "name": "Peck Cutoff",
+              "type": "checkbox",
+              "description": "Chip-break peck for stringy materials",
+              "default": true
+            },
+            {
+              "name": "Peck Depth",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Reduce Feed at Center",
+              "type": "checkbox",
+              "description": "Slow feed near centerline (prevents tool overload)",
+              "default": true
+            },
+            {
+              "name": "Center Feed Multiplier",
+              "type": "numeric",
+              "default": 0.3,
+              "min": 0.05,
+              "max": 1
+            },
+            {
+              "name": "Center Diameter Threshold",
+              "type": "numeric",
+              "description": "Diameter at which center-slowdown engages",
+              "default": 5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G75_with_cutoff_inversion",
+                "long_form"
+              ],
+              "default": "long_form"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": false
+            },
+            {
+              "name": "Use Part Catcher",
+              "type": "checkbox",
+              "description": "Trigger part catcher M-code at cutoff",
+              "default": true
+            },
+            {
+              "name": "Part Catcher M-Code",
+              "type": "text",
+              "default": "M75"
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Spindle Stop at Center",
+              "type": "checkbox",
+              "description": "M5 just before final break (clean snap)",
+              "default": false
+            },
+            {
+              "name": "Dwell at Center",
+              "type": "numeric",
+              "description": "Pause at last 0.1mm to ensure clean break",
+              "default": 0,
+              "unit": "s"
+            },
+            {
+              "name": "Air Blast at Center",
+              "type": "checkbox",
+              "description": "M-code air blast to clear chips",
+              "default": false
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control",
+                "wear"
+              ],
+              "default": "computer"
+            },
+            {
+              "name": "Direction",
+              "type": "dropdown",
+              "options": [
+                "minus_X",
+                "plus_X"
+              ],
+              "default": "minus_X"
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "radial_plunge",
+                "linear"
+              ],
+              "default": "radial_plunge"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Insert Style",
+              "type": "dropdown",
+              "options": [
+                "GTN_2.0",
+                "GTN_3.0",
+                "MGMN150",
+                "MGMN200",
+                "MGMN300",
+                "MGMN400"
+              ],
+              "default": "MGMN300"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "description": "G96 not used at center — must auto-cap to G97 below threshold",
+              "default": false
+            },
+            {
+              "name": "Max RPM Cap",
+              "type": "numeric",
+              "default": 2500,
+              "unit": "RPM"
+            },
+            {
+              "name": "Bar Feed M-Code",
+              "type": "text",
+              "description": "M-code to advance bar feeder for next part",
+              "default": "M85"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_BORE": {
+      "description": "Net-new turning op — internal turning (boring). Removes material from existing pilot/drilled hole using boring bar. Covers ID profile roughing, finishing, threading, grooving — separates internal vs external strategies because boring-bar deflection budget is critical.",
+      "category": "Boring",
+      "parameterCount": 46,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "description": "Boring bar (typically S-style)",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Through Tool",
+                "Flood",
+                "Mist"
+              ],
+              "default": "Through Tool",
+              "description": "Through-tool strongly preferred for chip evacuation"
+            },
+            {
+              "name": "Spindle Speed",
+              "type": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "name": "Surface Speed",
+              "type": "numeric",
+              "unit": "m/min"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Feed per Revolution",
+              "type": "numeric",
+              "default": 0.1,
+              "unit": "mm/rev"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Bore Profile",
+              "type": "selection_multi",
+              "description": "Internal profile geometry",
+              "required": true
+            },
+            {
+              "name": "Pre-Drilled Diameter",
+              "type": "numeric",
+              "description": "Existing pilot hole diameter",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Final Diameter",
+              "type": "numeric",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Bore Length",
+              "type": "numeric",
+              "default": 25,
+              "unit": "mm"
+            },
+            {
+              "name": "Tool Stickout",
+              "type": "numeric",
+              "description": "Boring bar stickout — drives deflection budget",
+              "default": 50,
+              "unit": "mm"
+            },
+            {
+              "name": "Bar Length to Diameter Ratio",
+              "type": "numeric",
+              "description": "Auto-computed flag: warn if >4 for steel, >6 for carbide bar",
+              "default": 4
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Approach Diameter",
+              "type": "numeric",
+              "description": "Diameter at which rapid approach begins",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Diameter",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Z Clearance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Z Approach",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {
+              "name": "Boring Strategy",
+              "type": "dropdown",
+              "options": [
+                "roughing",
+                "finishing",
+                "rough_then_finish"
+              ],
+              "default": "rough_then_finish"
+            },
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Radial",
+              "type": "numeric",
+              "default": 0.2,
+              "unit": "mm"
+            },
+            {
+              "name": "Stock to Leave Axial",
+              "type": "numeric",
+              "default": 0.05,
+              "unit": "mm"
+            },
+            {
+              "name": "Multiple Finishing Passes",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Number of Finishing Passes",
+              "type": "numeric",
+              "default": 2,
+              "min": 1,
+              "max": 5
+            },
+            {
+              "name": "Spring Pass",
+              "type": "checkbox",
+              "description": "Zero-depth final pass to compensate for bar deflection",
+              "default": true
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G71_internal",
+                "G70_finish",
+                "long_form"
+              ],
+              "default": "G71_internal"
+            },
+            {
+              "name": "G71 Depth of Cut",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "G71 Retract Distance",
+              "type": "numeric",
+              "default": 0.3,
+              "unit": "mm"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control",
+                "wear"
+              ],
+              "default": "computer"
+            },
+            {
+              "name": "Reduce Feedrate Near Bottom",
+              "type": "checkbox",
+              "description": "Slow feed near blind-bore bottom for surface finish",
+              "default": false
+            },
+            {
+              "name": "Bottom Feed Multiplier",
+              "type": "numeric",
+              "default": 0.5,
+              "min": 0.1,
+              "max": 1
+            },
+            {
+              "name": "Smoothing",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Smoothing Tolerance",
+              "type": "numeric",
+              "default": 0.01,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Lead-In Distance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Lead-In Type",
+              "type": "dropdown",
+              "options": [
+                "axial_approach",
+                "tangent_arc"
+              ],
+              "default": "axial_approach"
+            },
+            {
+              "name": "Lead-Out Type",
+              "type": "dropdown",
+              "options": [
+                "axial_retract",
+                "tangent_arc"
+              ],
+              "default": "axial_retract"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection",
+              "description": "Boring bar holder + insert"
+            },
+            {
+              "name": "Holder Mode",
+              "type": "dropdown",
+              "options": [
+                "off",
+                "warning"
+              ],
+              "default": "warning"
+            },
+            {
+              "name": "Insert Style",
+              "type": "dropdown",
+              "options": [
+                "CCMT_06",
+                "CCMT_09",
+                "CCMT_12",
+                "DCMT_07",
+                "DCMT_11",
+                "TPGH"
+              ],
+              "default": "CCMT_09"
+            },
+            {
+              "name": "Bar Material",
+              "type": "dropdown",
+              "options": [
+                "steel_shank",
+                "carbide_shank",
+                "tungsten_steel_HD",
+                "anti_vibration"
+              ],
+              "default": "steel_shank",
+              "description": "Carbide shanks allow higher L:D ratios"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Max RPM Cap",
+              "type": "numeric",
+              "default": 4000,
+              "unit": "RPM"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_DRILL": {
+      "description": "Net-new turning op — axial centerline drilling on a lathe (drill held in turret/tailstock). Distinct from milling drill — uses turning's coordinate system, peck-drilling cycles tuned for axial chip evacuation, and integrates with Z-axis spindle.",
+      "category": "Drilling",
+      "parameterCount": 36,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "description": "Twist drill, gun drill, indexable drill, or center drill",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Through Tool",
+                "Flood",
+                "Mist"
+              ],
+              "default": "Through Tool"
+            },
+            {
+              "name": "Spindle Speed",
+              "type": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "name": "Surface Speed",
+              "type": "numeric",
+              "unit": "m/min"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Feed per Revolution",
+              "type": "numeric",
+              "default": 0.15,
+              "unit": "mm/rev"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Drill Diameter",
+              "type": "numeric",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Drill Depth",
+              "type": "numeric",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Drill Tip Type",
+              "type": "dropdown",
+              "options": [
+                "118_deg_twist",
+                "135_deg_split_point",
+                "spade",
+                "gun_drill",
+                "indexable",
+                "center_drill"
+              ],
+              "default": "135_deg_split_point"
+            },
+            {
+              "name": "Drill Tip Compensation",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Z Clearance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Approach Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Retract Distance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {
+              "name": "Drill Mode",
+              "type": "dropdown",
+              "options": [
+                "full_depth",
+                "peck",
+                "deep_drill_peck",
+                "chip_break"
+              ],
+              "default": "peck"
+            },
+            {
+              "name": "Peck Depth",
+              "type": "numeric",
+              "default": 3,
+              "unit": "mm",
+              "min": 0.5,
+              "max": 50
+            },
+            {
+              "name": "Peck Reduction",
+              "type": "numeric",
+              "description": "Reduce peck depth each cycle (deep-drill)",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Minimum Peck Depth",
+              "type": "numeric",
+              "default": 0.5,
+              "unit": "mm"
+            },
+            {
+              "name": "Chip Break Retract",
+              "type": "numeric",
+              "description": "G73 retract per peck",
+              "default": 0.3,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "G74_face_drill",
+                "G83_deep_drill",
+                "G73_chip_break",
+                "long_form"
+              ],
+              "default": "G74_face_drill"
+            },
+            {
+              "name": "Dwell at Bottom",
+              "type": "numeric",
+              "default": 0,
+              "unit": "s"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "none"
+              ],
+              "default": "none"
+            },
+            {
+              "name": "Center Drill First",
+              "type": "checkbox",
+              "description": "Spot-drill before main drill",
+              "default": false
+            },
+            {
+              "name": "Center Drill Diameter",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Pilot Drill First",
+              "type": "checkbox",
+              "description": "Smaller pilot before main",
+              "default": false
+            },
+            {
+              "name": "Pilot Drill Diameter",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection",
+              "description": "Drill holder (turret or tailstock)"
+            },
+            {
+              "name": "Holder Position",
+              "type": "dropdown",
+              "options": [
+                "turret",
+                "tailstock",
+                "live_tool_axial"
+              ],
+              "default": "turret"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "description": "G97 fixed RPM for drilling — disable G96",
+              "default": false
+            },
+            {
+              "name": "Drilling RPM",
+              "type": "numeric",
+              "default": 800,
+              "unit": "RPM"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_TAP": {
+      "description": "Net-new turning op — axial tapping on a lathe (tap held in turret or tailstock with tension/compression head, OR rigid-tap synced to spindle). Auto-binds Pitch + RPM + Feed via F = N × P (mm/min) for rigid sync.",
+      "category": "Threading",
+      "parameterCount": 31,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "description": "Tap (RH/LH, plug/bottom)",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Flood",
+                "Through Tool",
+                "Mist"
+              ],
+              "default": "Flood"
+            },
+            {
+              "name": "Spindle Speed",
+              "type": "numeric",
+              "default": 500,
+              "unit": "RPM"
+            },
+            {
+              "name": "Pitch",
+              "type": "numeric",
+              "description": "Tap pitch (must match thread spec)",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "description": "Auto-computed F = N × P",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Plunge Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Tap Drill Diameter",
+              "type": "numeric",
+              "description": "Pre-drilled hole — verify against pitch",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Major Diameter",
+              "type": "numeric",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Tap Depth",
+              "type": "numeric",
+              "required": true,
+              "unit": "mm"
+            },
+            {
+              "name": "Through Hole",
+              "type": "checkbox",
+              "description": "Enables faster Z-retract",
+              "default": false
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Z Clearance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Approach Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Tap Length Allowance",
+              "type": "numeric",
+              "description": "Incomplete-thread length at tap tip",
+              "default": 1.5,
+              "unit": "× pitch"
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Tap Mode",
+              "type": "dropdown",
+              "options": [
+                "G84_rigid_RH",
+                "G74_rigid_LH",
+                "G84.2_rigid",
+                "tension_compression",
+                "long_form"
+              ],
+              "default": "G84_rigid_RH",
+              "required": true
+            },
+            {
+              "name": "Spindle Reverse Multiplier",
+              "type": "numeric",
+              "default": 1,
+              "min": 0.5,
+              "max": 5
+            },
+            {
+              "name": "Dwell at Bottom",
+              "type": "numeric",
+              "default": 0,
+              "unit": "s"
+            },
+            {
+              "name": "Coolant Pre-Spin",
+              "type": "numeric",
+              "default": 1,
+              "unit": "s"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Verify Tap Drill Diameter",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Allowable Diameter Tolerance",
+              "type": "numeric",
+              "default": 0.05,
+              "unit": "mm"
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "none"
+              ],
+              "default": "none"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Holder",
+              "type": "selection"
+            },
+            {
+              "name": "Tap Holder Type",
+              "type": "dropdown",
+              "options": [
+                "rigid",
+                "tension_compression",
+                "synchronous",
+                "ER_collet"
+              ],
+              "default": "rigid"
+            },
+            {
+              "name": "Holder Position",
+              "type": "dropdown",
+              "options": [
+                "turret",
+                "tailstock",
+                "live_tool_axial"
+              ],
+              "default": "turret"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Tapping RPM",
+              "type": "numeric",
+              "description": "Fixed (G97) — required for rigid-tap pitch sync",
+              "default": 500,
+              "unit": "RPM"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_SECONDARY_SPINDLE_TRANSFER": {
+      "description": "Net-new turning op — sub-spindle/secondary-spindle handoff on a multi-spindle lathe. Subset of mill-turn TURNING_TRANSFER but for pure-turning controllers without C-axis. Synchronizes RPMs, advances sub-spindle to grip, parts off, retracts. For Mazak Quick Turn / DMG MORI NLX / Okuma Genos L300M sub-spindle machines.",
+      "category": "Synchronization",
+      "parameterCount": 33,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Cutoff Tool",
+              "type": "selection",
+              "description": "Cutoff blade for parting"
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Flood"
+              ],
+              "default": "Flood"
+            },
+            {
+              "name": "Spindle Speed Main",
+              "type": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "name": "Spindle Speed Sub",
+              "type": "numeric",
+              "unit": "RPM"
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Part Position Z",
+              "type": "numeric",
+              "description": "Z-position of part nose at transfer",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Gripping Length",
+              "type": "numeric",
+              "description": "Stock length to grip in sub-spindle",
+              "default": 15,
+              "unit": "mm"
+            },
+            {
+              "name": "Push Out Distance",
+              "type": "numeric",
+              "description": "Stock advance from main chuck before pickup",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Cutoff Position",
+              "type": "numeric",
+              "description": "Z-cutoff plane during transfer",
+              "required": true,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Sub Spindle Approach Distance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "mm"
+            },
+            {
+              "name": "Main Spindle Retract Distance",
+              "type": "numeric",
+              "default": 50,
+              "unit": "mm"
+            },
+            {
+              "name": "Z Clearance",
+              "type": "numeric",
+              "default": 10,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Transfer Mode",
+              "type": "dropdown",
+              "options": [
+                "pickup_running",
+                "pickup_stopped",
+                "phase_synced_running"
+              ],
+              "default": "pickup_running"
+            },
+            {
+              "name": "RPM Match Tolerance",
+              "type": "numeric",
+              "default": 5,
+              "unit": "rpm"
+            },
+            {
+              "name": "Phase Angle",
+              "type": "numeric",
+              "default": 0,
+              "unit": "deg"
+            },
+            {
+              "name": "Clamp Sequence",
+              "type": "dropdown",
+              "options": [
+                "sub_grip_then_main_release",
+                "simultaneous",
+                "main_release_then_sub_grip"
+              ],
+              "default": "sub_grip_then_main_release"
+            },
+            {
+              "name": "Pickup Chuck Pressure",
+              "type": "numeric",
+              "default": 25,
+              "unit": "bar"
+            },
+            {
+              "name": "Retention Force",
+              "type": "numeric",
+              "default": 1500,
+              "unit": "N"
+            },
+            {
+              "name": "Retract on Fail",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Retry Count",
+              "type": "numeric",
+              "default": 2,
+              "min": 0,
+              "max": 5
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "Sync Method",
+              "type": "dropdown",
+              "options": [
+                "g847_g847",
+                "M-code_macro",
+                "controller_native_subspindle"
+              ],
+              "default": "controller_native_subspindle"
+            },
+            {
+              "name": "Sync M-Code",
+              "type": "text",
+              "description": "Custom M-code if controller_native unsupported"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            }
+          ]
+        },
+        "Ramp": {
+          "parameters": [
+            {
+              "name": "Sub Spindle Approach Feed",
+              "type": "numeric",
+              "default": 200,
+              "unit": "mm/min"
+            },
+            {
+              "name": "Main Spindle Retract Speed",
+              "type": "dropdown",
+              "default": "rapid",
+              "options": [
+                "rapid",
+                "feed"
+              ]
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Main Chuck",
+              "type": "selection"
+            },
+            {
+              "name": "Sub Chuck",
+              "type": "selection"
+            },
+            {
+              "name": "Tailstock Used",
+              "type": "checkbox",
+              "description": "Whether tailstock supports OD before transfer",
+              "default": false
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Cutoff Dwell",
+              "type": "numeric",
+              "default": 0.2,
+              "unit": "s"
+            },
+            {
+              "name": "Part Catcher M-Code",
+              "type": "text",
+              "description": "If part lands in catcher (vs sub-spindle pickup)",
+              "default": "M75"
+            }
+          ]
+        }
+      }
+    },
+    "TURNING_LIVE_TOOLING": {
+      "description": "Net-new turning op — driven-tool ops on a turning-center with live-tool turret + C-axis (cross-drilling, axial milling, off-center features). For Mazak Multus / Okuma L300M / Doosan Lynx with C-axis. Distinct from full mill-turn — these are turret-mounted driven tools without sub-spindle synchronization.",
+      "category": "Live_Tooling",
+      "parameterCount": 40,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {
+              "name": "Tool",
+              "type": "selection",
+              "description": "End mill / drill / tap (live)",
+              "required": true
+            },
+            {
+              "name": "Tool Number",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Length Offset",
+              "type": "numeric",
+              "default": 1
+            },
+            {
+              "name": "Coolant",
+              "type": "dropdown",
+              "options": [
+                "Flood",
+                "Through Tool",
+                "Mist"
+              ],
+              "default": "Flood"
+            },
+            {
+              "name": "Live Tool RPM",
+              "type": "numeric",
+              "description": "Tool spindle RPM (independent of main)",
+              "unit": "RPM"
+            },
+            {
+              "name": "Live Tool Surface Speed",
+              "type": "numeric",
+              "unit": "m/min"
+            },
+            {
+              "name": "Cutting Feedrate",
+              "type": "numeric",
+              "unit": "mm/min"
+            },
+            {
+              "name": "Live Tool Drive Ratio",
+              "type": "numeric",
+              "description": "Turret-to-tool gear ratio",
+              "default": 1,
+              "min": 0.1,
+              "max": 5
+            }
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {
+              "name": "Operation Type",
+              "type": "dropdown",
+              "options": [
+                "cross_drilling",
+                "axial_milling",
+                "cross_milling",
+                "polar_pocket",
+                "C_axis_engraving"
+              ],
+              "default": "cross_drilling",
+              "required": true
+            },
+            {
+              "name": "Feature Geometry",
+              "type": "selection_multi",
+              "description": "Feature(s) to machine",
+              "required": true
+            },
+            {
+              "name": "Feature C-Axis Angle",
+              "type": "numeric",
+              "description": "Initial C-axis index for the feature",
+              "default": 0,
+              "unit": "deg"
+            },
+            {
+              "name": "Feature Count",
+              "type": "numeric",
+              "description": "Pattern repeat count around C-axis",
+              "default": 1,
+              "min": 1,
+              "max": 100
+            },
+            {
+              "name": "Pattern Angular Pitch",
+              "type": "numeric",
+              "description": "Angular spacing of pattern",
+              "default": 0,
+              "unit": "deg"
+            }
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {
+              "name": "Z Clearance",
+              "type": "numeric",
+              "default": 10,
+              "unit": "mm"
+            },
+            {
+              "name": "Approach Distance",
+              "type": "numeric",
+              "default": 2,
+              "unit": "mm"
+            },
+            {
+              "name": "Tool Tip Z",
+              "type": "numeric",
+              "description": "Z-position of tool tip at start",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "X Clearance Diameter",
+              "type": "numeric",
+              "description": "Radial clearance from part centerline",
+              "default": 50,
+              "unit": "mm"
+            },
+            {
+              "name": "Bottom Z",
+              "type": "numeric",
+              "description": "Z-depth for axial drilling/milling",
+              "default": -10,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {
+              "name": "Maximum Stepdown",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            },
+            {
+              "name": "Stepover",
+              "type": "numeric",
+              "default": 0.4,
+              "unit": "× tool diameter"
+            },
+            {
+              "name": "Stock to Leave",
+              "type": "numeric",
+              "default": 0,
+              "unit": "mm"
+            },
+            {
+              "name": "Climb Milling",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Number of Passes",
+              "type": "numeric",
+              "default": 1,
+              "min": 1,
+              "max": 20
+            }
+          ]
+        },
+        "Cycle": {
+          "parameters": [
+            {
+              "name": "C-Axis Mode",
+              "type": "dropdown",
+              "options": [
+                "indexed_fixed",
+                "interpolated_continuous"
+              ],
+              "default": "indexed_fixed"
+            },
+            {
+              "name": "Cycle Type",
+              "type": "dropdown",
+              "options": [
+                "drill_G81",
+                "deep_drill_G83",
+                "tap_G84",
+                "long_form_axial_mill",
+                "long_form_cross_mill",
+                "interpolated_polar_G12.1"
+              ],
+              "default": "long_form_cross_mill"
+            },
+            {
+              "name": "Output Cycle",
+              "type": "checkbox",
+              "default": true
+            },
+            {
+              "name": "Polar Coordinate Mode",
+              "type": "checkbox",
+              "description": "G12.1 polar coordinate interpolation",
+              "default": false
+            }
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {
+              "name": "Main Spindle Mode",
+              "type": "dropdown",
+              "options": [
+                "M19_oriented_stop",
+                "C_axis_continuous",
+                "indexed_brake"
+              ],
+              "default": "M19_oriented_stop"
+            },
+            {
+              "name": "C-Axis Brake",
+              "type": "checkbox",
+              "description": "Engage spindle brake during indexed cuts",
+              "default": true
+            },
+            {
+              "name": "Tool Lead Side",
+              "type": "dropdown",
+              "options": [
+                "plus_X",
+                "minus_X"
+              ],
+              "default": "plus_X"
+            },
+            {
+              "name": "Compensation Type",
+              "type": "dropdown",
+              "options": [
+                "computer",
+                "control"
+              ],
+              "default": "computer"
+            }
+          ]
+        },
+        "Holder": {
+          "parameters": [
+            {
+              "name": "Live Tool Holder",
+              "type": "selection",
+              "description": "Live-tool turret position holder"
+            },
+            {
+              "name": "Holder Orientation",
+              "type": "dropdown",
+              "options": [
+                "axial",
+                "radial",
+                "BMT55_radial",
+                "BMT65_axial",
+                "VDI40_radial",
+                "VDI40_axial"
+              ],
+              "default": "radial"
+            },
+            {
+              "name": "Holder Clearance",
+              "type": "numeric",
+              "default": 1,
+              "unit": "mm"
+            }
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {
+              "name": "Operation Comment",
+              "type": "text"
+            },
+            {
+              "name": "Pre-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "Post-Op Manual NC",
+              "type": "text"
+            },
+            {
+              "name": "M-Code Live Tool On",
+              "type": "text",
+              "description": "Custom M-code to start tool spindle (e.g., M133)",
+              "default": "M133"
+            },
+            {
+              "name": "M-Code Live Tool Off",
+              "type": "text",
+              "default": "M135"
+            },
+            {
+              "name": "Constant Surface Speed",
+              "type": "checkbox",
+              "description": "G96 not used during live-tool work — main spindle locked",
+              "default": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

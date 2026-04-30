@@ -1719,4 +1719,172 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_multiaxis_deep_operations");
     });
   });
+
+  describe("getTurningDeepOperations (CAM-EXHAUST-MS1-10)", () => {
+    it("returns exactly 11 turning-deep toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      expect(ops.length).toBe(11);
+    });
+
+    it("All 5 _DEEP extensions present (one per existing turning-operations.json op)", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const deepIds = ops.filter((o) => o.toolpath_id.endsWith("_DEEP")).map((o) => o.toolpath_id).sort();
+      expect(deepIds).toEqual([
+        "TURNING_FACE_DEEP",
+        "TURNING_GROOVE_DEEP",
+        "TURNING_PROFILE_FINISHING_DEEP",
+        "TURNING_PROFILE_ROUGHING_DEEP",
+        "TURNING_THREAD_DEEP",
+      ]);
+    });
+
+    it("All 6 net-new turning ops present (Cutoff/Bore/Drill/Tap/SecondarySpindle/LiveTooling)", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const newIds = ops.filter((o) => !o.toolpath_id.endsWith("_DEEP")).map((o) => o.toolpath_id).sort();
+      expect(newIds).toEqual([
+        "TURNING_BORE",
+        "TURNING_CUTOFF",
+        "TURNING_DRILL",
+        "TURNING_LIVE_TOOLING",
+        "TURNING_SECONDARY_SPINDLE_TRANSFER",
+        "TURNING_TAP",
+      ]);
+    });
+
+    it("Categories are turning-specific (Roughing/Finishing/Grooving/Threading/Cutoff/Boring/Drilling/Synchronization/Live_Tooling)", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const cats = new Set(ops.map((o) => o.category));
+      expect(cats.has("Roughing")).toBe(true);
+      expect(cats.has("Finishing")).toBe(true);
+      expect(cats.has("Grooving")).toBe(true);
+      expect(cats.has("Threading")).toBe(true);
+      expect(cats.has("Cutoff")).toBe(true);
+      expect(cats.has("Boring")).toBe(true);
+      expect(cats.has("Drilling")).toBe(true);
+      expect(cats.has("Synchronization")).toBe(true);
+      expect(cats.has("Live_Tooling")).toBe(true);
+    });
+
+    it("TURNING_BORE is largest op (46 params — full bar-deflection-budget tabs)", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "TURNING_BORE");
+      expect(op?.parameter_count).toBe(46);
+      expect(op?.category).toBe("Boring");
+    });
+
+    it("All 5 _DEEP extensions have exact expected param counts", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const expected: Record<string, number> = {
+        TURNING_PROFILE_ROUGHING_DEEP: 33,
+        TURNING_PROFILE_FINISHING_DEEP: 25,
+        TURNING_FACE_DEEP: 22,
+        TURNING_GROOVE_DEEP: 28,
+        TURNING_THREAD_DEEP: 30,
+      };
+      for (const [id, expectedCount] of Object.entries(expected)) {
+        const op = ops.find((o) => o.toolpath_id === id);
+        expect(op?.parameter_count).toBe(expectedCount);
+      }
+    });
+
+    it("All 6 net-new ops have exact expected param counts", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const expected: Record<string, number> = {
+        TURNING_CUTOFF: 40,
+        TURNING_BORE: 46,
+        TURNING_DRILL: 36,
+        TURNING_TAP: 31,
+        TURNING_SECONDARY_SPINDLE_TRANSFER: 33,
+        TURNING_LIVE_TOOLING: 40,
+      };
+      for (const [id, expectedCount] of Object.entries(expected)) {
+        const op = ops.find((o) => o.toolpath_id === id);
+        expect(op?.parameter_count).toBe(expectedCount);
+      }
+    });
+
+    it("TURNING_THREAD_DEEP description references G76 multi-repetitive thread cycle (defining concept)", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "TURNING_THREAD_DEEP");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("g76") || text.includes("multi-repetitive") || text.includes("thread")).toBe(true);
+    });
+
+    it("TURNING_CUTOFF description references parting-off / part catcher / bar feed", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "TURNING_CUTOFF");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("parting") || text.includes("cutoff") || text.includes("catcher") || text.includes("bar")).toBe(true);
+    });
+
+    it("TURNING_LIVE_TOOLING description references C-axis / driven-tool / turret concepts", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const op = ops.find((o) => o.toolpath_id === "TURNING_LIVE_TOOLING");
+      const text = op?.description.toLowerCase() ?? "";
+      expect(text.includes("c-axis") || text.includes("c axis") || text.includes("driven") || text.includes("turret") || text.includes("live")).toBe(true);
+    });
+
+    it("parameter counts sum to 364 across all 11 ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      const total = ops.reduce((sum, o) => sum + o.parameter_count, 0);
+      expect(total).toBe(364);
+    });
+
+    it("each op has parameter_count > 0 and a non-trivial description", () => {
+      const ops = Fusion360FunctionIndexEngine.getTurningDeepOperations();
+      for (const op of ops) {
+        expect(op.parameter_count).toBeGreaterThan(0);
+        expect(op.description.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("dispatcher round-trip: get_turning_deep_operations returns 11 ops with TURNING_BORE @ 46 params", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        registerCamDispatcher: (server: { tool: unknown }) => void;
+      };
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer as unknown as { tool: unknown });
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_turning_deep_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations.length).toBe(11);
+      const bore = result.operations.find((o) => o.toolpath_id === "TURNING_BORE");
+      expect(bore?.category).toBe("Boring");
+      expect(bore?.parameter_count).toBe(46);
+    });
+
+    it("turning_deep module is registered in fusion360 function-index with 364 estimated params and depends on turning_operations", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "turning_deep");
+      expect(entry?.parameter_count_estimate).toBe(364);
+      expect(entry?.dependencies).toEqual(["turning_operations"]);
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_turning_deep_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_turning_deep_operations");
+    });
+  });
 });
