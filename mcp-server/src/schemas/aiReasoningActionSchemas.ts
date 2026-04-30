@@ -204,6 +204,9 @@ export const AI_REASONING_ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE49: SinkerEDMLoRADatasetBuilderEngine - aspect-ratio-stratified, deep-cavity-boosted builder
   "sinker_edm_lora_build_dataset",   // U-WIRE49: build dataset; complexity (simple/moderate/deep) stratifies; depth/width>5 boosts weight to ≥2.0
   "sinker_edm_lora_required_schema", // U-WIRE49: report required feature + actual keys (sinker-EDM-specific)
+  // ENGINE-WIRE-MS0/U-WIRE50: MillTurnLoRADatasetBuilderEngine - channel-count + sub-spindle stratified, imbalance-labeled builder
+  "millturn_dataset_lora_build_dataset",   // U-WIRE50: build dataset; channels/subSpindle stratify fingerprint; imbalance>0.95 auto-labels "imbalanced"
+  "millturn_dataset_lora_required_schema", // U-WIRE50: report required feature + actual keys (mill-turn dataset-builder-specific)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1803,4 +1806,29 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     }).passthrough().optional(),
   }).passthrough(),
   sinker_edm_lora_required_schema: z.object({}).passthrough(),
+  // U-WIRE50 - MillTurnLoRADatasetBuilderEngine
+  // Same RawJob umbrella shape. Engine-layer enforces feature keys
+  // (material/part_class/machine_class/channel_count/sub_spindle) and
+  // 2 actuals (wait_ms_per_sync/channel_imbalance_ratio) all finite
+  // numbers ≥0. Imbalance > 0.95 auto-labels "imbalanced".
+  // Action name uses `_dataset_` infix to disambiguate from camDispatcher's
+  // `millturn_lora_predict|train|optimize` (those wire MillTurnLoRACadenceEngine).
+  millturn_dataset_lora_build_dataset: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1),
+      fingerprint: z.record(z.string(), z.union([z.string(), z.number()])),
+      features: z.record(z.string(), z.unknown()),
+      actual: z.record(z.string(), z.unknown()),
+      weight: z.number().finite().optional(),
+      labels: z.array(z.string()).optional(),
+    }).passthrough()).min(0).describe("Empty array yields a zero-row dataset with valid stats"),
+    split: z.object({
+      trainRatio: z.number().min(0).max(1),
+      valRatio: z.number().min(0).max(1),
+      testRatio: z.number().min(0).max(1),
+      seed: z.number().finite(),
+      stratifyBy: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough(),
+  millturn_dataset_lora_required_schema: z.object({}).passthrough(),
 };

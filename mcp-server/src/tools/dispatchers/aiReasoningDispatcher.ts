@@ -1869,6 +1869,34 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-MS0/U-WIRE50: MillTurnLoRADatasetBuilderEngine — channel-
+      // count + sub-spindle-stratified Alpaca dataset builder. enrichFingerprint
+      // stamps `channels: "c<n>"` and `subSpindle: "ss1"|"ss0"` so the geometry
+      // hash separates 1-channel-no-subspindle jobs from 2-channel-subspindle
+      // jobs (very different scheduling regimes). Validate() side-effect:
+      // channel_imbalance_ratio > 0.95 auto-labels "imbalanced" so the trainer
+      // can over-sample those rare cases. Action name uses `_dataset_` infix
+      // to disambiguate from camDispatcher's millturn_lora_predict/train/
+      // optimize (those wire MillTurnLoRACadenceEngine).
+      // ─────────────────────────────────────────────────────────────────────
+      case "millturn_dataset_lora_build_dataset": {
+        const { millTurnLoRADatasetBuilderEngine } = await import("../../engines/MillTurnLoRADatasetBuilderEngine.js");
+        type JobsArg = Parameters<typeof millTurnLoRADatasetBuilderEngine.buildDataset>[0];
+        type SplitArg = Parameters<typeof millTurnLoRADatasetBuilderEngine.buildDataset>[1];
+        const p = params as { jobs: JobsArg; split?: SplitArg };
+        result = p.split !== undefined
+          ? millTurnLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split)
+          : millTurnLoRADatasetBuilderEngine.buildDataset(p.jobs);
+        break;
+      }
+      case "millturn_dataset_lora_required_schema": {
+        const { millTurnLoRADatasetBuilderEngine } = await import("../../engines/MillTurnLoRADatasetBuilderEngine.js");
+        const schema = millTurnLoRADatasetBuilderEngine.requiredSchema();
+        result = { features: [...schema.features], actuals: [...schema.actuals] };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
