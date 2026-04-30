@@ -20,14 +20,16 @@ export function buildMcpDiscoveryDocument(_baseUrl?: string): {
   authentication?: Record<string, unknown>;
 } {
   const config = getAuthConfig();
+  // Discovery endpoints derived from issuer (RFC 8414 well-known pattern).
+  const issuer = config.issuer.replace(/\/$/, "");
   return {
     name: "prism-mcp-server",
     version: "1.0.0",
     description: "PRISM Manufacturing Intelligence MCP Server",
     oauth: {
-      authorization_endpoint: config.authorizationUrl,
-      token_endpoint: config.tokenUrl,
-      scopes: config.scopes,
+      authorization_endpoint: `${issuer}/oauth/authorize`,
+      token_endpoint: `${issuer}/oauth/token`,
+      scopes: ["read", "write", "execute", "machine", "program", "admin", "offline_access"],
     },
   };
 }
