@@ -90,7 +90,12 @@ const STRICT_PASS_THRESHOLD = 0.95;
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class CADAccuracyValidatorEngine implements BaseEngine {
+// BaseEngine is abstract with `protected info` + abstract executeImpl/validate;
+// this class has its own readonly info and exposes a richer surface
+// (validateDimensional/Topology/DFM/Tolerance/Features). It is not invoked
+// through BaseEngine.execute(), so dropping the implements keeps the
+// behaviour and removes the type-incorrect contract.
+class CADAccuracyValidatorEngine {
   readonly info: EngineInfo = {
     name: "CADAccuracyValidatorEngine",
     version: "1.0.0",
@@ -554,7 +559,9 @@ class CADAccuracyValidatorEngine implements BaseEngine {
         // Check parameter alignment
         for (const [key, value] of Object.entries(expected.params)) {
           const actualValue = found.params[key];
-          if (actualValue !== undefined && typeof value === "number") {
+          // FeatureSpec.params is Record<string, number | string>; both
+          // sides must be numeric for the magnitude diff to be meaningful.
+          if (typeof actualValue === "number" && typeof value === "number") {
             const diff = Math.abs(actualValue - value);
             if (diff > value * 0.1) {
               warnings.push(`${expected.type}.${key}: expected ${value}, got ${actualValue} (${((diff / value) * 100).toFixed(1)}% diff)`);
@@ -661,13 +668,13 @@ class CADAccuracyValidatorEngine implements BaseEngine {
       });
     }
 
-    // Detect hole
+    // Detect hole. FeatureSpec.params is Record<string, number | string>
+    // so optional fields must be omitted, not set to undefined.
     const holeMatches = code.matchAll(/\.hole\(\s*([\d.]+)\s*,?\s*([\d.]+)?/g);
     for (const m of holeMatches) {
-      features.push({
-        type: "hole",
-        params: { diameter: parseFloat(m[1]), depth: m[2] ? parseFloat(m[2]) : undefined },
-      });
+      const params: Record<string, number | string> = { diameter: parseFloat(m[1]) };
+      if (m[2]) params.depth = parseFloat(m[2]);
+      features.push({ type: "hole", params });
     }
 
     // Detect fillet
