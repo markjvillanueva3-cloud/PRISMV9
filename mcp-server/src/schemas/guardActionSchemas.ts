@@ -160,6 +160,51 @@ const priority_score = z.object({
 // EXPORT MAP
 // ============================================================================
 
+// ============================================================================
+// ORPHAN-WIRE schemas — 7 actions surfacing previously-unwired guard engines.
+// Engine-internal shapes are large + evolving; .passthrough() preserves them
+// while enforcing the well-known top-level field names.
+// ============================================================================
+
+const agi_containment_evaluate = z.object({
+  candidate: z.unknown().optional().describe("SafetyCandidate object — content + metadata to evaluate"),
+}).passthrough();
+
+const collision_obb_check = z.object({
+  a: z.unknown().optional().describe("First OBB shape (center, halfExtents, rotation)"),
+  b: z.unknown().optional().describe("Second OBB shape"),
+  obbA: z.unknown().optional(),
+  obbB: z.unknown().optional(),
+}).passthrough();
+
+const collision_hazard_detect = z.object({
+  input: z.unknown().optional().describe("CollisionCheckInput — toolpath + obstacle scene"),
+}).passthrough();
+
+const ccd_check_move = z.object({
+  tool: z.unknown().optional().describe("ToolGeometry"),
+  obstacles: z.array(z.unknown()).optional().describe("Obstacle[] in workspace"),
+  arc: z.unknown().optional().describe("Optional ArcParams for arc moves"),
+}).passthrough();
+
+const dup_guard_check = z.object({
+  keyword: z.string().optional().describe("Search term for existing-asset lookup"),
+  query: z.string().optional().describe("Alias for keyword"),
+  types: z.array(z.string()).optional().describe("Optional asset-type filter (engine|hook|skill|...)"),
+}).passthrough();
+
+const sem_sim_check = z.object({
+  content1: z.string().optional().describe("First content string for similarity comparison"),
+  content2: z.string().optional().describe("Second content string"),
+  a: z.string().optional(),
+  b: z.string().optional(),
+}).passthrough();
+
+const swiss_collision_check_all = z.object({
+  config: z.unknown().optional().describe("SwissMachineConfig — full machine geometry"),
+  state: z.unknown().optional().describe("SwissMachineState — current axis positions"),
+}).passthrough();
+
 export const ACTION_GUARD_SCHEMAS: ActionSchemaMap = {
   decision_log,
   failure_library,
@@ -175,4 +220,11 @@ export const ACTION_GUARD_SCHEMAS: ActionSchemaMap = {
   learning_save,
   lkg_status,
   priority_score,
+  agi_containment_evaluate,
+  collision_obb_check,
+  collision_hazard_detect,
+  ccd_check_move,
+  dup_guard_check,
+  sem_sim_check,
+  swiss_collision_check_all,
 };

@@ -62,6 +62,10 @@ export interface GuardDecision {
   requiresJustification: boolean;
 }
 
+// WIRE-EXEMPT: requires runtime GuardEmbedder injection via constructor;
+// not callable as a singleton from a dispatcher action. Used by other engines
+// that supply their own embedder (e.g. Ollama nomic-embed-text). The orphan
+// detector should treat WIRE-EXEMPT as wired-by-design.
 export class EmbeddingGuardEngine {
   private readonly references: GuardReference[] = [];
   private readonly embedder: GuardEmbedder;
