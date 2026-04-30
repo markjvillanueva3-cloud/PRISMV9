@@ -26,6 +26,7 @@ import path from "path";
 import { createRequire as createNodeRequire } from "node:module";
 import { logger } from "../utils/Logger.js";
 import type { ExtractedTable, PDFSource } from "./PDFSourceRegistryEngine.js";
+export type { ExtractedTable } from "./PDFSourceRegistryEngine.js";
 
 // PDF parsing library - extracts text from PDF files (pdf-parse v2)
 const pdfRequire = createNodeRequire(import.meta.url);
