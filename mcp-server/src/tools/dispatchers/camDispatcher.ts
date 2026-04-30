@@ -1624,6 +1624,11 @@ export const ACTIONS = [
   "fusion360_function_index_get_post_processing_operations",
   // CAM-EXHAUST-MS1-12 — Fusion360 Cloud + Manufacturing Extension + Vault + Generative Design
   "fusion360_function_index_get_cloud_and_mfg_ext_operations",
+  // CAM-AUTOPOP-CORE-MS0 — Universal canonical schemas + 6-CAM mapping rules
+  "cam_autopop_get_canonical_schema",
+  "cam_autopop_list_entities",
+  "cam_autopop_list_cams",
+  "cam_autopop_get_mapping_rule",
   // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
   "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
   "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
@@ -12478,6 +12483,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "fusion360_function_index_get_cloud_and_mfg_ext_operations": {
             const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
             result = { success: true, operations: Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations() };
+            break;
+          }
+          // CAM-AUTOPOP-CORE-MS0 — Universal canonical schemas + 6-CAM mapping rules
+          case "cam_autopop_get_canonical_schema": {
+            const { CAMAutopopSchemaEngine } = await import("../../engines/CAMAutopopSchemaEngine.js");
+            const entity = String((params as { entity?: string })?.entity ?? "");
+            if (!entity) throw new Error("cam_autopop_get_canonical_schema: missing required param 'entity'");
+            const schema = CAMAutopopSchemaEngine.getCanonicalSchema(entity);
+            if (!schema) throw new Error(`cam_autopop_get_canonical_schema: unknown entity '${entity}'`);
+            result = { success: true, entity: entity.toUpperCase(), schema };
+            break;
+          }
+          case "cam_autopop_list_entities": {
+            const { CAMAutopopSchemaEngine } = await import("../../engines/CAMAutopopSchemaEngine.js");
+            result = { success: true, entities: CAMAutopopSchemaEngine.listEntities() };
+            break;
+          }
+          case "cam_autopop_list_cams": {
+            const { CAMAutopopSchemaEngine } = await import("../../engines/CAMAutopopSchemaEngine.js");
+            result = { success: true, cams: CAMAutopopSchemaEngine.listCAMs() };
+            break;
+          }
+          case "cam_autopop_get_mapping_rule": {
+            const { CAMAutopopSchemaEngine } = await import("../../engines/CAMAutopopSchemaEngine.js");
+            const p = params as { entity?: string; cam?: string };
+            const entity = String(p?.entity ?? "");
+            const cam = String(p?.cam ?? "");
+            if (!entity || !cam) throw new Error("cam_autopop_get_mapping_rule: missing required params 'entity' and 'cam'");
+            const rule = CAMAutopopSchemaEngine.getMappingRule(entity, cam);
+            if (!rule) throw new Error(`cam_autopop_get_mapping_rule: no mapping rule for entity='${entity}' cam='${cam}'`);
+            result = { success: true, entity: entity.toUpperCase(), cam: cam.toLowerCase(), rule };
             break;
           }
 
