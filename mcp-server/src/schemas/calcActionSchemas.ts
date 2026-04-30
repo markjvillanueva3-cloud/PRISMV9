@@ -2879,6 +2879,32 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     rpm_points: z.number().int().min(10).max(1000).optional().describe("Number of RPM points to evaluate (default 100)"),
   }).passthrough(),
 
+  // ── Surface Integrity Full (SurfaceIntegrityPredictorEngine, Brammertz+Merchant+thermal) ──
+  surface_integrity_full: z.object({
+    tool: z.object({
+      nose_radius_mm: z.number().positive().describe("Tool nose radius [mm]"),
+      edge_radius_um: optPosNum.describe("Cutting edge radius [um] (default 5)"),
+      rake_angle_deg: optNum.describe("Rake angle [deg]"),
+      flank_wear_vb_mm: z.number().nonnegative().optional().describe("Flank wear VB [mm]"),
+    }).describe("Tool geometry"),
+    cutting: z.object({
+      feed_per_rev_mm: optPosNum.describe("Feed per revolution [mm/rev] (turning)"),
+      feed_per_tooth_mm: optPosNum.describe("Feed per tooth [mm/tooth] (milling)"),
+      flute_count: z.number().int().positive().optional().describe("Flute count (milling)"),
+      cutting_speed_m_min: z.number().positive().describe("Cutting speed Vc [m/min]"),
+      axial_depth_mm: z.number().positive().describe("Axial depth ap [mm]"),
+      radial_depth_mm: optPosNum.describe("Radial depth ae [mm]"),
+    }).describe("Cutting parameters"),
+    material: z.object({
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+      hardness_hrc: optNum.describe("Hardness [HRC]"),
+      yield_strength_mpa: optPosNum.describe("Yield strength [MPa] (override)"),
+      thermal_conductivity_w_mk: optPosNum.describe("Thermal conductivity [W/m·K] (override)"),
+    }).describe("Workpiece material"),
+    process: z.enum(["turning", "milling", "grinding"]).describe("Manufacturing process"),
+    coolant: z.enum(["flood", "mist", "mql", "dry", "cryogenic"]).describe("Coolant delivery method"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({

@@ -8041,6 +8041,21 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "surface_integrity_full": {
+            const { surfaceIntegrityPredictorEngine } = await import("../../engines/SurfaceIntegrityPredictorEngine.js");
+            const out = surfaceIntegrityPredictorEngine.compute({
+              tool: params.tool,
+              cutting: params.cutting,
+              material: params.material,
+              process: params.process,
+              coolant: params.coolant,
+            });
+            // Engine returns {value: SurfaceIntegrityResult, unit, formula, confidence} — flatten
+            // so slim-response branch (line 288) sees roughness/residual_stress/subsurface/quality_grade directly.
+            result = { ...out.value, unit: out.unit, formula: out.formula, confidence: out.confidence };
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");
