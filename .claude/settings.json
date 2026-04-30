@@ -9,6 +9,13 @@
         "hooks": [
           {
             "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-claim-sweeper.mjs",
+            "timeout": 5000,
+            "continueOnError": true,
+            "_wrapped": "WHY: clears stale file-claims/git-locks/workboard entries from chats that died without firing Stop hooks (terminal close, taskkill, PC shutdown). Prevents false CONFLICT spam in current session."
+          },
+          {
+            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-daemon-autostart.mjs",
             "timeout": 40000,
             "continueOnError": true
