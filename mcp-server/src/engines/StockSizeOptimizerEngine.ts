@@ -77,7 +77,7 @@ import { resolveMaterial } from "../physics/constants.js";
 function _resolveDensity(material: string): { density: number; source: string } {
   try {
     const mat = resolveMaterial(material);
-    if (mat.density_kg_m3 > 0) return { density: mat.density_kg_m3, source: "MaterialRegistry" };
+    if (mat && mat.density_kg_m3 > 0) return { density: mat.density_kg_m3, source: "MaterialRegistry" };
   } catch { /* fall through */ }
   const fb = _FALLBACK_DENSITY[material];
   if (fb) return { density: fb, source: "fallback_table" };
