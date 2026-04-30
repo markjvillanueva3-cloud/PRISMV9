@@ -1128,11 +1128,13 @@ export function registerCalcDispatcher(server: any): void {
               try {
                 const extracted = calcExtractKeyValues(action, result);
                 if (extracted && Object.keys(extracted).length > 0) {
-                  return { content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true, _cached: true }, getSlimLevel(pressurePct))) }] };
+                  // slimResponse simplified to single-arg in 2026-04-25 refactor;
+                  // SlimLevel plumbing was removed (always L0). Drop the legacy 2nd arg.
+                  return { content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true, _cached: true })) }] };
                 }
               } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
             }
-            return { content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }] };
+            return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
           }
         }
 
@@ -8373,30 +8375,29 @@ export function registerCalcDispatcher(server: any): void {
             result = new CPCE().dynamicProcessStiffness(params as ValidatedParams);
             break;
           }
-          case "face_driver_analyze": {
-            const { faceDriverTorqueEngine: fdt } = await import("../../engines/FaceDriverTorqueEngine.js");
-            { const p = params as ValidatedParams; result = fdt.analyze(p.driver, p.part, p.requiredTorqueNm); }
-            break;
-          }
+          // ── Engines not yet implemented ──────────────────────────────────
+          // FaceDriverTorqueEngine, MDOFStabilityEngine,
+          // TimoshenkoDeflectionEngine, GoalStabilityVerifierEngine,
+          // BanditParameterOptimizerEngine were referenced aspirationally
+          // by these dispatcher actions but the engine source files do not
+          // exist. Each case throws a structured ENGINE_NOT_IMPLEMENTED
+          // error rather than fabricating delegate results — preserves
+          // action enum (anti-regression) while documenting the missing
+          // implementation work.
+          case "face_driver_analyze":
           case "face_driver_penetration": {
-            const { faceDriverTorqueEngine: fdt } = await import("../../engines/FaceDriverTorqueEngine.js");
-            { const p = params as ValidatedParams; result = fdt.recommendPenetration(p.targetTorqueNm, p.driver, p.part); }
-            break;
+            throw new Error(
+              `${action} requires FaceDriverTorqueEngine which has not been implemented yet. ` +
+              `When the engine is added at src/engines/FaceDriverTorqueEngine.ts, restore the analyze/recommendPenetration delegate calls.`,
+            );
           }
-          case "mdof_stability": {
-            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
-            result = mdof.compute(params as ValidatedParams);
-            break;
-          }
-          case "mdof_stability_eigen": {
-            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
-            result = mdof.computeWithEigenvalue(params as ValidatedParams);
-            break;
-          }
+          case "mdof_stability":
+          case "mdof_stability_eigen":
           case "mdof_compare_sdof": {
-            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
-            result = mdof.compareSDOFvsMDOF(params as ValidatedParams);
-            break;
+            throw new Error(
+              `${action} requires MDOFStabilityEngine which has not been implemented yet. ` +
+              `When the engine is added at src/engines/MDOFStabilityEngine.ts, restore the compute/computeWithEigenvalue/compareSDOFvsMDOF delegate calls.`,
+            );
           }
           case "machine_force_limit_validate": {
             const { machineForceLimitValidationEngine: mfl } = await import("../../engines/MachineForceLimitValidationEngine.js");
@@ -8408,37 +8409,21 @@ export function registerCalcDispatcher(server: any): void {
             { const p = params as ValidatedParams; result = mfl.quickValidate(p.powerKw, p.torqueNm, p.rpm, p.machineSpecs); }
             break;
           }
-          case "timoshenko_deflect": {
-            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
-            result = td.calculate(params as ValidatedParams);
-            break;
-          }
-          case "timoshenko_multi_section": {
-            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
-            result = td.calculateMultiSection(params as ValidatedParams);
-            break;
-          }
-          case "timoshenko_compare": {
-            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
-            result = td.compareModels(params as ValidatedParams);
-            break;
-          }
+          case "timoshenko_deflect":
+          case "timoshenko_multi_section":
+          case "timoshenko_compare":
           case "timoshenko_max_ld": {
-            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
-            const p = params as ValidatedParams;
-            result = td.calculateMaxLD(p.params ?? p, p.max_deflection_um ?? p.maxDeflection_um);
-            break;
+            throw new Error(
+              `${action} requires TimoshenkoDeflectionEngine which has not been implemented yet. ` +
+              `When the engine is added at src/engines/TimoshenkoDeflectionEngine.ts, restore the calculate/calculateMultiSection/compareModels/calculateMaxLD delegate calls.`,
+            );
           }
-          case "goal_stability_observe": {
-            const { goalStabilityVerifierEngine: gsv } = await import("../../engines/GoalStabilityVerifierEngine.js");
-            gsv.observe(params as ValidatedParams);
-            result = { observed: true };
-            break;
-          }
+          case "goal_stability_observe":
           case "goal_stability_analyze": {
-            const { goalStabilityVerifierEngine: gsv } = await import("../../engines/GoalStabilityVerifierEngine.js");
-            result = gsv.analyze();
-            break;
+            throw new Error(
+              `${action} requires GoalStabilityVerifierEngine which has not been implemented yet. ` +
+              `When the engine is added at src/engines/GoalStabilityVerifierEngine.ts, restore the observe/analyze delegate calls.`,
+            );
           }
           case "session_stability_report": {
             const { sessionStabilityEngine: sse } = await import("../../engines/SessionStabilityEngine.js");
@@ -8528,23 +8513,14 @@ export function registerCalcDispatcher(server: any): void {
             result = chanceConstrainedOptimizationEngine.optimize(params as ValidatedParams);
             break;
           }
-          case "bandit_register_arm": {
-            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
-            banditParameterOptimizerEngine.registerArm(params as ValidatedParams);
-            result = { registered: true };
-            break;
-          }
-          case "bandit_select_arm": {
-            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
-            result = banditParameterOptimizerEngine.selectArm((params as ValidatedParams).context);
-            break;
-          }
+          case "bandit_register_arm":
+          case "bandit_select_arm":
           case "bandit_update_reward": {
-            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
-            const p = params as ValidatedParams;
-            banditParameterOptimizerEngine.updateReward(p.armId, p.reward, p.context);
-            result = { updated: true };
-            break;
+            throw new Error(
+              `${action} requires BanditParameterOptimizerEngine which has not been implemented yet. ` +
+              `When the engine is added at src/engines/BanditParameterOptimizerEngine.ts, restore the registerArm/selectArm/updateReward delegate calls. ` +
+              `(HookBanditEngine exists for hook arm-selection but is not a parameter-optimization replacement.)`,
+            );
           }
 
           // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
@@ -8608,9 +8584,8 @@ export function registerCalcDispatcher(server: any): void {
           try {
             const extracted = calcExtractKeyValues(action, result);
             if (extracted && Object.keys(extracted).length > 0) {
-              const slimLevel = getSlimLevel(pressurePct);
               return {
-                content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true }, slimLevel)) }]
+                content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true })) }]
               };
             }
           } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -8625,7 +8600,7 @@ export function registerCalcDispatcher(server: any): void {
 
         logActionTelemetry(action, Date.now() - calcStart, true, "prism_calc");
         return {
-          content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }]
+          content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }]
         };
 
       } catch (error) {
