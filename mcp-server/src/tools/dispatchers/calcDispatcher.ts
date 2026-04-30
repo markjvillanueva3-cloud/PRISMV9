@@ -8010,6 +8010,21 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "pareto_optimize": {
+            const { multiObjectiveParetoEngine } = await import("../../engines/MultiObjectiveParetoEngine.js");
+            const out = multiObjectiveParetoEngine.compute({
+              objectives: params.objectives,
+              parameter_bounds: params.parameter_bounds,
+              fixed: params.fixed,
+              machine: params.machine,
+              grid_resolution: params.grid_resolution,
+            });
+            // Engine returns {value: ParetoResult, unit, formula, confidence} — flatten so the
+            // slim-response branch (line 270) sees frontier/total_evaluated/best_compromise directly.
+            result = { ...out.value, unit: out.unit, formula: out.formula, confidence: out.confidence };
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");

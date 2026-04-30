@@ -2822,6 +2822,35 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     electricity_cost_per_kwh: optPosNum.describe("Electricity cost [$/kWh] (default 0.12)"),
   }).passthrough(),
 
+  // ── Pareto Multi-Objective Optimization (MultiObjectiveParetoEngine) ──
+  pareto_optimize: z.object({
+    objectives: z.array(z.object({
+      name: z.string().min(1).describe("Objective name (cycle_time, surface_finish, tool_life, power, cost, mrr, force)"),
+      minimize: z.boolean().describe("True to minimize, false to maximize"),
+      weight: z.number().min(0).max(1).describe("Relative weight for compromise scoring [0-1]"),
+      target: optNum.describe("Optional target value for objective"),
+      hard_limit: optNum.describe("Optional hard constraint that filters infeasible solutions"),
+    })).min(2).describe("Multi-objective specification (2+ objectives)"),
+    parameter_bounds: z.object({
+      spindle_rpm: z.tuple([z.number().positive(), z.number().positive()]).describe("[min, max] spindle RPM"),
+      feed_per_tooth_mm: z.tuple([z.number().positive(), z.number().positive()]).describe("[min, max] feed per tooth [mm]"),
+      axial_depth_mm: z.tuple([z.number().positive(), z.number().positive()]).describe("[min, max] axial depth [mm]"),
+      radial_depth_mm: z.tuple([z.number().positive(), z.number().positive()]).describe("[min, max] radial depth [mm]"),
+    }).describe("Parameter search space bounds"),
+    fixed: z.object({
+      tool_diameter_mm: z.number().positive().describe("Tool diameter [mm]"),
+      flute_count: z.number().int().positive().describe("Number of flutes"),
+      material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+      cutting_speed_range_m_min: z.tuple([z.number().positive(), z.number().positive()]).optional().describe("Optional cutting speed bounds [m/min]"),
+      geometry_volume_cm3: optPosNum.describe("Volume to remove [cm^3] (default 50)"),
+    }).describe("Fixed problem parameters"),
+    machine: z.object({
+      max_power_kw: z.number().positive().describe("Machine max power [kW]"),
+      max_rpm: z.number().positive().describe("Machine max RPM"),
+    }).describe("Machine envelope constraints"),
+    grid_resolution: z.number().int().min(2).max(20).optional().describe("Grid points per dimension (default 8)"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({
