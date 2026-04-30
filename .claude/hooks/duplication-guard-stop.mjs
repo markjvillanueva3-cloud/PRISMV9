@@ -172,14 +172,14 @@ async function main() {
   ].filter(Boolean).join(', ');
 
   console.log(JSON.stringify({
-    decision: 'approve',
-    reason: `Cross-session registry updated: ${summary} added`
+    continue: true,
+    systemMessage: `Cross-session registry updated: ${summary} added`
   }));
 }
 
 main().catch(err => {
   console.log(JSON.stringify({
-    decision: 'approve',
-    reason: `Registry update failed: ${err.message}`
+    continue: true,
+    systemMessage: `Registry update failed (advisory): ${err.message}`
   }));
 });
