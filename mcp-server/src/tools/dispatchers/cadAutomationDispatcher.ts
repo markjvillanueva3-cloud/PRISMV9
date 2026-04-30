@@ -313,7 +313,7 @@ const ACTIONS = [
   "cad_thumb_has",
   "cad_thumb_list",
   "cad_thumb_invalidate",
-  "cad_thumb_invalidate",
+  "cad_drawing_knowledge_calc",
   "cad_artifact_write",
   "cad_artifact_list",
   "cad_artifact_prune",
@@ -2638,17 +2638,26 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "cad_reasoning_generate": {
             const { cadReasoningChainEngine } = await import("../../engines/CADReasoningChainEngine.js");
-            const input = params["input"] as {
+            const flatInput = params["input"] as {
               description: string;
               constraints?: string[];
               material?: string;
               targetSystem?: string;
               verbosity?: "minimal" | "standard" | "verbose";
             };
-            if (!input || !input.description) {
+            if (!flatInput || !flatInput.description) {
               throw new Error("cad_reasoning_generate requires 'input' with description");
             }
-            const output = await cadReasoningChainEngine.generateWithReasoning(input);
+            // ReasonedGenerationInput nests user-supplied bits under spec/context.
+            // Promote material/constraints into spec; targetSystem into context.
+            const output = await cadReasoningChainEngine.generateWithReasoning({
+              spec: {
+                description: flatInput.description,
+                material: flatInput.material,
+                constraints: flatInput.constraints,
+              },
+              context: flatInput.targetSystem ? { machineType: flatInput.targetSystem } : undefined,
+            });
             result = { ...output, source: "CADReasoningChainEngine.generateWithReasoning" };
             break;
           }
@@ -2812,9 +2821,12 @@ Actions: ${ACTIONS.join(", ")}.`,
               machineCategory?: "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
               features?: string[];
             }>;
+            // machineCategory must match the narrow MachineCategory union used by
+            // RetrievalFilters; widening to plain string here breaks filterCorpus.
+            type MachineCategory = "lathe" | "mill" | "wire_edm" | "sinker_edm" | "hurco" | "hypermill" | "unknown";
             const filters = params["filters"] as {
               customer?: string | string[];
-              machineCategory?: string | string[];
+              machineCategory?: MachineCategory | MachineCategory[];
               features?: string[];
               excludeIds?: string[];
             } | undefined;
@@ -3006,7 +3018,9 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_index_ingest": {
             const { cadEmbeddingIndexOrchestratorEngine } = await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js");
             const corpusPath = params["corpus_path"] as string;
-            const config = params["config"] as { indexType?: "flat" | "vptree"; metric?: string; maxEntries?: number } | undefined;
+            // metric must match the SimilarityMetric union (cosine|euclidean|dotProduct)
+            // expected by CADIndexConfig — plain string widens it to mismatch.
+            const config = params["config"] as { indexType?: "flat" | "vptree"; metric?: "cosine" | "euclidean" | "dotProduct"; maxEntries?: number } | undefined;
             if (!corpusPath) {
               throw new Error("cad_index_ingest requires 'corpus_path' string");
             }
@@ -4443,26 +4457,47 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_replication_register_replica": {
             const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
             const contentHash = params["content_hash"] as string;
-            const tier = params["tier"] as string;
+            const tier = params["tier"] as "local" | "s3_standard" | "s3_infrequent" | "s3_onezone_ia" | "glacier" | "deep_archive";
             const region = params["region"] as string;
             const sizeBytes = params["size_bytes"] as number;
+            const uri = (params["uri"] as string | undefined) ?? `${tier}://${region}/${contentHash}`;
             if (!contentHash || !tier || !region || sizeBytes === undefined) {
               throw new Error("cad_replication_register_replica requires 'content_hash', 'tier', 'region', 'size_bytes'");
             }
-            const record = cadReplicationDurabilityEngine.registerReplica(contentHash, tier, region, sizeBytes);
+            // registerReplica takes (contentHash, ReplicaLocation-shaped object) — engine
+            // fills lastSyncedAt from its clock if omitted.
+            const record = cadReplicationDurabilityEngine.registerReplica(contentHash, {
+              tier, region, uri, sizeBytes, coldTier: tier === "glacier" || tier === "deep_archive",
+            });
             result = { record, source: "CADReplicationDurabilityEngine.registerReplica" };
             break;
           }
           case "cad_replication_register_shard": {
             const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
             const contentHash = params["content_hash"] as string;
+            const scheme = params["scheme"] as "rs_4_2" | "rs_6_3" | "rs_10_4" | "rs_12_4";
             const shardIndex = params["shard_index"] as number;
-            const totalShards = params["total_shards"] as number;
+            const isParity = params["is_parity"] as boolean | undefined;
+            const shardHash = params["shard_hash"] as string;
+            const sizeBytes = params["size_bytes"] as number;
+            const tier = params["tier"] as "local" | "s3_standard" | "s3_infrequent" | "s3_onezone_ia" | "glacier" | "deep_archive";
             const region = params["region"] as string;
-            if (!contentHash || shardIndex === undefined || totalShards === undefined || !region) {
-              throw new Error("cad_replication_register_shard requires 'content_hash', 'shard_index', 'total_shards', 'region'");
+            const uri = (params["uri"] as string | undefined) ?? `${tier}://${region}/${contentHash}/${shardIndex}`;
+            if (!contentHash || !scheme || shardIndex === undefined || !shardHash || sizeBytes === undefined || !tier || !region) {
+              throw new Error(
+                "cad_replication_register_shard requires 'content_hash', 'scheme' (rs_4_2|rs_6_3|rs_10_4|rs_12_4), 'shard_index', 'shard_hash', 'size_bytes', 'tier', 'region' (optional 'is_parity', 'uri')",
+              );
             }
-            const record = cadReplicationDurabilityEngine.registerShard(contentHash, shardIndex, totalShards, region);
+            const record = cadReplicationDurabilityEngine.registerShard(contentHash, scheme, {
+              shardIndex,
+              isParity: isParity ?? false,
+              shardHash,
+              sizeBytes,
+              location: {
+                tier, region, uri, sizeBytes,
+                coldTier: tier === "glacier" || tier === "deep_archive",
+              },
+            });
             result = { record, source: "CADReplicationDurabilityEngine.registerShard" };
             break;
           }
@@ -4545,11 +4580,13 @@ Actions: ${ACTIONS.join(", ")}.`,
             const drawingNumber = params["drawing_number"] as string;
             const revision = params["revision"] as string;
             const author = params["author"] as string;
-            const description = params["description"] as string | undefined;
             if (!drawingNumber || !revision || !author) {
               throw new Error("cad_revision_create_draft requires 'drawing_number', 'revision', 'author'");
             }
-            const record = cadRevisionPromotionWorkflowEngine.createDraft(drawingNumber, revision, author, description);
+            // createDraft signature is (drawingNumber, revision, actorId) — the
+            // legacy 'description' param was dropped in the engine refactor;
+            // attaching descriptions now flows through addEvent / submitForReview.
+            const record = cadRevisionPromotionWorkflowEngine.createDraft(drawingNumber, revision, author);
             result = { record, source: "CADRevisionPromotionWorkflowEngine.createDraft" };
             break;
           }
@@ -4591,58 +4628,25 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = { record, source: "CADRevisionPromotionWorkflowEngine.reject" };
             break;
           }
-          case "cad_trainer_param_count": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const count = cadSequenceTrainerEngine.getParamCount();
-            result = { paramCount: count, source: "CADSequenceTrainerEngine.getParamCount" };
-            break;
-          }
-          case "cad_trainer_update_on_batch": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const batch = params["batch"] as Parameters<typeof cadSequenceTrainerEngine.updateOnBatch>[0];
-            const lr = params["learning_rate"] as number;
-            if (!batch || lr === undefined) {
-              throw new Error("cad_trainer_update_on_batch requires 'batch' (TrainingBatch) and 'learning_rate'");
-            }
-            const update = cadSequenceTrainerEngine.updateOnBatch(batch, lr);
-            result = { ...update, source: "CADSequenceTrainerEngine.updateOnBatch" };
-            break;
-          }
-          case "cad_trainer_score_sequence": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const seq = params["sequence"] as Parameters<typeof cadSequenceTrainerEngine.scoreSequence>[0];
-            if (!seq) {
-              throw new Error("cad_trainer_score_sequence requires 'sequence' (TokenSeq)");
-            }
-            const score = cadSequenceTrainerEngine.scoreSequence(seq);
-            result = { score, source: "CADSequenceTrainerEngine.scoreSequence" };
-            break;
-          }
-          case "cad_trainer_predict_next": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const ctx = params["context"] as Parameters<typeof cadSequenceTrainerEngine.predictNext>[0];
-            if (!ctx) {
-              throw new Error("cad_trainer_predict_next requires 'context' (TokenSeq)");
-            }
-            const nextToken = cadSequenceTrainerEngine.predictNext(ctx);
-            result = { nextToken, source: "CADSequenceTrainerEngine.predictNext" };
-            break;
-          }
-          case "cad_trainer_serialize_checkpoint": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const checkpoint = cadSequenceTrainerEngine.serializeCheckpoint();
-            result = { checkpoint, source: "CADSequenceTrainerEngine.serializeCheckpoint" };
-            break;
-          }
+          // ── CADSequenceTrainerEngine backend operations ───────────────────
+          // The trainer is a stateless controller; getParamCount, updateOnBatch,
+          // scoreSequence, predictNext, serializeCheckpoint, loadCheckpoint all
+          // live on the ModelBackend interface (test-injected). Until a
+          // ModelBackend registry is wired into the dispatcher, these actions
+          // surface a structured BACKEND_REQUIRED error rather than crashing
+          // with TypeError. Programmatic callers can drive the engine directly
+          // via cadSequenceTrainerEngine.train(backend, ...) etc.
+          case "cad_trainer_param_count":
+          case "cad_trainer_update_on_batch":
+          case "cad_trainer_score_sequence":
+          case "cad_trainer_predict_next":
+          case "cad_trainer_serialize_checkpoint":
           case "cad_trainer_load_checkpoint": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const data = params["data"] as string;
-            if (!data) {
-              throw new Error("cad_trainer_load_checkpoint requires 'data' (checkpoint string)");
-            }
-            cadSequenceTrainerEngine.loadCheckpoint(data);
-            result = { loaded: true, source: "CADSequenceTrainerEngine.loadCheckpoint" };
-            break;
+            throw new Error(
+              `${action} requires a ModelBackend instance — backend operations are not yet wired into the cad_trainer dispatcher actions. ` +
+              `Use the engine API directly: cadSequenceTrainerEngine.{train,trainEpoch,evaluate,serializeCheckpoint,loadCheckpoint}(backend, ...) ` +
+              `with a ModelBackend implementation. See CADSequenceTrainerEngine.ts:93 for the ModelBackend interface contract.`,
+            );
           }
           case "cad_tenant_register": {
             const { cadTenantNamespaceEngine } = await import("../../engines/CADTenantNamespaceEngine.js");
@@ -4689,7 +4693,14 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!tenantId || !contentHash || !requestingTenant) {
               throw new Error("cad_tenant_can_access requires 'tenant_id', 'content_hash', 'requesting_tenant'");
             }
-            const canAccess = cadTenantNamespaceEngine.canAccess(tenantId, contentHash, requestingTenant);
+            // canAccess takes (viewerTenantId, TenantContent). Resolve the
+            // owning-tenant content first, then check the viewer's permission.
+            const content = cadTenantNamespaceEngine.get(tenantId, contentHash);
+            if (!content) {
+              result = { canAccess: { allowed: false, reason: `content ${contentHash} not registered for tenant ${tenantId}` }, source: "CADTenantNamespaceEngine.canAccess" };
+              break;
+            }
+            const canAccess = cadTenantNamespaceEngine.canAccess(requestingTenant, content);
             result = { canAccess, source: "CADTenantNamespaceEngine.canAccess" };
             break;
           }
