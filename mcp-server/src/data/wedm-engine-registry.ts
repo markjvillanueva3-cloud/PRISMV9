@@ -56,7 +56,9 @@ export type WEDMCapabilityKey =
   | "setup"         // Machine setup, pre-flight checks, settings configuration
   | "knowledge"     // Knowledge synthesis, research, tribal wisdom lookup
   | "schedule"      // Job scheduling and production planning
-  | "cost";         // Cost estimation and documentation
+  | "cost"          // Cost estimation and documentation
+  | "ai"            // AI/AGI hub: strategic decisions, hybrid strategies
+  | "reasoning";    // Chain-of-thought / abductive / deductive WEDM reasoning
 
 /**
  * A single Wire EDM engine entry in the registry.
