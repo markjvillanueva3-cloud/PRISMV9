@@ -1,0 +1,468 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Cloud Rendering + Manufacturing Extension + Vault PLM + Generative Design Surface",
+    "description": "Comprehensive parameter catalog for the Fusion 360 cloud / extension surface — finishes Phase 1 of L2-CAMX-EXHAUST. Covers (a) cloud-side toolpath generation and rendering pipeline (submit / status / retrieve, region selection, token-based auth, telemetry), (b) Manufacturing Extension premium toolpaths (Simultaneous 5-Axis Adaptive, Steep-and-Shallow, Swarf machining, Port machining, Blade machining — turbine / impeller / blisk), (c) Autodesk Vault data exchange (check-in / check-out / revision lock / lifecycle), and (d) Generative Design study → CAM model bind. These operations gate the licensed / cloud-only surface that the desktop catalogues (MS0 + MS1-01..11) cannot describe alone.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-30",
+    "milestone": "CAM-EXHAUST-MS1-12",
+    "source": "Autodesk Fusion 360 Manufacturing Extension Help + Cloud Generative Compute API + Autodesk Vault Server / Vault Pro REST API + Fusion 360 Generative Design Help + AS9100D (aerospace blade / impeller machining specs) + ISO 14649 (STEP-NC for cloud-portable toolpaths) + AWS / Azure region documentation for Forge-backed cloud rendering",
+    "totalParameters": 211,
+    "toolpathCount": 10,
+    "physics_links": [
+      "CLOUD_RENDER_TIME_ESTIMATE",
+      "CLOUD_TOOLPATH_COMPUTE_OFFLOAD",
+      "ADAPTIVE_5AX_TOOL_AXIS_SMOOTHING",
+      "STEEP_SHALLOW_DETECTION_THRESHOLD",
+      "SWARF_FLANK_CONTACT_VECTOR",
+      "PORT_HELIX_AXIS_INTERPOLATION",
+      "BLADE_LEADING_TRAILING_EDGE_BLEND",
+      "VAULT_REVISION_LOCK",
+      "GENERATIVE_DESIGN_OUTCOME_BIND",
+      "MULTI_REGION_FAILOVER_LATENCY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard tabs across cloud + ME + Vault + Generative Design ops. Cloud = auth/region/license. Render = job settings + telemetry. Strategy = ME-specific surface. Linking = transitions/ramps/leads. Output = NC delivery + simulation.",
+    "tabs": ["Cloud", "Render", "Strategy", "Linking", "Output"]
+  },
+  "toolpaths": {
+    "CLOUD_RENDER_SUBMIT": {
+      "description": "Submit a Fusion 360 setup or operation to the cloud renderer for off-machine toolpath generation. Used when local compute is insufficient (large adaptive clears, dense-mesh 5-axis, multi-million-poly STL). Authenticates with Autodesk identity, picks an Autodesk Forge region, queues the job, and returns a cloud-job handle for async polling. Full-rate seat consumption is billed by job duration.",
+      "category": "Cloud",
+      "parameterCount": 21,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "Account ID", "type": "text", "description": "Autodesk identity / forge account", "required": true},
+            {"name": "Project ID", "type": "text", "description": "Autodesk Construction Cloud project", "required": true},
+            {"name": "Region", "type": "dropdown", "options": ["us_east", "us_west", "eu_west", "eu_central", "ap_southeast", "ap_northeast", "auto_select_nearest"], "default": "auto_select_nearest"},
+            {"name": "Auth Token", "type": "text", "description": "OAuth bearer token (auto-refresh enabled)"},
+            {"name": "Token Refresh Mode", "type": "dropdown", "options": ["manual", "auto", "preflight_only"], "default": "auto"},
+            {"name": "License Tier", "type": "dropdown", "options": ["fusion_team", "fusion_machining_extension", "fusion_extension_bundle", "byon", "trial"], "default": "fusion_machining_extension"},
+            {"name": "Cloud Compute Tokens", "type": "numeric", "description": "Pre-purchased compute-token budget (0 = pay-as-you-go)", "default": 0, "min": 0, "max": 10000}
+          ]
+        },
+        "Render": {
+          "parameters": [
+            {"name": "Job Name", "type": "text", "required": true},
+            {"name": "Job Priority", "type": "dropdown", "options": ["interactive", "batch", "overnight"], "default": "batch"},
+            {"name": "Notify On Complete", "type": "checkbox", "default": true},
+            {"name": "Notification Email", "type": "text"},
+            {"name": "Allow Auto Retry", "type": "checkbox", "default": true},
+            {"name": "Maximum Retry Count", "type": "numeric", "default": 2, "min": 0, "max": 5},
+            {"name": "Failover To Region", "type": "dropdown", "options": ["none", "us_east", "us_west", "eu_west", "eu_central", "ap_southeast", "ap_northeast"], "default": "none"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Setup Reference", "type": "selection", "description": "Setup or operation to send", "required": true},
+            {"name": "Include Stock Geometry", "type": "checkbox", "default": true},
+            {"name": "Include Fixture Geometry", "type": "checkbox", "default": false},
+            {"name": "Strategy Override", "type": "dropdown", "options": ["use_existing", "force_adaptive", "force_steep_shallow", "force_swarf", "force_port", "force_blade"], "default": "use_existing"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Result Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649", "f3z_with_nc", "preview_image_only"], "default": "fusion_native"},
+            {"name": "Compress Result", "type": "checkbox", "default": true},
+            {"name": "Encrypt Result At Rest", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "CLOUD_RENDER_STATUS": {
+      "description": "Poll a cloud-render job for status and retrieve the result. States: queued / running / paused / cancelled / done / failed. Implements exponential-backoff polling, optional webhook delivery, and download verification (sha256 checksum + size). Aligns with Forge job-tracking API.",
+      "category": "Cloud",
+      "parameterCount": 16,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "Job Handle", "type": "text", "description": "Returned by CLOUD_RENDER_SUBMIT", "required": true},
+            {"name": "Polling Mode", "type": "dropdown", "options": ["once", "exponential_backoff", "fixed_interval", "webhook_only"], "default": "exponential_backoff"},
+            {"name": "Initial Poll Delay", "type": "numeric", "default": 2, "unit": "s"},
+            {"name": "Maximum Poll Delay", "type": "numeric", "default": 60, "unit": "s"},
+            {"name": "Poll Backoff Factor", "type": "numeric", "default": 1.5, "min": 1.0, "max": 4.0},
+            {"name": "Total Timeout", "type": "numeric", "description": "0 = no cap", "default": 3600, "unit": "s"},
+            {"name": "Webhook URL", "type": "text", "description": "POST destination on state change"},
+            {"name": "Webhook Auth", "type": "dropdown", "options": ["none", "basic", "bearer", "signed_hmac"], "default": "signed_hmac"}
+          ]
+        },
+        "Render": {
+          "parameters": [
+            {"name": "Cancel If Queued Beyond", "type": "numeric", "default": 600, "unit": "s"},
+            {"name": "Auto Download On Done", "type": "checkbox", "default": true},
+            {"name": "Verify Checksum", "type": "checkbox", "default": true},
+            {"name": "Verify Size", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Result Local Path", "type": "text", "description": "Where to drop downloaded artefact"},
+            {"name": "Overwrite Local", "type": "dropdown", "options": ["overwrite", "fail_if_exists", "auto_increment"], "default": "auto_increment"},
+            {"name": "Emit Telemetry CSV", "type": "checkbox", "description": "Per-poll latency / state log", "default": false},
+            {"name": "Emit Cycle Time Estimate", "type": "checkbox", "description": "Forge-side toolpath cycle-time prediction", "default": true}
+          ]
+        }
+      }
+    },
+    "CLOUD_GENERATE_TOOLPATH": {
+      "description": "Server-side toolpath generation — offloads heavy compute (multi-million-poly adaptive, simultaneous 5-axis, micro-tolerance scallop) from the desktop. Wraps Forge Manufacturing Cloud API. Required for impeller / blisk / blade strategies on machines without local Manufacturing Extension license. Falls back to local compute if cloud is unreachable.",
+      "category": "Cloud",
+      "parameterCount": 22,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "Compute Profile", "type": "dropdown", "options": ["balanced", "high_quality", "fast_preview", "battery_friendly"], "default": "balanced"},
+            {"name": "Maximum Cores Hint", "type": "numeric", "description": "Soft cap on cloud-side core count", "default": 16, "min": 1, "max": 128},
+            {"name": "Memory Budget GB", "type": "numeric", "default": 16, "min": 4, "max": 256, "unit": "GB"},
+            {"name": "GPU Acceleration", "type": "dropdown", "options": ["off", "preview_only", "always_when_available"], "default": "preview_only"}
+          ]
+        },
+        "Render": {
+          "parameters": [
+            {"name": "Tolerance Override", "type": "numeric", "description": "Cloud-only tighter tolerance", "default": 0.001, "unit": "mm"},
+            {"name": "Maximum Surface Refinement Iterations", "type": "numeric", "default": 4, "min": 1, "max": 16},
+            {"name": "Quality Score Floor", "type": "numeric", "description": "Reject result if internal QS below this", "default": 0.85, "min": 0, "max": 1},
+            {"name": "Allow Surface Reconstruction", "type": "checkbox", "description": "Server may re-mesh STL/STEP for stable strategy compute", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Strategy Family", "type": "dropdown", "options": ["adaptive_clear", "horizontal_clear", "scallop", "morphed_spiral", "parallel_3d", "swarf", "port", "blade", "steep_and_shallow", "rest_machining"], "required": true},
+            {"name": "Strategy Override Map", "type": "text", "description": "JSON dict of per-feature strategy overrides"},
+            {"name": "Stock To Leave", "type": "numeric", "default": 0.2, "unit": "mm"},
+            {"name": "Maximum Stepover", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 1.5, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Allow Cloud Optimised Links", "type": "checkbox", "description": "Use Forge link-optimisation algorithm", "default": true},
+            {"name": "Lead-In Mode", "type": "dropdown", "options": ["arc", "ramp", "vertical_plunge", "helix", "auto_pick_per_feature"], "default": "auto_pick_per_feature"},
+            {"name": "Maximum Stay Down Time", "type": "numeric", "description": "Cloud algorithm bias toward staying engaged", "default": 0, "unit": "s"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Return Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649", "apt_cl", "vendor_neutral_xml"], "default": "fusion_native"},
+            {"name": "Include Verify Trace", "type": "checkbox", "description": "Embed cloud verification log", "default": true},
+            {"name": "Include Setup Sheet", "type": "checkbox", "default": true},
+            {"name": "Bind To Local Operation", "type": "checkbox", "description": "Replace local op with cloud result on success", "default": true},
+            {"name": "Local Compute Fallback", "type": "checkbox", "description": "Run desktop compute if cloud fails or times out", "default": true},
+            {"name": "Fallback Quality Floor", "type": "numeric", "description": "Accept local fallback only if QS ≥ this", "default": 0.7}
+          ]
+        }
+      }
+    },
+    "MFG_EXT_ADAPTIVE_5AXIS": {
+      "description": "Manufacturing Extension Simultaneous 5-Axis Adaptive Clear — premium strategy that combines adaptive clearing chip-control with simultaneous 5-axis tool-axis steering. Used for deep cavities, undercuts, and hard-to-reach surfaces in turbine impellers, mould cores, and aerospace structurals. Requires Manufacturing Extension license. Tool-axis vector smoothing prevents excessive rotary axis acceleration.",
+      "category": "Strategy",
+      "parameterCount": 26,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "License Check", "type": "checkbox", "description": "Hard-fail if Manufacturing Extension not licensed", "default": true},
+            {"name": "License Cache TTL", "type": "numeric", "default": 3600, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Tool Axis Mode", "type": "dropdown", "options": ["from_curve", "to_curve", "from_point", "to_point", "perpendicular_to_curve", "tilted_relative_to_axis", "interpolated_between_curves", "automatic_smooth"], "default": "automatic_smooth"},
+            {"name": "Tool Axis Smoothing", "type": "numeric", "description": "Higher = more low-pass filter on rotary axes", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Maximum Tool Axis Tilt", "type": "numeric", "default": 30, "unit": "deg"},
+            {"name": "Tilt Reference Axis", "type": "dropdown", "options": ["X", "Y", "Z", "tool_axis_at_start", "tool_axis_at_contact"], "default": "Z"},
+            {"name": "Maximum Stepover", "type": "numeric", "default": 1.5, "unit": "mm"},
+            {"name": "Maximum Stepdown", "type": "numeric", "default": 4.0, "unit": "mm"},
+            {"name": "Optimal Load", "type": "numeric", "description": "Adaptive engagement target", "default": 1.5, "unit": "mm"},
+            {"name": "Stock To Leave Radial", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Stock To Leave Axial", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Allow Tool Axis Reorientation", "type": "checkbox", "default": true},
+            {"name": "Reorientation Maximum Angle", "type": "numeric", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Lift Height", "type": "numeric", "default": 1.0, "unit": "mm"},
+            {"name": "Maximum Stay Down Distance", "type": "numeric", "default": 25, "unit": "mm"},
+            {"name": "Lead-In Type", "type": "dropdown", "options": ["arc_3d", "helix", "ramp_along_path"], "default": "arc_3d"},
+            {"name": "Lead-In Radius", "type": "numeric", "default": 1.5, "unit": "mm"},
+            {"name": "Lead-In Sweep", "type": "numeric", "default": 90, "unit": "deg"},
+            {"name": "Lead-Out Type", "type": "dropdown", "options": ["arc_3d", "helix", "ramp_along_path", "no_lead"], "default": "arc_3d"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649"], "default": "fusion_native"},
+            {"name": "Use TCP Compensation", "type": "checkbox", "description": "Emit G43.4 / TCPM in NC output", "default": true},
+            {"name": "Singularity Avoidance Mode", "type": "dropdown", "options": ["block_on_singular", "smooth_through", "linearise_through"], "default": "smooth_through"},
+            {"name": "Rotary Axis Velocity Cap", "type": "numeric", "default": 30, "unit": "deg/s"},
+            {"name": "Rotary Axis Acceleration Cap", "type": "numeric", "default": 100, "unit": "deg/s^2"},
+            {"name": "Validate Tool Reach", "type": "checkbox", "default": true},
+            {"name": "Verify Holder Clearance", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MFG_EXT_STEEP_SHALLOW": {
+      "description": "Manufacturing Extension Steep-and-Shallow finishing — combines parallel 3D for shallow regions and constant-Z for steep regions in a single operation. Removes the manual setup of two ops + transitions. Detection threshold defines steep vs shallow boundary. Standard for mould-cavity and aerospace finishing where surface direction varies.",
+      "category": "Strategy",
+      "parameterCount": 22,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "License Check", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Steep Shallow Threshold", "type": "numeric", "description": "Surface angle dividing steep / shallow regions", "default": 45, "unit": "deg", "min": 5, "max": 85},
+            {"name": "Steep Strategy", "type": "dropdown", "options": ["constant_z", "spiral", "morphed_spiral"], "default": "constant_z"},
+            {"name": "Shallow Strategy", "type": "dropdown", "options": ["parallel_3d", "scallop", "spiral"], "default": "parallel_3d"},
+            {"name": "Shallow Direction", "type": "numeric", "description": "Tool path direction for shallow region", "default": 0, "unit": "deg"},
+            {"name": "Steep Stepdown", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Shallow Stepover", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Region Boundary Smoothing", "type": "numeric", "description": "Blend distance between steep / shallow zones", "default": 1.0, "unit": "mm"},
+            {"name": "Allow Region Subdivision", "type": "checkbox", "description": "Split each region by curvature", "default": false},
+            {"name": "Maximum Surface Roughness Target", "type": "numeric", "description": "Used to back-derive stepover when aggressive_finish", "default": 0.8, "unit": "Ra μm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Combine Region Toolpaths", "type": "checkbox", "description": "Single op vs split into 2 ops", "default": true},
+            {"name": "Steep To Shallow Transition", "type": "dropdown", "options": ["lift_and_re_engage", "stay_engaged_blend", "ramp_3d"], "default": "stay_engaged_blend"},
+            {"name": "Lift Height", "type": "numeric", "default": 1.0, "unit": "mm"},
+            {"name": "Allow Helical Entry", "type": "checkbox", "default": true},
+            {"name": "Helical Entry Angle", "type": "numeric", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649"], "default": "fusion_native"},
+            {"name": "Tag Region Boundaries", "type": "checkbox", "description": "Emit ((REGION_STEEP)) / ((REGION_SHALLOW)) markers", "default": false},
+            {"name": "Validate Scallop Across Boundary", "type": "checkbox", "description": "Reject if scallop discontinuity > tolerance", "default": true},
+            {"name": "Boundary Scallop Tolerance", "type": "numeric", "default": 0.005, "unit": "mm"},
+            {"name": "Verify Tool Reach Both Regions", "type": "checkbox", "default": true},
+            {"name": "Stock Update On Region Switch", "type": "checkbox", "default": true},
+            {"name": "Cycle Time Estimate Per Region", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MFG_EXT_SWARF": {
+      "description": "Manufacturing Extension Swarf machining — multi-axis side-cutting where the flute side of an end mill rides along a ruled surface. Used for impeller blade flanks, draft-walled mould features, and aerospace pocket walls. Tool-axis vector follows the ruled-surface ruling lines; flank-contact width drives stock-removal rate.",
+      "category": "Strategy",
+      "parameterCount": 24,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "License Check", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Drive Surface", "type": "selection", "description": "Ruled side-walls", "required": true},
+            {"name": "Reference Surface", "type": "selection", "description": "Bottom / floor reference"},
+            {"name": "Tool Axis Mode", "type": "dropdown", "options": ["aligned_with_ruling", "perpendicular_to_floor", "tilted_along_ruling"], "default": "aligned_with_ruling"},
+            {"name": "Flank Tilt", "type": "numeric", "description": "Lead/lag tilt along flute axis", "default": 0, "unit": "deg"},
+            {"name": "Side Tilt", "type": "numeric", "default": 0, "unit": "deg"},
+            {"name": "Number of Stepovers", "type": "numeric", "default": 1, "min": 1, "max": 50},
+            {"name": "Stepover Distance", "type": "numeric", "default": 0.5, "unit": "mm"},
+            {"name": "Number of Stepdowns", "type": "numeric", "default": 1, "min": 1, "max": 50},
+            {"name": "Stepdown Distance", "type": "numeric", "default": 1.5, "unit": "mm"},
+            {"name": "Multi-Pass Mode", "type": "dropdown", "options": ["single_pass", "morph_between_passes", "stepdown_on_floor", "stepover_on_wall"], "default": "stepover_on_wall"},
+            {"name": "Stock To Leave", "type": "numeric", "default": 0.0, "unit": "mm"},
+            {"name": "Allow Smoothing", "type": "checkbox", "description": "Smooth tool-axis when ruling lines kink", "default": true},
+            {"name": "Smoothing Maximum Angle", "type": "numeric", "default": 5, "unit": "deg"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Lead-In Mode", "type": "dropdown", "options": ["tangential_arc", "extended_along_surface", "vertical_plunge_outside_part"], "default": "tangential_arc"},
+            {"name": "Lead-In Length", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Lead-Out Mode", "type": "dropdown", "options": ["tangential_arc", "extended_along_surface"], "default": "tangential_arc"},
+            {"name": "Lead-Out Length", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Cut Direction", "type": "dropdown", "options": ["climb", "conventional"], "default": "climb"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649"], "default": "fusion_native"},
+            {"name": "Use TCP Compensation", "type": "checkbox", "default": true},
+            {"name": "Validate Flank Contact Vector", "type": "checkbox", "description": "Hard-fail if flank not in contact along path", "default": true},
+            {"name": "Flank Contact Tolerance", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Verify No Floor Gouge", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MFG_EXT_PORT_MACHINING": {
+      "description": "Manufacturing Extension Port machining — finishes intake / exhaust port internal surfaces using a long-reach barrel or lollipop tool with helical 5-axis interpolation. Path follows the centerline of the port and rotates the tool to keep the cutting edge perpendicular to the port wall. Standard for engine cylinder heads, turbocharger housings, and pump volutes.",
+      "category": "Strategy",
+      "parameterCount": 24,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "License Check", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Port Centerline Curve", "type": "selection", "description": "Centerline along port axis", "required": true},
+            {"name": "Port Surface", "type": "selection", "description": "Internal port wall surface(s)", "required": true},
+            {"name": "Entry Plane", "type": "selection"},
+            {"name": "Exit Plane", "type": "selection"},
+            {"name": "Helix Direction", "type": "dropdown", "options": ["climb", "conventional", "alternating"], "default": "climb"},
+            {"name": "Helix Pitch", "type": "numeric", "description": "Axial advance per revolution", "default": 0.5, "unit": "mm"},
+            {"name": "Helix Stepover", "type": "numeric", "default": 0.3, "unit": "mm"},
+            {"name": "Tool Tilt Mode", "type": "dropdown", "options": ["perpendicular_to_wall", "tangent_to_centerline", "interpolated_blend", "fixed_lead_angle"], "default": "perpendicular_to_wall"},
+            {"name": "Fixed Lead Angle", "type": "numeric", "description": "Used when tilt_mode = fixed_lead_angle", "default": 0, "unit": "deg"},
+            {"name": "Number of Spirals", "type": "numeric", "default": 1, "min": 1, "max": 8},
+            {"name": "Stock To Leave", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Allow Tool Profile Constraint", "type": "checkbox", "description": "Limit pass by lollipop / barrel reach geometry", "default": true},
+            {"name": "Maximum Reach From Holder", "type": "numeric", "default": 80, "unit": "mm"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Entry Strategy", "type": "dropdown", "options": ["pre_drilled_hole", "ramp_along_centerline", "external_lead_in"], "default": "external_lead_in"},
+            {"name": "Entry Lead Length", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Exit Strategy", "type": "dropdown", "options": ["external_lead_out", "retract_along_centerline"], "default": "external_lead_out"},
+            {"name": "Exit Lead Length", "type": "numeric", "default": 5, "unit": "mm"},
+            {"name": "Maximum Tool Axis Acceleration", "type": "numeric", "default": 50, "unit": "deg/s^2"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649"], "default": "fusion_native"},
+            {"name": "Use TCP Compensation", "type": "checkbox", "default": true},
+            {"name": "Validate Inside Reach", "type": "checkbox", "description": "Reject if barrel-tool reach exceeds spec", "default": true},
+            {"name": "Verify Helix Continuity", "type": "checkbox", "default": true},
+            {"name": "Cycle Time Estimate", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MFG_EXT_BLADE": {
+      "description": "Manufacturing Extension Blade machining — finishes turbine / impeller / blisk blades with leading-edge / trailing-edge blends, suction-side / pressure-side stripes, and root fillet integration. Tool-axis follows blade chord; pass count adapts to blade twist. Standard for aerospace, power-gen, and pump impellers.",
+      "category": "Strategy",
+      "parameterCount": 22,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "License Check", "type": "checkbox", "default": true}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Blade Surface", "type": "selection", "description": "Pressure + suction surfaces", "required": true},
+            {"name": "Hub Surface", "type": "selection", "description": "Disc / hub root surface"},
+            {"name": "Shroud Surface", "type": "selection", "description": "Outer shroud (open vs closed impeller)"},
+            {"name": "Blade Sequence", "type": "dropdown", "options": ["all_blades_similar", "main_blades_then_splitters", "single_blade_pattern", "user_defined_order"], "default": "all_blades_similar"},
+            {"name": "Cut Pattern", "type": "dropdown", "options": ["leading_to_trailing", "trailing_to_leading", "alternating", "spiral_along_blade"], "default": "leading_to_trailing"},
+            {"name": "Number of Passes", "type": "numeric", "default": 6, "min": 1, "max": 100},
+            {"name": "Leading Edge Stock", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Trailing Edge Stock", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Tip Stock", "type": "numeric", "default": 0.1, "unit": "mm"},
+            {"name": "Hub Fillet Stock", "type": "numeric", "default": 0.05, "unit": "mm"},
+            {"name": "Tool Axis Tilt Vs Blade Surface", "type": "numeric", "default": 5, "unit": "deg"},
+            {"name": "Allow LE/TE Smooth Blend", "type": "checkbox", "default": true}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Engagement At Leading Edge", "type": "dropdown", "options": ["climb_into_LE", "rolling_engage", "external_lead_in"], "default": "rolling_engage"},
+            {"name": "Disengagement At Trailing Edge", "type": "dropdown", "options": ["climb_off_TE", "rolling_disengage", "external_lead_out"], "default": "rolling_disengage"},
+            {"name": "Inter-Blade Retract Mode", "type": "dropdown", "options": ["radial_above_shroud", "axial_above_blade_tip", "safe_clearance_box"], "default": "safe_clearance_box"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["fusion_native", "step_nc_iso14649"], "default": "fusion_native"},
+            {"name": "Use TCP Compensation", "type": "checkbox", "default": true},
+            {"name": "Validate Aero Surface Integrity", "type": "checkbox", "description": "Hard-fail if scallop > 0.02 mm on blade", "default": true},
+            {"name": "Aero Scallop Tolerance", "type": "numeric", "default": 0.02, "unit": "mm"},
+            {"name": "Generate Per-Blade Inspection Plan", "type": "checkbox", "default": false},
+            {"name": "Cycle Time Estimate", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "VAULT_DATA_EXCHANGE": {
+      "description": "Autodesk Vault Server / Vault Pro data exchange — check-in / check-out a Fusion 360 CAM document under Vault revision control. Owns lifecycle state (Work-In-Progress / Released / Obsolete), revision lock, and ECO (engineering-change-order) tagging. Wraps Vault REST API — supports SSO via Autodesk identity.",
+      "category": "Cloud",
+      "parameterCount": 16,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "Vault Server URL", "type": "text", "required": true},
+            {"name": "Vault Database", "type": "text", "description": "Vault DB name (e.g. 'PROD')", "required": true},
+            {"name": "Authentication Mode", "type": "dropdown", "options": ["windows_integrated", "vault_native", "autodesk_id_sso"], "default": "autodesk_id_sso"},
+            {"name": "Username", "type": "text"},
+            {"name": "Password Token", "type": "text", "description": "OAuth token / DPAPI-protected secret"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["check_in", "check_out", "get_latest", "release", "promote_state", "demote_state", "tag_eco"], "required": true},
+            {"name": "Vault File Path", "type": "text", "required": true},
+            {"name": "Comment", "type": "text", "description": "Required by some Vault policies"},
+            {"name": "Increment Revision", "type": "checkbox", "default": false},
+            {"name": "Revision Scheme", "type": "dropdown", "options": ["primary_alpha_numeric", "secondary_numeric", "delimited", "user_defined"], "default": "primary_alpha_numeric"},
+            {"name": "Lifecycle State", "type": "dropdown", "options": ["work_in_progress", "for_review", "released", "obsolete"], "default": "work_in_progress"},
+            {"name": "ECO Reference", "type": "text", "description": "Linked engineering-change-order ID"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Local Working Folder", "type": "text", "description": "Where Vault working copy lives"},
+            {"name": "Overwrite Local On Get Latest", "type": "checkbox", "default": true},
+            {"name": "Verify Revision Lock", "type": "checkbox", "description": "Reject check-in if local rev not == server rev", "default": true},
+            {"name": "Emit Audit Log Entry", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "GENERATIVE_DESIGN_LINK": {
+      "description": "Bind a Fusion 360 Generative Design study outcome to the active CAM model. Imports the optimised geometry, preserves study-input boundary conditions (loads, constraints, manufacturing rules), and updates the manufacturing-model setup with the new stock/part envelope. Required when downstream toolpaths must regenerate against generative-design output.",
+      "category": "Cloud",
+      "parameterCount": 18,
+      "tabs": {
+        "Cloud": {
+          "parameters": [
+            {"name": "Generative Design Project ID", "type": "text", "required": true},
+            {"name": "Study ID", "type": "text", "required": true},
+            {"name": "Outcome ID", "type": "text", "description": "Specific Pareto-optimal outcome", "required": true},
+            {"name": "Auto Refresh Outcomes", "type": "checkbox", "description": "Pull latest if study has new iterations", "default": true},
+            {"name": "Outcome Cache TTL", "type": "numeric", "description": "Seconds to cache outcome geometry locally before re-fetching", "default": 3600, "unit": "s"}
+          ]
+        },
+        "Strategy": {
+          "parameters": [
+            {"name": "Manufacturing Method Filter", "type": "dropdown", "options": ["any", "additive_only", "subtractive_only", "5_axis_friendly", "3_axis_friendly", "casting_friendly"], "default": "any"},
+            {"name": "Rank Outcomes By", "type": "dropdown", "options": ["mass_minimum", "stiffness_maximum", "factor_of_safety_minimum", "cost_minimum", "manufacturing_complexity_minimum"], "default": "mass_minimum"},
+            {"name": "Acceptable Factor Of Safety Floor", "type": "numeric", "default": 1.5, "min": 1.0, "max": 5.0},
+            {"name": "Mass Cap Kg", "type": "numeric", "description": "Reject outcomes above mass cap", "default": 0, "unit": "kg", "description_extra": "0 = no cap"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Bind Mode", "type": "dropdown", "options": ["replace_part", "add_as_alternative", "diff_only_emit_report"], "default": "replace_part"},
+            {"name": "Preserve Existing Setup", "type": "checkbox", "description": "Keep existing WCS / fixture binding", "default": true},
+            {"name": "Auto Re-Generate Toolpaths", "type": "checkbox", "default": false},
+            {"name": "Tag Origin In Comment", "type": "checkbox", "description": "Emit (GENERATIVE: study/outcome) banner in NC", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Geometry Format", "type": "dropdown", "options": ["fusion_native", "step", "stl_high_resolution", "obj"], "default": "fusion_native"},
+            {"name": "Include Study Inputs Document", "type": "checkbox", "description": "Emit companion JSON of loads/constraints", "default": true},
+            {"name": "Include Outcome Metrics Document", "type": "checkbox", "description": "Mass / stiffness / FoS / cost", "default": true},
+            {"name": "Validate Manufacturability", "type": "checkbox", "description": "Run DFM check on imported geometry", "default": true},
+            {"name": "DFM Failure Action", "type": "dropdown", "options": ["block_bind", "warn_and_bind", "comment_only"], "default": "warn_and_bind"}
+          ]
+        }
+      }
+    }
+  }
+}

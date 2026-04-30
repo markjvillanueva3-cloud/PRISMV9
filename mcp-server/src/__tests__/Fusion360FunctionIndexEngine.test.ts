@@ -2051,4 +2051,167 @@ describe("Fusion360FunctionIndexEngine", () => {
       expect(mod.ACTIONS).toContain("fusion360_function_index_get_post_processing_operations");
     });
   });
+
+  describe("getCloudAndMfgExtOperations (CAM-EXHAUST-MS1-12)", () => {
+    it("returns exactly 10 cloud + Manufacturing Extension toolpaths", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      expect(ops.length).toBe(10);
+    });
+
+    it("returns the 10 expected operation IDs", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const ids = ops.map((o) => o.toolpath_id).sort();
+      expect(ids).toEqual([
+        "CLOUD_GENERATE_TOOLPATH",
+        "CLOUD_RENDER_STATUS",
+        "CLOUD_RENDER_SUBMIT",
+        "GENERATIVE_DESIGN_LINK",
+        "MFG_EXT_ADAPTIVE_5AXIS",
+        "MFG_EXT_BLADE",
+        "MFG_EXT_PORT_MACHINING",
+        "MFG_EXT_STEEP_SHALLOW",
+        "MFG_EXT_SWARF",
+        "VAULT_DATA_EXCHANGE",
+      ]);
+    });
+
+    it("Cloud category contains exactly 5 ops (3 render + Vault + Generative Design)", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const cloud = ops.filter((o) => o.category === "Cloud").map((o) => o.toolpath_id).sort();
+      expect(cloud).toEqual([
+        "CLOUD_GENERATE_TOOLPATH",
+        "CLOUD_RENDER_STATUS",
+        "CLOUD_RENDER_SUBMIT",
+        "GENERATIVE_DESIGN_LINK",
+        "VAULT_DATA_EXCHANGE",
+      ]);
+    });
+
+    it("Strategy category contains exactly 5 Manufacturing Extension premium ops", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const strat = ops.filter((o) => o.category === "Strategy").map((o) => o.toolpath_id).sort();
+      expect(strat).toEqual([
+        "MFG_EXT_ADAPTIVE_5AXIS",
+        "MFG_EXT_BLADE",
+        "MFG_EXT_PORT_MACHINING",
+        "MFG_EXT_STEEP_SHALLOW",
+        "MFG_EXT_SWARF",
+      ]);
+    });
+
+    it("each op exposes the documented parameter count", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const byId: Record<string, number> = {};
+      for (const op of ops) byId[op.toolpath_id] = op.parameter_count;
+      expect(byId).toEqual({
+        CLOUD_RENDER_SUBMIT: 21,
+        CLOUD_RENDER_STATUS: 16,
+        CLOUD_GENERATE_TOOLPATH: 22,
+        MFG_EXT_ADAPTIVE_5AXIS: 26,
+        MFG_EXT_STEEP_SHALLOW: 22,
+        MFG_EXT_SWARF: 24,
+        MFG_EXT_PORT_MACHINING: 24,
+        MFG_EXT_BLADE: 22,
+        VAULT_DATA_EXCHANGE: 16,
+        GENERATIVE_DESIGN_LINK: 18,
+      });
+    });
+
+    it("total parameter count across all 10 ops sums to 211", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const total = ops.reduce((acc, op) => acc + op.parameter_count, 0);
+      expect(total).toBe(211);
+    });
+
+    it("MFG_EXT_ADAPTIVE_5AXIS is the largest op at 26 params (RTCP + tool-axis smoothing surface)", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const adaptive5 = ops.find((o) => o.toolpath_id === "MFG_EXT_ADAPTIVE_5AXIS");
+      expect(adaptive5?.category).toBe("Strategy");
+      expect(adaptive5?.parameter_count).toBe(26);
+      const sorted = [...ops].sort((a, b) => b.parameter_count - a.parameter_count);
+      expect(sorted[0]?.toolpath_id).toBe("MFG_EXT_ADAPTIVE_5AXIS");
+    });
+
+    it("VAULT_DATA_EXCHANGE references PLM lifecycle states (WIP / Released / Obsolete)", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const vault = ops.find((o) => o.toolpath_id === "VAULT_DATA_EXCHANGE");
+      expect(vault?.category).toBe("Cloud");
+      expect(vault?.description).toMatch(/Vault/);
+      expect(vault?.description).toMatch(/check-in|check-out/i);
+    });
+
+    it("GENERATIVE_DESIGN_LINK description references Pareto + outcome binding", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const gd = ops.find((o) => o.toolpath_id === "GENERATIVE_DESIGN_LINK");
+      expect(gd?.category).toBe("Cloud");
+      expect(gd?.description).toMatch(/Generative Design/);
+    });
+
+    it("MFG_EXT_BLADE description references turbine / impeller / blisk + leading/trailing edge", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const blade = ops.find((o) => o.toolpath_id === "MFG_EXT_BLADE");
+      expect(blade?.description).toMatch(/turbine|impeller|blisk/i);
+      expect(blade?.description).toMatch(/leading-edge|trailing-edge|edge/i);
+    });
+
+    it("CLOUD_RENDER_STATUS description references exponential-backoff + webhook", () => {
+      const ops = Fusion360FunctionIndexEngine.getCloudAndMfgExtOperations();
+      const status = ops.find((o) => o.toolpath_id === "CLOUD_RENDER_STATUS");
+      expect(status?.description).toMatch(/exponential-backoff|backoff/i);
+      expect(status?.description).toMatch(/webhook/i);
+    });
+
+    it("dispatcher round-trip: fusion360_function_index_get_cloud_and_mfg_ext_operations returns 10 ops with MFG_EXT_ADAPTIVE_5AXIS @ 26 params", async () => {
+      const mod: any = await import("../tools/dispatchers/camDispatcher.js");
+      type Handler = (input: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+      let captured: Handler | null = null;
+      const fakeServer = {
+        tool: (_n: string, _d: string, _s: unknown, h: Handler) => {
+          captured = h;
+        },
+      };
+      mod.registerCamDispatcher(fakeServer);
+      if (!captured) throw new Error("camDispatcher did not register handler");
+      const handler = captured as Handler;
+      const raw = (await handler({
+        action: "fusion360_function_index_get_cloud_and_mfg_ext_operations",
+        params: {},
+      })) as { content?: Array<{ text: string }> } | Record<string, unknown>;
+      const r = raw as { content?: Array<{ text: string }> };
+      const result = r.content?.[0]?.text
+        ? (JSON.parse(r.content[0].text) as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          })
+        : (raw as {
+            success: boolean;
+            operations: Array<{ toolpath_id: string; category: string; parameter_count: number }>;
+          });
+      expect(result.success).toBe(true);
+      expect(result.operations).toHaveLength(10);
+      const adaptive5 = result.operations.find((o) => o.toolpath_id === "MFG_EXT_ADAPTIVE_5AXIS");
+      expect(adaptive5?.category).toBe("Strategy");
+      expect(adaptive5?.parameter_count).toBe(26);
+      const submit = result.operations.find((o) => o.toolpath_id === "CLOUD_RENDER_SUBMIT");
+      expect(submit?.category).toBe("Cloud");
+      expect(submit?.parameter_count).toBe(21);
+    });
+
+    it("cloud_and_mfg_ext module is registered in fusion360 function-index with 211 estimated params and depends on post_processing + deep-pass catalogs", () => {
+      const idx = Fusion360FunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "cloud_and_mfg_ext");
+      expect(entry?.parameter_count_estimate).toBe(211);
+      expect(entry?.dependencies).toContain("post_processing");
+      expect(entry?.dependencies).toContain("multiaxis_deep");
+      expect(entry?.dependencies).toContain("turning_deep");
+      expect(entry?.dependencies).toContain("milling_3d_deep");
+    });
+
+    it("camDispatcher ACTIONS includes fusion360_function_index_get_cloud_and_mfg_ext_operations", async () => {
+      const mod = (await import("../tools/dispatchers/camDispatcher.js")) as unknown as {
+        ACTIONS: string[];
+      };
+      expect(mod.ACTIONS).toContain("fusion360_function_index_get_cloud_and_mfg_ext_operations");
+    });
+  });
 });
