@@ -42,7 +42,12 @@
  */
 import { BaseEngine } from "./BaseEngine.js";
 import type { EngineInfo, EngineCapability } from "./IEngine.js";
-import { cadTokenRepresentationEngine } from "./CADTokenRepresentationEngine.js";
+import {
+  cadTokenRepresentationEngine,
+  type CADToken,
+  type CADOperation,
+  type TokenSequence,
+} from "./CADTokenRepresentationEngine.js";
 import {
   cadRetrievalAugmentationEngine,
   type RAGCorpusEntry,
@@ -462,13 +467,36 @@ export class NeuralCADGenerationEngine extends BaseEngine {
 
   /**
    * Convert tokens to CadQuery Python code.
+   *
+   * `tokens` here is `number[]` (raw model output IDs). The token engine's
+   * `detokenize()` expects a structured `TokenSequence` (named tokens with
+   * categories), and returns `CADProgram = CADOperation[]` (a flat array,
+   * not an object with `.ops`). We hydrate the IDs into named tokens via
+   * the engine's vocab, then iterate the resulting ops array directly.
    */
   toCadQuery(tokens: TokenSeq): string {
     // Use tokenizer's detokenize if available
     try {
-      const detokenized = cadTokenRepresentationEngine.detokenize(tokens, "cadquery");
-      if (detokenized.ops && detokenized.ops.length > 0) {
-        return this.opsToCadQuery(detokenized.ops);
+      const cadTokens: CADToken[] = [];
+      for (let i = 0; i < tokens.length; i++) {
+        const def = cadTokenRepresentationEngine.getTokenDef(tokens[i]);
+        if (!def) continue;
+        cadTokens.push({
+          id: def.id,
+          name: def.name,
+          category: def.category,
+          position: i,
+        });
+      }
+      const seq: TokenSequence = {
+        tokens: cadTokens,
+        opsEncoded: 0,
+        unknownOps: 0,
+        vocabVersion: cadTokenRepresentationEngine.vocabularyVersion(),
+      };
+      const detokenized = cadTokenRepresentationEngine.detokenize(seq, "cadquery");
+      if (detokenized.length > 0) {
+        return this.opsToCadQuery(detokenized);
       }
     } catch {
       // Fall through to template-based generation
@@ -480,8 +508,13 @@ export class NeuralCADGenerationEngine extends BaseEngine {
 
   /**
    * Convert detokenized ops to CadQuery code.
+   *
+   * `CADOperation` carries positional numerics in `params: number[]` and
+   * named selectors/units in `attrs: Record<string, number|string|boolean>`.
+   * `featureToCadQuery` consumes a name→value map, so we feed it `attrs`
+   * (the named-param channel).
    */
-  private opsToCadQuery(ops: Array<{ op: string; params?: Record<string, unknown> }>): string {
+  private opsToCadQuery(ops: CADOperation[]): string {
     const lines: string[] = [
       "import cadquery as cq",
       "",
@@ -492,7 +525,7 @@ export class NeuralCADGenerationEngine extends BaseEngine {
     for (const op of ops) {
       const feature: FeatureSpec = {
         type: op.op,
-        params: (op.params ?? {}) as Record<string, number | string>,
+        params: (op.attrs ?? {}) as Record<string, number | string>,
       };
       lines.push("    " + featureToCadQuery(feature));
     }
