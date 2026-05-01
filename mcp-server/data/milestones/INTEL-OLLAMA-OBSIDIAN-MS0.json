@@ -1260,7 +1260,7 @@
           "status": "complete",
           "shipped_at": "2026-05-01T18:50:00.000Z",
           "shipped_by": "claude-ba192f8a",
-          "ship_notes": "184 occurrences across 33 files (drift from envelope's 161 baseline). Classifications: record_of_unknown=110 (60%), array_of_unknown=33, optional_unknown=21, default=18, unknown_value=2. AuditZany.test.ts: 22/22 green (3 strip-comments-and-strings tests + classification + aggregation + real-repo sanity)."
+          "ship_notes": "184 occurrences across 33 files (drift from envelope's 161 baseline). Classifications: inner_record_value=109 (59%), inner_array=33, bare_optional=21, bare_default=18, bare_metadata_record=1, bare_unknown_value=2. AuditZany.test.ts: 23/23 green. First-cut bugs caught by reviewer agent and fixed in follow-up commit: (1) shebang on script broke vite-node ESM transformer (no tests ran); (2) inner-wrapper occurrences originally suggested whole-field shapes (e.g. z.array(z.unknown())) which would double-wrap on token-level substitution — now emit leaf swap z.unknown() with replacementNote explaining the wrapper context; (3) bare_metadata_record reserved for structural promotion of bare metadata/payload-shaped fields. KNOWN GAP: structural-validity vitest block deferred — eval-based assertion was blocked by test-legitimacy hook; P8-U02 owner should add it before applying suggestions."
         },
         {
           "id": "P8-U02",

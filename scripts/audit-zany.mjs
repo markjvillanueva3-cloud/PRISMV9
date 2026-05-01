@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-// audit-zany.mjs — INTEL-OLLAMA-OBSIDIAN-MS0/P8-U01
+// audit-zany.mjs - INTEL-OLLAMA-OBSIDIAN-MS0/P8-U01
 // Scans Zod schema directories for z.any() occurrences, classifies each by
 // surrounding context, and emits ZANY-INVENTORY.json for downstream P8-U02/U03 work.
 
@@ -21,13 +20,20 @@ const FIELD_PATTERN = /^\s*(?:["']?)([a-zA-Z_$][a-zA-Z0-9_$]*)(?:["']?)\s*:/;
 const RECORD_NAME_HINTS = /^(metadata|config|details|payload|extras|attributes|context|options|params|properties|tags|env|headers)$/i;
 const UNKNOWN_NAME_HINTS = /^(value|data|input|output|result|response|body|content|raw|extra|error|cause|item)$/i;
 
+// suggestedReplacement is ALWAYS a token-level swap for `z.any()`.
+// Downstream P8-U02..U06 work can substitute it in place; the surrounding
+// wrapper (z.array/z.record/etc.) is preserved.
+//
+// Only `bare_metadata_record` is a structural promotion: bare `metadata: z.any()`
+// becomes `metadata: z.record(z.string(), z.unknown())`. Manual review still required.
 const CLASSIFICATIONS = {
-  array_of_unknown: { suggestedReplacement: "z.array(z.unknown())" },
-  record_of_unknown: { suggestedReplacement: "z.record(z.string(), z.unknown())" },
-  unknown_value: { suggestedReplacement: "z.unknown()" },
-  union_member: { suggestedReplacement: "z.unknown() // review union — may need explicit member type" },
-  optional_unknown: { suggestedReplacement: "z.unknown().optional()" },
-  default: { suggestedReplacement: "z.unknown()" },
+  inner_array:           { suggestedReplacement: "z.unknown()", note: "Inside z.array(...) — token swap yields z.array(z.unknown())" },
+  inner_record_value:    { suggestedReplacement: "z.unknown()", note: "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())" },
+  inner_union_member:    { suggestedReplacement: "z.unknown()", note: "Inside z.union([...]) — review whether unknown is the right member type" },
+  bare_metadata_record:  { suggestedReplacement: "z.record(z.string(), z.unknown())", note: "Bare z.any() with field name suggesting a hash/map — structural promotion to record" },
+  bare_unknown_value:    { suggestedReplacement: "z.unknown()", note: "Bare z.any() with field name suggesting an opaque value" },
+  bare_optional:         { suggestedReplacement: "z.unknown()", note: "Bare z.any().optional() — token swap yields z.unknown().optional()" },
+  bare_default:          { suggestedReplacement: "z.unknown()", note: "Bare z.any() with no field-name hint — safest default" },
 };
 
 export function listTsFiles(dir) {
@@ -134,16 +140,24 @@ function classifyOccurrence(originalLines, sanitizedLines, lineIndex, columnInde
   const fieldMatch = originalLine.match(FIELD_PATTERN);
   const fieldName = fieldMatch ? fieldMatch[1] : null;
 
+  // Classification distinguishes wrapper context from structural promotion.
+  // Inner-* cases are token swaps inside an existing wrapper.
+  // bare_metadata_record is the only case where the suggested replacement
+  // changes the field's shape (z.any() → z.record(z.string(), z.unknown())).
   let classification;
-  if (wrapperToken === "z.array") classification = "array_of_unknown";
-  else if (wrapperToken === "z.record") classification = "record_of_unknown";
-  else if (wrapperToken === "z.union") classification = "union_member";
-  else if (fieldName && RECORD_NAME_HINTS.test(fieldName)) classification = "record_of_unknown";
-  else if (fieldName && UNKNOWN_NAME_HINTS.test(fieldName)) classification = "unknown_value";
-  else if (isOptionalChained) classification = "optional_unknown";
-  else classification = "default";
+  if (wrapperToken === "z.array") classification = "inner_array";
+  else if (wrapperToken === "z.record") classification = "inner_record_value";
+  else if (wrapperToken === "z.union") classification = "inner_union_member";
+  else if (fieldName && RECORD_NAME_HINTS.test(fieldName)) classification = "bare_metadata_record";
+  else if (fieldName && UNKNOWN_NAME_HINTS.test(fieldName)) classification = "bare_unknown_value";
+  else if (isOptionalChained) classification = "bare_optional";
+  else classification = "bare_default";
 
-  return { classification, fieldName, wrapperToken: wrapperToken || null, isOptionalChained };
+  // wrapperToken is informational ONLY when classification is inner_*; clear noise
+  // for bare_* cases (the unbalanced-paren walker may have grabbed an enclosing
+  // z.object that has no relevance to the leaf z.any() replacement).
+  const reportedWrapper = classification.startsWith("inner_") ? wrapperToken : null;
+  return { classification, fieldName, wrapperToken: reportedWrapper, isOptionalChained };
 }
 
 export function auditFile(absPath, repoRoot = REPO_ROOT) {
@@ -171,6 +185,7 @@ export function auditFile(absPath, repoRoot = REPO_ROOT) {
         isOptionalChained,
         classification,
         suggestedReplacement: CLASSIFICATIONS[classification].suggestedReplacement,
+        replacementNote: CLASSIFICATIONS[classification].note,
         context: originalLines.slice(ctxStart, ctxEnd),
         contextStartLine: ctxStart + 1,
       });
@@ -220,7 +235,10 @@ function main() {
   );
 }
 
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` ||
-    process.argv[1].endsWith("audit-zany.mjs")) {
+const entry = process.argv[1];
+if (entry && (
+    import.meta.url === `file://${entry.replace(/\\/g, "/")}` ||
+    entry.endsWith("audit-zany.mjs")
+  )) {
   main();
 }

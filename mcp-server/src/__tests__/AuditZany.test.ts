@@ -13,6 +13,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { z } from "zod";
 import {
   listTsFiles,
   stripCommentsAndStrings,
@@ -137,52 +138,67 @@ describe("auditFile", () => {
     expect(occ.length).toBe(7);
   });
 
-  it("classifies array_of_unknown for z.array(z.any())", () => {
+  it("classifies inner_array (token swap, NOT whole-field replacement) for z.array(z.any())", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
     const arr = occ.find((o) => o.fieldName === "list");
-    expect(arr?.classification).toBe("array_of_unknown");
-    expect(arr?.suggestedReplacement).toBe("z.array(z.unknown())");
+    expect(arr?.classification).toBe("inner_array");
+    // Critical: must be the LEAF token, not the whole wrapped shape.
+    // Otherwise downstream produces z.array(z.array(z.unknown())).
+    expect(arr?.suggestedReplacement).toBe("z.unknown()");
   });
 
-  it("classifies record_of_unknown for z.record wrapper", () => {
+  it("classifies inner_record_value (token swap) for z.record(z.string(), z.any())", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
     const rec = occ.find((o) => o.fieldName === "bag");
-    expect(rec?.classification).toBe("record_of_unknown");
+    expect(rec?.classification).toBe("inner_record_value");
+    // Same invariant: token swap, NOT whole-field rewrite.
+    expect(rec?.suggestedReplacement).toBe("z.unknown()");
   });
 
-  it("classifies union_member for z.union wrapper", () => {
+  it("classifies inner_union_member for z.union wrapper", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
     const u = occ.find((o) => o.fieldName === "alt");
-    expect(u?.classification).toBe("union_member");
+    expect(u?.classification).toBe("inner_union_member");
+    expect(u?.suggestedReplacement).toBe("z.unknown()");
   });
 
-  it("classifies record_of_unknown via field-name hint (metadata)", () => {
+  it("classifies bare_metadata_record (structural promotion) for bare metadata: z.any()", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
     const md = occ.find((o) => o.fieldName === "metadata");
-    expect(md?.classification).toBe("record_of_unknown");
+    expect(md?.classification).toBe("bare_metadata_record");
+    // Only case where suggestedReplacement is structural, not a leaf.
     expect(md?.suggestedReplacement).toBe("z.record(z.string(), z.unknown())");
   });
 
-  it("classifies unknown_value via field-name hint (data)", () => {
+  it("classifies bare_unknown_value via field-name hint (data)", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
     const d = occ.find((o) => o.fieldName === "data");
-    expect(d?.classification).toBe("unknown_value");
+    expect(d?.classification).toBe("bare_unknown_value");
     expect(d?.suggestedReplacement).toBe("z.unknown()");
   });
 
-  it("flags optional_unknown when followed by .optional()", () => {
+  it("flags bare_optional when followed by .optional()", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
     const o = occ.find((x) => x.fieldName === "flexi");
     expect(o?.isOptionalChained).toBe(true);
-    expect(o?.classification).toBe("optional_unknown");
+    expect(o?.classification).toBe("bare_optional");
+    // Token swap into existing chain: z.unknown().optional()
+    expect(o?.suggestedReplacement).toBe("z.unknown()");
   });
 
-  it("falls back to default for ambiguous cases", () => {
+  it("falls back to bare_default for ambiguous cases", () => {
     const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
-    // 'unknown' field name is in UNKNOWN_NAME_HINTS? No — list is value/data/input/output/result/...
-    // 'unknown' is not in the hint set, so it's default.
     const u = occ.find((x) => x.fieldName === "unknown");
-    expect(u?.classification).toBe("default");
+    expect(u?.classification).toBe("bare_default");
+    expect(u?.suggestedReplacement).toBe("z.unknown()");
+  });
+
+  it("clears wrapperToken for bare classifications (informational only when inner_*)", () => {
+    const occ = auditFile(join(schemasDir, "fixtureA.ts"), tmpRoot);
+    const md = occ.find((o) => o.fieldName === "metadata");
+    expect(md?.wrapperToken).toBeNull();
+    const arr = occ.find((o) => o.fieldName === "list");
+    expect(arr?.wrapperToken).toBe("z.array");
   });
 
   it("captures line + column + context for each occurrence", () => {
