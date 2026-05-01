@@ -82,6 +82,8 @@ const OBSIDIAN_ACTIONS = [
   "obsidian_plugin_status",
   "tribal_export_single", "tribal_export_bulk",
   "tribal_export_config", "tribal_export_status",
+  // P3-U01: ObsidianVaultExporterEngine — wikilink ↔ vault converter
+  "obsidian_export_node", "obsidian_resolve_path", "obsidian_round_trip",
 ] as const;
 
 const SHOP_NOTE_ACTIONS = [
@@ -365,6 +367,53 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "tribal_export_status": {
             const { tribalTipExportEngine } = await import("../../engines/TribalTipExportEngine.js");
             result = tribalTipExportEngine.status();
+            break;
+          }
+          // ── P3-U01: ObsidianVaultExporterEngine — wikilink ↔ vault converter ──
+          case "obsidian_export_node": {
+            const { ObsidianVaultExporterEngine } = await import("../../engines/ObsidianVaultExporterEngine.js");
+            const nodeId = params.nodeId as string | undefined;
+            if (typeof nodeId !== "string" || nodeId.length === 0) {
+              result = { error: "Missing nodeId param" };
+              break;
+            }
+            try {
+              result = ObsidianVaultExporterEngine.exportNode(nodeId, {
+                content: typeof params.content === "string" ? params.content : undefined,
+                category: typeof params.category === "string" ? params.category as never : undefined,
+                allowedCategories: Array.isArray(params.allowedCategories) ? params.allowedCategories as never : undefined,
+              });
+            } catch (e) {
+              result = { error: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "obsidian_resolve_path": {
+            const { ObsidianVaultExporterEngine } = await import("../../engines/ObsidianVaultExporterEngine.js");
+            const target = params.target as string | undefined;
+            if (typeof target !== "string") {
+              result = { error: "Missing target param" };
+              break;
+            }
+            result = ObsidianVaultExporterEngine.resolveVaultPath(target, {
+              category: typeof params.category === "string" ? params.category as never : undefined,
+              allowedCategories: Array.isArray(params.allowedCategories) ? params.allowedCategories as never : undefined,
+            });
+            break;
+          }
+          case "obsidian_round_trip": {
+            const { ObsidianVaultExporterEngine } = await import("../../engines/ObsidianVaultExporterEngine.js");
+            const md = params.wikilink_md as string | undefined;
+            if (typeof md !== "string") {
+              result = { error: "Missing wikilink_md param" };
+              break;
+            }
+            try {
+              const back = ObsidianVaultExporterEngine.roundTrip(md);
+              result = { wikilink_md: back, byte_equal: back === md, schemaVersion: "1.0.0" };
+            } catch (e) {
+              result = { error: e instanceof Error ? e.message : String(e) };
+            }
             break;
           }
           // ── Shop Floor Note Ingestion (OBSIDIAN-MS0) ─────────
