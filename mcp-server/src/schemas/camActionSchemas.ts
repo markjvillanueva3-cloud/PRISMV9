@@ -258,4 +258,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_deviation_to_tip: z.object({
     deviations: z.array(z.record(z.string(), z.unknown())).min(1).describe("DeviationRecord[] - prior cut deviations to learn tribal tips from"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch5: kerf width + MRR physics + dielectric flush adjust
+  wedm_kerf_predict: z.object({
+    input: z.record(z.string(), z.unknown()).describe("KerfWidthInput - wire diameter + spark gap + material context for WEDMKerfWidthEngine.predict()"),
+  }).passthrough(),
+  wedm_mrr_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("MRRInput - thermal/material removal rate physics input for WEDMMRRPhysicsEngine.calculate()"),
+  }).passthrough(),
+  wedm_dielectric_flush_adjust: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DielectricFlushAdjustInput - dielectric flow + pressure + cut depth for WEDMDielectricFlushAdjustEngine.calculate()"),
+  }).passthrough(),
 };

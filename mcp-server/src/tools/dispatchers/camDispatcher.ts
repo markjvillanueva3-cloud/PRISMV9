@@ -1163,6 +1163,8 @@ export const ACTIONS = [
   "wedm_corner_analyze", "wedm_dielectric_correct", "wedm_current_density_validate",
   // WEDM-WIRE-MS0/Batch4: HAZ + gap voltage + deviation-to-tip
   "wedm_haz_predict", "wedm_gap_voltage_calc", "wedm_deviation_to_tip",
+  // WEDM-WIRE-MS0/Batch5: kerf width + MRR physics + dielectric flush adjust
+  "wedm_kerf_predict", "wedm_mrr_calc", "wedm_dielectric_flush_adjust",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6034,6 +6036,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmDeviationToTipEngine.analyze(
                 deviations as Parameters<typeof wedmDeviationToTipEngine.analyze>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch5: kerf width + MRR physics + dielectric flush adjust ──
+          case "wedm_kerf_predict": {
+            const { wedmKerfWidthEngine } = await import("../../engines/WEDMKerfWidthEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (KerfWidthInput)" }; break; }
+            try {
+              result = wedmKerfWidthEngine.predict(
+                input as Parameters<typeof wedmKerfWidthEngine.predict>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_mrr_calc": {
+            const { wedmMRRPhysicsEngine } = await import("../../engines/WEDMMRRPhysicsEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (MRRInput)" }; break; }
+            try {
+              result = wedmMRRPhysicsEngine.calculate(
+                input as Parameters<typeof wedmMRRPhysicsEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_dielectric_flush_adjust": {
+            const { wedmDielectricFlushAdjustEngine } = await import("../../engines/WEDMDielectricFlushAdjustEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DielectricFlushAdjustInput)" }; break; }
+            try {
+              result = wedmDielectricFlushAdjustEngine.calculate(
+                input as Parameters<typeof wedmDielectricFlushAdjustEngine.calculate>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
