@@ -99,8 +99,23 @@ const KNOWN_WELDMENT_OPS = [
   "WELDMENT_BOM",
 ];
 
+const KNOWN_DRAWING_OPS = [
+  // sheet management (1)
+  "SHEET",
+  // view creation (7)
+  "BASE_VIEW", "PROJECTED_VIEW", "SECTION_VIEW", "DETAIL_VIEW",
+  "AUXILIARY_VIEW", "BREAK_VIEW", "CROP_VIEW",
+  // dimensions (3)
+  "DIMENSION", "BASELINE_DIMENSION", "ORDINATE_DIMENSION",
+  // tables (3)
+  "HOLE_TABLE", "BEND_TABLE", "PARTS_LIST",
+  // annotations (3)
+  "NOTE_LEADER", "SURFACE_TEXTURE", "GDT_FRAME",
+  // sheet ops (2)
+  "TITLE_BLOCK", "REVISION_TABLE",
+];
+
 const PLANNED_FUTURE_MODULES = [
-  "drawing_operations",
   "assembly_operations",
 ];
 
@@ -113,10 +128,10 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(6);
+    expect(idx.modules.length).toBe(7);
   });
 
-  it("listModules surfaces sketch / part / surface / sheet_metal / frame_generator / weldment in registration order", () => {
+  it("listModules surfaces sketch / part / surface / sheet_metal / frame_generator / weldment / drawing in registration order", () => {
     expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
       "sketch_operations",
       "part_operations",
@@ -124,6 +139,7 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
       "sheet_metal_operations",
       "frame_generator_operations",
       "weldment_operations",
+      "drawing_operations",
     ]);
   });
 
@@ -139,20 +155,20 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 2 follow-ups (after INV-06 ship)", () => {
+  it("future_modules registers exactly the planned 1 follow-up (after INV-07 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
     expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id (07..08)", () => {
+  it("each future_modules entry has scope, params, and a valid INV unit id (08 only)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(2);
+    expect(futureModules.length).toBe(1);
     for (const fm of futureModules) {
       expect(fm.scope.length).toBeGreaterThan(20);
       expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[7-8]$/);
+      expect(fm.deferred_to).toBe("U-CAD-FIDX-INV-08");
     }
   });
 
@@ -320,8 +336,8 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 110 operations across sketch + part + surface + sheet_metal + frame_generator + weldment modules", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(110);
+  it("listAllOperations returns 129 operations across sketch + part + surface + sheet_metal + frame_generator + weldment + drawing modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(129);
   });
 });
 
@@ -771,6 +787,174 @@ describe("InventorCADFunctionIndexEngine — weldment_operations module (U-CAD-F
   });
 });
 
+describe("InventorCADFunctionIndexEngine — drawing_operations module (U-CAD-FIDX-INV-07)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 19 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("drawing_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-07");
+    expect(mod?.metadata?.operationCount).toBe(19);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(19);
+  });
+
+  it("listOperations returns exactly KNOWN_DRAWING_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("drawing_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_DRAWING_OPS].sort());
+  });
+
+  it("each drawing operation carries a Drawing_-prefixed category", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("drawing_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^Drawing_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("getOperation('SHEET') registers all 11 sheet formats including ANSI A..E and ISO A0..A4", () => {
+    const sheet = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "SHEET");
+    expect(sheet?.category).toBe("Drawing_Sheet_Manage");
+    const fmt = sheet?.tabs?.Sheet?.parameters?.find((p) => p.name === "Format");
+    expect(fmt?.options).toEqual([
+      "ansi_a", "ansi_b", "ansi_c", "ansi_d", "ansi_e",
+      "iso_a0", "iso_a1", "iso_a2", "iso_a3", "iso_a4",
+      "custom",
+    ]);
+  });
+
+  it("getOperation('BASE_VIEW') exposes 6 styles + 11 orientations + 4 thread modes", () => {
+    const bv = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "BASE_VIEW");
+    expect(bv?.category).toBe("Drawing_View_Base");
+    expect(bv?.python_api).toBe("Sheet.DrawingViews.AddBaseView");
+    const style = bv?.tabs?.View?.parameters?.find((p) => p.name === "Style");
+    expect(style?.options).toEqual([
+      "hidden_line", "hidden_line_removed", "shaded",
+      "shaded_with_edges", "wireframe", "rendered",
+    ]);
+    const orient = bv?.tabs?.View?.parameters?.find((p) => p.name === "Orientation");
+    expect(orient?.options?.length).toBe(11);
+    const threads = bv?.tabs?.Display?.parameters?.find((p) => p.name === "Threads Display");
+    expect(threads?.options).toEqual(["none", "schematic", "cosmetic", "feature"]);
+  });
+
+  it("getOperation('SECTION_VIEW') registers 4 section types + 3-tab structure", () => {
+    const sv = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "SECTION_VIEW");
+    expect(Object.keys(sv?.tabs ?? {})).toEqual(["View", "Style", "Filter"]);
+    const sType = sv?.tabs?.View?.parameters?.find((p) => p.name === "Section Type");
+    expect(sType?.options).toEqual(["full", "half", "aligned", "offset"]);
+    const hatchAngle = sv?.tabs?.Style?.parameters?.find((p) => p.name === "Hatch Angle");
+    expect(hatchAngle?.default).toBe(45);
+  });
+
+  it("getOperation('DETAIL_VIEW') exposes 3 boundary shapes + 3 connection styles", () => {
+    const dv = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "DETAIL_VIEW");
+    const shape = dv?.tabs?.View?.parameters?.find((p) => p.name === "Boundary Shape");
+    expect(shape?.options).toEqual(["circular", "rectangular", "sketched"]);
+    const conn = dv?.tabs?.Style?.parameters?.find((p) => p.name === "Connection Style");
+    expect(conn?.options).toEqual(["smooth", "jagged", "connected"]);
+    const mag = dv?.tabs?.View?.parameters?.find((p) => p.name === "Magnification");
+    expect(mag?.default).toBe(2);
+  });
+
+  it("getOperation('DIMENSION') registers all 7 type modes + 8 tolerance types per ASME Y14.5", () => {
+    const dim = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "DIMENSION");
+    expect(dim?.category).toBe("Drawing_Dimension_General");
+    const type = dim?.tabs?.Selection?.parameters?.find((p) => p.name === "Type");
+    expect(type?.options).toEqual([
+      "linear", "aligned", "angular", "radial",
+      "diametric", "arc_length", "chamfer",
+    ]);
+    const tol = dim?.tabs?.Style?.parameters?.find((p) => p.name === "Tolerance Type");
+    expect(tol?.options).toEqual([
+      "none", "symmetric", "deviation", "limits",
+      "basic", "reference", "max", "min",
+    ]);
+    const prec = dim?.tabs?.Style?.parameters?.find((p) => p.name === "Precision");
+    expect(prec?.options?.length).toBe(11); // 5 decimal + 6 fractional
+  });
+
+  it("getOperation('GDT_FRAME') exposes 16 geometric characteristics per ASME Y14.5", () => {
+    const gdt = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "GDT_FRAME");
+    expect(gdt?.category).toBe("Drawing_Annotation_GDT");
+    expect(gdt?.python_api).toBe("Sheet.FeatureControlFrames.Add");
+    const sym = gdt?.tabs?.Symbol?.parameters?.find((p) => p.name === "Symbol");
+    expect(sym?.options?.length).toBe(16);
+    expect(sym?.options).toContain("flatness");
+    expect(sym?.options).toContain("perpendicularity");
+    expect(sym?.options).toContain("position");
+    expect(sym?.options).toContain("runout_total");
+    const mod = gdt?.tabs?.Symbol?.parameters?.find((p) => p.name === "Modifier");
+    expect(mod?.options).toEqual([
+      "none", "m_mmc", "l_lmc", "f_free_state", "p_projected", "t_tangent_plane",
+    ]);
+  });
+
+  it("getOperation('SURFACE_TEXTURE') exposes 4 symbol types + 8 lay directions", () => {
+    const st = InventorCADFunctionIndexEngine.getOperation(
+      "drawing_operations",
+      "SURFACE_TEXTURE",
+    );
+    const symbol = st?.tabs?.Symbol?.parameters?.find((p) => p.name === "Symbol Type");
+    expect(symbol?.options).toEqual([
+      "basic",
+      "material_removal_required",
+      "material_removal_prohibited",
+      "any_process",
+    ]);
+    const lay = st?.tabs?.Style?.parameters?.find((p) => p.name === "Lay Direction");
+    expect(lay?.options).toEqual([
+      "none", "parallel", "perpendicular", "crossed",
+      "multidirectional", "circular", "radial", "particulate",
+    ]);
+  });
+
+  it("getOperation('PARTS_LIST') registers 3 BOM views + 5 grouping modes", () => {
+    const pl = InventorCADFunctionIndexEngine.getOperation("drawing_operations", "PARTS_LIST");
+    const bv = pl?.tabs?.Selection?.parameters?.find((p) => p.name === "BOM View");
+    expect(bv?.options).toEqual(["structured", "parts_only", "compact"]);
+    const grp = pl?.tabs?.Filter?.parameters?.find((p) => p.name === "Group By");
+    expect(grp?.options).toEqual([
+      "item", "part_number", "category", "vendor", "custom_property",
+    ]);
+  });
+
+  it("getOperation('REVISION_TABLE') registers 3 number formats including ASME Y14.35 letters", () => {
+    const rt = InventorCADFunctionIndexEngine.getOperation(
+      "drawing_operations",
+      "REVISION_TABLE",
+    );
+    const fmt = rt?.tabs?.Sheet?.parameters?.find((p) => p.name === "Number Format");
+    expect(fmt?.options).toEqual([
+      "letters_asme_y14_35",
+      "letters_no_skips",
+      "numeric_1_2_3",
+    ]);
+  });
+
+  it("drawing_operations declares dependencies on part + sheet_metal_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("drawing_operations");
+    expect(entry?.dependencies).toEqual(["part_operations", "sheet_metal_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within drawing_operations across the 4 view families", () => {
+    const viewOps = InventorCADFunctionIndexEngine.listOperations("drawing_operations").filter(
+      (o) => o.category.startsWith("Drawing_View_"),
+    );
+    // Base + Projected + Section + Detail + Auxiliary + Break + Crop = 7
+    expect(viewOps.length).toBe(7);
+    const dimOps = InventorCADFunctionIndexEngine.listOperations("drawing_operations").filter(
+      (o) => o.category.startsWith("Drawing_Dimension_"),
+    );
+    // General + Baseline + Ordinate = 3
+    expect(dimOps.length).toBe(3);
+    const tableOps = InventorCADFunctionIndexEngine.listOperations("drawing_operations").filter(
+      (o) => o.category.startsWith("Drawing_Table_"),
+    );
+    // HoleTable + BendTable + PartsList = 3
+    expect(tableOps.length).toBe(3);
+  });
+});
+
 describe("InventorCADFunctionIndexEngine — surface_operations module (U-CAD-FIDX-INV-03)", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
@@ -922,8 +1106,8 @@ describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 708 (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83 + weldment 95)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(708);
+  it("getTotalParameterCount equals 853 (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83 + weldment 95 + drawing 145)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(853);
   });
 
   it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
@@ -998,6 +1182,18 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(95);
   });
 
+  it("drawing_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("drawing_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
+      for (const tab of Object.values(op.tabs ?? {})) {
+        actual += (tab.parameters ?? tab.params ?? []).length;
+      }
+    }
+    expect(actual).toBe(145);
+    expect(mod?.metadata?.totalParameters).toBe(145);
+  });
+
   it("each per-op declared parameterCount matches actual tab-sum across all modules", () => {
     for (const moduleId of [
       "sketch_operations",
@@ -1006,6 +1202,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "sheet_metal_operations",
       "frame_generator_operations",
       "weldment_operations",
+      "drawing_operations",
     ]) {
       const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
       for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
@@ -1035,6 +1232,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "U-CAD-FIDX-INV-04",
       "U-CAD-FIDX-INV-05",
       "U-CAD-FIDX-INV-06",
+      "U-CAD-FIDX-INV-07",
     ]);
   });
 
@@ -1067,6 +1265,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     const weldment = InventorCADFunctionIndexEngine.getModule("weldment_operations");
     expect(Object.keys(weldment?.operations ?? {}).length).toBe(12);
     expect(weldment?.metadata?.operationCount).toBe(12);
+
+    const drawing = InventorCADFunctionIndexEngine.getModule("drawing_operations");
+    expect(Object.keys(drawing?.operations ?? {}).length).toBe(19);
+    expect(drawing?.metadata?.operationCount).toBe(19);
   });
 });
 

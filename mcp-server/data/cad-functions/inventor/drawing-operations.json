@@ -1,0 +1,457 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Drawing Operations — 2D Drawing Output Environment",
+    "description": "Parameter catalog for the Inventor Drawing environment (.idw / .dwg) — the 2D output document type that consumes 3D parts/assemblies/weldments and emits sheets with views, dimensions, tables, and annotations for shop-floor delivery. Inventor drawings are document-level: a DrawingDocument owns one or more Sheets, each Sheet owns DrawingViews (Base / Projected / Section / Detail / Auxiliary / Break / Crop), DrawingDimensions (General / Baseline / Ordinate), tables (HoleTables / BendTables / PartsLists / RevisionTables), and annotations (GeneralNotes / SurfaceTextureSymbols / FeatureControlFrames). Catalog covers 19 operations: sheet management, the 7 view-creation operations, the 3 dimension styles, the 3 table types, 3 annotation symbol families, plus title-block + revision table management. Bindings reference real DrawingDocument / Sheet / DrawingView COM API. Drawing standards (ANSI / ISO / DIN / JIS / GB) carry through to symbol notation, dimension precision, projection method (1st-angle vs 3rd-angle), and table conventions.",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-07",
+    "source": "Autodesk Inventor 2025 Help — Drawing Manager Reference; Inventor API Reference — Drawing namespace (DrawingDocument, Sheet, DrawingViews.AddBaseView / AddProjectedView / AddSectionView / AddDetailView / AddAuxiliaryView / AddBreakView / AddCropView, GeneralDimensions.Add, BaselineDimensionSets.Add, OrdinateDimensionSets.Add, HoleTables.Add, BendTables.Add, PartsLists.Add, GeneralNotes.Add, SurfaceTextureSymbols.Add, FeatureControlFrames.Add, RevisionTables.Add, TitleBlock); Drafting Standards: ANSI Y14.5 / ISO 1101 / ASME Y14.36 / ISO 1302",
+    "totalParameters": 145,
+    "operationCount": 19,
+    "cad_concepts_used": [
+      "DRAWING_VIEW",
+      "PROJECTION_FIRST_ANGLE",
+      "PROJECTION_THIRD_ANGLE",
+      "SECTION_LINE",
+      "DETAIL_BOUNDARY",
+      "DRAFTING_STANDARD",
+      "GD_AND_T_FRAME",
+      "HOLE_TABLE",
+      "BEND_TABLE",
+      "BOM_FLATTENING",
+      "REVISION_HISTORY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor Drawing features. Most ops carry a Selection / Display / Style / Filter / Output tab structure mirroring the Inventor drawing-side dialogs.",
+    "tabs": ["Sheet", "View", "Selection", "Display", "Style", "Filter", "Symbol", "Frame", "Output"]
+  },
+  "operations": {
+    "SHEET": {
+      "description": "Add or configure a drawing sheet. Sheet format selects from ANSI A..E or ISO A0..A4 (or custom width/height); orientation is portrait/landscape; scale is the default scale applied to subsequent views unless overridden. Title block reference points at a reusable title block defined in the drawing template — overrides happen via the TITLE_BLOCK operation.",
+      "category": "Drawing_Sheet_Manage",
+      "python_api": "DrawingDocument.Sheets.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Sheet": {
+          "parameters": [
+            {"name": "Format", "type": "dropdown", "options": ["ansi_a", "ansi_b", "ansi_c", "ansi_d", "ansi_e", "iso_a0", "iso_a1", "iso_a2", "iso_a3", "iso_a4", "custom"], "default": "ansi_b"},
+            {"name": "Orientation", "type": "dropdown", "options": ["portrait", "landscape"], "default": "landscape"},
+            {"name": "Scale", "type": "string", "description": "Default sheet scale (e.g., '1:1', '1:2', '2:1', '1/4:1'); applied to views that do not override", "default": "1:1"},
+            {"name": "Custom Width", "type": "numeric", "unit": "mm", "description": "Sheet width when Format=custom"},
+            {"name": "Custom Height", "type": "numeric", "unit": "mm", "description": "Sheet height when Format=custom"},
+            {"name": "Title Block Reference", "type": "string", "description": "Title block sketched-symbol name (must exist in drawing template)"}
+          ]
+        }
+      }
+    },
+    "BASE_VIEW": {
+      "description": "Primary view orientation derived from a 3D source document (.ipt / .iam / .iwm). Drives all subsequent projected / section / detail / break views as their parent. Style selects the rendering mode: hidden line (default for production), shaded for visualization, wireframe for clarity, hidden-line-removed for clean prints. Drawing standard inherits from sheet but can override per-view for mixed-standard drawings.",
+      "category": "Drawing_View_Base",
+      "python_api": "Sheet.DrawingViews.AddBaseView",
+      "parameterCount": 10,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source Document", "type": "selection", "description": "3D part / assembly / weldment file path", "required": true},
+            {"name": "Orientation", "type": "dropdown", "options": ["front", "top", "right", "left", "bottom", "back", "iso_top_right", "iso_top_left", "iso_bottom_right", "iso_bottom_left", "current"], "default": "front"},
+            {"name": "Scale", "type": "string", "description": "View scale (e.g., '1:1', '1:2'); blank inherits sheet default", "default": ""},
+            {"name": "Style", "type": "dropdown", "options": ["hidden_line", "hidden_line_removed", "shaded", "shaded_with_edges", "wireframe", "rendered"], "default": "hidden_line"}
+          ]
+        },
+        "Display": {
+          "parameters": [
+            {"name": "Show Hidden Lines", "type": "checkbox", "description": "Show occluded edges as dashed lines", "default": true},
+            {"name": "Show Tangent Edges", "type": "checkbox", "description": "Show smooth tangent transitions (e.g., fillets)", "default": false},
+            {"name": "Threads Display", "type": "dropdown", "options": ["none", "schematic", "cosmetic", "feature"], "default": "schematic", "description": "Thread feature rendering mode"},
+            {"name": "Show Section Lines", "type": "checkbox", "description": "Show inherited section line annotations", "default": true},
+            {"name": "Drawing Standard", "type": "dropdown", "options": ["ansi", "iso", "din", "jis", "gb", "bsi"], "default": "ansi"},
+            {"name": "Label Display", "type": "dropdown", "options": ["none", "default", "custom"], "default": "default"}
+          ]
+        }
+      }
+    },
+    "PROJECTED_VIEW": {
+      "description": "Orthographic projection from an existing parent view. Inventor automatically positions per the projection method (1st-angle European places below; 3rd-angle American places above for a top-projection). Inherits style + scale + display settings from parent unless explicitly overridden, ensuring drawing consistency. Diagonal projections produce isometric views.",
+      "category": "Drawing_View_Projected",
+      "python_api": "Sheet.DrawingViews.AddProjectedView",
+      "parameterCount": 5,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "description": "Existing view to project from", "required": true},
+            {"name": "Projection Direction", "type": "dropdown", "options": ["top", "bottom", "left", "right", "iso_top_right", "iso_top_left", "iso_bottom_right", "iso_bottom_left"], "required": true},
+            {"name": "Inherit Style", "type": "checkbox", "description": "Inherit parent view's style + display settings", "default": true},
+            {"name": "Inherit Scale", "type": "checkbox", "description": "Inherit parent view's scale (false = use sheet default)", "default": true},
+            {"name": "Custom Label", "type": "string", "description": "Override the auto-generated view label"}
+          ]
+        }
+      }
+    },
+    "SECTION_VIEW": {
+      "description": "Section through a parent view along a section line. Section type selects geometry: Full (single line, full pass), Half (one side fully sectioned, other untouched), Aligned (multi-segment line preserving angular alignment), Offset (multi-segment line with rectangular jogs to capture multiple features). Hatch pattern + scale + angle apply per drawing standard's defaults but can override. Exclude Parts removes specific assembly parts from the cut to keep them whole (e.g., shafts, fasteners).",
+      "category": "Drawing_View_Section",
+      "python_api": "Sheet.DrawingViews.AddSectionView",
+      "parameterCount": 11,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "description": "View to section", "required": true},
+            {"name": "Section Line", "type": "selection", "description": "Sketched section line on parent view", "required": true},
+            {"name": "Section Type", "type": "dropdown", "options": ["full", "half", "aligned", "offset"], "default": "full"},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "description": "Depth of cut from section line (0 = through-all)", "default": 0},
+            {"name": "Slice", "type": "checkbox", "description": "Show only the section slice (no material behind)", "default": false}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Hatch Pattern", "type": "string", "description": "Hatch pattern name (e.g., 'ANSI31', 'ISO_LINES')", "default": "ANSI31"},
+            {"name": "Hatch Scale", "type": "numeric", "description": "Hatch density multiplier", "default": 1.0},
+            {"name": "Hatch Angle", "type": "numeric", "unit": "deg", "description": "Hatch rotation", "default": 45},
+            {"name": "Show Section Cut", "type": "checkbox", "description": "Show the cutting plane indicator on parent view", "default": true},
+            {"name": "Inherit Threads Display", "type": "checkbox", "description": "Use parent threads-display setting", "default": true}
+          ]
+        },
+        "Filter": {
+          "parameters": [
+            {"name": "Exclude Parts", "type": "selection", "description": "Assembly components to keep whole (skip cutting). Common for shafts / fasteners / standard hardware"}
+          ]
+        }
+      }
+    },
+    "DETAIL_VIEW": {
+      "description": "Magnified detail of a small region in a parent view. Boundary shape selects the detail-area outline (Circular = standard ANSI detail bubble, Rectangular = ISO-style box, Sketched = custom region). Connection style controls how the detail relates back to the parent: smooth (no connector), jagged (broken outline), connected (leader from boundary to detail). Magnification multiplies parent view's scale.",
+      "category": "Drawing_View_Detail",
+      "python_api": "Sheet.DrawingViews.AddDetailView",
+      "parameterCount": 9,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "description": "View containing the region to detail", "required": true},
+            {"name": "Boundary Shape", "type": "dropdown", "options": ["circular", "rectangular", "sketched"], "default": "circular"},
+            {"name": "Boundary Center", "type": "selection", "description": "Center point on parent view", "required": true},
+            {"name": "Boundary Size", "type": "numeric", "unit": "mm", "description": "Diameter (circular) or half-width (rectangular)"},
+            {"name": "Magnification", "type": "numeric", "description": "Multiplier on parent's scale (e.g., 2 = 2× parent)", "default": 2}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Connection Style", "type": "dropdown", "options": ["smooth", "jagged", "connected"], "default": "smooth", "description": "How detail boundary terminates"},
+            {"name": "Label", "type": "string", "description": "Override the auto-generated detail label (e.g., 'A')"},
+            {"name": "Display Full Boundary", "type": "checkbox", "description": "Render the full circle/rectangle on detail view", "default": false},
+            {"name": "Smooth Boundary", "type": "checkbox", "description": "Smooth transitions where the detail crops geometry", "default": true}
+          ]
+        }
+      }
+    },
+    "AUXILIARY_VIEW": {
+      "description": "Projected view normal to a selected non-orthogonal edge or face on the parent view. Used for visualizing inclined features (oblique flanges, mating faces) at true size. Auto-cropping limits the view to a rectangular boundary perpendicular to the auxiliary direction.",
+      "category": "Drawing_View_Auxiliary",
+      "python_api": "Sheet.DrawingViews.AddAuxiliaryView",
+      "parameterCount": 5,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View", "type": "selection", "description": "Source view containing the auxiliary edge", "required": true},
+            {"name": "Auxiliary Edge", "type": "selection", "description": "Edge or face the auxiliary view is normal to", "required": true},
+            {"name": "Scale", "type": "string", "description": "View scale (blank inherits parent)"},
+            {"name": "Label", "type": "string", "description": "Override auto-label"},
+            {"name": "Display Cropped", "type": "checkbox", "description": "Crop view to auxiliary boundary only", "default": true}
+          ]
+        }
+      }
+    },
+    "BREAK_VIEW": {
+      "description": "Break-out for long parts (typically tubular / shaft / profile members). Reduces sheet space by removing a midspan slice; the break style determines visual treatment (Rectangular = simple step lines per ANSI; Structural = jagged lines for steel / extrusions; Curved = sinusoidal for shafts / round stock). Number of Symbols repeats the break visualization for very long parts.",
+      "category": "Drawing_View_Break",
+      "python_api": "Sheet.DrawingViews.AddBreakView",
+      "parameterCount": 6,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "View to apply break to", "required": true},
+            {"name": "Break Style", "type": "dropdown", "options": ["rectangular", "structural", "curved"], "default": "rectangular"},
+            {"name": "Gap", "type": "numeric", "unit": "mm", "description": "Visual gap between break edges", "default": 5},
+            {"name": "Number of Symbols", "type": "numeric", "description": "Repeat count for very long parts", "default": 1, "min": 1},
+            {"name": "Break Direction", "type": "dropdown", "options": ["horizontal", "vertical"], "default": "horizontal"},
+            {"name": "Display Break Lines", "type": "checkbox", "description": "Show the break-line symbols on the view", "default": true}
+          ]
+        }
+      }
+    },
+    "CROP_VIEW": {
+      "description": "Crop an existing view to a sketched boundary. Differs from Detail in that no magnification occurs and no parent/child relation is created — used for trimming oversized views to fit. Cut-Through controls whether geometry behind the crop boundary is fully removed (true) or shown as ghost lines (false).",
+      "category": "Drawing_View_Crop",
+      "python_api": "Sheet.DrawingViews.AddCropView",
+      "parameterCount": 4,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "View to crop", "required": true},
+            {"name": "Crop Boundary Sketch", "type": "selection", "description": "Closed sketch on the view defining the crop boundary", "required": true},
+            {"name": "Crop Mode", "type": "dropdown", "options": ["keep_inside", "keep_outside"], "default": "keep_inside"},
+            {"name": "Cut Through", "type": "checkbox", "description": "Fully remove cropped geometry vs ghost", "default": true}
+          ]
+        }
+      }
+    },
+    "DIMENSION": {
+      "description": "General dimension that auto-classifies type from the selection: Linear (point-to-point distance), Aligned (point-to-line at angle), Angular (between two lines), Radial (radius), Diametric (diameter), Arc Length (along arc curvature), Chamfer (chamfer dimension with angle + length). Tolerance type is the canonical ASME Y14.5 / ISO 14405 set. Inspection Dimension flag wraps the dimension value in an oval per ASME Y14.5 inspection convention.",
+      "category": "Drawing_Dimension_General",
+      "python_api": "Sheet.DrawingDimensions.GeneralDimensions.Add",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["linear", "aligned", "angular", "radial", "diametric", "arc_length", "chamfer"], "default": "linear"},
+            {"name": "Geometry References", "type": "selection", "description": "Edges / points / arcs to dimension (cardinality depends on Type)", "required": true},
+            {"name": "Position", "type": "selection", "description": "Click point for dimension placement"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Precision", "type": "dropdown", "options": ["0", "0.0", "0.00", "0.000", "0.0000", "fractional_1_2", "fractional_1_4", "fractional_1_8", "fractional_1_16", "fractional_1_32", "fractional_1_64"], "default": "0.00"},
+            {"name": "Units", "type": "dropdown", "options": ["mm", "cm", "m", "in", "ft", "deg", "rad", "default"], "default": "default"},
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "symmetric", "deviation", "limits", "basic", "reference", "max", "min"], "default": "none"},
+            {"name": "Tolerance Upper", "type": "numeric", "unit": "mm", "description": "Upper deviation (signed)"},
+            {"name": "Tolerance Lower", "type": "numeric", "unit": "mm", "description": "Lower deviation (signed)"},
+            {"name": "Dual Dimension", "type": "checkbox", "description": "Show alternate-units dual dimension below primary", "default": false},
+            {"name": "Leader Style", "type": "dropdown", "options": ["none", "single_segment", "multi_segment", "spline"], "default": "none", "description": "Optional leader from dimension to feature"},
+            {"name": "Text Override", "type": "string", "description": "Override displayed value (rarely used; breaks driving relationship)"},
+            {"name": "Inspection Dimension", "type": "checkbox", "description": "Wrap value in oval per ASME Y14.5 inspection convention", "default": false}
+          ]
+        }
+      }
+    },
+    "BASELINE_DIMENSION": {
+      "description": "Baseline-dimension set: chained linear dimensions all measured from a single datum. Auto-distributes spacing between dimension lines to avoid overlap. Common on parts with multiple holes / slots referenced from a single edge.",
+      "category": "Drawing_Dimension_Baseline",
+      "python_api": "Sheet.DrawingDimensions.BaselineDimensionSets.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Geometry", "type": "selection", "description": "Set of points / edges to dimension", "required": true},
+            {"name": "Datum Reference", "type": "selection", "description": "Baseline edge / point all dimensions originate from", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["horizontal", "vertical", "aligned"], "default": "horizontal"},
+            {"name": "Auto-Distribute Spacing", "type": "checkbox", "description": "Auto-space dimension lines for legibility", "default": true},
+            {"name": "Text Override", "type": "string", "description": "Override displayed value on selected dimension(s)"}
+          ]
+        }
+      }
+    },
+    "ORDINATE_DIMENSION": {
+      "description": "Ordinate (datum-referenced) dimension set per ASME Y14.5: distance from origin along an axis, displayed as plain text without dimension lines. Used for high-precision parts where many features reference a single 0,0 origin (common on machined plates / panels). Aligned style places text along the leader; With Leader places text remote with leader callout.",
+      "category": "Drawing_Dimension_Ordinate",
+      "python_api": "Sheet.DrawingDimensions.OrdinateDimensionSets.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Origin Reference", "type": "selection", "description": "Origin point (0,0) for the ordinate set", "required": true},
+            {"name": "Geometry Set", "type": "selection", "description": "Points / edges to dimension from origin", "required": true},
+            {"name": "Axis Direction", "type": "dropdown", "options": ["horizontal", "vertical", "both"], "default": "both"},
+            {"name": "Style", "type": "dropdown", "options": ["aligned", "with_leader"], "default": "aligned"},
+            {"name": "Hide Origin Marker", "type": "checkbox", "description": "Suppress the 0,0 marker", "default": false}
+          ]
+        }
+      }
+    },
+    "HOLE_TABLE": {
+      "description": "Tabulated hole locations + sizes referenced to a datum origin. Hole filter selects which feature types appear (Through Holes / Tapped / Counterbored / All). Tag Style controls hole identifier format (A1 / A1-A5 group / numeric); Roll Up Tags merges identical holes into a single row with quantity. Common for machined plates with many bolt holes.",
+      "category": "Drawing_Table_HoleTable",
+      "python_api": "Sheet.HoleTables.Add",
+      "parameterCount": 9,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "View", "type": "selection", "description": "View on which the table operates", "required": true},
+            {"name": "Origin Indicator", "type": "selection", "description": "Datum origin point in view", "required": true}
+          ]
+        },
+        "Filter": {
+          "parameters": [
+            {"name": "Hole Filter", "type": "dropdown", "options": ["all_holes", "drilled_only", "tapped_only", "counterbore_only", "countersink_only", "manual_select"], "default": "all_holes"},
+            {"name": "Group Identical Holes", "type": "checkbox", "description": "Merge same-spec holes into single tag with QTY", "default": true},
+            {"name": "Roll Up Tags", "type": "checkbox", "description": "Sequential tags become A1-A5 ranges", "default": false}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Header Style", "type": "string", "description": "Header row style override (defaults to drawing standard)"},
+            {"name": "Sort By", "type": "dropdown", "options": ["x_then_y", "y_then_x", "hole_type", "tag_alphabetical", "drill_size"], "default": "x_then_y"},
+            {"name": "Tag Style", "type": "dropdown", "options": ["alphabetic", "numeric", "alphanumeric", "custom"], "default": "alphabetic"},
+            {"name": "Tolerance Display", "type": "dropdown", "options": ["nominal", "with_tolerance", "limits"], "default": "nominal"}
+          ]
+        }
+      }
+    },
+    "BEND_TABLE": {
+      "description": "Sheet metal bend table emitted from a flat-pattern view. Lists each bend's identifier + angle + direction + radius for shop-floor brake operation. Callout Style picks identifier convention (A/B/C alphabetic, B1 numeric-first, B-1 hyphenated-numeric). Direction symbols (U/D up/down arrows) signal press-brake direction. Sort by tag alphabetical or by physical ordering on the part.",
+      "category": "Drawing_Table_BendTable",
+      "python_api": "Sheet.BendTables.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Flat Pattern View", "type": "selection", "description": "Sheet metal flat pattern view (must be a flat pattern, not folded)", "required": true}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Callout Style", "type": "dropdown", "options": ["alphabetic", "numeric_b1", "hyphenated_b_1"], "default": "alphabetic"},
+            {"name": "Direction Symbol", "type": "dropdown", "options": ["up_down_text", "arrow_symbols", "plus_minus_signs"], "default": "up_down_text"},
+            {"name": "Sort Order", "type": "dropdown", "options": ["tag_alphabetical", "x_then_y", "bend_sequence"], "default": "tag_alphabetical"},
+            {"name": "Tag Style", "type": "dropdown", "options": ["balloon", "tag_only", "with_circle"], "default": "balloon"},
+            {"name": "Include Bend Notes", "type": "checkbox", "description": "Include free-text notes column", "default": false},
+            {"name": "Show Direction Symbols", "type": "checkbox", "description": "Show up/down direction next to bend angle", "default": true}
+          ]
+        }
+      }
+    },
+    "PARTS_LIST": {
+      "description": "Assembly Bill of Materials table. BOM View selects the structural depth: Structured (full hierarchy with sub-assemblies expanded), Parts Only (flattened to leaf parts), Compact (top-level only with Quantity Per). Item Filter excludes/includes specific BOM categories (Standard Hardware / Inseparable assemblies / etc.). Custom Columns extends the default ITEM/QTY/PART NUMBER/DESCRIPTION with user-defined columns from iProperties.",
+      "category": "Drawing_Table_PartsList",
+      "python_api": "Sheet.PartsLists.Add",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "View Reference", "type": "selection", "description": "Drawing view whose source assembly the BOM is generated from", "required": true},
+            {"name": "BOM View", "type": "dropdown", "options": ["structured", "parts_only", "compact"], "default": "structured"}
+          ]
+        },
+        "Filter": {
+          "parameters": [
+            {"name": "Item Filter", "type": "dropdown", "options": ["all", "include_standard_hardware", "exclude_standard_hardware", "manual_pick"], "default": "all"},
+            {"name": "Group By", "type": "dropdown", "options": ["item", "part_number", "category", "vendor", "custom_property"], "default": "item"}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Column Set", "type": "string", "description": "Comma-separated column names (e.g., 'ITEM,QTY,PART NUMBER,DESCRIPTION,MATERIAL')", "default": "ITEM,QTY,PART NUMBER,DESCRIPTION"},
+            {"name": "Sort", "type": "dropdown", "options": ["item_ascending", "part_number_ascending", "qty_descending", "custom"], "default": "item_ascending"},
+            {"name": "Heading Style", "type": "string", "description": "Heading style override (defaults to drawing standard)"},
+            {"name": "Wrap Text", "type": "checkbox", "description": "Wrap long descriptions to multiple lines", "default": true},
+            {"name": "Numbering Scheme", "type": "dropdown", "options": ["sequential", "by_section", "by_subassembly"], "default": "sequential"},
+            {"name": "Renumber on Edit", "type": "checkbox", "description": "Auto-renumber when items are added/removed", "default": true}
+          ]
+        }
+      }
+    },
+    "NOTE_LEADER": {
+      "description": "Free-text note with optional leader pointing at a feature. Field Reference embeds dynamic values (parameters / iProperties / custom properties) that update with the source — common for tying note text to a parameter so dimension changes propagate to text. Background Mask draws a rectangle behind text to obscure underlying geometry.",
+      "category": "Drawing_Annotation_Note",
+      "python_api": "Sheet.GeneralNotes.Add",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Text", "type": "string", "description": "Note text content", "required": true},
+            {"name": "Attachment Point", "type": "selection", "description": "Position on sheet (or feature for leader)"},
+            {"name": "Multi-Line", "type": "checkbox", "description": "Allow line breaks", "default": false}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Leader Style", "type": "dropdown", "options": ["none", "single_arrow", "multi_segment", "spline", "balloon", "leader_with_text_above"], "default": "single_arrow"},
+            {"name": "Font Override", "type": "string", "description": "Font family override (defaults to drawing standard)"},
+            {"name": "Symbol Library", "type": "dropdown", "options": ["none", "ansi_y14_5", "iso_1101", "asme_y14_36", "custom"], "default": "none", "description": "Insert standard symbols inline"},
+            {"name": "Field Reference", "type": "string", "description": "Field name to embed dynamic value (e.g., '<DIM_VALUE>', '<PARTNUMBER>')"},
+            {"name": "Background Mask", "type": "checkbox", "description": "Draw rectangle behind text to mask geometry", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_TEXTURE": {
+      "description": "Surface texture symbol per ASME Y14.36 (US) or ISO 1302. Symbol Type selects the basic outline (Basic = open V, Material Removal Required = V with bar, Material Removal Prohibited = V with circle, Any Process = V no qualifier). Roughness values (Ra, Rz, Rmax) populate the symbol; sampling length is the cutoff length for measurement. Lay Direction symbol denotes machining direction (parallel ‖, perpendicular ⊥, crossed ✕, multidirectional M, circular C, radial R, particulate P).",
+      "category": "Drawing_Annotation_SurfaceTexture",
+      "python_api": "Sheet.SurfaceTextureSymbols.Add",
+      "parameterCount": 10,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["asme_y14_36", "iso_1302"], "default": "asme_y14_36"},
+            {"name": "Symbol Type", "type": "dropdown", "options": ["basic", "material_removal_required", "material_removal_prohibited", "any_process"], "default": "basic"},
+            {"name": "All Around", "type": "checkbox", "description": "Apply to all surfaces (circle on symbol)", "default": false}
+          ]
+        },
+        "Style": {
+          "parameters": [
+            {"name": "Ra", "type": "string", "description": "Arithmetic average roughness (e.g., '3.2', '63 µin')"},
+            {"name": "Rz", "type": "string", "description": "Mean peak-to-valley roughness"},
+            {"name": "Rmax", "type": "string", "description": "Maximum peak-to-valley roughness"},
+            {"name": "Sampling Length", "type": "string", "description": "Cutoff length for measurement (e.g., '0.8 mm')"},
+            {"name": "Machining Method", "type": "string", "description": "Free-text method (e.g., 'Milled', 'Ground', 'Turned')"},
+            {"name": "Lay Direction", "type": "dropdown", "options": ["none", "parallel", "perpendicular", "crossed", "multidirectional", "circular", "radial", "particulate"], "default": "none"},
+            {"name": "Production Method", "type": "string", "description": "Process specification (e.g., 'AWS C7.4 / Turn')"}
+          ]
+        }
+      }
+    },
+    "GDT_FRAME": {
+      "description": "Geometric tolerance frame per ASME Y14.5 / ISO 1101. Symbol selects from 16 geometric characteristics: form (flatness, straightness, circularity, cylindricity), profile (line, surface), orientation (angularity, perpendicularity, parallelism), location (position, concentricity, symmetry), runout (circular, total). Modifier flags add MMC (Maximum Material Condition) / LMC / RFS / Free State / Tangent Plane. Composite frame supports two-tier tolerance (top tier larger pattern locating, bottom tier tighter feature-relating).",
+      "category": "Drawing_Annotation_GDT",
+      "python_api": "Sheet.FeatureControlFrames.Add",
+      "parameterCount": 12,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["asme_y14_5", "iso_1101"], "default": "asme_y14_5"},
+            {"name": "Symbol", "type": "dropdown", "options": ["flatness", "straightness", "circularity", "cylindricity", "profile_line", "profile_surface", "angularity", "perpendicularity", "parallelism", "position", "concentricity", "symmetry", "runout_circular", "runout_total", "tangent_plane", "free_state"], "required": true},
+            {"name": "Tolerance Value", "type": "string", "description": "Tolerance value (e.g., '0.05', 'Ø0.1')", "required": true},
+            {"name": "Diameter Symbol", "type": "checkbox", "description": "Prepend Ø (cylindrical tolerance zone)", "default": false},
+            {"name": "Modifier", "type": "dropdown", "options": ["none", "m_mmc", "l_lmc", "f_free_state", "p_projected", "t_tangent_plane"], "default": "none"}
+          ]
+        },
+        "Frame": {
+          "parameters": [
+            {"name": "Datum A", "type": "string", "description": "Primary datum reference (e.g., 'A')"},
+            {"name": "Datum B", "type": "string", "description": "Secondary datum reference"},
+            {"name": "Datum C", "type": "string", "description": "Tertiary datum reference"},
+            {"name": "Datum Modifier A", "type": "dropdown", "options": ["none", "m", "l", "f"], "default": "none", "description": "Material-condition modifier on primary datum"},
+            {"name": "Composite Frame Second Tier", "type": "string", "description": "Second-tier tolerance value for composite frames (blank = single-tier)"},
+            {"name": "All Around", "type": "checkbox", "description": "Apply tolerance around full perimeter (circle on leader)", "default": false},
+            {"name": "Between", "type": "string", "description": "Between-points designators for partial-perimeter (e.g., 'A↔B')"}
+          ]
+        }
+      }
+    },
+    "TITLE_BLOCK": {
+      "description": "Title block override on a sheet. Inventor title blocks are reusable sketched symbols stored in the drawing template; this operation overrides specific custom-field values per-sheet (Drawn By, Approval Date, etc.) without forking the template. Custom Field Overrides accepts a JSON dictionary of field-name → value pairs.",
+      "category": "Drawing_Sheet_TitleBlock",
+      "python_api": "Sheet.TitleBlock",
+      "parameterCount": 5,
+      "tabs": {
+        "Sheet": {
+          "parameters": [
+            {"name": "Reference Style", "type": "string", "description": "Title block sketched-symbol name (must exist in template)"},
+            {"name": "Sheet Number", "type": "string", "description": "Sheet number override (e.g., '1 of 3')"},
+            {"name": "Drawn By", "type": "string", "description": "Drafter name override"},
+            {"name": "Approval Date", "type": "string", "description": "Approval / release date override"},
+            {"name": "Custom Field Overrides", "type": "string", "description": "JSON dictionary of additional field overrides (e.g., '{\"Project\":\"FRAME-A\",\"Rev\":\"B\"}')"}
+          ]
+        }
+      }
+    },
+    "REVISION_TABLE": {
+      "description": "Revision history table on a sheet. Tracks per-row revision letter / number, description, ECO reference, date, approver. Auto-Renumber updates revision letters as rows are added (A → B → C ...). Sort Direction controls whether newest revisions appear at top (descending) or bottom (ascending). Number Format selects letters (A/B/C..., skipping I/O/Q/S/X/Z per ASME Y14.35) or numbers (1/2/3...).",
+      "category": "Drawing_Sheet_RevisionTable",
+      "python_api": "Sheet.RevisionTables.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Sheet": {
+          "parameters": [
+            {"name": "Position", "type": "dropdown", "options": ["top_right", "top_left", "above_title_block", "custom"], "default": "top_right"},
+            {"name": "Default Row Count", "type": "numeric", "description": "Pre-populate with N empty rows", "default": 5, "min": 0},
+            {"name": "Sort Direction", "type": "dropdown", "options": ["ascending", "descending"], "default": "descending"},
+            {"name": "Heading Style", "type": "string", "description": "Heading row style override"},
+            {"name": "Number Format", "type": "dropdown", "options": ["letters_asme_y14_35", "letters_no_skips", "numeric_1_2_3"], "default": "letters_asme_y14_35"},
+            {"name": "Auto-Renumber", "type": "checkbox", "description": "Auto-update revision letters/numbers when rows are added", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}
