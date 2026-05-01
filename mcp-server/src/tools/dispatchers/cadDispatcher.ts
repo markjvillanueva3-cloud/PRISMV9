@@ -120,7 +120,7 @@ const ACTIONS = [
   // PIPE-MS2: PrintToGeometryEngine (previously orphaned)
   "blueprint_to_3d_model", "blueprint_to_cadquery_script",
   // CAD-WIRE-MS0: lightweight CAD generation entry points
-  "text_to_cad_parse",
+  "text_to_cad_parse", "freecad_build_script", "blueprint_extract_features",
   // Rhino Grasshopper PRISM Components
   "grasshopper_list_components", "grasshopper_get_component",
   "grasshopper_execute", "grasshopper_registry",
@@ -670,6 +670,31 @@ Params vary by action — pass relevant fields in params object.`,
             if (!text) { result = { success: false, error: "text param required" }; break; }
             const parsed = textToCADGenerationEngine.parseText(text);
             result = { success: true, parsed };
+            break;
+          }
+          case "freecad_build_script": {
+            const { freeCADCodeGeneratorEngine } = await import("../../engines/FreeCADCodeGeneratorEngine.js");
+            const ops = (params as Record<string, unknown>).operations;
+            if (!Array.isArray(ops)) { result = { success: false, error: "operations param required (CADOperation[])" }; break; }
+            try {
+              const ctx = (params as Record<string, unknown>).context as Record<string, unknown> | undefined;
+              const script = freeCADCodeGeneratorEngine.buildScript(ops as Parameters<typeof freeCADCodeGeneratorEngine.buildScript>[0], ctx as Parameters<typeof freeCADCodeGeneratorEngine.buildScript>[1]);
+              result = { success: true, script };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "blueprint_extract_features": {
+            const { blueprintToCADGenerationEngine } = await import("../../engines/BlueprintToCADGenerationEngine.js");
+            const ocr = (params as Record<string, unknown>).ocr;
+            if (!ocr || typeof ocr !== "object") { result = { success: false, error: "ocr param required (BlueprintOCRResult)" }; break; }
+            try {
+              const features = blueprintToCADGenerationEngine.extractFeatures(ocr as Parameters<typeof blueprintToCADGenerationEngine.extractFeatures>[0]);
+              result = { success: true, features };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
             break;
           }
           // ── Rhino Grasshopper PRISM Components ──

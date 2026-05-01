@@ -385,4 +385,20 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   text_to_cad_parse: z.object({
     text: z.string().min(1).describe("Natural-language part description to parse into structured CAD spec"),
   }).passthrough(),
+
+  // Wires FreeCADCodeGeneratorEngine.buildScript (was orphan; 896 LOC).
+  // Takes a CADOperation[] DSL array and emits a FreeCAD Python script.
+  // Operations are passed through opaquely — engine validates capability
+  // support per-operation and throws UnsupportedCapabilityError on misfit.
+  freecad_build_script: z.object({
+    operations: z.array(z.record(z.string(), z.unknown())).describe("Array of CADOperation DSL entries (kind + parameters)"),
+    context: z.record(z.string(), z.unknown()).optional().describe("Optional FreeCADGenerationContext (documentName, exportPath, partDesignMode)"),
+  }).passthrough(),
+
+  // Wires BlueprintToCADGenerationEngine.extractFeatures (was orphan; 674 LOC).
+  // Takes a BlueprintOCRResult (dimensions, views, annotations) and extracts
+  // a structured FeatureSpec[] array. Pure synchronous function.
+  blueprint_extract_features: z.object({
+    ocr: z.record(z.string(), z.unknown()).describe("BlueprintOCRResult — dimensions, views, annotations from OCR pipeline"),
+  }).passthrough(),
 };
