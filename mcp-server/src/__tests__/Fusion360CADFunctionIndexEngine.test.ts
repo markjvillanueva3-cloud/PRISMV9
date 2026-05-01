@@ -999,4 +999,76 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(failures).toEqual([]);
     });
   });
+
+  describe("coverage_summary — Phase 1 COMPLETE markers (U-CAD-FIDX-FUS-COMPLETE)", () => {
+    it("api_surface.coverage_state is exactly 'COMPLETE'", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.coverage_state).toBe("COMPLETE");
+    });
+
+    it("api_surface.phase_1_target_modules equals 6 (matches modules array length)", () => {
+      const idx = Fusion360CADFunctionIndexEngine.getIndex();
+      const apiSurface = idx.coverage_summary.api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.phase_1_target_modules).toBe(6);
+      expect(idx.modules.length).toBe(6);
+    });
+
+    it("api_surface.phase_1_target_modules_remaining is exactly numeric 0", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(0);
+      expect(typeof apiSurface?.phase_1_target_modules_remaining).toBe("number");
+    });
+
+    it("api_surface.phase_1_modules_pending is an empty array", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      const pending = apiSurface?.phase_1_modules_pending;
+      expect(Array.isArray(pending)).toBe(true);
+      expect((pending as readonly unknown[])?.length).toBe(0);
+    });
+
+    it("phase_1 markers persist after clearCache (failure mode: cache invalidation)", () => {
+      Fusion360CADFunctionIndexEngine.clearCache();
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.coverage_state).toBe("COMPLETE");
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(0);
+    });
+
+    it("total_units_covered length equals phase_1_target_modules (failure mode: ledger drift)", () => {
+      const cs = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary;
+      const apiSurface = cs.api_surface as Record<string, unknown> | undefined;
+      expect(cs.total_units_covered.length).toBe(apiSurface?.phase_1_target_modules);
+    });
+
+    it("future_modules empty when phase_1_modules_pending empty (failure mode: dual-ledger drift)", () => {
+      const idx = Fusion360CADFunctionIndexEngine.getIndex();
+      const apiSurface = idx.coverage_summary.api_surface as Record<string, unknown> | undefined;
+      const pending = (apiSurface?.phase_1_modules_pending as readonly unknown[]) ?? [];
+      expect(pending.length).toBe(0);
+      expect((idx.future_modules ?? []).length).toBe(0);
+    });
+
+    it("phase_1_target_modules cannot exceed modules.length (adversarial: over-promise)", () => {
+      const idx = Fusion360CADFunctionIndexEngine.getIndex();
+      const apiSurface = idx.coverage_summary.api_surface as Record<string, unknown> | undefined;
+      const target = apiSurface?.phase_1_target_modules as number;
+      expect(target).toBeLessThanOrEqual(idx.modules.length);
+    });
+
+    it("phase_1_target_modules_remaining is non-negative (adversarial: negative count)", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      const remaining = apiSurface?.phase_1_target_modules_remaining as number;
+      expect(remaining).toBeGreaterThanOrEqual(0);
+    });
+
+    it("coverage_state is one of the allowed states (adversarial: typo state)", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(["COMPLETE", "PARTIAL", "PENDING"]).toContain(apiSurface?.coverage_state);
+    });
+  });
 });
