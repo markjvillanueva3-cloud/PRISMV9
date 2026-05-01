@@ -308,4 +308,11 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   turning_predict_batch_life: z.object({}).passthrough().describe("Batch tool-life prediction input — passthrough until BatchLifeInput surfaced"),
   turning_thread_optimize: z.object({}).passthrough().describe("Thread optimizer input — passthrough until ThreadOptimizeInput surfaced"),
   lathe_classify_part: z.object({}).passthrough().describe("Part-geometry classifier input — passthrough until PartGeometryInput surfaced"),
+  // LATHE-WIRE-MS0/Batch2: safety + planning + sequencing
+  lathe_safety_signals: z.object({}).passthrough().describe("SafetySignalInput for LatheSafetySignalEngine.compute() — chuck/material/FRF/machine context"),
+  lathe_multi_op_plan: z.object({}).passthrough().describe("MultiOpInput for LatheMultiOpPlannerEngine.plan() — multi-op sequence planning"),
+  lathe_sequence_optimize: z.object({
+    operations: z.array(z.unknown()).min(1).describe("SequenceOperation[] — operation list to reorder/optimize"),
+    constraints: z.record(z.string(), z.unknown()).optional().describe("SequenceConstraints — optional ordering/timing constraints"),
+  }).passthrough(),
 };

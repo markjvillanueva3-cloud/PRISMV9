@@ -63,6 +63,8 @@ const ACTIONS = [
   "swiss_part_transfer", "swiss_emit_channel_files",
   // LATHE-WIRE-MS0: lightweight orphan engine wiring (turning analytics)
   "turning_predict_batch_life", "turning_thread_optimize", "lathe_classify_part",
+  // LATHE-WIRE-MS0/Batch2: safety signals + multi-op planning + sequence optimization
+  "lathe_safety_signals", "lathe_multi_op_plan", "lathe_sequence_optimize",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -425,6 +427,40 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { lathePartClassifierEngine } = await import("../../engines/LathePartClassifierEngine.js");
             try {
               result = lathePartClassifierEngine.classify(params as Parameters<typeof lathePartClassifierEngine.classify>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── LATHE-WIRE-MS0/Batch2: safety + planning + sequencing ──
+          case "lathe_safety_signals": {
+            const { latheSafetySignalEngine } = await import("../../engines/LatheSafetySignalEngine.js");
+            try {
+              result = latheSafetySignalEngine.compute(params as Parameters<typeof latheSafetySignalEngine.compute>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_multi_op_plan": {
+            const { latheMultiOpPlannerEngine } = await import("../../engines/LatheMultiOpPlannerEngine.js");
+            try {
+              result = latheMultiOpPlannerEngine.plan(params as Parameters<typeof latheMultiOpPlannerEngine.plan>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_sequence_optimize": {
+            const { latheSequenceOptimizerEngine } = await import("../../engines/LatheSequenceOptimizerEngine.js");
+            const ops = (params as Record<string, unknown>).operations;
+            if (!Array.isArray(ops)) { result = { success: false, error: "operations array required" }; break; }
+            try {
+              const constraints = (params as Record<string, unknown>).constraints;
+              result = latheSequenceOptimizerEngine.optimize(
+                ops as Parameters<typeof latheSequenceOptimizerEngine.optimize>[0],
+                constraints as Parameters<typeof latheSequenceOptimizerEngine.optimize>[1],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
