@@ -1603,6 +1603,8 @@ export const ACTIONS = [
   "cam_inhost_mastercam_register", "cam_inhost_mastercam_plan", "cam_inhost_mastercam_summarize", "cam_inhost_mastercam_stats", "cam_inhost_mastercam_reset",
   // CAM-EXHAUST-MS0 U-CAMTEST05 — Fixture Part Catalog (20 parametric parts driving scenario generators)
   "cam_fixture_part_list", "cam_fixture_part_list_by_category", "cam_fixture_part_list_by_host", "cam_fixture_part_get", "cam_fixture_part_count", "cam_fixture_part_count_by_category", "cam_fixture_part_audit",
+  // CAM-EXHAUST-MS0 U-CAMTEST06 — Stock + Workholding Catalog (100 setups = 20 parts × 5 templates)
+  "cam_stock_setup_list", "cam_stock_setup_list_by_part", "cam_stock_setup_list_by_material", "cam_stock_setup_list_by_form", "cam_stock_setup_get", "cam_stock_setup_count", "cam_stock_setup_count_by_material", "cam_stock_setup_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12465,6 +12467,52 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fixture_part_audit": {
             const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
             result = FixturePartCatalogEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST06: Stock + Workholding Catalog ──
+          case "cam_stock_setup_list": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            result = { setups: StockWorkholdingCatalogEngine.list() };
+            break;
+          }
+          case "cam_stock_setup_list_by_part": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            const partId = params.part_id as string;
+            result = { part_id: partId, setups: StockWorkholdingCatalogEngine.listByPart(partId) };
+            break;
+          }
+          case "cam_stock_setup_list_by_material": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            const slot = params.material_slot as Parameters<typeof StockWorkholdingCatalogEngine.listByMaterial>[0];
+            result = { material_slot: slot, setups: StockWorkholdingCatalogEngine.listByMaterial(slot) };
+            break;
+          }
+          case "cam_stock_setup_list_by_form": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            const form = params.form as Parameters<typeof StockWorkholdingCatalogEngine.listByForm>[0];
+            result = { form, setups: StockWorkholdingCatalogEngine.listByForm(form) };
+            break;
+          }
+          case "cam_stock_setup_get": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            const stockId = params.stock_id as string;
+            result = { stock_id: stockId, setup: StockWorkholdingCatalogEngine.get(stockId) };
+            break;
+          }
+          case "cam_stock_setup_count": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            result = { count: StockWorkholdingCatalogEngine.count(), expected: StockWorkholdingCatalogEngine.EXPECTED_TOTAL };
+            break;
+          }
+          case "cam_stock_setup_count_by_material": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            result = { distribution: StockWorkholdingCatalogEngine.countByMaterial() };
+            break;
+          }
+          case "cam_stock_setup_audit": {
+            const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
+            result = StockWorkholdingCatalogEngine.auditCatalog();
             break;
           }
 

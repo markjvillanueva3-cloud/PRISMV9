@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 123,
+  "completed_units": 124,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -245,7 +245,8 @@
     "U-CAM-ML-07",
     "U-CAM-ENRICH-01",
     "U-CAM-ENRICH-02",
-    "U-CAMTEST05"
+    "U-CAMTEST05",
+    "U-CAMTEST06"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6261,7 +6262,7 @@
       "title": "Stock + Workholding Catalog â€” 5 Setups per Part",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Stock + workholding variants per fixture part: 6061 plate, 1018 CRS, D2 tool-steel, inconel, UHMW. 20 Ã— 5 = 100 stock setups.",
       "entry_conditions": [
         "U-CAMTEST05 complete"
@@ -6273,6 +6274,22 @@
       "deliverables": [
         "src/engines/CAMTestStockCatalogEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/StockWorkholdingCatalogEngine.ts",
+        "src/__tests__/StockWorkholdingCatalogEngine.test.ts",
+        "src/tools/dispatchers/camDispatcher.ts (cam_stock_setup_{list,list_by_part,list_by_material,list_by_form,get,count,count_by_material,audit})"
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 34,
+        "tests_min_30": true,
+        "stock_setups_total": 100,
+        "material_distribution_per_slot": 20,
+        "form_distribution": { "plate": 60, "billet": 40, "bar": 0, "casting": 0, "extrusion": 0 },
+        "templates": 5,
+        "dispatcher_wiring": "wired (cam_stock_setup_* — 8 actions) + 3 round-trip tests"
+      },
+      "completion_note": "100 setups generated deterministically as the cross-product of FixturePartCatalogEngine.list() (20 parts) × 5 stock templates (slots A=6061, B=1018, C=D2 billet, D=Inconel-718 billet, E=UHMW). Engine name shortened to StockWorkholdingCatalogEngine (vs CAMTestStockCatalogEngine in original deliverables) — avoids 'Test' in non-test code. Templates carry per-material margin (4 mm UHMW, 5 mm 6061/1018, 6 mm Inconel, 8 mm D2 for hardening allowance) and matching workholding (smooth steel jaws on alu, serrated on 1018 steel, hardened on D2/Inconel, machinable soft on UHMW). Catalog frozen at module load with duplicate-id + per-part slot-completeness audit. Engine wired to camDispatcher via 8 lazy-imported actions. Tests cover cross-product invariants, envelope derivation arithmetic, workholding mappings, lookup happy/null/throw paths, schema rejection on bad inputs, immutability, and 3 dispatcher round-trip tests including a derived dependency check (stock count = 5 × part count)."
+      ,
       "estimated_tokens": 10000,
       "four_loop": [
         "BUILD",
