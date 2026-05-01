@@ -92,6 +92,21 @@ export interface QuorumResult {
   durationMs: number;
 }
 
+export interface WeightedQuorumResult extends QuorumResult {
+  /**
+   * Decision computed by summing per-provider weights instead of vote
+   * counts. Use this when domain-expert voices should outweigh non-experts
+   * (e.g., kienzle-physicist 1.5x on a Kienzle question). The unweighted
+   * `decision` field is still populated so callers can A/B compare neutral
+   * vs weighted outcomes.
+   */
+  weightedDecision: Decision;
+  weightedReason: string;
+  weightedScores: { PASS: number; CONDITIONAL: number; FAIL: number };
+  /** Resolved weight per provider id. Always populated; missing ids default to 1.0. */
+  weights: Record<string, number>;
+}
+
 export interface ConsensusGateOptions {
   /** Per-provider hard deadline in ms. Default 45_000. */
   perProviderTimeoutMs?: number;
@@ -289,6 +304,82 @@ export class PRISMConsensusGateEngine {
     this.cache.clear();
   }
 
+  /**
+   * Run a quorum vote and additionally tally a weighted decision. `weights`
+   * maps provider id to a non-negative multiplier (1.0 = neutral, 1.5 =
+   * domain-expert boost). Missing entries default to 1.0. The unweighted
+   * `decision` is preserved so callers can compare neutral vs weighted.
+   *
+   * The weighted decision uses majority of summed weights with the SAME
+   * 75% supermajority + FAIL-sticky rules as the unweighted path, applied
+   * to the weighted score totals. If the weighted total has no clear
+   * winner the weighted decision is CONDITIONAL.
+   */
+  async voteWeighted(
+    input: string,
+    providers: QuorumProvider[],
+    weights: Record<string, number>
+  ): Promise<WeightedQuorumResult> {
+    if (!weights || typeof weights !== "object") {
+      throw new Error("weights must be an object");
+    }
+    for (const [id, w] of Object.entries(weights)) {
+      if (typeof w !== "number" || !Number.isFinite(w) || w < 0) {
+        throw new Error(`invalid weight for '${id}': must be a non-negative finite number`);
+      }
+    }
+
+    const base = await this.vote(input, providers);
+    const resolvedWeights: Record<string, number> = {};
+    for (const p of providers) {
+      const w = weights[p.id];
+      resolvedWeights[p.id] = typeof w === "number" ? w : 1.0;
+    }
+
+    const weightedScores = { PASS: 0, CONDITIONAL: 0, FAIL: 0 };
+    let totalValidWeight = 0;
+    for (const r of base.results) {
+      if (!r.valid || !r.verdict) continue;
+      const w = resolvedWeights[r.providerId] ?? 1.0;
+      weightedScores[r.verdict.decision] += w;
+      totalValidWeight += w;
+    }
+
+    let weightedDecision: Decision;
+    let weightedReason: string;
+    if (base.decision === "REFUSED") {
+      weightedDecision = "FAIL";
+      weightedReason = "weighted: gate refused (no cloud provider)";
+    } else if (totalValidWeight === 0) {
+      weightedDecision = "FAIL";
+      weightedReason = "weighted: no valid provider weight";
+    } else {
+      // Weighted decisions intentionally drop the 75% supermajority gate that
+      // governs the unweighted path. The neutral path uses 75% as a safety net
+      // against bare-majority noise; persona weighting's whole purpose is to
+      // let domain expertise CLEANLY resolve those bare majorities. Without
+      // dropping the gate the 1.5x boost gets absorbed by the supermajority
+      // floor and weighted == neutral for every contested case.
+      const winner = pickWinnerScored(weightedScores);
+      if (winner === null) {
+        weightedDecision = "CONDITIONAL";
+        weightedReason = "weighted: split — no clear majority by weight";
+      } else {
+        const winnerScore = weightedScores[winner];
+        weightedDecision = winner;
+        weightedReason = `weighted: majority-${winner.toLowerCase()} (${winnerScore.toFixed(2)}/${totalValidWeight.toFixed(2)})`;
+      }
+    }
+
+    return {
+      ...base,
+      weightedDecision,
+      weightedReason,
+      weightedScores,
+      weights: resolvedWeights,
+    };
+  }
+
   // ─── internals ─────────────────────────────────────────────────
 
   private computeCacheKey(input: string, providers: QuorumProvider[]): string {
@@ -458,6 +549,16 @@ function pickWinner(votes: { PASS: number; CONDITIONAL: number; FAIL: number }):
   entries.sort((a, b) => b[1] - a[1]);
   if (entries[0][1] === 0) return null;
   if (entries[0][1] === entries[1][1]) return null;
+  return entries[0][0];
+}
+
+/** Same shape as pickWinner but treats scores with a small epsilon tolerance. */
+function pickWinnerScored(scores: { PASS: number; CONDITIONAL: number; FAIL: number }): Decision | null {
+  const entries = Object.entries(scores) as [Decision, number][];
+  entries.sort((a, b) => b[1] - a[1]);
+  if (entries[0][1] === 0) return null;
+  // Float-equality within 1e-9 counts as a tie — split-vote.
+  if (Math.abs(entries[0][1] - entries[1][1]) < 1e-9) return null;
   return entries[0][0];
 }
 
