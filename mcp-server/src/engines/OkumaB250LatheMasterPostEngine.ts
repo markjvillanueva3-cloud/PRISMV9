@@ -37,6 +37,7 @@
 
 import { log } from "../utils/Logger.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
+import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -100,6 +101,27 @@ export interface OkumaLathePostOutput {
     limit?: number;
   }>;
   tribal_tips_applied: string[];
+  /**
+   * Per-block S/F annotations (MS0/U-PPGM14, schema 1.1.0).
+   *
+   * One entry per G97 fixed-RPM operation, keyed by an Nxxx label
+   * injected onto the G97 spindle-start line. G96 (CSS) operations are
+   * NOT annotated because CSS dynamically varies RPM as workpiece
+   * diameter changes — there is no fixed S to verify; gate sees an
+   * unlabelled G96 line and skips it (anonymous-block rule).
+   *
+   * Block_ids start at N9000 to avoid collision with the contour
+   * labels (N100/N200) emitted inside G72/G73 canned cycles.
+   *
+   * Note on F verification: lathe feed is per-rev (F0.25 mm/rev) in
+   * G99 mode, while the schema's emitted.F_mmpm is named for mm/min.
+   * The annotation records the equivalent linear feed (F_mmpm =
+   * feed_mm_rev * spindle_rpm) for downstream consumers, but the
+   * label is placed on the G97 line which carries only S — so the
+   * gate verifies S only. Per-rev F verification is tracked as a
+   * separate schema-extension concern.
+   */
+  block_annotations: BlockAnnotation[];
 }
 
 // ============================================================================
@@ -249,6 +271,7 @@ export class OkumaB250LatheMasterPostEngine {
 
     // Process each operation
     let estimatedTime = 0;
+    const blockAnnotations: BlockAnnotation[] = [];
     for (let i = 0; i < operations.length; i++) {
       const op = operations[i];
       toolsUsed.add(op.tool_number);
@@ -303,6 +326,48 @@ export class OkumaB250LatheMasterPostEngine {
           opCode = this.generateCAxisMilling(op, cfg);
           break;
       }
+
+      // U-PPGM14: inject Nxxx label on the first G97 spindle line so the
+      // sidecar gate can verify S vs annotation. Only G97 (fixed RPM) ops
+      // are annotated; G96 (CSS) ops emit dynamic RPM and bypass the gate
+      // (anonymous-block rule). N9000+ block_ids stay clear of contour
+      // labels (N100/N200) used inside G72/G73 canned cycles.
+      if (op.spindle_rpm !== undefined && !cfg.use_css) {
+        const blockId = "N" + (9000 + i * 10);
+        for (let j = 0; j < opCode.length; j++) {
+          const matched = /^G97 S(\d+) M03/.exec(opCode[j]);
+          if (matched) {
+            opCode[j] = `${blockId} ${opCode[j]}`;
+            // Workpiece diameter average drives surface speed
+            const avgDiameterMm = (op.start_x + op.end_x) / 2;
+            const vc_mpm = (Math.PI * avgDiameterMm * op.spindle_rpm) / 1000;
+            blockAnnotations.push({
+              block_id: blockId,
+              op_id: `op_${i + 1}_${op.operation_type}`,
+              iso_group: op.material_iso,
+              tool_material: "carbide",
+              emitted: {
+                vc_mpm: Math.max(vc_mpm, 0.001),
+                fn_mmrev: op.feed_mm_rev,
+                ap_mm: op.depth_of_cut_mm,
+                S_rpm: op.spindle_rpm,
+                F_mmpm: op.feed_mm_rev * op.spindle_rpm,
+              },
+              physics_basis: "kienzle",
+              confidence: 0.85,
+              safety_margin: 0.9,
+              source_constants: [
+                `CANONICAL_KIENZLE.${op.material_iso}`,
+                `CANONICAL_TAYLOR.${op.material_iso}`,
+                `CANONICAL_TURNING_SPEEDS.${op.material_iso}`,
+                `CANONICAL_TURNING_FEEDS.${op.material_iso}`,
+              ],
+            });
+            break;
+          }
+        }
+      }
+
       gcode.push(...opCode);
 
       // Estimate time
@@ -325,7 +390,8 @@ export class OkumaB250LatheMasterPostEngine {
       tools_used: Array.from(toolsUsed).sort((a, b) => a - b),
       warnings,
       physics_checks: physicsChecks,
-      tribal_tips_applied: tribalTipsApplied
+      tribal_tips_applied: tribalTipsApplied,
+      block_annotations: blockAnnotations,
     };
   }
 
