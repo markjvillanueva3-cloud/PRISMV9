@@ -50,8 +50,14 @@ const KNOWN_PART_OPS = [
   "DELETE_FACE", "SPLIT_BODY", "COPY_OBJECT", "MOVE_BODY", "EMBOSS",
 ];
 
+const KNOWN_SURFACE_OPS = [
+  "BOUNDARY_PATCH", "STITCH", "UNSTITCH",
+  "TRIM_SURFACE", "EXTEND_SURFACE", "REPLACE_FACE",
+  "SCULPT", "RULED_SURFACE", "REPAIR_BODIES",
+  "MOVE_FACE", "SILHOUETTE_CURVE", "SURFACE_INTERSECT",
+];
+
 const PLANNED_FUTURE_MODULES = [
-  "surface_operations",
   "sheet_metal_operations",
   "frame_generator_operations",
   "weldment_operations",
@@ -68,13 +74,14 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(2);
+    expect(idx.modules.length).toBe(3);
   });
 
-  it("listModules surfaces both sketch_operations and part_operations", () => {
+  it("listModules surfaces sketch / part / surface in registration order", () => {
     expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
       "sketch_operations",
       "part_operations",
+      "surface_operations",
     ]);
   });
 
@@ -90,20 +97,20 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 6 follow-ups (after INV-02 ship)", () => {
+  it("future_modules registers exactly the planned 5 follow-ups (after INV-03 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
     expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id (03..08)", () => {
+  it("each future_modules entry has scope, params, and a valid INV unit id (04..08)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(6);
+    expect(futureModules.length).toBe(5);
     for (const fm of futureModules) {
       expect(fm.scope.length).toBeGreaterThan(20);
       expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[3-8]$/);
+      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[4-8]$/);
     }
   });
 
@@ -271,8 +278,82 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 53 operations across sketch + part modules", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(53);
+  it("listAllOperations returns 65 operations across sketch + part + surface modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(65);
+  });
+});
+
+describe("InventorCADFunctionIndexEngine — surface_operations module (U-CAD-FIDX-INV-03)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 12 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("surface_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-03");
+    expect(mod?.metadata?.operationCount).toBe(12);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(12);
+  });
+
+  it("listOperations returns exactly KNOWN_SURFACE_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("surface_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_SURFACE_OPS].sort());
+  });
+
+  it("each surface operation carries a Surface_-prefixed category", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("surface_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^Surface_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("getOperation('BOUNDARY_PATCH') exposes G0/G1/G2 continuity options", () => {
+    const bp = InventorCADFunctionIndexEngine.getOperation(
+      "surface_operations",
+      "BOUNDARY_PATCH",
+    );
+    expect(bp?.category).toBe("Surface_Boundary_Patch");
+    const cont = bp?.tabs?.Geometry?.parameters?.find((p) => p.name === "Continuity");
+    expect(cont?.options).toEqual(["g0_position", "g1_tangent", "g2_curvature"]);
+  });
+
+  it("getOperation('STITCH') registers 3 output types", () => {
+    const stitch = InventorCADFunctionIndexEngine.getOperation(
+      "surface_operations",
+      "STITCH",
+    );
+    const outType = stitch?.tabs?.Geometry?.parameters?.find((p) => p.name === "Output Type");
+    expect(outType?.options).toEqual(["quilt", "solid_when_watertight", "solid_force"]);
+  });
+
+  it("getOperation('SCULPT') exposes the surface→solid bridge operation modes", () => {
+    const sculpt = InventorCADFunctionIndexEngine.getOperation("surface_operations", "SCULPT");
+    expect(sculpt?.category).toBe("Surface_Sculpt_Combine");
+    const op = sculpt?.tabs?.Geometry?.parameters?.find((p) => p.name === "Operation");
+    expect(op?.options).toEqual(["add", "subtract", "new_solid"]);
+  });
+
+  it("getOperation('RULED_SURFACE') supports normal / tangent / vector direction modes", () => {
+    const rs = InventorCADFunctionIndexEngine.getOperation(
+      "surface_operations",
+      "RULED_SURFACE",
+    );
+    const dirMode = rs?.tabs?.Geometry?.parameters?.find((p) => p.name === "Direction Mode");
+    expect(dirMode?.options).toEqual(["normal", "tangent", "vector"]);
+  });
+
+  it("surface_operations declares dependency on sketch_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("surface_operations");
+    expect(entry?.dependencies).toEqual(["sketch_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within surface_operations", () => {
+    const trimOps = InventorCADFunctionIndexEngine.getOperationsByCategory(
+      "Surface_Modify_Trim",
+      "surface_operations",
+    );
+    expect(trimOps.length).toBe(1);
+    expect(trimOps[0]?.operation_id).toBe("TRIM_SURFACE");
   });
 });
 
@@ -353,8 +434,8 @@ describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 316 (sketch 138 + part 178)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(316);
+  it("getTotalParameterCount equals 379 (sketch 138 + part 178 + surface 63)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(379);
   });
 
   it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
@@ -381,8 +462,20 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(178);
   });
 
-  it("each per-op declared parameterCount matches actual tab-sum across both modules", () => {
-    for (const moduleId of ["sketch_operations", "part_operations"]) {
+  it("surface_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("surface_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
+      for (const tab of Object.values(op.tabs ?? {})) {
+        actual += (tab.parameters ?? tab.params ?? []).length;
+      }
+    }
+    expect(actual).toBe(63);
+    expect(mod?.metadata?.totalParameters).toBe(63);
+  });
+
+  it("each per-op declared parameterCount matches actual tab-sum across all modules", () => {
+    for (const moduleId of ["sketch_operations", "part_operations", "surface_operations"]) {
       const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
       for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
         const declared = op.parameterCount;
@@ -407,6 +500,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(idx.coverage_summary.total_units_covered).toEqual([
       "U-CAD-FIDX-INV-01",
       "U-CAD-FIDX-INV-02",
+      "U-CAD-FIDX-INV-03",
     ]);
   });
 
@@ -423,6 +517,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     const part = InventorCADFunctionIndexEngine.getModule("part_operations");
     expect(Object.keys(part?.operations ?? {}).length).toBe(25);
     expect(part?.metadata?.operationCount).toBe(25);
+
+    const surface = InventorCADFunctionIndexEngine.getModule("surface_operations");
+    expect(Object.keys(surface?.operations ?? {}).length).toBe(12);
+    expect(surface?.metadata?.operationCount).toBe(12);
   });
 });
 

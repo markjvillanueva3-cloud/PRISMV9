@@ -21,6 +21,14 @@
       "parameter_count_estimate": 178,
       "description": "3D solid features (Part environment): 6 sweep features (Extrude / Revolve / Sweep / Loft / Coil / Rib), Hole + Thread (5 head types × 4 termination types × 8 thread standards), 4 modify features (Fillet / Chamfer / Shell / Draft), Combine boolean (Join/Cut/Intersect), 5 pattern families (Rectangular / Circular / Mirror / Sketch-Driven / Path), Derive Component, Thicken-Offset, and 6 direct-edit/utility features (Delete Face / Split Body / Copy Object / Move Body / Emboss). All bindings reference real Inventor COM API (ComponentDefinition.Features.*).",
       "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/inventor/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-03"],
+      "parameter_count_estimate": 63,
+      "description": "Surface modeling environment (thinner than hyperCAD-S — Inventor's surface tools are oriented around closure, repair, and surface→solid conversion rather than primary modeling). 12 operations: Boundary Patch (G0/G1/G2 continuity), Stitch / Unstitch, Trim Surface, Extend Surface, Replace Face, Sculpt (surface→solid bridge), Ruled Surface (3 direction modes), Repair Bodies (heal/diagnose), Move Face (direct edit), Silhouette Curve, Surface Intersect.",
+      "dependencies": ["sketch_operations"]
     }
   ],
   "global_cross_references": {
@@ -43,15 +51,14 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 2,
-    "total_units_covered": ["U-CAD-FIDX-INV-01", "U-CAD-FIDX-INV-02"],
-    "estimated_parameter_total": 316,
+    "total_modules": 3,
+    "total_units_covered": ["U-CAD-FIDX-INV-01", "U-CAD-FIDX-INV-02", "U-CAD-FIDX-INV-03"],
+    "estimated_parameter_total": 379,
     "api_surface": {
       "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 6,
+      "phase_1_target_modules_remaining": 5,
       "phase_1_modules_pending": [
-        "surface_operations",
         "sheet_metal_operations",
         "frame_generator_operations",
         "weldment_operations",
@@ -77,12 +84,6 @@
     "vault": false
   },
   "future_modules": [
-    {
-      "planned_id": "surface_operations",
-      "scope": "Surface modeling: Boundary Patch, Stitch, Trim, Extend, Replace Face, Delete Face, Sculpt, Thicken/Offset, Ruled Surface. Inventor's surface workflow is thinner than hyperCAD-S since most CAD work stays solid.",
-      "estimated_params": 75,
-      "deferred_to": "U-CAD-FIDX-INV-03"
-    },
     {
       "planned_id": "sheet_metal_operations",
       "scope": "Sheet metal (Inventor strength — no Fusion / hyperCAD parity): Face, Contour Flange, Contour Roll, Lofted Flange, Cut, Corner Seam, Bend, Fold, Hem, Punch (iFeature), Rip, Unfold/Refold, Flat Pattern. Driven by Sheet Metal Defaults / Style + per-face thickness rule.",
