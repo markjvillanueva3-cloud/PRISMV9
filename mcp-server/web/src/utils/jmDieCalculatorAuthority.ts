@@ -14,7 +14,7 @@ export type JMDieHolderCatalogAuthorityStage =
   | 'failure'
   | 'hybrid';
 
-const CANONICAL_JM_DIE_HOLDER_IDS: Record<MachineMode, string[]> = {
+export const CANONICAL_JM_DIE_HOLDER_IDS: Record<MachineMode, string[]> = {
   mill: ['th-jmd-big-er32-4nl', 'th-jmd-big-er16-3nl'],
   lathe: ['th-jmd-vdi30-turning-baseline', 'th-jmd-regofix-capto-c6-pg25'],
   edm: ['th-jmd-system3r-er32'],

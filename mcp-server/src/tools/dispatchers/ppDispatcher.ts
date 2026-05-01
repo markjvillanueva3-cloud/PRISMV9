@@ -1611,6 +1611,11 @@ const ACTIONS = [
   "pp_label_batch",              // PP-LABEL: Batch label programs in directory
   "pp_label_stats",              // PP-LABEL: Get labeling statistics
   "pp_label_export",             // PP-LABEL: Export training data (csv/jsonl/parquet-ready)
+
+  // ===== PP_MACHINE_FAMILY: Machine-specific master-post engines (U-MEP-WIRE01) =====
+  // These actions are ALSO reachable through their machine-family dispatcher
+  // (e.g. prism_turning, prism_edm) per the multi-endpoint wiring directive.
+  "pp_okuma_b250_lathe_program", // OkumaB250LatheMasterPostEngine — also prism_turning:lathe_okuma_b250_program
 ] as const;
 
 // ============================================================================
@@ -6225,6 +6230,16 @@ Actions: ${ACTIONS.join(", ")}.`,
             const format = params.format || "jsonl";
             const exported = engine.exportTrainingData(labelsPath, format);
             result = { exported, format };
+            break;
+          }
+
+          // ===== PP_MACHINE_FAMILY: Machine-specific master-post engines =====
+          // Same engine reachable via prism_turning for machinist-facing workflows.
+          case "pp_okuma_b250_lathe_program": {
+            const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
+            const operations = params.operations ?? [];
+            const config = params.config ?? params;
+            result = okumaB250LatheMasterPostEngine.generateProgram(operations, config);
             break;
           }
 

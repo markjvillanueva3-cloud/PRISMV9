@@ -157,6 +157,167 @@ export interface WireEdmTaperResult {
   max_capable_deg: number;
 }
 
+export interface WireEdmKerfWidthResult {
+  kerf_width_mm: number;
+  overcut_mm: number;
+  wire_offset_mm: number;
+  uncertainty_mm: number;
+  estimated_Ra_um: number;
+  recast_layer_um: number;
+  tolerance_class: 'IT6' | 'IT7' | 'IT8' | 'IT9' | 'IT10' | 'IT11' | 'IT12';
+  warning?: string;
+}
+
+export interface WireEdmRecastDepthResult {
+  risk_level: 'none' | 'low' | 'moderate' | 'high' | 'critical';
+  estimated_depth_um: number;
+  heat_affected_zone_um: number;
+  microcrack_probability_pct: number;
+  fatigue_life_reduction_pct: number;
+  contributing_factors: Array<{ factor: string; contribution_pct: number; description: string }>;
+  recommendations: string[];
+  safe_for_fatigue_critical: boolean;
+}
+
+export interface WireEdmCostPerUnitLengthResult {
+  /** Total cut path length in millimeters */
+  cut_length_mm: number;
+  /** Cost per millimeter of cut path (USD/mm) */
+  cost_per_mm_usd: number;
+  /** Cost per inch of cut path (USD/in) */
+  cost_per_in_usd: number;
+  /** Time per millimeter of cut (min/mm) */
+  time_per_mm_min: number;
+  /** Time per inch of cut (min/in) */
+  time_per_in_min: number;
+  /** Optional per-quantity unit-normalized pricing table */
+  quantity_breaks?: Array<{
+    quantity: number;
+    unit_cost_usd: number;
+    unit_cost_per_mm_usd: number;
+    unit_cost_per_in_usd: number;
+  }>;
+}
+
+export interface WireEdmSlugTabRetentionResult {
+  risk_level: 'safe' | 'marginal' | 'at_risk' | 'unsafe';
+  safety_factor: number;
+  slug_weight_kg: number;
+  slug_weight_force_N: number;
+  retention_force_N: number;
+  demand_force_N: number;
+  tab_cross_section_mm2: number;
+  shear_strength_MPa: number;
+  dynamic_factor: number;
+  summary: string;
+  recommendations: string[];
+  safe_for_uncontrolled_drop: boolean;
+}
+
+/**
+ * Per-factor contribution to total wire-break risk multiplier.
+ * `multiplier` is the raw factor (1.0 = no effect, >1 = increases risk).
+ * `contribution_pct` is log-space normalized share of excess risk
+ * (see WEDMWireBreakRiskCostEngine.calculateGauge docs).
+ */
+export interface WireEdmWireBreakFactorContribution {
+  name: string;
+  multiplier: number;
+  contribution_pct: number;
+}
+
+/**
+ * Wire EDM taper programming error budget.
+ * Backed by WEDMTaperErrorBudgetEngine (U-P2PFS42).
+ */
+export interface WireEdmTaperErrorSource {
+  name: string;
+  contribution_um: number;
+  description: string;
+}
+
+export interface WireEdmTaperErrorBudgetResult {
+  uv_travel_mm: number;
+  total_error_um: number;
+  error_sources: WireEdmTaperErrorSource[];
+  achievable_tolerance_class:
+    | 'IT6'
+    | 'IT7'
+    | 'IT8'
+    | 'IT9'
+    | 'IT10'
+    | 'IT11'
+    | 'IT12'
+    | 'out_of_spec';
+  max_practical_taper_deg: number;
+  exceeds_guide_limit: boolean;
+  warnings: string[];
+  recommendations: string[];
+}
+
+/**
+ * Wire spool consumption projection + mid-job change flag.
+ * Backed by WEDMWireSpoolConsumptionEngine (U-P2PFS41).
+ */
+export interface WireEdmWireSpoolConsumptionResult {
+  spool_capacity_m: number;
+  wire_remaining_m: number;
+  total_wire_m: number;
+  spools_required: number;
+  spool_changes_required: number;
+  /** Cumulative wire-consumption values at which each mid-job change occurs. */
+  change_points_m: number[];
+  wire_remaining_after_job_m: number;
+  per_change_time_min: number;
+  total_change_time_min: number;
+  total_change_cost_usd: number;
+  mid_job_change_risk: 'none' | 'single_change' | 'multiple_changes' | 'high_exposure';
+  warnings: string[];
+  recommendations: string[];
+}
+
+/**
+ * Dielectric conductivity → flush-pressure adjustment result.
+ * Backed by WEDMDielectricFlushAdjustEngine (U-P2PFS40).
+ */
+export interface WireEdmDielectricFlushAdjustResult {
+  baseline_flush_pressure_bar: number;
+  adjusted_flush_pressure_bar: number;
+  conductivity_factor: number;
+  temperature_factor: number;
+  thick_section_factor: number;
+  total_factor: number;
+  conductivity_status: 'optimal' | 'acceptable' | 'degraded' | 'out_of_spec';
+  resin_exchange_urgency: 'none' | 'recommended' | 'required';
+  warnings: string[];
+  recommendations: string[];
+}
+
+/**
+ * Gauge-oriented wire-break risk projection for UI rendering.
+ * Adds Poisson-derived per-job probability and quantitative factor
+ * breakdown vs. the coarser WireEdmWireBreakRisk text-list shape.
+ */
+export interface WireEdmWireBreakGaugeResult {
+  /** Poisson P(≥1 break per job) = 1 − e^(−λ), λ = expected_breaks_per_job. Range [0,1]. */
+  probability_per_job: number;
+  /** Point estimate per meter of cut (breaks/m). */
+  probability_per_meter: number;
+  /** Expected number of breaks across the full cut. */
+  expected_breaks_per_job: number;
+  risk_category: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  /** Quantitative per-factor contribution (stable order: density, tension, thickness, thin walls, sharp corners). */
+  factor_contributions: WireEdmWireBreakFactorContribution[];
+  cost_per_break_usd: number;
+  total_break_risk_cost_usd: number;
+  re_thread_time_min: number;
+  historical_comparison: {
+    material_avg_breaks_per_km: number;
+    this_job_vs_avg: string;
+  };
+  recommendations: string[];
+}
+
 export interface WireEdmCalcResult {
   first_cut_speed_mm_min: number;
   skim_speeds: number[];

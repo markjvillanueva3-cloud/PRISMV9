@@ -86,7 +86,7 @@ export class IntentClassifierEngine {
      * @param context Optional context for disambiguation
      * @returns Full intent classification with AI reasoning metadata
      */
-    classify(intent, context) {
+    classify(intent: any, context: any) {
         const normalized = this.normalizeIntent(intent);
         const categoryResult = this.detectCategoryWithScores(normalized);
         const category = categoryResult.category;
@@ -119,7 +119,7 @@ export class IntentClassifierEngine {
      * Quick classification for high-volume use cases.
      * Returns minimal routing information.
      */
-    quickClassify(intent) {
+    quickClassify(intent: any) {
         const normalized = this.normalizeIntent(intent);
         const category = this.detectCategory(normalized);
         const entities = this.extractEntities(intent);
@@ -137,7 +137,7 @@ export class IntentClassifierEngine {
     /**
      * Normalize intent for consistent processing.
      */
-    normalizeIntent(intent) {
+    normalizeIntent(intent: any) {
         return intent
             .toLowerCase()
             .replace(/[^\w\s\d./%-]/g, " ") // Remove special chars except common ones
@@ -149,14 +149,14 @@ export class IntentClassifierEngine {
      * Detect the intent category from text patterns.
      * Returns both the category and full scores for ambiguity detection.
      */
-    detectCategory(normalized) {
+    detectCategory(normalized: any) {
         const result = this.detectCategoryWithScores(normalized);
         return result.category;
     }
     /**
      * Detect category with full scoring details for AI reasoning.
      */
-    detectCategoryWithScores(normalized) {
+    detectCategoryWithScores(normalized: any) {
         const scores = {
             query: 0,
             calculate: 0,
@@ -203,7 +203,7 @@ export class IntentClassifierEngine {
     /**
      * Extract domain entities from intent text.
      */
-    extractEntities(intent) {
+    extractEntities(intent: any) {
         const entities = [];
         for (const [type, pattern] of Object.entries(ENTITY_PATTERNS)) {
             // Reset regex lastIndex
@@ -225,7 +225,7 @@ export class IntentClassifierEngine {
     /**
      * Detect manufacturing domains from normalized intent and entities.
      */
-    detectDomains(normalized, entities) {
+    detectDomains(normalized: any, entities: any) {
         const domains = new Set();
         // Entity-based domain detection
         for (const entity of entities) {
@@ -270,7 +270,7 @@ export class IntentClassifierEngine {
     /**
      * Assess task complexity from intent, domains, and entities.
      */
-    assessComplexity(normalized, domains, entities) {
+    assessComplexity(normalized: any, domains: any, entities: any) {
         // Critical indicators
         if (/critical|safety|collision|crash|emergency|breakage/.test(normalized)) {
             return "critical";
@@ -303,7 +303,7 @@ export class IntentClassifierEngine {
     /**
      * Determine the PUOA execution tier.
      */
-    determineTier(normalized, domains, complexity, category) {
+    determineTier(normalized: any, domains: any, complexity: any, category: any) {
         // Critical always goes to full_chain
         if (complexity === "critical") {
             return "full_chain";
@@ -342,7 +342,7 @@ export class IntentClassifierEngine {
     /**
      * Recommend orchestrators based on domains and category.
      */
-    recommendOrchestrators(domains, category, complexity) {
+    recommendOrchestrators(domains: any, category: any, complexity: any) {
         const recommendations = [];
         const DOMAIN_ORCHESTRATORS = {
             materials: { id: "materials-orchestrator", name: "Materials Analysis Orchestrator" },
@@ -386,7 +386,7 @@ export class IntentClassifierEngine {
     /**
      * Suggest authority sources based on category and domains.
      */
-    suggestAuthoritySources(category, domains) {
+    suggestAuthoritySources(category: any, domains: any) {
         const sources = [];
         // Category-based suggestions
         switch (category) {
@@ -421,7 +421,7 @@ export class IntentClassifierEngine {
     /**
      * Calculate classification confidence.
      */
-    calculateConfidence(category, domains, entities) {
+    calculateConfidence(category: any, domains: any, entities: any) {
         let confidence = 0.5; // Base confidence
         // Category clarity boost
         if (category !== "unknown") {
@@ -442,7 +442,7 @@ export class IntentClassifierEngine {
     /**
      * Build human-readable reasoning for classification.
      */
-    buildReasoning(tier, domains, complexity, category, confidence) {
+    buildReasoning(tier: any, domains: any, complexity: any, category: any, confidence: any) {
         const parts = [];
         parts.push(`Category: ${category}`);
         parts.push(`Domains: [${domains.join(", ")}]`);
@@ -455,7 +455,7 @@ export class IntentClassifierEngine {
     /**
      * Build comprehensive AI reasoning metadata for decision transparency.
      */
-    buildAIReasoning(normalized, categoryResult, tier, domains, complexity, confidence) {
+    buildAIReasoning(normalized: any, categoryResult: any, tier: any, domains: any, complexity: any, confidence: any) {
         const { category, scores, ambiguity } = categoryResult;
         // Build decision trace
         const decisionTrace = [
@@ -493,7 +493,7 @@ export class IntentClassifierEngine {
         // Build alternate interpretations for ambiguous cases
         const alternates = [];
         if (ambiguity.detected) {
-            for (const altCategory of ambiguity.tied_categories.filter(c => c !== category)) {
+            for (const altCategory of ambiguity.tied_categories.filter((c: any) => c !== category)) {
                 const altTier = this.determineTier(normalized, domains, complexity, altCategory);
                 alternates.push({
                     category: altCategory,
@@ -539,7 +539,7 @@ export class IntentClassifierEngine {
     /**
      * Build counterfactual reasoning: what would change the tier.
      */
-    buildCounterfactual(tier, domains, complexity) {
+    buildCounterfactual(tier: any, domains: any, complexity: any) {
         switch (tier) {
             case "single_dispatcher":
                 if (domains.length === 1) {
@@ -565,7 +565,7 @@ export class IntentClassifierEngine {
      * Get TaskAgentClassifier result and enhance with PUOA routing.
      * Bridges existing classification system with PUOA.
      */
-    classifyWithAgentRecommendations(dispatcher, action, params) {
+    classifyWithAgentRecommendations(dispatcher: any, action: any, params: any) {
         const agentClassification = classifyTask(dispatcher, action, params);
         const intent = `${dispatcher}:${action}`;
         const puoaClassification = this.classify(intent, params);

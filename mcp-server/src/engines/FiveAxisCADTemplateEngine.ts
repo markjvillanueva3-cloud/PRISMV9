@@ -1448,8 +1448,10 @@ export class FiveAxisCADTemplateEngine {
     return {
       name: "D2 Tool Steel",
       iso_group: "H",
-      hardness_hrc: 58,
-      kc1_1: 3200,
+      density_kg_m3: 7700,
+      thermal_conductivity_w_mk: 20.5,
+      specific_heat_j_kgk: 460,
+      kc11_mpa: 3200,
       mc: 0.25,
     };
   }

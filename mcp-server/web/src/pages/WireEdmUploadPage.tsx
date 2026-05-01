@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   wireEdmOcr,
   wireEdmParseGeometry,
@@ -27,6 +28,7 @@ function encodeToBase64(value: string) {
 }
 
 export function WireEdmUploadPage() {
+  const navigate = useNavigate();
   const [fileName, setFileName] = useState('wire-edm-input.txt');
   const [sourceText, setSourceText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -135,6 +137,14 @@ export function WireEdmUploadPage() {
           <ActionButton onClick={() => void runMode('geometry')} disabled={loading || !sourceText.trim()} tone="emerald">
             {loading && lastMode === 'geometry' ? 'Parsing...' : 'Parse geometry'}
           </ActionButton>
+          {result && lastMode === 'geometry' && (
+            <ActionButton
+              onClick={() => navigate('/wire-edm/wizard', { state: { geometry: result, fileName } })}
+              tone="cyan"
+            >
+              Continue to Wizard →
+            </ActionButton>
+          )}
           <StatusPill label={loading ? 'Working' : 'Ready'} tone={loading ? 'amber' : 'emerald'} />
         </div>
 

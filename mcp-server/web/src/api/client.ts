@@ -197,6 +197,34 @@ export async function wireEdmOcr(params: Record<string, unknown>): Promise<Recor
   });
 }
 
+/** U-P2PFS31: Search tribal knowledge filtered by material/operation */
+export interface TribalTip {
+  id: string;
+  title: string;
+  body: string;
+  category?: string;
+  source?: string;
+  confidence?: number;
+  material_groups?: string[];
+  operation_types?: string[];
+}
+
+export async function tribalSearch(params: {
+  query?: string;
+  material?: string;
+  operation?: string;
+  category?: string;
+  limit?: number;
+}): Promise<{ tips: TribalTip[] }> {
+  const result = await fetchJson<{ ok?: boolean; tips?: TribalTip[]; results?: TribalTip[] }>(`${API_BASE}/learning/tribal`, {
+    method: 'POST',
+    headers: getRequestHeaders(),
+    body: JSON.stringify(params),
+    fallbackMessage: 'Tribal knowledge search failed',
+  });
+  return { tips: result.tips ?? result.results ?? [] };
+}
+
 // === Milling Endpoints ===
 
 export interface MillingWizardSubmitResponse {
@@ -1792,6 +1820,120 @@ export async function realtimeEmit(params: {
 
 export async function realtimeStats(): Promise<PrismResponse> {
   return request('GET', '/realtime/stats');
+}
+
+// === Wire EDM Live Status (U-P2PFS32) ===
+
+export interface WedmSafetyEnvelopeStatus {
+  score: number; // 0-1, S(x) safety score
+  level: 'safe' | 'warning' | 'critical';
+  factors: Array<{
+    name: string;
+    value: number;
+    threshold: number;
+    status: 'ok' | 'warn' | 'fail';
+  }>;
+  last_updated: string;
+  violations?: string[];
+}
+
+export async function wedmSafetyEnvelope(params?: { machine_id?: string }): Promise<DataResponse<WedmSafetyEnvelopeStatus>> {
+  return requestData('POST', '/wedm-live/safety-envelope', params ?? {});
+}
+
+export interface WedmAutonomyStatus {
+  level: 0 | 1 | 2 | 3 | 4 | 5; // L0 (manual) to L5 (full autonomy)
+  level_label: string;
+  confidence: number;
+  can_promote: boolean;
+  promote_blocked_by?: string[];
+  active_rules: string[];
+  last_handoff?: string;
+}
+
+export async function wedmAutonomyStatus(params?: { machine_id?: string }): Promise<DataResponse<WedmAutonomyStatus>> {
+  return requestData('POST', '/wedm-live/autonomy', params ?? {});
+}
+
+// === Wire EDM RUL + Maintenance (U-P2PFS33) ===
+
+export interface WedmRulStatus {
+  wire_spool: {
+    remaining_pct: number;
+    remaining_meters: number;
+    estimated_cuts_remaining: number;
+  };
+  upper_guide: {
+    rul_pct: number;
+    hours_remaining: number;
+    condition: 'good' | 'fair' | 'worn' | 'replace';
+  };
+  lower_guide: {
+    rul_pct: number;
+    hours_remaining: number;
+    condition: 'good' | 'fair' | 'worn' | 'replace';
+  };
+  power_feed: {
+    rul_pct: number;
+    cycles_remaining: number;
+  };
+  last_updated: string;
+}
+
+export async function wedmRulStatus(params?: { machine_id?: string }): Promise<DataResponse<WedmRulStatus>> {
+  return requestData('POST', '/wedm-live/rul', params ?? {});
+}
+
+export interface WedmMaintenanceItem {
+  id: string;
+  component: string;
+  type: 'scheduled' | 'predictive' | 'overdue';
+  due_date: string;
+  due_hours?: number;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  estimated_downtime_min?: number;
+}
+
+export interface WedmMaintenanceStatus {
+  items: WedmMaintenanceItem[];
+  next_scheduled: string | null;
+  overdue_count: number;
+}
+
+export async function wedmMaintenanceStatus(params?: { machine_id?: string }): Promise<DataResponse<WedmMaintenanceStatus>> {
+  return requestData('POST', '/wedm-live/maintenance', params ?? {});
+}
+
+// === Wire EDM Controller Code Preview (U-P2PFS34) ===
+
+export interface WedmCodePreviewParams {
+  material: string;
+  thickness_mm: number;
+  cutting_speed_mm_min?: number;
+  peak_current_A?: number;
+  pulse_on_us?: number;
+  pulse_off_us?: number;
+  wire_tension_N?: number;
+  servo_voltage_V?: number;
+  passes?: Array<{ type: string; offset_mm: number }>;
+}
+
+export interface WedmCodePreviewResult {
+  program: string;
+  controller: 'mitsubishi' | 'fanuc' | 'agie' | 'sodick';
+  line_count: number;
+  estimated_time_min: number;
+  registers: {
+    E: number;
+    C: number;
+    T: number;
+    H: number;
+  };
+}
+
+export async function wedmCodePreview(params: WedmCodePreviewParams): Promise<DataResponse<WedmCodePreviewResult>> {
+  return requestData('POST', '/edm/code-preview', params);
 }
 
 // === Auto-Forge ===

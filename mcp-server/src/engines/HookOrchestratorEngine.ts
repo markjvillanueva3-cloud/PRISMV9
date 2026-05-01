@@ -88,6 +88,28 @@ export class HookOrchestratorEngine {
   }
 
   /**
+   * Return hooks registered for the given event/phase, ordered deterministically.
+   */
+  getHooksForEvent(phase: string): HookDefinition[] {
+    const hooks = this.list().filter((h) => (h.phase as string) === phase);
+    return [...hooks].sort((a, b) => {
+      const pa = Number(a.priority ?? 0);
+      const pb = Number(b.priority ?? 0);
+      if (pa !== pb) return pa - pb;
+      return a.id.localeCompare(b.id);
+    });
+  }
+
+  /**
+   * Check if a hook is enabled (supports feature-flag semantics; default: registered = enabled).
+   */
+  isHookEnabled(hookId: string): boolean {
+    const def = this.registry.get(hookId);
+    if (!def) return false;
+    return (def as { enabled?: boolean }).enabled !== false;
+  }
+
+  /**
    * Build an execution plan for the given phase. Throws on dependency cycles
    * or unsatisfied dependsOn. Returns diagnostics for soft issues (mutex
    * co-scheduling is reported here and again at run-time).

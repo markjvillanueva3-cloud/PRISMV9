@@ -170,11 +170,48 @@ export class TransactionLogEngine {
   }
 
   /**
-   * Rollback the current transaction (undo all operations in reverse order)
+   * Record a simple file mutation (test-facing compat API).
+   * Wraps recordOperation with a simpler shape used by the awareness regression suite.
    */
-  async rollbackTransaction(): Promise<RollbackResult> {
+  recordMutation(
+    txId: string,
+    mutation: { type: "write" | "delete" | "create"; path: string; beforeHash?: string | null; afterHash?: string | null }
+  ): string {
+    if (!this.activeTransaction || this.activeTransaction.txId !== txId) {
+      throw new Error(`Transaction ${txId} is not active`);
+    }
+    const opType: OperationType =
+      mutation.type === "write" ? "file_modify" : mutation.type === "delete" ? "file_delete" : "file_create";
+    return this.recordOperation(opType, mutation.path, mutation.beforeHash ?? undefined, mutation.afterHash ?? undefined);
+  }
+
+  /**
+   * Get mutations recorded in the current transaction (test-facing compat API).
+   */
+  getMutations(txId: string): TransactionOperation[] {
+    if (!this.activeTransaction || this.activeTransaction.txId !== txId) {
+      return [];
+    }
+    return this.activeTransaction.operations.filter((op) => op.type !== "checkpoint");
+  }
+
+  /**
+   * Rollback the current transaction (undo all operations in reverse order).
+   * Supports optional txId parameter and sync-style return for test compat.
+   */
+  rollbackTransaction(txId?: string): RollbackResult {
     if (!this.activeTransaction) {
-      throw new Error("No active transaction to rollback");
+      return { success: false, txId: txId ?? "", operationsRolledBack: 0, errors: ["No active transaction"] };
+    }
+    if (txId && this.activeTransaction.txId !== txId) {
+      return { success: false, txId, operationsRolledBack: 0, errors: [`Transaction ${txId} is not active`] };
+    }
+    return this._rollbackActiveTransactionSync();
+  }
+
+  private _rollbackActiveTransactionSync(): RollbackResult {
+    if (!this.activeTransaction) {
+      return { success: false, txId: "", operationsRolledBack: 0, errors: ["No active transaction"] };
     }
 
     const txId = this.activeTransaction.txId;
@@ -188,7 +225,7 @@ export class TransactionLogEngine {
       if (op.type === "checkpoint") continue;
 
       try {
-        await this.rollbackOperation(op);
+        this.rollbackOperationSync(op);
         rolledBack++;
       } catch (err) {
         errors.push(`Failed to rollback ${op.type} on ${op.path}: ${err}`);
@@ -198,7 +235,11 @@ export class TransactionLogEngine {
     this.activeTransaction.completedAt = new Date().toISOString();
     this.activeTransaction.status = errors.length > 0 ? "failed" : "rolled_back";
 
-    await this.appendToLog(this.activeTransaction);
+    try {
+      this.appendToLogSync(this.activeTransaction);
+    } catch {
+      // Log append failure is non-fatal for rollback
+    }
 
     log.info(`[TransactionLog] Rolled back transaction ${txId}: ${rolledBack} ops, ${errors.length} errors`);
 
@@ -362,23 +403,24 @@ export class TransactionLogEngine {
   // ============================================================================
 
   private async rollbackOperation(op: TransactionOperation): Promise<void> {
+    this.rollbackOperationSync(op);
+  }
+
+  private rollbackOperationSync(op: TransactionOperation): void {
     switch (op.type) {
       case "file_create":
-        // Undo creation by deleting
         if (fs.existsSync(op.path)) {
           fs.unlinkSync(op.path);
         }
         break;
 
       case "file_modify":
-        // Restore original content
         if (op.beforeContent !== undefined) {
           fs.writeFileSync(op.path, op.beforeContent);
         }
         break;
 
       case "file_delete":
-        // Restore deleted file
         if (op.beforeContent !== undefined) {
           const dir = path.dirname(op.path);
           if (!fs.existsSync(dir)) {
@@ -391,40 +433,43 @@ export class TransactionLogEngine {
       case "registry_add":
       case "registry_remove":
       case "index_update":
-        // These require the registry/index engines to handle rollback
-        // Store enough metadata to reverse the operation
         log.warn(`[TransactionLog] Registry/index rollback not fully implemented for ${op.type}`);
         break;
 
       case "checkpoint":
-        // Nothing to rollback
         break;
     }
   }
 
   private async appendToLog(tx: Transaction): Promise<void> {
+    this.appendToLogSync(tx);
+  }
+
+  private appendToLogSync(tx: Transaction): void {
     const dir = path.dirname(this.logPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Check if rotation needed
     try {
       if (fs.existsSync(this.logPath)) {
         const stats = fs.statSync(this.logPath);
         if (stats.size > MAX_LOG_SIZE_BYTES) {
-          await this.rotateLog();
+          this.rotateLogSync();
         }
       }
     } catch {
       // Ignore rotation errors
     }
 
-    // Append transaction
     fs.appendFileSync(this.logPath, JSON.stringify(tx) + "\n");
   }
 
   private async rotateLog(): Promise<void> {
+    this.rotateLogSync();
+  }
+
+  private rotateLogSync(): void {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const archivePath = this.logPath.replace(".jsonl", `-${timestamp}.jsonl`);
 

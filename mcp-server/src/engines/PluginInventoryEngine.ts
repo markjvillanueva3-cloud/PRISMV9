@@ -126,6 +126,20 @@ export class PluginInventoryEngine {
     this.plugins.clear();
   }
 
+  /**
+   * Load inventory from PLUGIN_INVENTORY.json produced by
+   * `scripts/build-plugin-inventory.ts`. Idempotent. Returns count loaded.
+   */
+  loadFromInventoryFile(filePath: string): number {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { readFileSync } = require("node:fs");
+    const raw = readFileSync(filePath, "utf8");
+    const doc = JSON.parse(raw) as { entries?: PluginEntry[] };
+    const entries = doc.entries ?? [];
+    this.registerAll(entries);
+    return entries.length;
+  }
+
   private validateBase(entry: { id?: string; name?: string; kind?: PluginKind }): void {
     if (!entry.id || entry.id.trim() === "") throw new Error("PluginEntry.id required");
     if (!entry.name || entry.name.trim() === "") throw new Error("PluginEntry.name required");

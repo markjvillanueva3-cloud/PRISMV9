@@ -327,6 +327,10 @@ export function ProgramReleasePage() {
   const [fixtureId, setFixtureId] = useState('');
   const [stockId, setStockId] = useState('');
   const [cadSourceId, setCadSourceId] = useState('');
+  const [chuckJawConfig, setChuckJawConfig] = useState<'soft' | 'hard' | 'collet' | 'custom'>('soft');
+  const [tailstockQuill, setTailstockQuill] = useState<'extended' | 'retracted' | 'not_used'>('not_used');
+  const [barPullEnabled, setBarPullEnabled] = useState(false);
+  const [liveToolState, setLiveToolState] = useState<'active' | 'inactive' | 'not_equipped'>('not_equipped');
   const [droppedArtifacts, setDroppedArtifacts] = useState<DroppedArtifact[]>([]);
   const [stagedFiles, setStagedFiles] = useState<File[]>([]);
   const [livePacketArtifacts, setLivePacketArtifacts] = useState<LivePacketArtifact[]>([]);
@@ -1210,6 +1214,42 @@ export function ProgramReleasePage() {
                 </Select>
               </Field>
             </div>
+
+            {programmingMode === 'lathe' && (
+              <div className="mt-5 rounded-[22px] border border-amber-300/14 bg-amber-300/[0.05] px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100 mb-3">Lathe setup parameters</div>
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <Field label="Chuck jaw config">
+                    <Select aria-label="Chuck jaw config" value={chuckJawConfig} onChange={(event) => setChuckJawConfig(event.target.value as typeof chuckJawConfig)}>
+                      <option value="soft">Soft jaws</option>
+                      <option value="hard">Hard jaws</option>
+                      <option value="collet">Collet</option>
+                      <option value="custom">Custom fixture</option>
+                    </Select>
+                  </Field>
+                  <Field label="Tailstock quill">
+                    <Select aria-label="Tailstock quill" value={tailstockQuill} onChange={(event) => setTailstockQuill(event.target.value as typeof tailstockQuill)}>
+                      <option value="not_used">Not used</option>
+                      <option value="extended">Extended (live center)</option>
+                      <option value="retracted">Retracted</option>
+                    </Select>
+                  </Field>
+                  <Field label="Bar pull">
+                    <Select aria-label="Bar pull" value={barPullEnabled ? 'enabled' : 'disabled'} onChange={(event) => setBarPullEnabled(event.target.value === 'enabled')}>
+                      <option value="disabled">Disabled</option>
+                      <option value="enabled">Enabled (bar feeder)</option>
+                    </Select>
+                  </Field>
+                  <Field label="Live tooling">
+                    <Select aria-label="Live tooling" value={liveToolState} onChange={(event) => setLiveToolState(event.target.value as typeof liveToolState)}>
+                      <option value="not_equipped">Not equipped</option>
+                      <option value="inactive">Equipped - inactive</option>
+                      <option value="active">Active (milling/drilling)</option>
+                    </Select>
+                  </Field>
+                </div>
+              </div>
+            )}
 
             {selectorAuthority ? (
               <div className="mt-5 rounded-[22px] border border-emerald-300/14 bg-emerald-300/[0.05] px-4 py-4 text-sm leading-6 text-slate-300">

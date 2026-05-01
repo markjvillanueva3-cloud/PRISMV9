@@ -54,7 +54,7 @@ const SAFETY_CRITICAL_FIELDS = new Set([
 export class AuthorityRankingEngine {
     ranks;
     config;
-    constructor(config) {
+    constructor(config?: any) {
         this.config = config || {};
         this.ranks = {
             ...DEFAULT_AUTHORITY_RANKS,
@@ -65,20 +65,20 @@ export class AuthorityRankingEngine {
     /**
      * Get the rank for an authority source.
      */
-    getRank(source) {
+    getRank(source: any) {
         return this.ranks[source] ?? 0;
     }
     /**
      * Compare two authority sources.
      * Returns positive if a > b, negative if a < b, zero if equal.
      */
-    compare(a, b) {
+    compare(a: any, b: any) {
         return this.ranks[a] - this.ranks[b];
     }
     /**
      * Check if source A has higher authority than source B.
      */
-    hasHigherAuthority(a, b) {
+    hasHigherAuthority(a: any, b: any) {
         return this.ranks[a] > this.ranks[b];
     }
     /**
@@ -86,7 +86,7 @@ export class AuthorityRankingEngine {
      */
     getSortedSources() {
         return Object.entries(this.ranks)
-            .sort(([, a], [, b]) => b - a)
+            .sort(([, a], [, b]) => (b as number) - (a as number))
             .map(([source]) => source);
     }
     /**
@@ -106,7 +106,7 @@ export class AuthorityRankingEngine {
      * 4. Equal rank: higher confidence wins
      * 5. Equal confidence: most recent wins
      */
-    resolve(claims, field) {
+    resolve(claims: any, field: any) {
         if (claims.length === 0) {
             throw new Error("Cannot resolve with no claims");
         }
@@ -123,7 +123,7 @@ export class AuthorityRankingEngine {
         }
         // Filter by minimum confidence
         const minConf = this.config.min_confidence || 0;
-        const validClaims = claims.filter(c => c.confidence >= minConf);
+        const validClaims = claims.filter((c: any) => c.confidence >= minConf);
         if (validClaims.length === 0) {
             // Fall back to highest confidence regardless of threshold
             validClaims.push(...claims);
@@ -181,12 +181,12 @@ export class AuthorityRankingEngine {
         const loserClaims = sorted.slice(1);
         const secondBest = loserClaims[0];
         // Calculate weighted scores for all claims
-        const weightedScores = validClaims.map(c => ({
+        const weightedScores = validClaims.map((c: any) => ({
             source: c.source,
             raw_rank: this.ranks[c.source],
             confidence: c.confidence,
             effective_score: this.ranks[c.source] * (0.5 + 0.5 * c.confidence),
-        })).sort((a, b) => b.effective_score - a.effective_score);
+        })).sort((a: any, b: any) => b.effective_score - a.effective_score);
         // Check if weighted scoring changes the outcome
         const weightedWinner = weightedScores[0];
         const useWeighted = weightedWinner.source !== winner.source;
@@ -210,12 +210,12 @@ export class AuthorityRankingEngine {
     /**
      * Resolve multiple conflicts at once.
      */
-    resolveBulk(conflicts) {
+    resolveBulk(conflicts: any) {
         const resolutions = [];
         let resolvedByRank = 0;
         let resolvedByConfidence = 0;
         let safetyOverrides = 0;
-        const sourcesUsed = new Set();
+        const sourcesUsed = new Set<string>();
         for (const conflict of conflicts) {
             const resolution = this.resolve(conflict.claims, conflict.field);
             const isSafetyCritical = SAFETY_CRITICAL_FIELDS.has(conflict.field);
@@ -255,7 +255,7 @@ export class AuthorityRankingEngine {
     /**
      * Validate that a source has sufficient authority for an action.
      */
-    validateAuthority(source, requiredMinimum) {
+    validateAuthority(source: any, requiredMinimum: any) {
         const sourceRank = this.ranks[source];
         const requiredRank = this.ranks[requiredMinimum];
         if (sourceRank >= requiredRank) {
@@ -272,7 +272,7 @@ export class AuthorityRankingEngine {
     /**
      * Check if a source can modify safety-critical fields.
      */
-    canModifySafety(source) {
+    canModifySafety(source: any) {
         // Only canonical, physics, and oem can modify safety fields without override
         const safetyAuthorities = ["canonical", "physics", "oem"];
         return safetyAuthorities.includes(source);
@@ -281,7 +281,7 @@ export class AuthorityRankingEngine {
     /**
      * Create an authority claim.
      */
-    createClaim(source, value, confidence, options) {
+    createClaim(source: any, value: any, confidence: any, options: any) {
         return {
             source,
             value,
@@ -294,7 +294,7 @@ export class AuthorityRankingEngine {
     /**
      * Create a user override claim (highest authority).
      */
-    createUserClaim(value, reason) {
+    createUserClaim(value: any, reason: any) {
         return this.createClaim("user", value, 1.0, {
             provenance: reason || "User explicit override",
         });
@@ -302,7 +302,7 @@ export class AuthorityRankingEngine {
     /**
      * Create a proven parameters claim.
      */
-    createProvenClaim(value, confidence, machineId, programId) {
+    createProvenClaim(value: any, confidence: any, machineId: any, programId: any) {
         return this.createClaim("proven", value, confidence, {
             provenance: `Proven on machine ${machineId || "unknown"}, program ${programId || "unknown"}`,
             metadata: { machine_id: machineId, program_id: programId },
@@ -311,7 +311,7 @@ export class AuthorityRankingEngine {
     /**
      * Create a physics calculation claim.
      */
-    createPhysicsClaim(value, confidence, formula, source) {
+    createPhysicsClaim(value: any, confidence: any, formula: any, source: any) {
         return this.createClaim("physics", value, confidence, {
             provenance: `Calculated via ${formula}${source ? ` (${source})` : ""}`,
             metadata: { formula, calculation_source: source },
@@ -321,7 +321,7 @@ export class AuthorityRankingEngine {
     /**
      * Update authority ranks.
      */
-    setRanks(ranks) {
+    setRanks(ranks: any) {
         this.ranks = { ...this.ranks, ...ranks };
     }
     /**
@@ -339,7 +339,7 @@ export class AuthorityRankingEngine {
     /**
      * Update configuration.
      */
-    setConfig(config) {
+    setConfig(config: any) {
         this.config = { ...this.config, ...config };
         if (config.rank_overrides) {
             this.ranks = { ...DEFAULT_AUTHORITY_RANKS, ...config.rank_overrides };
@@ -349,7 +349,7 @@ export class AuthorityRankingEngine {
     /**
      * Build human-readable explanation for resolution.
      */
-    buildExplanation(winner, secondBest, method) {
+    buildExplanation(winner: any, secondBest: any, method: any) {
         if (!secondBest) {
             return `${winner.source} is the only claim`;
         }
@@ -371,7 +371,7 @@ export class AuthorityRankingEngine {
     /**
      * Check if a field is safety-critical.
      */
-    isSafetyCritical(field) {
+    isSafetyCritical(field: any) {
         return SAFETY_CRITICAL_FIELDS.has(field);
     }
     /**
@@ -384,7 +384,7 @@ export class AuthorityRankingEngine {
     /**
      * Build AI reasoning for standard multi-claim resolution.
      */
-    buildAIReasoning(claims, winner, loserClaims, weightedScores) {
+    buildAIReasoning(claims: any, winner: any, loserClaims: any, weightedScores: any) {
         // Detect consensus: multiple sources agreeing on same value
         const consensus = this.detectConsensus(claims);
         // Near-tie warning
@@ -395,9 +395,9 @@ export class AuthorityRankingEngine {
         const counterfactual = this.buildCounterfactual(winner, loserClaims);
         // Decision trace
         const decisionTrace = [
-            `Received ${claims.length} claims from: ${claims.map(c => c.source).join(", ")}`,
-            `Applied rank ordering: ${claims.map(c => `${c.source}(${this.ranks[c.source]})`).join(" > ")}`,
-            `Calculated weighted scores: ${weightedScores.slice(0, 3).map(w => `${w.source}=${w.effective_score.toFixed(2)}`).join(", ")}`,
+            `Received ${claims.length} claims from: ${claims.map((c: any) => c.source).join(", ")}`,
+            `Applied rank ordering: ${claims.map((c: any) => `${c.source}(${this.ranks[c.source]})`).join(" > ")}`,
+            `Calculated weighted scores: ${weightedScores.slice(0, 3).map((w: any) => `${w.source}=${w.effective_score.toFixed(2)}`).join(", ")}`,
             `Winner: ${winner.source} with effective score ${weightedScores[0]?.effective_score.toFixed(2)}`,
         ];
         return {
@@ -412,7 +412,7 @@ export class AuthorityRankingEngine {
     /**
      * Build AI reasoning for single claim (no conflict).
      */
-    buildSingleClaimReasoning(claim) {
+    buildSingleClaimReasoning(claim: any) {
         return {
             weighted_scores: [{
                     source: claim.source,
@@ -430,7 +430,7 @@ export class AuthorityRankingEngine {
     /**
      * Build AI reasoning for locked source resolution.
      */
-    buildLockedReasoning(winner, losers) {
+    buildLockedReasoning(winner: any, losers: any) {
         return {
             weighted_scores: [winner, ...losers].map(c => ({
                 source: c.source,
@@ -440,7 +440,7 @@ export class AuthorityRankingEngine {
             })),
             near_tie_warning: null,
             full_loser_analysis: losers.length > 0
-                ? `Overridden by lock: ${losers.map(l => `${l.source}(rank ${this.ranks[l.source]})`).join(", ")}`
+                ? `Overridden by lock: ${losers.map((l: any) => `${l.source}(rank ${this.ranks[l.source]})`).join(", ")}`
                 : "No competing claims",
             consensus: null,
             counterfactual: "Locked source cannot be overridden regardless of rank or confidence",
@@ -453,9 +453,9 @@ export class AuthorityRankingEngine {
     /**
      * Build AI reasoning for safety override.
      */
-    buildSafetyOverrideReasoning(winner, userClaim, losers, field) {
+    buildSafetyOverrideReasoning(winner: any, userClaim: any, losers: any, field: any) {
         return {
-            weighted_scores: [winner, userClaim, ...losers.filter(l => l !== userClaim)].map(c => ({
+            weighted_scores: [winner, userClaim, ...losers.filter((l: any) => l !== userClaim)].map(c => ({
                 source: c.source,
                 raw_rank: this.ranks[c.source],
                 confidence: c.confidence,
@@ -476,7 +476,7 @@ export class AuthorityRankingEngine {
     /**
      * Detect consensus among claims (3+ sources agreeing).
      */
-    detectConsensus(claims) {
+    detectConsensus(claims: any) {
         if (claims.length < 3)
             return null;
         // Group claims by value (using JSON for comparison)
@@ -503,7 +503,7 @@ export class AuthorityRankingEngine {
     /**
      * Detect near-tie situations.
      */
-    detectNearTie(winner, losers) {
+    detectNearTie(winner: any, losers: any) {
         if (losers.length === 0)
             return null;
         const secondBest = losers[0];
@@ -520,16 +520,16 @@ export class AuthorityRankingEngine {
     /**
      * Build full analysis of all losing claims.
      */
-    buildFullLoserAnalysis(losers) {
+    buildFullLoserAnalysis(losers: any) {
         if (losers.length === 0)
             return "No competing claims";
-        const analyses = losers.map(l => `${l.source}: rank ${this.ranks[l.source]}, conf ${(l.confidence * 100).toFixed(0)}%, value=${JSON.stringify(l.value)}`);
+        const analyses = losers.map((l: any) => `${l.source}: rank ${this.ranks[l.source]}, conf ${(l.confidence * 100).toFixed(0)}%, value=${JSON.stringify(l.value)}`);
         return `${losers.length} claim(s) overridden: ${analyses.join("; ")}`;
     }
     /**
      * Build counterfactual reasoning.
      */
-    buildCounterfactual(winner, losers) {
+    buildCounterfactual(winner: any, losers: any) {
         if (losers.length === 0)
             return "No alternatives; single source accepted";
         const secondBest = losers[0];
@@ -544,4 +544,3 @@ export class AuthorityRankingEngine {
     }
 }
 export const authorityRankingEngine = new AuthorityRankingEngine();
-//# sourceMappingURL=AuthorityRankingEngine.js.map

@@ -675,8 +675,30 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     const startTime = Date.now();
 
     // 1. Resolve material from canonical database
-    const material = resolveMaterial(input.material);
-    const isoGroup = material.iso_group;
+    const materialEntry = resolveMaterial(input.material);
+    if (!materialEntry) {
+      throw new Error(`Unknown material: ${input.material}`);
+    }
+    const isoGroup = materialEntry.iso_group;
+    // Promote MaterialEntry → MaterialPhysics (downstream engines need kc1_1/mc)
+    const kienzle = CANONICAL_KIENZLE[isoGroup];
+    const material: MaterialPhysics = {
+      iso_group: isoGroup,
+      kc1_1: kienzle.kc1_1,
+      mc: kienzle.mc,
+      taylor_C: materialEntry.taylor_C,
+      taylor_n: materialEntry.taylor_n,
+      density_kg_m3: materialEntry.density_kg_m3,
+      thermal_conductivity_W_mK: materialEntry.thermal_conductivity_W_mK,
+      specific_heat_J_kgK: materialEntry.specific_heat_J_kgK,
+      hardness_HRC: materialEntry.hardness_HRC,
+      tensile_strength_MPa: materialEntry.tensile_strength_MPa,
+      name: materialEntry.name,
+      // Backward-compat aliases for orchestrator engines
+      k_thermal: materialEntry.thermal_conductivity_W_mK,
+      cp_J_kgK: materialEntry.specific_heat_J_kgK,
+      melting_point_C: materialEntry.melting_point_C,
+    };
 
     log.info(`[${this.name}] Analyzing ${input.operation} of ${material.name}`);
     log.debug(`[${this.name}] Vc=${input.parameters.cutting_speed_m_min} m/min, f=${input.parameters.feed_mm_rev} mm/rev, ap=${input.parameters.depth_of_cut_mm} mm`);
@@ -815,7 +837,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     // phi = 45 - beta/2 + alpha/2
     // where beta = friction angle, alpha = effective rake
     const alpha_eff = this.calculateEffectiveRake(tool);
-    const mu = 0.35 + 0.1 * (1 - material.machinability_factor); // Friction coefficient estimate
+    const mu = 0.35 + 0.1 * (1 - (material.machinability_factor ?? 1.0)); // Friction coefficient estimate
     const beta = Math.atan(mu); // Friction angle
     const phi = (Math.PI / 4) - (beta / 2) + (alpha_eff / 2); // Merchant equation
 
@@ -964,10 +986,10 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     const { parameters, tool, coolant } = input;
     const { cutting_speed_m_min: Vc, feed_mm_rev: f, depth_of_cut_mm: ap } = parameters;
 
-    // Material thermal properties
-    const k = material.k_thermal; // Thermal conductivity [W/(m·K)]
-    const rho = material.density_kg_m3; // Density [kg/m³]
-    const cp = material.cp_J_kgK; // Specific heat [J/(kg·K)]
+    // Material thermal properties (canonical defaults if missing — steel)
+    const k = material.k_thermal ?? material.thermal_conductivity_W_mK ?? 50; // [W/(m·K)]
+    const rho = material.density_kg_m3 ?? 7800; // [kg/m³]
+    const cp = material.cp_J_kgK ?? material.specific_heat_J_kgK ?? 500; // [J/(kg·K)]
     const alpha_thermal = (k * 1e6) / (rho * cp); // Thermal diffusivity [mm²/s]
 
     // Cutting power for heat generation
@@ -1135,7 +1157,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
       case "H":
         return WHITE_LAYER_THRESHOLDS.hardened_steel?.threshold_C ?? 700;
       case "S":
-        if (material.name.toLowerCase().includes("titanium")) {
+        if ((material.name ?? "").toLowerCase().includes("titanium")) {
           return WHITE_LAYER_THRESHOLDS.titanium?.threshold_C ?? 750;
         }
         return WHITE_LAYER_THRESHOLDS.nickel_alloy?.threshold_C ?? 800;
@@ -1485,7 +1507,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     const L_D_ratio = partLength / D;
 
     // Part stiffness (solid cylinder, simply supported at both ends)
-    const E_part = material.E_GPa * 1000; // [MPa]
+    const E_part = (material.E_GPa ?? (material.elastic_modulus_MPa ?? 210000) / 1000) * 1000; // [MPa]
     const I_part = (Math.PI * Math.pow(D, 4)) / 64; // [mm⁴]
 
     let partDeflectionMm = 0;
@@ -1659,7 +1681,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
 
     // Check for segmented chip (high strain rate, low thermal conductivity)
     const strainRate = forces.shear_plane.strain_rate;
-    if (strainRate > 1e5 && material.k_thermal < 20) {
+    if (strainRate > 1e5 && (material.k_thermal ?? material.thermal_conductivity_W_mK ?? 50) < 20) {
       chipType = "segmented";
     }
 
@@ -1800,8 +1822,9 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
 
     // Hardness profile (simplified)
     const hardeningDepth = affectedDepth * 0.5;
-    const surfaceHardness = material.hardness_HB * (1 + thermal.workpiece_surface_temp_C.value / 2000);
-    const bulkHardness = material.hardness_HB;
+    const baseHB = material.hardness_HB ?? 200;
+    const surfaceHardness = baseHB * (1 + thermal.workpiece_surface_temp_C.value / 2000);
+    const bulkHardness = baseHB;
 
     const hardenessProfile = [
       { depth_um: 0, hardness_HV: surfaceHardness * 1.05 },
@@ -1888,19 +1911,20 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     // Residual stress analysis
     // Mechanical contribution (compressive) dominates at low speeds/temps
     // Thermal contribution (tensile) dominates at high speeds/temps
-    const mechanicalContribution = -material.sigma_y_MPa * 0.3; // Compressive
-    const thermalContribution = material.sigma_y_MPa * (T_surface / 1000); // Tensile
+    const sigmaY = material.sigma_y_MPa ?? material.yield_strength_MPa ?? 250;
+    const mechanicalContribution = -sigmaY * 0.3; // Compressive
+    const thermalContribution = sigmaY * (T_surface / 1000); // Tensile
 
     const netStress = mechanicalContribution + thermalContribution;
     const stressType: "tensile" | "compressive" | "mixed" =
-      Math.abs(netStress) < material.sigma_y_MPa * 0.05 ? "mixed" :
+      Math.abs(netStress) < sigmaY * 0.05 ? "mixed" :
         netStress > 0 ? "tensile" : "compressive";
 
     // Residual stress depth (empirical)
     const stressDepth = 50 + T_surface / 10; // [µm]
 
     // Work hardening analysis
-    const strainAtSurface = flowStress.flow_stress_MPa.value / material.sigma_y_MPa - 1;
+    const strainAtSurface = flowStress.flow_stress_MPa.value / (material.sigma_y_MPa ?? material.yield_strength_MPa ?? 250) - 1;
     const workHardeningDepth = 20 + strainAtSurface * 50; // [µm]
     const hardnessIncrease = Math.min(strainAtSurface * 15, 30); // [%]
 
@@ -1916,7 +1940,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
         phaseTransform = T_surface > phaseThreshold * 0.9;
         break;
       case "S":
-        if (material.name.toLowerCase().includes("titanium")) {
+        if ((material.name ?? "").toLowerCase().includes("titanium")) {
           phaseThreshold = 882; // Alpha-beta transition
           phaseType = "Alpha-beta titanium transformation";
           phaseTransform = T_surface > phaseThreshold * 0.85;
@@ -1942,7 +1966,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
       // Depth increases with time at temperature (roughly: depth ~ sqrt(Dt))
       const overshoot = T_surface - whiteLayerThreshold;
       whiteLayerDepth = 2 + overshoot * 0.05; // [µm]
-      whiteLayerHardness = material.hardness_HB * 1.4 + overshoot * 0.5; // [HV]
+      whiteLayerHardness = (material.hardness_HB ?? 200) * 1.4 + overshoot * 0.5; // [HV]
     }
 
     // Grain refinement (severe plastic deformation at surface)
@@ -2095,7 +2119,7 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     }
 
     // Material-specific oxidation
-    if (material.iso_group === "S" && material.name.toLowerCase().includes("titanium")) {
+    if (material.iso_group === "S" && (material.name ?? "").toLowerCase().includes("titanium")) {
       if (T_surface > 500) {
         oxidationRisk = "high";
         oxideType = "TiO2 + oxygen diffusion layer (alpha-case)";
@@ -2476,9 +2500,12 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
     chipArea_mm2: number
   ): { shear_zone_temp_C: number; interface_temp_C: number; source: string } {
     const mat = resolveMaterial(material);
-    const k = mat.k_thermal;
+    if (!mat) {
+      throw new Error(`Unknown material: ${material}`);
+    }
+    const k = mat.thermal_conductivity_W_mK;
     const rho = mat.density_kg_m3;
-    const cp = mat.cp_J_kgK;
+    const cp = mat.specific_heat_J_kgK;
 
     const P_W = Fc * Vc / 60;
     const m_dot = rho * chipArea_mm2 * 1e-6 * Vc / 60;

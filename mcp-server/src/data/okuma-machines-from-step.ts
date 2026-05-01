@@ -28,7 +28,7 @@ export interface OkumaMachineEntry {
     type: "direct_drive" | "belt_driven" | "built_in" | "gear_head";
     max_rpm: number;
     power_kw: number;
-    taper: "BT40" | "BT50" | "CAT40" | "CAT50" | "HSK63" | "HSK100" | "BBT40" | "BBT50";
+    taper: "BT30" | "BT40" | "BT50" | "CAT40" | "CAT50" | "HSK63" | "HSK100" | "BBT30" | "BBT40" | "BBT50";
   };
 
   // Tool magazine

@@ -173,7 +173,7 @@ import {
   calculatorCopy,
   type CalculatorLanguage,
 } from '../utils/calculatorI18n';
-import { isJMDieCanonicalHolderPackage } from '../utils/jmDieCalculatorAuthority';
+import { isJMDieCanonicalHolderPackage, CANONICAL_JM_DIE_HOLDER_IDS } from '../utils/jmDieCalculatorAuthority';
 import { buildJMDieCalculatorRouteAuthority } from '../utils/jmDieCalculatorRouteAuthority';
 import { buildJMDieCalculatorPostWorkflowState } from '../utils/jmDieCalculatorPostWorkflowState';
 import { buildWorkflowPath } from '../utils/workflowRouteContext';
@@ -1977,7 +1977,7 @@ function defaultHolderPackageForMachine(
   const profile = deriveMachineToolingCapability(machine);
   const toolId = tool?.id;
   if (!profile) {
-    if (machineMode === 'lathe') return 'th-jmd-vdi30-turning-baseline';
+    if (machineMode === 'lathe') return CANONICAL_JM_DIE_HOLDER_IDS.lathe[0] ?? '';
     if (machineMode === 'mill') {
       if (toolId === 'face-mill') return 'sandvik-shell-arbor';
       if (toolId === 'finisher') return 'haimer-shrink-mill';
@@ -2013,7 +2013,7 @@ function defaultHolderPackageForMachine(
     if (profile.hasMillingHead) return 'okuma-capto-c6-milling-head';
     if (profile.turretCount >= 2) return 'nakamura-vdi30-twin';
     if (['vdi30', 'vdi40', 'vdi50', 'vdi60', 'vdi80'].includes(profile.turretTypeId)) {
-      return 'th-jmd-vdi30-turning-baseline';
+      return CANONICAL_JM_DIE_HOLDER_IDS.lathe[0] ?? 'sandvik-vdi-turn';
     }
     if (profile.turretTypeId === 'capto-c6') return 'okuma-capto-c6-turn';
     if (profile.turretTypeId === 'turret-standard') return 'generic-vtl-turn';

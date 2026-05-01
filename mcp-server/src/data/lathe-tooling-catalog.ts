@@ -72,7 +72,7 @@ export interface LatheTurningHolder {
 export interface GroovingPartingHolder {
   designation: string;
   manufacturer: string;
-  system: "capto" | "sl570" | "shank" | "qchange";
+  system: "capto" | "sl570" | "shank" | "qchange" | "boring_bar";
   mountingSize: string;
   hand: "L" | "R" | "N";
   /** Blade/insert width mm */

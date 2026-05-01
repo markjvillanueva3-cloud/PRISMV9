@@ -13,7 +13,7 @@
 
 import { vendorTurningCatalogExtractorEngine, type VendorTurningCatalog, type TurningInsertRecord, type TurningGradeRecord, classifyChipbreaker } from "../engines/VendorTurningCatalogExtractorEngine.js";
 import { TUNGALOY_TURNING_INSERTS, TUNGALOY_TURNING_GRADES, TUNGALOY_TURNING_CONDITIONS, TUNGALOY_THREADING_INSERTS, TUNGALOY_GROOVING_INSERTS } from "./tungaloy-turning-catalog.js";
-import { WIDIA_TURNING_INSERTS, WIDIA_SPEED_FEED } from "./widia-2022-turning-catalog.js";
+import { WIDIA_TURNING_INSERTS, WIDIA_SPEED_FEED_DATA as WIDIA_SPEED_FEED, type WidiaSpeedFeed } from "./widia-2022-turning-catalog.js";
 import { log } from "../utils/Logger.js";
 
 // ISO shape code mapping
@@ -285,7 +285,7 @@ export function loadVendorTurningCatalogs(): void {
     inserts: widiaInserts,
     holders: [],
     grades: widiaGrades,
-    cutting_data: (WIDIA_SPEED_FEED || []).map(sf => ({
+    cutting_data: (WIDIA_SPEED_FEED || []).map((sf: WidiaSpeedFeed) => ({
       grade: sf.grade,
       iso_group: sf.material_group[0] || "P",
       material_description: sf.material_description,

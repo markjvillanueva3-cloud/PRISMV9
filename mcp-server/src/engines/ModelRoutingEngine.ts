@@ -505,6 +505,67 @@ export class ModelRoutingEngine {
       error: msg,
     };
   }
+
+  getBackendStatus(hardware: HardwareProfile): {
+    ollama: { available: boolean; models: string[] };
+    anthropic: { available: boolean; models: string[] };
+    openai: { available: boolean; models: string[] };
+  } {
+    const ollamaModels = this.catalog
+      .filter((m) => m.backend === "ollama" && m.runsOn.includes(hardware))
+      .map((m) => m.id);
+    const anthropicModels = this.catalog
+      .filter((m) => m.backend === "anthropic")
+      .map((m) => m.id);
+    const openaiModels = this.catalog
+      .filter((m) => m.backend === "openai")
+      .map((m) => m.id);
+
+    return {
+      ollama: { available: ollamaModels.length > 0, models: ollamaModels },
+      anthropic: { available: anthropicModels.length > 0, models: anthropicModels },
+      openai: { available: openaiModels.length > 0, models: openaiModels },
+    };
+  }
+
+  getStats(): {
+    totalModels: number;
+    byBackend: Record<Backend, number>;
+    byTaskKind: Record<TaskKind, string[]>;
+  } {
+    const byBackend: Record<Backend, number> = { ollama: 0, anthropic: 0, openai: 0 };
+    for (const m of this.catalog) {
+      byBackend[m.backend]++;
+    }
+
+    const byTaskKind: Record<TaskKind, string[]> = {
+      chat: [],
+      code: [],
+      embed: [],
+      reasoning: [],
+      safety_critical: [],
+      gcode_explain: [],
+      quote_summary: [],
+    };
+
+    for (const m of this.catalog) {
+      if ((m.tags ?? []).includes("embed")) byTaskKind.embed.push(m.id);
+      if ((m.codeTier ?? 0) > 70) byTaskKind.code.push(m.id);
+      if (m.qualityTier >= 85) byTaskKind.safety_critical.push(m.id);
+      if (m.qualityTier >= 60) {
+        byTaskKind.chat.push(m.id);
+        byTaskKind.reasoning.push(m.id);
+        byTaskKind.gcode_explain.push(m.id);
+        byTaskKind.quote_summary.push(m.id);
+      }
+    }
+
+    return {
+      totalModels: this.catalog.length,
+      byBackend,
+      byTaskKind,
+    };
+  }
 }
 
 export const modelRoutingEngine = new ModelRoutingEngine();

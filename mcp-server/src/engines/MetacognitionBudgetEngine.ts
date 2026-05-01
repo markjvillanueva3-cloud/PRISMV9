@@ -119,6 +119,29 @@ export class MetacognitionBudgetEngine {
     };
   }
 
+  /** Test-compat: reset all state and start a fresh turn. */
+  reset(): void {
+    this.startTurn(`test-${Date.now()}`);
+    this.invocationsThisTurn = 0;
+  }
+
+  /** Test-compat: check if an invocation is allowed. */
+  canInvoke(): boolean {
+    if (this.turnId === null) this.startTurn(`implicit-${Date.now()}`);
+    return this.invocationsThisTurn < this.config.maxPerTurn;
+  }
+
+  /** Test-compat: record an invocation. */
+  recordInvocation(): void {
+    if (this.turnId === null) this.startTurn(`implicit-${Date.now()}`);
+    this.invocationsThisTurn += 1;
+  }
+
+  /** Test-compat: get current recursion depth. */
+  getCurrentDepth(): number {
+    return this.stackDepth;
+  }
+
   private validateConfig(c: BudgetConfig): void {
     if (!Number.isInteger(c.maxPerTurn) || c.maxPerTurn < 1) throw new Error("maxPerTurn must be >= 1");
     if (!Number.isInteger(c.postToolSpacing) || c.postToolSpacing < 1) throw new Error("postToolSpacing must be >= 1");

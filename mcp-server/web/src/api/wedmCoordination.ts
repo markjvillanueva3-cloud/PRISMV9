@@ -134,6 +134,33 @@ const BASE_URL = "/api/v1/edm";
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 // ============================================================================
+// AUTH TOKEN SOURCE (WEDM-P2P-PRODUCTION-MS0 / U-PROD-23)
+// ============================================================================
+
+let currentAuthToken: string | null = null;
+
+/** Set the Bearer token used on every subsequent request. */
+export function setAuthToken(token: string | null): void {
+  currentAuthToken = token;
+}
+
+/** Resolve token: explicit set takes precedence, else localStorage. */
+function resolveAuthToken(): string | null {
+  if (currentAuthToken) return currentAuthToken;
+  if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
+    return window.localStorage.getItem("prism_auth_token");
+  }
+  return null;
+}
+
+function buildHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const token = resolveAuthToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+// ============================================================================
 // HTTP HELPERS
 // ============================================================================
 
@@ -144,7 +171,7 @@ async function get<T>(endpoint: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: buildHeaders(),
       signal: controller.signal,
     });
 
@@ -173,7 +200,7 @@ async function post<T>(endpoint: string, body: unknown, timeoutMs = DEFAULT_TIME
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: buildHeaders(),
       body: JSON.stringify(body),
       signal: controller.signal,
     });
@@ -429,6 +456,45 @@ export interface AutoDegradeResult {
 // AUTONOMY API
 // ============================================================================
 
+export type AutonomyAuditAction =
+  | "promote"
+  | "demote"
+  | "auto_degrade"
+  | "manual_degrade"
+  | "status_read"
+  | "history_read";
+
+export type AutonomyAuditOutcome = "success" | "denied" | "failed";
+
+export interface AutonomyAuditEntry {
+  id: string;
+  at: string;
+  action: AutonomyAuditAction;
+  user_id: string | null;
+  user_roles: string[];
+  remote_ip: string | null;
+  actor: string | null;
+  reason: string | null;
+  level_from: number | null;
+  level_to: number | null;
+  outcome: AutonomyAuditOutcome;
+  error: string | null;
+  counter_signed: boolean;
+}
+
+export interface AutonomyAuditStats {
+  totalEntries: number;
+  byAction: Record<string, number>;
+  byOutcome: Record<string, number>;
+  deniedCount: number;
+  lastEntryAt: string | null;
+}
+
+export interface AutonomyAuditResponse {
+  entries: AutonomyAuditEntry[];
+  stats: AutonomyAuditStats;
+}
+
 export const autonomyApi = {
   /** Get current autonomy status with health metrics */
   getStatus: () => get<AutonomyStatusSnapshot>("/autonomy/status"),
@@ -439,7 +505,7 @@ export const autonomyApi = {
   /** Check promotion eligibility */
   checkEligibility: () => get<HealthGateResult>("/autonomy/eligibility"),
 
-  /** Request autonomy level promotion */
+  /** Request autonomy level promotion (requires supervisor or admin role) */
   promote: (actor?: string, reason?: string, counterSign?: string) =>
     post<GatedPromoteResult>("/autonomy/promote", {
       actor,
@@ -447,18 +513,28 @@ export const autonomyApi = {
       counter_sign: counterSign,
     }),
 
-  /** Request autonomy level demotion */
+  /** Request autonomy level demotion (requires supervisor or admin role) */
   demote: (actor?: string, reason?: string) =>
     post<AutonomyTransition>("/autonomy/demote", { actor, reason }),
 
   /** Check if auto-degrade is warranted */
   checkDegrade: () => get<DegradeCheckResult>("/autonomy/degrade-check"),
 
-  /** Trigger auto-degrade if warranted */
+  /** Trigger auto-degrade if warranted (requires supervisor or admin role) */
   autoDegrade: () => post<AutoDegradeResult>("/autonomy/auto-degrade", {}),
 
   /** Get autonomy transition history */
   getHistory: () => get<AutonomySnapshot>("/autonomy/history"),
+
+  /** Fetch autonomy audit trail (admin only). */
+  getAudit: (opts: { limit?: number; action?: AutonomyAuditAction; user?: string } = {}) => {
+    const params = new URLSearchParams();
+    if (opts.limit) params.set("limit", String(opts.limit));
+    if (opts.action) params.set("action", opts.action);
+    if (opts.user) params.set("user", opts.user);
+    const qs = params.toString();
+    return get<AutonomyAuditResponse>(`/autonomy/audit${qs ? `?${qs}` : ""}`);
+  },
 };
 
 // ============================================================================

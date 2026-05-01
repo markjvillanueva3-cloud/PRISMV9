@@ -84,6 +84,22 @@ export class SlashCommandRecommenderEngine {
     this.commands.clear();
   }
 
+  /**
+   * Load registry entries from SLASH_COMMAND_REGISTRY.json produced by
+   * `scripts/build-slash-command-registry.ts`. Idempotent — safe to call
+   * on every session boot. Returns number of entries loaded.
+   */
+  loadFromRegistryFile(filePath: string): number {
+    // Lazy import to keep engine pure for non-Node consumers.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { readFileSync } = require("node:fs");
+    const raw = readFileSync(filePath, "utf8");
+    const doc = JSON.parse(raw) as { entries?: CommandEntry[] };
+    const entries = doc.entries ?? [];
+    this.registerAll(entries);
+    return entries.length;
+  }
+
   recommend(prompt: string, opts: RecommenderOptions = {}): CommandRecommendation[] {
     const limit = opts.limit ?? 3;
     const minConfidence = opts.minConfidence ?? 0;

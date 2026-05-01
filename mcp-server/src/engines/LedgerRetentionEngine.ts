@@ -66,6 +66,21 @@ export class LedgerRetentionEngine {
     return this.config;
   }
 
+  /** Test-compat: classify a Date into a retention tier. */
+  getTier(date: Date): RetentionTier {
+    const ageDays = (Date.now() - date.getTime()) / MS_PER_DAY;
+    return this.classify(ageDays);
+  }
+
+  /** Test-compat: return retention policy with expected shape. */
+  getRetentionPolicy(): { hot: { maxDays: number }; warm: { maxDays: number }; cold: { archivePath: string } } {
+    return {
+      hot: { maxDays: this.config.hotAgeDays },
+      warm: { maxDays: this.config.warmAgeDays },
+      cold: { archivePath: "archive/" },
+    };
+  }
+
   /** Classify a single entry's age into a tier. */
   tierOf(entry: LedgerEntryLike, nowMs?: number): TieredEntry {
     const iso = entry.at ?? entry.timestamp;

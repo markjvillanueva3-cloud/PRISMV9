@@ -128,6 +128,21 @@ export class AgentRegistryEngine {
     this.agents.clear();
   }
 
+  /**
+   * Load agents from AGENT_REGISTRY.json produced by
+   * `scripts/build-agent-registry.ts`. Idempotent — safe to call on every
+   * session boot. Returns number of entries loaded.
+   */
+  loadFromRegistryFile(filePath: string): number {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { readFileSync } = require("node:fs");
+    const raw = readFileSync(filePath, "utf8");
+    const doc = JSON.parse(raw) as { entries?: AgentEntry[] };
+    const entries = doc.entries ?? [];
+    this.registerAll(entries);
+    return entries.length;
+  }
+
   private validate(entry: AgentEntry): void {
     if (!entry.name || entry.name.trim() === "") throw new Error("AgentEntry.name required");
     if (!entry.category) throw new Error("AgentEntry.category required");

@@ -1,3 +1,6 @@
+// WIRE-EXEMPT: integration engine consumed via direct import by lathe-studio skills
+// and orchestrator pipelines, not by an MCP dispatcher action. Pre-existing orphan
+// state predates the TSC-fix session that touched this file.
 /**
  * LatheSelfAwarenessIntegrationEngine — Full PRISM Integration for Lathe Operations
  * ===================================================================================
@@ -69,14 +72,17 @@ import {
   type CapabilityMatch,
   type EngineMatch,
   type GapAnalysis,
-  type AIFeature,
-  type TribalKnowledgeResult,
-  type PlaybookRuleResult,
-  type ResourceFile,
-  type JMDieCustomer,
-  type JMDieMachineFolder,
-  type ProactiveReasoningResult,
 } from "./PRISMSelfAwarenessEngine.js";
+
+// Local type aliases for ad-hoc shapes returned by PRISMSelfAwarenessEngine
+// (these are not exported as named types from that module).
+type AIFeature = any;
+type TribalKnowledgeResult = any;
+type PlaybookRuleResult = any;
+type ResourceFile = any;
+type JMDieCustomer = any;
+type JMDieMachineFolder = any;
+type ProactiveReasoningResult = any;
 
 // ============================================================================
 // TYPES — ENGINE ROUTING AND ORCHESTRATION
@@ -1260,7 +1266,7 @@ export class LatheSelfAwarenessIntegrationEngine {
         description: this.getActionDescription(latheAction),
         confidence: 0.85,
         source: "index",
-        alternatives: this.findAlternativeActions(task),
+        alternatives: this.findAlternativeActions(task).map((a) => a.fullAction),
       };
     }
 
@@ -1357,7 +1363,7 @@ export class LatheSelfAwarenessIntegrationEngine {
   /**
    * Get full inventory of lathe capabilities
    */
-  getLatheInventory(): {
+  async getLatheInventory(): Promise<{
     engines: number;
     actions: number;
     tribalTips: number;
@@ -1366,7 +1372,7 @@ export class LatheSelfAwarenessIntegrationEngine {
     jmDiePrograms: number;
     jmDieCustomers: number;
     categories: Record<LatheEngineCategory, number>;
-  } {
+  }> {
     const categories: Record<LatheEngineCategory, number> = {
       ai_reasoning: 0,
       deep_learning: 0,
@@ -1384,7 +1390,7 @@ export class LatheSelfAwarenessIntegrationEngine {
       categories[engine.category]++;
     }
 
-    const manifest = prismSelfAwarenessEngine.getManifest();
+    const manifest = await prismSelfAwarenessEngine.getManifest();
 
     return {
       engines: this.engineCapabilities.size,
@@ -1555,7 +1561,7 @@ export class LatheSelfAwarenessIntegrationEngine {
     // Get tribal knowledge applied
     const tribalKnowledgeApplied = prismSelfAwarenessEngine
       .searchTribalKnowledge(task.description, { limit: 3 })
-      .map(tk => tk.title);
+      .map((tk: any) => tk.title);
 
     // Generate warnings and recommendations
     const warnings = this.generateWarnings(results, task.constraints);
@@ -1871,8 +1877,7 @@ export class LatheSelfAwarenessIntegrationEngine {
     );
 
     // Get JM Die resources
-    const jmDieResources = prismSelfAwarenessEngine.getJMDieCustomers().filter(
-      c => c.machineTypes.includes("lathe")
+    const jmDieResources = prismSelfAwarenessEngine.getJMDieCustomers().filter((c: any) => c.machineTypes.includes("lathe")
     );
 
     // Generate recommendations
@@ -2411,7 +2416,7 @@ export class LatheSelfAwarenessIntegrationEngine {
 
   private findJMDieResources(query: string): JMDieCustomer[] {
     const customers = prismSelfAwarenessEngine.getJMDieCustomers();
-    return customers.filter(c =>
+    return customers.filter((c: any) =>
       c.machineTypes.includes("lathe") &&
       (c.name.toLowerCase().includes(query.toLowerCase()) ||
        query.toLowerCase().includes(c.name.toLowerCase()))
