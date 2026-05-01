@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "CAD-FIDX-MS0",
+  "title": "CAD Function Index — hyperCAD-S Coverage (sister to Fusion 360)",
+  "track": "CAD-FIDX",
+  "status": "complete",
+  "priority": "STANDARD",
+  "total_units": 10,
+  "completed_units": 10,
+  "sessions_p50": 2,
+  "sessions_p90": 3,
+  "dependencies": [],
+  "blocks": [],
+  "goal": "Build a typed, AI-orchestrable function index for OPEN MIND hyperCAD-S that mirrors the existing Fusion360CADFunctionIndexEngine surface. Cover all 8 hyperCAD-S workspaces (sketcher, 3D solid modeler, surface modeler, healing & repair, mesh modeler, assembly, drawing, datum/reference) with per-operation parameter catalogs that the AI can search, lookup, and validate against.",
+  "ultimate_test_contribution": "Without this milestone, hyperCAD-S has no machine-readable operation catalog — AI orchestrators cannot generate parameterized hyperCAD scripts, validate hyperMILL handoff (WCS / feature-recognition attributes), or answer 'what can hyperCAD do?' Pairs with the prior Fusion 360 catalog to give PRISM coverage of the two CAM-bound CAD systems we ship against.",
+  "exit_criteria": {
+    "all_8_modules_shipped": "8 module catalog JSONs under data/cad-functions/hypercad/ + function-index.json registers all of them with future_modules: []",
+    "drift_guards_passing": "Per-module test sums computed parameter count against metadata.totalParameters; mismatches block the commit",
+    "engine_api_complete": "HyperCADCADFunctionIndexEngine exposes getIndex / listModules / listOperations / getOperation / findParameter / searchParameters / getOperationsByCategory / getTotalParameterCount / getLoadErrors",
+    "dispatcher_wired": "cad_hypercad_* actions exposed through prism_cad with both navigation (7 actions) and discovery (3 summary actions)",
+    "tests_green": "207/207 vitest cases pass (covers contract assertions per module, drift guard, future_modules sealed)",
+    "pushed_to_origin": "All commits on work/cad-fidx-fus-93a0 → origin"
+  },
+  "coverage_state": {
+    "modules_shipped": 8,
+    "operations_total": 160,
+    "parameters_total": 1001,
+    "test_count": 207,
+    "test_pass_rate": "100%",
+    "coverage_label": "COMPLETE"
+  },
+  "units": [
+    {
+      "id": "U-CAD-FIDX-HCAD-01",
+      "title": "hyperCAD-S Sketch Operations module — 32 ops / 242 params",
+      "status": "complete",
+      "commit": "37aa14129",
+      "deliverables": [
+        "data/cad-functions/hypercad/sketch-operations.json",
+        "data/cad-functions/hypercad/function-index.json (registers sketch_operations)",
+        "src/engines/HyperCADCADFunctionIndexEngine.ts (foundation: types, lazy-load, drift guard)",
+        "src/__tests__/HyperCADCADFunctionIndexEngine.test.ts (per-module contract suite)"
+      ],
+      "exit": "32 sketch ops registered, drift guard green, listModules() returns ['sketch_operations']"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-02",
+      "title": "hyperCAD-S Solid Operations module — 30 ops / 214 params",
+      "status": "complete",
+      "commit": "9506ebe50",
+      "deliverables": [
+        "data/cad-functions/hypercad/solid-operations.json (6 primitives + 6 sweeps + 5 modify + 3 boolean + 4 pattern + 3 direct-edit + 3 hole cycles)",
+        "function-index.json updated (parameter_count_estimate + estimated_parameter_total)",
+        "Tests: KNOWN_SOLID_OPS, drift guard, hyperMILL handoff attribute assertions on hole cycles"
+      ],
+      "exit": "30 solid ops registered, hole cycles emit hyperMILL feature-recognition attributes"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-DOCS",
+      "title": "Engine JSDoc path corrections (post-HCAD-02)",
+      "status": "complete",
+      "commit": "df2b28315",
+      "deliverables": [
+        "src/engines/HyperCADCADFunctionIndexEngine.ts JSDoc updated to reflect 2 shipped modules"
+      ],
+      "exit": "JSDoc lists shipped modules accurately"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-03",
+      "title": "hyperCAD-S Surface Operations module — 28 ops / 148 params",
+      "status": "complete",
+      "commit": "8554d8130",
+      "deliverables": [
+        "data/cad-functions/hypercad/surface-operations.json (12 creation + 13 modify + 3 conversion ops)",
+        "Continuity (G0/G1/G2) selectors as first-class params on Patch / Boundary / Network / Loft / Match / Blend",
+        "MESH_TO_SURFACE op feeds hyperMILL surface toolpaths from STL/OBJ imports"
+      ],
+      "exit": "28 surface ops registered, continuity types verified, drift guard green"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-04",
+      "title": "hyperCAD-S Healing Operations module — 16 ops / 83 params",
+      "status": "complete",
+      "commit": "3aeb0d6d8",
+      "deliverables": [
+        "data/cad-functions/hypercad/healing-operations.json (3 auto/diag + 8 manual repair + 5 edge/curve cleanup)",
+        "Validate-Watertight is canonical gate before volume-toolpath generation in hyperMILL"
+      ],
+      "exit": "16 healing ops registered, hyperCAD's signature-feature module surfaced"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-05",
+      "title": "hyperCAD-S Mesh Operations module — 12 ops / 66 params",
+      "status": "complete",
+      "commit": "a8de6aaf2",
+      "deliverables": [
+        "data/cad-functions/hypercad/mesh-operations.json (1 import + 2 conversion + 4 modify + 1 boolean + 2 cut + 1 feature-extraction + 1 additive prep)",
+        "MESH_EXTRACT_FEATURE_LINES gives direct path scan-to-NC without surface fit"
+      ],
+      "exit": "12 mesh ops registered, hyperMILL feature-line toolpath bridge documented"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-06",
+      "title": "hyperCAD-S Assembly Operations module — 15 ops / 74 params",
+      "status": "complete",
+      "commit": "b92b7de2d",
+      "deliverables": [
+        "data/cad-functions/hypercad/assembly-operations.json (4 component + 1 joint covering 6 kinematics + 2 pattern + 4 visibility + 1 tree + 3 analysis)",
+        "Interference-Check is QA gate before fixture / multi-part hyperMILL job submission"
+      ],
+      "exit": "15 assembly ops registered, 6 kinematic joint types covered"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-07",
+      "title": "hyperCAD-S Drawing Operations module — 21 ops / 118 params",
+      "status": "complete",
+      "commit": "92aea8553",
+      "deliverables": [
+        "data/cad-functions/hypercad/drawing-operations.json (6 view + 8 annotation + 1 hatch + 3 table + 3 style)",
+        "GD&T_FRAME covers all 14 ASME Y14.5-2018 / ISO 1101:2017 symbols with MMC/LMC/RFS material conditions",
+        "Section view supports full / half / aligned / offset / broken sub-types"
+      ],
+      "exit": "21 drawing ops registered, full Y14.5 / ISO 1101 symbol coverage"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-08",
+      "title": "hyperCAD-S Datum Operations module — 6 ops / 56 params (COVERAGE COMPLETE)",
+      "status": "complete",
+      "commit": "24fc193e4",
+      "deliverables": [
+        "data/cad-functions/hypercad/datum-operations.json (1 reference-plane × 10 modes + 1 axis × 8 + 1 point × 12 + 1 coord-system × 6 + 2 reference-curves)",
+        "COORDINATE_SYSTEM WCS Tag bridges CAD reference frames → hyperMILL G54..G59 / G54.1 P# offsets",
+        "function-index.json future_modules: [] + coverage_state: COMPLETE"
+      ],
+      "exit": "All 8 modules shipped, 160 ops / 1001 params, future_modules sealed empty"
+    },
+    {
+      "id": "U-CAD-FIDX-HCAD-DOCS-2",
+      "title": "Final engine JSDoc — declares COVERAGE COMPLETE with full module roster",
+      "status": "complete",
+      "commit": "2572912f0",
+      "deliverables": [
+        "src/engines/HyperCADCADFunctionIndexEngine.ts JSDoc lists all 8 shipped modules with op/param counts"
+      ],
+      "exit": "Engine self-documents the complete coverage state"
+    }
+  ],
+  "follow_ups": [
+    {
+      "id": "U-CAD-FIDX-HCAD-DISCOVERY",
+      "title": "Wire engine surface to dispatcher discovery layer",
+      "status": "complete",
+      "deliverables": [
+        "src/tools/dispatchers/cadDispatcher.ts: cad_hypercad_summary, cad_hypercad_total_parameter_count, cad_hypercad_load_errors",
+        "Closes engine→dispatcher parity gap so AI orchestrators can ask 'what is hyperCAD-S overall?' without iterating modules"
+      ]
+    }
+  ],
+  "git_branch": "work/cad-fidx-fus-93a0",
+  "completion_date": "2026-04-30",
+  "registered_retroactively": true,
+  "registration_note": "Units shipped without prior milestone registration; envelope created post-completion to formalize the track and capture coverage metadata for inventory."
+}
