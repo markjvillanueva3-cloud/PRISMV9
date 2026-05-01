@@ -22,14 +22,16 @@ Shipped 2026-05-01 in commit `f3c2c09a6`. 19 files, 39,154 insertions:
 - U-PPGM111 patent-sensitive rename SolidCAMiMachining → PrismPathConstantEngagement
   (8 identifier renames + JSDoc scrub + 13-case test).
 
-### ✓ DONE — Sprint 2 partial (U-PPGM07+08)
-Shipped 2026-05-01 in commit `0a27b63a6`. 3 files, 543 insertions:
-- U-PPGM07 schema bump 1.0.0 → 1.1.0 (additive): `block_annotations[]` carrying
-  per-block S/F + physics_basis + canonical-constant references.
-- U-PPGM08 builder threading: `buildAndSeal({block_annotations})` defensive-clones,
-  threads through canonicalize() seal, tamper-detected by SHA verify.
-- 35 new tests (PostPhysicsSidecarBlockAnnotations.test.ts); 104/104 green
-  across the 4 sidecar suites.
+### ✓ DONE — Sprint 2 complete (U-PPGM07..M13 + U-HARDEN01)
+All 7 Sprint 2 units shipped 2026-05-01:
+- `0a27b63a6` U-PPGM07+08 — schema 1.1.0 + builder threading (35 tests)
+- `070db820d` U-PPGM09 — pure-JS getBlockAnnotation Rhino-portable lookup (24 tests)
+- `569d52b73` U-PPGM10 — verifyBlockAnnotations gate (G-code vs sidecar, 39 tests)
+- `87c18f4ec` U-PPGM11 — full round-trip integration test (10 tests)
+- `a1af7a857` U-PPGM12 — MIGRATION doc 1.1.0 section (~180 lines)
+- `76937747b` U-PPGM13 + U-HARDEN01 — HurcoV11 emits block_annotations[];
+  fixes the kc1_1+mc inline bug as prerequisite (recovered 36 failing tests)
+- 411/411 across 14 PPG-related test files. Zero regression.
 
 ### ✓ DONE — U-PPGW11/U-PPGW12 (router-side interpretation)
 Shipped 2026-05-01 in commit `f722bd13c`. 2 files, +396/-4. User chose
@@ -54,46 +56,30 @@ U-PPGW11/U-PPGW12 added to `shipped_followup[]` in milestone JSON.
 
 ## NEXT ACTIONS (continue here)
 
-### Sprint 2 remaining — U-PPGM09..U-PPGM13
+### PPG-WIRE-MS0 is COMPLETE. Pick a successor:
 
-**U-PPGM09** — pure-JS loader block lookup
-File: `mcp-server/src/cps/loadPhysicsSidecar.ts`
-Add: `getBlockAnnotation(sidecar, block_id) → BlockAnnotation | null` — pure-JS,
-Rhino-portable, no Node-specific APIs. Tolerates `block_annotations: undefined`
-(returns null). Add to existing test file `loadPhysicsSidecar.test.ts`.
+**PPG-WIRE-MS5/U-PPGW-OkumaMill** — Build OkumaOSPMillMasterPostEngine
+File: NEW `mcp-server/src/engines/OkumaOSPMillMasterPostEngine.ts`
+Currently the master_post_by_machine auto-router HARD-rejects OSP-P300M /
+OSP-P500M (mill controllers) because no Okuma-mill master post exists.
+ControllerDialectEngine has full dialect data (canned cycles, probing,
+TCPC, HSC mode, NURBS) — consume that data to emit Okuma-mill G-code.
+Same shape as OkumaB250LatheMasterPostEngine but for OSP-PxxxM.
+Wire to camDispatcher (replace the hard-reject branch with a route).
+Carries block_annotations[] from day one (schema 1.1.0).
 
-**U-PPGM10** — NoInlinePhysics gate hardening
-File: `mcp-server/src/hooks/noInlinePhysicsConstants.ts` +
-      `mcp-server/src/engines/NoInlinePhysicsConstantsEngine.ts`
-When a `.cps` post emits a numeric S/F literal in a block, require that the
-sidecar's `block_annotations[]` carries an entry for that block_id with
-matching emitted values. Mismatch fails closed. Test in
-`NoInlinePhysicsConstantsEngine.test.ts`.
+**PPG-WIRE-MS5/U-PPGW-OkumaMill-Tribal** — Tribal knowledge for Okuma mill
+Companion to the engine above. Mine JM Die's program archive at
+`H:/PRISM/JM DIE/CNC MILL/` for Okuma-mill program files, run /pdf-learn
+on any Okuma operator manuals, populate the engine's tribal knowledge
+section.
 
-**U-PPGM11** — full round-trip integration test
-File: NEW `mcp-server/src/__tests__/PostPhysicsSidecar.blockRoundTrip.integration.test.ts`
-Builder → file → pure-JS loader → block lookup → tamper detection chain. ≥1
-happy path + ≥3 failure modes + ≥2 adversarial.
-
-**U-PPGM12** — migration doc update
-File: `mcp-server/data/docs/ppg/MIGRATION-sidecar-bridge.md`
-Append "1.1.0 — block_annotations[]" section. Document: schema bump rationale,
-backward compat (1.0.0 sidecars still parse), absence vs empty-array semantics,
-loader behavior on `undefined`.
-
-**U-PPGM13** — HurcoV11 master post integration
-File: `mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts`
-Have `generateProgram()` populate `block_annotations[]` for each emitted block
-(N100, N110, ...) with the physics chain that produced its S/F (kienzle for
-Fc-derived, taylor for life-derived, empirical_table for catalog lookups).
-Smallest viable proof of round-trip.
-
-**HARDEN BLOCKER** — `HurcoV11MillMasterPostEngine.ts:420` has a pre-existing
-bug: `CANONICAL_KIENZLE.kc1_1[op.material_iso]` should be
-`CANONICAL_KIENZLE[op.material_iso].kc1_1`. Causes 65/66 of the engine's own
-unit tests to fail. **Fix this before U-PPGM13** or the integration test will
-fail under unrelated breakage. Track as PPG-HARDEN/U-HARDEN01 if a separate
-unit is preferred.
+**Other open PPG follow-ups (lower priority):**
+- Wire HurcoV11's block_annotations through camDispatcher's
+  master_post_hurco_v11 action so callers can emit + verify in one round-trip
+- Repeat the U-PPGM13 wiring for OkumaB250Lathe + MitsubishiMV1200R
+  (currently they have NO per-block telemetry; sidecar would HARD_BLOCK
+  shop_floor for any of their emitted S/F lines)
 
 ---
 

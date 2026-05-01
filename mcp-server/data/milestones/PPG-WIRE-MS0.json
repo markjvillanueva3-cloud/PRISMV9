@@ -8,9 +8,9 @@
   "pillar": "P3-PPG-SFC-LEARNING-LOOP",
   "status": "complete",
   "created_at": "2026-04-25T22:32:16.000Z",
-  "last_updated": "2026-05-01T18:30:00.000Z",
-  "total_units": 13,
-  "completed_units": 13,
+  "last_updated": "2026-05-01T19:00:00.000Z",
+  "total_units": 20,
+  "completed_units": 20,
   "description": "Wires the JM Die canonical master post engines (Hurco V11 mill, Okuma B250 lathe, Mitsubishi MV1200R wire EDM) and the post-processor wizard frontend (PostProcessorGeneratorPage + PhysicsDetailsPanel) to the camDispatcher action surface. Without this envelope the master post engines existed as standalone TypeScript classes but no MCP action could invoke them, so the post-processor wizard could not generate code on real customer hardware. PPG-WIRE-MS0 closes that gap end-to-end: dispatcher schema → action handler → REST route → web API client → wizard UI → physics overlay.",
   "rationale": "PSAU-PPG-SFC delivered the closed-loop substrate (provenance, outcome capture, inference gates, RAG warm-start, drift canary, ProtoMAML new-material). PPG-WIRE-MS0 is the orthogonal capability axis — turning on the actual G-code emission path for the 3 highest-volume JM Die machine families. Without this work, every closed-loop signal in PSAU-PPG-SFC has nothing to emit through.",
   "leverage_existing": [
@@ -213,6 +213,74 @@
       "tests": "shared with U-PPGW11 (35 tests; 141/141 across 4 routing suites)",
       "acknowledged_risk": "OkumaB250LatheMasterPostEngine is hardwired to LB250II-M tribal knowledge. LB200/LB300 routing may emit slightly off codes for those compact lathes; user accepted this risk per the alias-expand interpretation. PPG-WIRE-MS5/U-PPGW-OkumaMill remains as the proper home for an Okuma mill master post engine.",
       "scope_note": "Original U-PPGW12 envisioned wiring to OSP-P300/P500 master post engines that don't exist. Investigation 2026-05-01 found ControllerDialectEngine has dialect data for OSP-P300/P500 but no engine consumes it. User chose router-side interpretation over building new engines."
+    },
+    {
+      "id": "U-PPGM-SPRINT1",
+      "title": "Sealed post-physics sidecar bridge + patent rename (U-PPGM01..M06 + U-PPGM111)",
+      "shipped_at": "2026-05-01T13:00:00.000Z",
+      "commit": "f3c2c09a6",
+      "summary": "U-PPGM01 schema, U-PPGM02 builder, U-PPGM03 pure-JS Rhino-portable loader (SHA-256 + canonical JSON), U-PPGM04 NoInlinePhysicsConstants gate, U-PPGM05 round-trip integration (8 tests), U-PPGM06 migration guide. U-PPGM111 patent-sensitive rename SolidCAMiMachining -> PrismPathConstantEngagement (8 identifier renames + JSDoc scrub + 13-case test).",
+      "tests": "21 tests at commit time across the two sidecar suites; engine-level integration intact.",
+      "scope_note": "Builds the substrate (schema 1.0.0 sidecar) on top of which Sprint 2 layers per-block telemetry."
+    },
+    {
+      "id": "U-PPGM07",
+      "title": "Schema bump 1.0.0 -> 1.1.0 — block_annotations[] additive field",
+      "shipped_at": "2026-05-01T13:23:00.000Z",
+      "commit": "0a27b63a6",
+      "summary": "blockAnnotationSchema with array-level superRefine (unique block_id, operator_override <-> empty source_constants biconditional, bounded confidence/safety_margin). Backward compat: 1.0.0 sidecars still parse cleanly under 1.1.0 schema."
+    },
+    {
+      "id": "U-PPGM08",
+      "title": "Builder threads block_annotations through SHA seal",
+      "shipped_at": "2026-05-01T13:23:00.000Z",
+      "commit": "0a27b63a6",
+      "summary": "buildAndSeal accepts optional block_annotations; structuredClone defensive isolation; included in canonicalize() so post-emit tamper invalidates verify(). 35 tests cover entry-level + array-level + builder + SHA tamper."
+    },
+    {
+      "id": "U-PPGM09",
+      "title": "Pure-JS getBlockAnnotation + getBlockAnnotationsByOp Rhino-portable lookups",
+      "shipped_at": "2026-05-01T13:39:00.000Z",
+      "commit": "070db820d",
+      "summary": "Linear-scan first-match lookups in cps/loadPhysicsSidecar.ts. Returns null on undefined block_annotations (v1.0.0 back-compat); throws on null sidecar / empty blockId / shape violation. 24 new tests."
+    },
+    {
+      "id": "U-PPGM10",
+      "title": "verifyBlockAnnotations gate — emitted G-code vs sidecar cross-check",
+      "shipped_at": "2026-05-01T13:46:00.000Z",
+      "commit": "569d52b73",
+      "summary": "New cps/verifyBlockAnnotations.ts. Parses Nxxx labels + S/F tokens from emitted G-code, cross-references against block_annotations[]. Tier-aware verdicts (sim/proven_out WARN, production/shop_floor HARD_BLOCK). operator_override blocks bypass comparison. 39 tests covering parser, mismatch classes, tier policy, override semantics, and no_block_annotations branch."
+    },
+    {
+      "id": "U-PPGM11",
+      "title": "Full block-annotation round-trip integration test",
+      "shipped_at": "2026-05-01T13:49:00.000Z",
+      "commit": "87c18f4ec",
+      "summary": "10-test E2E: builder -> JSON file -> loader -> getBlockAnnotation -> verifyBlockAnnotations. Includes 4 failure modes (S drift, SHA tamper, missing annotation, schema version mismatch) + 3 adversarial (operator_override insertion, legacy v1.0.0 sidecar with 1.1.0 post, byte-identical SHA across builds) + 2 seam invariants (Node/pure-JS canonicalize agree, in-memory tamper invalidates verify)."
+    },
+    {
+      "id": "U-PPGM12",
+      "title": "MIGRATION-sidecar-bridge.md — schema 1.1.0 section",
+      "shipped_at": "2026-05-01T13:52:00.000Z",
+      "commit": "a1af7a857",
+      "summary": "Documents the full 1.0.0 -> 1.1.0 migration: what's added, cross-field invariants, loader API, gate API, tier verdict matrix, absence-vs-empty semantics, migration steps for emitters/consumers, anti-patterns, test coverage map."
+    },
+    {
+      "id": "U-PPGM13",
+      "title": "HurcoV11 master post populates block_annotations[]",
+      "shipped_at": "2026-05-01T13:58:00.000Z",
+      "commit": "76937747b",
+      "summary": "HurcoPostOutput gains block_annotations[]. generateProgram tracks per-op block_id 'N{100+i*10}' matching the labels emitted on spindle-start lines. generateSpindleStart emits 'N100 S{rpm} M03 F{feed}' so the gate verifies both S and F per-op. Each annotation: physics_basis='kienzle', source_constants reference CANONICAL_KIENZLE/_TAYLOR by ISO group, vc/fpt computed (no inlined physics). 9-test integration suite proves the full chain (engine -> sidecar seal -> gate) PASS at shop_floor + catches manual S/F drift + sidecar tamper + missing-annotation regressions.",
+      "co_shipped_with": "U-HARDEN01 (kc1_1+mc inlining bug fix on the same engine file)"
+    },
+    {
+      "id": "U-HARDEN01",
+      "track": "PPG-HARDEN",
+      "title": "Fix HurcoV11 CANONICAL_KIENZLE.kc1_1[iso] swap + inlined mc",
+      "shipped_at": "2026-05-01T13:58:00.000Z",
+      "commit": "76937747b",
+      "summary": "HurcoV11MillMasterPostEngine.ts:420 had `CANONICAL_KIENZLE.kc1_1[op.material_iso]` (wrong nesting -> TypeError) and inlined `Math.pow(fz, 1 - 0.25)` (wrong mc for non-P groups). Now `CANONICAL_KIENZLE[iso].kc1_1` and `kienzle.mc`. Recovered 36 of 50 previously-failing engine integration tests (suite now 50/50 green).",
+      "scope_note": "Co-shipped with U-PPGM13 because the wiring required edits to the same file; the kc1_1 fix was the prerequisite for the integration test pass."
     }
   ],
   "completion_criteria": [
