@@ -1,19 +1,32 @@
 /**
  * PRISM Memory Graph Dispatcher (#27)
  * =====================================
- * 
- * prism_memory — 6 actions for the F2 cross-session memory graph.
- * 
- * Actions:
+ *
+ * prism_memory — 13 actions across MemoryGraph + MemoryConsolidation +
+ * MemoryPressureMonitor + Qdrant vector recall.
+ *
+ * Graph (F2):
  *   get_health       — Graph stats, memory, integrity
  *   trace_decision   — Follow decision chain (forward/backward/both)
  *   find_similar     — Find similar nodes by dispatcher/action/error
  *   get_session      — All nodes from a specific session
  *   get_node         — Single node by ID
  *   run_integrity    — Force integrity check
- * 
- * @version 1.0.0
- * @feature F2
+ *
+ * Consolidation:
+ *   consolidate, consolidation_stats, consolidation_patterns
+ *
+ * Pressure (CPP-MS2 U-CPP15):
+ *   pressure_record, pressure_get, pressure_recommend
+ *
+ * Vector recall (INTEL-OLLAMA-OBSIDIAN-MS0/P0-U02):
+ *   semantic_search  — Embed query via Ollama nomic-embed-text and pull
+ *                      cosine-nearest hits from QdrantMemoryEngine.recall().
+ *                      Optional threshold filters out low-similarity hits
+ *                      after the engine call.
+ *
+ * @version 1.1.0
+ * @feature F2 + INTEL-MS0
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -39,7 +52,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity",
+    "Cross-session memory graph + Qdrant vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, pressure_record, pressure_get, pressure_recommend, semantic_search",
     {
       action: z.enum([
         "get_health",
@@ -55,7 +68,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "pressure_record",
         "pressure_get",
         "pressure_recommend",
-      ]).describe("Memory graph + pressure monitor actions"),
+        // INTEL-OLLAMA-OBSIDIAN-MS0/P0-U02: Qdrant vector-similarity recall
+        "semantic_search",
+      ]).describe("Memory graph + pressure monitor + Qdrant semantic search actions"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -245,8 +260,64 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // ============================================================
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P0-U02: Qdrant semantic vector search
+          // ============================================================
+          case "semantic_search": {
+            const query = typeof params.query === "string" ? params.query : "";
+            if (query.length === 0) {
+              result = { success: false, error: "semantic_search requires non-empty 'query' string" };
+              break;
+            }
+            const kind = (params.kind ?? "tip") as
+              | "program"
+              | "outcome"
+              | "tip"
+              | "formula"
+              | "rule"
+              | "playbook"
+              | "note";
+            const requestedLimit = Number.isFinite(params.limit) ? Number(params.limit) : 5;
+            const limit = Math.max(1, Math.min(100, requestedLimit));
+            const threshold = Number.isFinite(params.threshold) ? Number(params.threshold) : 0;
+            const filter = (params.filter && typeof params.filter === "object")
+              ? (params.filter as Record<string, unknown>)
+              : undefined;
+
+            const { qdrantMemoryEngine } = await import("../../engines/QdrantMemoryEngine.js");
+            const { ensureQdrantEmbedder } = await import("../../engines/OllamaEmbedderFactory.js");
+            try {
+              ensureQdrantEmbedder();
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              result = { success: false, error: `embedder install failed: ${msg}`, kind, query };
+              break;
+            }
+            const recalled = await qdrantMemoryEngine.recall({ kind, query, limit, filter });
+            if (!recalled.ok) {
+              result = { success: false, error: recalled.error ?? "recall failed", kind, query };
+              break;
+            }
+            const items = recalled.value;
+            const passing = threshold > 0
+              ? items.filter((it) => typeof (it as { score?: number }).score !== "number" || (it as { score: number }).score >= threshold)
+              : items;
+            result = {
+              success: true,
+              data: {
+                kind,
+                query,
+                limit,
+                threshold,
+                hits: passing.length,
+                items: passing,
+              },
+            };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend', 'semantic_search'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -262,5 +333,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (9 actions)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (13 actions)");
 }

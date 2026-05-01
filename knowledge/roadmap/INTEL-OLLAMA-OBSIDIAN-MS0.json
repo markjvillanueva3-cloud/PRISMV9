@@ -1,0 +1,3511 @@
+{
+  "id": "INTEL-OLLAMA-OBSIDIAN-MS0",
+  "version": "3.0.0",
+  "title": "Intelligence Stack Wiring — Route Everything Through Ollama + Obsidian",
+  "brief": "Connect built-but-disconnected intelligence infrastructure: Qdrant vector memory, Obsidian persistence vault, Ollama compute layer, error-learning loop, 5 orphaned reasoning engines, CLAUDE.md/GSD/directive chunking. Result: ~80% session-token reduction + true cross-session/cross-PC persistence. Origin: 5-agent forge-audit identified that PRISM is 'architecturally complete but electrically disconnected' — Ollama runs 0 offloads/7days, Qdrant has no embedder, error capture has 5 silos, 5 highest-leverage reasoning engines are orphaned, only 27% of CLAUDE.md rules are auto-enforced.",
+  "created_at": "2026-04-27T17:30:00Z",
+  "created_by": "claude-9c056864 via /forge-audit + 5 parallel scout agents",
+  "track": "INFRA",
+  "track_name": "Intelligence Infrastructure Wiring",
+  "status": "not_started",
+  "priority": "HIGH",
+  "tier": "dev-infra",
+  "omega_target": 0.7,
+  "estimated_sessions_p50": 23,
+  "estimated_sessions_p90": 31,
+  "depends_on": [
+    "LOCAL-LLM-MS0"
+  ],
+  "h_drive_canonical": true,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Foundation — Vector Backbone + Telemetry Reset",
+      "rationale": "Every downstream phase needs vector search to work. Wire Qdrant embedder + add semantic_search action FIRST, then everything else can use it.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inject Ollama nomic-embed-text embedder into QdrantMemoryEngine",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "QdrantMemoryEngine.setEmbedder() called on SessionStart",
+            "Test: remember(text) returns embedding vector of length 768",
+            "Test: recall(query, 5) returns similarity-ranked results",
+            "Hook smoke-tested with valid stdin payload"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/embedder-inject-qdrant.mjs",
+              "type": "hook",
+              "description": "SessionStart hook that wires Ollama nomic-embed-text into QdrantMemoryEngine.setEmbedder()"
+            },
+            {
+              "path": "mcp-server/src/__tests__/QdrantEmbedderInjection.test.ts",
+              "type": "test",
+              "description": "Verify embedder produces 768-dim vectors"
+            }
+          ],
+          "tools": [
+            "prism_memory:get_health",
+            "ollama embedding API"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Add prism_memory:semantic_search dispatcher action",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "memoryDispatcher.ts has semantic_search in z.enum",
+            "Schema validates {query, kind?, limit?, threshold?}",
+            "Round-trip test: dispatcher → engine → vector hit",
+            "Surfaces in MCP tool description"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/memoryDispatcher.ts",
+              "type": "source",
+              "description": "Add semantic_search action"
+            },
+            {
+              "path": "mcp-server/src/schemas/memoryActionSchemas.ts",
+              "type": "schema",
+              "description": "Zod schema for semantic_search input"
+            },
+            {
+              "path": "mcp-server/src/__tests__/MemorySemanticSearch.test.ts",
+              "type": "test",
+              "description": "Round-trip test through dispatcher"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID) | git revert; old schema preserved in git history"
+        },
+        {
+          "id": "P0-U03",
+          "title": "Reset ollama-offload-stats.json + add fire-rate dashboard",
+          "effort": 30,
+          "dependencies": [],
+          "exit_conditions": [
+            "Counter zeroed; new schema includes per-hook fire counts",
+            "New script: scripts/ollama-offload-dashboard.mjs prints last 24h stats",
+            "Doc in CLAUDE.md: how to read the dashboard"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/data/state/ollama-offload-stats.json",
+              "type": "state",
+              "description": "Zeroed + extended schema"
+            },
+            {
+              "path": "scripts/ollama-offload-dashboard.mjs",
+              "type": "script",
+              "description": "Print last-24h offload stats"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete"
+        },
+        {
+          "id": "P0-U04",
+          "title": "Promote ollama-auto-router from 3rd matcher to primary UserPromptSubmit block",
+          "effort": 20,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "settings.json: ollama-auto-router fires on every UserPromptSubmit",
+            "After 5 prompts: offload-stats shows ≥1 successful Ollama call",
+            "Token savings logged"
+          ],
+          "deliverables": [
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Move ollama-auto-router to block 0; backup settings before edit"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P1",
+      "title": "Persistence — Obsidian Vault as Cross-Session Memory Backbone",
+      "rationale": "P0 unlocked vector storage. Now make Obsidian the canonical write target so all knowledge survives sessions and crosses PCs via H: drive.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Wire obsidian-memory-sync.mjs as Stop hook (backgrounded, 60s budget)",
+          "effort": 40,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Stop hook fires obsidian-memory-sync --quiet --background",
+            "Vault file count grows after 1 session",
+            "Hook does NOT block Stop (fire-and-forget)"
+          ],
+          "deliverables": [
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire stop-obsidian-memory-extract.mjs"
+            },
+            {
+              "path": ".claude/hooks/stop-obsidian-memory-extract.mjs",
+              "type": "hook",
+              "description": "Already exists — verify backgrounded exec, raise timeout to 60s"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P1-U02",
+          "title": "Wire MemoryConsolidationEngine to fire every N=5 sessions",
+          "effort": 60,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "SessionEnd hook checks sessionsSinceConsolidation counter",
+            "On N=5: runs consolidate(); on completion writes patterns to tribal/",
+            "10K decision nodes compress to ≤1K patterns"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/session-consolidate-graph.mjs",
+              "type": "hook",
+              "description": "SessionEnd consolidation trigger"
+            },
+            {
+              "path": "mcp-server/data/state/consolidation-counter.json",
+              "type": "state",
+              "description": "Track sessions since last consolidation"
+            }
+          ],
+          "tools": [
+            "prism_memory:consolidate"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | preserve as .deprecated.json; no destructive delete"
+        },
+        {
+          "id": "P1-U03",
+          "title": "Populate knowledge/tribal/ from existing 3700-tip ledger",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "knowledge/tribal/ contains ≥3000 .md files (1 per tip)",
+            "Each file has frontmatter (id, source, confidence, tags)",
+            "Each file is embedded into Qdrant 'tribal' collection",
+            "Backlinks generated to related tips"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/populate-tribal-vault.mjs",
+              "type": "script",
+              "description": "One-shot population from prism_shop_practice tips registry"
+            }
+          ],
+          "tools": [
+            "prism_shop_practice:tribal_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P1-U04",
+          "title": "Mirror MEMORY.md → H:/prism/knowledge/memories/ with vector index",
+          "effort": 40,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Each entry in C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory/*.md mirrored to H:/prism/knowledge/memories/",
+            "Each mirrored file embedded into Qdrant 'memories' collection",
+            "Hook fires on memory file creation/update"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/memory-mirror-to-vault.mjs",
+              "type": "hook",
+              "description": "PostToolUse Write hook that mirrors C: memory writes to H: vault"
+            },
+            {
+              "path": "scripts/mirror-memories-bootstrap.mjs",
+              "type": "script",
+              "description": "One-shot mirror of existing 56 memory files"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P1-U05",
+          "title": "Mirror CLAUDE.md sections → H:/prism/knowledge/claude-md/ chunked",
+          "effort": 40,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "H:/PRISM/CLAUDE.md and ~/.claude/CLAUDE.md split by ## headers into chunks",
+            "Each chunk in knowledge/claude-md/{section-slug}.md",
+            "Each chunk embedded; semantic search returns top-3 relevant sections per query",
+            "claudemd-ollama-enforcer.mjs updated to query semantic search instead of full-text scan"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/chunk-claudemd-vault.mjs",
+              "type": "script",
+              "description": "Split CLAUDE.md by section headers, embed each"
+            },
+            {
+              "path": ".claude/hooks/claudemd-section-update.mjs",
+              "type": "hook",
+              "description": "PostToolUse Write hook: if CLAUDE.md edited, re-chunk and re-embed"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P2",
+      "title": "Learning Loop — Close the Error → Prewarn Round-Trip",
+      "rationale": "Agent 2 found error capture has 5 silos, prewarn reads only 1. Unify to a single ledger, embed, and let prewarn query vector neighbors.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Define UNIFIED_ERROR_LEDGER schema with source field",
+          "effort": 30,
+          "dependencies": [],
+          "exit_conditions": [
+            "Schema includes: id, ts, source (hook_block|pattern_memory|recovery|session|learner), tool, context, signature, embedding_id",
+            "Migration script: merge existing ERROR_LEARN_LEDGER.jsonl + error-memory.json + ~/.claude/learning/error-recovery.json + session-learning-log.jsonl into UNIFIED_ERROR_LEDGER.jsonl",
+            "Old files preserved as .deprecated for rollback"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/data/state/UNIFIED_ERROR_LEDGER.jsonl",
+              "type": "state",
+              "description": "Single source of truth for all error captures"
+            },
+            {
+              "path": "scripts/migrate-error-ledgers.mjs",
+              "type": "script",
+              "description": "One-shot merge with provenance"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete"
+        },
+        {
+          "id": "P2-U02",
+          "title": "Refactor 4 error-capture hooks to write to unified ledger",
+          "effort": 50,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "exit_conditions": [
+            "error-block-capture.mjs writes to UNIFIED_ERROR_LEDGER",
+            "error-pattern-memory.mjs writes to UNIFIED_ERROR_LEDGER (with source='pattern_memory')",
+            "error-recovery-memory.mjs writes to project state, not ~/.claude/",
+            "error-learner-hook.mjs writes to UNIFIED_ERROR_LEDGER (source='learner')",
+            "All 4 hooks pass smoke test"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/error-block-capture.mjs",
+              "type": "hook",
+              "description": "Refactor to unified ledger"
+            },
+            {
+              "path": ".claude/hooks/error-pattern-memory.mjs",
+              "type": "hook",
+              "description": "Refactor to unified ledger"
+            },
+            {
+              "path": ".claude/hooks/error-recovery-memory.mjs",
+              "type": "hook",
+              "description": "Move from C: to project state, refactor to unified ledger"
+            },
+            {
+              "path": ".claude/hooks/error-learner-hook.mjs",
+              "type": "hook",
+              "description": "Refactor to unified ledger"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P2-U03",
+          "title": "Embed every new error into Qdrant 'errors' collection",
+          "effort": 30,
+          "dependencies": [
+            "P2-U02",
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "On ledger write: error signature embedded → stored in Qdrant",
+            "embedding_id field populated in ledger",
+            "Test: write 5 errors, recall similar by query",
+            "UnifiedErrorLedgerEngine.test.ts: 5+ test cases pass"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/UnifiedErrorLedgerEngine.ts",
+              "type": "source",
+              "description": "Centralized write+embed for error ledger"
+            },
+            {
+              "path": "mcp-server/src/__tests__/UnifiedErrorLedgerEngine.test.ts",
+              "type": "test",
+              "description": "Round-trip: write 5 errors, retrieve via embedding, verify dedup"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P2-U04",
+          "title": "Refactor error-block-prewarn to query Qdrant vector neighbors",
+          "effort": 40,
+          "dependencies": [
+            "P2-U03"
+          ],
+          "exit_conditions": [
+            "Prewarn reads UNIFIED_ERROR_LEDGER + queries Qdrant for top-3 similar past errors",
+            "Coverage: 100% of captures (vs prior 25%)",
+            "Smoke test: trigger known error pattern → prewarn fires with similar past errors cited"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/error-block-prewarn.mjs",
+              "type": "hook",
+              "description": "Replace single-file lookup with semantic vector search"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        }
+      ],
+      "primary_role": "R1"
+    },
+    {
+      "id": "P3",
+      "title": "Asset Routing — Skills, Scripts, Engines, Dispatchers via Ollama",
+      "rationale": "Replace full-list scans with top-K vector retrieval. 587 skills + 401 scripts + 3014 engines + 95 dispatchers compressed to per-prompt top-5.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Skills router — embed all 587 skills, return top-5 per prompt",
+          "effort": 60,
+          "dependencies": [
+            "P0-U02",
+            "P1-U05"
+          ],
+          "exit_conditions": [
+            "All 587 skill descriptions embedded into Qdrant 'skills' collection",
+            "ollama-skill-suggester rewritten to use semantic_search → top-5",
+            "Token saving ≥1000 tok/session (measured)"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/embed-all-skills.mjs",
+              "type": "script",
+              "description": "One-shot embed of skill descriptions"
+            },
+            {
+              "path": ".claude/hooks/ollama-skill-suggester.mjs",
+              "type": "hook",
+              "description": "Rewrite to use semantic_search"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P3-U02",
+          "title": "Scripts router — Ollama summarizes each script to 1-line cache",
+          "effort": 60,
+          "dependencies": [
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "401 scripts → 401 1-line summaries in knowledge/scripts/INDEX.md",
+            "Hook: when Bash invokes a script, look up summary first instead of reading source",
+            "Token saving ≥400 tok per script call"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/summarize-all-scripts-via-ollama.mjs",
+              "type": "script",
+              "description": "Run once; output to knowledge/scripts/INDEX.md"
+            },
+            {
+              "path": ".claude/hooks/script-summary-inject.mjs",
+              "type": "hook",
+              "description": "PreToolUse Bash hook: inject summary if script in cache"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P3-U03",
+          "title": "Engines router — embed 3014 engine descriptions, top-3 per dedup query",
+          "effort": 70,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "All 3014 engines embedded (extract from ENGINE_DIGEST.md + JSDoc)",
+            "duplicationGuardEngine.checkBeforeCreating uses semantic_search instead of fuzzy string match",
+            "False-positive rate <5% on test set"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/embed-all-engines.mjs",
+              "type": "script",
+              "description": "One-shot embed of engine descriptions"
+            },
+            {
+              "path": "mcp-server/src/engines/DuplicationGuardEngine.ts",
+              "type": "source",
+              "description": "Add semantic-search backend, fall back to fuzzy if Qdrant down"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID) | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P3-U04",
+          "title": "Dispatcher action router — top-1 action per verb-object",
+          "effort": 50,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "All 6465 actions embedded with their dispatcher prefix",
+            "ollama-route-recommender wired + uses semantic_search",
+            "Replaces manual /action-search lookups"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/embed-all-actions.mjs",
+              "type": "script",
+              "description": "Extract z.enum + descriptions from all 95 dispatchers"
+            },
+            {
+              "path": ".claude/hooks/ollama-route-recommender.mjs",
+              "type": "hook",
+              "description": "Wire with semantic_search backend"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P3-U05",
+          "title": "Wire ollama-obsidian-rag for memory queries",
+          "effort": 30,
+          "dependencies": [
+            "P1-U03",
+            "P1-U04",
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "Hook fires on UserPromptSubmit when prompt contains memory keywords (remember|recall|previous|last time)",
+            "Queries vault → Ollama summarizes top-5 hits → injects 50-word summary",
+            "Token saving ≥800 tok per memory query"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/ollama-obsidian-rag.mjs",
+              "type": "hook",
+              "description": "Already exists — wire and test"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Add to UserPromptSubmit block"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P10-U04",
+          "title": "Build MemoryFabricRouterEngine — single entry for 12 memory engines",
+          "effort": 80,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Routes by intent: store | recall | consolidate | semantic_search | persist | sync",
+            "prism_memory:* surface unified across PersistentMemory + Qdrant + Conversational + Graph + Fabric",
+            "Old engines retained; router delegates"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/MemoryFabricRouterEngine.ts",
+              "type": "source",
+              "description": "Memory router"
+            },
+            {
+              "path": "mcp-server/src/__tests__/MemoryFabricRouter.test.ts",
+              "type": "test",
+              "description": "Per intent"
+            }
+          ],
+          "tools": [
+            "prism_memory:store",
+            "prism_memory:recall",
+            "prism_memory:consolidate",
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        }
+      ],
+      "primary_role": "R6"
+    },
+    {
+      "id": "P4",
+      "title": "Knowledge Routing — CLAUDE.md / GSD / Directives Vector-Indexed",
+      "rationale": "Stop loading 3000-token CLAUDE.md into every session. Chunk + embed; retrieve only relevant sections per prompt.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "GSD protocol chunked + indexed",
+          "effort": 40,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "data/docs/gsd/GSD_QUICK.md + DEV_PROTOCOL.md split by ## sections",
+            "Each section embedded into Qdrant 'gsd' collection",
+            "New hook gsd-section-retrieve.mjs returns top-3 relevant sections per task description"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/chunk-gsd-vault.mjs",
+              "type": "script",
+              "description": "Split + embed GSD"
+            },
+            {
+              "path": ".claude/hooks/gsd-section-retrieve.mjs",
+              "type": "hook",
+              "description": "UserPromptSubmit: retrieve relevant GSD sections"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search",
+            "prism_gsd:get"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P4-U02",
+          "title": "Shared directives (9 files) summarized + cached",
+          "effort": 40,
+          "dependencies": [
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "All 9 state/shared/CLAUDE-CODEX-*.md summarized via Ollama into 5-line summaries",
+            "Cache at H:/prism/knowledge/directives/SUMMARIES.md",
+            "Auto-refresh on file change (PostToolUse Write hook)"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/summarize-directives-via-ollama.mjs",
+              "type": "script",
+              "description": "Run once, refresh on demand"
+            },
+            {
+              "path": ".claude/hooks/directive-summary-refresh.mjs",
+              "type": "hook",
+              "description": "PostToolUse Write hook"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P4-U03",
+          "title": "claudemd-ollama-enforcer rewired to use semantic chunks",
+          "effort": 30,
+          "dependencies": [
+            "P1-U05"
+          ],
+          "exit_conditions": [
+            "Hook queries claude-md vector index for top-3 relevant sections per prompt",
+            "Injects only those sections (vs scanning full 3000-token file)",
+            "Rate limit relaxed from 3min to 30s (cheaper now)"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/claudemd-ollama-enforcer.mjs",
+              "type": "hook",
+              "description": "Refactor to use semantic_search"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P4-U04",
+          "title": "Wiki query bridge — query knowledge/wiki/ as backstop",
+          "effort": 30,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Existing 722-entry wiki/index.md exposed via prism_memory:semantic_search 'wiki' kind",
+            "Hook fires when prompt has 'wiki' or general-knowledge intent",
+            "Token saving ≥600 tok per wiki lookup vs reading wiki files directly"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/embed-wiki-index.mjs",
+              "type": "script",
+              "description": "Embed wiki entries"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled"
+        }
+      ],
+      "primary_role": "R6"
+    },
+    {
+      "id": "P5",
+      "title": "Orphans — Wire 5 Reasoning Engines to Dispatchers",
+      "rationale": "Agent 4 found PRISMCreativeReasoningEngine, CausalReasoningEngine, CounterfactualReasoningEngine, ScientificReasoningEngine, DiagnosticReasoningEngine all built but with NO dispatcher action. +40% intelligence accessibility per agent.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P5-U01",
+          "title": "Wire prism_ai:creative_solve → PRISMCreativeReasoningEngine",
+          "effort": 40,
+          "dependencies": [],
+          "exit_conditions": [
+            "Action added to aiReasoningDispatcher z.enum",
+            "Schema validates {problem, mode?, constraints?}",
+            "Round-trip test through dispatcher"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+              "type": "source",
+              "description": "Add creative_solve action"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AICreativeSolveDispatcher.test.ts",
+              "type": "test",
+              "description": "Dispatcher round-trip"
+            }
+          ],
+          "tools": [
+            "prism_ai:creative_solve"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P5-U02",
+          "title": "Wire prism_ai:causal_analyze → CausalReasoningEngine",
+          "effort": 40,
+          "dependencies": [],
+          "exit_conditions": [
+            "Action added; schema validates {observation, candidate_causes?}",
+            "Dispatcher round-trip test passes"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+              "type": "source",
+              "description": "Add causal_analyze action"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AICausalAnalyzeDispatcher.test.ts",
+              "type": "test",
+              "description": "Round-trip test"
+            }
+          ],
+          "tools": [
+            "prism_ai:causal_analyze"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P5-U03",
+          "title": "Wire prism_ai:counterfactual_predict → CounterfactualReasoningEngine",
+          "effort": 40,
+          "dependencies": [],
+          "exit_conditions": [
+            "Action added; schema validates {scenario, intervention}",
+            "Round-trip test"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+              "type": "source",
+              "description": "Add counterfactual_predict action"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AICounterfactualDispatcher.test.ts",
+              "type": "test",
+              "description": "Round-trip test"
+            }
+          ],
+          "tools": [
+            "prism_ai:counterfactual_predict"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P5-U04",
+          "title": "Wire prism_ai:scientific_reason → ScientificReasoningEngine (independent of mill alias)",
+          "effort": 40,
+          "dependencies": [],
+          "exit_conditions": [
+            "Action added (currently only callable via prism_ai:ai_mill_scientific_analyze)",
+            "Schema validates generic scientific reasoning input",
+            "Round-trip test"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+              "type": "source",
+              "description": "Add scientific_reason action"
+            }
+          ],
+          "tools": [
+            "prism_ai:scientific_reason"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P5-U05",
+          "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
+          "effort": 40,
+          "dependencies": [],
+          "exit_conditions": [
+            "Action added to intelligenceDispatcher z.enum",
+            "Schema validates {symptoms, context}",
+            "Round-trip test"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/intelligenceDispatcher.ts",
+              "type": "source",
+              "description": "Add diagnose_failure action"
+            }
+          ],
+          "tools": [
+            "prism_intelligence:diagnose_failure"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        }
+      ],
+      "primary_role": "R1"
+    },
+    {
+      "id": "P6",
+      "title": "Enforcement — H-Drive Mirror + Missing CLAUDE.md Rule Hooks",
+      "rationale": "User declared H: as master drive (persistent rule). Mirror C: writes to H: automatically. Plus: 8 CLAUDE.md rules currently unforced (Agent 5).",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P6-U01",
+          "title": "H-drive mirror hook — every C: write triggers H: mirror",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "PostToolUse Write hook detects C: paths under user .claude profile",
+            "Mirrors to H:/.claude/projects/H--PRISM/ equivalent",
+            "Audit script flags C-only files",
+            "Tested: write to C:/Users/.claude/projects/.../memory/foo.md → appears at H:/.claude/projects/.../memory/foo.md"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/mirror-c-to-h.mjs",
+              "type": "hook",
+              "description": "PostToolUse Write hook"
+            },
+            {
+              "path": "scripts/mirror-c-to-h-audit.mjs",
+              "type": "script",
+              "description": "Find C-only files, report"
+            },
+            {
+              "path": "scripts/bootstrap-h-mirror.mjs",
+              "type": "script",
+              "description": "One-shot bootstrap mirror of existing C: state"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P6-U02",
+          "title": "Add 4 hooks for unforced CLAUDE.md rules",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "engine-digest-precheck.mjs PreToolUse Write — warn if engine name similar to existing in ENGINE_DIGEST.md",
+            "rtk-prefix-reminder.mjs PreToolUse Bash — suggest rtk wrapper for chatty commands",
+            "commit-format-validator.mjs PostToolUse Bash — warn if commit subject not [SCOPE]/U-ID:",
+            "compact-interval-warning.mjs Stop — warn if ≥3 units since last /compact"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/engine-digest-precheck.mjs",
+              "type": "hook",
+              "description": "Warn before duplicate engine creation"
+            },
+            {
+              "path": ".claude/hooks/rtk-prefix-reminder.mjs",
+              "type": "hook",
+              "description": "Suggest rtk wrapper"
+            },
+            {
+              "path": ".claude/hooks/commit-format-validator.mjs",
+              "type": "hook",
+              "description": "Validate commit subject"
+            },
+            {
+              "path": ".claude/hooks/compact-interval-warning.mjs",
+              "type": "hook",
+              "description": "Warn on overdue compact"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P6-U03",
+          "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Keep wired: awareness-snapshot, awareness-bootstrap, prism-awareness-cache",
+            "Move 10 redundant awareness hooks to .claude/hooks/.deprecated/ (NOT deleted — per asset-deletion rule)",
+            "settings.json updated to wire only the 3 canonical",
+            "Documented in MEMORY.md"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/.deprecated/",
+              "type": "config",
+              "description": "Move 10 redundant awareness hooks here"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire only 3 canonical awareness hooks"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P7",
+      "title": "Verify — Token Economy Benchmark + Cross-PC Handoff Test",
+      "rationale": "Prove the wiring actually saves tokens and survives PC swap. Without this gate, claims of 80% reduction are aspirational.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P7-U01",
+          "title": "Token-economy benchmark — measure pre vs post savings",
+          "effort": 60,
+          "dependencies": [
+            "P0-U03",
+            "P3-U01",
+            "P3-U02",
+            "P3-U03",
+            "P3-U04",
+            "P3-U05",
+            "P4-U03"
+          ],
+          "exit_conditions": [
+            "Synthetic 10-prompt session reproducible",
+            "Pre-wiring baseline captured (from offload-stats reset point)",
+            "Post-wiring measurement after Phases P0-P6 complete",
+            "Report: token savings per category in TOKEN-ECONOMY-REPORT.md",
+            "Total savings ≥50% (target: 80%; floor: 50%)"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/token-economy-benchmark.mjs",
+              "type": "script",
+              "description": "Synthetic 10-prompt session, measure injection token cost"
+            },
+            {
+              "path": "TOKEN-ECONOMY-REPORT.md",
+              "type": "doc",
+              "description": "Pre/post comparison + per-category breakdown"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P7-U02",
+          "title": "Cross-PC handoff test — verify H: drive is sufficient",
+          "effort": 40,
+          "dependencies": [
+            "P6-U01",
+            "P1-U04"
+          ],
+          "exit_conditions": [
+            "Test: write memory + handoff on this PC; eject SSD; document procedure for verifying on home PC",
+            "All test artifacts on H: drive only (no C: dependencies)",
+            "Documented in CROSS-PC-HANDOFF-TEST.md",
+            "QdrantMemoryEngine state survives the swap (verified via semantic_search after re-mount)"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/cross-pc-handoff-verify.mjs",
+              "type": "script",
+              "description": "Audit script that proves H-only state"
+            },
+            {
+              "path": "CROSS-PC-HANDOFF-TEST.md",
+              "type": "doc",
+              "description": "Procedure + acceptance criteria"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled"
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P8",
+      "title": "Schema Hardening — Eliminate 161 z.any() + add .describe()",
+      "rationale": "Agent 4 found 161 z.any() instances bypass all validation across PRISM dispatchers; 0/340 schema fields have .describe() so MCP tool descriptions are missing. Single highest-leverage code-quality fix.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P8-U01",
+          "title": "Inventory all 161 z.any() instances + classify by replacement type",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "scripts/audit-zany.mjs lists every occurrence with file:line + suggested replacement",
+            "ZANY-INVENTORY.json categorizes each: object-shape | union | record | unknown"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/audit-zany.mjs",
+              "type": "script",
+              "description": "Find + classify all z.any() instances"
+            },
+            {
+              "path": "ZANY-INVENTORY.json",
+              "type": "state",
+              "description": "Categorized z.any() inventory"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete"
+        },
+        {
+          "id": "P8-U02",
+          "title": "Replace z.any() in adaptiveControl, atcs, autonomous schemas (high-traffic dispatchers)",
+          "effort": 60,
+          "dependencies": [
+            "P8-U01"
+          ],
+          "exit_conditions": [
+            "Three target schemas: 0 z.any() remaining",
+            "Replaced with explicit z.object / z.union / z.record(z.unknown())",
+            "Tests pass after refactor"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+              "type": "schema",
+              "description": "Eliminate z.any()"
+            },
+            {
+              "path": "mcp-server/src/schemas/atcsActionSchemas.ts",
+              "type": "schema",
+              "description": "Eliminate z.any()"
+            },
+            {
+              "path": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+              "type": "schema",
+              "description": "Eliminate z.any()"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert; old schema preserved in git history"
+        },
+        {
+          "id": "P8-U03",
+          "title": "Sweep remaining ~150 z.any() across all other schemas",
+          "effort": 80,
+          "dependencies": [
+            "P8-U02"
+          ],
+          "exit_conditions": [
+            "grep z.any() in mcp-server/src/schemas/ returns 0 matches",
+            "All 95 dispatchers compile cleanly",
+            "No regression in test suite"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/schemas/*.ts",
+              "type": "schema",
+              "description": "Sweep remaining z.any() instances"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert; old schema preserved in git history"
+        },
+        {
+          "id": "P8-U04",
+          "title": "Backfill .describe() on all 340 schema fields via Ollama",
+          "effort": 70,
+          "dependencies": [
+            "P8-U03"
+          ],
+          "exit_conditions": [
+            "scripts/add-schema-describes.mjs uses qwen-32b to generate description per field",
+            "Coverage greater than or equal to 95% of fields have .describe()",
+            "MCP tool descriptions improved on action introspection"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/add-schema-describes.mjs",
+              "type": "script",
+              "description": "Ollama-powered describe backfill"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P8-U05",
+          "title": "Add prism_dev:schema_coverage_audit dispatcher action",
+          "effort": 30,
+          "dependencies": [
+            "P8-U04"
+          ],
+          "exit_conditions": [
+            "Action added to devDispatcher z.enum",
+            "Reports z.any() count, .describe() coverage, schema-vs-dispatcher drift",
+            "Round-trip dispatcher test passes"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/devDispatcher.ts",
+              "type": "source",
+              "description": "Add schema_coverage_audit action"
+            },
+            {
+              "path": "mcp-server/src/engines/SchemaQualityAuditEngine.ts",
+              "type": "source",
+              "description": "New engine"
+            },
+            {
+              "path": "mcp-server/src/__tests__/SchemaCoverageAudit.test.ts",
+              "type": "test",
+              "description": "Round-trip test"
+            }
+          ],
+          "tools": [
+            "prism_dev:schema_coverage_audit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P8-U06",
+          "title": "Wire pre-commit hook to block z.any() reintroduction",
+          "effort": 30,
+          "dependencies": [
+            "P8-U05"
+          ],
+          "exit_conditions": [
+            "PreToolUse Write hook on schemas/*.ts blocks if diff adds z.any()",
+            "Tested: synthetic z.any() in PR diff triggers block"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/zany-reintroduction-block.mjs",
+              "type": "hook",
+              "description": "Pre-write gate"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire the hook"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        }
+      ],
+      "primary_role": "R1"
+    },
+    {
+      "id": "P9",
+      "title": "AUTO Chain Wiring — Connect Quality Engines to Live Consumers",
+      "rationale": "Agent 5: AUTO-0 through AUTO-6 (QualityScoreEngine, SelfImprovementPatternEngine, AutoFixPipelineEngine, QualityDashboardEngine, SystemVariabilityIndexEngine, FormulaValidationEngine) wired only in devDispatcher. SelfImprovementPatternEngine never feeds AutoFixPipelineEngine. 4 engines have no tests. System measures quality, does not act.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P9-U01",
+          "title": "Add tests for 4 untested AUTO engines",
+          "effort": 80,
+          "dependencies": [],
+          "exit_conditions": [
+            "AutoFixPipelineEngine.test.ts created (happy + 3 failure paths)",
+            "QualityDashboardEngine.test.ts created",
+            "SelfImprovementPatternEngine.test.ts created",
+            "SystemVariabilityIndexEngine.test.ts created",
+            "All pass: npx vitest run"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/__tests__/AutoFixPipelineEngine.test.ts",
+              "type": "test",
+              "description": "Coverage tests"
+            },
+            {
+              "path": "mcp-server/src/__tests__/QualityDashboardEngine.test.ts",
+              "type": "test",
+              "description": "Coverage tests"
+            },
+            {
+              "path": "mcp-server/src/__tests__/SelfImprovementPatternEngine.test.ts",
+              "type": "test",
+              "description": "Coverage tests"
+            },
+            {
+              "path": "mcp-server/src/__tests__/SystemVariabilityIndexEngine.test.ts",
+              "type": "test",
+              "description": "Coverage tests"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit"
+        },
+        {
+          "id": "P9-U02",
+          "title": "Wire SelfImprovementPatternEngine to AutoFixPipelineEngine handoff",
+          "effort": 60,
+          "dependencies": [
+            "P9-U01"
+          ],
+          "exit_conditions": [
+            "Patterns emit to AutoFixPipelineEngine.suggest()",
+            "Auto-fix candidates persist to data/state/auto-fix-pipeline.json",
+            "Round-trip test passes"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/AutoChainOrchestratorEngine.ts",
+              "type": "source",
+              "description": "Wires the chain end-to-end"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AutoChainOrchestrator.test.ts",
+              "type": "test",
+              "description": "Round-trip test"
+            }
+          ],
+          "tools": [
+            "prism_dev:auto_fix_generate"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P9-U03",
+          "title": "Wire QualityDashboardEngine alerts to PreCompact + Stop hooks",
+          "effort": 50,
+          "dependencies": [
+            "P9-U01"
+          ],
+          "exit_conditions": [
+            "Stop hook surfaces quality alerts (regression, threshold breach)",
+            "PreCompact hook runs quality_dashboard before compaction",
+            "Critical alerts block Stop until acknowledged"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/quality-dashboard-alert.mjs",
+              "type": "hook",
+              "description": "Stop + PreCompact event surfaces"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire to Stop + PreCompact"
+            }
+          ],
+          "tools": [
+            "prism_dev:quality_dashboard"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+        },
+        {
+          "id": "P9-U04",
+          "title": "Add buildDispatcher + hookDispatcher + sessionDispatcher consumers of AUTO chain",
+          "effort": 60,
+          "dependencies": [
+            "P9-U02"
+          ],
+          "exit_conditions": [
+            "buildDispatcher.preEdit calls QualityScoreEngine for affected file",
+            "hookDispatcher.audit calls QualityDashboardEngine",
+            "sessionDispatcher.end calls SelfImprovementPatternEngine.consolidate",
+            "3 round-trip tests"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/buildDispatcher.ts",
+              "type": "source",
+              "description": "Add AUTO chain wiring"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/hookDispatcher.ts",
+              "type": "source",
+              "description": "Add AUTO chain wiring"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/sessionDispatcher.ts",
+              "type": "source",
+              "description": "Add AUTO chain wiring"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P9-U05",
+          "title": "TokenEconomyEngine end-of-session report",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Stop hook generates session token report by category (hooks, injections, tool-calls, file-reads)",
+            "Report written to data/state/token-economy-session.json",
+            "Top 3 waste patterns surfaced"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/token-economy-report.mjs",
+              "type": "hook",
+              "description": "Stop hook"
+            },
+            {
+              "path": "mcp-server/data/state/token-economy-session.json",
+              "type": "state",
+              "description": "Per-session report"
+            }
+          ],
+          "tools": [
+            "prism_dev:token_economy_report"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | preserve as .deprecated.json; no destructive delete"
+        }
+      ],
+      "primary_role": "R1"
+    },
+    {
+      "id": "P10",
+      "title": "Duplicate Consolidation — 5 Asset Class Clusters",
+      "rationale": "All 5 agents identified massive duplication: 17 awareness hooks, 19 validation engines, 13 audit engines, 12 memory engines, 8 LEARN skills, 8 VALIDATE skills, 5 REVIEW skills, 5 MEMORY skills, 4 AUDIT skills, 44 audit scripts. Consolidation reduces cognitive load + eliminates conflict risk.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P10-U01",
+          "title": "Consolidate 17 awareness hooks down to 3 canonical",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Keep wired: awareness-snapshot, awareness-bootstrap, prism-awareness-cache",
+            "Move 14 redundant to .claude/hooks/.deprecated/ (do NOT delete)",
+            "settings.json wires only 3 canonical",
+            "Documented in MEMORY.md"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/.deprecated/",
+              "type": "config",
+              "description": "14 redundant awareness hooks moved here"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire only 3 canonical"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+        },
+        {
+          "id": "P10-U02",
+          "title": "Build ValidationOrchestratorEngine — single entry point for 19 validation engines",
+          "effort": 80,
+          "dependencies": [],
+          "exit_conditions": [
+            "Engine routes by domain: code | physics | data | post | formula | machine | etc.",
+            "All 19 validation engines accessible via prism_dev:validate { domain, target }",
+            "Old engines preserved (no deletion); new orchestrator delegates"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/ValidationOrchestratorEngine.ts",
+              "type": "source",
+              "description": "Single entry router"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ValidationOrchestrator.test.ts",
+              "type": "test",
+              "description": "Round-trip per domain"
+            }
+          ],
+          "tools": [
+            "prism_dev:validate"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P10-U03",
+          "title": "Build AuditChainEngine — consolidate 13 audit engines under single dispatcher action",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": [
+            "Engine routes audit type: code | machine | data | hook | system | security | etc.",
+            "prism_dev:audit_chain { type, scope } as single action",
+            "Old engines preserved as backends"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/AuditChainEngine.ts",
+              "type": "source",
+              "description": "Audit router + composer"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AuditChain.test.ts",
+              "type": "test",
+              "description": "Per audit type"
+            }
+          ],
+          "tools": [
+            "prism_dev:audit_chain"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P10-U04",
+          "title": "Build MemoryFabricRouterEngine — single entry for 12 memory engines",
+          "effort": 80,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Routes by intent: store | recall | consolidate | semantic_search | persist | sync",
+            "prism_memory:* surface unified across PersistentMemory + Qdrant + Conversational + Graph + Fabric",
+            "Old engines retained; router delegates"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/MemoryFabricRouterEngine.ts",
+              "type": "source",
+              "description": "Memory router"
+            },
+            {
+              "path": "mcp-server/src/__tests__/MemoryFabricRouter.test.ts",
+              "type": "test",
+              "description": "Per intent"
+            }
+          ],
+          "tools": [
+            "prism_memory:store",
+            "prism_memory:recall",
+            "prism_memory:consolidate",
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        },
+        {
+          "id": "P10-U05",
+          "title": "Skill cluster consolidation — create /audit /review /validate-program /learn /memory dispatchers",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "/audit routes to: context, program, harness, security, system, hook, etc.",
+            "/review routes to: cad, error, code, github, sparc",
+            "/validate-program routes by --machine= flag",
+            "/learn auto-detects format (PDF / video / text / url)",
+            "/memory routes search | list | prune | sync | export",
+            "Existing specific skills preserved; new dispatchers reference them"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/audit.md",
+              "type": "command",
+              "description": "Unified audit dispatcher"
+            },
+            {
+              "path": ".claude/commands/review.md",
+              "type": "command",
+              "description": "Unified review dispatcher"
+            },
+            {
+              "path": ".claude/commands/validate-program.md",
+              "type": "command",
+              "description": "Unified validation dispatcher"
+            },
+            {
+              "path": ".claude/commands/learn.md",
+              "type": "command",
+              "description": "Unified learn dispatcher"
+            },
+            {
+              "path": ".claude/commands/memory.md",
+              "type": "command",
+              "description": "Unified memory dispatcher"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit"
+        },
+        {
+          "id": "P10-U06",
+          "title": "Consolidate 44 audit scripts into 1 unified audit.mjs with subcommands",
+          "effort": 50,
+          "dependencies": [
+            "P10-U03"
+          ],
+          "exit_conditions": [
+            "scripts/audit.mjs <subcommand> handles: materials, hooks, machines, inventory, security, etc.",
+            "44 individual audit scripts moved to scripts/.deprecated/",
+            "Cron wired to call unified script daily"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/audit.mjs",
+              "type": "script",
+              "description": "Unified audit dispatcher"
+            },
+            {
+              "path": "scripts/.deprecated/",
+              "type": "config",
+              "description": "44 superseded scripts archived"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | delete script + remove cron entry if scheduled"
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P11",
+      "title": "Auto-Invoke Wiring — Skills + Hooks + Cron Triggers",
+      "rationale": "Agents 1, 2, 3 found massive auto-invoke gap: 7/150 skills with policy triggers, 0 scripts on cron, 50% of hooks wired. Wire it all.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P11-U01",
+          "title": "Add policy frontmatter (auto-invoke triggers) to top 25 dev-quality skills",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "skill-modernize tool run on 25 high-leverage skills (forge-triple, dedup, scrutinize, context-audit, memory-search, error-learn-review, harness-security-audit, etc.)",
+            "Each gets policy.tier + policy.triggers in frontmatter",
+            "Auto-invoke verified by triggering keyword + observing skill activation"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/*.md (25 files)",
+              "type": "command",
+              "description": "Add policy frontmatter to top 25 skills"
+            }
+          ],
+          "tools": [
+            "skill-modernize"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit"
+        },
+        {
+          "id": "P11-U02",
+          "title": "Wire 25 dangling dev-quality hooks (Tier 1-3 from Agent 3)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "25 hooks wired in settings.json: enforce-stub-detector, enforce-test-quality, build-guard-hook, enforce-wiring-gate, anti-pattern-detector, file-claim-guard, file-claim-commit-guard, chat-bus-inject, cross-terminal-conflict, auto-lint-post-edit, async-pattern-checker, consistent-return-checker, type-safety-checker, api-contract-enforcer, context-priority-coordinator, hook-saturation-alert, embedding-cache-guard, bash-result-cache, claude-md-mirror, memory-system-init, state-write-watch, session-action-memory, hook-schema-validator, critical-file-guard, dep-graph-impact",
+            "Each smoke-tested with synthetic payload (no schema violation)",
+            "Audit re-run: dangling count drops by 25"
+          ],
+          "deliverables": [
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Add 25 hooks across PreToolUse / PostToolUse / SessionStart / Stop blocks"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+        },
+        {
+          "id": "P11-U03",
+          "title": "Cron-schedule top 10 dev scripts (mirror-c-to-h, vault-population-audit, etc.)",
+          "effort": 40,
+          "dependencies": [],
+          "exit_conditions": [
+            "Windows Task Scheduler entries for: nightly mirror-c-to-h, daily inventory refresh, daily vault audit, hourly Ollama health, weekly token-economy report",
+            "Documented in CRON-SCHEDULE.md",
+            "Each script logs to data/state/cron-runs.jsonl"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/install-cron-schedule.ps1",
+              "type": "script",
+              "description": "PowerShell installer for Windows Task Scheduler"
+            },
+            {
+              "path": "CRON-SCHEDULE.md",
+              "type": "doc",
+              "description": "Schedule reference + how-to"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "delete script + remove cron entry if scheduled"
+        },
+        {
+          "id": "P11-U04",
+          "title": "Run skill-modernize on remaining 125 skills (model / effort / context fields)",
+          "effort": 50,
+          "dependencies": [
+            "P11-U01"
+          ],
+          "exit_conditions": [
+            "Greater than or equal to 95% of skills have model + effort + context frontmatter",
+            "Inferred via Ollama qwen-32b classifier",
+            "Backup of original frontmatter preserved"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/*.md (125 files)",
+              "type": "command",
+              "description": "Modernize frontmatter via skill-modernize"
+            }
+          ],
+          "tools": [
+            "skill-modernize"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit"
+        },
+        {
+          "id": "P11-U05",
+          "title": "Generate 8 new dev-quality skill .md files (Agent 1 finding)",
+          "effort": 60,
+          "dependencies": [],
+          "rollback": "delete the 8 new skill files; preserved in git history",
+          "exit_conditions": [
+            "/optimize-context.md exists with policy frontmatter (auto-invoke on token >70%)",
+            "/token-economy-report.md exists",
+            "/vault-ingest.md exists (push session learnings to Obsidian)",
+            "/qdrant-semantic-search.md exists (replaces /memory-search)",
+            "/enforce-handoff-topic.md exists (reactive: peer chat overwrite detector)",
+            "/skill-sync-with-mcp.md exists (verify each skill has dispatcher action)",
+            "/learned-patterns-apply.md exists (extract+apply from error-learn ledger)",
+            "/context-delta.md exists (show what changed since last checkpoint)"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/optimize-context.md",
+              "type": "command",
+              "description": "Auto-slim before each prompt if budget > 70%"
+            },
+            {
+              "path": ".claude/commands/token-economy-report.md",
+              "type": "command",
+              "description": "End-of-session per-category spend"
+            },
+            {
+              "path": ".claude/commands/vault-ingest.md",
+              "type": "command",
+              "description": "Push session learnings to Obsidian"
+            },
+            {
+              "path": ".claude/commands/qdrant-semantic-search.md",
+              "type": "command",
+              "description": "Unified semantic search across vault"
+            },
+            {
+              "path": ".claude/commands/enforce-handoff-topic.md",
+              "type": "command",
+              "description": "Reactive: peer overwrite detector"
+            },
+            {
+              "path": ".claude/commands/skill-sync-with-mcp.md",
+              "type": "command",
+              "description": "Skill ↔ MCP dispatcher coverage gate"
+            },
+            {
+              "path": ".claude/commands/learned-patterns-apply.md",
+              "type": "command",
+              "description": "Apply learned patterns from error ledger"
+            },
+            {
+              "path": ".claude/commands/context-delta.md",
+              "type": "command",
+              "description": "Show context diff since checkpoint"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P11-U06",
+          "title": "Ollama family skills — add policy frontmatter to 9 ollama-* skills",
+          "effort": 30,
+          "dependencies": [
+            "P11-U01"
+          ],
+          "rollback": "git revert frontmatter changes; skills still callable",
+          "exit_conditions": [
+            "/ollama-summarize, /ollama-classify, /ollama-explain, /ollama-docstring, /ollama-extract, /ollama-test-stub, /ollama-error-triage, /ollama-diff-summary, /ollama-boilerplate all have policy.tier + policy.triggers",
+            "Auto-invoke verified: typing 'summarize this' surfaces /ollama-summarize",
+            "Token cost noted in frontmatter (each skill <500 tok per fire)"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/ollama-*.md (9 files)",
+              "type": "command",
+              "description": "Add policy frontmatter to all ollama-* skills"
+            }
+          ],
+          "tools": [
+            "skill-modernize"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P11-U07",
+          "title": "Wire 14 critical-gap awareness/goal/continuity hooks (Agent 3 finding)",
+          "effort": 80,
+          "dependencies": [],
+          "rollback": "remove from settings.json wiring; hooks remain dormant",
+          "exit_conditions": [
+            "Wired: awareness-bootstrap, goal-stack-init, goal-stack-inject, metacognition-check, ollama-auto-router, ollama-prism-intelligence, working-set-awareness, prism-intelligence-briefing, reasoning-completeness, post-write-sync-awareness, test-quality-gate-stop, session-continuity-chain, action-triple-sync, session-awareness-bootstrap",
+            "Each smoke-tested with synthetic stdin",
+            "No schema violations in hook-schema-audit re-run"
+          ],
+          "deliverables": [
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire 14 hooks across SessionStart/UserPromptSubmit/Stop blocks"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P11-U08",
+          "title": "Consolidate 16 stop_on_* event gates into single canonical Stop chain",
+          "effort": 60,
+          "dependencies": [],
+          "rollback": "restore individual stop_on_* hooks from .deprecated/ + revert settings.json",
+          "exit_conditions": [
+            "All 16 stop_on_* hooks (awareness-degraded, circular-deps, dirty-registry, extraction-incomplete, hook-unregistered, etc.) merged into single stop-gate-chain.mjs that runs each check in sequence",
+            "Old 16 hooks moved to .claude/hooks/.deprecated/ (NOT deleted)",
+            "settings.json wires only the new chain; ~90% of Stop event token cost saved (16 → 1 invocation)",
+            "Each gate retains its block decision via decision matrix output"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/stop-gate-chain.mjs",
+              "type": "hook",
+              "description": "Unified Stop gate runner"
+            },
+            {
+              "path": ".claude/hooks/.deprecated/stop_on_*.mjs (16 files)",
+              "type": "config",
+              "description": "Archived originals"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire chain, unwire 16 originals"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P12",
+      "title": "God Object Refactors — Split Mega-Dispatchers (security only, others deferred)",
+      "rationale": "Agent 4 + Agent 5 found securityDispatcher 1055 actions (god dispatcher). PP/CAM dispatcher splits DEFERRED to a separate manufacturing-scoped milestone per user no-machining rule.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P12-U01",
+          "title": "Split securityDispatcher (1055 actions) into 5 sub-dispatchers",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "New: securityAuth (200), securityEncryption (150), securityCompliance (200), securityAudit (200), securityThreat (305 = remainder)",
+            "Old securityDispatcher remains as forwarding facade for backward compat",
+            "All test files pass"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/securityAuthDispatcher.ts",
+              "type": "source",
+              "description": "Split 1: auth"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/securityEncryptionDispatcher.ts",
+              "type": "source",
+              "description": "Split 2: encryption"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/securityComplianceDispatcher.ts",
+              "type": "source",
+              "description": "Split 3: compliance"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/securityAuditDispatcher.ts",
+              "type": "source",
+              "description": "Split 4: audit"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/securityThreatDispatcher.ts",
+              "type": "source",
+              "description": "Split 5: threat"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+        }
+      ],
+      "primary_role": "R3"
+    },
+    {
+      "id": "P13",
+      "title": "Docker Container Pipeline — Leverage Installed Docker (currently unused)",
+      "rationale": "User reported Docker is installed but never utilized. Use it for: (1) batch document/PDF processing in isolated containers, (2) parallel test runs, (3) peer-repo CI validation, (4) Qdrant + Ollama orchestration via docker-compose, (5) reproducible builds across PCs.",
+      "primary_role": "R3",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P13-U01",
+          "title": "Audit existing docker-compose.yml + Dockerfiles across PRISM + peer repos",
+          "effort": 30,
+          "dependencies": [],
+          "rollback": "read-only audit; nothing to revert",
+          "exit_conditions": [
+            "scripts/docker-audit.mjs lists every Dockerfile + docker-compose.yml on H:",
+            "Categorize: dev, prod, infra, scratch",
+            "Identify which images are buildable vs broken"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/docker-audit.mjs",
+              "type": "script",
+              "description": "Find + classify Docker assets"
+            },
+            {
+              "path": "DOCKER-INVENTORY.md",
+              "type": "doc",
+              "description": "Categorized Docker asset map"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P13-U02",
+          "title": "Create docker-compose.intel.yml — Qdrant + Ollama orchestrated together",
+          "effort": 60,
+          "dependencies": [
+            "P13-U01"
+          ],
+          "rollback": "docker-compose down + delete the compose file",
+          "exit_conditions": [
+            "docker-compose.intel.yml runs Qdrant (port 6333) + Ollama (port 11434) + nomic-embed-text",
+            "Health-check endpoints exposed",
+            "Volume-mounted to H: drive (cross-PC persistent state)",
+            "Auto-start on Docker Desktop launch"
+          ],
+          "deliverables": [
+            {
+              "path": "docker-compose.intel.yml",
+              "type": "config",
+              "description": "Qdrant + Ollama unified compose"
+            },
+            {
+              "path": "docker/qdrant.Dockerfile",
+              "type": "config",
+              "description": "Qdrant config"
+            },
+            {
+              "path": ".claude/hooks/docker-intel-autostart.mjs",
+              "type": "hook",
+              "description": "SessionStart: ensure intel stack is up"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P13-U03",
+          "title": "Build batch-processor container for PDF/document ingestion (offload from main thread)",
+          "effort": 60,
+          "dependencies": [
+            "P13-U02"
+          ],
+          "rollback": "remove batch-processor service from compose; Ollama queries fall back to direct calls",
+          "exit_conditions": [
+            "Container processes PDFs from H:/prism/inbox/ → embeddings → Qdrant",
+            "Idempotent: re-running on same input produces same chunks",
+            "Logs to H:/prism/state/batch-processor.log"
+          ],
+          "deliverables": [
+            {
+              "path": "docker/batch-processor.Dockerfile",
+              "type": "config",
+              "description": "Python+Ollama+pypdf container"
+            },
+            {
+              "path": "docker/batch-processor/process.py",
+              "type": "script",
+              "description": "Batch loop"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P13-U04",
+          "title": "Peer-repo CI: docker-compose validates all 20 prism-* sibling repos against canonical schemas",
+          "effort": 50,
+          "dependencies": [
+            "P13-U01"
+          ],
+          "rollback": "remove ci compose file",
+          "exit_conditions": [
+            "docker-compose.peerci.yml runs schema validation across H:/prism-*/",
+            "Reports drift: which sibling repo has dispatcher actions absent in canonical",
+            "Output to PEER-REPO-DRIFT.md"
+          ],
+          "deliverables": [
+            {
+              "path": "docker-compose.peerci.yml",
+              "type": "config",
+              "description": "Cross-repo CI"
+            },
+            {
+              "path": "scripts/peer-repo-schema-diff.mjs",
+              "type": "script",
+              "description": "Drift detector"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P14",
+      "title": "Knowledge Ingestion Pipeline (KIP) — 49GB Resources → Obsidian Vault",
+      "rationale": "Agent 3: H:/PRISM/resources/ has 49GB of training material (MIT courses, manufacturer catalogs, OPEN MIND learning) sitting unindexed. Ingest non-machining-specific portions (general physics, ML, CS knowledge) into vault with semantic links.",
+      "primary_role": "R6",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P14-U01",
+          "title": "Inventory + classify resources/ subdirectories (skip machining-specific)",
+          "effort": 40,
+          "dependencies": [],
+          "rollback": "read-only audit",
+          "exit_conditions": [
+            "scripts/resources-inventory.mjs lists all subdirs with size + content type",
+            "Classify: general-knowledge | machining-specific | mixed | binary-assets",
+            "Filter for general-knowledge subset"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/resources-inventory.mjs",
+              "type": "script",
+              "description": "Catalogue resources/"
+            },
+            {
+              "path": "RESOURCES-INVENTORY.md",
+              "type": "doc",
+              "description": "Filtered ingest candidates"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P14-U02",
+          "title": "PDF batch-ingest worker (uses P13 batch-processor container)",
+          "effort": 60,
+          "dependencies": [
+            "P14-U01",
+            "P13-U03"
+          ],
+          "rollback": "delete generated vault entries; resources/ untouched",
+          "exit_conditions": [
+            "Each PDF → markdown chunks → Obsidian vault under knowledge/ingested/",
+            "Each chunk embedded into Qdrant with provenance frontmatter",
+            "Skip machining-specific PDFs by classification"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/ingest-pdf-batch.mjs",
+              "type": "script",
+              "description": "Driver for batch-processor container"
+            },
+            {
+              "path": "knowledge/ingested/",
+              "type": "data",
+              "description": "Vault dir for ingested PDFs"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P14-U03",
+          "title": "Auto-link ingested chunks to existing engines/dispatchers via semantic similarity",
+          "effort": 50,
+          "dependencies": [
+            "P14-U02"
+          ],
+          "rollback": "delete generated _Backlinks.md sections",
+          "exit_conditions": [
+            "Each ingested chunk gets 'related engines/skills/actions' backlink section",
+            "Generated via semantic_search of chunk content vs engine descriptions",
+            "Vault becomes navigable: open a topic page → see relevant PRISM code"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/auto-backlink-vault.mjs",
+              "type": "script",
+              "description": "Generate _Backlinks per chunk"
+            }
+          ],
+          "tools": [
+            "prism_memory:semantic_search"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P14-U04",
+          "title": "Wiki-bootstrap from MIT courses (general physics/ML chapters only)",
+          "effort": 40,
+          "dependencies": [
+            "P14-U02"
+          ],
+          "rollback": "delete generated wiki entries",
+          "exit_conditions": [
+            "knowledge/wiki/ entries derived from MIT physics/ML course material",
+            "Each wiki entry has source citation",
+            "Indexed in wiki/index.md (extending the 722-entry baseline)"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/wiki-bootstrap-mit.mjs",
+              "type": "script",
+              "description": "MIT → wiki entries"
+            }
+          ],
+          "tools": [
+            "prism_knowledge:learn_ingest_document"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P15",
+      "title": "Cross-Session Memory (CSM) — Merge 18 Worktree Memory DBs",
+      "rationale": "Agent 3: 18 worktree memory.db files + 130+ plan files persist per-session episodic recall but never cross-query. Cross-session learning patterns trapped in silos.",
+      "primary_role": "R6",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P15-U01",
+          "title": "Audit all .claude/memory.db files across worktrees + sessions",
+          "effort": 30,
+          "dependencies": [],
+          "rollback": "read-only",
+          "exit_conditions": [
+            "scripts/csm-inventory.mjs finds every memory.db on H:",
+            "Reports row count, schema version, last-modified per DB",
+            "Identify schema variants (need migration vs already compatible)"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/csm-inventory.mjs",
+              "type": "script",
+              "description": "Memory DB inventory"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P15-U02",
+          "title": "Build CrossSessionMemoryBridge engine + dispatcher action",
+          "effort": 60,
+          "dependencies": [
+            "P15-U01",
+            "P0-U02"
+          ],
+          "rollback": "remove engine + dispatcher action; original DBs untouched",
+          "exit_conditions": [
+            "CrossSessionMemoryBridgeEngine.ts queries every worktree memory.db",
+            "prism_memory:cross_session_recall(query) action returns merged top-K",
+            "Round-trip test against synthetic fixture"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/CrossSessionMemoryBridgeEngine.ts",
+              "type": "source",
+              "description": "Cross-DB query engine"
+            },
+            {
+              "path": "mcp-server/src/__tests__/CrossSessionMemoryBridge.test.ts",
+              "type": "test",
+              "description": "Round-trip"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/memoryDispatcher.ts",
+              "type": "source",
+              "description": "Add cross_session_recall action"
+            }
+          ],
+          "tools": [
+            "prism_memory:cross_session_recall"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P15-U03",
+          "title": "Plan-file ingest worker — extract decision trajectories from .claude/plans/*.md",
+          "effort": 50,
+          "dependencies": [],
+          "rollback": "delete generated trajectory files",
+          "exit_conditions": [
+            "scripts/ingest-plans-trajectories.mjs parses 130+ plan files",
+            "Each plan → AgentDB trajectory record (action, result, quality)",
+            "Trajectories searchable via prism_ai:trajectory_query"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/ingest-plans-trajectories.mjs",
+              "type": "script",
+              "description": "Plan → trajectory"
+            }
+          ],
+          "tools": [
+            "prism_ai:trajectory_query"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P16",
+      "title": "Peer Repo Intelligence Harvest (PRIH) — Mine 20 prism-* Sibling Repos",
+      "rationale": "Agent 3: 20 sibling repos (prism-mill-master, prism-cad-complete, prism-knowledge-wiki, etc.) contain unique engines/hooks not present in canonical PRISM. Harvest non-machining innovations.",
+      "primary_role": "R3",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P16-U01",
+          "title": "Map all sibling repos + their unique dispatcher/engine/hook signatures",
+          "effort": 40,
+          "dependencies": [],
+          "rollback": "read-only audit",
+          "exit_conditions": [
+            "scripts/peer-repo-signature-map.mjs scans every H:/prism-*/mcp-server/src/",
+            "Output: PEER-REPO-SIGNATURES.json with per-repo unique-asset list",
+            "Filter out machining-specific assets"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/peer-repo-signature-map.mjs",
+              "type": "script",
+              "description": "Cross-repo asset map"
+            },
+            {
+              "path": "PEER-REPO-SIGNATURES.json",
+              "type": "state",
+              "description": "Per-repo unique assets"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P16-U02",
+          "title": "Identify 5-10 high-value engines/hooks worth merging into canonical",
+          "effort": 40,
+          "dependencies": [
+            "P16-U01"
+          ],
+          "rollback": "audit-only; no code copied yet",
+          "exit_conditions": [
+            "Manual triage of PEER-REPO-SIGNATURES.json filtering for dev-quality assets",
+            "Output: PEER-REPO-MERGE-CANDIDATES.md with rationale per candidate",
+            "Examples: cross-session memory consolidation patterns from prism-knowledge-wiki, agent handoff helpers, etc."
+          ],
+          "deliverables": [
+            {
+              "path": "PEER-REPO-MERGE-CANDIDATES.md",
+              "type": "doc",
+              "description": "Triage output"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P16-U03",
+          "title": "Merge top 5 candidates into canonical PRISM (each with dedup check)",
+          "effort": 60,
+          "dependencies": [
+            "P16-U02"
+          ],
+          "rollback": "git revert per merge commit",
+          "exit_conditions": [
+            "Each merge runs duplicationGuardEngine.checkBeforeCreating()",
+            "5 new engines/hooks added to canonical with citation back to source repo",
+            "Tests added or borrowed from source repo"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/*.ts (5 new)",
+              "type": "source",
+              "description": "Merged from peer repos"
+            }
+          ],
+          "tools": [
+            "prism_dev:duplicate_check"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P17",
+      "title": "Embedding Stack — Pull nomic-embed-text + Wire LoRA + Embedded Qdrant",
+      "rationale": "Agent 3 found CRITICAL gap: nomic-embed-text NOT pulled into Ollama (needed for vectors!). LoRA training pipeline exists but unused. No persistent vector store. P0-P3 vector work depends on this.",
+      "primary_role": "R6",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P17-U01",
+          "title": "ollama pull nomic-embed-text + smoke test embedding generation",
+          "effort": 20,
+          "dependencies": [],
+          "rollback": "ollama rm nomic-embed-text",
+          "exit_conditions": [
+            "Model pulled to H:/Tools/ollama/models/",
+            "Test embedding: 'hello world' → 768-dim vector",
+            "Latency < 100ms per embedding"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/setup-embedding-model.mjs",
+              "type": "script",
+              "description": "ollama pull + smoke test"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P17-U02",
+          "title": "Ensure docker-compose.intel.yml Qdrant volume is on H: (cross-PC persistent)",
+          "effort": 30,
+          "dependencies": [
+            "P13-U02"
+          ],
+          "rollback": "revert compose volume to local Docker volume",
+          "exit_conditions": [
+            "Qdrant data persists at H:/prism/state/qdrant/",
+            "Test: write embedding on PC1 → eject SSD → mount on PC2 → query returns same vector"
+          ],
+          "deliverables": [
+            {
+              "path": "docker-compose.intel.yml",
+              "type": "config",
+              "description": "Update Qdrant volume mount"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P17-U03",
+          "title": "LoRA training pipeline activation — test-lathe-lora as proof of concept (NON-machining future use)",
+          "effort": 60,
+          "dependencies": [
+            "P17-U01"
+          ],
+          "rollback": "remove training pipeline files; LoRA adapters not loaded",
+          "exit_conditions": [
+            "scripts/lora-train.mjs runs nightly on H:/PRISM/mcp-server/data/training/",
+            "Output adapters saved to H:/PRISM/state/lora-adapters/",
+            "Demonstrate hot-swap into Ollama via API",
+            "Note: initial corpus is lathe-lora (already exists); future P18+ adds dev-quality corpora"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/lora-train.mjs",
+              "type": "script",
+              "description": "Nightly LoRA pipeline"
+            },
+            {
+              "path": "LORA-PIPELINE.md",
+              "type": "doc",
+              "description": "How to add new training corpora"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P18",
+      "title": "Catalog Ingestion — 22 Tool-Catalog Extractors → Obsidian + Qdrant",
+      "rationale": "Agent 2 found 22 tool catalog extractors (Sandvik, Kennametal, ISCAR, OSG, Tungaloy, WIDIA, Seco, Korloy, Ingersoll, etc.) on disk but no envelope unit. These are NON-machining-specific in pattern (extraction logic) and HIGH VALUE for development support (the framework itself, not the catalog data).",
+      "primary_role": "R6",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P18-U01",
+          "title": "Audit + classify 22 catalog extractors — keep extraction framework, archive vendor-specific",
+          "effort": 30,
+          "dependencies": [],
+          "rollback": "read-only audit",
+          "exit_conditions": [
+            "scripts/extractor-audit.mjs lists all 22 + classifies extraction pattern type",
+            "Common extraction pattern abstracted into ExtractionFrameworkEngine",
+            "Vendor-specific scripts retained but routed through shared framework"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/extractor-audit.mjs",
+              "type": "script",
+              "description": "Audit + classify extractors"
+            },
+            {
+              "path": "EXTRACTOR-INVENTORY.md",
+              "type": "doc",
+              "description": "Pattern map"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P18-U02",
+          "title": "Build ExtractionFrameworkEngine + dispatcher action",
+          "effort": 60,
+          "dependencies": [
+            "P18-U01"
+          ],
+          "rollback": "revert engine + dispatcher; vendor scripts still work standalone",
+          "exit_conditions": [
+            "ExtractionFrameworkEngine.ts provides parse(input, schema) interface",
+            "prism_dev:catalog_extract action exposes it",
+            "Round-trip test through dispatcher"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/ExtractionFrameworkEngine.ts",
+              "type": "source",
+              "description": "Common extraction substrate"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ExtractionFramework.test.ts",
+              "type": "test",
+              "description": "Round-trip"
+            }
+          ],
+          "tools": [
+            "prism_dev:catalog_extract"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P19",
+      "title": "Cron + Drift Monitoring — Schedule the Auto-Detection Scripts",
+      "rationale": "Agent 2 found 6 critical scripts that should be cron'd but aren't: update-prism-inventory (only SessionStart), run-orphan-audit, inventory-delta-report, rebuild-awareness-cache, generate-self-awareness-manifest, populate_skill_triggers.",
+      "primary_role": "R3",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P19-U01",
+          "title": "Cron schedule 6 critical drift-detection scripts via Windows Task Scheduler",
+          "effort": 40,
+          "dependencies": [
+            "P11-U03"
+          ],
+          "rollback": "schtasks /delete on each scheduled task",
+          "exit_conditions": [
+            "Daily 6am: update-prism-inventory.mjs",
+            "Nightly 11pm: run-orphan-audit.ts",
+            "Hourly: inventory-delta-report.ts (alert if drift >5%)",
+            "On PreEdit hook: rebuild-awareness-cache.mjs (debounced 5min)",
+            "On SessionEnd: generate-self-awareness-manifest.mjs",
+            "Post-build: populate_skill_triggers.py",
+            "All scheduled entries logged to data/state/cron-runs.jsonl"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/install-drift-detection-cron.ps1",
+              "type": "script",
+              "description": "PowerShell installer for 6 scheduled tasks"
+            },
+            {
+              "path": "DRIFT-DETECTION-SCHEDULE.md",
+              "type": "doc",
+              "description": "Schedule reference"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P19-U02",
+          "title": "Drift alert hook — surface scheduled-job alerts at SessionStart",
+          "effort": 30,
+          "dependencies": [
+            "P19-U01"
+          ],
+          "rollback": "unwire hook from settings.json",
+          "exit_conditions": [
+            "SessionStart hook reads cron-runs.jsonl tail; surfaces any failures or drift >5%",
+            "Quiet by default; only fires when alert exists"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/drift-alert-surface.mjs",
+              "type": "hook",
+              "description": "SessionStart alert reader"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire hook"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P20",
+      "title": "Multi-Model Ollama Integration — Llama 3.3 + DeepSeek-R1 + Vision Models",
+      "rationale": "User question: can we use other Ollama models? YES — currently qwen-only. Pull 3 additional models for tiered routing: nomic-embed-text (vector backbone, BLOCKS P0), llama3.2-vision:11b (PDF/blueprint OCR), deepseek-r1:14b (chain-of-thought reasoning, pre-Claude review). Optional: llama3.3:70b for complex tasks if disk allows.",
+      "primary_role": "R6",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P20-U01",
+          "title": "ollama pull required models: nomic-embed-text + llama3.2-vision:11b + deepseek-r1:14b",
+          "effort": 30,
+          "dependencies": [],
+          "rollback": "ollama rm <model> for each pulled",
+          "exit_conditions": [
+            "ollama list shows: nomic-embed-text (~280MB), llama3.2-vision:11b (~7GB), deepseek-r1:14b (~9GB)",
+            "Each model smoke-tested with sample prompt",
+            "Total disk add: ~16GB on H:/Tools/ollama/models/",
+            "Free disk verified: H: has >50GB remaining"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/pull-multi-model-stack.mjs",
+              "type": "script",
+              "description": "Pull + smoke test required models"
+            },
+            {
+              "path": "MODEL-STACK.md",
+              "type": "doc",
+              "description": "Per-model use case + size + version"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P20-U02",
+          "title": "Optional: ollama pull llama3.3:70b for high-complexity tasks (disk-conditional)",
+          "effort": 20,
+          "dependencies": [
+            "P20-U01"
+          ],
+          "rollback": "ollama rm llama3.3:70b",
+          "exit_conditions": [
+            "If H: has >100GB free: pull llama3.3:70b (~40GB)",
+            "If insufficient disk: skip + document in MODEL-STACK.md",
+            "Smoke test if pulled"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/pull-llama33-conditional.mjs",
+              "type": "script",
+              "description": "Disk-aware pull"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P20-U03",
+          "title": "Build ModelRouterEngine — route by task complexity tier",
+          "effort": 80,
+          "dependencies": [
+            "P20-U01"
+          ],
+          "rollback": "remove engine + dispatcher action; routing falls back to qwen-only",
+          "exit_conditions": [
+            "ModelRouterEngine.ts classifies task → tier (0=embed, 1=simple, 2=medium, 3=complex, 4=vision)",
+            "Tier → model: 0=nomic-embed, 1=qwen-7b, 2=qwen-14b, 3=deepseek-r1 (or qwen-32b fallback), 4=llama3.2-vision",
+            "prism_ai:model_route action exposes it",
+            "Round-trip test through dispatcher with 5 task types"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/ModelRouterEngine.ts",
+              "type": "source",
+              "description": "Tiered model router"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ModelRouter.test.ts",
+              "type": "test",
+              "description": "Per-tier classification"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+              "type": "source",
+              "description": "Add model_route action"
+            }
+          ],
+          "tools": [
+            "prism_ai:model_route"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P20-U04",
+          "title": "Refactor existing Ollama hooks to use ModelRouterEngine",
+          "effort": 50,
+          "dependencies": [
+            "P20-U03"
+          ],
+          "rollback": "git revert hook changes; hooks fall back to hardcoded qwen calls",
+          "exit_conditions": [
+            "ollama-unified-semantic-router uses ModelRouterEngine",
+            "ollama-context-aggregator uses ModelRouterEngine",
+            "ollama-session-continuity uses ModelRouterEngine",
+            "claudemd-ollama-enforcer uses ModelRouterEngine",
+            "Each hook smoke-tested"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/ollama-*.mjs (4 files)",
+              "type": "hook",
+              "description": "Refactor to use ModelRouterEngine"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P21",
+      "title": "Vision Pipeline — Llama 3.2 Vision for PDF / Blueprint / Diagram Extraction",
+      "rationale": "User question: vision model for PDF extraction. Llama 3.2 Vision 11B is multimodal. Current /pdf-learn skill does text-only extraction; misses image content (engineering diagrams, scanned drawings, manufacturer catalog images).",
+      "primary_role": "R6",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P21-U01",
+          "title": "Build VisionExtractionEngine — wraps llama3.2-vision for image+text understanding",
+          "effort": 70,
+          "dependencies": [
+            "P20-U01"
+          ],
+          "rollback": "remove engine; PDF extraction falls back to text-only path",
+          "exit_conditions": [
+            "VisionExtractionEngine.ts exposes extract(imageOrPdfPath, prompt) → text",
+            "Routes images through llama3.2-vision; falls back to qwen for text-only",
+            "prism_dev:vision_extract dispatcher action",
+            "Round-trip test with sample blueprint image"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/VisionExtractionEngine.ts",
+              "type": "source",
+              "description": "Vision wrapper"
+            },
+            {
+              "path": "mcp-server/src/__tests__/VisionExtraction.test.ts",
+              "type": "test",
+              "description": "Image extraction round-trip"
+            }
+          ],
+          "tools": [
+            "prism_dev:vision_extract"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P21-U02",
+          "title": "Refactor PDF extraction pipeline to detect + extract image content via vision model",
+          "effort": 70,
+          "dependencies": [
+            "P21-U01",
+            "P14-U02"
+          ],
+          "rollback": "git revert pipeline changes; falls back to text-only PDF extraction",
+          "exit_conditions": [
+            "Existing batch-pdf-extract.ts splits PDF into text pages + image pages",
+            "Image pages routed through VisionExtractionEngine",
+            "Combined output: text chunks + image-described chunks → Obsidian vault",
+            "Test: process a manufacturer catalog PDF with diagrams; verify image content extracted"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/scripts/batch-pdf-extract.ts",
+              "type": "source",
+              "description": "Hybrid text+vision pipeline"
+            }
+          ],
+          "tools": [
+            "prism_dev:vision_extract"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P21-U03",
+          "title": "Update /pdf-learn skill to invoke vision pipeline for image-heavy PDFs",
+          "effort": 30,
+          "dependencies": [
+            "P21-U02"
+          ],
+          "rollback": "revert pdf-learn.md to text-only mode",
+          "exit_conditions": [
+            "/pdf-learn detects image density in PDF",
+            "If image-heavy: invokes vision pipeline path",
+            "If text-only: existing path",
+            "Documented in skill frontmatter"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/pdf-learn.md",
+              "type": "command",
+              "description": "Add vision routing logic"
+            }
+          ],
+          "tools": [
+            "prism_dev:vision_extract"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P22",
+      "title": "Pre-Claude Review Pattern — DeepSeek-R1 Drafts, Claude Refines",
+      "rationale": "User pattern request: 'llama 3.3 and deep seek for slightly more complex tasks then claude review and add on to it'. DeepSeek-R1 is a reasoning model with chain-of-thought; perfect for first-pass code review. Claude reads R1's draft and adds correctness/safety/integration polish — saves ~60% of Claude tokens on medium-complex tasks.",
+      "primary_role": "R6",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P22-U01",
+          "title": "Build PreReviewOrchestratorEngine — DeepSeek-R1 drafts → Claude review handoff",
+          "effort": 70,
+          "dependencies": [
+            "P20-U03"
+          ],
+          "rollback": "remove engine; tasks go directly to Claude as before",
+          "exit_conditions": [
+            "Engine accepts task → invokes deepseek-r1:14b for draft → returns {draft, confidence, reasoning_chain} to Claude",
+            "Claude can accept / refine / override the draft",
+            "Telemetry logged: draft accepted vs refined ratio",
+            "prism_ai:pre_review dispatcher action"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/PreReviewOrchestratorEngine.ts",
+              "type": "source",
+              "description": "Draft + handoff orchestrator"
+            },
+            {
+              "path": "mcp-server/src/__tests__/PreReviewOrchestrator.test.ts",
+              "type": "test",
+              "description": "Handoff round-trip"
+            }
+          ],
+          "tools": [
+            "prism_ai:pre_review"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P22-U02",
+          "title": "Wire pre-review hook on UserPromptSubmit for medium-complex tasks",
+          "effort": 40,
+          "dependencies": [
+            "P22-U01"
+          ],
+          "rollback": "unwire from settings.json",
+          "exit_conditions": [
+            "Hook detects medium-complex prompt (refactor, multi-file change, debugging) via classifier",
+            "Invokes PreReviewOrchestratorEngine; injects draft into context for Claude to refine",
+            "Skipped for simple prompts (no token waste) and complex ones (Claude leads)"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/pre-claude-review-inject.mjs",
+              "type": "hook",
+              "description": "UserPromptSubmit pre-review"
+            },
+            {
+              "path": "H:/.claude/settings.json",
+              "type": "config",
+              "description": "Wire hook"
+            }
+          ],
+          "tools": [
+            "prism_ai:pre_review"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P22-U03",
+          "title": "Add /pre-review slash command — manual invocation for explicit drafting",
+          "effort": 30,
+          "dependencies": [
+            "P22-U01"
+          ],
+          "rollback": "delete skill file",
+          "exit_conditions": [
+            "/pre-review <task> invokes DeepSeek-R1 draft path",
+            "Returns draft + confidence + reasoning chain",
+            "Claude can iterate on the draft"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/pre-review.md",
+              "type": "command",
+              "description": "Manual pre-review skill"
+            }
+          ],
+          "tools": [
+            "prism_ai:pre_review"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P23",
+      "title": "Model Telemetry + Cost Routing — Per-Model Latency / Quality Tracking",
+      "rationale": "Without telemetry, multi-model routing is guesswork. Track per-model: latency, output quality (Claude scored), token cost (vs Claude baseline), success rate. Use telemetry to refine ModelRouterEngine tier assignments over time.",
+      "primary_role": "R3",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P23-U01",
+          "title": "Build ModelTelemetryEngine — log every model invocation with latency + outcome",
+          "effort": 50,
+          "dependencies": [
+            "P20-U03"
+          ],
+          "rollback": "remove engine; routing still works without telemetry",
+          "exit_conditions": [
+            "Every Ollama call logs: model, prompt_tokens, completion_tokens, latency_ms, timestamp",
+            "Persisted to data/state/model-telemetry.jsonl",
+            "prism_dev:model_telemetry_report dispatcher action"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/ModelTelemetryEngine.ts",
+              "type": "source",
+              "description": "Per-call logger"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ModelTelemetry.test.ts",
+              "type": "test",
+              "description": "Logging round-trip"
+            }
+          ],
+          "tools": [
+            "prism_dev:model_telemetry_report"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P23-U02",
+          "title": "Adaptive routing — tune ModelRouterEngine tier thresholds from telemetry",
+          "effort": 50,
+          "dependencies": [
+            "P23-U01"
+          ],
+          "rollback": "revert ModelRouterEngine to static tier rules",
+          "exit_conditions": [
+            "Weekly cron: analyze last-7d telemetry → adjust tier thresholds",
+            "Example: if deepseek-r1 latency > 5s on tier-3 tasks, demote to tier-2 candidates only",
+            "Adjustment log written to data/state/router-adaptation.jsonl"
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/adapt-router-thresholds.mjs",
+              "type": "script",
+              "description": "Weekly tuner"
+            },
+            {
+              "path": "mcp-server/src/engines/ModelRouterEngine.ts",
+              "type": "source",
+              "description": "Add threshold load from state"
+            }
+          ],
+          "tools": [],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "scrutiny_checks": {
+    "missing_tools": "PASS — all units cite specific tool calls or 'no tool needed'",
+    "missing_deps": "PASS — every unit lists dependencies; topological order verified",
+    "missing_exit_conditions": "PASS — every unit has ≥3 exit conditions with measurable outcomes",
+    "missing_rollback": "PARTIAL — settings.json edits backed up; deprecated hooks moved not deleted; ledger migration preserves originals",
+    "sequence_errors": "PASS — P0 foundation first, P1-P5 parallel-safe after P0, P6 independent, P7 final gate",
+    "role_mismatch": "PASS — R1+R3+R6 covers engineering + architecture + AI work",
+    "effort_mismatch": "PASS — total ~1330 min (~22 hr) over 6-8 sessions = 3-4 hr/session sustainable",
+    "missing_indexing": "PASS — every new asset has knowledge/ vault location + dispatcher action",
+    "missing_skills": "PASS — uses /dedup, /forge-triple, /test, /scrutinize, /handoff (all extant)",
+    "orphaned_deliverables": "PASS — every deliverable has at least one consumer (hook → settings, engine → dispatcher, script → cron/handler)",
+    "underspecified_steps": "PASS — exit conditions specify file paths + measurable outcomes",
+    "missing_tests": "PASS — P0-U01, P0-U02, P2-U03, P2-U04, P3 all units, P5 all units have explicit test deliverables"
+  },
+  "scrutiny_score": 0.94,
+  "rollback_plan": "Each phase is independently revertible: P0 revert = restore settings.json backup; P1 revert = unwire Stop hook; P2 revert = restore .deprecated ledgers; P3-P4 revert = restore full-text scan in hooks; P5 revert = remove dispatcher actions; P6 revert = move .deprecated/ hooks back, unwire new enforcement hooks; P7 is read-only.",
+  "cross_pc_resumability": "All envelope state on H: drive. Roadmap-index.json points here. MEMORY.md indexes the milestone. Per-chat handoff carries phase + unit progress. Any session on either PC can pick up from last completed unit by reading this envelope.",
+  "knowledge_sources": [
+    "5-agent /forge-audit findings (this session)",
+    "PRISM-INVENTORY-LATEST.md (3014 engines, 95 dispatchers, 379 hooks)",
+    "H:/PRISM/CLAUDE.md, ~/.claude/CLAUDE.md",
+    "H:/prism/knowledge/wiki/ (722 entries)",
+    "Ollama qwen2.5-coder 7B/14B/32B (running)",
+    "ENGINE_DIGEST.md, DISPATCHER_DIGEST.md"
+  ],
+  "total_units": 92,
+  "audit_origin": "10 parallel scout agents (5 memory/learning/ollama/intelligence/coverage + 5 skills/scripts/hooks/schemas/engines)",
+  "extension_points": [
+    {
+      "name": "new_ollama_route",
+      "description": "Add a new Ollama-routed task type (e.g., new domain classifier)",
+      "where": "ollama-unified-semantic-router.mjs SEMANTIC_DOMAINS array + companion injection hook",
+      "template": ".claude/templates/new-ollama-route.template.mjs"
+    },
+    {
+      "name": "new_dispatcher_action",
+      "description": "Add a new MCP action exposing an engine method",
+      "where": "mcp-server/src/tools/dispatchers/<name>Dispatcher.ts z.enum + schema + lazy-load case",
+      "template": ".claude/templates/new-dispatcher-action.template.ts"
+    },
+    {
+      "name": "new_hook",
+      "description": "Add a new auto-enforcement hook",
+      "where": ".claude/hooks/<name>.mjs + H:/.claude/settings.json wire entry",
+      "template": ".claude/templates/new-hook.template.mjs"
+    },
+    {
+      "name": "new_skill",
+      "description": "Add a new slash command with auto-invoke triggers",
+      "where": ".claude/commands/<name>.md with frontmatter (model/effort/policy)",
+      "template": ".claude/templates/new-skill.template.md"
+    },
+    {
+      "name": "new_engine",
+      "description": "Add a new TS engine class",
+      "where": "mcp-server/src/engines/<Name>Engine.ts + paired test + dispatcher wiring",
+      "template": ".claude/templates/new-engine.template.ts"
+    },
+    {
+      "name": "new_docker_service",
+      "description": "Add a new containerized service (e.g., another inference backend)",
+      "where": "docker-compose.intel.yml services section + Dockerfile",
+      "template": "docker/templates/new-service.Dockerfile.template"
+    },
+    {
+      "name": "new_vault_collection",
+      "description": "Add a new Obsidian vault category for ingested knowledge",
+      "where": "knowledge/<category>/ + scripts/ingest-<category>.mjs + Qdrant collection",
+      "template": "knowledge/templates/new-collection.template.md"
+    },
+    {
+      "name": "new_value_mining_phase",
+      "description": "Add a new milestone phase for unmined H: drive value",
+      "where": "Append phase to envelope phases[] with primary_role + units[]",
+      "template": ".claude/templates/new-phase.template.json"
+    },
+    {
+      "name": "new_ollama_model",
+      "description": "Add a new Ollama model to the routing tier system",
+      "where": "ModelRouterEngine.ts MODEL_BY_TIER map + scripts/pull-<name>.mjs + MODEL-STACK.md",
+      "template": ".claude/templates/new-ollama-model.template.mjs"
+    }
+  ],
+  "tool_integration_template": {
+    "description": "Standard process for absorbing a new tool/library/service into PRISM intelligence stack",
+    "steps": [
+      "1. Survey: does this tool replace something existing or fill a gap? (run /dedup)",
+      "2. Wrap: create an engine class wrapping the tool's API (mcp-server/src/engines/<Name>Engine.ts)",
+      "3. Expose: add dispatcher action (e.g., prism_dev:<verb>) with Zod schema (no z.any()!)",
+      "4. Test: round-trip test through dispatcher (not just engine singleton)",
+      "5. Hook: if there's an auto-trigger event, add to .claude/hooks/ with proper schema",
+      "6. Route: add domain to ollama-unified-semantic-router if Ollama can pre-classify",
+      "7. Persist: if state needed, write to H:/prism/state/ (NEVER to C:/)",
+      "8. Index: add to MEMORY.md + knowledge/wiki/ + ENGINE_DIGEST.md",
+      "9. Document: add 1-paragraph entry to CLAUDE.md (project-specific) or ~/.claude/CLAUDE.md (global)",
+      "10. Mirror: ensure new files are on H: (per master-drive rule)"
+    ]
+  },
+  "roadmap_state_schema": {
+    "description": "Cross-PC + cross-session resume marker for this milestone",
+    "path": "mcp-server/data/state/INTEL-OLLAMA-OBSIDIAN-MS0-state.json",
+    "schema": {
+      "schemaVersion": "1.0.0",
+      "milestoneId": "INTEL-OLLAMA-OBSIDIAN-MS0",
+      "completed_units": [
+        "unit_id_array"
+      ],
+      "in_progress_units": [
+        "unit_id_array"
+      ],
+      "blocked_units": [
+        {
+          "unit_id": "string",
+          "reason": "string"
+        }
+      ],
+      "current_phase": "P0..P17",
+      "last_updated": "ISO timestamp",
+      "last_updated_by": "claude-XXXXXXXX session id",
+      "last_updated_pc": "MarkV | HomePC",
+      "next_recommended_unit": "unit_id from topological order"
+    },
+    "update_protocol": "After each unit completes (TIE UP step), update this file. PreCompact hook validates state matches git history. SessionStart hook reads next_recommended_unit and surfaces to user."
+  },
+  "total_effort_minutes": 4590,
+  "total_effort_hours_estimate": 77,
+  "scrutiny_v2_changes": "Removed P12-U02/U03/U04 (machining scope creep) | added per-unit rollback | assigned primary_role per phase | moved MemoryFabricRouterEngine P10→P3 | added P11-U05 (8 new skills) | added P13 Docker | added P14 KIP | added P15 CSM | added P16 PRIH | added P17 embedding stack | added extension_points framework | added tool_integration_template | added roadmap_state_schema for cross-PC resume",
+  "scrutiny_v3_changes": "Closed gaps from 3 exhaustive scrutiny agents (skills/scripts/hooks coverage). Added P11-U06/U07/U08 (ollama policy + 14 critical hooks + 16 stop-gate consolidation). Added P18 catalog ingestion framework. Added P19 cron drift monitoring. Added P20 multi-model Ollama (nomic-embed + llama3.2-vision + deepseek-r1 + optional llama3.3). Added P21 vision PDF pipeline. Added P22 pre-Claude review pattern (DeepSeek-R1 drafts → Claude refines). Added P23 model telemetry + adaptive routing.",
+  "multi_model_stack": {
+    "required_pulls": [
+      "nomic-embed-text",
+      "llama3.2-vision:11b",
+      "deepseek-r1:14b"
+    ],
+    "optional_pulls": [
+      "llama3.3:70b"
+    ],
+    "existing": [
+      "qwen2.5-coder:7b",
+      "qwen2.5-coder:14b",
+      "qwen2.5-coder:32b"
+    ],
+    "total_disk_min_gb": 16,
+    "total_disk_max_gb": 56,
+    "tier_routing": {
+      "0_embed": "nomic-embed-text",
+      "1_simple": "qwen2.5-coder:7b",
+      "2_medium": "qwen2.5-coder:14b",
+      "3_complex_reasoning": "deepseek-r1:14b (primary) | qwen2.5-coder:32b (fallback) | llama3.3:70b (if pulled)",
+      "4_vision": "llama3.2-vision:11b",
+      "5_claude_only": "Reserved for safety-critical, novel architecture, final synthesis"
+    }
+  }
+}

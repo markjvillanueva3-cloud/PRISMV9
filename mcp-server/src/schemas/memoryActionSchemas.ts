@@ -60,6 +60,27 @@ const pressure_get = z.object({
 
 const pressure_recommend = z.object({}).passthrough().describe("Return current heap reading + trend + action recommendation");
 
+// INTEL-OLLAMA-OBSIDIAN-MS0/P0-U02: vector-similarity recall over QdrantMemoryEngine.
+// Kinds mirror QdrantMemoryEngine.MEMORY_KINDS at the source-of-truth in
+// src/engines/QdrantMemoryEngine.ts — keep these in sync if that constant grows.
+const SEMANTIC_KIND_VALUES = [
+  "program",
+  "outcome",
+  "tip",
+  "formula",
+  "rule",
+  "playbook",
+  "note",
+] as const;
+
+const semantic_search = z.object({
+  query: z.string().min(1).describe("Free-text query to embed and match against the kind's collection"),
+  kind: z.enum(SEMANTIC_KIND_VALUES).optional().describe("Memory collection to search (default: tip)"),
+  limit: z.number().int().min(1).max(100).optional().describe("Max hits to return (default: 5, hard ceiling: 100)"),
+  threshold: z.number().min(0).max(1).optional().describe("Cosine-similarity floor; hits below are filtered (default: 0)"),
+  filter: z.record(z.string(), z.unknown()).optional().describe("Optional Qdrant payload filter (forwarded as-is to QdrantMemoryEngine.recall)"),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -73,4 +94,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   pressure_record,
   pressure_get,
   pressure_recommend,
+  semantic_search,
 };
