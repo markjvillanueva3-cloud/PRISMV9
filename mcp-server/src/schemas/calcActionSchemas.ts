@@ -2917,6 +2917,28 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     measurement_uncertainty: z.number().nonnegative().optional().describe("Measurement uncertainty +/-1sigma (ISO 22514-1)"),
   }).passthrough(),
 
+  // ── DOE Taguchi (DOETaguchEngine — Taguchi orthogonal arrays + ANOVA + S/N) ──
+  doe_taguchi: z.object({
+    factors: z.array(z.object({
+      name: z.string().min(1).describe("Factor name (e.g., cutting_speed, feed_per_tooth)"),
+      levels: z.array(z.number()).min(2).max(3).describe("Factor levels (2 or 3)"),
+      unit: optStr.describe("Optional unit label"),
+    })).min(1).describe("Design factors with discrete levels"),
+    response: z.enum(["surface_roughness", "tool_life", "cutting_force", "mrr", "cycle_time"]).describe("Response variable"),
+    objective: z.enum(["minimize", "maximize", "nominal"]).describe("Optimization objective"),
+    nominal_target: optNum.describe("Target value (only for nominal objective)"),
+    design: z.enum(["taguchi", "full_factorial", "fractional_factorial"]).describe("DOE design type"),
+    material: z.object({
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+    }).describe("Workpiece material"),
+    tool: z.object({
+      diameter_mm: z.number().positive().describe("Tool diameter [mm]"),
+      flute_count: z.number().int().positive().describe("Number of flutes"),
+      nose_radius_mm: optPosNum.describe("Tool nose radius [mm]"),
+    }).describe("Cutting tool"),
+    replications: z.number().int().min(1).max(10).optional().describe("Replications per run (default 1)"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({

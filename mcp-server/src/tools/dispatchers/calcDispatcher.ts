@@ -8074,6 +8074,23 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "doe_taguchi": {
+            const { doeTaguchEngine } = await import("../../engines/DOETaguchEngine.js");
+            // NOTE: unlike U-WIRE53/54/55/56, the slim-response branch (line 294) reads
+            // result.value.design_name etc — keep the AtomicValue wrapping (no flatten).
+            result = doeTaguchEngine.compute({
+              factors: params.factors,
+              response: params.response,
+              objective: params.objective,
+              nominal_target: params.nominal_target,
+              design: params.design,
+              material: params.material,
+              tool: params.tool,
+              replications: params.replications,
+            });
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");
