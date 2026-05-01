@@ -1,0 +1,932 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "inspection",
+  "module_name": "hyperMILL Inspection & Quality Assurance",
+  "description": "CMM planning, GD&T validation, tolerance stack analysis, surface-form evaluation, and inspection reporting. Complements drilling.probing_cycles[] (which surfaces basic on-machine probe cycles) — this module is the planning/analysis/reporting layer above raw probe macros. Bound to HyperMillFAIBridge for First Article Inspection workflow.",
+  "parameter_count": 78,
+  "menus": [
+    {
+      "id": "cmm_plan_generate",
+      "name": "CMM Plan Generate",
+      "operation_class": "inspection_planning",
+      "dialogs": [
+        {
+          "id": "cmm_plan_process",
+          "name": "Process",
+          "type": "tabbed",
+          "dialog_purpose": "Probe selection, contact mode, plan trigger",
+          "parameters": [
+            {
+              "id": "probe_id",
+              "name": "Probe Identifier",
+              "category": "identifier",
+              "value": { "type": "string", "default_value": "OMP60-T1" }
+            },
+            {
+              "id": "contact_mode",
+              "name": "Contact Mode",
+              "category": "process",
+              "value": {
+                "type": "enum",
+                "default_value": "touch_trigger",
+                "constraints": { "enum_values": ["touch_trigger", "scanning", "non_contact_optical"] }
+              }
+            },
+            {
+              "id": "plan_trigger",
+              "name": "Plan Generation Trigger",
+              "category": "workflow",
+              "value": {
+                "type": "enum",
+                "default_value": "manual",
+                "constraints": { "enum_values": ["manual", "post_setup", "post_machining", "scheduled", "alarm"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "cmm_plan_geometry",
+          "name": "Geometry",
+          "type": "tabbed",
+          "dialog_purpose": "Target features and datums for plan",
+          "parameters": [
+            {
+              "id": "target_feature_count",
+              "name": "Target Feature Count",
+              "category": "geometry",
+              "value": { "type": "number", "default_value": 12, "constraints": { "min": 1, "max": 500 } }
+            },
+            {
+              "id": "datum_reference_frame",
+              "name": "Datum Reference Frame",
+              "category": "datum",
+              "value": {
+                "type": "enum",
+                "default_value": "A_B_C",
+                "constraints": { "enum_values": ["A_B_C", "A_B", "A", "custom_3_2_1"] }
+              }
+            },
+            {
+              "id": "gdt_extraction_mode",
+              "name": "GD&T Extraction Mode",
+              "category": "datum",
+              "value": {
+                "type": "enum",
+                "default_value": "auto_from_pmi",
+                "constraints": { "enum_values": ["auto_from_pmi", "manual_tag", "neutral_qif_import"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "cmm_plan_inspection",
+          "name": "Inspection",
+          "type": "tabbed",
+          "dialog_purpose": "Path generation strategy",
+          "parameters": [
+            {
+              "id": "path_strategy",
+              "name": "Path Strategy",
+              "category": "strategy",
+              "value": {
+                "type": "enum",
+                "default_value": "shortest_tsp",
+                "constraints": { "enum_values": ["shortest_tsp", "feature_grouping", "datum_first_then_features", "manual_sequence"] }
+              }
+            },
+            {
+              "id": "approach_clearance_mm",
+              "name": "Approach Clearance",
+              "category": "motion",
+              "value": { "type": "number", "unit": "mm", "default_value": 5, "constraints": { "min": 0.5, "max": 50 } }
+            },
+            {
+              "id": "approach_speed_mm_per_min",
+              "name": "Approach Speed",
+              "category": "motion",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 1000, "constraints": { "min": 50, "max": 10000 } }
+            }
+          ]
+        },
+        {
+          "id": "cmm_plan_analysis",
+          "name": "Analysis",
+          "type": "tabbed",
+          "parameters": [
+            {
+              "id": "estimate_cycle_time",
+              "name": "Estimate Cycle Time",
+              "category": "analytics",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "collision_check",
+              "name": "Collision Check",
+              "category": "safety",
+              "value": { "type": "boolean", "default_value": true },
+              "physics_links": [
+                { "formula_id": "PROBE_DYNAMIC_ERROR", "role": "input", "affects": ["safe_approach"] }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cmm_plan_report",
+          "name": "Report",
+          "type": "tabbed",
+          "parameters": [
+            {
+              "id": "output_format",
+              "name": "Plan Output Format",
+              "category": "output",
+              "value": {
+                "type": "enum",
+                "default_value": "qif",
+                "constraints": { "enum_values": ["qif", "dmis", "hypermill_native_xml", "pdf"] }
+              }
+            },
+            {
+              "id": "include_setup_sheet",
+              "name": "Include Setup Sheet",
+              "category": "output",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cmm_sampling_strategy",
+      "name": "CMM Sampling Strategy",
+      "operation_class": "inspection_planning",
+      "dialogs": [
+        {
+          "id": "sampling_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "sampling_method",
+              "name": "Sampling Method",
+              "value": {
+                "type": "enum",
+                "default_value": "uniform_grid",
+                "constraints": { "enum_values": ["uniform_grid", "hammersley", "halton", "latin_hypercube", "feature_density_weighted"] }
+              }
+            },
+            {
+              "id": "scan_pattern",
+              "name": "Scan Pattern (Continuous Probing)",
+              "value": {
+                "type": "enum",
+                "default_value": "raster",
+                "constraints": { "enum_values": ["raster", "spiral", "radial", "isobar"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "sampling_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "feature_type",
+              "name": "Feature Type",
+              "value": {
+                "type": "enum",
+                "default_value": "plane",
+                "constraints": { "enum_values": ["plane", "cylinder", "cone", "sphere", "free_form_surface", "edge", "circle"] }
+              }
+            },
+            {
+              "id": "datum_sequence",
+              "name": "Datum Acquisition Sequence",
+              "value": {
+                "type": "enum",
+                "default_value": "primary_secondary_tertiary",
+                "constraints": { "enum_values": ["primary_secondary_tertiary", "all_simultaneous", "iterative_refinement"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "sampling_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "point_density",
+              "name": "Point Density",
+              "value": { "type": "number", "unit": "points_per_mm2", "default_value": 0.1, "constraints": { "min": 0.001, "max": 100 } }
+            },
+            {
+              "id": "min_points_per_feature",
+              "name": "Minimum Points per Feature",
+              "value": { "type": "integer", "default_value": 5, "constraints": { "min": 3, "max": 1000 } }
+            },
+            {
+              "id": "scan_speed_mm_per_min",
+              "name": "Scan Speed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 200, "constraints": { "min": 10, "max": 5000 } }
+            }
+          ]
+        },
+        {
+          "id": "sampling_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "uncertainty_target",
+              "name": "Target Measurement Uncertainty",
+              "value": { "type": "number", "unit": "um", "default_value": 5, "constraints": { "min": 0.1, "max": 100 } }
+            },
+            {
+              "id": "iso_iec_17025_compliant",
+              "name": "ISO/IEC 17025 Compliance",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tolerance_stack_analyze",
+      "name": "Tolerance Stack Analysis (RSS / Worst-Case)",
+      "operation_class": "inspection_analysis",
+      "dialogs": [
+        {
+          "id": "stack_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "analysis_method",
+              "name": "Analysis Method",
+              "value": {
+                "type": "enum",
+                "default_value": "rss",
+                "constraints": { "enum_values": ["rss", "worst_case", "modified_worst_case", "vector_loop"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "stack_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "loop_dimension_count",
+              "name": "Loop Dimensions",
+              "value": { "type": "integer", "default_value": 5, "constraints": { "min": 2, "max": 100 } }
+            },
+            {
+              "id": "vector_loop_closure_axis",
+              "name": "Closure Axis",
+              "value": {
+                "type": "enum",
+                "default_value": "z",
+                "constraints": { "enum_values": ["x", "y", "z", "radial", "tangential"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "stack_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "tolerance_unit",
+              "name": "Tolerance Unit",
+              "value": {
+                "type": "enum",
+                "default_value": "mm",
+                "constraints": { "enum_values": ["mm", "inch", "micron"] }
+              }
+            },
+            {
+              "id": "iso_2768_class",
+              "name": "ISO 2768 Class",
+              "value": {
+                "type": "enum",
+                "default_value": "m",
+                "constraints": { "enum_values": ["f", "m", "c", "v"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "stack_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "confidence_level",
+              "name": "Statistical Confidence",
+              "value": { "type": "number", "default_value": 0.9973, "constraints": { "min": 0.5, "max": 0.99999 } }
+            },
+            {
+              "id": "include_assembly_alignment",
+              "name": "Include Assembly Alignment",
+              "value": { "type": "boolean", "default_value": false }
+            }
+          ]
+        },
+        {
+          "id": "stack_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "report_sensitivity",
+              "name": "Sensitivity Analysis Report",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tolerance_stack_monte_carlo",
+      "name": "Tolerance Stack Monte Carlo",
+      "operation_class": "inspection_analysis",
+      "dialogs": [
+        {
+          "id": "mc_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "iteration_count",
+              "name": "Iteration Count",
+              "value": { "type": "integer", "default_value": 100000, "constraints": { "min": 1000, "max": 10000000 } }
+            }
+          ]
+        },
+        {
+          "id": "mc_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "input_distribution",
+              "name": "Input Distribution Type",
+              "value": {
+                "type": "enum",
+                "default_value": "normal",
+                "constraints": { "enum_values": ["normal", "uniform", "triangular", "lognormal", "weibull", "empirical"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "mc_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "random_seed",
+              "name": "Random Seed",
+              "value": { "type": "integer", "default_value": 42, "constraints": { "min": 0, "max": 2147483647 } }
+            },
+            {
+              "id": "antithetic_sampling",
+              "name": "Antithetic Sampling",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "mc_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "percentile_targets",
+              "name": "Percentile Targets",
+              "value": {
+                "type": "string",
+                "default_value": "0.001,0.05,0.5,0.95,0.999"
+              }
+            },
+            {
+              "id": "process_capability_targets",
+              "name": "Cpk Targets",
+              "value": { "type": "number", "default_value": 1.33, "constraints": { "min": 0.5, "max": 5 } }
+            }
+          ]
+        },
+        {
+          "id": "mc_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "histogram_bin_count",
+              "name": "Histogram Bins",
+              "value": { "type": "integer", "default_value": 50, "constraints": { "min": 10, "max": 1000 } }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gdt_validate",
+      "name": "GD&T Frame Validate",
+      "operation_class": "gdt_validation",
+      "dialogs": [
+        {
+          "id": "gdtv_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "gdt_standard",
+              "name": "GD&T Standard",
+              "value": {
+                "type": "enum",
+                "default_value": "asme_y14_5_2018",
+                "constraints": { "enum_values": ["asme_y14_5_2018", "asme_y14_5_2009", "iso_1101", "iso_5459", "iso_8015"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "gdtv_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "datum_order_check",
+              "name": "Datum Order Check",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "modifier_compatibility",
+              "name": "Modifier Compatibility (M/L/F/P)",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "gdtv_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "control_frame_count",
+              "name": "Feature Control Frames",
+              "value": { "type": "integer", "default_value": 8, "constraints": { "min": 1, "max": 500 } }
+            }
+          ]
+        },
+        {
+          "id": "gdtv_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "datum_uncertainty_propagate",
+              "name": "Datum Uncertainty Propagation",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "gdtv_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "violation_severity_filter",
+              "name": "Violation Severity Filter",
+              "value": {
+                "type": "enum",
+                "default_value": "warning_or_higher",
+                "constraints": { "enum_values": ["info_or_higher", "warning_or_higher", "error_only"] }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gdt_zone_check",
+      "name": "GD&T Tolerance Zone Check",
+      "operation_class": "gdt_validation",
+      "dialogs": [
+        {
+          "id": "zone_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "zone_category",
+              "name": "Zone Category",
+              "value": {
+                "type": "enum",
+                "default_value": "form",
+                "constraints": { "enum_values": ["form", "orientation", "location", "runout", "profile"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "zone_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "zone_shape",
+              "name": "Zone Shape",
+              "value": {
+                "type": "enum",
+                "default_value": "cylindrical",
+                "constraints": { "enum_values": ["cylindrical", "spherical", "between_parallel_planes", "between_parallel_lines", "irregular"] }
+              }
+            },
+            {
+              "id": "zone_size_mm",
+              "name": "Zone Size",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.05, "constraints": { "min": 0.001, "max": 10 } }
+            }
+          ]
+        },
+        {
+          "id": "zone_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "fit_algorithm",
+              "name": "Substitute Geometry Fit",
+              "value": {
+                "type": "enum",
+                "default_value": "least_squares",
+                "constraints": { "enum_values": ["least_squares", "minimum_zone", "maximum_inscribed", "minimum_circumscribed"] }
+              }
+            },
+            {
+              "id": "iso_5459_compliant",
+              "name": "ISO 5459 Datum Compliance",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "zone_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "deviation_metric",
+              "name": "Deviation Metric",
+              "value": {
+                "type": "enum",
+                "default_value": "max_abs_deviation",
+                "constraints": { "enum_values": ["max_abs_deviation", "rms", "p2v", "average"] }
+              }
+            },
+            {
+              "id": "pass_fail_threshold",
+              "name": "Pass/Fail Threshold",
+              "value": { "type": "number", "default_value": 1.0, "constraints": { "min": 0, "max": 100 } }
+            }
+          ]
+        },
+        {
+          "id": "zone_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "include_zone_visualization",
+              "name": "Include Zone Visualization",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "probe_compensation_calibrate",
+      "name": "Probe Compensation Calibrate",
+      "operation_class": "calibration",
+      "dialogs": [
+        {
+          "id": "probecomp_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "calibration_artifact",
+              "name": "Calibration Artifact",
+              "value": {
+                "type": "enum",
+                "default_value": "renishaw_calibration_sphere",
+                "constraints": { "enum_values": ["renishaw_calibration_sphere", "ring_gauge", "step_block", "kgm_kinematic_master"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "probecomp_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "pre_travel_bias_um",
+              "name": "Pre-Travel Bias",
+              "value": { "type": "number", "unit": "um", "default_value": 2, "constraints": { "min": 0, "max": 50 } },
+              "physics_links": [
+                { "formula_id": "PROBE_PRE_TRAVEL_BIAS", "role": "output", "affects": ["measurement_uncertainty"] }
+              ]
+            },
+            {
+              "id": "stylus_deflection_compensation",
+              "name": "Stylus Deflection Compensation",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "probecomp_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "approach_directions",
+              "name": "Approach Directions Sampled",
+              "value": { "type": "integer", "default_value": 6, "constraints": { "min": 3, "max": 24 } }
+            }
+          ]
+        },
+        {
+          "id": "probecomp_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "dynamic_error_model",
+              "name": "Dynamic Error Model",
+              "value": {
+                "type": "enum",
+                "default_value": "approach_speed_quadratic",
+                "constraints": { "enum_values": ["approach_speed_linear", "approach_speed_quadratic", "fft_resonance"] }
+              },
+              "physics_links": [
+                { "formula_id": "PROBE_DYNAMIC_ERROR", "role": "input", "affects": ["measurement_uncertainty"] }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "probecomp_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "calibration_certificate_format",
+              "name": "Calibration Certificate Format",
+              "value": {
+                "type": "enum",
+                "default_value": "iso_iec_17025_pdf",
+                "constraints": { "enum_values": ["iso_iec_17025_pdf", "qif_results", "hypermill_native_xml"] }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "surface_form_analyze",
+      "name": "Surface Form Analyze",
+      "operation_class": "inspection_analysis",
+      "dialogs": [
+        {
+          "id": "surfform_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "form_metric",
+              "name": "Form Metric",
+              "value": {
+                "type": "enum",
+                "default_value": "flatness",
+                "constraints": { "enum_values": ["flatness", "cylindricity", "circularity", "straightness", "sphericity", "profile_of_surface"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "surfform_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "point_cloud_size",
+              "name": "Point Cloud Size",
+              "value": { "type": "integer", "default_value": 10000, "constraints": { "min": 100, "max": 100000000 } }
+            },
+            {
+              "id": "outlier_filter",
+              "name": "Outlier Filter",
+              "value": {
+                "type": "enum",
+                "default_value": "3_sigma",
+                "constraints": { "enum_values": ["none", "3_sigma", "iqr_1_5", "ransac"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "surfform_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "filter_cutoff",
+              "name": "Filter Cutoff (lambda_c)",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.8, "constraints": { "min": 0.0025, "max": 25 } }
+            }
+          ]
+        },
+        {
+          "id": "surfform_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "fit_method",
+              "name": "Fit Method",
+              "value": {
+                "type": "enum",
+                "default_value": "least_squares",
+                "constraints": { "enum_values": ["least_squares", "minimum_zone_chebyshev", "maximum_inscribed", "minimum_circumscribed"] }
+              },
+              "physics_links": [
+                { "formula_id": "SURFACE_FORM_DEVIATION", "role": "output", "affects": ["pass_fail"] }
+              ]
+            },
+            {
+              "id": "iso_12781_compliant",
+              "name": "ISO 12781 Flatness Compliance",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "surfform_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "deviation_color_map",
+              "name": "Deviation Color Map",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "generate_inspection_report",
+      "name": "Generate Inspection Report",
+      "operation_class": "reporting",
+      "dialogs": [
+        {
+          "id": "report_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "report_format",
+              "name": "Report Format",
+              "value": {
+                "type": "enum",
+                "default_value": "pdf",
+                "constraints": { "enum_values": ["pdf", "csv", "qif", "hypermill_htm", "ansi_y14_41_3d_pmi", "excel_xlsx"] }
+              }
+            }
+          ]
+        },
+        {
+          "id": "report_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "include_pmi_overlay",
+              "name": "Include PMI Overlay",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "include_3d_model_snapshot",
+              "name": "Include 3D Model Snapshot",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "report_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "include_calibration_metadata",
+              "name": "Include Calibration Metadata",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "report_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "pass_fail_summary",
+              "name": "Pass/Fail Summary",
+              "value": { "type": "boolean", "default_value": true }
+            },
+            {
+              "id": "include_certificate_of_conformance",
+              "name": "Include Certificate of Conformance",
+              "value": { "type": "boolean", "default_value": false }
+            }
+          ]
+        },
+        {
+          "id": "report_output",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "digital_signature",
+              "name": "Digital Signature (PKI)",
+              "value": { "type": "boolean", "default_value": false }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare_to_cad",
+      "name": "Compare Point Cloud to CAD",
+      "operation_class": "inspection_analysis",
+      "dialogs": [
+        {
+          "id": "cmp_process",
+          "name": "Process",
+          "parameters": [
+            {
+              "id": "alignment_method",
+              "name": "Best-Fit Alignment Method",
+              "value": {
+                "type": "enum",
+                "default_value": "icp",
+                "constraints": { "enum_values": ["icp", "ransac_then_icp", "feature_based_alignment", "datum_based"] }
+              },
+              "physics_links": [
+                { "formula_id": "POINT_CLOUD_BEST_FIT_ALIGNMENT", "role": "input", "affects": ["alignment_residual"] }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cmp_geometry",
+          "name": "Geometry",
+          "parameters": [
+            {
+              "id": "cad_format",
+              "name": "CAD Source Format",
+              "value": {
+                "type": "enum",
+                "default_value": "step_ap242",
+                "constraints": { "enum_values": ["step_ap203", "step_ap214", "step_ap242", "iges", "parasolid", "hypermill_native"] }
+              }
+            },
+            {
+              "id": "include_pmi",
+              "name": "Include PMI from CAD",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        },
+        {
+          "id": "cmp_inspection",
+          "name": "Inspection",
+          "parameters": [
+            {
+              "id": "deviation_threshold_mm",
+              "name": "Deviation Threshold",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.05, "constraints": { "min": 0.001, "max": 10 } }
+            }
+          ]
+        },
+        {
+          "id": "cmp_analysis",
+          "name": "Analysis",
+          "parameters": [
+            {
+              "id": "deviation_heatmap_resolution",
+              "name": "Heatmap Resolution",
+              "value": {
+                "type": "enum",
+                "default_value": "medium",
+                "constraints": { "enum_values": ["low", "medium", "high", "ultra"] }
+              }
+            },
+            {
+              "id": "max_alignment_residual",
+              "name": "Max Acceptable Alignment Residual",
+              "value": { "type": "number", "unit": "mm", "default_value": 0.01, "constraints": { "min": 0.0001, "max": 1 } }
+            }
+          ]
+        },
+        {
+          "id": "cmp_report",
+          "name": "Report",
+          "parameters": [
+            {
+              "id": "export_aligned_cloud",
+              "name": "Export Aligned Cloud",
+              "value": { "type": "boolean", "default_value": false }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cross_references": {
+    "engines": ["HyperMillFAIBridge", "TolerancePropagationEngine", "SurfaceMeasureEngine", "GDTValidationEngine"],
+    "registries": ["MaterialRegistry", "PostProcessorRegistry"],
+    "physics_constants": []
+  }
+}

@@ -169,7 +169,7 @@ describe("HyperMillFunctionIndexEngine", () => {
   });
 
   describe("CAM-EXHAUST-MS3-01 integrity restoration", () => {
-    it("modules array contains exactly the 9 expected module ids in registration order", () => {
+    it("modules array contains the 10 expected module ids in registration order (MS3-01 + MS3-03)", () => {
       const idx = HyperMillFunctionIndexEngine.getIndex();
       const ids = idx.modules.map((m) => m.module_id);
       expect(ids).toEqual([
@@ -182,6 +182,7 @@ describe("HyperMillFunctionIndexEngine", () => {
         "5axis",
         "millturn",
         "maxx",
+        "inspection",
       ]);
     });
 
@@ -272,23 +273,23 @@ describe("HyperMillFunctionIndexEngine", () => {
       expect(HyperMillFunctionIndexEngine.getLoadErrors()).toHaveLength(0);
     });
 
-    it("coverage_summary.total_modules equals 9 and matches modules.length exactly", () => {
+    it("coverage_summary.total_modules equals 10 and matches modules.length exactly (MS3-01 + MS3-03)", () => {
       const idx = HyperMillFunctionIndexEngine.getIndex();
-      expect(idx.coverage_summary.total_modules).toBe(9);
+      expect(idx.coverage_summary.total_modules).toBe(10);
       expect(idx.coverage_summary.total_modules).toBe(idx.modules.length);
     });
 
-    it("coverage_summary.estimated_parameter_total equals 1446 and matches sum of per-entry estimates", () => {
+    it("coverage_summary.estimated_parameter_total equals 1524 and matches sum of per-entry estimates (MS3-01 + MS3-03)", () => {
       const idx = HyperMillFunctionIndexEngine.getIndex();
-      expect(idx.coverage_summary.estimated_parameter_total).toBe(1446);
+      expect(idx.coverage_summary.estimated_parameter_total).toBe(1524);
       const sumFromEntries = idx.modules.reduce(
         (acc, m) => acc + (m.parameter_count_estimate ?? 0),
         0,
       );
-      expect(sumFromEntries).toBe(1446);
+      expect(sumFromEntries).toBe(1524);
     });
 
-    it("covered_units list contains exactly the 7 expected unit tags in canonical order", () => {
+    it("covered_units list contains the 8 expected unit tags in canonical order (MS3-01 + MS3-03)", () => {
       const idx = HyperMillFunctionIndexEngine.getIndex();
       expect(idx.coverage_summary.total_units_covered).toEqual([
         "U-CAM06",
@@ -298,6 +299,7 @@ describe("HyperMillFunctionIndexEngine", () => {
         "U-CAM11",
         "U-CAM12",
         "U-CAM-MS3-01",
+        "U-CAM-MS3-03",
       ]);
     });
 
@@ -425,10 +427,10 @@ describe("HyperMillFunctionIndexEngine", () => {
       });
     });
 
-    it("totalParameterCount aggregates to exactly 1446 across all 9 normalized modules", () => {
+    it("totalParameterCount aggregates to 1524 across all 10 normalized modules (MS3-01 normalizers + MS3-03 inspection)", () => {
       const result = HyperMillFunctionIndexEngine.totalParameterCount();
-      expect(result.value).toBe(1446);
-      expect(result.module_count).toBe(9);
+      expect(result.value).toBe(1524);
+      expect(result.module_count).toBe(10);
       expect(result.source).toBe("hypermill_function_index");
     });
 
@@ -465,6 +467,109 @@ describe("HyperMillFunctionIndexEngine", () => {
       const raw = HyperMillFunctionIndexEngine.getModuleRaw("nonexistent_module");
       expect(raw).toBeNull();
       expect(HyperMillFunctionIndexEngine.getLoadErrors()).toHaveLength(0);
+    });
+  });
+
+  describe("CAM-EXHAUST-MS3-03 inspection module registration", () => {
+    it("modules array has length 10 and ends with 'inspection' (registration order preserved)", () => {
+      const ids = HyperMillFunctionIndexEngine.listModules();
+      expect(ids.length).toBe(10);
+      expect(ids[ids.length - 1]).toBe("inspection");
+    });
+
+    it("inspection index entry: path, parameter_count_estimate=78, dependencies=['tool_database'], covered_units=['U-CAM-MS3-03']", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      const entry = idx.modules.find((m) => m.module_id === "inspection");
+      if (!entry) throw new Error("inspection entry not registered in function-index");
+      expect(entry.path).toBe("cam-functions/hypermill/inspection.json");
+      expect(entry.parameter_count_estimate).toBe(78);
+      expect(entry.dependencies).toEqual(["tool_database"]);
+      expect(entry.covered_units).toEqual(["U-CAM-MS3-03"]);
+    });
+
+    it("getModule('inspection') returns 10 menus (one per inspection op) — v1_menus passthrough", () => {
+      const mod = HyperMillFunctionIndexEngine.getModule("inspection");
+      if (!mod) throw new Error("inspection module failed to load");
+      expect(mod.module_id).toBe("inspection");
+      expect(mod.schema_version).toBe("1.0.0");
+      expect(mod.menus.length).toBe(10);
+    });
+
+    it("findParameter('probe_id') resolves to inspection.cmm_plan_generate with default 'OMP60-T1'", () => {
+      const found = HyperMillFunctionIndexEngine.findParameter("probe_id");
+      if (!found) throw new Error("probe_id not located");
+      expect(found.module_id).toBe("inspection");
+      expect(found.menu_id).toBe("cmm_plan_generate");
+      expect(found.parameter.value.default_value).toBe("OMP60-T1");
+    });
+
+    it("findParameter('gdt_standard') resolves with full ASME/ISO enum constraints", () => {
+      const found = HyperMillFunctionIndexEngine.findParameter("gdt_standard");
+      if (!found) throw new Error("gdt_standard not located");
+      expect(found.module_id).toBe("inspection");
+      expect(found.menu_id).toBe("gdt_validate");
+      expect(found.parameter.value.constraints?.enum_values).toEqual([
+        "asme_y14_5_2018",
+        "asme_y14_5_2009",
+        "iso_1101",
+        "iso_5459",
+        "iso_8015",
+      ]);
+    });
+
+    it("findParameter('alignment_method') lands in compare_to_cad menu with default 'icp'", () => {
+      const found = HyperMillFunctionIndexEngine.findParameter("alignment_method");
+      if (!found) throw new Error("alignment_method not located");
+      expect(found.module_id).toBe("inspection");
+      expect(found.menu_id).toBe("compare_to_cad");
+      expect(found.parameter.value.default_value).toBe("icp");
+    });
+
+    it("findParameter('iteration_count') lands in tolerance_stack_monte_carlo with default 100000", () => {
+      const found = HyperMillFunctionIndexEngine.findParameter("iteration_count");
+      if (!found) throw new Error("iteration_count not located");
+      expect(found.module_id).toBe("inspection");
+      expect(found.menu_id).toBe("tolerance_stack_monte_carlo");
+      expect(found.parameter.value.default_value).toBe(100000);
+    });
+
+    it("totalParameterCount aggregates to value=1524 across module_count=10", () => {
+      const total = HyperMillFunctionIndexEngine.totalParameterCount();
+      expect(total.value).toBe(1524);
+      expect(total.module_count).toBe(10);
+    });
+
+    it("getParametersByFormula('PROBE_DYNAMIC_ERROR') returns >=2 hits spanning cmm_plan_generate + probe_compensation_calibrate", () => {
+      const hits = HyperMillFunctionIndexEngine.getParametersByFormula("PROBE_DYNAMIC_ERROR");
+      expect(hits.length).toBeGreaterThanOrEqual(2);
+      const menus = new Set(hits.map((h) => h.menu_id));
+      expect(menus.has("cmm_plan_generate")).toBe(true);
+      expect(menus.has("probe_compensation_calibrate")).toBe(true);
+      for (const h of hits) {
+        expect(h.module_id).toBe("inspection");
+      }
+    });
+
+    it("coverage_summary.total_modules=10 and matches modules.length", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      expect(idx.coverage_summary.total_modules).toBe(10);
+      expect(idx.coverage_summary.total_modules).toBe(idx.modules.length);
+    });
+
+    it("coverage_summary.estimated_parameter_total=1524 and matches sum of per-entry estimates", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      expect(idx.coverage_summary.estimated_parameter_total).toBe(1524);
+      const sum = idx.modules.reduce(
+        (a, m) => a + (m.parameter_count_estimate ?? 0),
+        0,
+      );
+      expect(idx.coverage_summary.estimated_parameter_total).toBe(sum);
+    });
+
+    it("coverage_summary lists U-CAM-MS3-03 + binds hyperMILL_FAI_Reference.pdf", () => {
+      const idx = HyperMillFunctionIndexEngine.getIndex();
+      expect(idx.coverage_summary.total_units_covered).toContain("U-CAM-MS3-03");
+      expect(idx.coverage_summary.pdf_sources_bound).toContain("hyperMILL_FAI_Reference.pdf");
     });
   });
 });
