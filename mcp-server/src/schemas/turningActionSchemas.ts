@@ -315,4 +315,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     operations: z.array(z.unknown()).min(1).describe("SequenceOperation[] — operation list to reorder/optimize"),
     constraints: z.record(z.string(), z.unknown()).optional().describe("SequenceConstraints — optional ordering/timing constraints"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch3: partoff safety + SLO registry + job scheduling
+  lathe_partoff_safety_eval: z.object({
+    op: z.record(z.string(), z.unknown()).describe("PartoffOpSpec — partoff op definition (D, fr, blade thickness, overhang, etc.)"),
+  }).passthrough(),
+  lathe_slo_evaluate: z.object({
+    metric: z.record(z.string(), z.unknown()).describe("LatheSLOMetric — measured metric value with type tag"),
+  }).passthrough(),
+  lathe_job_schedule: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ScheduleInput — jobs[], machines[], constraints for shop scheduler"),
+  }).passthrough(),
 };

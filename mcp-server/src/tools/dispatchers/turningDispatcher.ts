@@ -65,6 +65,8 @@ const ACTIONS = [
   "turning_predict_batch_life", "turning_thread_optimize", "lathe_classify_part",
   // LATHE-WIRE-MS0/Batch2: safety signals + multi-op planning + sequence optimization
   "lathe_safety_signals", "lathe_multi_op_plan", "lathe_sequence_optimize",
+  // LATHE-WIRE-MS0/Batch3: partoff safety rail + SLO registry + job scheduling
+  "lathe_partoff_safety_eval", "lathe_slo_evaluate", "lathe_job_schedule",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -460,6 +462,45 @@ Actions: ${ACTIONS.join(", ")}.`,
               result = latheSequenceOptimizerEngine.optimize(
                 ops as Parameters<typeof latheSequenceOptimizerEngine.optimize>[0],
                 constraints as Parameters<typeof latheSequenceOptimizerEngine.optimize>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_partoff_safety_eval": {
+            const { lathePartoffSafetyRailEngine } = await import("../../engines/LathePartoffSafetyRailEngine.js");
+            const op = (params as Record<string, unknown>).op;
+            if (!op || typeof op !== "object") { result = { success: false, error: "op required (PartoffOpSpec)" }; break; }
+            try {
+              result = lathePartoffSafetyRailEngine.evaluate(
+                op as Parameters<typeof lathePartoffSafetyRailEngine.evaluate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_slo_evaluate": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const metric = (params as Record<string, unknown>).metric;
+            if (!metric || typeof metric !== "object") { result = { success: false, error: "metric required (LatheSLOMetric)" }; break; }
+            try {
+              result = lathePerformanceSLORegistryEngine.evaluate(
+                metric as Parameters<typeof lathePerformanceSLORegistryEngine.evaluate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_job_schedule": {
+            const { latheJobSchedulingEngine } = await import("../../engines/LatheJobSchedulingEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ScheduleInput)" }; break; }
+            try {
+              result = latheJobSchedulingEngine.schedule(
+                input as Parameters<typeof latheJobSchedulingEngine.schedule>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
