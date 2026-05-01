@@ -1,0 +1,168 @@
+const PRISM_FEATURE_STRATEGY_MAP = {
+    version: '3.0.0', totalFeatures: 127, totalStrategies: 267,
+
+    '2D_FEATURES': {
+        // Pockets (10)
+        'pocket_open': { primary: ['adaptive_clearing','area_mill'], finishing: ['contour','parallel_finish'] },
+        'pocket_closed': { primary: ['adaptive_clearing','pocket','dynamic_area'], finishing: ['contour','spiral_finish'] },
+        'pocket_circular': { primary: ['helical_bore','circular_pocket'], finishing: ['circular_finish','contour'] },
+        'pocket_irregular': { primary: ['adaptive_clearing','rest_machining'], finishing: ['contour','rest_finish'] },
+        'pocket_with_islands': { primary: ['adaptive_clearing','island_aware_pocket'], finishing: ['contour','pencil'] },
+        'pocket_deep': { primary: ['plunge_rough','waterline'], finishing: ['waterline','pencil'] },
+        'pocket_shallow': { primary: ['pocket','face_mill'], finishing: ['light_finish'] },
+        'pocket_tapered': { primary: ['tapered_mill','3d_pocket'], finishing: ['scallop','contour'] },
+        'pocket_multi_level': { primary: ['step_pocket','adaptive_clearing'], finishing: ['level_finish'] },
+        'pocket_corner_relief': { primary: ['pencil','corner_mill'], finishing: ['corner_finish'] },
+        // Slots (8)
+        'slot_straight': { primary: ['slot_mill','trochoidal'], finishing: ['contour','slot_finish'] },
+        'slot_curved': { primary: ['contour','trochoidal'], finishing: ['contour','parallel_finish'] },
+        'slot_tapered': { primary: ['tapered_mill','ball_nose_contour'], finishing: ['scallop','contour'] },
+        'slot_t': { primary: ['t_slot_mill','undercut_slot'], finishing: ['t_slot_finish'] },
+        'slot_dovetail': { primary: ['dovetail_mill'], finishing: ['dovetail_finish'] },
+        'slot_keyway': { primary: ['keyway_mill','broach'], finishing: ['keyway_finish'] },
+        'slot_woodruff': { primary: ['woodruff_cutter'], finishing: ['woodruff_finish'] },
+        'slot_o_ring': { primary: ['groove_mill'], finishing: ['groove_finish'] },
+        // Faces (5)
+        'face_flat': { primary: ['face_mill','fly_cut'], finishing: ['light_face','fly_cut_finish'] },
+        'face_stepped': { primary: ['step_facing','shoulder_mill'], finishing: ['contour','step_finish'] },
+        'face_angled': { primary: ['angled_face','swarf'], finishing: ['scallop','parallel_finish'] },
+        'face_boss': { primary: ['boss_face','end_mill'], finishing: ['boss_finish'] },
+        'face_peripheral': { primary: ['peripheral_face'], finishing: ['peripheral_finish'] },
+        // Profiles (6)
+        'profile_external': { primary: ['contour','profile_2d'], finishing: ['profile_finish','spring_pass'] },
+        'profile_internal': { primary: ['contour','bore'], finishing: ['bore_finish','contour'] },
+        'profile_partial': { primary: ['contour','partial_profile'], finishing: ['contour','spring_pass'] },
+        'profile_ramped': { primary: ['ramp_contour'], finishing: ['ramp_finish'] },
+        'profile_helical': { primary: ['helical_contour'], finishing: ['helical_finish'] },
+        'profile_stepped': { primary: ['stepped_profile'], finishing: ['step_finish'] },
+        // Holes (12)
+        'hole_through': { primary: ['drill','peck_drill'], finishing: ['ream','fine_bore'] },
+        'hole_blind': { primary: ['drill','peck_drill'], finishing: ['ream','bore'] },
+        'hole_tapped': { primary: ['tap','thread_mill'], finishing: ['thread_mill_finish'] },
+        'hole_counterbore': { primary: ['counterbore','bore'], finishing: ['bore_finish'] },
+        'hole_countersink': { primary: ['countersink','chamfer_mill'], finishing: ['chamfer_finish'] },
+        'hole_reamed': { primary: ['ream'], finishing: ['hone'] },
+        'hole_bored': { primary: ['bore','back_bore'], finishing: ['hone','burnish'] },
+        'hole_interpolated': { primary: ['helical_bore','bore_mill'], finishing: ['bore_finish'] },
+        'hole_gun_drill': { primary: ['gun_drill','bta_drill'], finishing: ['hone'] },
+        'hole_stepped': { primary: ['step_drill','bore'], finishing: ['step_finish'] },
+        'hole_spot': { primary: ['spot_drill','center_drill'], finishing: [] },
+        'hole_pilot': { primary: ['pilot_drill'], finishing: ['drill'] }
+    },
+    '3D_FEATURES': {
+        // Bosses (5)
+        'boss_circular': { roughing: ['adaptive_clearing','area_mill'], finishing: ['contour','scallop'] },
+        'boss_rectangular': { roughing: ['adaptive_clearing','pocket'], finishing: ['contour','parallel_finish'] },
+        'boss_complex': { roughing: ['adaptive_clearing','rest_roughing'], finishing: ['scallop','morph_spiral'] },
+        'boss_tapered': { roughing: ['tapered_rough'], finishing: ['tapered_finish'] },
+        'boss_filleted': { roughing: ['adaptive_clearing'], finishing: ['pencil','fillet_finish'] },
+        // Surfaces (12)
+        'surface_flat': { roughing: ['parallel_rough','adaptive_clearing'], finishing: ['parallel_finish','scallop'] },
+        'surface_planar_angled': { roughing: ['swarf','parallel_rough'], finishing: ['scallop','parallel_finish'] },
+        'surface_curved_convex': { roughing: ['parallel_rough','waterline'], finishing: ['scallop','morph_spiral'] },
+        'surface_curved_concave': { roughing: ['waterline','parallel_rough'], finishing: ['scallop','pencil','rest_finish'] },
+        'surface_freeform': { roughing: ['adaptive_clearing','waterline'], finishing: ['scallop','morph_spiral','geodesic'] },
+        'surface_ruled': { roughing: ['swarf','flowline_rough'], finishing: ['swarf','flowline'] },
+        'surface_swept': { roughing: ['flowline_rough','parallel_rough'], finishing: ['flowline','morph_spiral'] },
+        'surface_blend': { roughing: ['parallel_rough','waterline'], finishing: ['morph_spiral','geodesic'] },
+        'surface_lofted': { roughing: ['parallel_rough'], finishing: ['scallop','flowline'] },
+        'surface_revolved': { roughing: ['waterline'], finishing: ['scallop','morph_spiral'] },
+        'surface_offset': { roughing: ['parallel_rough'], finishing: ['parallel_finish'] },
+        'surface_draft': { roughing: ['swarf'], finishing: ['swarf_finish'] },
+        // Fillets/Rounds (4)
+        'fillet_internal': { roughing: ['adaptive_clearing'], finishing: ['pencil','rest_finish','scallop'] },
+        'fillet_external': { roughing: ['parallel_rough'], finishing: ['scallop','contour'] },
+        'round_edge': { roughing: ['waterline'], finishing: ['scallop','morph_spiral'] },
+        'blend_surface': { roughing: ['parallel_rough'], finishing: ['geodesic'] },
+        // Ribs/Webs (4)
+        'rib_thin': { roughing: ['adaptive_clearing','trochoidal'], finishing: ['contour','parallel_finish'] },
+        'web_thin': { roughing: ['adaptive_clearing','light_passes'], finishing: ['contour','light_finish'] },
+        'rib_tapered': { roughing: ['tapered_rough'], finishing: ['tapered_finish'] },
+        'web_curved': { roughing: ['adaptive_clearing'], finishing: ['scallop'] },
+        // Undercuts (3)
+        'undercut_cylindrical': { roughing: ['lollipop','undercut_rough'], finishing: ['undercut_finish'] },
+        'undercut_slot': { roughing: ['t_slot','woodruff'], finishing: ['undercut_finish'] },
+        'undercut_dovetail': { roughing: ['dovetail_mill'], finishing: ['dovetail_finish'] },
+        // Cavities (5)
+        'cavity_prismatic': { roughing: ['adaptive_clearing'], finishing: ['contour','parallel_finish'] },
+        'cavity_sculptured': { roughing: ['adaptive_clearing','waterline'], finishing: ['scallop','morph_spiral'] },
+        'cavity_deep': { roughing: ['plunge_rough','waterline'], finishing: ['waterline','pencil'] },
+        'cavity_mold': { roughing: ['adaptive_clearing','waterline'], finishing: ['scallop','pencil','polish'] },
+        'cavity_die': { roughing: ['adaptive_clearing'], finishing: ['high_speed_finish'] },
+        // Special 3D (8)
+        'gear_tooth': { roughing: ['gear_rough'], finishing: ['gear_finish','hob'] },
+        'spline_internal': { roughing: ['spline_rough','broach'], finishing: ['spline_finish'] },
+        'spline_external': { roughing: ['spline_rough','hob'], finishing: ['spline_finish','grind'] },
+        'text_engraved': { primary: ['engrave','v_carve'], finishing: ['engrave_finish'] },
+        'logo_engraved': { primary: ['engrave','trace'], finishing: ['engrave_finish'] },
+        'electrode_edm': { roughing: ['adaptive_clearing'], finishing: ['high_speed_finish','morph_spiral'] },
+        'core_mold': { roughing: ['adaptive_clearing'], finishing: ['scallop','pencil','morph_spiral'] },
+        'pattern_linear': { strategy: 'pattern_transform' },
+        'pattern_circular': { strategy: 'circular_pattern' }
+    },
+    '5AXIS_FEATURES': {
+        // Impellers (4)
+        'impeller_blade': { roughing: ['blade_roughing','swarf_rough'], finishing: ['blade_finishing','swarf','flowline'] },
+        'impeller_hub': { roughing: ['hub_roughing','adaptive_5axis'], finishing: ['hub_finishing','scallop_5axis'] },
+        'impeller_splitter': { roughing: ['splitter_rough','swarf'], finishing: ['splitter_finish','swarf'] },
+        'blisk_blade': { roughing: ['blisk_rough','plunge_5axis'], finishing: ['blisk_finish','point_milling'] },
+        // Turbine (4)
+        'turbine_airfoil': { roughing: ['airfoil_rough','adaptive_5axis'], finishing: ['airfoil_finish','point_milling'] },
+        'turbine_platform': { roughing: ['platform_rough','swarf'], finishing: ['platform_finish','swarf'] },
+        'turbine_root': { roughing: ['root_rough','form_mill'], finishing: ['root_finish','fir_tree'] },
+        'turbine_shroud': { roughing: ['shroud_rough'], finishing: ['shroud_finish'] },
+        // Ports (4)
+        'port_intake': { roughing: ['port_rough','waterline_5axis'], finishing: ['port_finish','morph_5axis'] },
+        'port_exhaust': { roughing: ['port_rough','adaptive_5axis'], finishing: ['port_finish','flowline'] },
+        'manifold_internal': { roughing: ['manifold_rough'], finishing: ['manifold_finish'] },
+        'valve_port': { roughing: ['valve_rough'], finishing: ['valve_finish','flowline'] },
+        // Complex (6)
+        'ruled_surface': { primary: ['swarf','flowline'], finishing: ['swarf','flowline'] },
+        'freeform_surface': { roughing: ['adaptive_5axis'], finishing: ['geodesic','morph_5axis'] },
+        'compound_angle': { primary: ['tilted_plane','3plus2'], finishing: ['tilted_finish'] },
+        'variable_axis': { roughing: ['variable_contour_rough'], finishing: ['variable_axis_contour'] },
+        'undercut_5axis': { roughing: ['undercut_5axis_rough'], finishing: ['undercut_5axis_finish'] },
+        'back_face': { primary: ['back_face_mill','5axis_back'], finishing: ['back_face_finish'] },
+        // Aerospace (6)
+        'wing_skin': { roughing: ['skin_rough','adaptive_5axis'], finishing: ['skin_finish','scallop_5axis'] },
+        'spar_pocket': { roughing: ['spar_rough','adaptive_clearing'], finishing: ['spar_finish','contour'] },
+        'frame_section': { roughing: ['frame_rough','adaptive_5axis'], finishing: ['frame_finish'] },
+        'bulkhead': { roughing: ['bulk_rough','adaptive_clearing'], finishing: ['bulk_finish'] },
+        'stringer': { roughing: ['stringer_rough'], finishing: ['stringer_finish'] },
+        'rib_aerospace': { roughing: ['rib_rough_5axis'], finishing: ['rib_finish_5axis'] },
+        // Medical (5)
+        'hip_socket': { roughing: ['socket_rough'], finishing: ['socket_finish','polish_5axis'] },
+        'knee_condyle': { roughing: ['condyle_rough'], finishing: ['condyle_finish','morph_5axis'] },
+        'spinal_implant': { roughing: ['spine_rough'], finishing: ['spine_finish'] },
+        'dental_crown': { roughing: ['crown_rough'], finishing: ['crown_finish','polish'] },
+        'bone_plate': { roughing: ['plate_rough'], finishing: ['plate_finish'] }
+    },
+    'TURNING_FEATURES': {
+        'od_straight': { roughing: ['rough_turn','quick_rough'], finishing: ['finish_turn','spring_pass'] },
+        'od_taper': { roughing: ['taper_rough'], finishing: ['taper_finish'] },
+        'od_contour': { roughing: ['contour_rough'], finishing: ['contour_finish'] },
+        'od_thread': { primary: ['thread_turn'], finishing: ['thread_finish'] },
+        'od_groove': { primary: ['groove_turn','plunge_groove'], finishing: ['groove_finish'] },
+        'od_knurl': { primary: ['knurl'] },
+        'id_bore': { roughing: ['bore_rough','drill'], finishing: ['bore_finish','ream'] },
+        'id_thread': { primary: ['thread_bore','tap'], finishing: ['thread_finish'] },
+        'id_groove': { primary: ['internal_groove'], finishing: ['groove_finish'] },
+        'face_turn': { roughing: ['face_rough'], finishing: ['face_finish'] },
+        'cutoff': { primary: ['cutoff','part_off'] },
+        'od_form': { primary: ['form_turn'], finishing: ['form_finish'] },
+        'id_form': { primary: ['internal_form'], finishing: ['form_finish'] },
+        'spherical': { roughing: ['sphere_rough'], finishing: ['sphere_finish'] },
+        'eccentric': { roughing: ['eccentric_rough'], finishing: ['eccentric_finish'] }
+    },
+    'REST_HSM_FEATURES': {
+        'rest_from_previous': { primary: ['rest_roughing','rest_machining'], finishing: ['rest_finish','pencil'] },
+        'rest_from_stock': { primary: ['rest_from_stock','adaptive_clearing'], finishing: ['rest_finish'] },
+        'hsm_pocket': { primary: ['dynamic_pocket','volumill','adaptive_clearing'], finishing: ['hsm_finish'] },
+        'hsm_profile': { primary: ['dynamic_contour','adaptive_contour'], finishing: ['hsm_profile_finish'] },
+        'constant_chip_load': { primary: ['adaptive_clearing','trochoidal'], finishing: ['light_adaptive'] },
+        'full_loc_roughing': { primary: ['adaptive_clearing','plunge_rough'], finishing: ['rest_machining'] },
+        'high_feed': { primary: ['high_feed_mill','fast_feed'], finishing: ['high_feed_finish'] },
+        'trochoidal_slot': { primary: ['trochoidal'], finishing: ['trochoidal_finish'] },
+        'peel_milling': { primary: ['peel_mill'], finishing: ['peel_finish'] }
+    }
+}

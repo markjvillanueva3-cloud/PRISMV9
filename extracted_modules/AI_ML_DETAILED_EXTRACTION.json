@@ -1,0 +1,663 @@
+{
+  "OPTIMIZATION": {
+    "PRISM_OPTIMIZATION_ALGORITHMS": {
+      "found": true,
+      "code_length": 7083,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "H = (I - rho*s*y') * H * (I - rho*y*s') + rho*s*s'"
+        }
+      ],
+      "algorithms": [
+        "Gradient Descent",
+        "BFGS Quasi-Newton"
+      ],
+      "code_preview": "const PRISM_OPTIMIZATION_ALGORITHMS = {\n    name: 'PRISM Optimization Algorithms',\n    version: '1.0.0',\n    sources: ['MIT 6.251J', 'MIT 15.099', 'MIT 18.433', 'Stanford AA222', 'CMU 10-725', 'Berkeley EECS127'],\n    algorithmCount: 100,\n\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    // 1.1 GRADIENT-BASED METHODS\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    \n    /**\n     * Gradient Descent with multiple varia..."
+    },
+    "PRISM_PHASE1_OPTIMIZERS": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_ADVANCED_OPTIMIZATION_ENGINE": {
+      "found": true,
+      "code_length": 30055,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "h = stepover\u00b2 "
+        },
+        {
+          "type": "equation",
+          "content": "f = sqrt(32 * r * Ra "
+        },
+        {
+          "type": "equation",
+          "content": "hmax = fz * sin(\u03b8"
+        },
+        {
+          "type": "equation",
+          "content": "hmax = fz * sin(\u03b8"
+        },
+        {
+          "type": "equation",
+          "content": "V = C * T^(-n)"
+        },
+        {
+          "type": "Surface Roughness",
+          "content": "Ra = (feed * feed"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "STABILITY LOBE"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stabilityLobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stability lobe"
+        }
+      ],
+      "algorithms": [
+        "Genetic Algorithm",
+        "Simulated Annealing",
+        "Stability Lobe Analysis",
+        "Ant Colony Optimization"
+      ],
+      "code_preview": "const PRISM_ADVANCED_OPTIMIZATION_ENGINE = {\n  version: '1.0.0',\n\n  // 1. STABILITY LOBE DIAGRAM CALCULATOR (Chatter Avoidance)\n\n  stabilityLobe: {\n    /**\n     * Calculate critical depth of cut for chatter-free machining\n     * Based on regenerative chatter theory\n     */\n    calculateCriticalDepth(params) {\n      const {\n        naturalFrequency = 800,    // Hz - tool natural frequency\n        dampingRatio = 0.03,       // \u03b6 - damping ratio (typical 0.02-0.05)\n        stiffness = 5e6,         ..."
+    },
+    "PRISM_MULTI_OBJECTIVE_OPTIMIZER": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_METAHEURISTIC_OPTIMIZATION": {
+      "found": true,
+      "code_length": 3668,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_METAHEURISTIC_OPTIMIZATION = {\n    name: 'PRISM_METAHEURISTIC_OPTIMIZATION',\n    version: '1.0.0',\n    source: 'MIT 15.099 - Optimization Methods',\n    \n    /**\n     * Tabu Search\n     * Deterministic local search with memory\n     * Source: MIT 15.099\n     */\n    tabuSearch: function(config) {\n        const {\n            initialSolution,\n            costFunction,\n            neighborhoodFunction,\n            tabuTenure = 7,          // How long moves stay tabu\n            maxIteratio..."
+    },
+    "PRISM_CONSTRAINED_OPTIMIZATION": {
+      "found": true,
+      "code_length": 8618,
+      "formulas": [],
+      "algorithms": [
+        "Newton-Raphson",
+        "BFGS Quasi-Newton",
+        "Ant Colony Optimization"
+      ],
+      "code_preview": "const PRISM_CONSTRAINED_OPTIMIZATION = {\n\n    version: '1.0.0',\n    source: 'MIT 6.251J',\n\n    /**\n     * Sequential Quadratic Programming (SQP)\n     * Solves: min f(x) subject to g(x) \u2264 0, h(x) = 0\n     *\n     * CAM Application: Optimize feedrate subject to force/power constraints\n     */\n    sqp: function(f, g, h, x0, options = {}) {\n        const {\n            maxIter = 100,\n            tol = 1e-6,\n            gradF = null,\n            jacG = null,\n            jacH = null\n        } = options;..."
+    },
+    "PRISM_COMBINATORIAL_OPTIMIZER": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_ADVANCED_FEED_OPTIMIZER": {
+      "found": true,
+      "code_length": 1886,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_ADVANCED_FEED_OPTIMIZER = {\n    version: '1.0.0',\n\n    /**\n     * Calculate chip thinning factor\n     * When radial engagement < 50%, effective chip thickness decreases\n     */\n    calculateChipThinning(woc, toolDiameter) {\n        const radialEngagement = woc / toolDiameter;\n\n        if (radialEngagement >= 0.5) {\n            return 1.0; // No compensation needed\n        }\n        // CTF = 1 / sqrt(1 - (1 - 2*ae/D)^2)\n        const factor = 1 - 2 * radialEngagement;\n        const ct..."
+    },
+    "PRISM_RAPIDS_OPTIMIZER": {
+      "found": true,
+      "code_length": 3816,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_RAPIDS_OPTIMIZER = {\n  version: '1.0.0',\n\n  /**\n   * Optimize rapid moves in a toolpath\n   */\n  optimize(toolpath, options = {}) {\n    const result = {\n      original: toolpath,\n      optimized: JSON.parse(JSON.stringify(toolpath)),\n      savings: { distance: 0, estimatedTime: 0 },\n      confidence: 100\n    };\n    const moves = result.optimized.moves || [];\n    if (moves.length < 3) return result;\n\n    // Strategy 1: Remove redundant rapids\n    result.optimized.moves = this._removeRe..."
+    }
+  },
+  "NEURAL_DEEP_LEARNING": {
+    "PRISM_NEURAL_ENGINE_ENHANCED": {
+      "found": true,
+      "code_length": 13510,
+      "formulas": [],
+      "algorithms": [
+        "Neural Network"
+      ],
+      "code_preview": "const PRISM_NEURAL_ENGINE_ENHANCED = {\n    // Activation functions\n    activations: {\n        relu: x => Math.max(0, x),\n        leakyRelu: (x, alpha = 0.01) => x > 0 ? x : alpha * x,\n        elu: (x, alpha = 1) => x > 0 ? x : alpha * (Math.exp(x) - 1),\n        gelu: x => 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * Math.pow(x, 3)))),\n        swish: x => x * (1 / (1 + Math.exp(-x))),\n        sigmoid: x => 1 / (1 + Math.exp(-Math.min(Math.max(x, -500), 500))),\n        tanh: x..."
+    },
+    "PRISM_NEURAL_NETWORK": {
+      "found": true,
+      "code_length": 4473,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_NEURAL_NETWORK = {\n\n    Sequential: class {\n        constructor(name = 'model') {\n            this.name = name;\n            this.layers = [];\n            this.learningRate = 0.001;\n            this.lossType = 'mse';\n            this.history = { loss: [], accuracy: [] };\n        }\n        add(layer) {\n            this.layers.push(layer);\n            return this;\n        }\n        compile(options = {}) {\n            this.learningRate = options.learningRate || 0.001;\n            this.lo..."
+    },
+    "PRISM_DEEP_LEARNING_PARAMS": {
+      "found": true,
+      "code_length": 6828,
+      "formulas": [],
+      "algorithms": [
+        "Gradient Descent",
+        "Recurrent Neural Network",
+        "Transformer",
+        "Convolutional Neural Network"
+      ],
+      "code_preview": "const PRISM_DEEP_LEARNING_PARAMS = {\n    getCNN: function(complexity = 'medium') {\n        const AI = PRISM_CONSTANTS.AI;\n        let filters = AI.CNN_DEFAULT_FILTERS;\n        if (complexity === 'simple') filters = filters.slice(0, 2);\n        if (complexity === 'complex') filters = [...filters, 512];\n        \n        return {\n            filters,\n            kernelSize: AI.CNN_KERNEL_SIZE_DEFAULT,\n            poolSize: AI.CNN_POOL_SIZE_DEFAULT,\n            stride: AI.CNN_STRIDE_DEFAULT,\n       ..."
+    },
+    "PRISM_PHASE3_DEEP_LEARNING": {
+      "found": true,
+      "code_length": 23726,
+      "formulas": [],
+      "algorithms": [
+        "Recurrent Neural Network",
+        "Neural Network",
+        "Transformer",
+        "Convolutional Neural Network"
+      ],
+      "code_preview": "const PRISM_PHASE3_DEEP_LEARNING = {\n    name: 'Phase 3 Deep Learning Module',\n    version: '1.0.0',\n    sources: ['Stanford CS231N', 'MIT 15.773', 'fast.ai'],\n    algorithmCount: 25,\n    \n    /**\n     * 2D Convolution Layer\n     * Source: Stanford CS231N - Convolutional Neural Networks\n     * Usage: Feature extraction from CAD images, vibration spectrograms\n     */\n    conv2D: function(input, kernels, stride = 1, padding = 0) {\n        const [batchSize, inChannels, height, width] = [\n          ..."
+    },
+    "PRISM_PHASE3_GRAPH_NEURAL": {
+      "found": true,
+      "code_length": 13611,
+      "formulas": [],
+      "algorithms": [
+        "Recurrent Neural Network",
+        "Neural Network",
+        "Transformer",
+        "Convolutional Neural Network"
+      ],
+      "code_preview": "const PRISM_PHASE3_GRAPH_NEURAL = {\n    name: 'Phase 3 Graph Neural Networks',\n    version: '1.0.0',\n    sources: ['Stanford CS224W', 'MIT 6.867'],\n    algorithmCount: 10,\n    \n    /**\n     * Graph Convolutional Network (GCN) Layer\n     * Source: Stanford CS224W - Machine Learning with Graphs\n     * Usage: Feature aggregation over manufacturing feature graphs\n     */\n    gcn: function(nodeFeatures, adjacency, weights) {\n        const n = nodeFeatures.length;\n        const inputDim = nodeFeatures..."
+    },
+    "PRISM_TRANSFORMER_ENGINE": {
+      "found": true,
+      "code_length": 6032,
+      "formulas": [],
+      "algorithms": [
+        "Neural Network",
+        "Transformer"
+      ],
+      "code_preview": "const PRISM_TRANSFORMER_ENGINE = {\n    name: 'PRISM_TRANSFORMER_ENGINE',\n    version: '1.0.0',\n    source: 'MIT 15.773, Vaswani 2017',\n\n    /**\n     * Sinusoidal Positional Encoding\n     */\n    positionalEncoding: function(seqLen, dModel) {\n        const PE = [];\n        for (let pos = 0; pos < seqLen; pos++) {\n            const row = [];\n            for (let i = 0; i < dModel; i++) {\n                const angle = pos / Math.pow(10000, (2 * Math.floor(i / 2)) / dModel);\n                row.push(..."
+    },
+    "PRISM_TRANSFORMER_DECODER": {
+      "found": true,
+      "code_length": 6138,
+      "formulas": [],
+      "algorithms": [
+        "Transformer"
+      ],
+      "code_preview": "const PRISM_TRANSFORMER_DECODER = {\n    name: 'PRISM Transformer Decoder',\n    version: '1.0.0',\n    \n    createDecoderLayer: function(dModel, nHeads, dFF, dropout = 0.1) {\n        const dK = Math.floor(dModel / nHeads);\n        const xavier = (fanIn, fanOut) => Math.sqrt(6 / (fanIn + fanOut));\n        const initWeights = () => Array(dModel).fill(0).map(() => Array(dModel).fill(0).map(() => (Math.random()-0.5)*2*xavier(dModel,dModel)));\n        return {\n            dModel, nHeads, dK, dFF, dropo..."
+    },
+    "PRISM_RNN_ADVANCED": {
+      "found": true,
+      "code_length": 11313,
+      "formulas": [],
+      "algorithms": [
+        "Neural Network",
+        "Transformer",
+        "Recurrent Neural Network"
+      ],
+      "code_preview": "const PRISM_RNN_ADVANCED = {\n    // LSTM Cell\n    createLSTMCell(inputSize, hiddenSize) {\n        const initWeight = () => (Math.random() - 0.5) * Math.sqrt(2 / (inputSize + hiddenSize));\n        \n        return {\n            inputSize,\n            hiddenSize,\n            \n            // Gates: input, forget, cell, output\n            Wi: Array(hiddenSize).fill().map(() => Array(inputSize).fill().map(initWeight)),\n            Wf: Array(hiddenSize).fill().map(() => Array(inputSize).fill().map(init..."
+    },
+    "PRISM_SWARM_NEURAL_HYBRID": {
+      "found": true,
+      "code_length": 6812,
+      "formulas": [],
+      "algorithms": [
+        "Neural Network",
+        "Genetic Algorithm"
+      ],
+      "code_preview": "const PRISM_SWARM_NEURAL_HYBRID = {\n    name: 'Swarm-Neural Hybrid Optimization',\n    sources: ['MIT 15.099', 'MIT 15.773'],\n    patentClaim: 'Neural network-guided particle swarm optimization for manufacturing parameter tuning',\n    \n    /**\n     * Create hybrid optimizer\n     */\n    createOptimizer: function(objectiveFunc, bounds, config = {}) {\n        const {\n            numParticles = 30,\n            hiddenDim = 32,\n            useNeuralGuidance = true\n        } = config;\n        \n        c..."
+    }
+  },
+  "MACHINE_LEARNING": {
+    "PRISM_BAYESIAN_ENGINE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_GAUSSIAN_PROCESS": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_ENSEMBLE_ALGORITHMS": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_ALGORITHM_SELECTOR": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_ACTIVE_LEARNING": {
+      "found": true,
+      "code_length": 8398,
+      "formulas": [],
+      "algorithms": [
+        "Random Forest/Ensemble"
+      ],
+      "code_preview": "const PRISM_ACTIVE_LEARNING = {\n    // Labeled data pool\n    labeledData: [],\n    \n    // Unlabeled data pool\n    unlabeledPool: [],\n    \n    // Query strategies\n    strategies: {\n        // Uncertainty sampling - select most uncertain predictions\n        uncertainty(predictions) {\n            return predictions.map((p, i) => ({\n                index: i,\n                score: p.uncertainty || (1 - Math.max(...(p.probabilities || [p.confidence])))\n            })).sort((a, b) => b.score - a.score..."
+    },
+    "PRISM_ACTIVE_LEARNING_COMPLETE": {
+      "found": true,
+      "code_length": 7105,
+      "formulas": [],
+      "algorithms": [
+        "Random Forest/Ensemble"
+      ],
+      "code_preview": "const PRISM_ACTIVE_LEARNING_COMPLETE = {\n    name: 'PRISM Active Learning Complete',\n    version: '1.0.0',\n    \n    // Data pools\n    labeledData: [],\n    unlabeledPool: [],\n    \n    // Query strategies\n    strategies: {\n        /**\n         * Uncertainty sampling - select least confident predictions\n         */\n        uncertainty: function(predictions) {\n            return predictions.map((p, i) => ({\n                index: i,\n                score: 1 - (p.confidence || Math.max(...(p.probabil..."
+    },
+    "PRISM_CAM_LEARNING_ENGINE": {
+      "found": true,
+      "code_length": 11655,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_CAM_LEARNING_ENGINE = {\n  version: '1.0.0',\n\n  // Learned patterns storage\n  learnedPatterns: {\n    featureToOperation: {},      // feature type -> recommended operations\n    operationToStrategy: {},     // operation type -> recommended strategies\n    strategyParameters: {},      // strategy -> typical parameters\n    industryDefaults: {},        // industry -> default toolpath settings\n    materialAdjustments: {},     // material -> parameter adjustments\n    complexityScaling: {}    ..."
+    },
+    "PRISM_LEARNING_ENGINE": {
+      "found": true,
+      "code_length": 2120,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_LEARNING_ENGINE = {\n\n    data: {\n        outcomes: [],\n        corrections: [],\n        feedback: [],\n        successfulConfigs: []\n    },\n    recordOutcome: function(params, outcome) {\n        this.data.outcomes.push({\n            params,\n            outcome,\n            timestamp: Date.now()\n        });\n\n        if (this.data.outcomes.length > 5000) {\n            this.data.outcomes = this.data.outcomes.slice(-5000);\n        }\n        // Trigger model update if enough new data\n     ..."
+    },
+    "PRISM_LEARNING_PERSISTENCE_ENGINE": {
+      "found": true,
+      "code_length": 4074,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_LEARNING_PERSISTENCE_ENGINE = {\n  version: '1.0.0',\n  storageKey: 'PRISM_LEARNING_DATA',\n  maxEntries: 10000,\n\n  // Storage categories\n  categories: {\n    CAD_MODELS: 'cad_models',\n    TOOLPATHS: 'toolpaths',\n    CUTTING_PARAMS: 'cutting_params',\n    MACHINES: 'machines',\n    TOOLS: 'tools',\n    HOLDERS: 'holders',\n    FEEDBACK: 'feedback',\n    PART_FEATURES: 'part_features',\n    PROGRAMS: 'programs'\n  },\n  // Initialize storage\n  init: function() {\n    if (!localStorage.getItem(this..."
+    },
+    "PRISM_MACHINE_3D_LEARNING_ENGINE": {
+      "found": true,
+      "code_length": 19638,
+      "formulas": [],
+      "algorithms": [
+        "Bayesian Inference"
+      ],
+      "code_preview": "const PRISM_MACHINE_3D_LEARNING_ENGINE = {\n  version: '1.0.0',\n\n  // LEARNED DIMENSION DATABASE\n  // Stores manufacturer/model-specific proportions learned from uploaded CAD\n\n  learnedDimensions: {\n    // UNIFIED MACHINE CAD LEARNING DATABASE\n    // All uploaded machine CAD models in flat structure (not nested by brand)\n    // Format: manufacturer_model for easy lookup\n    // Priority: 'uploaded_cad' overrides PRISM-generated models\n\n    // --- DN Solutions (formerly Doosan) ---\n    'dn_solution..."
+    },
+    "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE": {
+      "found": true,
+      "code_length": 12290,
+      "formulas": [],
+      "algorithms": [
+        "Regression"
+      ],
+      "code_preview": "const PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE = {\n  version: '1.0.0',\n\n  // LEARNED BEHAVIOR DATABASE\n\n  learnedBehaviors: {\n    // Per-machine axis behavior profiles\n    // Key: machineId, Value: { axes: { X: {...}, Y: {...}, ... } }\n  },\n  // Observation buffer for learning\n  observations: [],\n  maxObservations: 10000,\n\n  // Default behavior templates\n  defaultBehaviors: {\n    linear: {\n      maxVelocity: 30000,        // mm/min\n      maxAcceleration: 5000,     // mm/min\u00b2\n      maxJerk: 50000,    ..."
+    },
+    "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE": {
+      "found": true,
+      "code_length": 15147,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE = {\n  version: '1.0.0',\n\n  // LEARNED DATA STRUCTURES\n\n  learnedData: {\n    // Per-machine collision zones\n    collisionZones: {},\n\n    // Contact frequency maps (heat maps)\n    contactHeatMaps: {},\n\n    // Safe clearance distances\n    safeClearances: {},\n\n    // Common collision patterns\n    collisionPatterns: [],\n\n    // Tool-holder interference database\n    toolHolderInterference: {},\n\n    // Fixture collision zones\n    fixtureCollisionZones: {}\n..."
+    },
+    "PRISM_COMPLEX_CAD_LEARNING_ENGINE": {
+      "found": true,
+      "code_length": 9793,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_COMPLEX_CAD_LEARNING_ENGINE = {\n  version: '1.0.0',\n\n  // Learned geometry patterns for complex parts\n  learnedPatterns: {\n    blisks: [],\n    impellers: [],\n    turbineBlades: [],\n    inducers: [],\n    diffusers: [],\n    shrouds: []\n  },\n  // Statistics from learned parts\n  statistics: {\n    totalPartsLearned: 0,\n    bladeProfilesLearned: 0,\n    hubProfilesLearned: 0,\n    filletRadiiLearned: 0\n  },\n  /**\n   * Learn from uploaded complex part geometry\n   */\n  learnFromPart(partData, ..."
+    }
+  },
+  "PHYSICS_FORMULAS": {
+    "PRISM_TAYLOR_LOOKUP": {
+      "found": true,
+      "code_length": 1501,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_TAYLOR_LOOKUP = {\n    getDefaultN: function(materialClass) {\n        const cls = (materialClass || 'steel').toLowerCase();\n        switch(cls) {\n            case 'steel': return PRISM_CONSTANTS.TAYLOR.DEFAULT_N_STEEL;\n            case 'aluminum': return PRISM_CONSTANTS.TAYLOR.DEFAULT_N_ALUMINUM;\n            case 'titanium': return PRISM_CONSTANTS.TAYLOR.DEFAULT_N_TITANIUM;\n            case 'cast_iron':\n            case 'castiron': return PRISM_CONSTANTS.TAYLOR.DEFAULT_N_CAST_IRON;\n  ..."
+    },
+    "PRISM_TAYLOR_ADVANCED": {
+      "found": true,
+      "code_length": 2052,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "Kc = Kc1.1 "
+        },
+        {
+          "type": "Taylor",
+          "content": "Taylor: V * T"
+        }
+      ],
+      "algorithms": [],
+      "code_preview": "const PRISM_TAYLOR_ADVANCED = {\n    name: \"Extended Taylor Tool Life with Strain Rate\",\n    mitSource: \"MIT 3.22 - Mechanical Behavior of Materials\",\n\n    // Extended Taylor: V * T^n * f^a * d^b = C\n    computeToolLife: function(V, f, d, params) {\n        const { C, n, a, b } = params;\n        // T = (C / (V * f^a * d^b))^(1/n)\n        const T = Math.pow(C / (V * Math.pow(f, a) * Math.pow(d, b)), 1/n);\n        return Math.max(0, T);\n    },\n    // Optimal cutting speed for target tool life\n    op..."
+    },
+    "PRISM_TAYLOR_COMPLETE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_TAYLOR_TOOL_LIFE": {
+      "found": true,
+      "code_length": 5292,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_TAYLOR_TOOL_LIFE = {\n    version: '3.0.0', totalCombinations: 150,\n    // V \u00d7 T^n = C  (Extended: V \u00d7 T^n \u00d7 f^a \u00d7 d^b = C)\n    constants: {\n        'steel_low_carbon': {\n            'HSS': { C: 70, n: 0.125, a: 0.75, b: 0.15 }, 'HSS_Coated': { C: 85, n: 0.130, a: 0.72, b: 0.14 },\n            'Carbide_Uncoated': { C: 200, n: 0.250, a: 0.50, b: 0.15 }, 'Carbide_TiN': { C: 280, n: 0.270, a: 0.48, b: 0.14 },\n            'Carbide_TiAlN': { C: 320, n: 0.280, a: 0.45, b: 0.13 }, 'Carbide_Al..."
+    },
+    "PRISM_FORCE_LOOKUP": {
+      "found": true,
+      "code_length": 1787,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_FORCE_LOOKUP = {\n    getDefaultKc: function(materialClass) {\n        const cls = (materialClass || 'steel').toLowerCase();\n        switch(cls) {\n            case 'steel': return PRISM_CONSTANTS.FORCE.DEFAULT_KC_STEEL;\n            case 'aluminum': return PRISM_CONSTANTS.FORCE.DEFAULT_KC_ALUMINUM;\n            case 'titanium': return PRISM_CONSTANTS.FORCE.DEFAULT_KC_TITANIUM;\n            case 'cast_iron':\n            case 'castiron': return PRISM_CONSTANTS.FORCE.DEFAULT_KC_CAST_IRON;\n  ..."
+    },
+    "PRISM_KIENZLE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_JOHNSON_COOK_DATABASE": {
+      "found": true,
+      "code_length": 7693,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_JOHNSON_COOK_DATABASE = {\n    name: 'PRISM Johnson-Cook Strain Rate Database',\n    version: '2.0.0',\n    mitSource: 'MIT 3.22 - Mechanical Behavior of Materials',\n    description: 'Comprehensive strain-rate sensitivity parameters for high-speed machining',\n\n    // Common reference values\n    constants: {\n        eps_dot_ref: 1.0,      // Reference strain rate (1/s)\n        T_room: 293,           // Room temperature (K)\n    },\n    // STEELS - Johnson-Cook Parameters\n    steels: {\n    ..."
+    },
+    "PRISM_CUTTING_MECHANICS_ENGINE": {
+      "found": true,
+      "code_length": 30055,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "P = F_c * V_c (need cutting speed)"
+        },
+        {
+          "type": "equation",
+          "content": "h = R - sqrt(R\u00b2 - (ae"
+        },
+        {
+          "type": "MRR",
+          "content": "MRR ="
+        }
+      ],
+      "algorithms": [
+        "Neural Network",
+        "Stability Lobe Analysis",
+        "Ant Colony Optimization"
+      ],
+      "code_preview": "const PRISM_CUTTING_MECHANICS_ENGINE = {\n    name: 'PRISM_CUTTING_MECHANICS_ENGINE',\n    version: '1.0.0',\n    source: 'MIT 2.008, Merchant 1945, Shaw Metal Cutting',\n    \n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    // MERCHANT'S CUTTING ANALYSIS\n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    \n    /**\n     * Merchant's orthogonal cutting model\n     * @param {Object} params - Cutting parameters\n     * @returns {Obj..."
+    },
+    "PRISM_CUTTING_THERMAL_ENGINE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_HEAT_TRANSFER_ENGINE": {
+      "found": true,
+      "code_length": 17564,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "compensation = \u03a3(matrix_coeff \u00d7 temp_delta)"
+        }
+      ],
+      "algorithms": [
+        "Fast Fourier Transform"
+      ],
+      "code_preview": "const PRISM_HEAT_TRANSFER_ENGINE = {\n    name: 'PRISM_HEAT_TRANSFER_ENGINE',\n    version: '1.0.0',\n    source: 'MIT 2.51, MIT 16.050',\n    \n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    // CONDUCTION\n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    \n    /**\n     * 1D steady-state conduction (Fourier's law)\n     * q = -k \u00d7 dT/dx\n     */\n    steadyStateConduction1D: function(params) {\n        const {\n            thermal..."
+    },
+    "PRISM_THERMAL_EXPANSION_ENGINE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_PHYSICS_ENGINE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_CHATTER_PREDICTION_ENGINE": {
+      "found": true,
+      "code_length": 15326,
+      "formulas": [
+        {
+          "type": "Stability Lobe",
+          "content": "STABILITY LOBE"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stability lobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "Stability lobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "StabilityLobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "Stability lobe"
+        }
+      ],
+      "algorithms": [
+        "Genetic Algorithm",
+        "Fast Fourier Transform",
+        "Stability Lobe Analysis",
+        "Ant Colony Optimization"
+      ],
+      "code_preview": "const PRISM_CHATTER_PREDICTION_ENGINE = {\n    name: 'PRISM_CHATTER_PREDICTION_ENGINE',\n    version: '1.0.0',\n    source: 'Altintas, Tlusty, MIT 2.830',\n    \n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    // STABILITY LOBE DIAGRAM\n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    \n    /**\n     * Generate stability lobe diagram for milling\n     * @param {Object} toolDynamics - {mass, stiffness, damping} or FRF\n     * @par..."
+    },
+    "PRISM_VIBRATION_ANALYSIS_ENGINE": {
+      "found": true,
+      "code_length": 14442,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "y = K^-1 * M * v (inverse iteration)"
+        }
+      ],
+      "algorithms": [
+        "Genetic Algorithm"
+      ],
+      "code_preview": "const PRISM_VIBRATION_ANALYSIS_ENGINE = {\n    name: 'PRISM_VIBRATION_ANALYSIS_ENGINE',\n    version: '1.0.0',\n    source: 'MIT 16.07, Altintas Manufacturing Automation',\n    \n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    // SINGLE DOF VIBRATION\n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    \n    /**\n     * Calculate natural frequency and related parameters for SDOF system\n     * @param {Object} params - {mass, stiffn..."
+    },
+    "PRISM_SURFACE_FINISH_ENGINE": {
+      "found": true,
+      "code_length": 10719,
+      "formulas": [
+        {
+          "type": "Surface Roughness",
+          "content": "Ra = (feedPerRev * feed"
+        },
+        {
+          "type": "Surface Roughness",
+          "content": "Ra = (feedPerTooth * feed"
+        }
+      ],
+      "algorithms": [
+        "Bayesian Inference"
+      ],
+      "code_preview": "const PRISM_SURFACE_FINISH_ENGINE = {\n  version: '1.0.0',\n\n  // SURFACE FINISH DATABASE - ISO 1302 / ASME Y14.36\n\n  database: {\n    // ISO N-Number to Ra conversion\n    nNumberToRa: {\n      N1:  { ra_um: 0.025, ra_uin: 1,    description: 'Super finish, lapping' },\n      N2:  { ra_um: 0.05,  ra_uin: 2,    description: 'Super finish, honing' },\n      N3:  { ra_um: 0.1,   ra_uin: 4,    description: 'Mirror finish, polishing' },\n      N4:  { ra_um: 0.2,   ra_uin: 8,    description: 'Fine grinding, l..."
+    },
+    "PRISM_TOOL_LIFE_ENGINE": {
+      "found": true,
+      "code_length": 7351,
+      "formulas": [],
+      "algorithms": [
+        "Neural Network"
+      ],
+      "code_preview": "const PRISM_TOOL_LIFE_ENGINE = {\n    name: 'PRISM_TOOL_LIFE_ENGINE',\n    version: '1.0.0',\n    source: 'Taylor 1907, MIT 2.008, Usui Wear Model',\n    \n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    // TAYLOR TOOL LIFE EQUATION\n    // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n    \n    /**\n     * Taylor tool life equation: V \u00d7 T^n = C\n     * Extended: V \u00d7 T^n \u00d7 f^m \u00d7 d^p = C\n     * @param {Object} params - Cutting parameters..."
+    }
+  },
+  "SIGNAL_PROCESSING": {
+    "PRISM_SIGNAL_ALGORITHMS": {
+      "found": true,
+      "code_length": 10352,
+      "formulas": [],
+      "algorithms": [
+        "Fast Fourier Transform",
+        "Convolutional Neural Network"
+      ],
+      "code_preview": "const PRISM_SIGNAL_ALGORITHMS = {\n    name: 'PRISM Signal Processing Algorithms',\n    version: '1.0.0',\n    sources: ['MIT 18.086', 'Berkeley EE120', 'Berkeley EE123', 'Stanford EE263'],\n    algorithmCount: 60,\n\n    /**\n     * Fast Fourier Transform (Cooley-Tukey)\n     * Source: MIT 18.086 Computational Science\n     */\n    fft: function(x) {\n        const n = x.length;\n        \n        // Base case\n        if (n === 1) {\n            return [{ re: x[0], im: 0 }];\n        }\n        \n        // Ens..."
+    },
+    "PRISM_PHASE1_SIGNAL": {
+      "found": true,
+      "code_length": 10510,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "PSD = |FFT|\u00b2 "
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "Stability Lobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stabilityLobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stability boundary for each lobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "Stability Lobe"
+        }
+      ],
+      "algorithms": [
+        "Genetic Algorithm",
+        "Fast Fourier Transform",
+        "Stability Lobe Analysis"
+      ],
+      "code_preview": "const PRISM_PHASE1_SIGNAL = {\n    name: 'Phase 1 Signal Processing Algorithms',\n    version: '1.0.0',\n    source: 'MIT 18.086, Berkeley EE123',\n    \n    /**\n     * FFT Analysis (Cooley-Tukey)\n     * Source: MIT 18.086 - Computational Science and Engineering\n     */\n    fftAnalyze: function(samples, sampleRate = 1000) {\n        const N = samples.length;\n        \n        // Pad to power of 2 if needed\n        const paddedLength = Math.pow(2, Math.ceil(Math.log2(N)));\n        const padded = [...sam..."
+    },
+    "PRISM_FFT_PREDICTIVE_CHATTER": {
+      "found": true,
+      "code_length": 11607,
+      "formulas": [
+        {
+          "type": "Stability Lobe",
+          "content": "stability lobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stability lobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "StabilityLobe"
+        },
+        {
+          "type": "Stability Lobe",
+          "content": "stabilityData.lobe"
+        }
+      ],
+      "algorithms": [
+        "Fast Fourier Transform",
+        "Stability Lobe Analysis"
+      ],
+      "code_preview": "const PRISM_FFT_PREDICTIVE_CHATTER = {\n    name: 'FFT-Predictive Chatter',\n    sources: ['MIT 18.086', 'MIT 2.830'],\n    patentClaim: 'Real-time chatter prediction using FFT analysis combined with stability lobe diagrams for proactive avoidance',\n    \n    /**\n     * Analyze vibration signal for chatter indicators\n     */\n    analyzeVibration: function(signal, sampleRate, spindleRPM) {\n        const n = signal.length;\n        \n        // Compute FFT\n        const fft = this._fft(signal);\n        ..."
+    },
+    "PRISM_WAVELET_CHATTER": {
+      "found": true,
+      "code_length": 1116,
+      "formulas": [],
+      "algorithms": [
+        "Fast Fourier Transform"
+      ],
+      "code_preview": "const PRISM_WAVELET_CHATTER = {\n    name: 'Wavelet-Enhanced Chatter Detection',\n    sources: ['MIT 18.086', 'Berkeley EE123'],\n    patentClaim: 'Combined DWT-EMD-FFT analysis for early chatter onset detection',\n    \n    analyze: function(signal) {\n        // Multi-resolution analysis\n        const dwtCoeffs = this._haarDWT(signal);\n        const instantFreq = this._hilbertEnvelope(signal);\n        const fftPeaks = this._findFFTPeaks(signal);\n        \n        // Combine for robust detection\n     ..."
+    },
+    "PRISM_NUMERICAL_ENGINE": {
+      "found": true,
+      "code_length": 34,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "window.PRISM_NUMERICAL_ENGINE = {}"
+    }
+  },
+  "AI_INFRASTRUCTURE": {
+    "PRISM_AI_ORCHESTRATION_ENGINE": {
+      "found": true,
+      "code_length": 20920,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_AI_ORCHESTRATION_ENGINE = {\n  version: '1.0.0',\n  aiVersion: 'v4.50',\n\n  // CORE ORCHESTRATION STATE\n  state: {\n    currentWorkflow: null,\n    workflowStage: null,\n    userIntent: null,\n    contextStack: [],\n    pendingDecisions: [],\n    completedSteps: [],\n    aiSuggestions: [],\n    isAIActive: false\n  },\n  // WORKFLOW DEFINITIONS\n  workflows: {\n    // Complete Print-to-Part workflow\n    PRINT_TO_PART: {\n      name: 'Print to Part',\n      description: 'Convert engineering print to f..."
+    },
+    "PRISM_AI_BACKGROUND_COORDINATOR": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_AI_BACKGROUND_ORCHESTRATOR": {
+      "found": true,
+      "code_length": 6893,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_AI_BACKGROUND_ORCHESTRATOR = {\n\n    isRunning: false,\n    userActions: [],\n    suggestions: [],\n    interventionThreshold: 0.7,\n\n    patterns: {\n        repeatedErrors: [],\n        frequentActions: {},\n        parameterChanges: []\n    },\n    start: function() {\n        if (this.isRunning) return;\n        this.isRunning = true;\n        console.log('[PRISM AI Orchestrator] Background monitoring started');\n    },\n    stop: function() {\n        this.isRunning = false;\n        console.log..."
+    },
+    "PRISM_AI_COMPLETE_SYSTEM": {
+      "found": true,
+      "code_length": 14440,
+      "formulas": [],
+      "algorithms": [
+        "Simulated Annealing",
+        "Transformer",
+        "Bayesian Inference",
+        "Recurrent Neural Network",
+        "Particle Swarm Optimization"
+      ],
+      "code_preview": "const PRISM_AI_COMPLETE_SYSTEM = {\n\n    version: '2.0.0',\n    name: 'PRISM AI Complete System',\n    initialized: false,\n\n    // Components\n    tensor: PRISM_TENSOR_ENHANCED,\n    layers: PRISM_NN_LAYERS_ADVANCED,\n    serialization: PRISM_MODEL_SERIALIZATION,\n    onlineLearning: PRISM_ONLINE_LEARNING,\n    nlp: PRISM_NLP_ENGINE,\n    intentClassifier: PRISM_INTENT_CLASSIFIER,\n    bayesian: PRISM_BAYESIAN_LEARNING,\n    optimization: PRISM_OPTIMIZATION_COMPLETE,\n    abTesting: PRISM_AB_TESTING,\n\n    /..."
+    },
+    "PRISM_AI_DATABASE_CONNECTOR": {
+      "found": true,
+      "code_length": 5037,
+      "formulas": [],
+      "algorithms": [],
+      "code_preview": "const PRISM_AI_DATABASE_CONNECTOR = {\n\n    version: '1.0.0',\n    created: '2026-01-15',\n\n    // Database Registry - ALL databases the AI can access\n    databaseRegistry: {\n\n        // LAYER 1: Materials & Tools\n        materials: {\n            primary: 'PRISM_MATERIALS_MASTER',\n            aliases: 'PRISM_MATERIAL_ALIASES',\n            cutting: 'PRISM_MATERIAL_KC_DATABASE',\n            thermal: 'PRISM_THERMAL_PROPERTIES',\n            johnsonCook: 'PRISM_JOHNSON_COOK_DATABASE',\n            groups..."
+    },
+    "PRISM_INTELLIGENT_DECISION_ENGINE": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    },
+    "PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE": {
+      "found": true,
+      "code_length": 29294,
+      "formulas": [
+        {
+          "type": "equation",
+          "content": "stepover = 2 * sqrt(2*R*h - h^2) where h = scallop height"
+        }
+      ],
+      "algorithms": [
+        "Bayesian Inference"
+      ],
+      "code_preview": "const PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE = {\n  version: '3.0.0',\n  lastUpdated: '2026-01-06',\n\n  // CONFIGURATION CONSTANTS\n\n  config: {\n    // WOC multipliers by operation type (as fraction of tool diameter)\n    wocDefaults: {\n      // Roughing operations - LOW ae for HSM/Adaptive\n      adaptive_roughing: { min: 0.08, optimal: 0.10, max: 0.15 },\n      conventional_roughing: { min: 0.30, optimal: 0.50, max: 0.65 },\n      hsm_roughing: { min: 0.05, optimal: 0.08, max: 0.12 },\n      trochoidal..."
+    }
+  },
+  "REINFORCEMENT_LEARNING": {
+    "PRISM_RL_ALGORITHMS": {
+      "found": true,
+      "code_length": 13078,
+      "formulas": [],
+      "algorithms": [
+        "Reinforcement Learning"
+      ],
+      "code_preview": "const PRISM_RL_ALGORITHMS = {\n    name: 'PRISM Reinforcement Learning Algorithms',\n    version: '1.0.0',\n    sources: ['Stanford CS234', 'Berkeley CS285', 'CMU 10-701'],\n    algorithmCount: 50,\n\n    /**\n     * Q-Learning\n     * Source: Stanford CS234\n     */\n    qLearning: function(env, options = {}) {\n        const numEpisodes = options.numEpisodes || 1000;\n        const alpha = options.learningRate || 0.1;\n        const gamma = options.discount || 0.99;\n        const epsilon = options.epsilon ..."
+    },
+    "PRISM_PHASE6_DEEPLEARNING": {
+      "found": false,
+      "code_length": 0,
+      "formulas": [],
+      "algorithms": []
+    }
+  }
+}
