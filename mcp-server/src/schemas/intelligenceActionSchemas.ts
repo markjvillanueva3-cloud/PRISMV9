@@ -465,7 +465,7 @@ const ai_router_stats = z.object({}).passthrough().describe("Get AI router stati
 
 // AutonomousAIOrchestrationEngine (11)
 const ai_orchestrate_autonomous = z.object({ intent: z.string().describe("Intent to execute"), mode: z.enum(["full_auto","supervised","advisory","learning"]).optional() }).passthrough().describe("Execute autonomous AI orchestration");
-const ai_select_skills = z.object({ intent: z.string().describe("Intent for skill selection"), reasoning: z.any().optional() }).passthrough().describe("Select skill chain for intent");
+const ai_select_skills = z.object({ intent: z.string().describe("Intent for skill selection"), reasoning: z.unknown().optional() }).passthrough().describe("Select skill chain for intent");
 const ai_select_algorithms = z.object({ intent: z.string().describe("Intent for algorithm selection") }).passthrough().describe("Select algorithms for intent");
 const ai_select_formulas = z.object({ intent: z.string().describe("Intent for formula selection") }).passthrough().describe("Select formulas for intent");
 const ai_knowledge_plan = z.object({ intent: z.string().describe("Intent for knowledge planning") }).passthrough().describe("Plan knowledge utilization");

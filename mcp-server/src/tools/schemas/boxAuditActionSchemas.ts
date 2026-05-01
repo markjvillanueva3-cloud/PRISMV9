@@ -39,11 +39,11 @@ export const BoxControllerSafetyCodesSchema = z.object({
 // ── BOX-MS5: Calibration ────────────────────────────────────
 
 export const BoxCalibrateFromShopSchema = z.object({
-  speed_feed_data: z.any().optional().describe("SpeedFeedMineResult from box_mine_speed_feed"),
-  tool_data: z.any().optional().describe("ToolMineResult from box_mine_tool_patterns"),
-  sequence_data: z.any().optional().describe("SequenceMineResult from box_mine_operation_sequences"),
-  macro_data: z.any().optional().describe("MacroMineResult from box_mine_macro_patterns"),
-  safety_data: z.any().optional().describe("SafetyMineResult from box_mine_safety_patterns"),
+  speed_feed_data: z.unknown().optional().describe("SpeedFeedMineResult from box_mine_speed_feed"),
+  tool_data: z.unknown().optional().describe("ToolMineResult from box_mine_tool_patterns"),
+  sequence_data: z.unknown().optional().describe("SequenceMineResult from box_mine_operation_sequences"),
+  macro_data: z.unknown().optional().describe("MacroMineResult from box_mine_macro_patterns"),
+  safety_data: z.unknown().optional().describe("SafetyMineResult from box_mine_safety_patterns"),
 });
 
 // ── BOX-MS5: Full Program Audit ──────────────────────────────
@@ -62,7 +62,7 @@ export const BoxFullProgramAuditSchema = z.object({
 // ── BOX-MS3: Key existing action schemas ─────────────────────
 
 export const BoxOptimizeProgramSchema = z.object({
-  program: z.any().describe("Parsed OkumaProgram object from box_parse_okuma"),
+  program: z.unknown().describe("Parsed OkumaProgram object from box_parse_okuma"),
   unit_system: UnitSystem.default("imperial"),
   machine_max_power_kw: z.number().positive().optional(),
   machine_max_rpm: z.number().positive().optional(),
@@ -72,8 +72,8 @@ export const BoxOptimizeProgramSchema = z.object({
 });
 
 export const BoxSafetyCheckSchema = z.object({
-  original_program: z.any().describe("Original parsed program"),
-  optimized_program: z.any().describe("Optimized program to validate"),
+  original_program: z.unknown().describe("Original parsed program"),
+  optimized_program: z.unknown().describe("Optimized program to validate"),
   machine_max_power_kw: z.number().positive().optional(),
   machine_max_rpm: z.number().positive().optional(),
 });
@@ -81,7 +81,7 @@ export const BoxSafetyCheckSchema = z.object({
 export const BoxBatchOptimizeSchema = z.object({
   programs: z.array(z.object({
     filename: z.string(),
-    program: z.any(),
+    program: z.unknown(),
   })).min(1).describe("Array of parsed programs to optimize"),
   unit_system: UnitSystem.default("imperial"),
   machine_max_power_kw: z.number().positive().optional(),
@@ -91,13 +91,13 @@ export const BoxBatchOptimizeSchema = z.object({
 });
 
 export const BoxResolveMaterialSchema = z.object({
-  program: z.any().describe("Parsed OkumaProgram object"),
+  program: z.unknown().describe("Parsed OkumaProgram object"),
   customer_name: z.string().optional(),
   unit_system: UnitSystem.default("imperial"),
 });
 
 export const BoxResolveToolsSchema = z.object({
-  program: z.any().describe("Parsed OkumaProgram object"),
+  program: z.unknown().describe("Parsed OkumaProgram object"),
   unit_system: UnitSystem.default("imperial"),
 });
 
@@ -167,7 +167,7 @@ export const BoxFusionExtractToolsSchema = z.object({
 });
 
 export const BoxFusionSetupDocSchema = z.object({
-  extraction: z.any().describe("CAMExtractionResult from box_fusion_extract_cam"),
+  extraction: z.unknown().describe("CAMExtractionResult from box_fusion_extract_cam"),
   render_text: z.boolean().default(true).describe("Include rendered text report"),
 });
 
@@ -179,8 +179,8 @@ export const BoxUploadAnalyzeSchema = z.object({
 });
 
 export const BoxToolCalloutsSchema = z.object({
-  tools: z.array(z.any()).min(1).describe("AnalyzedTool[] from box_upload_analyze"),
-  speed_feeds: z.array(z.any()).describe("SpeedFeedEntry[] from box_upload_analyze"),
+  tools: z.array(z.unknown()).min(1).describe("AnalyzedTool[] from box_upload_analyze"),
+  speed_feeds: z.array(z.unknown()).describe("SpeedFeedEntry[] from box_upload_analyze"),
   material: z.string().nullable().optional(),
   machine_type: z.string().nullable().optional(),
   unit_system: z.enum(["imperial", "metric"]).default("imperial"),
@@ -218,7 +218,7 @@ export const BoxMineMillPatternsSchema = z.object({
   programs: z.array(z.object({
     filename: z.string(),
     controller: z.enum(["haas", "hurco", "rokuroku"]),
-    parsed: z.any().describe("Parsed program object from the appropriate parser"),
+    parsed: z.unknown().describe("Parsed program object from the appropriate parser"),
   })).min(1).describe("Array of parsed mill programs to mine"),
 });
 

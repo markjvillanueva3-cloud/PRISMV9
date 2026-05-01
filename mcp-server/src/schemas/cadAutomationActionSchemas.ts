@@ -141,8 +141,8 @@ const execute_script = z
           )
           .optional()
           .describe("Parameters array-of-[key, value] (Map serialization)."),
-        lineage: z.array(z.any()).optional(),
-        warnings: z.array(z.any()).optional(),
+        lineage: z.array(z.unknown()).optional(),
+        warnings: z.array(z.unknown()).optional(),
       })
       .passthrough(),
   })
@@ -301,7 +301,7 @@ const assemblyMateKinds = z.enum([
 const assemblyComponentSource = z.union([
   z.object({
     kind: z.literal("complex_part"),
-    intent: z.any(), // ComplexPartIntent — shape mirrors plan_complex_part.intent
+    intent: z.unknown(), // ComplexPartIntent — shape mirrors plan_complex_part.intent
   }),
   z.object({
     kind: z.literal("import"),
@@ -387,7 +387,7 @@ const orchestrate_intent = z
     intent: z
       .object({
         tier: z.enum(["op", "part", "assembly"]),
-        intent: z.any(),
+        intent: z.unknown(),
       })
       .passthrough(),
     options: z
@@ -455,7 +455,7 @@ const fsm_dispatch = z
       "pause",
       "resume",
     ]),
-    payload: z.any().optional(),
+    payload: z.unknown().optional(),
   })
   .passthrough();
 

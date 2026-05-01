@@ -65,7 +65,7 @@ const cad_artifact_write = z
     batchId: z.string().min(1),
     fileId: z.string().min(1),
     kind: z.enum(["expected_step", "actual_step", "diff_png", "error_log"]),
-    data: z.any(),
+    data: z.unknown(),
     root: z.string().optional(),
   })
   .passthrough();
@@ -115,23 +115,23 @@ const cad_regression_analyzer_hotspots = z
 
 // ── CINF11 CADRegressionReportGeneratorEngine ────────────────────────────────
 const cad_regression_report_snapshot = z
-  .object({ snapshot: z.any() })
+  .object({ snapshot: z.unknown() })
   .passthrough();
 const cad_regression_report_diff = z
-  .object({ diff: z.any(), rowLimit: z.number().int().positive().optional() })
+  .object({ diff: z.unknown(), rowLimit: z.number().int().positive().optional() })
   .passthrough();
 const cad_regression_report_trend = z
-  .object({ trend: z.any() })
+  .object({ trend: z.unknown() })
   .passthrough();
 const cad_regression_report_hotspots = z
-  .object({ hotspots: z.any() })
+  .object({ hotspots: z.unknown() })
   .passthrough();
 const cad_regression_report_summary = z
   .object({
-    snapshot: z.any().optional(),
-    diff: z.any().optional(),
-    trend: z.any().optional(),
-    hotspots: z.any().optional(),
+    snapshot: z.unknown().optional(),
+    diff: z.unknown().optional(),
+    trend: z.unknown().optional(),
+    hotspots: z.unknown().optional(),
     rowLimit: z.number().int().positive().optional(),
   })
   .passthrough();

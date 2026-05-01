@@ -349,7 +349,7 @@ const coordination_record = z.object({
     "conflict_detected",
   ]).describe("Event kind"),
   target: z.string().min(1).describe("Target resource (file path, milestone id, etc.)"),
-  payload: z.record(z.string(), z.any()).optional().describe("Optional structured payload"),
+  payload: z.record(z.string(), z.unknown()).optional().describe("Optional structured payload"),
   at: z.union([z.string(), z.number()]).optional().describe("Epoch ms; defaults to now"),
   ledger_path: optStr.describe("Override ledger JSONL path (default: state/shared/COORDINATION_LEDGER.jsonl)"),
 }).passthrough();

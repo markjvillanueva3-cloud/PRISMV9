@@ -190,7 +190,7 @@ export const OnshapeFeatureSchema = z.object({
     status: z.enum(["OK", "ERROR", "WARNING", "INFO"]),
     message: z.string().optional(),
   }),
-  parameters: z.record(z.string(), z.any()).optional(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
   rollbackIndex: z.number().int().nonnegative().optional(),
 });
 export type OnshapeFeature = z.infer<typeof OnshapeFeatureSchema>;

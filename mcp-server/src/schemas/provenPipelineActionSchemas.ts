@@ -186,7 +186,7 @@ const similarity_set_weights = z.object({
 
 const pipeline_adapt = z.object({
   source_recipe_id: z.string().optional(),
-  source_recipe: z.any().optional(),
+  source_recipe: z.unknown().optional(),
   target_spec: partSpecZ,
   similarity_score: z.number().optional(),
   aggressiveness: z.number().min(0).max(1).optional(),

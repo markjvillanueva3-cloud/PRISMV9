@@ -17,7 +17,7 @@ import type { ActionSchemaMap } from "./actionSchemaTypes.js";
 
 const optStr = z.string().optional();
 const optNum = z.number().optional();
-const optObj = z.record(z.string(), z.any()).optional();
+const optObj = z.record(z.string(), z.unknown()).optional();
 
 const metricSample = z.object({
   name: z.string().min(1),
@@ -93,19 +93,19 @@ const grafana_manufacturing_dashboard = z.object({
 }).passthrough();
 
 const grafana_export_simulation = z.object({
-  simulationResult: z.record(z.string(), z.any()),
+  simulationResult: z.record(z.string(), z.unknown()),
   machine: optStr,
   program: optStr,
 }).passthrough();
 
 const grafana_export_spc = z.object({
-  spcResult: z.record(z.string(), z.any()),
+  spcResult: z.record(z.string(), z.unknown()),
   operation: optStr,
   characteristic: optStr,
 }).passthrough();
 
 const grafana_export_tool_life = z.object({
-  toolLifeResult: z.record(z.string(), z.any()),
+  toolLifeResult: z.record(z.string(), z.unknown()),
   tool_id: optStr,
   material: optStr,
 }).passthrough();

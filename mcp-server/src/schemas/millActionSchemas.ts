@@ -594,12 +594,12 @@ const mill_ai_orchestrate = z
       ])
       .describe("Which AI/ML sub-engine to route to."),
     intent: z.string().optional().describe("Natural-language intent (for ai_reasoning)."),
-    context: z.record(z.string(), z.any()).optional().describe("Domain context."),
+    context: z.record(z.string(), z.unknown()).optional().describe("Domain context."),
     dataset_id: z.string().optional().describe("Dataset identifier (for pattern_mine, rl_train)."),
     episode_count: z.number().int().nonnegative().optional().describe("RL training episodes."),
     reward: z.number().optional().describe("RL reward signal."),
     query: z.string().optional().describe("Query string (for strategy_lookup, reasoning_trace)."),
-    features: z.record(z.string(), z.any()).optional().describe("Feature vector for prediction."),
+    features: z.record(z.string(), z.unknown()).optional().describe("Feature vector for prediction."),
     model_id: z.string().optional().describe("Model identifier."),
   })
   .passthrough();
@@ -613,8 +613,8 @@ const mill_turn_orchestrate = z
       .enum(["integrex", "swiss", "lb_series", "ctx", "wt_series", "generic"])
       .optional()
       .describe("Mill-turn machine class."),
-    part_geometry: z.record(z.string(), z.any()).optional().describe("Part geometry description."),
-    operations: z.array(z.record(z.string(), z.any())).optional().describe("Operation list."),
+    part_geometry: z.record(z.string(), z.unknown()).optional().describe("Part geometry description."),
+    operations: z.array(z.record(z.string(), z.unknown())).optional().describe("Operation list."),
     bar_diameter_mm: z.number().positive().optional().describe("Bar stock diameter in mm."),
     bar_length_mm: z.number().positive().optional().describe("Bar stock length in mm."),
     sub_spindle_enabled: z.boolean().optional().describe("Sub-spindle transfer enabled."),
@@ -643,8 +643,8 @@ const mill_5axis_orchestrate = z
       .enum(["head_head", "head_table", "table_table", "gantry", "generic"])
       .optional()
       .describe("5-axis kinematics configuration."),
-    part: z.record(z.string(), z.any()).optional().describe("Part definition."),
-    tool: z.record(z.string(), z.any()).optional().describe("Tool definition."),
+    part: z.record(z.string(), z.unknown()).optional().describe("Part definition."),
+    tool: z.record(z.string(), z.unknown()).optional().describe("Tool definition."),
     lead_angle_deg: z.number().optional().describe("Lead angle in degrees."),
     tilt_angle_deg: z.number().optional().describe("Tilt angle in degrees."),
     tool_axis: z.tuple([z.number(), z.number(), z.number()]).optional().describe("Tool axis vector [i, j, k]."),
@@ -672,8 +672,8 @@ const mill_multiaxis_orchestrate = z
       })
       .optional()
       .describe("Target TCP pose (for IK)."),
-    part: z.record(z.string(), z.any()).optional().describe("Part definition."),
-    machine: z.record(z.string(), z.any()).optional().describe("Machine configuration."),
+    part: z.record(z.string(), z.unknown()).optional().describe("Part definition."),
+    machine: z.record(z.string(), z.unknown()).optional().describe("Machine configuration."),
   })
   .passthrough();
 

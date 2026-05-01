@@ -27,7 +27,7 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // Tool call parallelization
   tool_call_record: z.object({
     tool: z.string().describe("Tool name (Read|Write|Edit|Glob|Grep|Bash|Agent|Other)"),
-    inputs: z.record(z.string(), z.any()).optional().describe("Tool input parameters"),
+    inputs: z.record(z.string(), z.unknown()).optional().describe("Tool input parameters"),
     in_parallel_batch: z.boolean().optional().describe("Was this part of a parallel batch?"),
     token_cost: z.number().optional().describe("Token cost estimate for this call"),
   }),
@@ -157,12 +157,12 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     plan: z.object({
       planId: z.string().min(1).describe("Identifier of the plan being checked"),
       createdAt: z.number().describe("Epoch ms when the plan was created"),
-      preconditions: z.record(z.string(), z.any()).describe("Facts that must hold for the plan to be valid"),
+      preconditions: z.record(z.string(), z.unknown()).describe("Facts that must hold for the plan to be valid"),
       deadlines: z.record(z.string(), z.number()).optional().describe("Per-task deadline epoch ms"),
       resources: z.array(z.string()).optional().describe("Named resources the plan depends on"),
-      assumptions: z.record(z.string(), z.any()).optional().describe("Soft assumptions that trigger patch-replan if violated"),
+      assumptions: z.record(z.string(), z.unknown()).optional().describe("Soft assumptions that trigger patch-replan if violated"),
     }),
-    currentState: z.record(z.string(), z.any()).describe("Observed facts for precondition + assumption comparison"),
+    currentState: z.record(z.string(), z.unknown()).describe("Observed facts for precondition + assumption comparison"),
     currentTime: z.number().optional(),
     lostResources: z.array(z.string()).optional(),
     externalEvents: z.array(z.string()).optional(),
@@ -174,7 +174,7 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // (registerMigration/migrate/rollback NOT dispatched — they require runtime-registered callables)
   schema_snapshot: z.object({
     target: z.string().min(1).describe("State file or component identifier"),
-    data: z.any().describe("State payload to snapshot (JSON-serializable)"),
+    data: z.unknown().describe("State payload to snapshot (JSON-serializable)"),
     version: z.number().int().describe("Schema version the data conforms to"),
     label: z.string().optional().describe("Optional human-readable label"),
   }),

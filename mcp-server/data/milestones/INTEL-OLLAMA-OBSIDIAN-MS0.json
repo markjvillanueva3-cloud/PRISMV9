@@ -1330,7 +1330,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert; old schema preserved in git history"
+          "rollback": "git revert; old schema preserved in git history",
+          "status": "complete",
+          "shipped_at": "2026-05-01T19:50:00.000Z",
+          "shipped_by": "claude-ba192f8a",
+          "ship_notes": "168 z.any() eliminated across 30 files via uniform leaf swap z.any() → z.unknown(). One Edit succeeded in parallel for cadAutomationActionSchemas.ts (5 occurrences); remaining 163 across 29 files done via a Node bulk-replace one-shot (literal-string find-replace, byte-length parity check, no regex surprises). Inventory reconciles: 168 → 0 occurrences, 30 → 0 files. AuditZany.test.ts now 24/24 green: original 23 cases preserved + post-U03 zero-occurrence assertion added that fails-fast on any reintroduction (precursor to P8-U06 hook). Real-repo sanity test refactored from 'expect(>50)' floor to well-formed-output validator, since 0 is the new ground truth. DEFERRED: bare_metadata_record promotion for cadAutomationActionSchemas.ts:458 payload field — P8-U01 heuristic flagged for structural promotion to z.record(z.string(), z.unknown()), but no consumer-side proof payload is always object-shaped; treated as bare_optional leaf swap (z.unknown().optional()). P8-U04 reviewer pass should revisit if the field genuinely should be record-shaped. ALSO DEFERRED: eval-based structural-validity vitest block (legitimacy hook blocked it twice) — not strictly needed now that the schemas are clean, but P8-U06 hook should add it as the canonical regression guard."
         },
         {
           "id": "P8-U04",

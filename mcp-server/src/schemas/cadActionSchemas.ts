@@ -43,12 +43,12 @@ const meshExportSchema = z.object({
 
 // ── Feature Actions ───────────────────────────────────────────────────────────
 const featureRecognizeSchema = z.object({
-  geometry: z.any().optional(),
+  geometry: z.unknown().optional(),
 });
 
 const featureEditSchema = z.object({
   feature_id: z.string().optional(),
-  modifications: z.record(z.any()).optional(),
+  modifications: z.record(z.unknown()).optional(),
 });
 
 // ── Stock/WCS/DfM Actions ─────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ const wcsSetupSchema = z.object({
 });
 
 const dfmCheckSchema = z.object({
-  geometry: z.any().optional(),
+  geometry: z.unknown().optional(),
   process: z.string().optional(),
 });
 
@@ -134,12 +134,12 @@ const cadRegenTestSchema = z.object({
 });
 
 const cadRegenBatchSchema = z.object({
-  pairs: z.array(z.any()).optional(),
+  pairs: z.array(z.unknown()).optional(),
 });
 
 const cadRegenCompareSchema = z.object({
-  original: z.any().optional(),
-  generated: z.any().optional(),
+  original: z.unknown().optional(),
+  generated: z.unknown().optional(),
   thresholds: z.record(z.number()).optional(),
 });
 
@@ -202,7 +202,7 @@ const airfoilProfileRefSchema = z.object({
   naca4: z.string().optional().describe("Shortcut: 4-digit NACA designator (generates profile on the fly)."),
   naca5: z.string().optional().describe("Shortcut: 5-digit NACA designator (generates profile on the fly)."),
   uiucDat: z.string().optional().describe("Shortcut: raw UIUC Selig .dat content (parses on the fly)."),
-  options: z.record(z.string(), z.any()).optional().describe("Options forwarded to NACAAirfoilEngine when using naca4/naca5 shortcut."),
+  options: z.record(z.string(), z.unknown()).optional().describe("Options forwarded to NACAAirfoilEngine when using naca4/naca5 shortcut."),
   chord: z.number().optional().describe("Chord scaling for uiucDat shortcut."),
   // Passthrough for a full AirfoilProfile
   name: z.string().optional(),
@@ -244,7 +244,7 @@ const wingComputePropertiesSchema = z.object({
     twistRad: z.number().optional(),
     sweepOffset: z.number().optional(),
     dihedralOffset: z.number().optional(),
-    profile: z.any().optional(),
+    profile: z.unknown().optional(),
   })).describe("Ordered spanwise sections (root→tip). Must have ≥2 entries."),
 });
 

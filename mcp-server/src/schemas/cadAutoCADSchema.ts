@@ -387,7 +387,7 @@ export type AcadResponse = z.infer<typeof AcadResponseSchema>;
 
 export const AcadCallLogEntrySchema = z.object({
   command: z.enum(ACAD_COMMANDS),
-  args: z.record(z.string(), z.any()),
+  args: z.record(z.string(), z.unknown()),
   ok: z.boolean(),
   error: z.string().optional(),
   durationMs: z.number().nonnegative(),

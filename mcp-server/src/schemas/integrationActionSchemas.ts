@@ -314,7 +314,7 @@ const e2_export_plan = z.object({
     tools: optStr,
     notes: optStr,
   })).optional(),
-  optimized_steps: z.array(z.any()).optional(),
+  optimized_steps: z.array(z.unknown()).optional(),
   timeout_ms: optNum,
   company_id: optStr,
 }).passthrough();

@@ -30,7 +30,7 @@ export type WEDMEstimateInput = z.infer<typeof wedmEstimateSchema>;
 
 /** POST /quote/from-program — quote directly from generated program */
 export const wedmFromProgramSchema = z.object({
-  program_result: z.any(), // WEDMProgramResult shape — engine validates
+  program_result: z.unknown(), // WEDMProgramResult shape — engine validates
   quantity: z.number().int().min(1).default(1),
   customer: z.string().min(1).optional(),
   margin_pct: z.number().min(0).max(0.5).optional(),
@@ -38,7 +38,7 @@ export const wedmFromProgramSchema = z.object({
 
 /** POST /quote/quantity-breaks — cost per part for multiple quantities */
 export const wedmQuantityBreaksSchema = z.object({
-  cost_estimate: z.any(), // CostEstimate from prior estimate call
+  cost_estimate: z.unknown(), // CostEstimate from prior estimate call
   quantities: z.array(z.number().int().min(1)).min(1).max(20),
   learning_rate: z.number().min(0.5).max(1).optional(),
 });
@@ -113,7 +113,7 @@ export const wedmQuoteCreateSchema = z.object({
   customer: z.string().min(1),
   part_name: z.string().min(1),
   part_number: z.string().optional(),
-  cost_estimate: z.any(),
+  cost_estimate: z.unknown(),
   quantity: z.number().int().min(1).default(1),
   quote_number: z.string().optional(),
   lead_time_days: z.number().int().min(1).default(7),
@@ -126,7 +126,7 @@ export const wedmQuoteCreateSchema = z.object({
 
 /** POST /job/create — create job packet from generated program */
 export const wedmJobCreateSchema = z.object({
-  program_result: z.any(),
+  program_result: z.unknown(),
   options: z.object({
     customer: z.string().optional(),
     part_number: z.string().optional(),
@@ -138,7 +138,7 @@ export const wedmJobCreateSchema = z.object({
     operator: z.string().optional(),
     notes: z.string().optional(),
   }).optional(),
-  quote: z.any().optional(),
+  quote: z.unknown().optional(),
 });
 
 /** POST /job/:id/complete — mark job complete with actual metrics */

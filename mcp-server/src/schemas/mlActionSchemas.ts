@@ -874,5 +874,5 @@ export const ACTION_ML_SCHEMAS: Record<string, z.ZodType<unknown>> = {
 
 export const mlActionSchema = z.object({
   action: z.enum(ML_ACTIONS).describe("ML pipeline action"),
-  params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
+  params: z.record(z.string(), z.unknown()).optional().describe("Action parameters"),
 });

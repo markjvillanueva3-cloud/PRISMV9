@@ -48,5 +48,5 @@ export const ACTION_MACHINING_KB_SCHEMAS: ActionSchemaMap = {
   kb_get_lathe_strategy: z.object({ iso_group: isoGroupZ }).passthrough(),
   kb_get_all_lathe_strategies: z.object({}).passthrough(),
   kb_get_vtl_rules: z.object({}).passthrough(),
-  kb_optimize_hole_sequence: z.object({ holes: z.array(z.any()).optional(), machine_power_kW: z.number().optional(), spindle_max_torque_Nm: z.number().optional(), iso_group: isoGroupZ, part_length_mm: z.number().optional() }).passthrough(),
+  kb_optimize_hole_sequence: z.object({ holes: z.array(z.unknown()).optional(), machine_power_kW: z.number().optional(), spindle_max_torque_Nm: z.number().optional(), iso_group: isoGroupZ, part_length_mm: z.number().optional() }).passthrough(),
 };

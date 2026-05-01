@@ -192,28 +192,28 @@ const learn_ingest_text = z.object({
   text: z.string().optional().describe("Alias for content"),
   source: optStr.describe("Source attribution (e.g., 'Facebook/mr.cnc2', 'Haas YouTube')"),
   title: optStr.describe("Optional title for the tip"),
-  metadata: z.record(z.string(), z.any()).optional().describe("Additional metadata"),
+  metadata: z.record(z.string(), z.unknown()).optional().describe("Additional metadata"),
 }).passthrough();
 
 const learn_ingest_video = z.object({
   file_path: z.string().min(1).describe("Path to video file (MP4, MKV, MOV)"),
   content: z.string().optional().describe("Alias for file_path"),
   source: optStr.describe("Source attribution"),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const learn_ingest_document = z.object({
   file_path: z.string().min(1).describe("Path to document file (PDF, TXT, MD)"),
   content: z.string().optional().describe("Alias for file_path"),
   source: optStr.describe("Source attribution"),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const learn_ingest_url = z.object({
   url: z.string().min(1).describe("URL to fetch and ingest"),
   content: z.string().optional().describe("Alias for url"),
   source: optStr.describe("Source attribution"),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const learn_auto_tag = z.object({
@@ -283,7 +283,7 @@ const learn_session_create = z.object({
   actions: z.array(z.object({
     action_type: z.string().describe("CAD action type (extrude, fillet, sketch_line, etc.)"),
     step_number: z.number().int().describe("Step number in sequence"),
-    parameters: z.record(z.string(), z.any()).optional().describe("Action parameters"),
+    parameters: z.record(z.string(), z.unknown()).optional().describe("Action parameters"),
     confidence: z.number().min(0).max(1).optional().describe("Extraction confidence (0-1)"),
   })).min(1).describe("Extracted actions from video to review"),
 }).passthrough();
@@ -294,7 +294,7 @@ const learn_session_submit = z.object({
   action: z.enum(["confirm", "correct", "skip"]).describe("What to do with this step"),
   correction: z.object({
     action_type: z.string().optional().describe("Corrected action type"),
-    parameters: z.record(z.string(), z.any()).optional().describe("Corrected parameters"),
+    parameters: z.record(z.string(), z.unknown()).optional().describe("Corrected parameters"),
     confidence: z.number().min(0).max(1).optional().describe("Corrected confidence"),
   }).optional().describe("Correction data (required when action=correct)"),
   reason: optStr.describe("Reason for skip or correction"),

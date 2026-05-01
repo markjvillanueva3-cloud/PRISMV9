@@ -255,11 +255,32 @@ describe("auditAll aggregation", () => {
 });
 
 describe("auditAll on real repo", () => {
-  it("finds non-zero occurrences in current schema directories", () => {
-    // Sanity: real repo should have well over 100 z.any() occurrences pre-P8-U02/U03.
-    // We assert > 50 to make the test resilient to incremental cleanup mid-milestone.
+  // Mid-milestone (P8-U01) this test asserted >50 occurrences as a resilience floor.
+  // Post-P8-U03 the schemas are clean (0 z.any()), so the floor flipped to a ceiling:
+  // the audit must complete without error and produce well-formed metadata. Any future
+  // regression that reintroduces z.any() into the schema directories will fail this test
+  // until P8-U06's pre-commit hook lands.
+  it("audits real schema directories without error and emits well-formed metadata", () => {
     const result = auditAll();
-    expect(result.totalOccurrences).toBeGreaterThan(50);
-    expect(result.fileCount).toBeGreaterThan(5);
+    expect(result.schemaVersion).toBe("1.0.0");
+    expect(typeof result.generated).toBe("string");
+    expect(Array.isArray(result.directories_scanned)).toBe(true);
+    expect(result.directories_scanned).toContain("mcp-server/src/schemas");
+    expect(result.directories_scanned).toContain("mcp-server/src/tools/schemas");
+    expect(typeof result.totalOccurrences).toBe("number");
+    expect(typeof result.fileCount).toBe("number");
+    expect(Array.isArray(result.byFile)).toBe(true);
+    expect(typeof result.byClassification).toBe("object");
+    // Either both zero, or both positive (never one without the other).
+    if (result.totalOccurrences === 0) expect(result.fileCount).toBe(0);
+    else expect(result.fileCount).toBeGreaterThan(0);
+  });
+
+  it("post-P8-U03: schemas/ and tools/schemas/ contain zero z.any() occurrences", () => {
+    // P8-U03 exit condition: grep z.any() in mcp-server/src/schemas/ returns 0 matches.
+    // This test fails iff anyone reintroduces z.any() to schema directories.
+    const result = auditAll();
+    expect(result.totalOccurrences).toBe(0);
+    expect(result.byFile).toEqual([]);
   });
 });
