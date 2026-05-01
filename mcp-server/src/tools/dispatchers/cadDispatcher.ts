@@ -180,10 +180,12 @@ const ACTIONS = [
   "cad_fusion_mcp_read_api_doc", "cad_fusion_mcp_screenshot", "cad_fusion_mcp_list_projects",
   "cad_fusion_mcp_search_documents", "cad_fusion_mcp_open_document", "cad_fusion_mcp_save_document",
   "cad_fusion_mcp_undo", "cad_fusion_mcp_redo", "cad_fusion_mcp_execute_operation",
-  // hyperCAD-S CAD Function Index (U-CAD-FIDX-HCAD-01)
+  // hyperCAD-S CAD Function Index (U-CAD-FIDX-HCAD-01..08)
   "cad_hypercad_get_index", "cad_hypercad_list_modules", "cad_hypercad_list_operations",
   "cad_hypercad_get_operation", "cad_hypercad_find_parameter", "cad_hypercad_search_parameters",
   "cad_hypercad_operations_by_category",
+  // hyperCAD-S discovery surface (U-CAD-FIDX-HCAD-DISCOVERY)
+  "cad_hypercad_summary", "cad_hypercad_total_parameter_count", "cad_hypercad_load_errors",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1752,6 +1754,52 @@ Params vary by action — pass relevant fields in params object.`,
             }
             const operations = HyperCADCADFunctionIndexEngine.getOperationsByCategory(category, moduleId);
             result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+          case "cad_hypercad_summary": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const index = HyperCADCADFunctionIndexEngine.getIndex();
+            const allOps = HyperCADCADFunctionIndexEngine.listAllOperations();
+            const totalParams = HyperCADCADFunctionIndexEngine.getTotalParameterCount();
+            result = {
+              success: true,
+              system_id: index.system_id,
+              module_name: index.module_name,
+              total_modules: index.coverage_summary.total_modules,
+              total_operations: allOps.length,
+              total_parameters: totalParams,
+              estimated_parameter_total: index.coverage_summary.estimated_parameter_total,
+              coverage_state: index.coverage_summary.api_surface?.coverage_state ?? "UNKNOWN",
+              modules: index.modules.map((m) => ({
+                module_id: m.module_id,
+                covered_units: m.covered_units,
+                parameter_count_estimate: m.parameter_count_estimate,
+              })),
+            };
+            break;
+          }
+          case "cad_hypercad_total_parameter_count": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const total = HyperCADCADFunctionIndexEngine.getTotalParameterCount();
+            const declared = HyperCADCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
+            result = {
+              success: true,
+              total_parameters: total,
+              declared_total: declared,
+              drift: total - declared,
+            };
+            break;
+          }
+          case "cad_hypercad_load_errors": {
+            const { HyperCADCADFunctionIndexEngine } = await import(
+              "../../engines/HyperCADCADFunctionIndexEngine.js"
+            );
+            const errors = HyperCADCADFunctionIndexEngine.getLoadErrors();
+            result = { success: true, count: errors.length, errors };
             break;
           }
 
