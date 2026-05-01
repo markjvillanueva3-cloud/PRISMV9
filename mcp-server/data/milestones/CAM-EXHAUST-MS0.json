@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 105,
+  "completed_units": 118,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -2329,7 +2329,7 @@
       "title": "Esprit â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract Esprit operations: milling, turning, wire EDM, FreeForm surface.",
       "entry_conditions": [
         "U-CAM49 complete"
@@ -2348,7 +2348,25 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:34:30.071Z",
+      "shipped_artifacts": [
+        "mcp-server/src/engines/EspritFunctionIndexEngine.ts",
+        "mcp-server/src/__tests__/EspritFunctionIndexEngine.test.ts",
+        "mcp-server/data/cam-functions/esprit/milling.json",
+        "mcp-server/data/cam-functions/esprit/turning.json",
+        "mcp-server/data/cam-functions/esprit/mill_turn.json",
+        "mcp-server/data/cam-functions/esprit/swiss.json"
+      ],
+      "shipped_in_commit": "4cc3ac840",
+      "status_reconciled_at": "2026-05-01T20:34:30.072Z",
+      "status_reconcile_note": "Shipped via U-CAM-FIDX-10 (commit 4cc3ac840) — EspritFunctionIndexEngine + 10 dispatcher actions + 38 tests passing.",
+      "deliverable_deviation_note": "Originally specified single function-index.json. Actual delivery: 4 per-domain JSONs (milling, turning, mill_turn, swiss) aggregated by EspritFunctionIndexEngine. Same engine-driven pattern as U-CAM46 PowerMillUnifiedFunctionIndexEngine.",
+      "acceptance_evidence": {
+        "esprit_functions_mapped": true,
+        "tests_pass": 38,
+        "tests_min_10": true
+      }
     },
     {
       "id": "U-CAM51",
@@ -2563,7 +2581,7 @@
       "title": "PDF Extraction Pipeline â€” hyperMILL CAM Manual",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract structured knowledge from hyperMILL CAM Manual PDF (33.0).",
       "pdf_sources": [
         "H:/prism/resources/OPEN MIND/doc/33.0/PDF/CAM/CAM_Manual-en-US.pdf"
@@ -2585,14 +2603,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/hypermill-cam-manual-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 2522
+      }
     },
     {
       "id": "U-CAM60",
       "title": "PDF Extraction Pipeline â€” hyperMILL Tool Database Manual",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from hyperMILL SQL Tool Database Manual.",
       "pdf_sources": [
         "H:/prism/resources/OPEN MIND/doc/33.0/PDF/SQL Tool Database/SQL_Tool_Database_Manual-en-US.pdf"
@@ -2614,14 +2642,25 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/hypermill-tool-db-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 0
+      },
+      "deliverable_deviation_note": "Source SQL Tool Database Manual (15 pages, 1 chunk) yielded 0 extractable tips/formulas — extraction ran successfully against sparse source. Live SQL tool DB ingestion is handled separately by HyperMillDataExtractionPipeline (E1157)."
     },
     {
       "id": "U-CAM61",
       "title": "PDF Extraction Pipeline â€” hyperMILL Virtual Machining Manual",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from hyperMILL Virtual Machining Center Manual.",
       "pdf_sources": [
         "H:/prism/resources/OPEN MIND/doc/33.0/PDF/VIRTUAL Machining Center/VIRTUAL_Machining_Center_Manual-en-US.pdf"
@@ -2643,14 +2682,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/hypermill-virtual-machining-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 74
+      }
     },
     {
       "id": "U-CAM62",
       "title": "PDF Extraction Pipeline â€” hyperMILL Automation Center Manual",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from hyperMILL Automation Center Manual.",
       "pdf_sources": [
         "H:/prism/resources/OPEN MIND/doc/33.0/PDF/AUTOMATION Center/AUTOMATION_Center_Manual-en-US.pdf"
@@ -2672,14 +2721,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/hypermill-automation-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 513
+      }
     },
     {
       "id": "U-CAM63",
       "title": "PDF Extraction Pipeline â€” InventorCAM 2.5D Training",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from InventorCAM 2.5D Milling Training Course.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_2.5D_Milling_Training_Course.pdf"
@@ -2701,14 +2760,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/inventorcam-2.5d-training-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 269
+      }
     },
     {
       "id": "U-CAM64",
       "title": "PDF Extraction Pipeline â€” InventorCAM 3D HSM/HSR Guides",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from InventorCAM 3D HSM and HSR User Guides.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_3D_HSM_User_Guide.pdf",
@@ -2731,14 +2800,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/inventorcam-3d-hsm-hsr-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 460
+      }
     },
     {
       "id": "U-CAM65",
       "title": "PDF Extraction Pipeline â€” InventorCAM 5-Axis Training (Vol 1-3)",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from all three InventorCAM 5-Axis Basic Training volumes.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-1.pdf",
@@ -2762,14 +2841,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/inventorcam-5axis-training-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 62
+      }
     },
     {
       "id": "U-CAM66",
       "title": "PDF Extraction Pipeline â€” InventorCAM Multiaxis Guides",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from InventorCAM Multiaxis machining guides (SWARF, Geodesic, Contour 5X, etc.).",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_SWARF_Machining.pdf",
@@ -2797,14 +2886,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/inventorcam-multiaxis-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 822
+      }
     },
     {
       "id": "U-CAM67",
       "title": "PDF Extraction Pipeline â€” InventorCAM Turning & Mill-Turn",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from InventorCAM Turning & Mill-Turn Training Course.",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Turning_&_Mill-Turn_Training_Course.pdf"
@@ -2826,14 +2925,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/inventorcam-turning-millturn-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 432
+      }
     },
     {
       "id": "U-CAM68",
       "title": "PDF Extraction Pipeline â€” InventorCAM Specialty Operations",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract knowledge from InventorCAM specialty PDFs (Edge Breaking, Rotary, Sim 5X, HSS, Pro3D).",
       "pdf_sources": [
         "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Edge_Breaking.pdf",
@@ -2860,14 +2969,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/inventorcam-specialty-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 169
+      }
     },
     {
       "id": "U-CAM69",
       "title": "PDF Batch Extraction â€” Remaining hyperMILL PDFs",
       "phase": "PHASE-4",
       "type": "pdf_extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Batch extract remaining hyperMILL documentation (AddIns, Wizards, etc.).",
       "entry_conditions": [
         "U-CAM68 complete"
@@ -2886,14 +3005,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/hypermill-batch-extracted.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 387
+      }
     },
     {
       "id": "U-CAM70",
       "title": "Training Corpus Assembly â€” Unified CAM Knowledge Base",
       "phase": "PHASE-4",
       "type": "integration",
-      "status": "not_started",
+      "status": "complete",
       "description": "Assemble all PDF extractions into unified CAM training corpus with cross-references.",
       "entry_conditions": [
         "U-CAM59 through U-CAM69 complete"
@@ -2913,7 +3042,19 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:48:13.047Z",
+      "shipped_artifacts": [
+        "mcp-server/data/training/cam-unified-corpus.json",
+        "mcp-server/src/engines/CAMTrainingExtractionAggregatorEngine.ts",
+        "mcp-server/scripts/emit-cam-training-extractions.mjs",
+        "mcp-server/src/__tests__/CAMTrainingExtractionAggregatorEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tips_extracted": 5705,
+        "formulas": 26,
+        "cross_reference_tags": 3483
+      }
     },
     {
       "id": "U-CAM71",
