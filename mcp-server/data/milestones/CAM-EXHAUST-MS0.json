@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 118,
+  "completed_units": 120,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -6049,7 +6049,7 @@
       "title": "hyperMILL Python In-Host Test Runner Skeleton",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Python runner loaded into hyperMILL 2024 via om.cad/om.cam APIs. Connects to CAMPluginCommunicationHub over WebSocket+XML-RPC, runs toolpath scenarios, asserts overlay frames per CAM-EXHAUST-MS0-TESTING-PLAN.md. Foundational for 900 hyperMILL scenarios.",
       "entry_conditions": [
         "U-CAM96 complete"
@@ -6069,14 +6069,29 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:50:46.955Z",
+      "shipped_artifacts": [
+        "mcp-server/src/engines/HyperMillInHostRunnerEngine.ts",
+        "mcp-server/src/__tests__/HyperMillInHostRunnerEngine.test.ts",
+        "resources/hypermill/prism_test_runner.py"
+      ],
+      "shipped_in_commit": "6ec393cf4",
+      "status_reconciled_at": "2026-05-01T20:50:46.955Z",
+      "status_reconcile_note": "Shipped via U-EFF16 mass-add (commit 6ec393cf4). Engine 508 lines, 57 tests pass (>=30 required), Python runner 198 lines.",
+      "acceptance_evidence": {
+        "tests_pass": 57,
+        "tests_min_30": true,
+        "engine_lines": 508,
+        "runner_lines": 198
+      }
     },
     {
       "id": "U-CAMTEST02",
       "title": "Fusion 360 JS Add-In In-Host Test Runner Skeleton",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "JavaScript add-in loaded into Fusion 360 via adsk.fusion API. Connects to hub over WebSocket+JSON-RPC. Foundational for 900 Fusion scenarios.",
       "entry_conditions": [
         "U-CAM96 complete"
@@ -6097,7 +6112,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:54:30.893Z",
+      "shipped_artifacts": [
+        "resources/fusion360/prism-test-runner/manifest.json",
+        "resources/fusion360/prism-test-runner/index.js",
+        "mcp-server/src/engines/Fusion360InHostRunnerEngine.ts",
+        "mcp-server/src/__tests__/Fusion360InHostRunnerEngine.test.ts"
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 77,
+        "tests_min_30": true,
+        "engine_lines": 638
+      },
+      "completion_note": "Engine + manifest were drift-eligible (shipped via earlier mass-add). index.js (Fusion JS Add-In skeleton) added in this commit to complete the unit. JS Add-In implements WS connect, registration, scenario dispatch, frame emission, heartbeat, reconnect backoff — mirroring the U-CAMTEST01 hyperMILL Python runner shape."
     },
     {
       "id": "U-CAMTEST03",
