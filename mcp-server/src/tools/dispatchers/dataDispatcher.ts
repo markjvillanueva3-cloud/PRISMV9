@@ -2229,7 +2229,7 @@ export function registerDataDispatcher(server: any): void {
         return dispatcherError(err, action, "prism_data");
       }
 
-      return jsonResponse(slimResponse(result, getSlimLevel(getCurrentPressurePct())));
+      return jsonResponse(slimResponse(result));
     }
   );
 

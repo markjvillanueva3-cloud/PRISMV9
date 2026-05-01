@@ -364,7 +364,7 @@ Params vary by action — pass relevant fields in params object.`,
         }
 
         const pressurePct = getCurrentPressurePct();
-        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }] };
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
 
       } catch (error: any) {
         log.error(`[prism_l2] Error in ${action}:`, error);

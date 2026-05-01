@@ -388,8 +388,7 @@ export function registerIntegrationDispatcher(server: any): void {
           const keyValues = integrationExtractKeyValues(action, result);
           return {
             content: [{ type: "text" as const, text: JSON.stringify(slimResponse(
-              { action, ...result, _keyValues: keyValues },
-              getSlimLevel(pressure)
+              { action, ...result, _keyValues: keyValues }
             )) }],
           };
         }
