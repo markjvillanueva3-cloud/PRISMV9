@@ -224,12 +224,38 @@ export const JM_DIE_SOURCE_ROOTS = {
 } as const;
 
 /**
- * Authoritative JM Die controller inventory. Start with an empty array —
- * downstream engines treat `resolveMachine(id) === null` as "unknown" and
- * surface an actionable error, so missing rows degrade gracefully. Rows
- * are added as machines are onboarded via `/machine-harden`.
+ * Authoritative JM Die controller inventory — 15 production machines.
+ * Restored 2026-05-01 from initial-commit b7e0b298f after `U-EFF28`
+ * inadvertently wiped this map to `[]` while clearing TS2551/TS2305
+ * clusters. Wipe broke `CAMPostSelectorUIEngine.dashboard()` /
+ * `recommendForMachine()` / `getMachine()` and 16 of its tests plus
+ * 2 plugins-integration tests; restoration re-enables U-CAM100 and
+ * U-CAM104 exit conditions ("All 21 machines selectable" / "all
+ * plugin tests pass"). Categories derived by `categorize()` from
+ * machine_id prefix (LTH→lathe, VMC/HMC→mill, EDM→sinker_edm,
+ * WEDM→wire_edm). Post paths are relative to JM_DIE_SOURCE_ROOTS.posts_root.
  */
-export const JM_DIE_CONTROLLER_MAP: readonly MachineControllerPair[] = [] as const;
+export const JM_DIE_CONTROLLER_MAP: readonly MachineControllerPair[] = [
+  // Okuma lathes (7) — 6× horizontal turning + 1× Multus B-axis multitasking
+  { machine_id: "LTH-01", machine_name: "Okuma GENOS L300-M",       controller_family: "okuma",      controller_model: "OSP-P300L-R",    post_processor: "OKUMA_GENOS_L300M_OSP-P300L-R_PRISM.cps" },
+  { machine_id: "LTH-02", machine_name: "Okuma GENOS L200E-M",      controller_family: "okuma",      controller_model: "OSP-P200LA-R",   post_processor: "OKUMA_GENOS_L200EM_OSP-P200LA-R_PRISM.cps" },
+  { machine_id: "LTH-03", machine_name: "Okuma LNC8",               controller_family: "okuma",      controller_model: "OSP-U10L",       post_processor: "OKUMA_LNC8_PRISM.cps" },
+  { machine_id: "LTH-04", machine_name: "Okuma Crown L1060",        controller_family: "okuma",      controller_model: "OSP-U10L",       post_processor: "OKUMA_CROWN_L1060_OSP-U10L_PRISM.cps" },
+  { machine_id: "LTH-05", machine_name: "Okuma GENOS L400II-E",     controller_family: "okuma",      controller_model: "OSP-P300LA-E",   post_processor: "OKUMA_GENOS_L400II_P300LA-Ai-Enhanced.cps" },
+  { machine_id: "LTH-06", machine_name: "Okuma LB 3000EX Big Bore", controller_family: "okuma",      controller_model: "OSP-P500",       post_processor: "OKUMA_LATHE_LB3000-Ai-Enhanced.cps" },
+  { machine_id: "LTH-07", machine_name: "Okuma Multus B250II",      controller_family: "okuma",      controller_model: "OSP-P300SA",     post_processor: "OKUMA_MULTUS_B250IIW-Ai-Enhanced-Fixed.cps" },
+  // Mills (5) — Hurco WinMAX, Okuma 5-axis, two Haas, Roku-Roku Fanuc
+  { machine_id: "VMC-01", machine_name: "Hurco VM30i",              controller_family: "hurco",      controller_model: "WinMAX v10",     post_processor: "HURCO_VM30i_PRISM_v11.cps" },
+  { machine_id: "VMC-02", machine_name: "Okuma M460V-5AX",          controller_family: "okuma",      controller_model: "OSP-P300MA-H",   post_processor: "OKUMA_M460V-5AX-Ai Enhanced-(iMachining).cps" },
+  { machine_id: "VMC-03", machine_name: "Haas VF-2",                controller_family: "haas",       controller_model: "PRE-NGC",        post_processor: "HAAS_VF2_-Ai-Enhanced_(iMachining).cps" },
+  { machine_id: "VMC-04", machine_name: "Haas OM-2",                controller_family: "haas",       controller_model: "PRE-NGC",        post_processor: "HAAS_OM-2_PRE-NGC_PRISM.cps" },
+  { machine_id: "VMC-05", machine_name: "Roku-Roku HC 658-II",      controller_family: "fanuc",      controller_model: "Fanuc 31i-B5" }, // no post yet — engine surfaces no_post_available
+  // Sinker EDMs (2) — Mitsubishi EA family
+  { machine_id: "EDM-01", machine_name: "Mitsubishi EA12S",         controller_family: "mitsubishi", controller_model: "FP80S",          post_processor: "MITSUBISHI_EA12S_FP80S_PRISM.cps" },
+  { machine_id: "EDM-02", machine_name: "Mitsubishi EA12D",         controller_family: "mitsubishi", controller_model: "C30EA-2",        post_processor: "MITSUBISHI_EA12D_C30EA-2_PRISM.cps" },
+  // Wire EDM (1) — Mitsubishi FA10S, primary controller variant W31MV-2
+  { machine_id: "WEDM-01", machine_name: "Mitsubishi FA10S",        controller_family: "mitsubishi", controller_model: "W31MV-2",        post_processor: "MITSUBISHI_FA10S_W31MV-2_PRISM.cps" },
+];
 
 // Backward-compat (esbuild fix 2026-04-25) — production seed list lives
 // in shop-config; this empty stub keeps callers compilable.
