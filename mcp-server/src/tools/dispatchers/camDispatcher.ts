@@ -1613,6 +1613,8 @@ export const ACTIONS = [
   "cam_assertion_bundle_evaluate", "cam_assertion_bundle_failed", "cam_assertion_bundle_by_name", "cam_assertion_bundle_audit", "cam_assertion_bundle_families",
   // CAM-EXHAUST-MS0 U-CAMTEST15 — Results bridge (host → hub → state file aggregator)
   "cam_results_bridge_ingest", "cam_results_bridge_list", "cam_results_bridge_list_failures", "cam_results_bridge_summarize", "cam_results_bridge_persist", "cam_results_bridge_load", "cam_results_bridge_reset", "cam_results_bridge_audit",
+  // CAM-EXHAUST-MS0 U-CAMTEST16 — Nightly orchestrator (backend half; React dashboard deferred to Codex lane)
+  "cam_nightly_run", "cam_nightly_list_recent", "cam_nightly_get_run", "cam_nightly_text_dashboard", "cam_nightly_dashboard_data", "cam_nightly_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12701,6 +12703,45 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_results_bridge_audit": {
             const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
             result = CAMInHostResultsBridgeEngine.auditBridge();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST16: Nightly orchestrator (backend) ──
+          case "cam_nightly_run": {
+            const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
+            const opts = (params.options ?? {}) as Parameters<typeof CAMInHostNightlyOrchestratorEngine.run>[0];
+            result = await CAMInHostNightlyOrchestratorEngine.run(opts);
+            break;
+          }
+          case "cam_nightly_list_recent": {
+            const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
+            const opts = (params.options ?? {}) as Parameters<typeof CAMInHostNightlyOrchestratorEngine.listRecentRuns>[0];
+            result = { runs: CAMInHostNightlyOrchestratorEngine.listRecentRuns(opts) };
+            break;
+          }
+          case "cam_nightly_get_run": {
+            const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
+            const runId = params.run_id as string;
+            const dir = params.dir as string | undefined;
+            result = CAMInHostNightlyOrchestratorEngine.getRun(runId, dir);
+            break;
+          }
+          case "cam_nightly_text_dashboard": {
+            const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostNightlyOrchestratorEngine.formatTextDashboard>[0];
+            result = { dashboard: CAMInHostNightlyOrchestratorEngine.formatTextDashboard(report) };
+            break;
+          }
+          case "cam_nightly_dashboard_data": {
+            const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostNightlyOrchestratorEngine.dashboardData>[0];
+            result = { data: CAMInHostNightlyOrchestratorEngine.dashboardData(report) };
+            break;
+          }
+          case "cam_nightly_audit": {
+            const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostNightlyOrchestratorEngine.auditOrchestrator>[0];
+            result = CAMInHostNightlyOrchestratorEngine.auditOrchestrator(report);
             break;
           }
 
