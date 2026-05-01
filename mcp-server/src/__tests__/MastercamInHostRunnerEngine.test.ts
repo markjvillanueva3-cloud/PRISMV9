@@ -413,3 +413,36 @@ describe("MastercamInHostRunnerEngine", () => {
     });
   });
 });
+
+// ── Dispatcher round-trip (mandated by ENGINE WIRING rule) ────────────────────
+
+describe("U-CAMTEST04 — dispatcher round-trip (prism_cam)", () => {
+  it("ACTIONS array exposes the Mastercam in-host runner actions", async () => {
+    const mod = await import("../tools/dispatchers/camDispatcher.js");
+    expect(mod.ACTIONS).toContain("cam_inhost_mastercam_register");
+    expect(mod.ACTIONS).toContain("cam_inhost_mastercam_plan");
+    expect(mod.ACTIONS).toContain("cam_inhost_mastercam_summarize");
+    expect(mod.ACTIONS).toContain("cam_inhost_mastercam_stats");
+    expect(mod.ACTIONS).toContain("cam_inhost_mastercam_reset");
+  });
+
+  it("engine reachable via the same dynamic import path the dispatcher uses", async () => {
+    const mod = await import("../engines/MastercamInHostRunnerEngine.js");
+    const plan = mod.MastercamInHostRunnerEngine.planScenario(
+      "dispatcher-sess-mc", descriptor({ scenario_id: "dispatcher-scen-mc" }),
+    );
+    expect(plan.scenario_id).toBe("dispatcher-scen-mc");
+    expect(mod.MastercamInHostRunnerEngine.getStats("dispatcher-sess-mc").scenarios_planned).toBe(1);
+  });
+
+  it("cross-host invariant: Mastercam uses 'mastercam' target distinct from all three peers", async () => {
+    const mcMod = await import("../engines/MastercamInHostRunnerEngine.js");
+    const invMod = await import("../engines/InventorHSMInHostRunnerEngine.js");
+    const fusionMod = await import("../engines/Fusion360InHostRunnerEngine.js");
+    const hyperMod = await import("../engines/HyperMillInHostRunnerEngine.js");
+    expect(mcMod.buildRegistration().target).toBe("mastercam");
+    expect(invMod.buildRegistration().target).toBe("inventor_hsm");
+    expect(fusionMod.buildRegistration().target).toBe("fusion360");
+    expect(hyperMod.buildRegistration().target).toBe("hypermill");
+  });
+});

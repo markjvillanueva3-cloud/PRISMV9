@@ -1597,6 +1597,10 @@ export const ACTIONS = [
   "cam_inhost_hypermill_register", "cam_inhost_hypermill_plan", "cam_inhost_hypermill_summarize", "cam_inhost_hypermill_stats", "cam_inhost_hypermill_reset",
   // CAM-EXHAUST-MS0 U-CAMTEST02 — Fusion 360 in-host runner (PRISM-side companion)
   "cam_inhost_fusion360_register", "cam_inhost_fusion360_plan", "cam_inhost_fusion360_summarize", "cam_inhost_fusion360_stats", "cam_inhost_fusion360_reset",
+  // CAM-EXHAUST-MS0 U-CAMTEST03 — Inventor HSM in-host runner (PRISM-side companion)
+  "cam_inhost_inventor_hsm_register", "cam_inhost_inventor_hsm_plan", "cam_inhost_inventor_hsm_summarize", "cam_inhost_inventor_hsm_stats", "cam_inhost_inventor_hsm_reset",
+  // CAM-EXHAUST-MS0 U-CAMTEST04 — Mastercam X8 in-host runner (PRISM-side companion)
+  "cam_inhost_mastercam_register", "cam_inhost_mastercam_plan", "cam_inhost_mastercam_summarize", "cam_inhost_mastercam_stats", "cam_inhost_mastercam_reset",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12346,6 +12350,78 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_inhost_fusion360_reset": {
             const { Fusion360InHostRunnerEngine } = await import("../../engines/Fusion360InHostRunnerEngine.js");
             Fusion360InHostRunnerEngine.resetSession((params.session_id as string) ?? "default");
+            result = { reset: true, session_id: params.session_id };
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST03: Inventor HSM in-host runner ──
+          case "cam_inhost_inventor_hsm_register": {
+            const { InventorHSMInHostRunnerEngine } = await import("../../engines/InventorHSMInHostRunnerEngine.js");
+            const pluginId = params.plugin_id as string | undefined;
+            const version = params.version as string | undefined;
+            result = { registration: InventorHSMInHostRunnerEngine.register(pluginId, version) };
+            break;
+          }
+          case "cam_inhost_inventor_hsm_plan": {
+            const { InventorHSMInHostRunnerEngine } = await import("../../engines/InventorHSMInHostRunnerEngine.js");
+            const sessionId = (params.session_id as string) ?? "default";
+            const descriptor = (params.descriptor ?? params) as Parameters<typeof InventorHSMInHostRunnerEngine.planScenario>[1];
+            const pluginId = params.plugin_id as string | undefined;
+            result = InventorHSMInHostRunnerEngine.planScenario(sessionId, descriptor, pluginId);
+            break;
+          }
+          case "cam_inhost_inventor_hsm_summarize": {
+            const { InventorHSMInHostRunnerEngine } = await import("../../engines/InventorHSMInHostRunnerEngine.js");
+            const sessionId = (params.session_id as string) ?? "default";
+            const plan = params.plan as Parameters<typeof InventorHSMInHostRunnerEngine.summarize>[1];
+            const scenarioResult = params.result as Parameters<typeof InventorHSMInHostRunnerEngine.summarize>[2];
+            result = InventorHSMInHostRunnerEngine.summarize(sessionId, plan, scenarioResult);
+            break;
+          }
+          case "cam_inhost_inventor_hsm_stats": {
+            const { InventorHSMInHostRunnerEngine } = await import("../../engines/InventorHSMInHostRunnerEngine.js");
+            result = InventorHSMInHostRunnerEngine.getStats((params.session_id as string) ?? "default");
+            break;
+          }
+          case "cam_inhost_inventor_hsm_reset": {
+            const { InventorHSMInHostRunnerEngine } = await import("../../engines/InventorHSMInHostRunnerEngine.js");
+            InventorHSMInHostRunnerEngine.resetSession((params.session_id as string) ?? "default");
+            result = { reset: true, session_id: params.session_id };
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST04: Mastercam X8 in-host runner ──
+          case "cam_inhost_mastercam_register": {
+            const { MastercamInHostRunnerEngine } = await import("../../engines/MastercamInHostRunnerEngine.js");
+            const pluginId = params.plugin_id as string | undefined;
+            const version = params.version as string | undefined;
+            result = { registration: MastercamInHostRunnerEngine.register(pluginId, version) };
+            break;
+          }
+          case "cam_inhost_mastercam_plan": {
+            const { MastercamInHostRunnerEngine } = await import("../../engines/MastercamInHostRunnerEngine.js");
+            const sessionId = (params.session_id as string) ?? "default";
+            const descriptor = (params.descriptor ?? params) as Parameters<typeof MastercamInHostRunnerEngine.planScenario>[1];
+            const pluginId = params.plugin_id as string | undefined;
+            result = MastercamInHostRunnerEngine.planScenario(sessionId, descriptor, pluginId);
+            break;
+          }
+          case "cam_inhost_mastercam_summarize": {
+            const { MastercamInHostRunnerEngine } = await import("../../engines/MastercamInHostRunnerEngine.js");
+            const sessionId = (params.session_id as string) ?? "default";
+            const plan = params.plan as Parameters<typeof MastercamInHostRunnerEngine.summarize>[1];
+            const scenarioResult = params.result as Parameters<typeof MastercamInHostRunnerEngine.summarize>[2];
+            result = MastercamInHostRunnerEngine.summarize(sessionId, plan, scenarioResult);
+            break;
+          }
+          case "cam_inhost_mastercam_stats": {
+            const { MastercamInHostRunnerEngine } = await import("../../engines/MastercamInHostRunnerEngine.js");
+            result = MastercamInHostRunnerEngine.getStats((params.session_id as string) ?? "default");
+            break;
+          }
+          case "cam_inhost_mastercam_reset": {
+            const { MastercamInHostRunnerEngine } = await import("../../engines/MastercamInHostRunnerEngine.js");
+            MastercamInHostRunnerEngine.resetSession((params.session_id as string) ?? "default");
             result = { reset: true, session_id: params.session_id };
             break;
           }

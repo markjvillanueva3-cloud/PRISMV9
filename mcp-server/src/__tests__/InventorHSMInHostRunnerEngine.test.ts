@@ -417,3 +417,34 @@ describe("InventorHSMInHostRunnerEngine", () => {
     });
   });
 });
+
+// ── Dispatcher round-trip (mandated by ENGINE WIRING rule) ────────────────────
+
+describe("U-CAMTEST03 — dispatcher round-trip (prism_cam)", () => {
+  it("ACTIONS array exposes the Inventor HSM in-host runner actions", async () => {
+    const mod = await import("../tools/dispatchers/camDispatcher.js");
+    expect(mod.ACTIONS).toContain("cam_inhost_inventor_hsm_register");
+    expect(mod.ACTIONS).toContain("cam_inhost_inventor_hsm_plan");
+    expect(mod.ACTIONS).toContain("cam_inhost_inventor_hsm_summarize");
+    expect(mod.ACTIONS).toContain("cam_inhost_inventor_hsm_stats");
+    expect(mod.ACTIONS).toContain("cam_inhost_inventor_hsm_reset");
+  });
+
+  it("engine reachable via the same dynamic import path the dispatcher uses", async () => {
+    const mod = await import("../engines/InventorHSMInHostRunnerEngine.js");
+    const plan = mod.InventorHSMInHostRunnerEngine.planScenario(
+      "dispatcher-sess-inv", descriptor({ scenario_id: "dispatcher-scen-inv" }),
+    );
+    expect(plan.scenario_id).toBe("dispatcher-scen-inv");
+    expect(mod.InventorHSMInHostRunnerEngine.getStats("dispatcher-sess-inv").scenarios_planned).toBe(1);
+  });
+
+  it("cross-host invariant: Inventor HSM uses 'inventor_hsm' target distinct from peers", async () => {
+    const invMod = await import("../engines/InventorHSMInHostRunnerEngine.js");
+    const fusionMod = await import("../engines/Fusion360InHostRunnerEngine.js");
+    const hyperMod = await import("../engines/HyperMillInHostRunnerEngine.js");
+    expect(invMod.buildRegistration().target).toBe("inventor_hsm");
+    expect(fusionMod.buildRegistration().target).toBe("fusion360");
+    expect(hyperMod.buildRegistration().target).toBe("hypermill");
+  });
+});
