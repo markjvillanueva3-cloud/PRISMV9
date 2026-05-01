@@ -224,4 +224,9 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     operations: z.array(z.unknown()).min(1).describe("Operations array (schema validated by routed engine)"),
     config: z.record(z.string(), z.unknown()).optional().describe("Config object (schema validated by routed engine)"),
   }),
+
+  // WEDM-WIRE-MS0: lightweight orphan engine wiring (verify + tier6 gate + pre-flight)
+  wedm_program_verify: z.object({}).passthrough().describe("VerificationInput for WEDMProgramVerificationEngine.verify() - passthrough until interface surfaced"),
+  wedm_tier6_geom_validate: z.object({}).passthrough().describe("Tier6GeomInput for WEDMTier6GeomGateEngine.validate() - passthrough until interface surfaced"),
+  wedm_preflight_checklist: z.object({}).passthrough().describe("PreFlightInput for WEDMPreFlightCheckEngine.generateChecklist() - passthrough until interface surfaced"),
 };

@@ -1155,6 +1155,8 @@ export const ACTIONS = [
   "wedm_flush_adequacy_evaluate", "wedm_flush_adequacy_gate",
   "wedm_thermal_release_evaluate", "wedm_thermal_release_gate",
   "wedm_dialect_verify", "wedm_dialect_gate", "wedm_dialect_resolve",
+  // WEDM-WIRE-MS0: lightweight orphan engine wiring (verify + tier6 gate + pre-flight checklist)
+  "wedm_program_verify", "wedm_tier6_geom_validate", "wedm_preflight_checklist",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -5889,6 +5891,34 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
             const eng = new WEDMControllerDialectVerifierEngine();
             result = { controller: eng.resolveController(params.name || params.controller || "") };
+            break;
+          }
+          // ── WEDM-WIRE-MS0: lightweight orphan engine wiring ──
+          case "wedm_program_verify": {
+            const { wedmProgramVerificationEngine } = await import("../../engines/WEDMProgramVerificationEngine.js");
+            try {
+              result = wedmProgramVerificationEngine.verify(params as Parameters<typeof wedmProgramVerificationEngine.verify>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_tier6_geom_validate": {
+            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
+            try {
+              result = wedmTier6GeomGateEngine.validate(params as Parameters<typeof wedmTier6GeomGateEngine.validate>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_preflight_checklist": {
+            const { wedmPreFlightCheckEngine } = await import("../../engines/WEDMPreFlightCheckEngine.js");
+            try {
+              result = wedmPreFlightCheckEngine.generateChecklist(params as Parameters<typeof wedmPreFlightCheckEngine.generateChecklist>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
             break;
           }
           // ── MS-P3-TIER6A: EDMWireSlugCornerTaperEngine (3 actions) ──
