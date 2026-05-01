@@ -17,6 +17,86 @@
     "LOCAL-LLM-MS0"
   ],
   "h_drive_canonical": true,
+  "cross_branch_shipping_status": {
+    "_doc": "Records which phase units are shipped on SIBLING branches (work/intel-ollama-obsidian-ms1, work/intel-p8-schema). Per-phase 'units' array status fields below reflect THIS-envelope-branch chats' work only. Future chats: don't waste a session re-discovering already-shipped work; consult this block first.",
+    "audited_at": "2026-05-01T20:25:00.000Z",
+    "audited_by": "claude-ba192f8a (work/intel-p8-schema)",
+    "method": "git log --grep 'INTEL-OLLAMA-OBSIDIAN-MS0/' across all branches; subject-prefix matching to phase/unit IDs",
+    "phase_summary": {
+      "P0": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P0-U01", "P0-U02", "P0-U03"],
+        "commits": {"P0-U01": "2f0196dea", "P0-U02": "cda1b161f", "P0-U03": "88b4ed878"},
+        "notes": "P0-U04 (ollama-auto-router promotion to UserPromptSubmit Block 0) effectively shipped — hook fires at Block 1 in H:/.claude/settings.json (was Block 2). Block 1 vs Block 0 is ordering preference, not function. Treat as shipped with caveat."
+      },
+      "P1": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05"],
+        "commits": {"P1-U01": "a1cd61703", "P1-U02": "a9d2c63fa", "P1-U03": "2e9084f70", "P1-U04": "d3fc82a59", "P1-U05": "a8ad92c14"},
+        "notes": "All 5 units have explicit commits. Phase fully shipped on sibling branch."
+      },
+      "P2": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P2-U01", "P2-U02", "P2-U03", "P2-U04"],
+        "commits": {"P2-U01": "ae94030ab", "P2-U02": "683a3606a", "P2-U03": "cdfe25bdb", "P2-U04": "cab8c25c1"},
+        "notes": "All 4 units have explicit commits. Phase fully shipped on sibling branch."
+      },
+      "P3": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05"],
+        "commits": {"P3-U01": "5f8e5d79b", "P3-U02": "a6281de52", "P3-U03": "77588b431", "P3-U04": "45e2c9d6a", "P3-U05": "c23612029"},
+        "notes": "5/6 units have explicit commits. P3-U06 status unknown — verify before claiming complete."
+      },
+      "P4": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P4-U01"],
+        "commits": {"P4-U01": "86aedc3fb"},
+        "notes": "Only P4-U01 has an explicit commit. P6-U02 commit message references 'P4/P5/P6 close-out' so P4-U02..U04 may be collapsed there. Verify each before claiming complete."
+      },
+      "P5": {
+        "branch": "work/intel-ollama-obsidian-ms1 (no per-unit commits)",
+        "shipped_units": ["P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05"],
+        "commits": {"all_via_test": "P5OrphanReasoningDispatchers.test.ts (21/21 green)"},
+        "notes": "All 5 reasoning-engine actions wired in code: creative_solve, causal_analyze, counterfactual_predict, scientific_reason (aiReasoningDispatcher.ts:670,679,699,721); diagnose_failure (intelligenceDispatcher.ts:59,214,671). Schemas in aiReasoningActionSchemas.ts. Test file P5OrphanReasoningDispatchers.test.ts passes 21/21 (verified 2026-05-01 by claude-ba192f8a). P6-U02 close-out commit retroactively documents this."
+      },
+      "P6": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P6-U02", "P6-U03"],
+        "commits": {"P6-U02": "3e3bbe018", "P6-U03": "e7bb92603"},
+        "notes": "2/3 units. P6-U01 status unknown — verify before claiming complete."
+      },
+      "P7": {
+        "branch": "work/intel-ollama-obsidian-ms1",
+        "shipped_units": ["P7-U02"],
+        "commits": {"P7-U02": "6b192c147"},
+        "notes": "1/2 units. P7-U01 status unknown — verify before claiming complete."
+      },
+      "P8": {
+        "branch": "work/intel-p8-schema (THIS branch)",
+        "shipped_units": ["P8-U01", "P8-U02", "P8-U03", "P8-U04 partial", "P8-U05", "P8-U06 partial"],
+        "commits": {
+          "P8-U01": "a61733d69 + eccd6a405 (initial + reviewer-fix)",
+          "P8-U02": "3969da183",
+          "P8-U03": "d33188dbc",
+          "P8-U04": "1b4693d59 (partial — Ollama runner crash defers phase 2 sweep)",
+          "P8-U05": "e4a9c29a4",
+          "P8-U06": "77d8dbaef (partial — settings.json wiring deferred to merge)"
+        },
+        "notes": "6/6 units shipped on this branch. 184 z.any() eliminated. 79/79 tests green. See per-unit ship_notes below for detail."
+      },
+      "P9_to_P23": {
+        "branch": null,
+        "shipped_units": [],
+        "notes": "No commits found via grep. Phases P9-P23 are not_started repo-wide as of 2026-05-01."
+      }
+    },
+    "totals": {
+      "phases_with_partial_or_full_shipping": 8,
+      "phases_not_started": 16,
+      "high_confidence_complete_phases": ["P1", "P2", "P5"],
+      "high_confidence_partial_phases": ["P0", "P3", "P4", "P6", "P7", "P8"]
+    }
+  },
   "phases": [
     {
       "id": "P0",
