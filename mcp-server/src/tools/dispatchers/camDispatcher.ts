@@ -1165,6 +1165,8 @@ export const ACTIONS = [
   "wedm_haz_predict", "wedm_gap_voltage_calc", "wedm_deviation_to_tip",
   // WEDM-WIRE-MS0/Batch5: kerf width + MRR physics + dielectric flush adjust
   "wedm_kerf_predict", "wedm_mrr_calc", "wedm_dielectric_flush_adjust",
+  // WEDM-WIRE-MS0/Batch6: machine state ingest + spark DB resolve + kalman fusion
+  "wedm_machine_state_ingest", "wedm_material_spark_resolve", "wedm_kalman_fuse",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6076,6 +6078,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmDielectricFlushAdjustEngine.calculate(
                 input as Parameters<typeof wedmDielectricFlushAdjustEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch6: machine state ingest + spark DB resolve + kalman fusion ──
+          case "wedm_machine_state_ingest": {
+            const { wedmMachineStateEngine } = await import("../../engines/WEDMMachineStateEngine.js");
+            const reading = (params as Record<string, unknown>).reading;
+            if (!reading || typeof reading !== "object") { result = { success: false, error: "reading required (WEDMSensorReading)" }; break; }
+            try {
+              const nowMs = (params as Record<string, unknown>).now_ms;
+              result = wedmMachineStateEngine.ingest(
+                reading as Parameters<typeof wedmMachineStateEngine.ingest>[0],
+                typeof nowMs === "number" ? nowMs : undefined,
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_material_spark_resolve": {
+            const { wedmMaterialSparkDatabaseEngine } = await import("../../engines/WEDMMaterialSparkDatabaseEngine.js");
+            const query = (params as Record<string, unknown>).query;
+            if (typeof query !== "string" || query.length === 0) { result = { success: false, error: "query string required (material name or alias)" }; break; }
+            try {
+              result = wedmMaterialSparkDatabaseEngine.resolve(query);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_kalman_fuse": {
+            const { wedmKalmanFusionEngine } = await import("../../engines/WEDMKalmanFusionEngine.js");
+            const reading = (params as Record<string, unknown>).reading;
+            if (!reading || typeof reading !== "object") { result = { success: false, error: "reading required (WEDMSensorReading)" }; break; }
+            try {
+              result = wedmKalmanFusionEngine.fuse(
+                reading as Parameters<typeof wedmKalmanFusionEngine.fuse>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

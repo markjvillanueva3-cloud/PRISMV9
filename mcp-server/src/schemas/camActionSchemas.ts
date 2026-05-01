@@ -268,4 +268,15 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_dielectric_flush_adjust: z.object({
     input: z.record(z.string(), z.unknown()).describe("DielectricFlushAdjustInput - dielectric flow + pressure + cut depth for WEDMDielectricFlushAdjustEngine.calculate()"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch6: machine state ingest + spark DB resolve + kalman fusion
+  wedm_machine_state_ingest: z.object({
+    reading: z.record(z.string(), z.unknown()).describe("WEDMSensorReading - sensor packet (gap voltage/current/feed/etc) to ingest into rolling state"),
+    now_ms: z.number().optional().describe("Optional epoch ms timestamp override (defaults to Date.now())"),
+  }).passthrough(),
+  wedm_material_spark_resolve: z.object({
+    query: z.string().min(1).describe("Material name or alias to resolve to a WEDMSparkSignature (e.g. 'D2', 'A2_HRC60')"),
+  }).passthrough(),
+  wedm_kalman_fuse: z.object({
+    reading: z.record(z.string(), z.unknown()).describe("WEDMSensorReading - raw sensor packet to fuse via Kalman filter into WEDMFusedState"),
+  }).passthrough(),
 };
