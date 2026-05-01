@@ -13,6 +13,14 @@
       "parameter_count_estimate": 138,
       "description": "2D parametric sketcher: 9 primitive families (Line, Rectangle in 4 modes, Circle in 3 modes, Arc in 4 modes, Ellipse, Polygon inscribed/circumscribed, Spline interpolation/control, Slot in 4 modes, Point), 8 editing tools (Trim, Extend, Break, Offset, Mirror, Move, Rotate, Scale), 1 reference-projection family (Project Geometry / Project to Surface / Intersect Curve), 13 geometric constraints, 7 dimension constraints, fillet/chamfer, sketch patterns (linear/circular), construction toggle, and text. Inventor sketches solve as a constraint network — every entity carries a sketch-DOF count surfaced through AddCoincident etc.",
       "dependencies": []
+    },
+    {
+      "module_id": "part_operations",
+      "path": "cad-functions/inventor/part-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-02"],
+      "parameter_count_estimate": 178,
+      "description": "3D solid features (Part environment): 6 sweep features (Extrude / Revolve / Sweep / Loft / Coil / Rib), Hole + Thread (5 head types × 4 termination types × 8 thread standards), 4 modify features (Fillet / Chamfer / Shell / Draft), Combine boolean (Join/Cut/Intersect), 5 pattern families (Rectangular / Circular / Mirror / Sketch-Driven / Path), Derive Component, Thicken-Offset, and 6 direct-edit/utility features (Delete Face / Split Body / Copy Object / Move Body / Emboss). All bindings reference real Inventor COM API (ComponentDefinition.Features.*).",
+      "dependencies": ["sketch_operations"]
     }
   ],
   "global_cross_references": {
@@ -35,15 +43,14 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 1,
-    "total_units_covered": ["U-CAD-FIDX-INV-01"],
-    "estimated_parameter_total": 138,
+    "total_modules": 2,
+    "total_units_covered": ["U-CAD-FIDX-INV-01", "U-CAD-FIDX-INV-02"],
+    "estimated_parameter_total": 316,
     "api_surface": {
-      "coverage_state": "FOUNDATION",
+      "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 7,
+      "phase_1_target_modules_remaining": 6,
       "phase_1_modules_pending": [
-        "part_operations",
         "surface_operations",
         "sheet_metal_operations",
         "frame_generator_operations",
@@ -70,12 +77,6 @@
     "vault": false
   },
   "future_modules": [
-    {
-      "planned_id": "part_operations",
-      "scope": "3D solid features: Extrude (Distance / To / To-Next / Through-All / Between), Revolve (Full / Angle / To-Next), Sweep (Path / Path-and-Guide / Path-and-Surface), Loft (Rails / Conditions / Ship Curves), Coil (Pitch-Revolution / Revolution-Height / Spiral), Rib, Hole (5 head types × 4 termination types), Thread, Fillet (Equal / Variable / Setback / Full Round), Chamfer (Distance / 2-Distance / Angle), Shell, Draft, Boolean Combine (Join / Cut / Intersect), Pattern (Rectangular / Circular / Mirror / Sketch-Driven / Path).",
-      "estimated_params": 245,
-      "deferred_to": "U-CAD-FIDX-INV-02"
-    },
     {
       "planned_id": "surface_operations",
       "scope": "Surface modeling: Boundary Patch, Stitch, Trim, Extend, Replace Face, Delete Face, Sculpt, Thicken/Offset, Ruled Surface. Inventor's surface workflow is thinner than hyperCAD-S since most CAD work stays solid.",

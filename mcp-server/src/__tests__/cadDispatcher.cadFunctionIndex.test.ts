@@ -250,11 +250,11 @@ describe("cadDispatcher — Autodesk Inventor discovery actions (U-CAD-FIDX-INV-
     expect(out.count).toBe(InventorCADFunctionIndexEngine.getLoadErrors().length);
   });
 
-  it("cad_inventor_list_modules surfaces sketch_operations", async () => {
+  it("cad_inventor_list_modules surfaces both shipped modules", async () => {
     const out = await invoke("cad_inventor_list_modules");
     expect(out.success).toBe(true);
-    expect(out.modules).toEqual(["sketch_operations"]);
-    expect(out.count).toBe(1);
+    expect(out.modules).toEqual(["sketch_operations", "part_operations"]);
+    expect(out.count).toBe(2);
   });
 
   it("cad_inventor_get_operation('sketch_operations','LINE') returns the LINE op", async () => {

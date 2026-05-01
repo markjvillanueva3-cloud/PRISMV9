@@ -32,8 +32,25 @@ const KNOWN_SKETCH_OPS = [
   "CONSTRUCTION_TOGGLE", "TEXT_SKETCH",
 ];
 
+const KNOWN_PART_OPS = [
+  // 6 sweep features
+  "EXTRUDE", "REVOLVE", "SWEEP", "LOFT", "COIL", "RIB",
+  // hole + thread
+  "HOLE", "THREAD",
+  // 4 modify
+  "FILLET", "CHAMFER", "SHELL", "DRAFT",
+  // boolean
+  "COMBINE",
+  // 5 patterns
+  "PATTERN_RECTANGULAR", "PATTERN_CIRCULAR", "PATTERN_MIRROR",
+  "PATTERN_SKETCH_DRIVEN", "PATTERN_PATH",
+  // derive + thicken-offset
+  "DERIVE_COMPONENT", "THICKEN_OFFSET",
+  // 5 direct-edit / utility
+  "DELETE_FACE", "SPLIT_BODY", "COPY_OBJECT", "MOVE_BODY", "EMBOSS",
+];
+
 const PLANNED_FUTURE_MODULES = [
-  "part_operations",
   "surface_operations",
   "sheet_metal_operations",
   "frame_generator_operations",
@@ -51,11 +68,14 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(1);
+    expect(idx.modules.length).toBe(2);
   });
 
-  it("listModules surfaces sketch_operations as the foundation module", () => {
-    expect(InventorCADFunctionIndexEngine.listModules()).toEqual(["sketch_operations"]);
+  it("listModules surfaces both sketch_operations and part_operations", () => {
+    expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
+      "sketch_operations",
+      "part_operations",
+    ]);
   });
 
   it("getModuleEntry returns the registered sketch_operations entry", () => {
@@ -70,20 +90,20 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 7 follow-ups", () => {
+  it("future_modules registers exactly the planned 6 follow-ups (after INV-02 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
     expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id", () => {
+  it("each future_modules entry has scope, params, and a valid INV unit id (03..08)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(7);
+    expect(futureModules.length).toBe(6);
     for (const fm of futureModules) {
       expect(fm.scope.length).toBeGreaterThan(20);
       expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[2-8]$/);
+      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[3-8]$/);
     }
   });
 
@@ -251,19 +271,93 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 28 sketch operations", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(28);
+  it("listAllOperations returns 53 operations across sketch + part modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(53);
+  });
+});
+
+describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-INV-02)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 25 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("part_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-02");
+    expect(mod?.metadata?.operationCount).toBe(25);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(25);
+  });
+
+  it("listOperations returns exactly KNOWN_PART_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("part_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_PART_OPS].sort());
+  });
+
+  it("each part operation carries a Part_-prefixed category and non-zero param count", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("part_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^Part_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("getOperation('EXTRUDE') exposes Inventor ExtrudeFeatures binding + 5 termination modes", () => {
+    const ext = InventorCADFunctionIndexEngine.getOperation("part_operations", "EXTRUDE");
+    expect(ext?.category).toBe("Part_Sweep_Extrude");
+    expect(ext?.python_api).toContain("ExtrudeFeatures");
+    const termParam = ext?.tabs?.Geometry?.parameters?.find((p) => p.name === "Termination");
+    expect(termParam?.options).toEqual([
+      "distance",
+      "to",
+      "to_next",
+      "through_all",
+      "between",
+    ]);
+  });
+
+  it("getOperation('HOLE') registers all 5 head types and 5 thread standards", () => {
+    const hole = InventorCADFunctionIndexEngine.getOperation("part_operations", "HOLE");
+    const headTypes = hole?.tabs?.Geometry?.parameters?.find((p) => p.name === "Head Type");
+    expect(headTypes?.options?.length).toBe(5);
+    expect(headTypes?.options).toContain("counterbore");
+    expect(headTypes?.options).toContain("countersink");
+
+    const threadType = hole?.tabs?.Geometry?.parameters?.find((p) => p.name === "Thread Type");
+    expect(threadType?.options?.length).toBe(6);
+    expect(threadType?.options).toContain("ansi_un");
+    expect(threadType?.options).toContain("iso_metric");
+  });
+
+  it("getOperation('THREAD') supports 8 thread standards", () => {
+    const thread = InventorCADFunctionIndexEngine.getOperation("part_operations", "THREAD");
+    const std = thread?.tabs?.Geometry?.parameters?.find((p) => p.name === "Standard");
+    expect(std?.options?.length).toBe(8);
+    expect(std?.options).toContain("ansi_unj");
+    expect(std?.options).toContain("npt");
+  });
+
+  it("part operations declare correct dependency on sketch_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("part_operations");
+    expect(entry?.dependencies).toEqual(["sketch_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within part_operations", () => {
+    const filletOps = InventorCADFunctionIndexEngine.getOperationsByCategory(
+      "Part_Modify_Fillet",
+      "part_operations",
+    );
+    expect(filletOps.length).toBe(1);
+    expect(filletOps[0]?.operation_id).toBe("FILLET");
   });
 });
 
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 138 (the live tab-sum across the catalog)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(138);
+  it("getTotalParameterCount equals 316 (sketch 138 + part 178)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(316);
   });
 
-  it("module declared totalParameters matches actual sum (drift guard)", () => {
+  it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
     const mod = InventorCADFunctionIndexEngine.getModule("sketch_operations");
     let actual = 0;
     for (const op of Object.values(mod?.operations ?? {})) {
@@ -275,15 +369,29 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(138);
   });
 
-  it("each per-op declared parameterCount matches actual tab-sum (per-op drift)", () => {
-    const mod = InventorCADFunctionIndexEngine.getModule("sketch_operations");
-    for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
-      const declared = op.parameterCount;
-      let actual = 0;
+  it("part_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("part_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
       for (const tab of Object.values(op.tabs ?? {})) {
         actual += (tab.parameters ?? tab.params ?? []).length;
       }
-      expect.soft(actual, `op ${opId} drift`).toBe(declared);
+    }
+    expect(actual).toBe(178);
+    expect(mod?.metadata?.totalParameters).toBe(178);
+  });
+
+  it("each per-op declared parameterCount matches actual tab-sum across both modules", () => {
+    for (const moduleId of ["sketch_operations", "part_operations"]) {
+      const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
+      for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
+        const declared = op.parameterCount;
+        let actual = 0;
+        for (const tab of Object.values(op.tabs ?? {})) {
+          actual += (tab.parameters ?? tab.params ?? []).length;
+        }
+        expect.soft(actual, `${moduleId}/${opId} drift`).toBe(declared);
+      }
     }
   });
 
@@ -296,7 +404,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
   it("index module count matches loaded modules length", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     expect(idx.coverage_summary.total_modules).toBe(idx.modules.length);
-    expect(idx.coverage_summary.total_units_covered).toEqual(["U-CAD-FIDX-INV-01"]);
+    expect(idx.coverage_summary.total_units_covered).toEqual([
+      "U-CAD-FIDX-INV-01",
+      "U-CAD-FIDX-INV-02",
+    ]);
   });
 
   it("getLoadErrors is empty when catalog is healthy", () => {
@@ -304,10 +415,14 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(InventorCADFunctionIndexEngine.getLoadErrors()).toEqual([]);
   });
 
-  it("operationCount declared in metadata equals 28", () => {
-    const mod = InventorCADFunctionIndexEngine.getModule("sketch_operations");
-    expect(Object.keys(mod?.operations ?? {}).length).toBe(28);
-    expect(mod?.metadata?.operationCount).toBe(28);
+  it("operationCount declared in metadata matches actual op count per module", () => {
+    const sketch = InventorCADFunctionIndexEngine.getModule("sketch_operations");
+    expect(Object.keys(sketch?.operations ?? {}).length).toBe(28);
+    expect(sketch?.metadata?.operationCount).toBe(28);
+
+    const part = InventorCADFunctionIndexEngine.getModule("part_operations");
+    expect(Object.keys(part?.operations ?? {}).length).toBe(25);
+    expect(part?.metadata?.operationCount).toBe(25);
   });
 });
 
