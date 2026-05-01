@@ -248,4 +248,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_current_density_validate: z.object({
     input: z.record(z.string(), z.unknown()).describe("CurrentDensityInput - wire spec + peak current for WEDMCurrentDensityGuardEngine.validate()"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch4: HAZ + gap voltage + deviation-to-tip
+  wedm_haz_predict: z.object({
+    input: z.record(z.string(), z.unknown()).describe("HAZInput - heat-affected-zone prediction context (energy, material, dielectric) for WEDMHeatAffectedZoneEngine.predict()"),
+  }).passthrough(),
+  wedm_gap_voltage_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("GapVoltageInput - gap voltage controller context for WEDMGapVoltageControlEngine.calculate()"),
+  }).passthrough(),
+  wedm_deviation_to_tip: z.object({
+    deviations: z.array(z.record(z.string(), z.unknown())).min(1).describe("DeviationRecord[] - prior cut deviations to learn tribal tips from"),
+  }).passthrough(),
 };

@@ -1161,6 +1161,8 @@ export const ACTIONS = [
   "wedm_wire_break_risk", "wedm_setup_sheet_generate", "wedm_job_pattern_learn",
   // WEDM-WIRE-MS0/Batch3: corner physics + dielectric correction + current density guard
   "wedm_corner_analyze", "wedm_dielectric_correct", "wedm_current_density_validate",
+  // WEDM-WIRE-MS0/Batch4: HAZ + gap voltage + deviation-to-tip
+  "wedm_haz_predict", "wedm_gap_voltage_calc", "wedm_deviation_to_tip",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -5992,6 +5994,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmCurrentDensityGuardEngine.validate(
                 input as Parameters<typeof wedmCurrentDensityGuardEngine.validate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch4: HAZ + gap voltage + deviation-to-tip ──
+          case "wedm_haz_predict": {
+            const { wedmHeatAffectedZoneEngine } = await import("../../engines/WEDMHeatAffectedZoneEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (HAZInput)" }; break; }
+            try {
+              result = wedmHeatAffectedZoneEngine.predict(
+                input as Parameters<typeof wedmHeatAffectedZoneEngine.predict>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_gap_voltage_calc": {
+            const { wedmGapVoltageControlEngine } = await import("../../engines/WEDMGapVoltageControlEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (GapVoltageInput)" }; break; }
+            try {
+              result = wedmGapVoltageControlEngine.calculate(
+                input as Parameters<typeof wedmGapVoltageControlEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_deviation_to_tip": {
+            const { wedmDeviationToTipEngine } = await import("../../engines/WEDMDeviationToTipEngine.js");
+            const deviations = (params as Record<string, unknown>).deviations;
+            if (!Array.isArray(deviations)) { result = { success: false, error: "deviations array required (DeviationRecord[])" }; break; }
+            try {
+              result = wedmDeviationToTipEngine.analyze(
+                deviations as Parameters<typeof wedmDeviationToTipEngine.analyze>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
