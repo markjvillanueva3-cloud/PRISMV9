@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PRISM In-Host Test Runner for Mastercam X8 (U-CAMTEST04)
+    =========================================================
+
+    .NET-Hook (Mastercam .NET-Hook DLL) loaded by Mastercam X8 at startup.
+    The host environment is Mastercam X8 / X9, which targets .NET Framework
+    4.5.2 — keep the project pinned to net452 even though the rest of the
+    PRISM build chain runs on modern .NET. The Mastercam.IO assemblies are
+    only resolvable when this project is built on a workstation with
+    Mastercam X8 installed; the HintPaths below match the default install
+    layout (x64 SDK).
+
+    PRISM-side companion: src/engines/MastercamInHostRunnerEngine.ts.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>PRISM.Mastercam</RootNamespace>
+    <AssemblyName>PrismTestRunner</AssemblyName>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyTitle>PRISM Test Runner — Mastercam X8 NET-Hook</AssemblyTitle>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Description>In-host test runner that streams scenario results to the PRISM Plugin Communication Hub.</Description>
+    <Company>JM Die Company</Company>
+    <Product>PRISM</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="PrismTestRunner.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+  </ItemGroup>
+
+  <!-- Mastercam X8 NET-Hook SDK assemblies — resolvable only on a build host
+       with Mastercam X8 installed. The HintPaths follow the default install
+       layout (`C:\Program Files\Mastercam X8\Common\NetHook2`). -->
+  <ItemGroup>
+    <Reference Include="Mastercam.IO">
+      <HintPath>$(ProgramFiles)\Mastercam X8\Common\NetHook2\Mastercam.IO.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mastercam.Database">
+      <HintPath>$(ProgramFiles)\Mastercam X8\Common\NetHook2\Mastercam.Database.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mastercam.Support">
+      <HintPath>$(ProgramFiles)\Mastercam X8\Common\NetHook2\Mastercam.Support.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

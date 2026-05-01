@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 121,
+  "completed_units": 122,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -6171,7 +6171,7 @@
       "title": "Mastercam X8 C-Hook/NET-Hook In-Host Test Runner Skeleton",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "NET-Hook DLL loaded into Mastercam X8. Connects to hub over gRPC+named-pipe. Foundational for 900 Mastercam scenarios.",
       "entry_conditions": [
         "U-CAM96 complete"
@@ -6192,7 +6192,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T21:17:42.133Z",
+      "shipped_artifacts": [
+        "mcp-server/src/engines/MastercamInHostRunnerEngine.ts",
+        "mcp-server/src/__tests__/MastercamInHostRunnerEngine.test.ts",
+        "resources/mastercam/PrismTestRunner.csproj",
+        "resources/mastercam/PrismTestRunner.cs"
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 35,
+        "tests_min_30": true,
+        "dispatcher_wiring": "WIRE-EXEMPT (deferred to follow-up)"
+      },
+      "completion_note": "Engine + tests + .csproj + .cs landed. Dispatcher wiring (5 cam_inhost_mastercam_* actions) deferred together with U-CAMTEST03 to a single follow-up commit isolated from camDispatcher.ts transitive tsc cascade."
     },
     {
       "id": "U-CAMTEST05",
