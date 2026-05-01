@@ -5421,7 +5421,29 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "master_post_by_machine": {
             const model = (params.machine_model as string ?? "").toUpperCase();
-            if (model.includes("OKUMA") || model.includes("LB250")) {
+            // ────────────────────────────────────────────────────────────
+            // U-PPGW12 — Okuma mill controller hard-reject (PRECEDES the
+            // lathe match). OSP-P300M/P500M = mill; no Okuma mill master
+            // post engine exists. Reject loudly rather than mis-route to
+            // the lathe engine; track under PPG-WIRE-MS5/OkumaMill.
+            // ────────────────────────────────────────────────────────────
+            if (model.includes("OSP-P300M") || model.includes("OSP_P300M") ||
+                model.includes("OSP-P500M") || model.includes("OSP_P500M")) {
+              result = {
+                success: false,
+                error: `Okuma mill controller "${params.machine_model}" detected; no Okuma mill master post engine exists yet. Track under PPG-WIRE-MS5/U-PPGW-OkumaMill. Use a Hurco mill or specify a different controller.`,
+              };
+            } else if (
+              model.includes("OKUMA") || model.includes("LB250") ||
+              // U-PPGW12 — Okuma lathe alias-expand: LB-family compact
+              // lathes + explicit OSP-PxxxL controllers all route through
+              // OkumaB250LatheMasterPostEngine. The engine is hardwired to
+              // LB250II-M tribal knowledge; non-LB250 lathes may emit
+              // slightly off codes (acknowledged risk per user direction).
+              model.includes("LB200") || model.includes("LB300") ||
+              model.includes("OSP-P300L") || model.includes("OSP_P300L") ||
+              model.includes("OSP-P500L") || model.includes("OSP_P500L")
+            ) {
               const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
               result = okumaB250LatheMasterPostEngine.generateProgram(
                 (params as any).operations,
@@ -5445,14 +5467,36 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 ops as any,
                 (params as any).config
               );
-            } else if (model.includes("HURCO") || model.includes("VMX24") || model.includes("VM30I") || model.includes("V11")) {
+            } else if (
+              model.includes("HURCO") || model.includes("VMX24") || model.includes("VM30I") || model.includes("V11") ||
+              // U-PPGW11 — Hurco alias-expand: catches VMX42/VMX60i/VM10/VM20i,
+              // legacy ULTIMAX, and explicit ULTIMOTION/MAX31i identifiers.
+              // All route through HurcoV11MillMasterPostEngine.
+              model.includes("VMX") || model.includes("VM10") || model.includes("VM20") ||
+              model.includes("MAX31") || model.includes("ULTIMAX") || model.includes("ULTIMOTION")
+            ) {
               const { hurcoV11MillMasterPostEngine } = await import("../../engines/HurcoV11MillMasterPostEngine.js");
+              // ──────────────────────────────────────────────────────────
+              // U-PPGW11 — Router-infers UltiMotion. ULTIMAX is Hurco's
+              // legacy pre-WinMax control which does NOT support G187 P3
+              // (UltiMotion). Force-disable for ULTIMAX regardless of
+              // caller's config; for everything else leave caller's value
+              // (engine default is `true` when omitted).
+              // ──────────────────────────────────────────────────────────
+              const callerCfg = ((params as any).config ?? {}) as Record<string, unknown>;
+              const inferredCfg: Record<string, unknown> = { ...callerCfg };
+              if (model.includes("ULTIMAX") && !model.includes("ULTIMOTION")) {
+                inferredCfg.use_ultimotion = false;
+              }
               result = hurcoV11MillMasterPostEngine.generateProgram(
                 (params as any).operations,
-                (params as any).config
+                inferredCfg
               );
             } else {
-              result = { success: false, error: `Unknown machine model: ${params.machine_model}. Supported: OKUMA_LB250, MITSUBISHI_MV1200R, HURCO_VMX24_V11` };
+              result = {
+                success: false,
+                error: `Unknown machine model: ${params.machine_model}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION. Wire EDM: MITSUBISHI_MV1200R. Mill controllers OSP-P300M/P500M are explicitly NOT supported (no engine).`,
+              };
             }
             break;
           }
