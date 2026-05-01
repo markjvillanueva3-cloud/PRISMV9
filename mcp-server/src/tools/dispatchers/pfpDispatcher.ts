@@ -56,11 +56,11 @@ export function registerPFPDispatcher(server: McpServer): void {
 
       const validation = validateActionParams(action, params, ACTION_PFP_SCHEMAS);
       if (!validation.valid) {
-        return dispatcherError(
+        return { content: [{ type: "text" as const, text: JSON.stringify(dispatcherError(
           `Invalid params for '${action}': ${validation.errorMessage}`,
           action,
           "prism_pfp"
-        );
+        )) }] };
       }
       try {
         let result: any;
@@ -181,7 +181,7 @@ export function registerPFPDispatcher(server: McpServer): void {
           }],
         };
       } catch (error) {
-        return dispatcherError(error, action, "prism_pfp");
+        return { content: [{ type: "text" as const, text: JSON.stringify(dispatcherError(error, action, "prism_pfp")) }] };
       }
     }
   );

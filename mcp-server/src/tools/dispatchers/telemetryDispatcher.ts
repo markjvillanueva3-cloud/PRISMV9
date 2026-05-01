@@ -58,11 +58,11 @@ export function registerTelemetryDispatcher(server: McpServer): void {
 
       const validation = validateActionParams(action, params, ACTION_TELEMETRY_SCHEMAS);
       if (!validation.valid) {
-        return dispatcherError(
+        return { content: [{ type: "text" as const, text: JSON.stringify(dispatcherError(
           `Invalid params for '${action}': ${validation.errorMessage}`,
           action,
           "prism_telemetry"
-        );
+        )) }] };
       }
       try {
         let result: any;
@@ -232,7 +232,7 @@ export function registerTelemetryDispatcher(server: McpServer): void {
           }],
         };
       } catch (error) {
-        return dispatcherError(error, action, "prism_telemetry");
+        return { content: [{ type: "text" as const, text: JSON.stringify(dispatcherError(error, action, "prism_telemetry")) }] };
       }
     }
   );

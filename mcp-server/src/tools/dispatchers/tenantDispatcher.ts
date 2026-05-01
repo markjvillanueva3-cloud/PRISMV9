@@ -43,11 +43,11 @@ export function registerTenantDispatcher(server: McpServer): void {
       // Zod schema validation
       const validation = validateActionParams(action, params, TENANT_ACTION_SCHEMAS);
       if (!validation.valid) {
-        return dispatcherError(
+        return { content: [{ type: "text" as const, text: JSON.stringify(dispatcherError(
           `Invalid params for '${action}': ${validation.errorMessage}`,
           action,
           "prism_tenant"
-        );
+        )) }] };
       }
 
       try {
@@ -112,7 +112,7 @@ export function registerTenantDispatcher(server: McpServer): void {
         }
         return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
       } catch (error) {
-        return dispatcherError(error, action, "prism_tenant");
+        return { content: [{ type: "text" as const, text: JSON.stringify(dispatcherError(error, action, "prism_tenant")) }] };
       }
     }
   );
