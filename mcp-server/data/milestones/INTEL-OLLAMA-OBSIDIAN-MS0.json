@@ -1442,7 +1442,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "partial",
+          "shipped_at": "2026-05-01T20:20:00.000Z",
+          "shipped_by": "claude-ba192f8a",
+          "ship_notes": ".claude/hooks/zany-reintroduction-block.mjs (190 LOC) + ZanyReintroductionBlock.test.ts (21 cases, all green). Hook implements stripCommentsAndStrings/countZAnyInCode/classifyEdit/classifyWrite as exported pure functions for testability; main() reads stdin JSON, routes by tool name (Write|Edit|MultiEdit), and returns {decision:'block', reason:'...'} on any net z.any() reintroduction in mcp-server/src/schemas/* or mcp-server/src/tools/schemas/* paths. Comment+string-stripped sanitization prevents false positives on documentation. Edit-mode allows refactor moves (delta=0) and removals (delta<0); only delta>0 triggers block. DEFERRED: H:/.claude/settings.json wire-up — that file is shared across ~6 concurrent chats (claim history confirms recent edits by other sessions) and the hook path H:/prism/.claude/hooks/zany-reintroduction-block.mjs only resolves AFTER work/intel-p8-schema merges to main. Wiring should happen as part of the merge: add the hook entry to PreToolUse matcher 'Edit|Write|MultiEdit' near asset-deletion-block.mjs (settings.json:451) with timeout 2000ms. Until merge, the hook is dormant but reachable via direct invocation for self-test. Test file invokes the pure functions directly so the regression guard works regardless of settings.json wiring."
         }
       ],
       "primary_role": "R1"
