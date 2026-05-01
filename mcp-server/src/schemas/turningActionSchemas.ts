@@ -304,4 +304,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   swiss_guide_clearance,
   swiss_part_transfer,
   swiss_emit_channel_files,
+  // LATHE-WIRE-MS0: lightweight orphan engine wiring (turning analytics)
+  turning_predict_batch_life: z.object({}).passthrough().describe("Batch tool-life prediction input — passthrough until BatchLifeInput surfaced"),
+  turning_thread_optimize: z.object({}).passthrough().describe("Thread optimizer input — passthrough until ThreadOptimizeInput surfaced"),
+  lathe_classify_part: z.object({}).passthrough().describe("Part-geometry classifier input — passthrough until PartGeometryInput surfaced"),
 };

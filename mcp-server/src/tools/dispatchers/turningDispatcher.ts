@@ -61,6 +61,8 @@ const ACTIONS = [
   // INTEL-OLLAMA-OBSIDIAN-MS1/P1-U04: Swiss-type orphan engine wiring
   "swiss_route_decide", "swiss_guide_feed_limits", "swiss_guide_clearance",
   "swiss_part_transfer", "swiss_emit_channel_files",
+  // LATHE-WIRE-MS0: lightweight orphan engine wiring (turning analytics)
+  "turning_predict_batch_life", "turning_thread_optimize", "lathe_classify_part",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -398,6 +400,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "swiss_emit_channel_files": {
             const { swissChannelFileEmitterEngine } = await import("../../engines/SwissChannelFileEmitterEngine.js");
             result = swissChannelFileEmitterEngine.emit(params as never);
+            break;
+          }
+          // ── LATHE-WIRE-MS0: lightweight orphan engine wiring ──
+          case "turning_predict_batch_life": {
+            const { turningWearPredictionEngine } = await import("../../engines/TurningWearPredictionEngine.js");
+            try {
+              result = turningWearPredictionEngine.predictBatchLife(params as Parameters<typeof turningWearPredictionEngine.predictBatchLife>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "turning_thread_optimize": {
+            const { turningThreadOptimizerEngine } = await import("../../engines/TurningThreadOptimizerEngine.js");
+            try {
+              result = turningThreadOptimizerEngine.optimize(params as Parameters<typeof turningThreadOptimizerEngine.optimize>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_classify_part": {
+            const { lathePartClassifierEngine } = await import("../../engines/LathePartClassifierEngine.js");
+            try {
+              result = lathePartClassifierEngine.classify(params as Parameters<typeof lathePartClassifierEngine.classify>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
             break;
           }
           default:
