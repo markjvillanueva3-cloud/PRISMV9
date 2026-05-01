@@ -10,7 +10,7 @@ export const ACTION_ATCS_SCHEMAS: Record<string, z.ZodObject<any>> = {
   "approximately": z.object({}).passthrough(),
   "around": z.object({}).passthrough(),
   "assemble": z.object({}).passthrough(),
-  "batch_validate": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),
+  "batch_validate": z.object({ target: z.record(z.string(), z.unknown()).optional(), rules: z.array(z.string()).optional() }).passthrough(),
   "checkpoint": z.object({}).passthrough(),
   "checkpoints": z.object({}).passthrough(),
   "completed": z.object({}).passthrough(),

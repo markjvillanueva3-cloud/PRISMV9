@@ -71,8 +71,8 @@ const adaptive_spindle_chatter = z.object({
 // ============================================================================
 
 const bayesian_calibrate = z.object({
-  observations: z.array(z.record(z.string(), z.any())).optional(),
-  prior: z.record(z.string(), z.any()).optional(),
+  observations: z.array(z.record(z.string(), z.unknown())).optional(),
+  prior: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -122,8 +122,8 @@ const tool_life_replacement = z.object({
 // ============================================================================
 
 const digital_twin_sync = z.object({
-  machine_state: z.record(z.string(), z.any()).optional(),
-  sensor_data: z.record(z.string(), z.any()).optional(),
+  machine_state: z.record(z.string(), z.unknown()).optional(),
+  sensor_data: z.record(z.string(), z.unknown()).optional(),
   algorithm_context: z.string().optional(),
 }).passthrough();
 
@@ -132,7 +132,7 @@ const digital_twin_sync = z.object({
 // ============================================================================
 
 const digital_twin_query = z.object({
-  state: z.record(z.string(), z.any()).optional(),
+  state: z.record(z.string(), z.unknown()).optional(),
   algorithm: z.string(),
 }).passthrough();
 

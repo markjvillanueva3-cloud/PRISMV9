@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generated": "2026-05-01T19:02:22.414Z",
+  "generated": "2026-05-01T19:32:46.531Z",
   "source": "INTEL-OLLAMA-OBSIDIAN-MS0/P8-U01",
   "directories_scanned": [
     "mcp-server/src/schemas",
     "mcp-server/src/tools/schemas"
   ],
-  "totalOccurrences": 184,
-  "fileCount": 33,
+  "totalOccurrences": 168,
+  "fileCount": 30,
   "byClassification": {
-    "inner_record_value": 109,
+    "inner_record_value": 93,
     "inner_array": 33,
     "bare_optional": 21,
     "bare_default": 18,
@@ -32,10 +32,6 @@
     {
       "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
       "count": 11
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "count": 10
     },
     {
       "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
@@ -74,10 +70,6 @@
       "count": 6
     },
     {
-      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
-      "count": 5
-    },
-    {
       "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
       "count": 5
     },
@@ -100,10 +92,6 @@
     {
       "file": "mcp-server/src/schemas/camActionSchemas.ts",
       "count": 3
-    },
-    {
-      "file": "mcp-server/src/schemas/atcsActionSchemas.ts",
-      "count": 1
     },
     {
       "file": "mcp-server/src/schemas/cadAutoCADSchema.ts",
@@ -151,342 +139,6 @@
     }
   ],
   "inventory": [
-    {
-      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
-      "line": 74,
-      "column": 46,
-      "fieldName": "observations",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "// ============================================================================",
-        "",
-        "const bayesian_calibrate = z.object({",
-        "  observations: z.array(z.record(z.string(), z.any())).optional(),",
-        "  prior: z.record(z.string(), z.any()).optional(),",
-        "}).passthrough();",
-        ""
-      ],
-      "contextStartLine": 71
-    },
-    {
-      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
-      "line": 75,
-      "column": 31,
-      "fieldName": "prior",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "",
-        "const bayesian_calibrate = z.object({",
-        "  observations: z.array(z.record(z.string(), z.any())).optional(),",
-        "  prior: z.record(z.string(), z.any()).optional(),",
-        "}).passthrough();",
-        "",
-        "// ============================================================================"
-      ],
-      "contextStartLine": 72
-    },
-    {
-      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
-      "line": 125,
-      "column": 39,
-      "fieldName": "machine_state",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "// ============================================================================",
-        "",
-        "const digital_twin_sync = z.object({",
-        "  machine_state: z.record(z.string(), z.any()).optional(),",
-        "  sensor_data: z.record(z.string(), z.any()).optional(),",
-        "  algorithm_context: z.string().optional(),",
-        "}).passthrough();"
-      ],
-      "contextStartLine": 122
-    },
-    {
-      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
-      "line": 126,
-      "column": 37,
-      "fieldName": "sensor_data",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "",
-        "const digital_twin_sync = z.object({",
-        "  machine_state: z.record(z.string(), z.any()).optional(),",
-        "  sensor_data: z.record(z.string(), z.any()).optional(),",
-        "  algorithm_context: z.string().optional(),",
-        "}).passthrough();",
-        ""
-      ],
-      "contextStartLine": 123
-    },
-    {
-      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
-      "line": 135,
-      "column": 31,
-      "fieldName": "state",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "// ============================================================================",
-        "",
-        "const digital_twin_query = z.object({",
-        "  state: z.record(z.string(), z.any()).optional(),",
-        "  algorithm: z.string(),",
-        "}).passthrough();",
-        ""
-      ],
-      "contextStartLine": 132
-    },
-    {
-      "file": "mcp-server/src/schemas/atcsActionSchemas.ts",
-      "line": 13,
-      "column": 61,
-      "fieldName": "batch_validate",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"approximately\": z.object({}).passthrough(),",
-        "  \"around\": z.object({}).passthrough(),",
-        "  \"assemble\": z.object({}).passthrough(),",
-        "  \"batch_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
-        "  \"checkpoint\": z.object({}).passthrough(),",
-        "  \"checkpoints\": z.object({}).passthrough(),",
-        "  \"completed\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 10
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 10,
-      "column": 52,
-      "fieldName": "audit",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "export const ACTION_AUTONOMOUS_SCHEMAS: Record<string, z.ZodObject<any>> = {",
-        "  \"analysis\": z.object({}).passthrough(),",
-        "  \"approximately\": z.object({}).passthrough(),",
-        "  \"audit\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
-        "  \"auto_configure\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"auto_dry_run\": z.object({}).passthrough(),",
-        "  \"auto_execute\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 7
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 11,
-      "column": 86,
-      "fieldName": "auto_configure",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"analysis\": z.object({}).passthrough(),",
-        "  \"approximately\": z.object({}).passthrough(),",
-        "  \"audit\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
-        "  \"auto_configure\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"auto_dry_run\": z.object({}).passthrough(),",
-        "  \"auto_execute\": z.object({}).passthrough(),",
-        "  \"auto_pause\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 8
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 15,
-      "column": 62,
-      "fieldName": "auto_plan",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"auto_dry_run\": z.object({}).passthrough(),",
-        "  \"auto_execute\": z.object({}).passthrough(),",
-        "  \"auto_pause\": z.object({}).passthrough(),",
-        "  \"auto_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
-        "  \"auto_resume\": z.object({}).passthrough(),",
-        "  \"auto_status\": z.object({}).passthrough(),",
-        "  \"auto_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),"
-      ],
-      "contextStartLine": 12
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 18,
-      "column": 60,
-      "fieldName": "auto_validate",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"auto_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
-        "  \"auto_resume\": z.object({}).passthrough(),",
-        "  \"auto_status\": z.object({}).passthrough(),",
-        "  \"auto_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
-        "  \"backend\": z.object({}).passthrough(),",
-        "  \"baseline\": z.object({}).passthrough(),",
-        "  \"calculation\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 15
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 25,
-      "column": 62,
-      "fieldName": "collision_check",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"checkpoints\": z.object({}).passthrough(),",
-        "  \"chunk_size\": z.object({}).passthrough(),",
-        "  \"collaboration\": z.object({}).passthrough(),",
-        "  \"collision_check\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
-        "  \"competition\": z.object({}).passthrough(),",
-        "  \"consensus\": z.object({}).passthrough(),",
-        "  \"coolant_flow\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 22
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 32,
-      "column": 94,
-      "fieldName": "enable_anti_regression",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"custom\": z.object({}).passthrough(),",
-        "  \"default_tier\": z.object({}).passthrough(),",
-        "  \"dry_run\": z.object({}).passthrough(),",
-        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
-        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),"
-      ],
-      "contextStartLine": 29
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 33,
-      "column": 88,
-      "fieldName": "enable_audit_log",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"default_tier\": z.object({}).passthrough(),",
-        "  \"dry_run\": z.object({}).passthrough(),",
-        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
-        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"ensemble\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 30
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 33,
-      "column": 138,
-      "fieldName": "enable_audit_log",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"default_tier\": z.object({}).passthrough(),",
-        "  \"dry_run\": z.object({}).passthrough(),",
-        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
-        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"ensemble\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 30
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 34,
-      "column": 89,
-      "fieldName": "enable_ralph_auto",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"dry_run\": z.object({}).passthrough(),",
-        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
-        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"ensemble\": z.object({}).passthrough(),",
-        "  \"execute\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 31
-    },
-    {
-      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
-      "line": 35,
-      "column": 96,
-      "fieldName": "enable_safety_escalation",
-      "wrapperToken": "z.record",
-      "isOptionalChained": false,
-      "classification": "inner_record_value",
-      "suggestedReplacement": "z.unknown()",
-      "replacementNote": "Inside z.record(z.string(), ...) — token swap yields z.record(z.string(), z.unknown())",
-      "context": [
-        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
-        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
-        "  \"ensemble\": z.object({}).passthrough(),",
-        "  \"execute\": z.object({}).passthrough(),",
-        "  \"extraction\": z.object({}).passthrough(),"
-      ],
-      "contextStartLine": 32
-    },
     {
       "file": "mcp-server/src/schemas/businessActionSchemas.ts",
       "line": 1498,
