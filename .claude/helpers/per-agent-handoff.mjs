@@ -24,6 +24,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { inferAgentIdentity } from "./agent-identity.mjs";
+import { deriveSessionTopic } from "./derive-session-topic.mjs";
 
 // Atomic write helper — tmp + rename pattern mirrors src/utils/atomicWrite.ts
 // Required because 6+ concurrent Claude terminals + 1 Codex chat can otherwise
@@ -237,7 +238,21 @@ function addToQueue(item) {
 
 function cmdWrite(identity, args) {
   ensureDirs();
-  const filePath = handoffPath(identity.instance, args.topic);
+  // SAFETY NET: auto-derive topic when caller omits --topic. Prevents bare-named
+  // HANDOFF-{id}.md files from accumulating and being picked up by /startup's
+  // exact-match read. The rogue session-handoff-auto.mjs hook used to write
+  // bare files; this catches any future regression of that class. Topic
+  // derivation has its own fallback chain (manual handoff > state marker >
+  // auto handoff > git/branch). If none resolve, topic stays null and we
+  // fall through to bare path (legitimate edge case).
+  let effectiveTopic = args.topic;
+  if (!effectiveTopic) {
+    try {
+      const derived = deriveSessionTopic(identity.instance);
+      if (derived?.topic) effectiveTopic = derived.topic;
+    } catch { /* deriveSessionTopic must never throw, but defensive */ }
+  }
+  const filePath = handoffPath(identity.instance, effectiveTopic);
 
   // Preserve any existing meaningful RESUME if the caller only passed a
   // placeholder (bare --resume flag → true, "unknown", "", etc.).
