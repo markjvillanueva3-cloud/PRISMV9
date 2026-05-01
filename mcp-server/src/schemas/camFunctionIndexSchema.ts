@@ -239,7 +239,25 @@ export const OperationClassEnum = z.enum([
   "custom", "macro",
 ]).describe("Standard operation classification");
 
-export const CAMMenuSchema = z.object({
+// Recursive — explicit base type so the lazy() reference type-checks.
+interface CAMMenuBase {
+  id: string;
+  name: string;
+  operation_class?: z.infer<typeof OperationClassEnum>;
+  dialogs: z.infer<typeof CAMDialogSchema>[];
+  sub_menus?: CAMMenuBase[];
+  geometry_requirements?: Array<"face" | "pocket" | "contour" | "hole" | "surface" | "solid" | "mesh" | "curve" | "point" | "plane" | "stock" | "fixture">;
+  machine_requirements?: Array<"3axis" | "4axis" | "5axis" | "lathe" | "millturn" | "wire_edm" | "sinker_edm" | "grinder" | "laser" | "waterjet">;
+  typical_sequence_position?: number;
+  prerequisite_operations?: string[];
+  follow_up_operations?: string[];
+  output_artifacts?: Array<"toolpath" | "nc_code" | "setup_sheet" | "tool_list" | "simulation" | "collision_report" | "cycle_time" | "stock_model">;
+  help_url?: string;
+  video_tutorials?: string[];
+  pdf_references?: string[];
+}
+
+export const CAMMenuSchema: z.ZodType<CAMMenuBase> = z.object({
   id: z.string().describe("Unique menu/operation identifier"),
   name: z.string().describe("Menu item or operation name"),
   operation_class: OperationClassEnum.optional()
@@ -248,7 +266,7 @@ export const CAMMenuSchema = z.object({
   dialogs: z.array(CAMDialogSchema).describe("Dialogs accessible from this menu"),
 
   // Sub-operations
-  sub_menus: z.array(z.lazy(() => CAMMenuSchema)).optional()
+  sub_menus: z.array(z.lazy((): z.ZodType<CAMMenuBase> => CAMMenuSchema)).optional()
     .describe("Nested sub-menus/operations"),
 
   // Capabilities
