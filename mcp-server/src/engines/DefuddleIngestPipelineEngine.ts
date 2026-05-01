@@ -100,8 +100,11 @@ export class DefuddleIngestPipelineEngine {
     });
 
     w.on("message", (msg) => this.dispatchResponse(msg));
-    w.on("error", (err) => this.failAll(err));
-    w.on("exit", (code) => {
+    w.on("error", (err: unknown) => {
+      const norm = err instanceof Error ? err : new Error(String(err));
+      this.failAll(norm);
+    });
+    w.on("exit", (code: number) => {
       if (code !== 0 && this.pending.size > 0) {
         this.failAll(new Error(`defuddle worker exited with code ${code}`));
       }
