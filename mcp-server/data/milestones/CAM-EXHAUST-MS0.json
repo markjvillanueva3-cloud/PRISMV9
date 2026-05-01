@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 124,
+  "completed_units": 125,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -246,7 +246,8 @@
     "U-CAM-ENRICH-01",
     "U-CAM-ENRICH-02",
     "U-CAMTEST05",
-    "U-CAMTEST06"
+    "U-CAMTEST06",
+    "U-CAMTEST07"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6303,7 +6304,7 @@
       "title": "Material Ã— Tool Combination Matrix â€” 9 Slots",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "3 materials Ã— 3 tools per scenario. Pulls from MaterialRegistry + ToolRegistry. 9 combinations Ã— 100 stock setups = 900 per host.",
       "entry_conditions": [
         "U-CAMTEST06 complete"
@@ -6315,6 +6316,21 @@
       "deliverables": [
         "src/engines/CAMTestMaterialToolMatrixEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/MaterialToolMatrixEngine.ts",
+        "src/__tests__/MaterialToolMatrixEngine.test.ts",
+        "src/tools/dispatchers/camDispatcher.ts (cam_mt_matrix_{slots,tool_classes_for,combos_for_part,get_combo,all_combos,expected_count,audit})"
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 37,
+        "tests_min_30": true,
+        "matrix_slots": 9,
+        "categories_with_tool_triple": 7,
+        "all_combos_total": 180,
+        "dispatcher_wiring": "wired (cam_mt_matrix_* — 7 actions) + 3 round-trip tests"
+      },
+      "completion_note": "9-slot matrix (M[1-3]T[1-3]) materializes against any FixturePartCatalog descriptor. Tool class table per category provides the 3 tool slots: pocket_2d uses [roughing/finishing/chamfer endmill], drilling uses [spot_drill/drill/chamfer_mill], threading uses [tap_drill/tap/thread_mill], surface_3d uses [bull_nose/ball_rougher/ball_finisher], multi_axis uses [bull_nose/ball_finisher/swarf_cutter], turning uses [od_rougher/od_finisher/thread_tool]. Material slot resolution cycles through part.recommended_materials with mod-length fallback so every slot resolves even when a part lists fewer than 3 materials. allCombos() expands to 180 = 20 parts × 9 slots; the 900-per-host figure from the description is reached by intersecting with the 100 stock setups at scenario-generator time (U-CAMTEST08..13). Engine name shortened from CAMTestMaterialToolMatrixEngine to MaterialToolMatrixEngine. Wired to camDispatcher via 7 lazy-imported actions. 37 tests cover matrix shape, tool-class table per category, materialization (deterministic, correct material/tool sourcing, unique combo_id per part×slot), allCombos cross-product invariants, lookup happy/null/throw paths, schema rejection on slot index 0/4/NaN and malformed slot_id, immutability, and 3 dispatcher round-trip tests."
+      ,
       "estimated_tokens": 10000,
       "four_loop": [
         "BUILD",
