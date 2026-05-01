@@ -8091,6 +8091,22 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── MonteCarloProcessEngine — stochastic process variation (LHS, Kienzle/Taylor/Brammertz) ──
+          // U-WIRE58: phantom action wired. Slim-response (line 292) reads result.value.trials
+          // result.value.force_distribution.mean etc — keep the AtomicValue wrapping (no flatten).
+          case "monte_carlo_process": {
+            const { monteCarloProcessEngine } = await import("../../engines/MonteCarloProcessEngine.js");
+            result = monteCarloProcessEngine.compute({
+              nominal: params.nominal,
+              material: params.material,
+              variations: params.variations ?? {},
+              tolerances: params.tolerances,
+              trials: params.trials,
+              seed: params.seed,
+            });
+            break;
+          }
+
           // ── ThermalGrowthCompensationEngine — spindle/tool/workpiece thermal expansion ──
           case "thermal_growth": {
             const { thermalGrowthCompensationEngine: tgce } = await import("../../engines/ThermalGrowthCompensationEngine.js");

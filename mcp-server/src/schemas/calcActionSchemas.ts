@@ -2939,6 +2939,39 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     replications: z.number().int().min(1).max(10).optional().describe("Replications per run (default 1)"),
   }).passthrough(),
 
+  // ── Monte Carlo Process (MonteCarloProcessEngine — LHS perturbation, Kienzle/Taylor/Brammertz) ──
+  monte_carlo_process: z.object({
+    nominal: z.object({
+      cutting_speed_m_min: z.number().positive().describe("Nominal cutting speed [m/min]"),
+      feed_per_tooth_mm: z.number().positive().describe("Nominal feed per tooth [mm]"),
+      axial_depth_mm: z.number().positive().describe("Nominal axial depth of cut ap [mm]"),
+      radial_depth_mm: z.number().positive().describe("Nominal radial depth of cut ae [mm]"),
+      tool_diameter_mm: z.number().positive().describe("Tool diameter [mm]"),
+      flute_count: z.number().int().positive().describe("Number of flutes"),
+      nose_radius_mm: optPosNum.describe("Tool nose radius [mm]"),
+    }).passthrough().describe("Nominal cutting parameters"),
+    material: z.object({
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+      hardness_hrc: optNum.describe("Mean hardness [HRC]"),
+      hardness_sigma_hrc: optNum.describe("Hardness batch variation 1-sigma [HRC]"),
+    }).passthrough().describe("Workpiece material"),
+    variations: z.object({
+      speed_cv: z.number().nonnegative().max(1).optional().describe("Speed coefficient of variation (default 0.02)"),
+      feed_cv: z.number().nonnegative().max(1).optional().describe("Feed coefficient of variation (default 0.03)"),
+      depth_cv: z.number().nonnegative().max(1).optional().describe("Depth coefficient of variation (default 0.05)"),
+      runout_um: z.number().nonnegative().optional().describe("Runout TIR [um] (default 5)"),
+      wear_vb_mm: z.number().nonnegative().optional().describe("Initial flank wear VB [mm] (default 0.1)"),
+      wear_sigma_mm: z.number().nonnegative().optional().describe("Wear variation 1-sigma [mm] (default 0.03)"),
+    }).passthrough().describe("Process variation parameters"),
+    tolerances: z.object({
+      dimension_nominal_mm: z.number().positive().describe("Nominal target dimension [mm]"),
+      upper_tol_mm: z.number().nonnegative().describe("Upper tolerance [mm]"),
+      lower_tol_mm: z.number().nonnegative().describe("Lower tolerance [mm]"),
+    }).passthrough().optional().describe("Optional dimensional tolerance for Cp/Cpk and scrap rate"),
+    trials: z.number().int().min(100).max(50000).optional().describe("Number of MC trials (default 10000, capped at 50000)"),
+    seed: z.number().int().optional().describe("PRNG seed for reproducibility (default 42)"),
+  }).passthrough(),
+
   // ── Force Capability Analyze (single operation, ForceCapabilityEngine) ──
   force_capability_analyze: z.object({
     machine: z.object({
