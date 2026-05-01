@@ -11,114 +11,263 @@
       "title": "hyperMILL AC + Fusion 360 Parity",
       "units": [
         {
-          "id": "U01",
+          "id": "U-CAMX01",
           "title": "HyperMillAutomationCenterEngine",
           "description": "Bridge to hyperMILL AC Python API. Job creation, operation sequencing, NC code gen. Leverage .vsix extension.",
           "exit_conditions": [
             "AC bridge works",
             "Job creation",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U02",
+          "id": "U-CAMX02",
           "title": "HyperMillCodeGeneratorEngine",
           "description": "Generate AC Python scripts for operation creation, cycle config, strategy params.",
           "exit_conditions": [
             "Script generation works",
             "20+ operation types",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U03",
+          "id": "U-CAMX03",
           "title": "HyperMillToolExportEngine",
           "description": "Export PRISM tools to hyperMILL Tool Database format. Map 29 geometry classes.",
           "exit_conditions": [
             "Tool export works",
             "29 classes mapped",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U04",
+          "id": "U-CAMX04",
           "title": "Fusion360StrategyEngine",
           "description": "Dedicated F360 strategy engine matching hyperMILL depth.",
           "exit_conditions": [
             "Strategy engine created",
             "All F360 strategies",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U05",
+          "id": "U-CAMX05",
           "title": "Fusion360SafetyHooksEngine",
-          "description": "F360-specific safety validations.",
+          "description": "F360-specific safety validations. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
           "exit_conditions": [
             "Safety hooks created",
             "Simulation verification",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U06",
+          "id": "U-CAMX06",
           "title": "Fusion360MaterialBridgeEngine",
-          "description": "Bridge F360 material library.",
+          "description": "Bridge F360 material library. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
           "exit_conditions": [
             "Material bridge works",
             "ISO group mapping",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U07",
+          "id": "U-CAMX07",
           "title": "Fusion360OperationCatalogEngine",
-          "description": "Complete F360 operation catalog.",
+          "description": "Complete F360 operation catalog. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
           "exit_conditions": [
             "All operations cataloged",
             "Default parameters",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U08",
+          "id": "U-CAMX08",
           "title": "Fusion360ControllerCatalogEngine",
-          "description": "F360 machine library (.machine files).",
+          "description": "F360 machine library (.machine files). — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
           "exit_conditions": [
             "Controller catalog works",
             "Axis definitions",
-            "Tests pass"
+            "Replaces vague criteria with measurable"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U09",
+          "id": "U-CAMX09",
           "title": "Dispatcher wiring",
           "description": "15+ new actions for hyperMILL AC and Fusion 360 parity.",
           "exit_conditions": [
             "15+ actions wired",
-            "Build passes"
+            "Build passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
-          "id": "U10",
+          "id": "U-CAMX10",
           "title": "Tests",
-          "description": "40+ tests.",
+          "description": "40+ tests. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
           "exit_conditions": [
-            "40+ tests pass"
+            "40+ tests pass",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
           ],
-          "status": "not_started"
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     }
   ],
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms9-gate",
+    "mcp_action": "prism_camx:camx_ms9_run",
+    "skill_command": "/camx-ms9",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms9-gate"
+    ],
+    "new_actions": [
+      "camx_ms9_run"
+    ],
+    "new_skills": [
+      "/camx-ms9"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Bridge hyperMILL Automation Center Python API. Build Fusion 360 parity engines (Strategy, Safety, Material, Operations, Controller).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

@@ -1,0 +1,138 @@
+{
+  "id": "MS-P7-UI-M2",
+  "title": "WEDM Feature Editor Wire Mode (wraps WEDM-UNIFIED M2)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P7",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "wraps": "WEDM-UNIFIED-MS2",
+  "philosophy": "Feature editor supports wire-EDM-specific feature types (thru-cut, taper, multi-start, etc.) with validation gates.",
+  "total_units": 4,
+  "completed_units": 0,
+  "sessions": 1,
+  "dependencies": [
+    "MS-P7-UI-M1"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.01,
+  "knowledge_sources": {
+    "engines": [
+      "(backend consumed — WEDM-UNIFIED-MS2 envelope)"
+    ],
+    "formulas": [],
+    "tribal": [],
+    "reference": [
+      "web/src/pages/FeatureEditorPage.tsx",
+      "mcp-server/data/milestones/WEDM-UNIFIED-MS2.json"
+    ]
+  },
+  "smart_config": {
+    "role": "UIEngineer+WireEDMSpecialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-wiring",
+    "/test",
+    "/prism-review",
+    "/scope"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P7-M2-01",
+      "U-P7-M2-02",
+      "U-P7-M2-03",
+      "U-P7-M2-04"
+    ],
+    "compact_checkpoints": []
+  },
+  "units": [
+    {
+      "id_range": "U-P7-M2-01..04",
+      "delegated_to": "WEDM-UNIFIED-MS2.json",
+      "exit_criteria_minimum": 3,
+      "exit_criteria": [
+        "wire-EDM feature types selectable",
+        "wedm-feature-validate hook clean",
+        "feature edits round-trip through real backend (no mocks)"
+      ],
+      "description": "Unit work — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-feature-validate",
+      "note": "CONSUMED from WEDM-UNIFIED-MS2"
+    },
+    "action": {
+      "name": "prism_edm:wedm_feature_edit",
+      "note": "CONSUMED from WEDM-UNIFIED-MS2"
+    },
+    "skill": {
+      "name": "/wedm-feature",
+      "note": "CONSUMED from WEDM-UNIFIED-MS2"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "all 4 M2 units green",
+      "feature editor wire-mode composite ≥ 90%",
+      "zero mock-data"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+1%"
+  },
+  "feature_cascade": {
+    "new_hooks": [],
+    "new_actions": [],
+    "new_skills": [],
+    "available_to": [
+      "P8",
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Feature Editor Wire Mode (wraps WEDM-UNIFIED M2) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

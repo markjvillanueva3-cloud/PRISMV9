@@ -1,0 +1,935 @@
+{
+  "id": "CADCAM-AGI-MS0",
+  "version": "1.0.0",
+  "title": "CAD/CAM AGI Orchestration System — Foundation",
+  "brief": "Build the intelligent CAD/CAM AGI orchestration system with adaptive LOC-based parameter adjustment, auto-selection chains (stock/fixture/tool), and master post-processing for optimal G-code generation.",
+  "track": "CAD-CAM-AGI",
+  "status": "not_started",
+  "priority": "HIGH",
+  "created_at": "2026-04-18T20:00:00Z",
+  "created_by": "forge brainstorm via Opus 4.5",
+  "dependencies": [
+    "CAD-CAM-MASTER"
+  ],
+  "total_units": 24,
+  "completed_units": 0,
+  "units": [
+    {
+      "id": "U-AGI01",
+      "title": "LOCBasedAdaptiveParameterEngine — Core",
+      "status": "not_started",
+      "steps": [
+        "Create LOCBasedAdaptiveParameterEngine.ts",
+        "Implement instantaneous LOC calculation from toolpath geometry",
+        "Implement RPM adjustment formula based on LOC (engagement factor)",
+        "Implement feed rate adjustment with chip thinning compensation",
+        "Implement stepover adjustment for constant MRR",
+        "Wire to VariabilitySourceTrackerEngine for drift detection",
+        "Add 25+ unit tests covering LOC ranges 0.1D to 1.0D"
+      ],
+      "deliverables": [
+        "LOCBasedAdaptiveParameterEngine.ts",
+        "LOCBasedAdaptiveParameterEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "AdaptiveParameterSpaceEngine exists",
+        "VariabilityEnvelopeEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "25+ tests pass",
+        "Build passes"
+      ],
+      "description": "LOCBasedAdaptiveParameterEngine — Core — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI02",
+      "title": "AdaptiveEngagementMonitorEngine — Real-time Tool Engagement",
+      "status": "not_started",
+      "steps": [
+        "Create AdaptiveEngagementMonitorEngine.ts",
+        "Parse toolpath segments to calculate radial/axial engagement",
+        "Track engagement changes along toolpath (entry, steady, exit)",
+        "Compute instantaneous chip load and MRR",
+        "Emit engagement change events for parameter adjustment",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "AdaptiveEngagementMonitorEngine.ts",
+        "AdaptiveEngagementMonitorEngine.test.ts"
+      ],
+      "entry_conditions": [],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "AdaptiveEngagementMonitorEngine — Real-time Tool Engagement — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI03",
+      "title": "CADCAMAGIOrchestrationEngine — Master Controller",
+      "status": "not_started",
+      "steps": [
+        "Create CADCAMAGIOrchestrationEngine.ts",
+        "Implement orchestration workflow: CAD → CAM → Optimize → Post",
+        "Wire stock auto-selection chain (InventoryEngine → StockSizeRecommender)",
+        "Wire fixture selection chain (FixtureCadIngester → WorkholdingStability)",
+        "Wire tool selection chain (ToolHolderCatalog → InventoryAwareToolSelector)",
+        "Implement software routing (FreeCAD/Fusion/Mastercam/hyperMILL)",
+        "Add 30+ integration tests"
+      ],
+      "deliverables": [
+        "CADCAMAGIOrchestrationEngine.ts",
+        "CADCAMAGIOrchestrationEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "U-AGI01 complete",
+        "U-AGI02 complete"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "30+ tests pass",
+        "Full orchestration flow works"
+      ],
+      "description": "CADCAMAGIOrchestrationEngine — Master Controller — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI04",
+      "title": "CadQueryBridgeEngine — Python CAD Kernel Bridge",
+      "status": "not_started",
+      "steps": [
+        "Create CadQueryBridgeEngine.ts",
+        "Implement child_process spawn for CadQuery Python scripts",
+        "Parse CadQuery STEP/BREP output to TypeScript geometry objects",
+        "Support parametric model generation from feature descriptions",
+        "Handle assembly generation with constraint solving",
+        "Add 20+ unit tests with mock Python responses"
+      ],
+      "deliverables": [
+        "CadQueryBridgeEngine.ts",
+        "CadQueryBridgeEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "CadQuery 2.x installed in Python env"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "CadQueryBridgeEngine — Python CAD Kernel Bridge — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI05",
+      "title": "FreeCADPathBridgeEngine — FreeCAD CAM Integration",
+      "status": "not_started",
+      "steps": [
+        "Create FreeCADPathBridgeEngine.ts",
+        "Implement FreeCAD headless mode automation",
+        "Parse FreeCAD Path workbench operations",
+        "Convert FreeCAD toolpaths to PRISM internal format",
+        "Support G-code post-processing passthrough",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "FreeCADPathBridgeEngine.ts",
+        "FreeCADPathBridgeEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "FreeCAD installed with Path workbench"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "FreeCADPathBridgeEngine — FreeCAD CAM Integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI06",
+      "title": "MastercamAutomationBridgeEngine — .NET Automation",
+      "status": "not_started",
+      "steps": [
+        "Create MastercamAutomationBridgeEngine.ts",
+        "Implement Mastercam .NET automation via edge-js or similar",
+        "Support toolpath creation from PRISM strategy descriptions",
+        "Extract machining data for optimization engines",
+        "Handle simulation and verification results",
+        "Add 15+ unit tests (mock .NET responses)"
+      ],
+      "deliverables": [
+        "MastercamAutomationBridgeEngine.ts",
+        "MastercamAutomationBridgeEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "Mastercam 2024+ installed"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "15+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "MastercamAutomationBridgeEngine — .NET Automation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI07",
+      "title": "InventorILogicBridgeEngine — Parametric CAD Driver",
+      "status": "not_started",
+      "steps": [
+        "Create InventorILogicBridgeEngine.ts",
+        "Implement COM automation for Inventor",
+        "Support parametric model updates via iLogic rules",
+        "Extract feature data for downstream CAM",
+        "Handle assembly configurations",
+        "Add 15+ unit tests"
+      ],
+      "deliverables": [
+        "InventorILogicBridgeEngine.ts",
+        "InventorILogicBridgeEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "Inventor installed"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "15+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "InventorILogicBridgeEngine — Parametric CAD Driver — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI08",
+      "title": "UnifiedCAMFeatureTranslatorEngine — Cross-Platform Mapping",
+      "status": "not_started",
+      "steps": [
+        "Create UnifiedCAMFeatureTranslatorEngine.ts",
+        "Define canonical feature schema (pockets, slots, holes, surfaces)",
+        "Implement FreeCAD → canonical translation",
+        "Implement Fusion360 → canonical translation",
+        "Implement hyperMILL → canonical translation",
+        "Implement Mastercam → canonical translation",
+        "Add 30+ unit tests covering all CAM systems"
+      ],
+      "deliverables": [
+        "UnifiedCAMFeatureTranslatorEngine.ts",
+        "UnifiedCAMFeatureTranslatorEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "All CAM bridge engines exist"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "30+ tests pass",
+        "All 4 CAM systems translate correctly"
+      ],
+      "description": "UnifiedCAMFeatureTranslatorEngine — Cross-Platform Mapping — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI09",
+      "title": "StockAutoSelectionChainEngine — Inventory-Aware Stock",
+      "status": "not_started",
+      "steps": [
+        "Create StockAutoSelectionChainEngine.ts",
+        "Query ShopConfigurationEngine for available stock inventory",
+        "Analyze part geometry for minimum bounding box",
+        "Select optimal stock size (minimize waste)",
+        "Factor in material cost and machining time tradeoff",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "StockAutoSelectionChainEngine.ts",
+        "StockAutoSelectionChainEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "ShopConfigurationEngine exists",
+        "StockSizeRecommenderEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "StockAutoSelectionChainEngine — Inventory-Aware Stock — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI10",
+      "title": "FixtureAutoSelectionChainEngine — Workholding Intelligence",
+      "status": "not_started",
+      "steps": [
+        "Create FixtureAutoSelectionChainEngine.ts",
+        "Query FixtureCadIngesterEngine for available fixtures",
+        "Analyze part geometry for clamping surfaces",
+        "Compute workholding stability (clamping force vs cutting force)",
+        "Select optimal fixture/vise/plate combination",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "FixtureAutoSelectionChainEngine.ts",
+        "FixtureAutoSelectionChainEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "FixtureCadIngesterEngine exists",
+        "WorkholdingStabilityEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "FixtureAutoSelectionChainEngine — Workholding Intelligence — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI11",
+      "title": "ToolAutoSelectionChainEngine — Tooling Intelligence",
+      "status": "not_started",
+      "steps": [
+        "Create ToolAutoSelectionChainEngine.ts",
+        "Query ToolHolderCatalogEngine for available holders",
+        "Query InventoryAwareToolSelectorEngine for available tools",
+        "Match tool geometry to feature requirements",
+        "Optimize tool selection for minimum tool changes",
+        "Add 25+ unit tests"
+      ],
+      "deliverables": [
+        "ToolAutoSelectionChainEngine.ts",
+        "ToolAutoSelectionChainEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "ToolHolderCatalogEngine exists",
+        "InventoryAwareToolSelectorEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "25+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "ToolAutoSelectionChainEngine — Tooling Intelligence — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI12",
+      "title": "MachineCapabilityFilterEngine — Machine-Aware Constraints",
+      "status": "not_started",
+      "steps": [
+        "Create MachineCapabilityFilterEngine.ts",
+        "Query ShopConfigurationEngine for machine capabilities",
+        "Filter toolpaths by machine axis count (3/4/5 axis)",
+        "Apply spindle speed/torque limits",
+        "Apply rapid traverse limits",
+        "Apply work envelope constraints",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "MachineCapabilityFilterEngine.ts",
+        "MachineCapabilityFilterEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "ShopConfigurationEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "MachineCapabilityFilterEngine — Machine-Aware Constraints — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI13",
+      "title": "RapidMovementOptimizerEngine — Motion Optimization",
+      "status": "not_started",
+      "steps": [
+        "Create RapidMovementOptimizerEngine.ts",
+        "Analyze rapid traverse paths for collision avoidance",
+        "Optimize rapid paths for minimum travel time",
+        "Factor in machine acceleration/deceleration profiles",
+        "Generate safe clearance planes",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "RapidMovementOptimizerEngine.ts",
+        "RapidMovementOptimizerEngine.test.ts"
+      ],
+      "entry_conditions": [],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "RapidMovementOptimizerEngine — Motion Optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI14",
+      "title": "ToolChangeMinimizationEngine — Tool Change Optimization",
+      "status": "not_started",
+      "steps": [
+        "Create ToolChangeMinimizationEngine.ts",
+        "Analyze operation sequence for tool usage",
+        "Reorder operations to minimize tool changes",
+        "Factor in tool change time from machine profile",
+        "Balance tool life vs operation grouping",
+        "Add 15+ unit tests"
+      ],
+      "deliverables": [
+        "ToolChangeMinimizationEngine.ts",
+        "ToolChangeMinimizationEngine.test.ts"
+      ],
+      "entry_conditions": [],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "15+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "ToolChangeMinimizationEngine — Tool Change Optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI15",
+      "title": "CycleTimeOptimizerEngine — Time Optimization",
+      "status": "not_started",
+      "steps": [
+        "Create CycleTimeOptimizerEngine.ts",
+        "Compute total cycle time from all operations",
+        "Identify bottleneck operations",
+        "Propose parameter adjustments to reduce cycle time",
+        "Balance quality vs speed tradeoffs",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "CycleTimeOptimizerEngine.ts",
+        "CycleTimeOptimizerEngine.test.ts"
+      ],
+      "entry_conditions": [],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "CycleTimeOptimizerEngine — Time Optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI16",
+      "title": "PartComplexityClassifierEngine — ML Complexity Scoring",
+      "status": "not_started",
+      "steps": [
+        "Create PartComplexityClassifierEngine.ts",
+        "Extract geometric features (face count, hole count, tolerance count)",
+        "Implement ML model for complexity scoring (1-10)",
+        "Train on JM Die part database (24,545 programs)",
+        "Correlate complexity to estimated machining time",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "PartComplexityClassifierEngine.ts",
+        "PartComplexityClassifierEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "FeatureRecognitionEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "ML model trained"
+      ],
+      "description": "PartComplexityClassifierEngine — ML Complexity Scoring — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI17",
+      "title": "MasterPostProcessorEnhancement — Controller Optimization",
+      "status": "not_started",
+      "steps": [
+        "Enhance existing MasterPostProcessorEngine",
+        "Add controller-specific optimizations (Fanuc, Haas, Okuma, Mazak)",
+        "Implement canned cycle optimization",
+        "Implement G-code compression where supported",
+        "Implement high-speed machining mode activation",
+        "Add 25+ unit tests"
+      ],
+      "deliverables": [
+        "MasterPostProcessorEngine.ts updates",
+        "MasterPostProcessorEngine.test.ts updates"
+      ],
+      "entry_conditions": [
+        "MasterPostProcessorEngine exists"
+      ],
+      "exit_conditions": [
+        "25+ tests pass",
+        "All 4 controller types optimized",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "MasterPostProcessorEnhancement — Controller Optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI18",
+      "title": "VariabilityIntegrationLayer — Ever-Evolving Conditions",
+      "status": "not_started",
+      "steps": [
+        "Create VariabilityIntegrationLayerEngine.ts",
+        "Wire VariabilitySourceTrackerEngine to all parameter engines",
+        "Wire AdaptiveParameterSpaceEngine for envelope expansion",
+        "Implement drift compensation across sessions",
+        "Add learning feedback loop from actual vs predicted",
+        "Add 20+ unit tests"
+      ],
+      "deliverables": [
+        "VariabilityIntegrationLayerEngine.ts",
+        "VariabilityIntegrationLayerEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "VariabilitySourceTrackerEngine exists",
+        "AdaptiveParameterSpaceEngine exists"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "20+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "VariabilityIntegrationLayer — Ever-Evolving Conditions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI19",
+      "title": "SoftwareRouterEngine — CAD/CAM Software Selection",
+      "status": "not_started",
+      "steps": [
+        "Create SoftwareRouterEngine.ts",
+        "Implement routing logic: FreeCAD (default) → Fusion (cloud) → Mastercam/hyperMILL (5-axis)",
+        "Factor in software availability on local machine",
+        "Factor in feature requirements (5-axis, turning, etc.)",
+        "Factor in cost optimization (free first, paid fallback)",
+        "Add 15+ unit tests"
+      ],
+      "deliverables": [
+        "SoftwareRouterEngine.ts",
+        "SoftwareRouterEngine.test.ts"
+      ],
+      "entry_conditions": [
+        "All CAM bridge engines exist"
+      ],
+      "exit_conditions": [
+        "Engine exports singleton",
+        "15+ tests pass",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "SoftwareRouterEngine — CAD/CAM Software Selection — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI20",
+      "title": "Dispatcher Wiring — cadCamAgiDispatcher",
+      "status": "not_started",
+      "steps": [
+        "Create cadCamAgiDispatcher.ts",
+        "Wire all 19 new AGI engines to dispatcher",
+        "Define action schema with Zod validation",
+        "Add lazy loading for all engines",
+        "Register with MCP server"
+      ],
+      "deliverables": [
+        "cadCamAgiDispatcher.ts"
+      ],
+      "entry_conditions": [
+        "All U-AGI01 through U-AGI19 complete"
+      ],
+      "exit_conditions": [
+        "Dispatcher registered",
+        "All actions callable via MCP",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "Dispatcher Wiring — cadCamAgiDispatcher — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI21",
+      "title": "Integration Testing — Full Pipeline",
+      "status": "not_started",
+      "steps": [
+        "Create CADCAMAGIPipeline.integration.test.ts",
+        "Test full flow: geometry → CAD → CAM → optimize → post",
+        "Test stock auto-selection with JM Die inventory",
+        "Test fixture auto-selection with JM Die fixtures",
+        "Test tool auto-selection with JM Die tooling",
+        "Test adaptive LOC parameter adjustment",
+        "Add 30+ integration tests"
+      ],
+      "deliverables": [
+        "CADCAMAGIPipeline.integration.test.ts"
+      ],
+      "entry_conditions": [
+        "U-AGI20 complete"
+      ],
+      "exit_conditions": [
+        "30+ integration tests pass",
+        "Full pipeline works end-to-end",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "Integration Testing — Full Pipeline — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI22",
+      "title": "Skills — /agi-program Command",
+      "status": "not_started",
+      "steps": [
+        "Create agi-program.md skill",
+        "Implement full AI-driven programming flow",
+        "Support natural language part descriptions",
+        "Auto-invoke all selection chains",
+        "Generate optimized G-code"
+      ],
+      "deliverables": [
+        "~/.claude/commands/agi-program.md"
+      ],
+      "entry_conditions": [
+        "U-AGI21 complete"
+      ],
+      "exit_conditions": [
+        "Skill invokable via /agi-program",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "description": "Skills — /agi-program Command — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI23",
+      "title": "Documentation — AGI System Guide",
+      "status": "not_started",
+      "steps": [
+        "Create CAD-CAM-AGI-GUIDE.md",
+        "Document orchestration architecture",
+        "Document software routing logic",
+        "Document adaptive parameter system",
+        "Document auto-selection chains"
+      ],
+      "deliverables": [
+        "data/docs/CAD-CAM-AGI-GUIDE.md"
+      ],
+      "entry_conditions": [
+        "U-AGI22 complete"
+      ],
+      "exit_conditions": [
+        "Documentation complete and accurate",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "description": "Documentation — AGI System Guide — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AGI24",
+      "title": "Safety Validation — AGI Safety Gate",
+      "status": "not_started",
+      "steps": [
+        "Integrate SafetyEngine S(x) scoring into AGI pipeline",
+        "Require S(x) >= 0.70 before G-code generation",
+        "Add collision detection gate",
+        "Add workholding stability gate",
+        "Add machine capability gate",
+        "Add 15+ safety tests"
+      ],
+      "deliverables": [
+        "AGI safety gates integrated"
+      ],
+      "entry_conditions": [
+        "U-AGI21 complete"
+      ],
+      "exit_conditions": [
+        "15+ safety tests pass",
+        "S(x) gate enforced",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "Safety Validation — AGI Safety Gate — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "existing_assets": {
+    "leverage": [
+      "VariabilitySourceTrackerEngine",
+      "AdaptiveParameterSpaceEngine",
+      "VariabilityEnvelopeEngine",
+      "AdaptiveFeedOptimizationEngine",
+      "AdaptiveToolpathRouterEngine",
+      "UltimateSpeedFeedEngine",
+      "SpeedFeedOrchestratorEngine (2,851 LOC)",
+      "MasterPostProcessorEngine",
+      "ShopConfigurationEngine (JM Die profile)",
+      "FeatureRecognitionEngine",
+      "ToolHolderCatalogEngine",
+      "InventoryAwareToolSelectorEngine",
+      "FixtureCadIngesterEngine",
+      "WorkholdingStabilityEngine",
+      "StockSizeRecommenderEngine",
+      "SafetyEngine (S(x) scoring)"
+    ],
+    "existing_cam_bridges": [
+      "HyperMillBridgeEngine (59 engines)",
+      "Fusion360BridgeEngine (20 engines)",
+      "MastercamBridgeEngine (4 engines)",
+      "InventorBridgeEngine (8 engines)",
+      "SolidCAMBridgeEngine (5 engines)"
+    ]
+  },
+  "software_priority": [
+    {
+      "tier": 1,
+      "name": "FreeCAD + CadQuery",
+      "cost": "Free",
+      "api": "Python",
+      "use_case": "Foundation, default for 3-axis"
+    },
+    {
+      "tier": 2,
+      "name": "Fusion 360",
+      "cost": "$545/yr",
+      "api": "REST/Python",
+      "use_case": "Cloud CAM, accessible"
+    },
+    {
+      "tier": 3,
+      "name": "Mastercam",
+      "cost": "$$$",
+      "api": ".NET",
+      "use_case": "Industry standard, advanced"
+    },
+    {
+      "tier": 3,
+      "name": "hyperMILL",
+      "cost": "$$$",
+      "api": "COM/.NET",
+      "use_case": "5-axis, already 59 engines"
+    }
+  ],
+  "adaptive_loc_formula": {
+    "description": "As LOC changes on 3D adaptive roughing, adjust RPM, feed, stepover automatically",
+    "rpm_adjustment": "RPM_new = RPM_base * (ae_ref / ae_actual)^0.3",
+    "feed_adjustment": "F_new = F_base * ChipThinningFactor(ae_actual/D)",
+    "stepover_adjustment": "ae_new = ae_base * (target_MRR / current_MRR)",
+    "sources": [
+      "ChipThinningCompensationEngine",
+      "VariabilityEnvelopeEngine",
+      "AdaptiveParameterSpaceEngine"
+    ]
+  },
+  "success_criteria": [
+    "24 units complete",
+    "All 19 new engines built with tests",
+    "Dispatcher wired and registered",
+    "Full pipeline integration tested",
+    "Adaptive LOC → parameter adjustment working",
+    "Auto-selection chains (stock/fixture/tool) working",
+    "Master post-processor optimizing for all controllers",
+    "S(x) safety gate enforced"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-agi-ms0-gate",
+    "mcp_action": "prism_cad-cam-agi:cadcam_agi_ms0_run",
+    "skill_command": "/cadcam-agi-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cadcam-agi-ms0-gate"
+    ],
+    "new_actions": [
+      "cadcam_agi_ms0_run"
+    ],
+    "new_skills": [
+      "/cadcam-agi-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the intelligent CAD/CAM AGI orchestration system with adaptive LOC-based parameter adjustment, auto-selection chains (stock/fixture/tool), and master post-processing for optimal G-code generation.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

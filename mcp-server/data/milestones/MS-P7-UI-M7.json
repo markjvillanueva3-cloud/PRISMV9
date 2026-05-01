@@ -1,0 +1,153 @@
+{
+  "id": "MS-P7-UI-M7",
+  "title": "Lathe Backport of Shared WEDM Components (wraps WEDM-UNIFIED M7)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P7",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "wraps": "WEDM-UNIFIED-MS7",
+  "philosophy": "Lift the shared UI primitives created during M1-M5 (confidence bands, mock-block banner, explainability drawer) back onto the lathe flow so both surfaces stay in sync.",
+  "total_units": 6,
+  "completed_units": 0,
+  "sessions": 2,
+  "dependencies": [
+    "MS-P7-UI-M1",
+    "MS-P7-UI-M2",
+    "MS-P7-UI-M3",
+    "MS-P7-UI-M4",
+    "MS-P7-UI-M5"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.015,
+  "knowledge_sources": {
+    "engines": [
+      "(UI components shared from M1-M5)"
+    ],
+    "formulas": [],
+    "tribal": [],
+    "reference": [
+      "web/src/pages/LatheUploadPage.tsx",
+      "web/src/pages/LatheResultsPage.tsx",
+      "mcp-server/data/milestones/WEDM-UNIFIED-MS7.json"
+    ]
+  },
+  "smart_config": {
+    "role": "UIEngineer+LatheSpecialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-wiring",
+    "/test",
+    "/prism-review",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P7-M7-01",
+      "U-P7-M7-02",
+      "U-P7-M7-03"
+    ],
+    "session_2": [
+      "U-P7-M7-04",
+      "U-P7-M7-05",
+      "U-P7-M7-06"
+    ],
+    "compact_checkpoints": [
+      "after U-P7-M7-03"
+    ]
+  },
+  "units": [
+    {
+      "id_range": "U-P7-M7-01..06",
+      "delegated_to": "WEDM-UNIFIED-MS7.json",
+      "exit_criteria_minimum": 3,
+      "exit_criteria": [
+        "lathe flow adopts shared confidence-band component",
+        "lathe flow adopts shared mock-block banner",
+        "lathe flow adopts shared explainability drawer (consumed from P9 XAI)",
+        "lathe-backport-parity hook clean",
+        "no regression on existing lathe tests"
+      ],
+      "description": "Unit work — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "lathe-backport-parity",
+      "note": "CONSUMED from WEDM-UNIFIED-MS7"
+    },
+    "action": {
+      "name": "(none new — UI composition only)",
+      "note": "CONSUMED"
+    },
+    "skill": {
+      "name": "(none new)",
+      "note": "CONSUMED"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "all 6 M7 units green",
+      "lathe flow parity verified by visual-diff snapshot",
+      "zero mock-data",
+      "existing lathe tests still green"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+1.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [],
+    "new_actions": [],
+    "new_skills": [],
+    "available_to": [
+      "P8",
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver Lathe Backport of Shared WEDM Components (wraps WEDM-UNIFIED M7) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

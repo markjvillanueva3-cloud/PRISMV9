@@ -6229,5 +6229,94 @@
     "parallelizable_wave_4": [
       "RES-MS27"
     ]
-  }
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "res-roadmap-gate",
+    "mcp_action": "prism_res:res_roadmap_run",
+    "skill_command": "/res-roadmap",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "res-roadmap-gate"
+    ],
+    "new_actions": [
+      "res_roadmap_run"
+    ],
+    "new_skills": [
+      "/res-roadmap"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Systematic harvesting of the H:/prism/resources/ folder (128,000+ files, ~60GB) into PRISM's registries, engines, tribal knowledge, algorithms, and learning content. Transforms raw manufacturer data, training materials, academic courses, post processors, machine models, and formula libraries into structured PRISM intelligence. Each milestone produces engines, hooks, skills, and MCP actions (Forge-Triple). Feeds into existing tracks: INGEST (data pipeline), LEARN (training), SCIMATH (formulas), HM-KC (hyperMILL), F360 (Fusion), PP-MOAT (post processors).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "units": [
+    {
+      "id": "U-RESX01",
+      "title": "RES-ROADMAP — Coordinator",
+      "description": "Master coordinator envelope for RES-ROADMAP. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

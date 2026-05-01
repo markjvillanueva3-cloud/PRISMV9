@@ -1,0 +1,3828 @@
+{
+  "schemaVersion": 1,
+  "id": "USSH-OPUS47-BOLSTER",
+  "title": "USSH Opus 4.7 + 1M Context Bolster — Dormant Infrastructure Activation, Context Expansion, AI Internals Wiring",
+  "track": "USSH",
+  "version": "1.0.0",
+  "created_at": "2026-04-18T22:30:00Z",
+  "created_by": "claude-opus-4.7",
+  "brief": "Maximize Opus 4.7's 1M context ceiling to bolster comprehensive skill/script/hook coverage, internal system utilization, memories, container skills always-on, self-awareness, CLAUDE.md files, precompact/compact/handoff, slash commands, and the PRISM inventory system. Activate dormant infrastructure (Ollama, Docker, Qdrant) and wire 32 unused AI engines into the tool-call loop. User quote: 'think of what else we have that we can bolster with a higher token usage ceiling and fully utilize opus 4.7 to the max — include PRISM inventory system, ollama/docker integration, and audit what's dormant/underutilized'.",
+  "status": "in_progress",
+  "total_units": 18,
+  "completed_units": 3,
+  "sessions": 9,
+  "total_sessions": "9",
+  "estimated_hours": "24-40",
+  "complexity": "XL",
+  "description": "Three-phase milestone to fully utilize Opus 4.7's 1M context ceiling by: (A) activating dormant infrastructure (Ollama, Docker, Qdrant, ModelRouting, 8 inventory engines, neural ONNX stack), (B) bolstering SessionStart/CLAUDE.md/handoff/compact with rich always-on state loading up to 80K tier-1 budget, (C) wiring dormant AGI engines (WorldSimulator, BayesianInference, CausalReasoning, AutonomousGoal, CuriosityQueue, CognitiveBudgetAllocator) into session lifecycle for compounding self-improvement.",
+  "dependencies": [
+    "AWARE-MS0"
+  ],
+  "parent_roadmap": "UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md",
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.7",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors",
+      "role_mismatch",
+      "effort_mismatch",
+      "missing_indexing",
+      "missing_skills",
+      "orphaned_deliverables",
+      "underspecified_steps",
+      "missing_tests"
+    ],
+    "improvement_threshold": 0.92
+  },
+  "role_matrix": [
+    {
+      "code": "R1",
+      "name": "TypeScript Engineer",
+      "model": "opus-4.7",
+      "effort": 70,
+      "description": "Engine + schema + dispatcher wiring; deep TypeScript + Zod fluency"
+    },
+    {
+      "code": "R6",
+      "name": "Systems Architect",
+      "model": "opus-4.7",
+      "effort": 80,
+      "description": "Cross-cutting infrastructure decisions, lifecycle orchestration, context budget design"
+    },
+    {
+      "code": "R7",
+      "name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 75,
+      "description": "Docker, Ollama, GPU, Qdrant, local-model infra; model routing + evaluation"
+    },
+    {
+      "code": "R8",
+      "name": "Verification Specialist",
+      "model": "sonnet-4.6",
+      "effort": 60,
+      "description": "Smoke tests, integration verification, metric collection, rollback validation"
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "mcp__prism__prism_session",
+      "phases": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "purpose": "SessionStart / PreCompact / PostCompact / SessionEnd lifecycle hooks (context_boot, tier1_inject, dossier_snapshot, dossier_restore, session_end_persist)"
+    },
+    {
+      "tool": "mcp__prism__prism_memory",
+      "phases": [
+        "P2",
+        "P3"
+      ],
+      "purpose": "Multi-session handoff continuity, dossier persistence, ledger append"
+    },
+    {
+      "tool": "mcp__prism__prism_intelligence",
+      "phases": [
+        "P1",
+        "P3"
+      ],
+      "purpose": "Model routing decisions, AGI engine dispatch, WorldSim invocation"
+    },
+    {
+      "tool": "mcp__prism__prism_ai",
+      "phases": [
+        "P1",
+        "P3"
+      ],
+      "purpose": "ModelRouting trace, Ollama/Claude selector, Bayesian posterior updates"
+    },
+    {
+      "tool": "mcp__prism__prism_autonomous",
+      "phases": [
+        "P3"
+      ],
+      "purpose": "Goal proposal synthesis, curiosity queue, autonomous exploration"
+    },
+    {
+      "tool": "mcp__prism__prism_orchestrate",
+      "phases": [
+        "P3"
+      ],
+      "purpose": "CognitiveBudgetAllocator rationing across lifecycle stages"
+    },
+    {
+      "tool": "mcp__prism__prism_context",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "Context tier injection, inventory snapshot, awareness bootstrap"
+    },
+    {
+      "tool": "mcp__prism__prism_telemetry",
+      "phases": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "purpose": "Routing decision logs, calibration metrics, cost-per-unit-work measurements"
+    },
+    {
+      "tool": "mcp__prism__prism_monitoring",
+      "phases": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "purpose": "Prometheus metric scrape, health probes, latency percentiles"
+    },
+    {
+      "tool": "mcp__prism__prism_data",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "BASELINE_INVENTORY reads, asset registry queries, delta computation"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "OllamaIntegrationEngine / OllamaClientEngine / LocalModelOrchestratorEngine",
+      "type": "engine-cluster",
+      "count": 6,
+      "usage": "Phase 1 wiring — DO NOT rebuild"
+    },
+    {
+      "asset": "8 Inventory Engines (ContextInventory, ERPTool, JMDieProgram, Plugin, InventoryEOQ, InventoryOptimization, InventoryAwareToolSelector, ToolInventoryOrchestrator)",
+      "type": "engine-cluster",
+      "count": 8,
+      "usage": "Phase 1 SessionStart injection"
+    },
+    {
+      "asset": "AGI Proximity (PredictiveWorldSimulator, BayesianInference, CausalReasoning, AutonomousGoalSynthesis, CuriosityDrivenExplorer, CognitiveBudgetAllocator)",
+      "type": "engine-cluster",
+      "count": 15,
+      "usage": "Phase 3 lifecycle wiring"
+    },
+    {
+      "asset": "ModelRoutingEngine (pure scoring function)",
+      "type": "engine",
+      "count": 1,
+      "usage": "Live consultant for every LLM call"
+    },
+    {
+      "asset": "QdrantMemoryEngine / SemanticAssetIndexEngine / LocalEmbeddingEngine",
+      "type": "engine-cluster",
+      "count": 3,
+      "usage": "Phase 1 vector memory activation"
+    }
+  ],
+  "ai_systems_integrated": {
+    "model_routing": 6,
+    "inventory": 8,
+    "memory": 3,
+    "session_lifecycle": 7,
+    "agi_proximity": 15,
+    "math_foundations": 18,
+    "total_available": 57,
+    "note": "Wire existing — DO NOT rebuild. duplicationGuardEngine.mustCheckBeforeCreating enforced."
+  },
+  "knowledge_sources": {
+    "plan_authority": "UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md",
+    "mill_agi_tie_in": "MILL-AGI-UNIFIED-ROADMAP-2026-04-16.md",
+    "baseline_inventory": "mcp-server/data/state/BASELINE_INVENTORY.json (2405 engines / 89 dispatchers / 5123 actions)",
+    "engines_to_wire_not_rebuild": [
+      "OllamaClientEngine",
+      "OllamaIntegrationEngine",
+      "LocalModelOrchestratorEngine",
+      "ModelRoutingEngine",
+      "LocalEmbeddingEngine",
+      "LatheLoRAOllamaDeployerEngine",
+      "QdrantMemoryEngine",
+      "SemanticAssetIndexEngine",
+      "ContextInventoryEngine",
+      "InventoryAwareToolSelectorEngine",
+      "JMDieProgramInventoryEngine",
+      "ERPToolInventoryEngine",
+      "InventoryOptimizationEngine",
+      "InventoryEOQEngine",
+      "ToolInventoryOrchestratorEngine",
+      "PluginInventoryEngine",
+      "UnifiedAwarenessOrchestrator",
+      "SessionAwarenessLifecycleEngine",
+      "AwarenessBootstrapEngine",
+      "AwarenessQueryEngine",
+      "SemanticSimilarityGuardEngine",
+      "DependencyGraphEngine",
+      "CrossTerminalBroadcastEngine",
+      "PredictiveWorldSimulatorEngine",
+      "BayesianInferenceEngine",
+      "CausalReasoningEngine",
+      "AutonomousGoalSynthesisEngine",
+      "CuriosityDrivenExplorerEngine",
+      "CognitiveBudgetAllocatorEngine",
+      "CalibratedEnsembleEngine",
+      "SVIImpactProjectorEngine",
+      "SVIRankedBacklogEngine"
+    ],
+    "docker_services_to_start": [
+      "postgres (persistent structured state)",
+      "prism-server (containerized MCP)",
+      "prometheus (hook/engine metrics)",
+      "ollama (GPU-accelerated LLM)"
+    ],
+    "ollama_models_to_pull": [
+      "nomic-embed-text (embeddings, free vectors)",
+      "mistral:7b (simple reasoning fallback)",
+      "qwen2.5-coder:3b (code queries)",
+      "codellama:7b (code generation)"
+    ],
+    "state_files_to_create": [
+      "state/shared/ROUTING_TABLE.json (ModelRouting live config)",
+      "mcp-server/data/state/SVI_DELTA_LEDGER.jsonl",
+      "mcp-server/data/state/SESSION_INSIGHTS_LEDGER.jsonl",
+      "mcp-server/data/state/DEPRECATION_LEDGER.jsonl",
+      "mcp-server/data/state/SCORE_PER_SESSION.json",
+      "mcp-server/data/state/DOC_REFRESH_QUEUE.jsonl",
+      "mcp-server/data/state/DOC_CHANGE_LEDGER.jsonl",
+      "mcp-server/data/state/REASONING_TRACE_LEDGER.jsonl (global, not WEDM-scoped)",
+      "mcp-server/data/state/BANDIT_POSTERIOR.json",
+      "mcp-server/data/state/OLLAMA_MODEL_CATALOG.json",
+      "mcp-server/data/state/QDRANT_COLLECTION_INDEX.json",
+      "mcp-server/data/state/SESSION_CONTINUITY_CHAIN.json"
+    ],
+    "constants_reference": "src/physics/constants.ts",
+    "pre_phase_task": "Verify Docker Desktop running; verify NVIDIA Container Toolkit on GPU hosts (home=4080, work=3080); check disk space ≥ 50 GB free for model storage"
+  },
+  "context_budget_tiers": {
+    "tier_1_always_on": {
+      "target_tokens": 80000,
+      "contents": [
+        "MASTER_INDEX_COMPACT.md (~30k)",
+        "BASELINE_INVENTORY.json deltaified (~2k)",
+        "PRISM_CAPABILITY_MANIFEST.md (~15k)",
+        "MILL_CAPABILITY_MANIFEST.json (~8k)",
+        "WEDM_CAPABILITY_MANIFEST.json (~8k)",
+        "live_svi_12_target_breakdown (~1k)",
+        "thompson_posterior_snapshot (~2k)",
+        "user_model_state (~2k)",
+        "active_work_registry_hydrated (~4k)",
+        "last_100_reasoning_trace_entries (~8k)"
+      ]
+    },
+    "tier_2_context_triggered": {
+      "target_tokens": 200000,
+      "triggers": {
+        "physics_edit": "inject constants.ts + MATERIAL_KIENZLE_DB + 3 recent physics-review PRs",
+        "dispatcher_wiring": "inject target dispatcher full source + 3 reference dispatchers",
+        "forge_quint": "inject forge template + 3 recent successful forges as examples",
+        "g_code_gen": "inject post-processor source + 5 recent program samples",
+        "cam_strategy": "inject CAM_STRATEGY_DB + strategy taxonomy + recent ranker output"
+      }
+    },
+    "tier_3_precompact_survival": {
+      "target_tokens": 100000,
+      "contents": [
+        "full in-flight reasoning chain",
+        "open todolist with states",
+        "uncommitted diff summary (<500 lines per file)",
+        "bandit exploration/exploitation state",
+        "SVI trajectory last 20 deltas",
+        "live file-lock + claim registry",
+        "last 20 tool-call outcomes",
+        "mental model dossier (what I was solving, what I tried, why)"
+      ]
+    }
+  },
+  "risks": [
+    {
+      "id": "R1",
+      "severity": "HIGH",
+      "description": "1M context Opus 4.7 cost is ~4-5x per turn vs standard session",
+      "mitigation": "Tier-1 hard-capped at 80K; tier-2 only on trigger; measure cost-per-unit-work before full rollout"
+    },
+    {
+      "id": "R2",
+      "severity": "MEDIUM",
+      "description": "5-minute prompt-cache TTL: long silences force full re-read at high cost",
+      "mitigation": "Keep always-on ≤80K so cache-miss reload is bearable; ScheduleWakeup for long polls stays <270s"
+    },
+    {
+      "id": "R3",
+      "severity": "MEDIUM",
+      "description": "Docker/Ollama require GPU + disk resources",
+      "mitigation": "Already spec'd in Phase 0.19 (4080 home, 3080 work); Docker has healthchecks + resource limits"
+    },
+    {
+      "id": "R4",
+      "severity": "MEDIUM",
+      "description": "AGI engine wiring (Phase C) needs feedback loops for Bayesian/bandit convergence",
+      "mitigation": "Bootstrap from existing REASONING_TRACE_LEDGER + 30-day insight window; calibration checks before trusting"
+    },
+    {
+      "id": "R5",
+      "severity": "LOW",
+      "description": "Signal-to-noise: over-injection can hurt reasoning quality",
+      "mitigation": "SituationalAwarenessFilterEngine active; measure tool-call reduction rate; eject irrelevant tiers"
+    }
+  ],
+  "domain_prefixes": {
+    "U-ACT": "Phase A Infrastructure Activation",
+    "U-CTX": "Phase B Context Bolster",
+    "U-AI": "Phase C AI Internals Wiring"
+  },
+  "external_dependencies": [
+    {
+      "requirement": "Docker Desktop ≥ 24.x",
+      "check": "docker version",
+      "reason": "Phase 1 container stack"
+    },
+    {
+      "requirement": "NVIDIA Container Toolkit (GPU hosts)",
+      "check": "nvidia-smi",
+      "reason": "Ollama GPU passthrough"
+    },
+    {
+      "requirement": "Disk free ≥ 50 GB",
+      "check": "df -h H:",
+      "reason": "4 Ollama models ≈ 15 GB + Qdrant volume + buffers"
+    },
+    {
+      "requirement": "Network egress to ollama.com + huggingface.co",
+      "check": "curl -sI https://ollama.com",
+      "reason": "Initial model pulls"
+    },
+    {
+      "requirement": "AWARE-MS0 complete",
+      "check": "grep AWARE-MS0 roadmap-index.json",
+      "reason": "Inventory-check + duplication-guard primitives precondition"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P1",
+      "phase": 1,
+      "title": "Phase A — Infrastructure Activation",
+      "description": "Start Docker Compose stack (postgres + prism-server + prometheus + Ollama + Qdrant), pull 4 Ollama models, wire ModelRoutingEngine into the live action pipeline, activate 8 inventory engines in SessionStart, populate Qdrant with cross-session asset embeddings, smoke-test end-to-end.",
+      "sessions": "1-3",
+      "primary_role": "R7",
+      "primary_model": "opus-4.7",
+      "units": [
+        {
+          "id": "U-ACT01",
+          "title": "U-ACT01 — USSH-OPUS47-BOLSTER unit 1",
+          "description": "USSH-OPUS47-BOLSTER unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-ACT02",
+          "title": "U-ACT02 — USSH-OPUS47-BOLSTER unit 2",
+          "description": "USSH-OPUS47-BOLSTER unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-ACT03",
+          "title": "U-ACT03 — USSH-OPUS47-BOLSTER unit 3",
+          "description": "USSH-OPUS47-BOLSTER unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-ACT04",
+          "title": "U-ACT04 — USSH-OPUS47-BOLSTER unit 4",
+          "description": "USSH-OPUS47-BOLSTER unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-ACT05",
+          "title": "U-ACT05 — USSH-OPUS47-BOLSTER unit 5",
+          "description": "USSH-OPUS47-BOLSTER unit 5. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-ACT06",
+          "title": "U-ACT06 — USSH-OPUS47-BOLSTER unit 6",
+          "description": "USSH-OPUS47-BOLSTER unit 6. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "forge_triple": {
+        "hook": "hook_route_decision_logged",
+        "tool": "mcp__prism__prism_ai",
+        "action": "model_route_trace",
+        "skill": "/model-status"
+      },
+      "gate": {
+        "omega_floor": 0.85,
+        "safety_floor": 0.7,
+        "ralph_required": true,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "5 Docker services healthy (postgres, prism-server, prometheus, ollama, qdrant)",
+          "Ollama serves ≥3 models with p99 <3s",
+          "Qdrant prism_assets collection ≥3000 vectors",
+          "ROUTING_TABLE.json governs every LLM call",
+          "SessionStart injects ≤10K-token inventory digest"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "MCP Utilization",
+        "Forge-Triple",
+        "Dependency Graph"
+      ]
+    },
+    {
+      "id": "P2",
+      "phase": 2,
+      "title": "Phase B — Context Bolster (1M Opus 4.7 Leverage)",
+      "description": "Build the 3-tier context budget architecture — Tier-1 80K always-on pack, Tier-2 200K context-triggered injection, Tier-3 100K precompact survival dossier. Hierarchical CLAUDE.md (global/project/subsystem), rich PreCompact dossier, PostCompact restoration, multi-session handoff chain, inline heavy slash-command skills.",
+      "sessions": "4-6",
+      "primary_role": "R6",
+      "primary_model": "opus-4.7",
+      "units": [
+        {
+          "id": "U-CTX01",
+          "title": "U-CTX01 — USSH-OPUS47-BOLSTER unit 1",
+          "description": "USSH-OPUS47-BOLSTER unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-CTX02",
+          "title": "U-CTX02 — USSH-OPUS47-BOLSTER unit 2",
+          "description": "USSH-OPUS47-BOLSTER unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-CTX03",
+          "title": "U-CTX03 — USSH-OPUS47-BOLSTER unit 3",
+          "description": "USSH-OPUS47-BOLSTER unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-CTX04",
+          "title": "U-CTX04 — USSH-OPUS47-BOLSTER unit 4",
+          "description": "USSH-OPUS47-BOLSTER unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-CTX05",
+          "title": "U-CTX05 — USSH-OPUS47-BOLSTER unit 5",
+          "description": "USSH-OPUS47-BOLSTER unit 5. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-CTX06",
+          "title": "U-CTX06 — USSH-OPUS47-BOLSTER unit 6",
+          "description": "USSH-OPUS47-BOLSTER unit 6. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "forge_triple": {
+        "hook": "hook_session_start_bolster",
+        "tool": "mcp__prism__prism_session",
+        "action": "tier1_inject",
+        "skill": "/startup"
+      },
+      "gate": {
+        "omega_floor": 0.85,
+        "safety_floor": 0.7,
+        "ralph_required": true,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "Tier-1 always-on pack ≤80K tokens measured",
+          "Tier-2 triggers fire on physics_edit / dispatcher_wiring / forge_quint / g_code_gen / cam_strategy",
+          "PreCompact dossier persists all required fields to mcp__prism__prism_memory",
+          "PostCompact restores ≥95% of pre-compact mental model (measured by self-check quiz)",
+          "Session continuity chain links 3 consecutive sessions without context loss"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Feature Cascade",
+        "Protocol Structure",
+        "SMART CONFIG"
+      ]
+    },
+    {
+      "id": "P3",
+      "phase": 3,
+      "title": "Phase C — AI Internals Wiring (Compounding)",
+      "description": "Wire dormant AGI engines into the tool-call loop: PredictiveWorldSimulator on PreTool (predict outcomes before acting), BayesianInference on PostTool (calibrate priors from actuals), CausalReasoning on SessionStart (build causal graph from reasoning-trace-ledger), AutonomousGoalSynthesis on SessionEnd (propose next session's goals), CuriosityDrivenExplorer (queue unknowns), CognitiveBudgetAllocator (ration tokens across all lifecycle stages).",
+      "sessions": "7-9",
+      "primary_role": "R6",
+      "primary_model": "opus-4.7",
+      "units": [
+        {
+          "id": "U-AI01",
+          "title": "U-AI01 — USSH-OPUS47-BOLSTER unit 1",
+          "description": "USSH-OPUS47-BOLSTER unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-AI02",
+          "title": "U-AI02 — USSH-OPUS47-BOLSTER unit 2",
+          "description": "USSH-OPUS47-BOLSTER unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-AI03",
+          "title": "U-AI03 — USSH-OPUS47-BOLSTER unit 3",
+          "description": "USSH-OPUS47-BOLSTER unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-AI04",
+          "title": "U-AI04 — USSH-OPUS47-BOLSTER unit 4",
+          "description": "USSH-OPUS47-BOLSTER unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-AI05",
+          "title": "U-AI05 — USSH-OPUS47-BOLSTER unit 5",
+          "description": "USSH-OPUS47-BOLSTER unit 5. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-AI06",
+          "title": "U-AI06 — USSH-OPUS47-BOLSTER unit 6",
+          "description": "USSH-OPUS47-BOLSTER unit 6. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "forge_triple": {
+        "hook": "hook_pretool_world_sim",
+        "tool": "mcp__prism__prism_ai",
+        "action": "predict_tool_outcome",
+        "skill": "/simulate"
+      },
+      "gate": {
+        "omega_floor": 0.85,
+        "safety_floor": 0.75,
+        "ralph_required": true,
+        "ralph_grade_floor": "A",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "WorldSim PreTool predicts outcome with ≥60% accuracy (over ≥200 calls)",
+          "Bayesian calibration error ≤5% on PostTool updates",
+          "Causal graph contains ≥20 nodes after 3 sessions",
+          "AutonomousGoalSynthesis proposals have ≥80% actionability",
+          "CognitiveBudgetAllocator keeps cost-per-unit-work within 2.5x baseline",
+          "Tool-call reduction ≥30% on steady-state workloads"
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Cross-Roadmap Coherence",
+        "Exit Gate Rigor",
+        "Forge-Triple"
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "U-ACT01",
+      "phase": "P1",
+      "phase_number": 1,
+      "sequence": 1,
+      "title": "Start Docker Stack (postgres + prism-server + prometheus)",
+      "role": "R6",
+      "role_name": "Systems Architect",
+      "model": "opus-4.7",
+      "effort": 50,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "20%",
+      "context_budget_tokens": 12000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-ACT02"
+      ],
+      "rationale": "Infra bring-up — systems-architect judgment on compose file ordering + healthcheck thresholds; no physics touch, Sonnet could also do this but Opus ensures first-time-right under GPU/NVIDIA resource unknowns.",
+      "smartConfig": {
+        "role": "R6",
+        "role_name": "Systems Architect",
+        "model": "opus-4.7",
+        "effort": 50,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 12000,
+        "tools_claude_code": [
+          "Bash",
+          "Read",
+          "Write"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_infra",
+          "action": "docker_health_check",
+          "params_hint": "{services:[postgres,prism-server,prometheus]}"
+        },
+        {
+          "tool": "mcp__prism__prism_monitoring",
+          "action": "health_probe",
+          "params_hint": "{endpoints:[:3000/health,:9090/-/healthy]}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "record_infra_state",
+          "params_hint": "{file:state/shared/DOCKER_RUNTIME_STATE.json}"
+        }
+      ],
+      "skills": [
+        "/scrutinize"
+      ],
+      "scripts": [],
+      "hooks": [],
+      "features": [
+        "docker-compose",
+        "postgres",
+        "prometheus"
+      ],
+      "entry_conditions": [
+        "AWARE-MS0 complete",
+        "Docker Desktop installed",
+        "Disk free ≥10 GB"
+      ],
+      "dependencies": [],
+      "knowledge_sources": [
+        "H:/prism/docker-compose.yml",
+        "H:/prism/docker-compose.dev.yml",
+        "H:/prism/Dockerfile",
+        "H:/prism/mcp-server/src/db/schema.sql"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Verify Docker Desktop running on Windows 11",
+          "tool_calls": [
+            "Bash: docker version"
+          ],
+          "validation": "docker version returns Engine + Client versions without error"
+        },
+        {
+          "number": 2,
+          "instruction": "Start postgres + prism-server + prometheus",
+          "tool_calls": [
+            "Bash: docker compose -f H:/prism/docker-compose.yml up -d postgres prism-server prometheus"
+          ],
+          "validation": "docker ps shows 3 running containers with healthy status"
+        },
+        {
+          "number": 3,
+          "instruction": "Verify postgres initialized with PRISM schema",
+          "tool_calls": [
+            "Bash: docker exec prism-postgres psql -U prism -c '\\dt'"
+          ],
+          "validation": "≥10 tables visible"
+        },
+        {
+          "number": 4,
+          "instruction": "Verify prism-server health endpoint",
+          "tool_calls": [
+            "Bash: curl -s http://localhost:3000/health"
+          ],
+          "validation": "HTTP 200 + JSON with status:ok"
+        },
+        {
+          "number": 5,
+          "instruction": "Verify prometheus scraping metrics",
+          "tool_calls": [
+            "Bash: curl -s http://localhost:9090/-/healthy"
+          ],
+          "validation": "HTTP 200 'Healthy'"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "state/shared/DOCKER_RUNTIME_STATE.json",
+          "type": "state",
+          "description": "Records services + health + start timestamps",
+          "line_count_est": 60
+        }
+      ],
+      "files_created": [
+        "state/shared/DOCKER_RUNTIME_STATE.json"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "Docker Desktop fails to start within 60s",
+        "postgres fails healthcheck after 5 retries",
+        "disk space < 10 GB free"
+      ],
+      "rollback": "docker compose -f H:/prism/docker-compose.yml down; rm state/shared/DOCKER_RUNTIME_STATE.json",
+      "exit_gate": {
+        "criteria": [
+          "3 containers running + healthy",
+          "postgres accepts connection",
+          "prism-server /health returns 200",
+          "prometheus /-/healthy returns 200"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+0.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Start Docker Stack (postgres + prism-server + prometheus) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-ACT02",
+      "phase": "P1",
+      "phase_number": 1,
+      "sequence": 2,
+      "title": "Start Ollama + Pull Base Models (nomic-embed + mistral:7b + qwen2.5-coder:3b + codellama:7b)",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 50,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "20%",
+      "context_budget_tokens": 12000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-ACT01"
+      ],
+      "rationale": "GPU passthrough + model pull is well-understood ops — Ollama engines already exist. Opus chosen to catch GPU driver edge cases on first bring-up.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 50,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 12000,
+        "tools_claude_code": [
+          "Bash",
+          "Write",
+          "Read"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "ollama_model_pull",
+          "params_hint": "{models:[nomic-embed-text,mistral:7b,qwen2.5-coder:3b,codellama:7b]}"
+        },
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "ollama_warm_cache",
+          "params_hint": "{warmup_prompt:hi}"
+        },
+        {
+          "tool": "mcp__prism__prism_data",
+          "action": "write_state_file",
+          "params_hint": "{path:mcp-server/data/state/OLLAMA_MODEL_CATALOG.json}"
+        }
+      ],
+      "skills": [],
+      "scripts": [],
+      "hooks": [],
+      "features": [
+        "ollama",
+        "gpu-passthrough",
+        "nvidia-container-toolkit"
+      ],
+      "entry_conditions": [
+        "U-ACT01 complete",
+        "NVIDIA GPU available (4080 home / 3080 work)",
+        "Disk free ≥20 GB"
+      ],
+      "dependencies": [
+        "U-ACT01"
+      ],
+      "knowledge_sources": [
+        "H:/prism/docker-compose.gpu.yml",
+        "H:/prism/mcp-server/src/engines/OllamaIntegrationEngine.ts",
+        "H:/prism/mcp-server/src/engines/OllamaClientEngine.ts",
+        "UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md §0.19 Local LLM"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Start Ollama with GPU passthrough",
+          "tool_calls": [
+            "Bash: docker compose -f H:/prism/docker-compose.yml -f H:/prism/docker-compose.gpu.yml up -d ollama"
+          ],
+          "validation": "docker ps shows ollama container healthy with NVIDIA access"
+        },
+        {
+          "number": 2,
+          "instruction": "Pull 4 base models",
+          "tool_calls": [
+            "Bash: docker exec prism-ollama ollama pull nomic-embed-text",
+            "Bash: docker exec prism-ollama ollama pull mistral:7b",
+            "Bash: docker exec prism-ollama ollama pull qwen2.5-coder:3b",
+            "Bash: docker exec prism-ollama ollama pull codellama:7b"
+          ],
+          "validation": "ollama list shows 4 models"
+        },
+        {
+          "number": 3,
+          "instruction": "Warm up each model (first inference cold-starts VRAM)",
+          "tool_calls": [
+            "Bash: for m in mistral:7b qwen2.5-coder:3b codellama:7b; do curl -s http://localhost:11434/api/generate -d \"{\\\"model\\\":\\\"$m\\\",\\\"prompt\\\":\\\"hi\\\",\\\"stream\\\":false}\"; done"
+          ],
+          "validation": "All 3 models respond <3s"
+        },
+        {
+          "number": 4,
+          "instruction": "Test nomic-embed-text embedding endpoint",
+          "tool_calls": [
+            "Bash: curl -s http://localhost:11434/api/embeddings -d '{\"model\":\"nomic-embed-text\",\"prompt\":\"test\"}'"
+          ],
+          "validation": "Returns 768-dim embedding vector"
+        },
+        {
+          "number": 5,
+          "instruction": "Populate OLLAMA_MODEL_CATALOG.json",
+          "tool_calls": [
+            "Write: mcp-server/data/state/OLLAMA_MODEL_CATALOG.json"
+          ],
+          "validation": "Catalog lists 4 models with size/quantization/purpose"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/data/state/OLLAMA_MODEL_CATALOG.json",
+          "type": "state",
+          "description": "Lists installed models + capabilities",
+          "line_count_est": 40
+        }
+      ],
+      "files_created": [
+        "mcp-server/data/state/OLLAMA_MODEL_CATALOG.json"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "GPU passthrough fails (no NVIDIA Container Toolkit)",
+        "Disk < 20 GB free (4 models ≈ 15 GB)",
+        "Any model fails to pull in 10 min"
+      ],
+      "rollback": "docker compose down ollama; docker volume rm prism-ollama-models",
+      "exit_gate": {
+        "criteria": [
+          "Ollama serving at :11434",
+          "4 models listed and warm",
+          "Embedding endpoint returns 768-dim vector",
+          "p99 inference <3s on GPU"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+1.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Start Ollama + Pull Base Models (nomic-embed + mistral:7b + qwen2.5-coder:3b + codellama:7b) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-ACT03",
+      "phase": "P1",
+      "phase_number": 1,
+      "sequence": 3,
+      "title": "Wire ModelRoutingEngine Live in MCP Action Pipeline",
+      "role": "R1",
+      "role_name": "TypeScript Engineer",
+      "model": "opus-4.7",
+      "effort": 80,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "30%",
+      "context_budget_tokens": 18000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "Live routing pipeline is safety-critical (wrong route → 3B model doing physics). Opus required for taxonomy completeness + negative-test design.",
+      "smartConfig": {
+        "role": "R1",
+        "role_name": "TypeScript Engineer",
+        "model": "opus-4.7",
+        "effort": 80,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 18000,
+        "tools_claude_code": [
+          "Read",
+          "Edit",
+          "Write",
+          "Bash"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "model_route_trace",
+          "params_hint": "{log_every_decision:true}"
+        },
+        {
+          "tool": "mcp__prism__prism_intelligence",
+          "action": "route_decision",
+          "params_hint": "{taskKind, budgetCeiling, fallbackBackend}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "append_routing_log",
+          "params_hint": "{file:state/shared/ROUTING_LOG.jsonl}"
+        }
+      ],
+      "skills": [
+        "/scrutinize",
+        "/test"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_route_decision_logged"
+      ],
+      "features": [
+        "model-routing",
+        "telemetry",
+        "safety-critical-denylist"
+      ],
+      "entry_conditions": [
+        "U-ACT02 complete",
+        "Ollama serving 4 models",
+        "ModelRoutingEngine already exists in src/engines"
+      ],
+      "dependencies": [
+        "U-ACT02"
+      ],
+      "knowledge_sources": [
+        "H:/prism/mcp-server/src/engines/ModelRoutingEngine.ts",
+        "H:/prism/mcp-server/src/engines/LocalModelOrchestratorEngine.ts",
+        "H:/prism/mcp-server/src/index.ts (server.tool proxy 459-489)"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Read existing ModelRoutingEngine.route() signature and scoring",
+          "tool_calls": [
+            "Read: H:/prism/mcp-server/src/engines/ModelRoutingEngine.ts"
+          ],
+          "validation": "Understand: safety-critical → frontier; embedding → local; budget gates"
+        },
+        {
+          "number": 2,
+          "instruction": "Create ROUTING_TABLE.json with live config",
+          "tool_calls": [
+            "Write: state/shared/ROUTING_TABLE.json"
+          ],
+          "validation": "Table maps: {taskKind → preferredBackend, fallbackBackend, budgetCeiling}"
+        },
+        {
+          "number": 3,
+          "instruction": "Wire LocalModelOrchestratorEngine to consult router",
+          "tool_calls": [
+            "Edit: H:/prism/mcp-server/src/engines/LocalModelOrchestratorEngine.ts"
+          ],
+          "validation": "Every infer() call routes through ModelRoutingEngine.route() first"
+        },
+        {
+          "number": 4,
+          "instruction": "Add routing telemetry hook",
+          "tool_calls": [
+            "Write: H:/prism/.claude/hooks/hook_route_decision_logged.mjs"
+          ],
+          "validation": "Each routing decision logged with {taskKind, chosenBackend, rationale, latencyMs}"
+        },
+        {
+          "number": 5,
+          "instruction": "Add tests for router correctness",
+          "tool_calls": [
+            "Write: H:/prism/mcp-server/src/__tests__/ModelRouting.integration.test.ts"
+          ],
+          "validation": "≥8 cases: safety-critical → Claude, embedding → Ollama, bulk → Ollama, budget-0 → local-only"
+        },
+        {
+          "number": 6,
+          "instruction": "Run tests + build",
+          "tool_calls": [
+            "Bash: cd H:/prism/mcp-server && npx vitest run src/__tests__/ModelRouting.integration.test.ts && npm run build:verify"
+          ],
+          "validation": "All router tests green; tsc clean"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "state/shared/ROUTING_TABLE.json",
+          "type": "config",
+          "description": "Live routing config",
+          "line_count_est": 80
+        },
+        {
+          "path": "H:/prism/.claude/hooks/hook_route_decision_logged.mjs",
+          "type": "hook",
+          "description": "PostTool telemetry for routing decisions",
+          "line_count_est": 60
+        },
+        {
+          "path": "H:/prism/mcp-server/src/__tests__/ModelRouting.integration.test.ts",
+          "type": "test",
+          "description": "Router correctness test suite",
+          "line_count_est": 200
+        }
+      ],
+      "files_created": [
+        "state/shared/ROUTING_TABLE.json",
+        ".claude/hooks/hook_route_decision_logged.mjs",
+        "mcp-server/src/__tests__/ModelRouting.integration.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/LocalModelOrchestratorEngine.ts"
+      ],
+      "abort_criteria": [
+        "Build fails with >0 tsc errors",
+        "Any safety-critical test routes to local 3B model (unsafe)",
+        "Routing overhead >50ms p99"
+      ],
+      "rollback": "git restore mcp-server/src/engines/LocalModelOrchestratorEngine.ts; rm state/shared/ROUTING_TABLE.json .claude/hooks/hook_route_decision_logged.mjs mcp-server/src/__tests__/ModelRouting.integration.test.ts",
+      "exit_gate": {
+        "criteria": [
+          "Router returns valid decision for all 8 test cases",
+          "Safety-critical tasks always route to frontier",
+          "Embeddings always route local",
+          "Telemetry hook produces valid ROUTING_LOG.jsonl entries"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+1.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Wire ModelRoutingEngine Live in MCP Action Pipeline — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-ACT04",
+      "phase": "P1",
+      "phase_number": 1,
+      "sequence": 4,
+      "title": "Activate 8 Inventory Engines in SessionStart Context",
+      "role": "R6",
+      "role_name": "Systems Architect",
+      "role_support": "R1 TypeScript Engineer",
+      "model": "opus-4.7",
+      "effort": 75,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "30%",
+      "context_budget_tokens": 18000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-ACT05"
+      ],
+      "rationale": "Unified inventory surface across 8 engines with compact (~4K) session-start output — architect picks unified snapshot() contract, TS engineer implements. Extends AWARE-MS0 enforcement, does not duplicate.",
+      "smartConfig": {
+        "role": "R6",
+        "role_name": "Systems Architect",
+        "model": "opus-4.7",
+        "effort": 75,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 18000,
+        "tools_claude_code": [
+          "Read",
+          "Write",
+          "Edit",
+          "Grep",
+          "Bash"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_data",
+          "action": "inventory_snapshot",
+          "params_hint": "{engines:[ContextInventory,ERPTool,JMDieProgram,Plugin,InventoryEOQ,InventoryOptimization,InventoryAwareToolSelector,ToolInventoryOrchestrator]}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "register_sessionstart_hook",
+          "params_hint": "{hook:session_start_inventory_inject.mjs}"
+        },
+        {
+          "tool": "mcp__prism__prism_context",
+          "action": "inject_inventory_digest",
+          "params_hint": "{max_tokens:4000}"
+        }
+      ],
+      "skills": [
+        "/dedup"
+      ],
+      "scripts": [
+        "mcp-server/scripts/inventory-delta-report.ts"
+      ],
+      "hooks": [
+        "session_start_inventory_inject"
+      ],
+      "features": [
+        "sessionstart-hook",
+        "inventory-cascade"
+      ],
+      "entry_conditions": [
+        "U-ACT03 complete",
+        "AWARE-MS0 hooks already installed"
+      ],
+      "dependencies": [
+        "U-ACT03"
+      ],
+      "knowledge_sources": [
+        "ContextInventoryEngine.ts",
+        "ERPToolInventoryEngine.ts",
+        "InventoryAwareToolSelectorEngine.ts",
+        "InventoryEOQEngine.ts",
+        "InventoryOptimizationEngine.ts",
+        "JMDieProgramInventoryEngine.ts",
+        "PluginInventoryEngine.ts",
+        "ToolInventoryOrchestratorEngine.ts"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Audit public API of 8 inventory engines (getState(), snapshot(), etc.)",
+          "tool_calls": [
+            "Grep: 'export.*Engine\\|public get\\|public snapshot' in inventory engines"
+          ],
+          "validation": "Identify common snapshot() interface or design unified one"
+        },
+        {
+          "number": 2,
+          "instruction": "Create InventoryOrchestrationEngine.ts if unified entry needed (check dedup first)",
+          "tool_calls": [
+            "Bash: check duplicationGuardEngine",
+            "Read: ToolInventoryOrchestratorEngine.ts"
+          ],
+          "validation": "Reuse ToolInventoryOrchestratorEngine if it handles multi-source; else extend"
+        },
+        {
+          "number": 3,
+          "instruction": "Write session-start-inventory-injector.mjs hook",
+          "tool_calls": [
+            "Write: H:/prism/.claude/hooks/session_start_inventory_inject.mjs"
+          ],
+          "validation": "Hook outputs compact inventory summary (~4K tokens) on SessionStart"
+        },
+        {
+          "number": 4,
+          "instruction": "Generate inventory delta report (current vs last session)",
+          "tool_calls": [
+            "Write: mcp-server/scripts/inventory-delta-report.ts"
+          ],
+          "validation": "Reports: +N engines, -M deprecated, +K actions, new dispatchers"
+        },
+        {
+          "number": 5,
+          "instruction": "Register hook in SessionStart hook chain",
+          "tool_calls": [
+            "Edit: settings.json hook registration OR .claude/hooks/registry.json"
+          ],
+          "validation": "Hook fires on next SessionStart"
+        },
+        {
+          "number": 6,
+          "instruction": "Test inventory injection with mock SessionStart",
+          "tool_calls": [
+            "Bash: echo '{}' | node H:/prism/.claude/hooks/session_start_inventory_inject.mjs"
+          ],
+          "validation": "Output contains {engines:N, dispatchers:M, actions:K, tools:T, delta:{added, removed}}"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "H:/prism/.claude/hooks/session_start_inventory_inject.mjs",
+          "type": "hook",
+          "description": "SessionStart inventory hydration",
+          "line_count_est": 150
+        },
+        {
+          "path": "mcp-server/scripts/inventory-delta-report.ts",
+          "type": "script",
+          "description": "Session-to-session inventory diff",
+          "line_count_est": 200
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/session_start_inventory_inject.mjs",
+        "mcp-server/scripts/inventory-delta-report.ts"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "Inventory injection exceeds 10K tokens",
+        "SessionStart latency >2s p99 (Phase 0.16 budget)",
+        "Any engine snapshot throws on empty state"
+      ],
+      "rollback": "rm .claude/hooks/session_start_inventory_inject.mjs mcp-server/scripts/inventory-delta-report.ts",
+      "exit_gate": {
+        "criteria": [
+          "SessionStart injects 4K±1K token inventory digest",
+          "All 8 inventory engines queried",
+          "Delta report shows added/removed since prior session"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+2.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Activate 8 Inventory Engines in SessionStart Context — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-ACT05",
+      "phase": "P1",
+      "phase_number": 1,
+      "sequence": 5,
+      "title": "Start Qdrant + Populate Cross-Session Asset Embeddings",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 75,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "30%",
+      "context_budget_tokens": 18000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-ACT04"
+      ],
+      "rationale": "Qdrant + Ollama embedding wiring touches disk/network bounds — need Opus for batch-size tuning under resource constraints. Leverages existing LocalEmbedding + Qdrant engines.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 75,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 18000,
+        "tools_claude_code": [
+          "Edit",
+          "Write",
+          "Bash",
+          "Read"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_memory",
+          "action": "qdrant_create_collection",
+          "params_hint": "{name:prism_assets, size:768, distance:Cosine}"
+        },
+        {
+          "tool": "mcp__prism__prism_memory",
+          "action": "qdrant_batch_upsert",
+          "params_hint": "{batch_size:50, total:3000+}"
+        },
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "ollama_embed_batch",
+          "params_hint": "{model:nomic-embed-text}"
+        }
+      ],
+      "skills": [],
+      "scripts": [
+        "mcp-server/scripts/populate-qdrant.ts"
+      ],
+      "hooks": [],
+      "features": [
+        "qdrant",
+        "vector-memory",
+        "semantic-search"
+      ],
+      "entry_conditions": [
+        "U-ACT02 + U-ACT03 complete",
+        "Disk free ≥10 GB"
+      ],
+      "dependencies": [
+        "U-ACT02",
+        "U-ACT03"
+      ],
+      "knowledge_sources": [
+        "QdrantMemoryEngine.ts",
+        "SemanticAssetIndexEngine.ts",
+        "LocalEmbeddingEngine.ts",
+        "mcp-server/data/state/cross-session-asset-registry.json"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Add Qdrant service to docker-compose.yml",
+          "tool_calls": [
+            "Edit: H:/prism/docker-compose.yml (append qdrant service)"
+          ],
+          "validation": "qdrant service defined with port 6333, volume for storage"
+        },
+        {
+          "number": 2,
+          "instruction": "Start Qdrant container",
+          "tool_calls": [
+            "Bash: docker compose up -d qdrant"
+          ],
+          "validation": "curl http://localhost:6333/collections returns 200"
+        },
+        {
+          "number": 3,
+          "instruction": "Create 'prism_assets' collection (768-dim, cosine distance)",
+          "tool_calls": [
+            "Bash: curl -X PUT http://localhost:6333/collections/prism_assets -H 'Content-Type: application/json' -d '{\"vectors\":{\"size\":768,\"distance\":\"Cosine\"}}'"
+          ],
+          "validation": "Collection listed in Qdrant dashboard"
+        },
+        {
+          "number": 4,
+          "instruction": "Write populate-qdrant.ts to batch-embed assets",
+          "tool_calls": [
+            "Write: mcp-server/scripts/populate-qdrant.ts"
+          ],
+          "validation": "Script reads registry, calls Ollama nomic-embed-text, upserts to Qdrant with {id, engineName, desc, keywords} payload"
+        },
+        {
+          "number": 5,
+          "instruction": "Run population for all 2405 engines + 419 actions + 241 skills",
+          "tool_calls": [
+            "Bash: npx tsx mcp-server/scripts/populate-qdrant.ts"
+          ],
+          "validation": "Qdrant collection count ≥ 3000 vectors"
+        },
+        {
+          "number": 6,
+          "instruction": "Benchmark query latency",
+          "tool_calls": [
+            "Bash: time curl -X POST http://localhost:6333/collections/prism_assets/points/search -d '{\"vector\":[...],\"limit\":10}'"
+          ],
+          "validation": "Query latency <100ms p99 on 3K+ vectors"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/scripts/populate-qdrant.ts",
+          "type": "script",
+          "description": "Batch-embed PRISM assets to Qdrant",
+          "line_count_est": 250
+        },
+        {
+          "path": "mcp-server/data/state/QDRANT_COLLECTION_INDEX.json",
+          "type": "state",
+          "description": "Maps collection name → purpose + size + last indexed",
+          "line_count_est": 50
+        }
+      ],
+      "files_created": [
+        "mcp-server/scripts/populate-qdrant.ts",
+        "mcp-server/data/state/QDRANT_COLLECTION_INDEX.json"
+      ],
+      "files_modified": [
+        "H:/prism/docker-compose.yml"
+      ],
+      "abort_criteria": [
+        "Ollama embedding latency >500ms per batch of 10",
+        "Qdrant collection size >5 GB on disk",
+        "Query latency >500ms p99"
+      ],
+      "rollback": "docker compose down qdrant; docker volume rm prism-qdrant-data; git restore H:/prism/docker-compose.yml",
+      "exit_gate": {
+        "criteria": [
+          "Qdrant serving at :6333",
+          "≥3000 vectors in prism_assets collection",
+          "Query latency <100ms p99",
+          "SemanticSimilarityGuardEngine switched from placeholder to Qdrant backend"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+2.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Start Qdrant + Populate Cross-Session Asset Embeddings — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-ACT06",
+      "phase": "P1",
+      "phase_number": 1,
+      "sequence": 6,
+      "title": "Smoke Test Phase A End-to-End (Route → Ollama for Embeds, Claude for Reasoning)",
+      "role": "R8",
+      "role_name": "Verification Specialist",
+      "model": "sonnet-4.6",
+      "effort": 50,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "20%",
+      "context_budget_tokens": 12000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "Smoke test is mechanical: given routing/embedding/search primitives, exercise each and measure. Sonnet cost-efficient.",
+      "smartConfig": {
+        "role": "R8",
+        "role_name": "Verification Specialist",
+        "model": "sonnet-4.6",
+        "effort": 50,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 12000,
+        "tools_claude_code": [
+          "Write",
+          "Bash",
+          "Read"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "end_to_end_route_test",
+          "params_hint": "{scenarios:[embed,search,safety,bulk,inventory]}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "assert_latency_p99",
+          "params_hint": "{embed<100ms, search<100ms, infer<3s}"
+        },
+        {
+          "tool": "mcp__prism__prism_monitoring",
+          "action": "scrape_phase_a_metrics",
+          "params_hint": "{output:state/shared/PHASE_A_SMOKE_REPORT.json}"
+        }
+      ],
+      "skills": [
+        "/scrutinize"
+      ],
+      "scripts": [
+        "mcp-server/scripts/phase-a-smoke-test.ts"
+      ],
+      "hooks": [],
+      "features": [
+        "integration-test",
+        "metric-collection"
+      ],
+      "entry_conditions": [
+        "U-ACT01..05 all complete"
+      ],
+      "dependencies": [
+        "U-ACT01",
+        "U-ACT02",
+        "U-ACT03",
+        "U-ACT04",
+        "U-ACT05"
+      ],
+      "knowledge_sources": [
+        "ROUTING_TABLE.json",
+        "OLLAMA_MODEL_CATALOG.json",
+        "QDRANT_COLLECTION_INDEX.json"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create phase-a-smoke-test.ts",
+          "tool_calls": [
+            "Write: mcp-server/scripts/phase-a-smoke-test.ts"
+          ],
+          "validation": "Exercises: embedding call (Ollama), semantic search (Qdrant), safety decision (Claude route), bulk scan (Ollama route), inventory query"
+        },
+        {
+          "number": 2,
+          "instruction": "Run smoke test",
+          "tool_calls": [
+            "Bash: npx tsx mcp-server/scripts/phase-a-smoke-test.ts"
+          ],
+          "validation": "All 5 paths green in <30s total"
+        },
+        {
+          "number": 3,
+          "instruction": "Write smoke report to gauntlet folder",
+          "tool_calls": [
+            "Write: mcp-server/data/gauntlet/phase-a-2026-04-18.json"
+          ],
+          "validation": "Report shows all gates passed + latency metrics"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/scripts/phase-a-smoke-test.ts",
+          "type": "script",
+          "description": "End-to-end verification of Phase A activation",
+          "line_count_est": 300
+        },
+        {
+          "path": "mcp-server/data/gauntlet/phase-a-YYYY-MM-DD.json",
+          "type": "state",
+          "description": "Gauntlet result record",
+          "line_count_est": 80
+        }
+      ],
+      "files_created": [
+        "mcp-server/scripts/phase-a-smoke-test.ts",
+        "mcp-server/data/gauntlet/phase-a-YYYY-MM-DD.json"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "Any smoke test path fails",
+        "Total smoke runtime >60s",
+        "Any routing decision violates safety-critical rule"
+      ],
+      "rollback": "rm mcp-server/scripts/phase-a-smoke-test.ts mcp-server/data/gauntlet/phase-a-*.json",
+      "exit_gate": {
+        "criteria": [
+          "5/5 smoke paths green",
+          "Ollama responds for embed + bulk",
+          "Claude responds for safety-critical + reasoning",
+          "Qdrant returns results for semantic search",
+          "Inventory injection verified in-context"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+0.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Smoke Test Phase A End-to-End (Route → Ollama for Embeds, Claude for Reasoning) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTX01",
+      "phase": "P2",
+      "phase_number": 2,
+      "sequence": 7,
+      "title": "Tier-1 Always-On SessionStart (~80K Budget)",
+      "role": "R6",
+      "role_name": "Systems Architect",
+      "model": "opus-4.7",
+      "effort": 80,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "50%",
+      "context_budget_tokens": 80000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "80K tier-1 budget design requires architect-level judgment on contents ordering + compression + cache-TTL economics. One-shot design, no parallelism.",
+      "smartConfig": {
+        "role": "R6",
+        "role_name": "Systems Architect",
+        "model": "opus-4.7",
+        "effort": 80,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 80000,
+        "tools_claude_code": [
+          "Read",
+          "Write",
+          "Edit",
+          "Grep"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "tier1_inject",
+          "params_hint": "{budget:80000, contents:[master_index,inventory_delta,capability_manifests,svi,posterior,user_model,work_registry,trace]}"
+        },
+        {
+          "tool": "mcp__prism__prism_context",
+          "action": "compose_tier1_pack",
+          "params_hint": "{measure_tokens:true, hard_cap:80000}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "cache_ttl_monitor",
+          "params_hint": "{ttl_seconds:300}"
+        }
+      ],
+      "skills": [
+        "/startup",
+        "/scrutinize"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_session_start_bolster"
+      ],
+      "features": [
+        "tier-1-always-on",
+        "cache-aware-loading"
+      ],
+      "entry_conditions": [
+        "Phase 1 complete",
+        "MASTER_INDEX_COMPACT.md ≤32K"
+      ],
+      "dependencies": [
+        "U-ACT06"
+      ],
+      "knowledge_sources": [
+        "MASTER_INDEX_COMPACT.md",
+        "PRISM_CAPABILITY_MANIFEST.md",
+        "MILL_CAPABILITY_MANIFEST.json",
+        "WEDM_CAPABILITY_MANIFEST.json",
+        "compaction-survival.mjs"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create session-start-tier1-bolster.mjs that assembles 80K tier-1 payload",
+          "tool_calls": [
+            "Write: H:/prism/.claude/hooks/session_start_tier1_bolster.mjs"
+          ],
+          "validation": "Hook reads 10 sources, assembles compact ≤80K inject"
+        },
+        {
+          "number": 2,
+          "instruction": "Build Thompson posterior snapshot serializer",
+          "tool_calls": [
+            "Write: mcp-server/scripts/serialize-bandit-posterior.ts"
+          ],
+          "validation": "Outputs BANDIT_POSTERIOR.json with {armName, α, β, lastUpdate}"
+        },
+        {
+          "number": 3,
+          "instruction": "Build user model state serializer",
+          "tool_calls": [
+            "Read: UserModelEngine.ts",
+            "Write: mcp-server/scripts/serialize-user-model.ts"
+          ],
+          "validation": "Outputs compact user model ≤2K tokens"
+        },
+        {
+          "number": 4,
+          "instruction": "Hook REASONING_TRACE_LEDGER last-100 serializer",
+          "tool_calls": [
+            "Edit: MillingReasoningTraceLedgerEngine.ts (add global tail)"
+          ],
+          "validation": "Global REASONING_TRACE_LEDGER.jsonl accumulates across domains"
+        },
+        {
+          "number": 5,
+          "instruction": "Measure tier-1 inject size + latency",
+          "tool_calls": [
+            "Bash: echo '{}' | node .claude/hooks/session_start_tier1_bolster.mjs | wc -c"
+          ],
+          "validation": "Output 60K-100K chars, p99 latency <1.5s"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "H:/prism/.claude/hooks/session_start_tier1_bolster.mjs",
+          "type": "hook",
+          "description": "80K tier-1 always-on inject",
+          "line_count_est": 300
+        },
+        {
+          "path": "mcp-server/scripts/serialize-bandit-posterior.ts",
+          "type": "script",
+          "description": "Thompson snapshot serializer",
+          "line_count_est": 100
+        },
+        {
+          "path": "mcp-server/scripts/serialize-user-model.ts",
+          "type": "script",
+          "description": "User model state serializer",
+          "line_count_est": 80
+        },
+        {
+          "path": "mcp-server/data/state/BANDIT_POSTERIOR.json",
+          "type": "state",
+          "description": "Live Thompson posterior snapshot",
+          "line_count_est": 150
+        },
+        {
+          "path": "mcp-server/data/state/REASONING_TRACE_LEDGER.jsonl",
+          "type": "state",
+          "description": "Global reasoning trace (append-only)",
+          "line_count_est": 0
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/session_start_tier1_bolster.mjs",
+        "mcp-server/scripts/serialize-bandit-posterior.ts",
+        "mcp-server/scripts/serialize-user-model.ts",
+        "mcp-server/data/state/BANDIT_POSTERIOR.json",
+        "mcp-server/data/state/REASONING_TRACE_LEDGER.jsonl"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/MillingReasoningTraceLedgerEngine.ts"
+      ],
+      "abort_criteria": [
+        "Tier-1 inject exceeds 100K tokens",
+        "SessionStart latency >2s p99",
+        "Payload signal-to-noise ratio < 0.7 (measured by relevance-to-prompt)"
+      ],
+      "rollback": "git restore mcp-server/src/engines/MillingReasoningTraceLedgerEngine.ts; rm .claude/hooks/session_start_tier1_bolster.mjs mcp-server/scripts/serialize-bandit-posterior.ts mcp-server/scripts/serialize-user-model.ts mcp-server/data/state/BANDIT_POSTERIOR.json mcp-server/data/state/REASONING_TRACE_LEDGER.jsonl",
+      "exit_gate": {
+        "criteria": [
+          "Tier-1 payload 60K-100K tokens",
+          "10 sources present",
+          "Latency <1.5s p99",
+          "Inventory delta included"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+3.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Tier-1 Always-On SessionStart (~80K Budget) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTX02",
+      "phase": "P2",
+      "phase_number": 2,
+      "sequence": 8,
+      "title": "Hierarchical CLAUDE.md Loader (Subsystem Proximity)",
+      "role": "R6",
+      "role_name": "Systems Architect",
+      "model": "opus-4.7",
+      "effort": 50,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "30%",
+      "context_budget_tokens": 18000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-CTX06"
+      ],
+      "rationale": "Proximity-based CLAUDE.md loading (global → project → subsystem) uses known Claude Code convention. Low risk, documentation-heavy work — physics CLAUDE.md MUST reference constants.ts by import only, no inline values.",
+      "smartConfig": {
+        "role": "R6",
+        "role_name": "Systems Architect",
+        "model": "opus-4.7",
+        "effort": 50,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 18000,
+        "tools_claude_code": [
+          "Write",
+          "Read",
+          "Edit"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_doc",
+          "action": "hierarchical_claude_md_scan",
+          "params_hint": "{tree:[global,project,subsystem]}"
+        },
+        {
+          "tool": "mcp__prism__prism_context",
+          "action": "inject_proximal_claude_md",
+          "params_hint": "{cwd_aware:true}"
+        }
+      ],
+      "skills": [
+        "/scrutinize"
+      ],
+      "scripts": [],
+      "hooks": [],
+      "features": [
+        "hierarchical-context",
+        "subsystem-claude-md"
+      ],
+      "entry_conditions": [
+        "Phase 1 complete"
+      ],
+      "dependencies": [
+        "U-CTX01"
+      ],
+      "knowledge_sources": [
+        "H:/prism/CLAUDE.md",
+        "H:/prism/mcp-server/CLAUDE.md",
+        "C:/Users/wompu/.claude/CLAUDE.md"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create CLAUDE.md files for 4 key subsystems",
+          "tool_calls": [
+            "Write: mcp-server/src/engines/CLAUDE.md",
+            "Write: mcp-server/src/physics/CLAUDE.md",
+            "Write: mcp-server/src/tools/dispatchers/CLAUDE.md",
+            "Write: mcp-server/src/hooks/CLAUDE.md"
+          ],
+          "validation": "Each contains local invariants (e.g., physics/CLAUDE.md has canonical constants)"
+        },
+        {
+          "number": 2,
+          "instruction": "Write loader that detects cwd proximity to subsystem",
+          "tool_calls": [
+            "Write: mcp-server/scripts/hierarchical-claudemd-loader.ts"
+          ],
+          "validation": "Loader finds closest CLAUDE.md up the tree, merges with parents"
+        },
+        {
+          "number": 3,
+          "instruction": "Integrate loader into SessionStart chain",
+          "tool_calls": [
+            "Edit: .claude/hooks/session_start_tier1_bolster.mjs"
+          ],
+          "validation": "Hierarchical CLAUDE.md included in tier-1 inject"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/src/engines/CLAUDE.md",
+          "type": "doc",
+          "description": "Engine-layer local rules",
+          "line_count_est": 120
+        },
+        {
+          "path": "mcp-server/src/physics/CLAUDE.md",
+          "type": "doc",
+          "description": "Physics canonical constants inline + Kienzle/Taylor/S(x) rules",
+          "line_count_est": 200
+        },
+        {
+          "path": "mcp-server/src/tools/dispatchers/CLAUDE.md",
+          "type": "doc",
+          "description": "Dispatcher wiring + z.enum rules",
+          "line_count_est": 100
+        },
+        {
+          "path": "mcp-server/src/hooks/CLAUDE.md",
+          "type": "doc",
+          "description": "Hook conventions + registry rules",
+          "line_count_est": 80
+        },
+        {
+          "path": "mcp-server/scripts/hierarchical-claudemd-loader.ts",
+          "type": "script",
+          "description": "cwd-proximity loader",
+          "line_count_est": 150
+        }
+      ],
+      "files_created": [
+        "mcp-server/src/engines/CLAUDE.md",
+        "mcp-server/src/physics/CLAUDE.md",
+        "mcp-server/src/tools/dispatchers/CLAUDE.md",
+        "mcp-server/src/hooks/CLAUDE.md",
+        "mcp-server/scripts/hierarchical-claudemd-loader.ts"
+      ],
+      "files_modified": [
+        ".claude/hooks/session_start_tier1_bolster.mjs"
+      ],
+      "abort_criteria": [
+        "Any CLAUDE.md contains outdated counts (caught by DocPropagationEngine)",
+        "Loader latency >300ms",
+        "Merged CLAUDE.md >30K tokens"
+      ],
+      "rollback": "rm mcp-server/src/engines/CLAUDE.md mcp-server/src/physics/CLAUDE.md mcp-server/src/tools/dispatchers/CLAUDE.md mcp-server/src/hooks/CLAUDE.md mcp-server/scripts/hierarchical-claudemd-loader.ts; git restore .claude/hooks/session_start_tier1_bolster.mjs",
+      "exit_gate": {
+        "criteria": [
+          "4 subsystem CLAUDE.md files created",
+          "Loader merges by proximity correctly",
+          "Physics CLAUDE.md has inline canonical constants",
+          "DocPropagationEngine syncs counts live"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+1.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Hierarchical CLAUDE.md Loader (Subsystem Proximity) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTX03",
+      "phase": "P2",
+      "phase_number": 2,
+      "sequence": 9,
+      "title": "Rich PreCompact Dossier Generator (Mental Model Preservation)",
+      "role": "R1",
+      "role_name": "TypeScript Engineer",
+      "role_support": "R6 Systems Architect",
+      "model": "opus-4.7",
+      "effort": 85,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "30%",
+      "context_budget_tokens": 100000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "Tier-3 survival dossier IS the compaction-boundary crossing contract. Failure here loses mental model. Opus for completeness + edge-case coverage (interrupted reasoning, partial work).",
+      "smartConfig": {
+        "role": "R1",
+        "role_name": "TypeScript Engineer",
+        "model": "opus-4.7",
+        "effort": 85,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 100000,
+        "tools_claude_code": [
+          "Read",
+          "Write",
+          "Edit",
+          "Bash"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_memory",
+          "action": "dossier_snapshot",
+          "params_hint": "{fields:[reasoning_chain,todos,diff,posterior,svi,locks,trace,mental_model]}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "precompact_hook_register",
+          "params_hint": "{hook:precompact-dossier.mjs}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "measure_dossier_size",
+          "params_hint": "{hard_cap:100000}"
+        }
+      ],
+      "skills": [
+        "/compact"
+      ],
+      "scripts": [],
+      "hooks": [
+        "precompact-dossier"
+      ],
+      "features": [
+        "tier-3-survival",
+        "mental-model-preservation"
+      ],
+      "entry_conditions": [
+        "Phase 1 complete",
+        "U-CTX01 tier-1 design landed"
+      ],
+      "dependencies": [
+        "U-CTX01"
+      ],
+      "knowledge_sources": [
+        ".claude/helpers/compaction-survival.mjs",
+        ".claude/helpers/.compaction-survival.md"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Audit current compaction-survival.mjs (what it captures now)",
+          "tool_calls": [
+            "Read: .claude/helpers/compaction-survival.mjs"
+          ],
+          "validation": "Understand current ~5K survival payload"
+        },
+        {
+          "number": 2,
+          "instruction": "Design 50-100K dossier schema: {reasoning_chain, open_todos, uncommitted_diff_summary, bandit_state, svi_trajectory, live_claims, last_20_tool_outcomes, mental_model}",
+          "tool_calls": [
+            "Write: mcp-server/src/schemas/precompactDossierSchema.ts"
+          ],
+          "validation": "Zod schema for dossier structure"
+        },
+        {
+          "number": 3,
+          "instruction": "Extend compaction-survival.mjs to emit dossier",
+          "tool_calls": [
+            "Edit: .claude/helpers/compaction-survival.mjs"
+          ],
+          "validation": "Dossier written to .compaction-survival-<session>.md with rich payload"
+        },
+        {
+          "number": 4,
+          "instruction": "Add mental-model extractor (summarize what was being solved, what was tried)",
+          "tool_calls": [
+            "Write: mcp-server/scripts/extract-mental-model.ts"
+          ],
+          "validation": "Extractor reads recent tool calls + reasoning ledger + open todos → 2K-summary"
+        },
+        {
+          "number": 5,
+          "instruction": "Test compaction cycle with rich dossier",
+          "tool_calls": [
+            "Bash: node .claude/helpers/compaction-survival.mjs --dry-run"
+          ],
+          "validation": "Dossier ≤100K, validates against schema"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/src/schemas/precompactDossierSchema.ts",
+          "type": "schema",
+          "description": "Dossier Zod schema",
+          "line_count_est": 100
+        },
+        {
+          "path": "mcp-server/scripts/extract-mental-model.ts",
+          "type": "script",
+          "description": "Mental model summarizer",
+          "line_count_est": 200
+        }
+      ],
+      "files_created": [
+        "mcp-server/src/schemas/precompactDossierSchema.ts",
+        "mcp-server/scripts/extract-mental-model.ts"
+      ],
+      "files_modified": [
+        ".claude/helpers/compaction-survival.mjs"
+      ],
+      "abort_criteria": [
+        "Dossier >150K tokens",
+        "Extraction latency >3s",
+        "Schema validation fails on reference session"
+      ],
+      "rollback": "git restore .claude/helpers/compaction-survival.mjs; rm mcp-server/src/schemas/precompactDossierSchema.ts mcp-server/scripts/extract-mental-model.ts",
+      "exit_gate": {
+        "criteria": [
+          "Dossier payload 50K-100K",
+          "Schema validates",
+          "Mental model captures last task",
+          "Bandit/SVI/claims included"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+2.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Rich PreCompact Dossier Generator (Mental Model Preservation) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTX04",
+      "phase": "P2",
+      "phase_number": 2,
+      "sequence": 10,
+      "title": "PostCompact Restoration Cascade (Warm Start)",
+      "role": "R1",
+      "role_name": "TypeScript Engineer",
+      "model": "opus-4.7",
+      "effort": 60,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "25%",
+      "context_budget_tokens": 15000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "Mirror of U-CTX03 on the restore side — reads dossier, rehydrates state. Depends on dossier contract from U-CTX03 being stable.",
+      "smartConfig": {
+        "role": "R1",
+        "role_name": "TypeScript Engineer",
+        "model": "opus-4.7",
+        "effort": 60,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 15000,
+        "tools_claude_code": [
+          "Read",
+          "Write",
+          "Bash"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_memory",
+          "action": "dossier_restore",
+          "params_hint": "{verify_checksum:true, fallback:last_known_good}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "postcompact_hook_register",
+          "params_hint": "{hook:postcompact-warm.mjs}"
+        },
+        {
+          "tool": "mcp__prism__prism_context",
+          "action": "replay_reasoning_chain",
+          "params_hint": "{max_entries:100}"
+        }
+      ],
+      "skills": [
+        "/compact"
+      ],
+      "scripts": [],
+      "hooks": [
+        "postcompact-warm"
+      ],
+      "features": [
+        "warm-start",
+        "mental-model-restore"
+      ],
+      "entry_conditions": [
+        "U-CTX03 complete"
+      ],
+      "dependencies": [
+        "U-CTX03"
+      ],
+      "knowledge_sources": [
+        ".claude/helpers/compaction-survival.mjs",
+        "PostCompact hook chain"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create PostCompact restoration hook",
+          "tool_calls": [
+            "Write: .claude/hooks/post_compact_restore.mjs"
+          ],
+          "validation": "Hook reads dossier + git delta + open claims, emits restoration prompt"
+        },
+        {
+          "number": 2,
+          "instruction": "Add git-delta capture since session start",
+          "tool_calls": [
+            "Write: mcp-server/scripts/git-delta-since.ts"
+          ],
+          "validation": "Script emits compact diff summary (files changed + ±N lines)"
+        },
+        {
+          "number": 3,
+          "instruction": "Add last-20-tool-outcomes capture",
+          "tool_calls": [
+            "Write: mcp-server/scripts/recent-tool-outcomes.ts"
+          ],
+          "validation": "Emits last 20 tool calls with name, outcome (ok/err), brief result"
+        },
+        {
+          "number": 4,
+          "instruction": "Test restoration cycle (simulate compact → restore)",
+          "tool_calls": [
+            "Bash: node scripts/test-compact-restore-cycle.ts"
+          ],
+          "validation": "After restore: prior mental model accessible, todos intact, claims preserved"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".claude/hooks/post_compact_restore.mjs",
+          "type": "hook",
+          "description": "PostCompact warm-start cascade",
+          "line_count_est": 150
+        },
+        {
+          "path": "mcp-server/scripts/git-delta-since.ts",
+          "type": "script",
+          "description": "Git delta from session start",
+          "line_count_est": 120
+        },
+        {
+          "path": "mcp-server/scripts/recent-tool-outcomes.ts",
+          "type": "script",
+          "description": "Last-20 tool call summary",
+          "line_count_est": 100
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/post_compact_restore.mjs",
+        "mcp-server/scripts/git-delta-since.ts",
+        "mcp-server/scripts/recent-tool-outcomes.ts"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "Restoration overflow (>80K inject after compact)",
+        "Post-compact hook causes tool-thrash loop",
+        "Git delta >5K lines (session out of scope)"
+      ],
+      "rollback": "rm .claude/hooks/post_compact_restore.mjs mcp-server/scripts/git-delta-since.ts mcp-server/scripts/recent-tool-outcomes.ts",
+      "exit_gate": {
+        "criteria": [
+          "PostCompact hook fires within 500ms",
+          "Restoration payload ≤60K",
+          "Mental model survives compaction boundary",
+          "No thrash loop detected"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+2.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "PostCompact Restoration Cascade (Warm Start) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTX05",
+      "phase": "P2",
+      "phase_number": 2,
+      "sequence": 11,
+      "title": "Multi-Session Handoff Chain (Last 5 Sessions Injected)",
+      "role": "R6",
+      "role_name": "Systems Architect",
+      "model": "opus-4.7",
+      "effort": 55,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "25%",
+      "context_budget_tokens": 15000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-CTX06"
+      ],
+      "rationale": "Persistent 5-session handoff chain via prism_memory. Architect picks compression strategy (summarize older sessions, keep recent raw).",
+      "smartConfig": {
+        "role": "R6",
+        "role_name": "Systems Architect",
+        "model": "opus-4.7",
+        "effort": 55,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 15000,
+        "tools_claude_code": [
+          "Write",
+          "Read",
+          "Bash"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_memory",
+          "action": "handoff_chain_append",
+          "params_hint": "{ring_buffer_size:5}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "inject_handoff_chain",
+          "params_hint": "{ordering:newest_first, max_tokens:12000}"
+        },
+        {
+          "tool": "mcp__prism__prism_data",
+          "action": "write_session_continuity_chain",
+          "params_hint": "{path:mcp-server/data/state/SESSION_CONTINUITY_CHAIN.json}"
+        }
+      ],
+      "skills": [
+        "/startup",
+        "/handoff"
+      ],
+      "scripts": [],
+      "hooks": [],
+      "features": [
+        "handoff-chain",
+        "multi-session-continuity"
+      ],
+      "entry_conditions": [
+        "U-CTX03 + U-CTX04 complete"
+      ],
+      "dependencies": [
+        "U-CTX01"
+      ],
+      "knowledge_sources": [
+        "state/shared/HANDOFF-*.md",
+        "SESSION_CONTINUITY_CHAIN.json (new)"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create SESSION_CONTINUITY_CHAIN.json tracker",
+          "tool_calls": [
+            "Write: state/shared/SESSION_CONTINUITY_CHAIN.json"
+          ],
+          "validation": "Tracks last 5 sessions: {id, family, handoffPath, summary, timestamp}"
+        },
+        {
+          "number": 2,
+          "instruction": "Write rolling update hook (append on session end)",
+          "tool_calls": [
+            "Write: .claude/hooks/session_end_continuity_chain.mjs"
+          ],
+          "validation": "Hook appends current session, trims to last 5"
+        },
+        {
+          "number": 3,
+          "instruction": "Inject last 5 handoffs at SessionStart",
+          "tool_calls": [
+            "Edit: .claude/hooks/session_start_tier1_bolster.mjs"
+          ],
+          "validation": "Tier-1 inject contains continuity chain summary (~3K tokens)"
+        },
+        {
+          "number": 4,
+          "instruction": "Add staleness warning (handoff >24h flagged)",
+          "tool_calls": [
+            "Edit: stop_on_stale_handoff.mjs to consult chain"
+          ],
+          "validation": "Warn if any chain entry stale"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "state/shared/SESSION_CONTINUITY_CHAIN.json",
+          "type": "state",
+          "description": "Last-5 session chain",
+          "line_count_est": 80
+        },
+        {
+          "path": ".claude/hooks/session_end_continuity_chain.mjs",
+          "type": "hook",
+          "description": "Rolling chain updater",
+          "line_count_est": 80
+        }
+      ],
+      "files_created": [
+        "state/shared/SESSION_CONTINUITY_CHAIN.json",
+        ".claude/hooks/session_end_continuity_chain.mjs"
+      ],
+      "files_modified": [
+        ".claude/hooks/session_start_tier1_bolster.mjs",
+        ".claude/hooks/stop_on_stale_handoff.mjs"
+      ],
+      "abort_criteria": [
+        "Chain exceeds 5 entries (trim fails)",
+        "Injection >5K tokens",
+        "Handoff staleness detector gives false positives"
+      ],
+      "rollback": "rm state/shared/SESSION_CONTINUITY_CHAIN.json .claude/hooks/session_end_continuity_chain.mjs; git restore .claude/hooks/session_start_tier1_bolster.mjs .claude/hooks/stop_on_stale_handoff.mjs",
+      "exit_gate": {
+        "criteria": [
+          "Chain maintains last 5 sessions",
+          "SessionStart inject includes chain",
+          "Stale warnings fire correctly"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta_target": "+1.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Multi-Session Handoff Chain (Last 5 Sessions Injected) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTX06",
+      "phase": "P2",
+      "phase_number": 2,
+      "sequence": 12,
+      "title": "Inline Heavy Skills (/forge, /scrutinize, /mill-harden) with Examples + Decision Trees",
+      "role": "R5",
+      "role_name": "Technical Writer",
+      "role_support": "R6 Systems Architect",
+      "model": "opus-4.7",
+      "effort": 55,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "30%",
+      "context_budget_tokens": 18000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-CTX02",
+        "U-CTX05"
+      ],
+      "rationale": "Skill documentation bolster — inline examples + decision trees lower cognitive cost per invocation. Technical-writer + architect pairing.",
+      "smartConfig": {
+        "role": "R5",
+        "role_name": "Technical Writer",
+        "model": "opus-4.7",
+        "effort": 55,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 18000,
+        "tools_claude_code": [
+          "Edit",
+          "Read",
+          "Write"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_doc",
+          "action": "inline_skill_examples",
+          "params_hint": "{skills:[/forge,/scrutinize,/mill-harden], add_decision_tree:true}"
+        },
+        {
+          "tool": "mcp__prism__prism_skill_script",
+          "action": "verify_skill_examples_parse",
+          "params_hint": "{lint:true}"
+        }
+      ],
+      "skills": [
+        "/forge",
+        "/scrutinize",
+        "/mill-harden"
+      ],
+      "scripts": [],
+      "hooks": [],
+      "features": [
+        "skill-inlining",
+        "decision-trees"
+      ],
+      "entry_conditions": [
+        "Phase 1 complete"
+      ],
+      "dependencies": [
+        "U-CTX01"
+      ],
+      "knowledge_sources": [
+        "H:/.claude/commands/forge.md",
+        "H:/.claude/commands/scrutinize.md",
+        "H:/.claude/commands/mill-harden.md"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Extract reusable example transcripts from git log",
+          "tool_calls": [
+            "Bash: git log --oneline --all | grep -iE 'forge|scrutinize|mill-harden' | head -20"
+          ],
+          "validation": "Identify 3 exemplar sessions per skill"
+        },
+        {
+          "number": 2,
+          "instruction": "Inline example transcripts + decision trees into each skill",
+          "tool_calls": [
+            "Edit: H:/.claude/commands/forge.md",
+            "Edit: H:/.claude/commands/scrutinize.md",
+            "Edit: H:/.claude/commands/mill-harden.md"
+          ],
+          "validation": "Each skill gains Section 5: 'Worked Examples' (3 per skill)"
+        },
+        {
+          "number": 3,
+          "instruction": "Add decision-tree section (when to use which sub-phase)",
+          "tool_calls": [
+            "Edit: same 3 skills"
+          ],
+          "validation": "Decision tree covers 80% of real-world invocations"
+        },
+        {
+          "number": 4,
+          "instruction": "Measure pre/post: tool-call count to complete a standard task",
+          "tool_calls": [
+            "Bash: benchmark baseline-forge-task.sh"
+          ],
+          "validation": "≥30% tool-call reduction on benchmark task"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "H:/.claude/commands/forge.md",
+          "type": "skill",
+          "description": "Inlined examples + decision tree",
+          "line_count_est": 350
+        },
+        {
+          "path": "H:/.claude/commands/scrutinize.md",
+          "type": "skill",
+          "description": "Inlined examples + decision tree",
+          "line_count_est": 280
+        },
+        {
+          "path": "H:/.claude/commands/mill-harden.md",
+          "type": "skill",
+          "description": "Inlined examples + decision tree",
+          "line_count_est": 260
+        }
+      ],
+      "files_created": [],
+      "files_modified": [
+        "H:/.claude/commands/forge.md",
+        "H:/.claude/commands/scrutinize.md",
+        "H:/.claude/commands/mill-harden.md"
+      ],
+      "abort_criteria": [
+        "Any skill exceeds 500 lines",
+        "Tool-call reduction <15%",
+        "Examples become outdated (>30d old)"
+      ],
+      "rollback": "git restore H:/.claude/commands/forge.md H:/.claude/commands/scrutinize.md H:/.claude/commands/mill-harden.md",
+      "exit_gate": {
+        "criteria": [
+          "3 skills enhanced with worked examples",
+          "Decision trees present",
+          "≥30% tool-call reduction on benchmark"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+1.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Inline Heavy Skills (/forge, /scrutinize, /mill-harden) with Examples + Decision Trees — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AI01",
+      "phase": "P3",
+      "phase_number": 3,
+      "sequence": 13,
+      "title": "WorldSimulator Bound to PreTool (Outcome Prediction)",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 85,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "35%",
+      "context_budget_tokens": 22000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "PredictiveWorldSimulator must run in-line before every tool call without breaking p99 latency budget (≤300ms). Opus required for latency-sensitive hot path design + fallback discipline.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 85,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 22000,
+        "tools_claude_code": [
+          "Read",
+          "Edit",
+          "Write",
+          "Bash"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "predict_tool_outcome",
+          "params_hint": "{timeout_ms:200, fallback:proceed}"
+        },
+        {
+          "tool": "mcp__prism__prism_intelligence",
+          "action": "worldsim_invoke",
+          "params_hint": "{tool_ref, param_sketch}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "record_prediction_vs_actual",
+          "params_hint": "{file:REASONING_TRACE_LEDGER.jsonl}"
+        }
+      ],
+      "skills": [
+        "/simulate"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_pretool_world_sim"
+      ],
+      "features": [
+        "pretool-prediction",
+        "latency-budgeted"
+      ],
+      "entry_conditions": [
+        "Phase 2 complete",
+        "PredictiveWorldSimulatorEngine present"
+      ],
+      "dependencies": [
+        "U-CTX06"
+      ],
+      "knowledge_sources": [
+        "PredictiveWorldSimulatorEngine.ts",
+        "MCP PreTool hook chain"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Audit PredictiveWorldSimulatorEngine capabilities",
+          "tool_calls": [
+            "Read: PredictiveWorldSimulatorEngine.ts"
+          ],
+          "validation": "Understand simulate() interface + confidence envelope"
+        },
+        {
+          "number": 2,
+          "instruction": "Create PreTool WorldSim hook (lightweight, <100ms)",
+          "tool_calls": [
+            "Write: .claude/hooks/pretool_world_sim.mjs"
+          ],
+          "validation": "Hook intercepts tool calls, runs simulate(), logs prediction"
+        },
+        {
+          "number": 3,
+          "instruction": "Only consult for high-stakes tools (Write/Edit/Bash with destructive flags)",
+          "tool_calls": [
+            "Edit: pretool_world_sim.mjs"
+          ],
+          "validation": "Skip for Read/Grep/Glob (zero-risk)"
+        },
+        {
+          "number": 4,
+          "instruction": "Log predictions for calibration",
+          "tool_calls": [
+            "Write: mcp-server/data/state/WORLD_SIM_PREDICTIONS.jsonl"
+          ],
+          "validation": "Each prediction logged with {toolCall, prediction, actual} for post-mortem calibration"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".claude/hooks/pretool_world_sim.mjs",
+          "type": "hook",
+          "description": "PreTool outcome prediction",
+          "line_count_est": 180
+        },
+        {
+          "path": "mcp-server/data/state/WORLD_SIM_PREDICTIONS.jsonl",
+          "type": "state",
+          "description": "Calibration log (append-only)",
+          "line_count_est": 0
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/pretool_world_sim.mjs",
+        "mcp-server/data/state/WORLD_SIM_PREDICTIONS.jsonl"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "Hook latency >150ms p99",
+        "Prediction accuracy <60% after 50 calls",
+        "False-positive blocks >5%"
+      ],
+      "rollback": "rm .claude/hooks/pretool_world_sim.mjs mcp-server/data/state/WORLD_SIM_PREDICTIONS.jsonl",
+      "exit_gate": {
+        "criteria": [
+          "Hook fires <100ms p99 for high-stakes tools",
+          "Predictions logged to calibration ledger",
+          "Read/Grep/Glob skipped (no overhead)"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+2.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "WorldSimulator Bound to PreTool (Outcome Prediction) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AI02",
+      "phase": "P3",
+      "phase_number": 3,
+      "sequence": 14,
+      "title": "Bayesian Posterior PostTool (Outcome Update)",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 80,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "35%",
+      "context_budget_tokens": 22000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-AI05"
+      ],
+      "rationale": "Bayesian update of posterior after each tool call — closes the prediction-actual loop. Calibration error ≤5% is the contract.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 80,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 22000,
+        "tools_claude_code": [
+          "Read",
+          "Edit",
+          "Write",
+          "Bash"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "bayesian_update",
+          "params_hint": "{prior, evidence, posterior_out}"
+        },
+        {
+          "tool": "mcp__prism__prism_intelligence",
+          "action": "calibration_check",
+          "params_hint": "{window:200_calls, error_bound:0.05}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "append_posterior_ledger",
+          "params_hint": "{file:mcp-server/data/state/BANDIT_POSTERIOR.json}"
+        }
+      ],
+      "skills": [
+        "/bayesian-calibrate"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_posttool_bayesian"
+      ],
+      "features": [
+        "bayesian-update",
+        "calibration-monitor"
+      ],
+      "entry_conditions": [
+        "U-AI01 complete"
+      ],
+      "dependencies": [
+        "U-AI01"
+      ],
+      "knowledge_sources": [
+        "BayesianInferenceEngine.ts",
+        "WORLD_SIM_PREDICTIONS.jsonl"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create PostTool Bayesian update hook",
+          "tool_calls": [
+            "Write: .claude/hooks/posttool_bayesian_update.mjs"
+          ],
+          "validation": "Hook reads prediction from PreTool log, compares to outcome, updates posterior"
+        },
+        {
+          "number": 2,
+          "instruction": "Wire to BANDIT_POSTERIOR.json for multi-arm updates",
+          "tool_calls": [
+            "Edit: BANDIT_POSTERIOR.json schema"
+          ],
+          "validation": "Posterior updates on tool success/failure"
+        },
+        {
+          "number": 3,
+          "instruction": "Calibration check: posterior convergence after N observations",
+          "tool_calls": [
+            "Write: mcp-server/scripts/bayesian-calibration-check.ts"
+          ],
+          "validation": "Reports calibration error <5% after 100 observations (per plan SVI target)"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".claude/hooks/posttool_bayesian_update.mjs",
+          "type": "hook",
+          "description": "PostTool posterior update",
+          "line_count_est": 150
+        },
+        {
+          "path": "mcp-server/scripts/bayesian-calibration-check.ts",
+          "type": "script",
+          "description": "Convergence validator",
+          "line_count_est": 120
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/posttool_bayesian_update.mjs",
+        "mcp-server/scripts/bayesian-calibration-check.ts"
+      ],
+      "files_modified": [
+        "mcp-server/data/state/BANDIT_POSTERIOR.json"
+      ],
+      "abort_criteria": [
+        "Calibration error >10% after 100 observations",
+        "Posterior update latency >50ms",
+        "Posterior becomes degenerate (single arm wins all)"
+      ],
+      "rollback": "rm .claude/hooks/posttool_bayesian_update.mjs mcp-server/scripts/bayesian-calibration-check.ts; git restore mcp-server/data/state/BANDIT_POSTERIOR.json",
+      "exit_gate": {
+        "criteria": [
+          "Posterior updates on tool outcome",
+          "Calibration error <5% after 100 observations",
+          "No degenerate arms"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+2.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Bayesian Posterior PostTool (Outcome Update) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AI03",
+      "phase": "P3",
+      "phase_number": 3,
+      "sequence": 15,
+      "title": "CausalReasoning SessionStart Trace (Recent-Work Impact)",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 60,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "25%",
+      "context_budget_tokens": 15000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-AI04"
+      ],
+      "rationale": "Causal graph construction from REASONING_TRACE_LEDGER — SessionStart is the right moment to surface recent cause-effect structure.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 60,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 15000,
+        "tools_claude_code": [
+          "Read",
+          "Edit",
+          "Bash"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_intelligence",
+          "action": "causal_graph_build",
+          "params_hint": "{source:REASONING_TRACE_LEDGER, min_edge_count:3}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "inject_causal_summary",
+          "params_hint": "{max_nodes:20, max_tokens:3000}"
+        },
+        {
+          "tool": "mcp__prism__prism_ai",
+          "action": "causal_trace_query",
+          "params_hint": "{ancestor_depth:3}"
+        }
+      ],
+      "skills": [
+        "/causal-trace",
+        "/startup"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_sessionstart_causal"
+      ],
+      "features": [
+        "causal-reasoning",
+        "sessionstart-inject"
+      ],
+      "entry_conditions": [
+        "U-AI01 + U-AI02 complete"
+      ],
+      "dependencies": [
+        "U-AI02"
+      ],
+      "knowledge_sources": [
+        "CausalReasoningEngine.ts",
+        "REASONING_TRACE_LEDGER.jsonl"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create SessionStart causal-trace hook",
+          "tool_calls": [
+            "Write: .claude/hooks/session_start_causal_trace.mjs"
+          ],
+          "validation": "Hook runs CausalReasoningEngine.traceImpact() over last 20 commits"
+        },
+        {
+          "number": 2,
+          "instruction": "Inject causal graph summary into tier-1 payload",
+          "tool_calls": [
+            "Edit: .claude/hooks/session_start_tier1_bolster.mjs"
+          ],
+          "validation": "Tier-1 gains 'recent causal impacts' section (~2K tokens)"
+        },
+        {
+          "number": 3,
+          "instruction": "Target: <500ms trace for 10-node graph (per plan SVI)",
+          "tool_calls": [
+            "Bash: time node .claude/hooks/session_start_causal_trace.mjs"
+          ],
+          "validation": "p99 <500ms"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".claude/hooks/session_start_causal_trace.mjs",
+          "type": "hook",
+          "description": "SessionStart causal graph",
+          "line_count_est": 150
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/session_start_causal_trace.mjs"
+      ],
+      "files_modified": [
+        ".claude/hooks/session_start_tier1_bolster.mjs"
+      ],
+      "abort_criteria": [
+        "Trace latency >500ms p99",
+        "Graph size >20 nodes (too broad)",
+        "Invalid DAG produced"
+      ],
+      "rollback": "rm .claude/hooks/session_start_causal_trace.mjs; git restore .claude/hooks/session_start_tier1_bolster.mjs",
+      "exit_gate": {
+        "criteria": [
+          "Causal graph generated SessionStart",
+          "Latency <500ms p99",
+          "Valid DAG with ≥5 nodes on active session"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+1.5%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CausalReasoning SessionStart Trace (Recent-Work Impact) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AI04",
+      "phase": "P3",
+      "phase_number": 3,
+      "sequence": 16,
+      "title": "AutonomousGoalSynthesis SessionEnd Propose Next",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 60,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "25%",
+      "context_budget_tokens": 15000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-AI03"
+      ],
+      "rationale": "End-of-session goal proposal seeds next session's focus. ≥80% actionability contract drives scoring rigor.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 60,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 15000,
+        "tools_claude_code": [
+          "Read",
+          "Write",
+          "Bash"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_autonomous",
+          "action": "propose_next_goals",
+          "params_hint": "{count:3, actionability_floor:0.80}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "session_end_persist",
+          "params_hint": "{file:mcp-server/data/state/SESSION_INSIGHTS_LEDGER.jsonl}"
+        },
+        {
+          "tool": "mcp__prism__prism_intelligence",
+          "action": "goal_score",
+          "params_hint": "{criteria:[impact,reachability,cost]}"
+        }
+      ],
+      "skills": [
+        "/propose-next"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_sessionend_goal_propose"
+      ],
+      "features": [
+        "autonomous-goals",
+        "session-end-handoff"
+      ],
+      "entry_conditions": [
+        "U-AI01 + U-AI02 complete"
+      ],
+      "dependencies": [
+        "U-AI03"
+      ],
+      "knowledge_sources": [
+        "AutonomousGoalSynthesisEngine.ts",
+        "SVIRankedBacklogEngine.ts"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Create SessionEnd goal-propose hook",
+          "tool_calls": [
+            "Write: .claude/hooks/session_end_propose_next.mjs"
+          ],
+          "validation": "Hook calls AutonomousGoalSynthesisEngine.propose() with current SVI + completed units"
+        },
+        {
+          "number": 2,
+          "instruction": "Write proposals to SESSION_NEXT_PROPOSALS.jsonl",
+          "tool_calls": [
+            "Write: mcp-server/data/state/SESSION_NEXT_PROPOSALS.jsonl"
+          ],
+          "validation": "Each session end appends ≥3 actionable proposals"
+        },
+        {
+          "number": 3,
+          "instruction": "Inject proposals into next SessionStart (tier-1)",
+          "tool_calls": [
+            "Edit: .claude/hooks/session_start_tier1_bolster.mjs"
+          ],
+          "validation": "New session opens with 'proposed next moves' section"
+        },
+        {
+          "number": 4,
+          "instruction": "Target: ≥80% proposals actionable (per plan metric)",
+          "tool_calls": [
+            "Bash: npx tsx mcp-server/scripts/evaluate-goal-proposals.ts"
+          ],
+          "validation": "Manual review of 20 proposals shows ≥16 actionable"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".claude/hooks/session_end_propose_next.mjs",
+          "type": "hook",
+          "description": "SessionEnd goal proposer",
+          "line_count_est": 130
+        },
+        {
+          "path": "mcp-server/data/state/SESSION_NEXT_PROPOSALS.jsonl",
+          "type": "state",
+          "description": "Append-only proposal log",
+          "line_count_est": 0
+        },
+        {
+          "path": "mcp-server/scripts/evaluate-goal-proposals.ts",
+          "type": "script",
+          "description": "Proposal actionability evaluator",
+          "line_count_est": 100
+        }
+      ],
+      "files_created": [
+        ".claude/hooks/session_end_propose_next.mjs",
+        "mcp-server/data/state/SESSION_NEXT_PROPOSALS.jsonl",
+        "mcp-server/scripts/evaluate-goal-proposals.ts"
+      ],
+      "files_modified": [
+        ".claude/hooks/session_start_tier1_bolster.mjs"
+      ],
+      "abort_criteria": [
+        "<3 proposals generated per session end",
+        "Actionability rate <60%",
+        "Proposals conflict with active claims"
+      ],
+      "rollback": "rm .claude/hooks/session_end_propose_next.mjs mcp-server/data/state/SESSION_NEXT_PROPOSALS.jsonl mcp-server/scripts/evaluate-goal-proposals.ts; git restore .claude/hooks/session_start_tier1_bolster.mjs",
+      "exit_gate": {
+        "criteria": [
+          "≥3 proposals per session end",
+          "Actionability ≥80%",
+          "Injected into next SessionStart"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+2.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AutonomousGoalSynthesis SessionEnd Propose Next — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AI05",
+      "phase": "P3",
+      "phase_number": 3,
+      "sequence": 17,
+      "title": "CuriosityDrivenExplorer Queue Surfaced in Session Brief",
+      "role": "R7",
+      "role_name": "AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 55,
+      "effort_label": "MEDIUM",
+      "complexity": "MODERATE",
+      "context_budget": "25%",
+      "context_budget_tokens": 15000,
+      "parallelizable": true,
+      "parallel_siblings": [
+        "U-AI02"
+      ],
+      "rationale": "Curiosity queue surfaces unknowns/unexplored paths. SessionStart injection creates compounding exploration pressure.",
+      "smartConfig": {
+        "role": "R7",
+        "role_name": "AI Platform Engineer",
+        "model": "opus-4.7",
+        "effort": 55,
+        "complexity": "MODERATE",
+        "context_budget_tokens": 15000,
+        "tools_claude_code": [
+          "Read",
+          "Write",
+          "Edit"
+        ],
+        "parallelizable": true
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_autonomous",
+          "action": "curiosity_queue_pop",
+          "params_hint": "{top_k:5, freshness_weight:0.6}"
+        },
+        {
+          "tool": "mcp__prism__prism_session",
+          "action": "inject_curiosity_brief",
+          "params_hint": "{max_tokens:2000}"
+        },
+        {
+          "tool": "mcp__prism__prism_data",
+          "action": "append_curiosity_queue",
+          "params_hint": "{file:mcp-server/data/state/CURIOSITY_QUEUE.jsonl}"
+        }
+      ],
+      "skills": [
+        "/curiosity-queue"
+      ],
+      "scripts": [],
+      "hooks": [],
+      "features": [
+        "curiosity-driven-exploration",
+        "session-brief-injection"
+      ],
+      "entry_conditions": [
+        "Phase 2 complete"
+      ],
+      "dependencies": [
+        "U-AI04"
+      ],
+      "knowledge_sources": [
+        "CuriosityDrivenExplorerEngine.ts",
+        "UnusedAssetSurfacerEngine.ts"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Wire CuriosityDrivenExplorerEngine + UnusedAssetSurfacerEngine to generate queue",
+          "tool_calls": [
+            "Write: mcp-server/scripts/generate-curiosity-queue.ts"
+          ],
+          "validation": "Script outputs ≥5 non-trivial targets per plan metric"
+        },
+        {
+          "number": 2,
+          "instruction": "Inject queue into SessionStart tier-1",
+          "tool_calls": [
+            "Edit: .claude/hooks/session_start_tier1_bolster.mjs"
+          ],
+          "validation": "Tier-1 gains 'curiosity queue' section"
+        },
+        {
+          "number": 3,
+          "instruction": "Add /curiosity-queue skill for manual query",
+          "tool_calls": [
+            "Write: H:/.claude/commands/curiosity-queue.md"
+          ],
+          "validation": "Skill returns current queue + rationale"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/scripts/generate-curiosity-queue.ts",
+          "type": "script",
+          "description": "Curiosity target generator",
+          "line_count_est": 150
+        },
+        {
+          "path": "H:/.claude/commands/curiosity-queue.md",
+          "type": "skill",
+          "description": "/curiosity-queue user-facing",
+          "line_count_est": 80
+        }
+      ],
+      "files_created": [
+        "mcp-server/scripts/generate-curiosity-queue.ts",
+        "H:/.claude/commands/curiosity-queue.md"
+      ],
+      "files_modified": [
+        ".claude/hooks/session_start_tier1_bolster.mjs"
+      ],
+      "abort_criteria": [
+        "Queue depth <5 on fresh session",
+        "Targets become repetitive (same 3 cycle)",
+        "Queue generation >1s"
+      ],
+      "rollback": "rm mcp-server/scripts/generate-curiosity-queue.ts H:/.claude/commands/curiosity-queue.md; git restore .claude/hooks/session_start_tier1_bolster.mjs",
+      "exit_gate": {
+        "criteria": [
+          "≥5 targets per session",
+          "Queue diverse (no single category >50%)",
+          "/curiosity-queue skill works"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+1.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CuriosityDrivenExplorer Queue Surfaced in Session Brief — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-AI06",
+      "phase": "P3",
+      "phase_number": 3,
+      "sequence": 18,
+      "title": "CognitiveBudgetAllocator Rations Attention Across All Above",
+      "role": "R6",
+      "role_name": "Systems Architect",
+      "role_support": "R7 AI Platform Engineer",
+      "model": "opus-4.7",
+      "effort": 85,
+      "effort_label": "HIGH",
+      "complexity": "COMPLEX",
+      "context_budget": "35%",
+      "context_budget_tokens": 22000,
+      "parallelizable": false,
+      "parallel_siblings": [],
+      "rationale": "Final orchestration layer rations attention+tokens+latency across all 6 AGI engines. Without this, they compete for the same budget and degrade each other.",
+      "smartConfig": {
+        "role": "R6",
+        "role_name": "Systems Architect",
+        "model": "opus-4.7",
+        "effort": 85,
+        "complexity": "COMPLEX",
+        "context_budget_tokens": 22000,
+        "tools_claude_code": [
+          "Read",
+          "Edit",
+          "Write",
+          "Bash"
+        ],
+        "parallelizable": false
+      },
+      "tools": [
+        {
+          "tool": "mcp__prism__prism_orchestrate",
+          "action": "cognitive_budget_allocate",
+          "params_hint": "{consumers:[worldsim,bayesian,causal,goal,curiosity], horizon:session}"
+        },
+        {
+          "tool": "mcp__prism__prism_intelligence",
+          "action": "observe_consumer_usage",
+          "params_hint": "{sample_rate:0.1}"
+        },
+        {
+          "tool": "mcp__prism__prism_telemetry",
+          "action": "cost_per_unit_work",
+          "params_hint": "{ceiling:2.5x_baseline}"
+        }
+      ],
+      "skills": [
+        "/scrutinize"
+      ],
+      "scripts": [],
+      "hooks": [
+        "hook_cognitive_budget_guard"
+      ],
+      "features": [
+        "cognitive-rationing",
+        "multi-consumer-budget"
+      ],
+      "entry_conditions": [
+        "U-AI01..U-AI05 all complete"
+      ],
+      "dependencies": [
+        "U-AI01",
+        "U-AI02",
+        "U-AI03",
+        "U-AI04",
+        "U-AI05"
+      ],
+      "knowledge_sources": [
+        "CognitiveBudgetAllocatorEngine.ts",
+        "MetacognitionBudgetEngine.ts",
+        "HookOrchestratorEngine.ts"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Audit current metacognition budget (SessionStart perf budget ≤2s p99)",
+          "tool_calls": [
+            "Read: MetacognitionBudgetEngine.ts"
+          ],
+          "validation": "Understand current token/latency allocation"
+        },
+        {
+          "number": 2,
+          "instruction": "Extend CognitiveBudgetAllocator to ration across: tier-1 inject, pretool-sim, posttool-bayesian, causal-trace, curiosity-queue, goal-propose",
+          "tool_calls": [
+            "Edit: CognitiveBudgetAllocatorEngine.ts"
+          ],
+          "validation": "Each AGI hook gets budget allocation; over-budget = skip"
+        },
+        {
+          "number": 3,
+          "instruction": "Wire allocator into HookOrchestratorEngine",
+          "tool_calls": [
+            "Edit: HookOrchestratorEngine.ts"
+          ],
+          "validation": "Orchestrator consults allocator before firing each AGI hook"
+        },
+        {
+          "number": 4,
+          "instruction": "Add allocation telemetry to state",
+          "tool_calls": [
+            "Write: mcp-server/data/state/COGNITIVE_BUDGET_TELEMETRY.jsonl"
+          ],
+          "validation": "Log per-hook budget requested/granted/actual"
+        },
+        {
+          "number": 5,
+          "instruction": "Verify whole-system Phase C latency budget (≤2s p99 SessionStart, ≤300ms PreTool)",
+          "tool_calls": [
+            "Bash: benchmark-full-session-start.sh"
+          ],
+          "validation": "All gates green + AGI hooks active"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/data/state/COGNITIVE_BUDGET_TELEMETRY.jsonl",
+          "type": "state",
+          "description": "Budget allocation log",
+          "line_count_est": 0
+        }
+      ],
+      "files_created": [
+        "mcp-server/data/state/COGNITIVE_BUDGET_TELEMETRY.jsonl"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/CognitiveBudgetAllocatorEngine.ts",
+        "mcp-server/src/engines/HookOrchestratorEngine.ts"
+      ],
+      "abort_criteria": [
+        "SessionStart p99 >2s with Phase C on",
+        "PreTool p99 >300ms",
+        "Any AGI hook >80% over-budget"
+      ],
+      "rollback": "git restore mcp-server/src/engines/CognitiveBudgetAllocatorEngine.ts mcp-server/src/engines/HookOrchestratorEngine.ts; rm mcp-server/data/state/COGNITIVE_BUDGET_TELEMETRY.jsonl",
+      "exit_gate": {
+        "criteria": [
+          "All AGI hooks fire within budget",
+          "SessionStart ≤2s p99",
+          "PreTool ≤300ms p99",
+          "Telemetry log populated"
+        ],
+        "omega_floor": 0.8,
+        "svi_delta_target": "+3.0%"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CognitiveBudgetAllocator Rations Attention Across All Above — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "enforcement_hooks_active": [
+    "PRE: knowledge-consult, context-retention, dedup-guard",
+    "POST: stub-detector, test-quality, constants-checker, physics-agent, wiring-agent",
+    "COMPACT: review-gate, wiring-gate, forge-triple-gate, session-audit-agent",
+    "POST-COMPACT: Feature Cascade (SESSION_ARTIFACTS.json)",
+    "Tier 6 stop-hooks (26): all fire on session exit"
+  ],
+  "skills_used": [
+    "/forge",
+    "/rgs",
+    "/dedup",
+    "/smart",
+    "/startup",
+    "/compact",
+    "/ship",
+    "/test",
+    "/scrutinize",
+    "/physics-verify",
+    "/svi",
+    "/handoff",
+    "/audit-duplicates",
+    "/commands-audit",
+    "/model-status",
+    "/simulate",
+    "/curiosity-queue",
+    "/reflect"
+  ],
+  "mcp_utilization": {
+    "session_start_actions": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work_actions": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end_actions": [
+      "prism_session:memory_save",
+      "prism_session:checkpoint_enhanced"
+    ],
+    "plugins_used": [
+      "Vitest MCP (test execution)",
+      "ESLint MCP (quality gate)",
+      "Codebase Memory (trace call paths)"
+    ]
+  },
+  "success_metrics": {
+    "tool_call_reduction_per_task": "≥30% after U-CTX06",
+    "session_start_latency_p99": "≤2s with all AGI hooks active",
+    "pretool_latency_p99": "≤300ms with WorldSim active",
+    "embedding_cost_reduction": "100% (Ollama is $0)",
+    "bayesian_calibration_error": "≤5% after 100 observations",
+    "goal_proposal_actionability": "≥80% manual-review validated",
+    "curiosity_queue_depth": "≥5 non-trivial on fresh session",
+    "svi_cumulative_delta": "+25% (sum of per-unit SVI targets)",
+    "cost_per_unit_work_vs_baseline": "≤2.5x (measured, not estimated)"
+  },
+  "notes": "Phase A skipped (Docker unavailable). Phase B in progress: U-CTX02 done (CLAUDE.md loader), U-CTX05 done (handoff chain). Phase 0.25 hooks complete.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ussh-opus47-bolster-gate",
+    "mcp_action": "prism_ussh:ussh_opus47_bolster_run",
+    "skill_command": "/ussh-opus47-bolster",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ussh-opus47-bolster-gate"
+    ],
+    "new_actions": [
+      "ussh_opus47_bolster_run"
+    ],
+    "new_skills": [
+      "/ussh-opus47-bolster"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Maximize Opus 4.7's 1M context ceiling to bolster comprehensive skill/script/hook coverage, internal system utilization, memories, container skills always-on, self-awareness, CLAUDE.md files, precompact/compact/handoff, slash commands, and the PRISM inventory system. Activate dormant infrastructure (Ollama, Docker, Qdrant) and wire 32 unused AI engines into the tool-call loop. User quote: 'think of what else we have that we can bolster with a higher token usage ceiling and fully utilize opus 4.7 to the max — include PRISM inventory system, ollama/docker integration, and audit what's dormant/underutilized'.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook"
+}

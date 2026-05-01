@@ -88,6 +88,13 @@
               "type": "data",
               "description": "Test PDF fixture"
             }
+          ],
+          "description": "Document Text Extraction Module — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -150,6 +157,13 @@
               "type": "test",
               "description": "Document classifier tests"
             }
+          ],
+          "description": "Document Type Classifier — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -212,6 +226,13 @@
               "type": "source",
               "description": "Document-specific extraction prompts"
             }
+          ],
+          "description": "Document-Specific Extraction Prompts — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -272,6 +293,13 @@
               "type": "schema",
               "description": "Extended knowledge schema with document provenance"
             }
+          ],
+          "description": "Schema Extension for Document Provenance — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -346,6 +374,13 @@
               "type": "test",
               "description": "Document extraction tests"
             }
+          ],
+          "description": "Document Extraction Orchestrator — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -420,6 +455,13 @@
               "type": "test",
               "description": "Document learning dispatcher tests"
             }
+          ],
+          "description": "MCP Document Upload Tool — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -476,6 +518,13 @@
               "type": "source",
               "description": "Document learning Express routes"
             }
+          ],
+          "description": "MCP Learning Routes + Web API — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -540,6 +589,13 @@
               "type": "test",
               "description": "End-to-end document learning tests"
             }
+          ],
+          "description": "Integration Tests + Documentation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ],
@@ -563,5 +619,81 @@
     "pass": false,
     "passes": []
   },
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cc-ext-ms0-gate",
+    "mcp_action": "prism_cc-ext:cc_ext_ms0_run",
+    "skill_command": "/cc-ext-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cc-ext-ms0-gate"
+    ],
+    "new_actions": [
+      "cc_ext_ms0_run"
+    ],
+    "new_skills": [
+      "/cc-ext-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Extend knowledge extraction to text documents: PDF/markdown/text ingestion, document classification, adapted prompts, schema extension, MCP integration with upload + query routes.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

@@ -291,5 +291,59 @@
     }
   ],
   "total_units": 5,
-  "completed_units": 0
+  "completed_units": 0,
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms7-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms7_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms7"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the full auto-optimization pipeline that chains all 5 panels into a single-click workflow: analyze setup (material, tools, machine) -> optimize all operations (physics advisory for each) -> enhance NC output (PPP per-block S/F) -> generate quality package (FAI + setup sheet). The 'PRISM Auto-Optimize' toolbar button runs the entire pipeline with progress tracking and produces a comprehensive report.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS7 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS7. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

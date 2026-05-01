@@ -93,7 +93,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Create cad-engine directory structure + Python project — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U02",
@@ -162,7 +169,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Install CadQuery 2.x + OCP dependencies — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -270,7 +284,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Build cad_kernel.py — CadQuery wrapper module — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -352,7 +373,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Build geo_validator.py — Geometry validation module — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -433,7 +461,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Build cad_export.py — Multi-format export module — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U04",
@@ -538,7 +573,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Build 10 reference parts + test harness — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -647,7 +689,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Build bridge.py — Python-side JSON-RPC server — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -730,7 +779,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Build CadBridge.ts — TypeScript bridge client — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U03",
@@ -813,7 +869,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Integration tests + CI integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -1019,5 +1082,81 @@
     ],
     "improvement_threshold": 0.92
   },
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cc-ms0-gate",
+    "mcp_action": "prism_cc:cc_ms0_run",
+    "skill_command": "/cc-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cc-ms0-gate"
+    ],
+    "new_actions": [
+      "cc_ms0_run"
+    ],
+    "new_skills": [
+      "/cc-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Install CadQuery 2.x, build Python CAD kernel wrapper, geometry validator, multi-format export, TypeScript bridge, and validate with 10 reference STEP parts. Leverage existing 5,700+ lines of TS CAD/CAM engines.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

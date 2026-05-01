@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS26",
+  "version": "1.0.0",
+  "title": "PPG-MS26 — PRD + GA Gate + Beta Program + Feature Flag Service",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Closes the product-readiness gap surfaced by R20 scrutiny (score 51). Defines PRD-level North-Star metric, GA gate criteria, beta program structure (3-5 lighthouse customers, NDA template, feedback loop, beta→GA graduation), feature flag service for per-shop/per-machine/per-tier rollout, deprecation matrix, customer-facing roadmap.",
+  "rationale": "Closes the product-readiness gap surfaced by R20 scrutiny (score 51). Defines PRD-level North-Star metric, GA gate criteria, beta program structure (3-5 lighthouse customers, NDA template, feedback loop, beta→GA graduation), feature flag service for per-shop/per-machine/per-tier rollout, deprecation matrix, customer-facing roadmap.",
+  "phase": "P2",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM160",
+      "title": "PRD + North-Star metric + GA gate criteria",
+      "scope": "North-Star: ≥25% cycle-time reduction across 50-prog corpus AND ≥3 paying lighthouse customers signed-off. GA gate checklist; PM-owned launch readiness.",
+      "files_to_modify": [
+        "docs/product/PRD-PPG.md",
+        "docs/product/GA-gate-checklist.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM161",
+      "title": "Beta program structure + NDA template",
+      "scope": "3-5 lighthouse customers; NDA + DPA + LOI templates; beta feedback loop (weekly call + telemetry review); beta→GA graduation criteria; CAB charter.",
+      "files_to_modify": [
+        "docs/product/beta-program.md",
+        "legal/NDA-template.docx"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM162",
+      "title": "Feature flag service (per-shop / per-machine / per-tier)",
+      "scope": "LaunchDarkly-style flags for L3 FOCAS/OPC-UA writes (MS1), MS17 cross-simulator, MS11 closed-loop. Dark-launch + canary + kill switches. Shop-by-shop + machine-by-machine rollout.",
+      "files_to_modify": [
+        "src/services/FeatureFlagService.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FeatureFlags.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM163",
+      "title": "Product analytics + funnel instrumentation",
+      "scope": "Wizard step events, feature-adoption telemetry, abandonment tracking, time-on-step. PM weekly dashboard separate from MS11 machine telemetry.",
+      "files_to_modify": [
+        "web/src/analytics/funnelInstrumentation.ts",
+        "src/engines/ProductAnalyticsEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ProductAnalytics.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM164",
+      "title": "Deprecation matrix for 6 superseded MS + consumer-engine notification",
+      "scope": "PP-REV-MS5/6, PPG-VAR-MS0, PPG-REAL-MS0, F360-REV-MS8, F360-FULL-MS5: list consumers, migration deadlines, notify-by dates. Pre-commit hook warns on consumer-engine modifications.",
+      "files_to_modify": [
+        "docs/product/deprecation-matrix.md",
+        ".claude/hooks/deprecation-guard.mjs"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM165",
+      "title": "Customer-facing roadmap page + changelog",
+      "scope": "Public 'what's coming next' page; weekly changelog; CAB feedback channel; roadmap visibility increases trust + enables design-partner LOI conversations.",
+      "files_to_modify": [
+        "web/src/pages/PublicRoadmap.tsx"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "PRD published with North-Star metric + GA gate criteria",
+    "Beta program enrolls ≥3 lighthouse customers with signed NDA + DPA + LOI",
+    "Feature flag service controls L3/MS17/MS11 per shop+machine+tier",
+    "Product analytics dashboard surfaces wizard funnel + feature adoption weekly",
+    "Deprecation matrix tracks 6 superseded MS with migration timelines",
+    "Customer-facing roadmap page live; changelog updated weekly"
+  ],
+  "depends_on": [
+    "PPG-MS6",
+    "PPG-MS8",
+    "PPG-MS11",
+    "PPG-MS17"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "PRD/GA — keep as-is (product milestone)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

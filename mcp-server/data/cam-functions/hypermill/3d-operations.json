@@ -1,0 +1,767 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "3d_operations",
+  "module_name": "3D Operations",
+  "description": "Complete 3D milling operations for hyperMILL — Shape Offset Roughing, Z-Level, Equidistant, Profile, Pencil, Rest Machining",
+  "indexed_at": "2026-04-19T03:10:00Z",
+  "source": "hyperMILL CAM Manual + HyperMillParameterCatalog.json",
+  "menus": [
+    {
+      "id": "3d_shape_offset_roughing",
+      "name": "Shape Offset Roughing (Optimised Roughing)",
+      "operation_class": "3d_roughing",
+      "dialogs": [
+        {
+          "id": "3d_sor_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 16, "constraints": { "min": 3, "max": 80 } },
+              "tribal_tips": [
+                { "id": "hm-3d-sor-tip-001", "text": "Choose diameter based on smallest accessible feature - but not so small cycle time explodes", "source": "shop_floor", "confidence": 0.91 }
+              ]
+            },
+            {
+              "id": "flute_count",
+              "name": "Number of Flutes",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 4, "constraints": { "min": 2, "max": 10 } }
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": 0, "max": 10 } }
+            },
+            {
+              "id": "flute_length",
+              "name": "Flute Length",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 40, "constraints": { "min": 10, "max": 150 } },
+              "physics_links": [{ "formula_id": "TOOL_DEFLECTION", "role": "input" }],
+              "tribal_tips": [
+                { "id": "hm-3d-sor-tip-002", "text": "Flute length = max depth + 5mm clearance. Longer = more deflection", "source": "expert", "confidence": 0.94 }
+              ]
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["flat_endmill", "ball_nose", "bullnose", "torus", "barrel"] } }
+            }
+          ]
+        },
+        {
+          "id": "3d_sor_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 5000, "constraints": { "min": 200, "max": 24000 } },
+              "physics_links": [{ "formula_id": "CUTTING_SPEED", "role": "output" }]
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 3000, "constraints": { "min": 100, "max": 15000 } }
+            },
+            {
+              "id": "plunge_feed",
+              "name": "Plunge Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 600, "constraints": { "min": 20, "max": 3000 } }
+            },
+            {
+              "id": "axial_depth",
+              "name": "Axial Depth of Cut",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 8, "constraints": { "min": 0.5, "max": 50 } },
+              "physics_links": [{ "formula_id": "STABILITY_LOBE", "role": "input" }],
+              "tribal_tips": [
+                { "id": "hm-3d-sor-tip-003", "text": "For HPC roughing: full flute depth engagement with 10-15% stepover", "source": "research", "confidence": 0.89 }
+              ]
+            },
+            {
+              "id": "radial_stepover",
+              "name": "Stepover",
+              "category": "Depth",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 50, "constraints": { "min": 5, "max": 90 } }
+            },
+            {
+              "id": "stepover_mode",
+              "name": "Stepover Mode",
+              "category": "Depth",
+              "value": { "type": "enum", "constraints": { "enum_values": ["percentage", "absolute", "constant_chip_load"] }, "default_value": "percentage" }
+            }
+          ]
+        },
+        {
+          "id": "3d_sor_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "cut_pattern",
+              "name": "Cut Pattern",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["offset", "spiral", "zigzag", "trochoidal", "morphed_spiral"] }, "default_value": "offset" }
+            },
+            {
+              "id": "level_strategy",
+              "name": "Level Strategy",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["constant_z", "adaptive_z", "morphed"] }, "default_value": "constant_z" }
+            },
+            {
+              "id": "cut_direction",
+              "name": "Cut Direction",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["climb", "conventional", "both"] }, "default_value": "climb" }
+            },
+            {
+              "id": "entry_method",
+              "name": "Entry Method",
+              "category": "Entry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["helix", "ramp", "plunge", "predrill"] }, "default_value": "helix" }
+            },
+            {
+              "id": "helix_diameter_percent",
+              "name": "Helix Diameter %",
+              "category": "Entry",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 80, "constraints": { "min": 50, "max": 100, "depends_on": ["entry_method"] } }
+            },
+            {
+              "id": "helix_pitch",
+              "name": "Helix Pitch",
+              "category": "Entry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 2.5, "constraints": { "min": 0.5, "max": 15, "depends_on": ["entry_method"] } }
+            },
+            {
+              "id": "stock_allowance",
+              "name": "Stock Allowance",
+              "category": "Allowance",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.5, "constraints": { "min": 0, "max": 5 } }
+            },
+            {
+              "id": "floor_stock",
+              "name": "Floor Stock Allowance",
+              "category": "Allowance",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.5, "constraints": { "min": 0, "max": 5 } }
+            },
+            {
+              "id": "corner_smoothing",
+              "name": "Corner Smoothing",
+              "category": "Corners",
+              "value": { "type": "enum", "constraints": { "enum_values": ["none", "arc", "loop", "trochoidal"] }, "default_value": "arc" },
+              "tribal_tips": [
+                { "id": "hm-3d-sor-tip-004", "text": "Trochoidal corners for hardened steel - maintains chip load in sharp corners", "source": "expert", "confidence": 0.93 }
+              ]
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["surface", "solid"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 15,
+      "output_artifacts": ["toolpath", "nc_code", "stock_model", "cycle_time"]
+    },
+    {
+      "id": "3d_zlevel",
+      "name": "Z-Level Finishing",
+      "operation_class": "3d_finishing",
+      "dialogs": [
+        {
+          "id": "3d_zlevel_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 10, "constraints": { "min": 1, "max": 50 } }
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ball_nose", "bullnose", "torus", "barrel"] }, "default_value": "ball_nose" }
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 5, "constraints": { "min": 0.5, "max": 25 } }
+            }
+          ]
+        },
+        {
+          "id": "3d_zlevel_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 8000, "constraints": { "min": 500, "max": 30000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 4000, "constraints": { "min": 200, "max": 20000 } }
+            },
+            {
+              "id": "stepdown",
+              "name": "Step Down",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.3, "constraints": { "min": 0.02, "max": 5 } },
+              "tribal_tips": [
+                { "id": "hm-3d-zlevel-tip-001", "text": "Stepdown for Ra target: 0.3mm = Ra 3.2, 0.15mm = Ra 1.6, 0.08mm = Ra 0.8", "source": "pdf", "confidence": 0.95 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "3d_zlevel_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "steep_angle",
+              "name": "Steep Angle Threshold",
+              "category": "Strategy",
+              "value": { "type": "angle", "unit": "deg", "default_value": 45, "constraints": { "min": 15, "max": 85 } },
+              "tribal_tips": [
+                { "id": "hm-3d-zlevel-tip-002", "text": "Z-level for walls >45 deg, equidistant for flatter areas", "source": "expert", "confidence": 0.96 }
+              ]
+            },
+            {
+              "id": "cut_direction",
+              "name": "Cut Direction",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["climb", "conventional", "both"] }, "default_value": "climb" }
+            },
+            {
+              "id": "spiral_enabled",
+              "name": "Spiral Connect",
+              "category": "Strategy",
+              "value": { "type": "boolean", "default_value": true },
+              "tribal_tips": [
+                { "id": "hm-3d-zlevel-tip-003", "text": "Enable spiral for smooth surface transitions - eliminates witness lines", "source": "shop_floor", "confidence": 0.92 }
+              ]
+            },
+            {
+              "id": "stock_to_leave",
+              "name": "Stock to Leave",
+              "category": "Allowance",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": 0, "max": 1 } }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["surface", "solid"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 60,
+      "prerequisite_operations": ["3d_roughing"],
+      "output_artifacts": ["toolpath", "nc_code", "cycle_time"]
+    },
+    {
+      "id": "3d_equidistant",
+      "name": "Equidistant Finishing",
+      "operation_class": "3d_finishing",
+      "dialogs": [
+        {
+          "id": "3d_equi_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 8, "constraints": { "min": 1, "max": 32 } }
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ball_nose", "bullnose", "torus"] }, "default_value": "ball_nose" }
+            }
+          ]
+        },
+        {
+          "id": "3d_equi_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 10000, "constraints": { "min": 1000, "max": 40000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 5000, "constraints": { "min": 500, "max": 25000 } }
+            },
+            {
+              "id": "stepover",
+              "name": "Stepover",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.2, "constraints": { "min": 0.02, "max": 5 } },
+              "tribal_tips": [
+                { "id": "hm-3d-equi-tip-001", "text": "Scallop height formula: h = ae^2 / (8*R) for ball nose", "source": "research", "confidence": 0.97 }
+              ]
+            },
+            {
+              "id": "stepover_mode",
+              "name": "Stepover Mode",
+              "category": "Depth",
+              "value": { "type": "enum", "constraints": { "enum_values": ["constant", "scallop_height", "adaptive"] }, "default_value": "scallop_height" }
+            },
+            {
+              "id": "scallop_height",
+              "name": "Target Scallop Height",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.01, "constraints": { "min": 0.001, "max": 0.5, "depends_on": ["stepover_mode"] } }
+            }
+          ]
+        },
+        {
+          "id": "3d_equi_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "pattern",
+              "name": "Pattern",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["parallel", "perpendicular", "radial", "spiral", "custom_direction"] }, "default_value": "parallel" }
+            },
+            {
+              "id": "angle",
+              "name": "Cutting Angle",
+              "category": "Strategy",
+              "value": { "type": "angle", "unit": "deg", "default_value": 45, "constraints": { "min": 0, "max": 180, "depends_on": ["pattern"] } },
+              "tribal_tips": [
+                { "id": "hm-3d-equi-tip-002", "text": "45 degree angle reduces visible toolpath lines on flat areas", "source": "shop_floor", "confidence": 0.89 }
+              ]
+            },
+            {
+              "id": "flat_angle",
+              "name": "Flat Area Angle",
+              "category": "Strategy",
+              "value": { "type": "angle", "unit": "deg", "default_value": 45, "constraints": { "min": 5, "max": 75 } },
+              "description": "Angle threshold for flat area detection"
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["surface", "solid"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 65,
+      "prerequisite_operations": ["3d_roughing"],
+      "output_artifacts": ["toolpath", "nc_code", "cycle_time"]
+    },
+    {
+      "id": "3d_profile",
+      "name": "3D Profile Finishing",
+      "operation_class": "3d_finishing",
+      "dialogs": [
+        {
+          "id": "3d_profile_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 6, "constraints": { "min": 0.5, "max": 25 } }
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ball_nose", "bullnose", "flat_endmill"] } }
+            }
+          ]
+        },
+        {
+          "id": "3d_profile_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 8000, "constraints": { "min": 500, "max": 30000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 3000, "constraints": { "min": 100, "max": 15000 } }
+            },
+            {
+              "id": "stepdown",
+              "name": "Step Down",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.2, "constraints": { "min": 0.02, "max": 3 } }
+            }
+          ]
+        },
+        {
+          "id": "3d_profile_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "drive_geometry",
+              "name": "Drive Geometry",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["curves", "edges", "surfaces", "silhouette"] } }
+            },
+            {
+              "id": "projection_direction",
+              "name": "Projection Direction",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["tool_axis", "surface_normal", "custom_vector"] }, "default_value": "tool_axis" }
+            },
+            {
+              "id": "offset",
+              "name": "Offset from Geometry",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": -10, "max": 10 } }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["curve", "surface"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 70,
+      "output_artifacts": ["toolpath", "nc_code"]
+    },
+    {
+      "id": "3d_pencil",
+      "name": "Pencil Tracing (Corner Finishing)",
+      "operation_class": "3d_finishing",
+      "dialogs": [
+        {
+          "id": "3d_pencil_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 4, "constraints": { "min": 0.5, "max": 16 } },
+              "tribal_tips": [
+                { "id": "hm-3d-pencil-tip-001", "text": "Pencil tool = 80% of smallest fillet radius for full contact", "source": "expert", "confidence": 0.94 }
+              ]
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ball_nose", "tapered_ball"] }, "default_value": "ball_nose" }
+            },
+            {
+              "id": "taper_angle",
+              "name": "Taper Angle",
+              "category": "Tool Geometry",
+              "value": { "type": "angle", "unit": "deg", "default_value": 0, "constraints": { "min": 0, "max": 15, "depends_on": ["tool_type"] } }
+            }
+          ]
+        },
+        {
+          "id": "3d_pencil_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 12000, "constraints": { "min": 2000, "max": 40000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 2500, "constraints": { "min": 200, "max": 10000 } }
+            },
+            {
+              "id": "number_of_passes",
+              "name": "Number of Passes",
+              "category": "Strategy",
+              "value": { "type": "number", "default_value": 1, "constraints": { "min": 1, "max": 5 } }
+            },
+            {
+              "id": "pass_offset",
+              "name": "Pass Offset",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.1, "constraints": { "min": 0.01, "max": 1, "depends_on": ["number_of_passes"] } }
+            }
+          ]
+        },
+        {
+          "id": "3d_pencil_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "corner_detection",
+              "name": "Corner Detection",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["automatic", "reference_tool", "manual_curves"] }, "default_value": "automatic" }
+            },
+            {
+              "id": "reference_diameter",
+              "name": "Reference Tool Diameter",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "constraints": { "min": 1, "max": 100, "depends_on": ["corner_detection"] } }
+            },
+            {
+              "id": "min_corner_radius",
+              "name": "Minimum Corner Radius",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 1, "constraints": { "min": 0.1, "max": 20 } },
+              "tribal_tips": [
+                { "id": "hm-3d-pencil-tip-002", "text": "Set min corner = tool radius + 0.5mm to avoid unnecessary air cutting", "source": "shop_floor", "confidence": 0.90 }
+              ]
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["surface", "solid"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 75,
+      "prerequisite_operations": ["3d_finishing"],
+      "output_artifacts": ["toolpath", "nc_code"]
+    },
+    {
+      "id": "3d_rest_machining",
+      "name": "3D Rest Machining",
+      "operation_class": "3d_rest_machining",
+      "dialogs": [
+        {
+          "id": "3d_rest_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 6, "constraints": { "min": 0.5, "max": 32 } }
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ball_nose", "bullnose", "flat_endmill", "torus"] } }
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 3, "constraints": { "min": 0, "max": 16 } }
+            }
+          ]
+        },
+        {
+          "id": "3d_rest_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 8000, "constraints": { "min": 500, "max": 30000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 2500, "constraints": { "min": 100, "max": 12000 } }
+            },
+            {
+              "id": "stepover",
+              "name": "Stepover",
+              "category": "Depth",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 40, "constraints": { "min": 5, "max": 80 } }
+            },
+            {
+              "id": "stepdown",
+              "name": "Step Down",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 3, "constraints": { "min": 0.1, "max": 20 } }
+            }
+          ]
+        },
+        {
+          "id": "3d_rest_strategy",
+          "name": "Rest Material Detection",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "stock_source",
+              "name": "Stock Source",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["previous_operation", "3d_model", "stock_model", "manual"] }, "default_value": "previous_operation" }
+            },
+            {
+              "id": "reference_tool_diameter",
+              "name": "Reference Tool Diameter",
+              "category": "Reference",
+              "value": { "type": "distance", "unit": "mm", "constraints": { "min": 1, "max": 100 } }
+            },
+            {
+              "id": "rest_detection_tolerance",
+              "name": "Detection Tolerance",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.1, "constraints": { "min": 0.01, "max": 2 } }
+            },
+            {
+              "id": "rest_mode",
+              "name": "Rest Mode",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["zlevel", "equidistant", "optimised", "adaptive"] }, "default_value": "zlevel" },
+              "tribal_tips": [
+                { "id": "hm-3d-rest-tip-001", "text": "Use adaptive mode for complex geometries - better stock tracking", "source": "pdf", "confidence": 0.88 }
+              ]
+            },
+            {
+              "id": "min_rest_area",
+              "name": "Minimum Rest Area",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.5, "constraints": { "min": 0.1, "max": 5 } },
+              "tribal_tips": [
+                { "id": "hm-3d-rest-tip-002", "text": "Set min rest area > tool radius to avoid air cutting in insignificant pockets", "source": "shop_floor", "confidence": 0.91 }
+              ]
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["surface", "solid", "stock"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 35,
+      "prerequisite_operations": ["3d_roughing"],
+      "output_artifacts": ["toolpath", "nc_code", "stock_model", "cycle_time"]
+    },
+    {
+      "id": "3d_horizontal_area",
+      "name": "Horizontal Area Finishing",
+      "operation_class": "3d_finishing",
+      "dialogs": [
+        {
+          "id": "3d_horiz_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 12, "constraints": { "min": 2, "max": 50 } }
+            },
+            {
+              "id": "tool_type",
+              "name": "Tool Type",
+              "category": "Tool Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["flat_endmill", "bullnose", "torus", "ball_nose"] }, "default_value": "flat_endmill" }
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": 0, "max": 6 } }
+            }
+          ]
+        },
+        {
+          "id": "3d_horiz_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 6000, "constraints": { "min": 200, "max": 24000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 3500, "constraints": { "min": 100, "max": 15000 } }
+            },
+            {
+              "id": "stepover",
+              "name": "Stepover",
+              "category": "Depth",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 60, "constraints": { "min": 10, "max": 90 } }
+            }
+          ]
+        },
+        {
+          "id": "3d_horiz_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "flat_angle",
+              "name": "Flat Area Angle",
+              "category": "Strategy",
+              "value": { "type": "angle", "unit": "deg", "default_value": 10, "constraints": { "min": 0, "max": 45 } },
+              "tribal_tips": [
+                { "id": "hm-3d-horiz-tip-001", "text": "10 deg threshold catches most flat surfaces without false positives", "source": "pdf", "confidence": 0.87 }
+              ]
+            },
+            {
+              "id": "pattern",
+              "name": "Pattern",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["parallel", "perpendicular", "spiral", "contour_parallel"] }, "default_value": "parallel" }
+            },
+            {
+              "id": "cut_angle",
+              "name": "Cut Angle",
+              "category": "Strategy",
+              "value": { "type": "angle", "unit": "deg", "default_value": 45, "constraints": { "min": 0, "max": 180 } }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["surface", "solid"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 62,
+      "prerequisite_operations": ["3d_roughing"],
+      "output_artifacts": ["toolpath", "nc_code"]
+    }
+  ],
+  "statistics": {
+    "total_menus": 7,
+    "total_dialogs": 21,
+    "total_parameters": 85,
+    "total_tribal_tips": 15,
+    "coverage_percent": 80
+  }
+}

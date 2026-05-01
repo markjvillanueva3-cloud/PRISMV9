@@ -39,7 +39,8 @@
           ],
           "exit_conditions": [
             "A role policy engine maps job function, title, department, permissions, and default tabs into one experience contract.",
-            "The policy model supports auto-fill defaults plus explicit overrides for edge cases."
+            "The policy model supports auto-fill defaults plus explicit overrides for edge cases.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the policy engine and revert to the current shared-shell routing model.",
           "steps": [
@@ -74,7 +75,14 @@
               "line_count_est": 90
             }
           ],
-          "estimated_minutes": 150
+          "estimated_minutes": 150,
+          "description": "Employee experience policy engine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -104,7 +112,8 @@
           ],
           "exit_conditions": [
             "A dedicated employee portal route surface exists for login, me, shell config, and workstation context.",
-            "Role-aware route claims can be consumed without exposing private HR or management-only data."
+            "Role-aware route claims can be consumed without exposing private HR or management-only data.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the employee portal routes and return the frontend to generic post-login bootstrapping.",
           "steps": [
@@ -139,7 +148,14 @@
               "line_count_est": 80
             }
           ],
-          "estimated_minutes": 120
+          "estimated_minutes": 120,
+          "description": "Employee portal route surface — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -169,7 +185,8 @@
           ],
           "exit_conditions": [
             "An employee-only shell exists with role-filtered tabs, widgets, and defaults.",
-            "App bootstrapping supports persona-aware routing without duplicating every page."
+            "App bootstrapping supports persona-aware routing without duplicating every page.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the employee shell and return the app router to the one-shell model.",
           "steps": [
@@ -210,7 +227,14 @@
               "line_count_est": 120
             }
           ],
-          "estimated_minutes": 170
+          "estimated_minutes": 170,
+          "description": "Frontend employee shell + role matrix — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -265,7 +289,8 @@
           ],
           "exit_conditions": [
             "A slash-command style employee portal doc explains sign-in, role defaults, and override behavior.",
-            "A forge-triple shell template exists for future role-aware features."
+            "A forge-triple shell template exists for future role-aware features.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the command and template docs and fall back to ad hoc portal guidance.",
           "steps": [
@@ -300,7 +325,14 @@
               "line_count_est": 85
             }
           ],
-          "estimated_minutes": 60
+          "estimated_minutes": 60,
+          "description": "Employee portal command + shell template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -330,7 +362,8 @@
           ],
           "exit_conditions": [
             "Authorization drift is guarded with a dedicated rule for route and widget visibility.",
-            "Frontend tests prove that employees only see relevant tabs while higher roles see expanded views."
+            "Frontend tests prove that employees only see relevant tabs while higher roles see expanded views.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the new guard and revert to the previous route test suite if false positives appear.",
           "steps": [
@@ -365,7 +398,14 @@
               "line_count_est": 180
             }
           ],
-          "estimated_minutes": 95
+          "estimated_minutes": 95,
+          "description": "Authorization drift guard + shell tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -484,5 +524,81 @@
   "scrutiny_log": "state/ULT-MS2/scrutiny-log.json",
   "position_file": "state/ULT-MS2/position.json",
   "state_dir": "state/ULT-MS2",
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms2-gate",
+    "mcp_action": "prism_ult:ult_ms2_run",
+    "skill_command": "/ult-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms2-gate"
+    ],
+    "new_actions": [
+      "ult_ms2_run"
+    ],
+    "new_skills": [
+      "/ult-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Create employee, lead, manager, and admin experience policies so every person sees the right shell, workflows, and live data for their role while keeping sensitive HR and business data out of the default employee experience.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

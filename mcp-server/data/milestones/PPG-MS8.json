@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS8",
+  "version": "1.0.0",
+  "title": "PPG-MS8 — Omega Tier System (omega-thresholds.json + tier-aware S(x) gating)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T04:37:47.554Z",
+  "total_units": 4,
+  "completed_units": 0,
+  "description": "Adds the missing tier system to OmegaSafetyScoreEngine. Currently OmegaSafetyScoreEngine runs flat 0.70 and omega-thresholds.json does not exist, so 'shop_floor' / 'production' / 'proven_out' / 'sim' tiers from CLAUDE.md and the L3 feed-override gate from PPG-MS1 have no operational definition. This milestone ships the file, the resolver, and the hooks that gate behavior on tier.",
+  "rationale": "Project CLAUDE.md mandates 'Safety tier: default to shop_floor (Ω≥0.95, S(x)≥0.98) unless the command explicitly says otherwise. See state/shared/omega-thresholds.json.' The file does not exist. Every safety check therefore runs at the same flat threshold, which means we either ship nothing (if we set it high) or everything (if we set it low). Tier-aware Ω is the only honest answer.",
+  "leverage_existing": [
+    "OmegaSafetyScoreEngine — already computes Ω and S(x); needs tier param",
+    "PRISMSelfAwarenessEngine — knows current command + caller context for default tier",
+    "All safety hooks (cross-field-physics, material-sanity, machine-limit-guard) — already use S(x) but no tier"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Programmer asks the wizard to enable L3 in-cycle FOCAS feed override (PPG-MS1) for a sim/dry-run on a Hurco V11.",
+    "today_pre_ppg_ms8": "OmegaSafetyScoreEngine returns 0.72 flat. Sim should allow it; shop floor should block it. With no tier system, the gate is a coin toss — we either ship the unsafe sim path to production or we block sim and slow development.",
+    "should_be_post_ppg_ms8": "Tier=sim (Ω≥0.70, S(x)≥0.70) → allowed. Tier=shop_floor (Ω≥0.95, S(x)≥0.98) → blocked unless explicit promotion path. Wizard shows tier banner. Promotion requires test + sign-off.",
+    "gap_now_closed": "Risk is calibrated to environment, not flat."
+  },
+  "units": [
+    {
+      "id": "U-PPGM52",
+      "title": "omega-thresholds.json schema + canonical file",
+      "scope": "state/shared/omega-thresholds.json + src/schemas/omegaThresholdsSchema.ts (Zod). Tiers: shop_floor (0.95/0.98), production (0.90/0.95), proven_out (0.85/0.90), sim (0.70/0.70). Frozen unless RFC."
+    },
+    {
+      "id": "U-PPGM53",
+      "title": "Tier resolver in OmegaSafetyScoreEngine",
+      "scope": "Add tier param + getThreshold(tier) lookup; default tier from PRISMSelfAwarenessEngine.getCurrentTier(); back-compat: missing tier → shop_floor (safest)"
+    },
+    {
+      "id": "U-PPGM54",
+      "title": "Tier-aware safety hook gates",
+      "scope": "Refactor cross-field-physics + material-sanity + machine-limit-guard to call OmegaSafetyScoreEngine.evaluate(tier); HARD BLOCK on shop_floor, WARN on sim"
+    },
+    {
+      "id": "U-PPGM55",
+      "title": "Tier promotion tests + drift test",
+      "scope": "src/__tests__/OmegaTierSystem.test.ts — every tier transition tested; drift test asserts thresholds.json exists and matches schema; integration test for L3 FOCAS gate from PPG-MS1"
+    }
+  ],
+  "completion_criteria": [
+    "omega-thresholds.json exists, schema-validated, referenced by every safety hook",
+    "Tier resolves from caller context (slash command, dispatcher action, wizard mode); fallback to shop_floor",
+    "L3 FOCAS feed override (PPG-MS1) gated on tier ≥ proven_out; sim works freely",
+    "All 13 PPG-MS milestones default to shop_floor tier in production wizard, sim tier in dev/test"
+  ],
+  "depends_on": [],
+  "blocks": [
+    "PPG-MS9",
+    "PPG-MS11",
+    "PPG-MS12",
+    "PPG-MS14",
+    "PPG-MS17",
+    "PPG-MS19",
+    "PPG-MS20",
+    "PPG-MS26"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

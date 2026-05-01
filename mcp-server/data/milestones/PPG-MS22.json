@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS22",
+  "version": "1.0.0",
+  "title": "PPG-MS22 — Operability + SLO + Circuit Breakers",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Closes the operability exposure surfaced by R08 scrutiny (score 64). Defines SLOs/SLIs for the wizard + emit + ensemble verify. Adds circuit breakers around all external adapters. Wires watchdog + min-sample gate into MS11 telemetry. Splits CI into PR-affected fast lane + nightly full-corpus lane. Expands MS12 runbook to 10 failure modes.",
+  "rationale": "Closes the operability exposure surfaced by R08 scrutiny (score 64). Defines SLOs/SLIs for the wizard + emit + ensemble verify. Adds circuit breakers around all external adapters. Wires watchdog + min-sample gate into MS11 telemetry. Splits CI into PR-affected fast lane + nightly full-corpus lane. Expands MS12 runbook to 10 failure modes.",
+  "phase": "P1",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM138",
+      "title": "SLO/SLI sheet + error-budget tracking",
+      "scope": "Wizard p95 <8s emit, ensemble verify p95 <45s, drift canary FP rate <2%, telemetry freshness <10min. Error-budget tracker with alerting.",
+      "files_to_modify": [
+        "docs/sre/slo.md",
+        "src/services/ErrorBudgetTrackerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SLOTracker.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM139",
+      "title": "Circuit breakers on all external adapters",
+      "scope": "Fusion/Vericut/NCSIMUL/FOCAS/OPC-UA/MTConnect — circuit breaker (open/half-open/closed) + timeout + fallback to PRISM-only verdict; degraded-mode banner in wizard.",
+      "files_to_modify": [
+        "src/services/ExternalAdapterCircuitBreaker.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CircuitBreaker.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM140",
+      "title": "MS11 telemetry watchdog + min-sample gate",
+      "scope": "Watchdog alerts on >15min ingestor silence; min-sample gate (n≥10) before delta emit; structured backoff/retry/dead-letter per source.",
+      "files_to_modify": [
+        "src/services/PostTelemetryIngestor.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/TelemetryWatchdog.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM141",
+      "title": "CI shard: PR-affected fast lane + nightly full-corpus",
+      "scope": "PR feedback <3min via affected-only test selection; nightly full 50-program corpus + drift detector. vitest --shard.",
+      "files_to_modify": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/nightly.yml"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM142",
+      "title": "MS12 runbook expanded to 10 failure modes",
+      "scope": "Add: golden-corpus seal corruption, drift FP storm, sidecar SHA collision, override DB partition leak, day-4 cutover-fail rollback, telemetry stall, license server down, 2-person rule lockout, tenant migration, multi-shop conflict.",
+      "files_to_modify": [
+        "docs/ppg-ops-runbook.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM143",
+      "title": "Deployment cadence spec + canary rollout",
+      "scope": "Sidecar daily, post engines weekly, physics constants gated by drift-PR-comment-approval; canary 25%→50%→full with auto-revert on SLO breach.",
+      "files_to_modify": [
+        "docs/sre/deployment-cadence.md"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "SLO sheet published; error-budget burn rate alerted to on-call",
+    "Every external adapter wrapped in circuit breaker with verified fallback",
+    "MS11 telemetry watchdog catches 15min stall; min-sample gate prevents 0-sample deltas",
+    "PR feedback <3min p95; nightly corpus runs in <30min",
+    "Runbook covers 10 failure modes with concrete remediation",
+    "Canary deployment with auto-revert verified on synthetic SLO breach"
+  ],
+  "depends_on": [
+    "PPG-MS11",
+    "PPG-MS17"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Operability — mount on existing prism_monitoring (Grafana/Prometheus already wired)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "SLOMonitorEngine",
+      "CircuitBreakerEngine",
+      "CapabilityCensusEngine"
+    ]
+  }
+}

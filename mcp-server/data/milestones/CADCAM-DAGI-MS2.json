@@ -1,0 +1,804 @@
+{
+  "id": "CADCAM-DAGI-MS2",
+  "version": "1.0.0",
+  "title": "Complex Feature Synthesis — Advanced CAD Model Generation",
+  "brief": "Generate highly advanced CAD models with complex features: multi-body assemblies, sweeps, lofts, patterns, configurations, iLogic rules, parametric drivers, weldments, sheet metal. Handle industrial-grade complexity (JM Die cold-heading dies = thousands of features per part). Output: near-AGI CAD synthesis that a senior designer cannot distinguish from human work.",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P0",
+  "omega_target": 1,
+  "created_at": "2026-04-18T21:45:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "dependencies": [
+    "CADCAM-DAGI-MS0",
+    "CADCAM-DAGI-MS1"
+  ],
+  "total_units": 14,
+  "total_sessions": 4,
+  "completed_units": 0,
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-DACFS01",
+        "U-DACFS02",
+        "U-DACFS03",
+        "U-DACFS04"
+      ],
+      "title": "Advanced Solid Features (sweep/loft/boundary/freeform)",
+      "smart_config": {
+        "role": "Senior CAD Designer + Computational Geometry PhD",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "NURBS mathematics (from PRISMCreativeReasoningEngine GEOMETRY domain)",
+          "Bezier/de Casteljau algorithms",
+          "Laplacian smoothing",
+          "PRISM NeuralCADGenerationEngine (MS0 output)",
+          "All 7 software action executors (MS1 output)"
+        ]
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-DACFS05",
+        "U-DACFS06",
+        "U-DACFS07"
+      ],
+      "title": "Patterns, Configurations, Parametric Drivers",
+      "smart_config": {
+        "role": "Parametric Design Architect + CAD Automation Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Inventor iLogic reference",
+          "Fusion360 parameter system",
+          "SolidCAM/Mastercam transform tools",
+          "JM Die family tables (if provided)"
+        ]
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-DACFS08",
+        "U-DACFS09",
+        "U-DACFS10"
+      ],
+      "title": "Multi-Body, Assembly, Joints, Weldments",
+      "smart_config": {
+        "role": "Assembly Design Expert + Kinematics Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Assembly joint types (rigid, revolute, slider, cylindrical, planar, ball, pin-slot)",
+          "PRISM precision engineering domain (error budget, Abbe)",
+          "Inventor Frame Generator patterns"
+        ]
+      }
+    },
+    {
+      "session": 4,
+      "units": [
+        "U-DACFS11",
+        "U-DACFS12",
+        "U-DACFS13",
+        "U-DACFS14"
+      ],
+      "title": "Sheet Metal, Drawings, BOM, Dispatcher Wiring",
+      "smart_config": {
+        "role": "Detailing Engineer + Technical Drawing Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "ASME Y14.5 GD&T rules",
+          "Sheet metal bend table (JM Die process sheets)",
+          "BOM/iProperty standards"
+        ]
+      }
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "U-DACFS01",
+      "title": "AdvancedSweepEngine — multi-rail guided sweeps",
+      "intent": "Generate sweep features: single path, multi-path guided, variable profile, helical. Handle twist control and G2 continuity. Used for cold-header hammer contours, mandrels, complex die cavities.",
+      "files_created": [
+        "mcp-server/src/engines/AdvancedSweepEngine.ts",
+        "mcp-server/src/data/sweep-continuity-rules.json",
+        "mcp-server/src/__tests__/AdvancedSweepEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/NeuralCADGenerationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Sweep primitive generator. Path validator (G0/G1/G2 continuity detection). Profile interpolator for variable sweep. Twist law resolver.",
+        "loop_2_scrutinize": "CAD geometry PhD + failure mode analyst. Check: self-intersection detection, curvature discontinuity rejection, profile degeneracy handling.",
+        "loop_3_gap_fill": "Variable profile interpolation (linear, smooth, by curvature). G3 continuity for show surfaces.",
+        "loop_4_tie_up": "JSDoc. Reference NURBS textbook (Piegl & Tiller)."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Generate 30 die cavity sweeps (helical, variable, guided) — all self-intersection free, G2 continuous.",
+        "abort_criteria": "If self-intersection rate > 2%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 22,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "sweep-self-intersection-detector",
+        "action": "cad.sweep",
+        "skill": "/advanced-sweep"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdvancedSweepEngine — multi-rail guided sweeps — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS01"
+    },
+    {
+      "unit_id": "U-DACFS02",
+      "title": "AdvancedLoftEngine — multi-profile loft with rails",
+      "intent": "Loft feature: N profiles + optional rails + centerline. Support closed loops, tangency conditions at start/end, multi-section ruling. Essential for die transition zones and aerodynamic surfaces.",
+      "files_created": [
+        "mcp-server/src/engines/AdvancedLoftEngine.ts",
+        "mcp-server/src/__tests__/AdvancedLoftEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/NeuralCADGenerationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Profile consistency checker. Ruling algorithm. Rail curve governor. Boundary condition (natural, tangent, curvature).",
+        "loop_2_scrutinize": "NURBS expert + differential geometry PhD. Check: profile alignment discipline (consistent direction), smoothness metrics.",
+        "loop_3_gap_fill": "Closed loft handling, degenerate profile snap.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "25 loft test cases, 100% valid BRep, mean curvature discontinuity < 0.01 mm⁻¹.",
+        "abort_criteria": "If > 3% BRep invalid, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "loft-profile-alignment-validator",
+        "action": "cad.loft",
+        "skill": "/advanced-loft"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdvancedLoftEngine — multi-profile loft with rails — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS02"
+    },
+    {
+      "unit_id": "U-DACFS03",
+      "title": "BoundarySurfaceEngine — N-boundary surface construction",
+      "intent": "Build boundary/patch surfaces from N edges with tangent/curvature constraints. Used for show surface construction, die flow surfaces, custom ergonomic handles.",
+      "files_created": [
+        "mcp-server/src/engines/BoundarySurfaceEngine.ts",
+        "mcp-server/src/__tests__/BoundarySurfaceEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Coons patch + Gordon surface algorithms. Boundary condition propagation.",
+        "loop_2_scrutinize": "Computational geometry expert. Check: blending quality, boundary honoring.",
+        "loop_3_gap_fill": "5+ boundary patches via triangulation + blend.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "15 boundary surfaces with tangent/curvature boundaries — < 0.02mm deviation from constraint.",
+        "abort_criteria": "If deviation > 0.05mm, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "92%"
+      },
+      "forge_triple": {
+        "hook": "boundary-surface-tangency-validator",
+        "action": "cad.boundary",
+        "skill": "/boundary-surface"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "BoundarySurfaceEngine — N-boundary surface construction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS03"
+    },
+    {
+      "unit_id": "U-DACFS04",
+      "title": "FreeformSurfaceSculptEngine — T-spline/SubD synthesis",
+      "intent": "Freeform SubD / T-spline sculpting for organic shapes. Fusion360-style 'Form' environment. Useful for ergonomic cold-heading punches, operator fixtures.",
+      "files_created": [
+        "mcp-server/src/engines/FreeformSurfaceSculptEngine.ts",
+        "mcp-server/src/__tests__/FreeformSurfaceSculptEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "SubD mesh primitive + Catmull-Clark refinement + T-spline conversion. Control cage editor.",
+        "loop_2_scrutinize": "SubD expert + CAD geometry PhD. Check: star vertex handling, degree preservation.",
+        "loop_3_gap_fill": "T-junction handling, edge creases.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "10 organic shapes → convertible to NURBS BRep for downstream CAM.",
+        "abort_criteria": "If NURBS conversion fails > 10%, document limitation.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 12,
+        "coverage_target": "90%"
+      },
+      "forge_triple": {
+        "hook": "subd-star-vertex-validator",
+        "action": "cad.freeform",
+        "skill": "/freeform-sculpt"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "FreeformSurfaceSculptEngine — T-spline/SubD synthesis — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS04"
+    },
+    {
+      "unit_id": "U-DACFS05",
+      "title": "PatternSynthesisEngine — linear/circular/sketch-driven/reference",
+      "intent": "Generate pattern features: linear (1-2 direction), circular, mirror, sketch-driven (from point pattern), reference (driven by other feature). Handle variable count, spacing, and skip instances.",
+      "files_created": [
+        "mcp-server/src/engines/PatternSynthesisEngine.ts",
+        "mcp-server/src/__tests__/PatternSynthesisEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/NeuralCADGenerationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Pattern type dispatcher. Skip-instance logic. Reference-pattern dependency tracking.",
+        "loop_2_scrutinize": "Parametric CAD expert. Check: instance interference detection, edge-case count (n=1, n=0).",
+        "loop_3_gap_fill": "Variable pitch patterns, pattern-along-curve.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "100 pattern test cases (5 types x 20 configs), 100% valid.",
+        "abort_criteria": "If interference rate > 1%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 25,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "pattern-interference-detector",
+        "action": "cad.pattern",
+        "skill": "/pattern-synth"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "PatternSynthesisEngine — linear/circular/sketch-driven/reference — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS05"
+    },
+    {
+      "unit_id": "U-DACFS06",
+      "title": "ConfigurationManagerEngine — family tables & configurations",
+      "intent": "Manage design configurations (Mastercam/SW 'configurations', iPart, Fusion variant). Suppress/unsuppress features based on config. Dimension override tables. Critical for JM Die's families of similar parts.",
+      "files_created": [
+        "mcp-server/src/engines/ConfigurationManagerEngine.ts",
+        "mcp-server/src/data/configuration-schema.json",
+        "mcp-server/src/__tests__/ConfigurationManagerEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Configuration data model. Feature suppression map. Dimension override resolver. Config switching API.",
+        "loop_2_scrutinize": "CAD configuration expert + code-reviewer. Check: dependency resolution order, stale config detection.",
+        "loop_3_gap_fill": "Config-driven material/appearance. BOM variant handling.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "20 family tables (10 configs each) — 100% build success, 100% dimension correct.",
+        "abort_criteria": "If config corruption > 1%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "config-stale-dependency-detector",
+        "action": "cad.configurations",
+        "skill": "/configuration-manager"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ConfigurationManagerEngine — family tables & configurations — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS06"
+    },
+    {
+      "unit_id": "U-DACFS07",
+      "title": "ParametricDriverEngine — iLogic-style rule orchestration",
+      "intent": "Author and execute parametric rules (iLogic-style). Trigger rules on parameter change. Multi-parameter constraint solving. Rule dependency graph.",
+      "files_created": [
+        "mcp-server/src/engines/ParametricDriverEngine.ts",
+        "mcp-server/src/data/parametric-rule-grammar.json",
+        "mcp-server/src/__tests__/ParametricDriverEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/Fusion360iLogicEquivalentEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Rule DSL parser (if/then/else, arithmetic, string ops). Dependency graph. Topological rule execution order.",
+        "loop_2_scrutinize": "Parametric expert + formal methods reviewer. Check: termination guarantee, circular dep detection, solver correctness.",
+        "loop_3_gap_fill": "External rule invocation (call another rule/script), rule versioning.",
+        "loop_4_tie_up": "JSDoc. Rule authoring guide."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "15 parametric parts with 5+ rules each, 100% rebuild success across parameter sweep.",
+        "abort_criteria": "If rule evaluation non-deterministic, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "rule-termination-guarantee",
+        "action": "cad.rules",
+        "skill": "/parametric-rules"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ParametricDriverEngine — iLogic-style rule orchestration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS07"
+    },
+    {
+      "unit_id": "U-DACFS08",
+      "title": "MultiBodyManagementEngine — multi-body part design",
+      "intent": "Generate multi-body parts (e.g., die with insert, punch with adapter). Boolean ops between bodies. Body naming conventions, visibility management, translation to separate components.",
+      "files_created": [
+        "mcp-server/src/engines/MultiBodyManagementEngine.ts",
+        "mcp-server/src/__tests__/MultiBodyManagementEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/NeuralCADGenerationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Body-level operations (union, subtract, intersect, split). Naming convention enforcer. Body-to-component export.",
+        "loop_2_scrutinize": "Multi-body CAD expert. Check: body merge correctness, interference/overlap detection.",
+        "loop_3_gap_fill": "Multi-body drawing view alignment.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "15 multi-body parts (2–5 bodies each), 100% boolean success, 0 topology errors.",
+        "abort_criteria": "If boolean failure rate > 2%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "multibody-interference-detector",
+        "action": "cad.multibody",
+        "skill": "/multibody"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MultiBodyManagementEngine — multi-body part design — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS08"
+    },
+    {
+      "unit_id": "U-DACFS09",
+      "title": "AssemblyConstraintEngine — mates, joints, motion",
+      "intent": "Generate assemblies with constraints/joints. 7 joint types (rigid, revolute, slider, cylindrical, planar, ball, pin-slot). Grounded component rules. Contact sets for kinematic simulation.",
+      "files_created": [
+        "mcp-server/src/engines/AssemblyConstraintEngine.ts",
+        "mcp-server/src/data/joint-types.json",
+        "mcp-server/src/__tests__/AssemblyConstraintEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Joint data model. DOF analyzer (mobility calculation via Gruebler). Constraint redundancy detection.",
+        "loop_2_scrutinize": "Kinematics specialist + mechanism design expert. Check: mobility correctness, over-constrained detection, singular configurations.",
+        "loop_3_gap_fill": "Motion study integration, collision detection during motion.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "10 assemblies with constraints (3–10 parts) — correct DOF, no over-constraints, motion works.",
+        "abort_criteria": "If DOF calc wrong > 5%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "assembly-dof-validator",
+        "action": "cad.assembly",
+        "skill": "/assembly-constraints"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AssemblyConstraintEngine — mates, joints, motion — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS09"
+    },
+    {
+      "unit_id": "U-DACFS10",
+      "title": "WeldmentFrameGeneratorEngine — structural weldments",
+      "intent": "Generate weldment assemblies (frames, brackets) from 3D sketch skeleton. Standard profile library (angle, tube, channel, I-beam). Trim/miter auto-calc. Weld bead annotation.",
+      "files_created": [
+        "mcp-server/src/engines/WeldmentFrameGeneratorEngine.ts",
+        "mcp-server/src/data/structural-profile-library.json",
+        "mcp-server/src/__tests__/WeldmentFrameGeneratorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "3D sketch interpreter → frame member placement. Profile library (AISC steel shapes). Auto-trim algorithm.",
+        "loop_2_scrutinize": "Structural designer + welding specialist. Check: miter angle correctness, gap rules, weld symbol standards.",
+        "loop_3_gap_fill": "Custom profiles, end cap features, gusset plates.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "10 weldment structures (5–20 members) — correct trim, ISO 2553 weld symbols valid.",
+        "abort_criteria": "If trim failure > 2%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "92%"
+      },
+      "forge_triple": {
+        "hook": "weldment-trim-validator",
+        "action": "cad.weldment",
+        "skill": "/weldment"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "WeldmentFrameGeneratorEngine — structural weldments — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS10"
+    },
+    {
+      "unit_id": "U-DACFS11",
+      "title": "SheetMetalSynthesisEngine — bends, flanges, corner relief",
+      "intent": "Generate sheet metal parts. Base flange, edge flange, jog, hem, lofted flange. K-factor resolution per material+gauge. Flat pattern generation.",
+      "files_created": [
+        "mcp-server/src/engines/SheetMetalSynthesisEngine.ts",
+        "mcp-server/src/data/k-factor-table.json",
+        "mcp-server/src/__tests__/SheetMetalSynthesisEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Sheet metal feature set. K-factor table lookup. Corner relief auto-generation. Flat pattern unfolder.",
+        "loop_2_scrutinize": "Sheet metal fabricator + DFM expert. Check: min bend radius rules, tool interference, press brake feasibility.",
+        "loop_3_gap_fill": "Lofted bends, tab and slot patterns.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "15 sheet metal parts, 100% flat pattern success, bend accuracy within 0.1mm.",
+        "abort_criteria": "If flat pattern fails > 3%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "sheetmetal-min-bend-validator",
+        "action": "cad.sheetmetal",
+        "skill": "/sheet-metal"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "SheetMetalSynthesisEngine — bends, flanges, corner relief — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS11"
+    },
+    {
+      "unit_id": "U-DACFS12",
+      "title": "TechnicalDrawingSynthesisEngine — ASME Y14.5 drawings",
+      "intent": "Auto-generate engineering drawings from 3D model. Projected views, sections, details. GD&T per ASME Y14.5. Title block, BOM, revision history.",
+      "files_created": [
+        "mcp-server/src/engines/TechnicalDrawingSynthesisEngine.ts",
+        "mcp-server/src/data/asme-y14-5-rules.json",
+        "mcp-server/src/__tests__/TechnicalDrawingSynthesisEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "View placement algorithm. Dimension auto-placement (critical features first). GD&T symbol generator. Title block template.",
+        "loop_2_scrutinize": "ASME-certified drafter + GD&T expert. Check: dimension completeness (no missing), MMC/LMC interpretation, datum reference frame rules.",
+        "loop_3_gap_fill": "Balloon numbering, hole callout standardization.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "20 parts → drawings → manual inspection: 100% ASME Y14.5 compliant, all features dimensioned.",
+        "abort_criteria": "If compliance < 95%, retrain.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "drawing-asme-compliance-checker",
+        "action": "cad.drawing",
+        "skill": "/drawing-generate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "TechnicalDrawingSynthesisEngine — ASME Y14.5 drawings — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS12"
+    },
+    {
+      "unit_id": "U-DACFS13",
+      "title": "BOMiPropertySynthesisEngine — BOM + metadata generation",
+      "intent": "Generate bill of materials with iProperties (part number, description, material, revision, cost code). JM Die ERP-ready. Structured BOM with quantity roll-up.",
+      "files_created": [
+        "mcp-server/src/engines/BOMiPropertySynthesisEngine.ts",
+        "mcp-server/src/data/jm-die-iproperty-standard.json",
+        "mcp-server/src/__tests__/BOMiPropertySynthesisEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "BOM tree builder. iProperty population (auto-fill from material DB, cost DB, revision DB). Quantity rollup.",
+        "loop_2_scrutinize": "ERP integration expert. Check: property name alignment with JM Die ERP, part number scheme.",
+        "loop_3_gap_fill": "Phantom assembly handling, purchased vs made flag.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "10 assemblies → BOMs → import to JM Die ERP test env succeeds 100%.",
+        "abort_criteria": "If ERP import fails > 5%, redesign schema.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "92%"
+      },
+      "forge_triple": {
+        "hook": "bom-iproperty-completeness-checker",
+        "action": "cad.bom",
+        "skill": "/bom-generate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "BOMiPropertySynthesisEngine — BOM + metadata generation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS13"
+    },
+    {
+      "unit_id": "U-DACFS14",
+      "title": "MS2 Dispatcher Wiring + Feature Cascade",
+      "intent": "Wire 13 new engines into cadCamDeepAgiDispatcher. 14 new actions. 14 new skills. Cascade to MS3, MS4, MS7.",
+      "files_created": [
+        "mcp-server/src/data/CADCAM_DAGI_MS2_CASCADE.json",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.ms2.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/cadCamDeepAgiDispatcher.ts",
+        "mcp-server/src/tools/toolIndex.ts",
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Extend dispatcher with 14 actions. Zod schemas. Skill MD files. Hooks registered.",
+        "loop_2_scrutinize": "Integration + wiring-reviewer.",
+        "loop_3_gap_fill": "Missing schemas.",
+        "loop_4_tie_up": "Cascade JSON."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "14 actions callable via MCP.",
+        "abort_criteria": "If dispatcher tests regress.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 14,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "ms2-dispatcher-integrity",
+        "action": "cad.ms2.status",
+        "skill": "/ms2-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MS2 Dispatcher Wiring + Feature Cascade — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACFS14"
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": 13,
+    "new_actions": 14,
+    "new_skills": 14,
+    "available_to": [
+      "CADCAM-DAGI-MS3",
+      "CADCAM-DAGI-MS4",
+      "CADCAM-DAGI-MS7"
+    ]
+  },
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms2-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms2_run",
+    "skill_command": "/cadcam-dagi-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Generate highly advanced CAD models with complex features: multi-body assemblies, sweeps, lofts, patterns, configurations, iLogic rules, parametric drivers, weldments, sheet metal. Handle industrial-grade complexity (JM Die cold-heading dies = thousands of features per part). Output: near-AGI CAD synthesis that a senior designer cannot distinguish from human work.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

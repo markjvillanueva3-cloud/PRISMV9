@@ -1,0 +1,14 @@
+{
+  "claimed_by": "claude-40c52243",
+  "claimed_at": "2026-04-19T23:48:00Z",
+  "heartbeat_at": "2026-04-19T23:52:00Z",
+  "completed_at": "2026-04-19T23:52:00Z",
+  "status": "completed",
+  "notes": "Format conversion graph for 25+ CAD formats: 21 built-in edges classified lossless/lossy_visual/lossy_geometry/lossy_metadata; composite score = 0.6*geom + 0.4*sem; bestPath() via Dijkstra on -log(composite) finds optimal multi-hop route; 9 magic-byte signatures (STEP/DWG/DXF/x_t/glTF/3MF/PDF/STL/OBJ) + probeValidity() flags extension/sniff mismatch.",
+  "deliverables": [
+    "mcp-server/src/schemas/cadFormatConversionSchema.ts",
+    "mcp-server/src/engines/CADFormatConversionMatrixEngine.ts",
+    "mcp-server/src/__tests__/CADFormatConversionMatrixEngine.test.ts"
+  ],
+  "test_results": { "tests": 21, "passed": 21, "duration_ms": 220 }
+}

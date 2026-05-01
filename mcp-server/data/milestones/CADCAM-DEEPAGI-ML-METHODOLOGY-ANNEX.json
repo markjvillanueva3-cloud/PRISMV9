@@ -1,0 +1,105 @@
+{
+  "id": "CADCAM-DEEPAGI-ML-METHODOLOGY-ANNEX",
+  "version": "1.0.0",
+  "title": "Machine Learning Methodology Annex — Applies to MS0, MS1, MS4, MS7",
+  "authority": "RGS Stage 10 scrutiny ML reviewer finding (58 score) — required to reach >= 70",
+  "created_at": "2026-04-18T22:15:00Z",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "scope": "Any unit involving training, inference, embedding, retrieval, or RL within CADCAM-DAGI milestones",
+  "data_splits": {
+    "strategy": "TEMPORAL SPLIT — not random. CAD/CAM evolves; random split leaks future into past.",
+    "ratios": {"train": 0.70, "validation": 0.15, "test": 0.15},
+    "implementation": "Sort JM Die corpus by original file modification date. First 70% = train, next 15% = val, last 15% = test.",
+    "cross_validation": "5-fold time-series CV for hyperparameter search. Only fit hyperparameters on train+val, never touch test until final evaluation.",
+    "leak_prevention": "RAG retrieval index built only from train split. Test programs never seen by retriever during evaluation."
+  },
+  "overfitting_mitigation": {
+    "transformer_cad_gen_MS0_U-DAGI04_U-DAGI07": {
+      "dropout": 0.1,
+      "attention_dropout": 0.1,
+      "weight_decay": 1e-4,
+      "early_stopping_patience": 5,
+      "gradient_clipping": 1.0,
+      "label_smoothing": 0.1,
+      "warmup_steps": 2000,
+      "lr_schedule": "cosine with restart"
+    },
+    "embedding_MS1_U-DASAL03_U-DASAL07_U-DASAL10_U-DASAL13": {
+      "contrastive_loss": "triplet loss, margin=0.2",
+      "regularization": "L2 normalization of embeddings",
+      "ablation_required": "Test embedding dim in [64, 128, 256, 512]; pick min that reaches 95% of 512-dim performance"
+    }
+  },
+  "pretraining_strategy_MS0": {
+    "issue": "Corpus 24,545 parts x ~250 tokens ≈ 6M tokens is insufficient for from-scratch transformer. DeepCAD / SkexGen use 100M-1B.",
+    "solution": "Initialize from pretrained code LLM (CodeT5-large or StarCoder-1B), then fine-tune with LoRA adapters on CAD token corpus.",
+    "loRa_config": {"r": 16, "alpha": 32, "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]},
+    "fine_tune_epochs": "Up to 20 with early stopping on val loss",
+    "base_model_license": "Must verify CodeT5/StarCoder license compatible with PRISM commercial use"
+  },
+  "rl_policy_specification_MS4_U-CAMAGI02": {
+    "algorithm": "PPO (Proximal Policy Optimization) with clipped surrogate objective",
+    "rationale": "On-policy, sample-efficient, stable for continuous+discrete action spaces, well-suited to moment-state with ~30 variables",
+    "hyperparameters": {
+      "clip_epsilon": 0.2,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "entropy_coef": 0.01,
+      "value_loss_coef": 0.5,
+      "learning_rate": 3e-4,
+      "batch_size": 2048,
+      "epochs_per_update": 10
+    },
+    "reward_function": "r_t = w_time * (-cycle_time_delta) + w_tool * (tool_life_delta) + w_quality * (1[surface_in_tol]) + w_safety * (-10 * 1[S(x)<0.70]) + w_cost * (-cost_delta). Weights chosen via shop-operator survey (tuned via inverse RL from JM Die human choices).",
+    "exploration": "Gaussian noise with schedule sigma=0.3 → 0.05 over 100k steps",
+    "safety_constraint": "CPO (Constrained Policy Optimization) variant to enforce S(x) >= 0.70 during training as hard constraint, not just reward penalty",
+    "simulation_env": "Must use VariabilityAdaptiveOrchestrator as simulator — never train on live machines until policy converges in sim"
+  },
+  "kalman_filter_specification_MS4_U-CAMAGI04": {
+    "state_vector_x": ["ae_actual", "ap_actual", "spindle_load", "feed_force_x", "feed_force_y", "feed_force_z", "tool_wear", "chatter_amplitude", "thermal_drift"],
+    "dim_x": 9,
+    "state_transition_F": "Linear time-invariant per segment; derived from machine dynamics model (decoupled mass-spring per axis) — for nonlinear transitions upgrade to Extended Kalman (EKF) or Unscented (UKF)",
+    "observation_H": "Sensor selection matrix — maps state to observable (spindle current → spindle_load via torque constant; acceleration → feed_force via F=ma)",
+    "process_noise_Q": "Diagonal, tuned via residual whiteness (Wald test on autocorrelation of innovations). Initial values: diag([0.1, 0.1, 5.0, 10.0, 10.0, 10.0, 0.001, 0.5, 0.01])",
+    "measurement_noise_R": "Diagonal, per-sensor catalog (spindle current: 2% of reading; accelerometer: 0.5 m/s^2; thermocouple: 1 deg C)",
+    "nonlinearity_handling": "Upgrade to UKF if Jacobian condition number > 100 during operation. Sigma points via Merwe scaled (alpha=1e-3, beta=2, kappa=0)",
+    "divergence_monitor": "If normalized innovation squared (NIS) exceeds chi-squared(dim_z, 0.99) for > 5 consecutive steps, filter has diverged — reinitialize from geometric prior"
+  },
+  "benchmark_statistics_MS7_U-DAE2E06": {
+    "null_hypothesis": "H0: p(AGI beats human) = 0.50 (no difference)",
+    "alternative": "H1: p(AGI beats human) >= 0.80",
+    "alpha": 0.05,
+    "power": 0.80,
+    "sample_size": "Minimum n = 385 programs for 95% CI with 5% margin of error. Sample via stratified random sampling on (material_family, operation_type, machine_class) to avoid bias.",
+    "primary_test": "Two-sided binomial exact test",
+    "supplementary": "Paired McNemar test per (AGI, human) pair on same part. Wilson score interval for rate estimation (better than Wald for extreme rates).",
+    "multiple_comparison": "If per-stratum breakdown reported, Bonferroni correction on family-wise error rate",
+    "stratification_bins": {
+      "material_family": ["P-steel", "M-stainless", "K-cast-iron", "N-non-ferrous", "S-super-alloy", "H-hardened"],
+      "operation_type": ["face-mill", "end-mill-rough", "end-mill-finish", "drill", "tap", "turn-rough", "turn-finish", "wire-edm", "sinker-edm"],
+      "machine_class": ["okuma-lathe", "hurco-mill", "haas-mill", "mitsubishi-edm", "rokuru-mill"]
+    },
+    "win_condition": "AGI wins iff (cycle_time <= 1.05 * human) AND (surface_finish_in_tol) AND (tool_life >= 0.9 * human) AND (S(x) >= 0.70 throughout)"
+  },
+  "cad_evaluation_metrics_MS0_MS3": {
+    "validity_rate": "% of generated models that pass MS3 BRepTopologyValidator (watertight 2-manifold)",
+    "chamfer_L2": "Symmetric Chamfer distance between generated and reference surface samples (N=10,000 points). Target: < 0.05 mm RMS",
+    "feature_F1": "F1 score on feature recovery (holes, pockets, bosses, ribs). Target: >= 0.90",
+    "parametric_consistency_score": "Fraction of parameters in generated model that satisfy ground-truth constraints. Target: >= 0.95",
+    "rebuild_robustness": "Fraction of models that rebuild without errors after random parameter perturbation ±10%. Target: >= 0.95",
+    "dimensional_fidelity": "Mean absolute error of critical dimensions vs spec. Target: < 0.01 mm",
+    "intent_preservation": "Fraction of parallel/perpendicular/tangent relations preserved after generation. Target: >= 0.95"
+  },
+  "compute_budget": {
+    "training_MS0": "Estimated 4x A100 80GB for 72h for LoRA fine-tune. Checkpoint every 6h.",
+    "inference_MS0": "Single A100 can serve ~10 req/sec. Target p99 latency 2s for 250-token generation.",
+    "rl_training_MS4": "8x A100 80GB for 1 week with simulated environment. ~100M steps total.",
+    "benchmark_MS7": "100 parallel CPU workers, 4GB RAM each, 30s timeout per program. Full 24,545 corpus runs in ~2 hours (well under 24-hour budget)."
+  },
+  "reproducibility_requirements": {
+    "seeds": "All random seeds explicitly set in training scripts (numpy, torch, cuda). Document seed in config.",
+    "versioning": "Dataset version hash, model checkpoint hash, code commit SHA all logged for every training run.",
+    "artifacts": "Store in data/state/ml-experiments/ with schema: {run_id, timestamp, config, metrics, checkpoint_path, git_sha}"
+  },
+  "re_scrutiny_trigger": "After this annex is committed and referenced from MS0/MS1/MS4/MS7, invoke ml-developer agent again to re-score. Target: >= 75."
+}

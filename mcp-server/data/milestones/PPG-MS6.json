@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS6",
+  "version": "1.0.0",
+  "title": "PPG-MS6 — UI Generator Wizard (tool-pocket exclusions, per-feature toggles, machine-aware checkboxes)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T04:37:47.554Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Surfaces the full configurability of the master post stack to the operator: per-machine tool pocket count + checkboxes to exclude broken/missing pockets, per-feature toggles (HSM, look-ahead, coolant modes, sub-spindle, sister-tool, probe), and persisted wizard state per shop. Without this UI the physics and dialect work below it is unreachable.",
+  "rationale": "The pre-precompact audit identified the wizard as the bottleneck: the wizard had only 3 hard-coded machines and no concept of tool pocket exclusions. Operators can't trust what they can't configure. This milestone closes the gap between the planning depth below (PPG-MS0..MS5) and the operator surface above.",
+  "leverage_existing": [
+    "PostProcessorGeneratorPage — existing wizard scaffold",
+    "PhysicsDetailsPanel — chatter/Kienzle/tool-life overlay (PPG-WIRE-MS0/U-PPGW08)",
+    "ShopConfigurationEngine — tool magazine layouts per machine",
+    "ToolMagazineOptimizeEngine — pocket assignment + exclusion rules",
+    "MachineRegistry — fleet manifest from PPG-MS4"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Operator at JM Die runs a Hurco V11 job. T7 in the magazine has a broken tap. T15 is missing.",
+    "today_pre_ppg_ms6": "No way to tell the wizard. Operator manually edits the program after generation to skip those pockets. 12 min per program lost. 6/100 programs ship with the wrong pocket comment because the operator forgot to update the comment block.",
+    "should_be_post_ppg_ms6": "Wizard shows magazine layout; operator unchecks T7 + T15. Generator routes affected ops to substitute tools where possible, errors clearly where not. Comment block + setup sheet reflect the exclusion.",
+    "gap_now_closed": "Wizard captures shop reality; no post-generation hand-editing required."
+  },
+  "units": [
+    {
+      "id": "U-PPGM43",
+      "title": "Pocket-count-per-machine map + tool-magazine UI source",
+      "scope": "Resolve magazine size from MachineRegistry (Hurco V11=24, Okuma B250=12, Multus B250IIW=40, etc.); persist as part of fleet manifest"
+    },
+    {
+      "id": "U-PPGM44",
+      "title": "ToolPocketExclusion component",
+      "scope": "web/src/components/ppg/ToolPocketExclusion.tsx — interactive magazine grid, per-pocket exclude/broken/missing flags"
+    },
+    {
+      "id": "U-PPGM45",
+      "title": "FeatureToggleMatrix (HSM, look-ahead, coolant, sub-spindle, sister-tool, probe)",
+      "scope": "web/src/components/ppg/FeatureToggleMatrix.tsx — controller-aware toggle availability; disabled toggles show why"
+    },
+    {
+      "id": "U-PPGM46",
+      "title": "Generator persists wizard state per shop + per machine",
+      "scope": "Wizard state survives reload and is shared across operators; backed by ShopConfigurationEngine settings"
+    },
+    {
+      "id": "U-PPGM47",
+      "title": "End-to-end wizard tests",
+      "scope": "src/__tests__/web-api/ppg-wizard-e2e.test.ts — 21-machine roster, pocket exclusions, feature toggles, persistence, generator round-trip"
+    },
+    {
+      "id": "U-PPGM47b",
+      "title": "Tool-magazine optimization (sister-tool routing + tool-change minimization + magazine-aware op sequencing)",
+      "scope": "Wire existing tool_magazine_optimize action into wizard; render magazine layout with sister-tool annotations; minimize T-changes within ops while honoring force/wear ceilings.",
+      "files_to_modify": [
+        "web/src/components/ppg/MagazineLayoutPanel.tsx",
+        "mcp-server/src/engines/ToolMagazineWiringEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MagazineLayoutWiring.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Wizard shows accurate magazine layout for every JM Die machine",
+    "Tool pocket exclusion is honored end-to-end through generator + post + setup sheet",
+    "Feature toggle availability driven by controller fingerprint (HSM only when controller supports it)",
+    "Wizard state persists per (shop, machine) and survives reload + multi-operator use"
+  ],
+  "depends_on": [
+    "PPG-MS4",
+    "PPG-MS5",
+    "PPG-MS2",
+    "PPG-MS3"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS13",
+    "PPG-MS14",
+    "PPG-MS15",
+    "PPG-MS26",
+    "PPG-MS28",
+    "PPG-MS30",
+    "PPG-MS31"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

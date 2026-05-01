@@ -403,5 +403,59 @@
   ],
   "total_units": 8,
   "completed_units": 0,
-  "completion_note": "KnowledgeQueryEngine + ToolSelectionEngine rewired to services. IntelligenceEngine documented for MS3. Pipeline engines already pure."
+  "completion_note": "KnowledgeQueryEngine + ToolSelectionEngine rewired to services. IntelligenceEngine documented for MS3. Pipeline engines already pure.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "arch-ms2-gate"
+    ],
+    "new_actions": [
+      "arch_ms2_run"
+    ],
+    "new_skills": [
+      "/arch-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Fix dispatcher layer leaks (calcDispatcher importing registryManager, presentation logic in dispatchers), eliminate direct readFileSync/readFile calls in engines (30 engines, 54 occurrences), migrate remaining 23 direct-registry-import engines to service layer, and reclassify misclassified engines (SpindleProtectionEngine as data catalog, CalculatorToolCribWorkspaceService mixing concerns).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-ARCH01",
+      "title": "ARCH-MS2 — Coordinator",
+      "description": "Master coordinator envelope for ARCH-MS2. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

@@ -1,0 +1,317 @@
+{
+  "continuation": "MastercamX8ParameterCatalog.json",
+  "part": 3,
+  "description": "3D High Speed Toolpaths: Dynamic OptiRough, Core Mill 3D, Area Clearance, Rest Mill 3D",
+  "category": "3D_HIGH_SPEED_TOOLPATHS",
+  "toolpaths": [
+    {
+      "id": "MCX8-3DHS-001",
+      "name": "Dynamic OptiRough",
+      "internalCode": "TP_3D_HS_OPTIROUGH",
+      "description": "Stock-aware 3D adaptive roughing with Dynamic Motion Technology",
+      "isDynamic": true,
+      "isOpti": true,
+      "pages": {
+        "toolpathType": {
+          "paramCount": 28,
+          "parameters": [
+            {"id": "MCX8-3DHS-001-001", "name": "stepover", "type": "numeric", "unit": "mm", "min": 0.01, "max": 100, "default": 2.5, "description": "Maximum radial stepover"},
+            {"id": "MCX8-3DHS-001-002", "name": "stepover_pct", "type": "numeric", "unit": "%", "min": 1, "max": 50, "default": 10, "description": "Stepover as % of tool diameter"},
+            {"id": "MCX8-3DHS-001-003", "name": "stepdown", "type": "numeric", "unit": "mm", "min": 0.01, "max": 200, "default": 3, "description": "Axial stepdown between Z-levels"},
+            {"id": "MCX8-3DHS-001-004", "name": "stepdown_pct", "type": "numeric", "unit": "%", "min": 5, "max": 400, "default": 200, "description": "Stepdown as % of tool diameter"},
+            {"id": "MCX8-3DHS-001-005", "name": "min_toolpath_radius", "type": "numeric", "unit": "mm", "min": 0, "max": 100, "default": 0.5, "description": "Minimum toolpath corner radius"},
+            {"id": "MCX8-3DHS-001-006", "name": "approach_distance", "type": "numeric", "unit": "mm", "default": 5, "description": "Approach distance before cutting"},
+            {"id": "MCX8-3DHS-001-007", "name": "micro_lift_distance", "type": "numeric", "unit": "mm", "default": 0.25, "description": "Micro lift for repositioning"},
+            {"id": "MCX8-3DHS-001-008", "name": "stock_model_source", "type": "enum", "values": ["from_geometry", "from_stock", "from_previous_op", "stl_file"], "default": "from_stock", "description": "Stock model reference"},
+            {"id": "MCX8-3DHS-001-009", "name": "include_stock_boundary", "type": "boolean", "default": true, "description": "Include stock boundary in calculation"},
+            {"id": "MCX8-3DHS-001-010", "name": "entry_method", "type": "enum", "values": ["helix", "ramp", "plunge", "predrill"], "default": "helix", "description": "Entry method"},
+            {"id": "MCX8-3DHS-001-011", "name": "helix_diameter", "type": "numeric", "unit": "mm", "default": 10, "description": "Helix entry diameter"},
+            {"id": "MCX8-3DHS-001-012", "name": "helix_diameter_pct", "type": "numeric", "unit": "%", "default": 100, "description": "Helix diameter as % of tool"},
+            {"id": "MCX8-3DHS-001-013", "name": "helix_angle", "type": "numeric", "unit": "deg", "min": 0.5, "max": 45, "default": 2, "description": "Helix ramp angle"},
+            {"id": "MCX8-3DHS-001-014", "name": "stock_to_leave_radial", "type": "numeric", "unit": "mm", "min": -5, "max": 50, "default": 0.5, "description": "Radial stock allowance"},
+            {"id": "MCX8-3DHS-001-015", "name": "stock_to_leave_axial", "type": "numeric", "unit": "mm", "min": -5, "max": 50, "default": 0.25, "description": "Axial stock allowance"},
+            {"id": "MCX8-3DHS-001-016", "name": "cut_tolerance", "type": "numeric", "unit": "mm", "min": 0.001, "max": 1, "default": 0.025, "description": "Machining tolerance"},
+            {"id": "MCX8-3DHS-001-017", "name": "optimize_z_levels", "type": "boolean", "default": true, "description": "Optimize Z-level ordering"},
+            {"id": "MCX8-3DHS-001-018", "name": "stock_recognition", "type": "boolean", "default": true, "description": "Enable stock recognition"},
+            {"id": "MCX8-3DHS-001-019", "name": "air_cutting_avoidance", "type": "boolean", "default": true, "description": "Avoid cutting air"},
+            {"id": "MCX8-3DHS-001-020", "name": "rest_material_mode", "type": "boolean", "default": false, "description": "Enable rest material detection"},
+            {"id": "MCX8-3DHS-001-021", "name": "previous_tool_diameter", "type": "numeric", "unit": "mm", "default": 25, "description": "Previous tool diameter for rest"},
+            {"id": "MCX8-3DHS-001-022", "name": "previous_tool_corner_radius", "type": "numeric", "unit": "mm", "default": 0, "description": "Previous tool corner radius"},
+            {"id": "MCX8-3DHS-001-023", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed rate"},
+            {"id": "MCX8-3DHS-001-024", "name": "steep_shallow_threshold", "type": "numeric", "unit": "deg", "min": 0, "max": 90, "default": 45, "description": "Angle for steep/shallow classification"},
+            {"id": "MCX8-3DHS-001-025", "name": "machine_steep_areas", "type": "boolean", "default": true, "description": "Machine steep areas"},
+            {"id": "MCX8-3DHS-001-026", "name": "machine_shallow_areas", "type": "boolean", "default": true, "description": "Machine shallow areas"},
+            {"id": "MCX8-3DHS-001-027", "name": "critical_depths_enabled", "type": "boolean", "default": false, "description": "Enable critical depths for flat floors"},
+            {"id": "MCX8-3DHS-001-028", "name": "critical_depths_tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Critical depth detection tolerance"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 20,
+          "parameters": [
+            {"id": "MCX8-3DHS-001-029", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Cutter compensation"},
+            {"id": "MCX8-3DHS-001-030", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Enable tip compensation"},
+            {"id": "MCX8-3DHS-001-031", "name": "cutting_direction", "type": "enum", "values": ["climb", "conventional", "mixed"], "default": "climb", "description": "Cutting direction"},
+            {"id": "MCX8-3DHS-001-032", "name": "cut_order", "type": "enum", "values": ["by_region", "by_depth", "zigzag"], "default": "by_depth", "description": "Cutting order"},
+            {"id": "MCX8-3DHS-001-033", "name": "contour_direction", "type": "enum", "values": ["cw", "ccw", "auto"], "default": "auto", "description": "Contour direction"},
+            {"id": "MCX8-3DHS-001-034", "name": "keep_tool_down", "type": "boolean", "default": true, "description": "Keep tool at depth"},
+            {"id": "MCX8-3DHS-001-035", "name": "lead_in_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DHS-001-036", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 5, "description": "Lead-in radius"},
+            {"id": "MCX8-3DHS-001-037", "name": "lead_in_sweep", "type": "numeric", "unit": "deg", "default": 90, "description": "Lead-in sweep angle"},
+            {"id": "MCX8-3DHS-001-038", "name": "lead_out_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DHS-001-039", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 5, "description": "Lead-out radius"},
+            {"id": "MCX8-3DHS-001-040", "name": "lead_out_sweep", "type": "numeric", "unit": "deg", "default": 90, "description": "Lead-out sweep angle"},
+            {"id": "MCX8-3DHS-001-041", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Pass overlap"},
+            {"id": "MCX8-3DHS-001-042", "name": "finishing_passes", "type": "integer", "default": 0, "description": "Wall finish passes"},
+            {"id": "MCX8-3DHS-001-043", "name": "floor_finishing", "type": "boolean", "default": true, "description": "Floor finishing pass"},
+            {"id": "MCX8-3DHS-001-044", "name": "corner_treatment", "type": "enum", "values": ["roll", "loop", "zigzag"], "default": "roll", "description": "Corner treatment"},
+            {"id": "MCX8-3DHS-001-045", "name": "corner_slowdown", "type": "boolean", "default": true, "description": "Slow at corners"},
+            {"id": "MCX8-3DHS-001-046", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 70, "description": "Corner feed percentage"},
+            {"id": "MCX8-3DHS-001-047", "name": "engagement_angle_max", "type": "numeric", "unit": "deg", "min": 10, "max": 180, "default": 90, "description": "Max engagement angle"},
+            {"id": "MCX8-3DHS-001-048", "name": "use_subprograms", "type": "boolean", "default": false, "description": "Output as subprograms"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 18,
+          "parameters": [
+            {"id": "MCX8-3DHS-001-049", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DHS-001-050", "name": "clearance_type", "type": "enum", "values": ["absolute", "incremental"], "default": "incremental", "description": "Clearance reference"},
+            {"id": "MCX8-3DHS-001-051", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 5, "description": "Retract height"},
+            {"id": "MCX8-3DHS-001-052", "name": "retract_type", "type": "enum", "values": ["absolute", "incremental"], "default": "incremental", "description": "Retract reference"},
+            {"id": "MCX8-3DHS-001-053", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 2, "description": "Feed engage height"},
+            {"id": "MCX8-3DHS-001-054", "name": "top_of_stock", "type": "numeric", "unit": "mm", "default": 0, "description": "Top of stock Z"},
+            {"id": "MCX8-3DHS-001-055", "name": "depth", "type": "numeric", "unit": "mm", "default": 50, "description": "Total machining depth"},
+            {"id": "MCX8-3DHS-001-056", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "feed", "along_surface"], "default": "retract", "description": "Retract behavior"},
+            {"id": "MCX8-3DHS-001-057", "name": "same_depth_retract", "type": "enum", "values": ["none", "micro_lift", "retract", "clearance"], "default": "micro_lift", "description": "Same-depth linking"},
+            {"id": "MCX8-3DHS-001-058", "name": "depth_change_retract", "type": "enum", "values": ["retract", "clearance"], "default": "retract", "description": "Depth change linking"},
+            {"id": "MCX8-3DHS-001-059", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize link moves"},
+            {"id": "MCX8-3DHS-001-060", "name": "entry_ramp_angle", "type": "numeric", "unit": "deg", "default": 2, "description": "Ramp angle"},
+            {"id": "MCX8-3DHS-001-061", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 500, "description": "Plunge feed"},
+            {"id": "MCX8-3DHS-001-062", "name": "ramp_rate", "type": "numeric", "unit": "mm/min", "default": 1000, "description": "Ramp feed"},
+            {"id": "MCX8-3DHS-001-063", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract feed"},
+            {"id": "MCX8-3DHS-001-064", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"},
+            {"id": "MCX8-3DHS-001-065", "name": "surface_following_link", "type": "boolean", "default": false, "description": "Surface-following links"},
+            {"id": "MCX8-3DHS-001-066", "name": "link_clearance_offset", "type": "numeric", "unit": "mm", "default": 2, "description": "Link surface offset"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 10,
+          "parameters": [
+            {"id": "MCX8-3DHS-001-067", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DHS-001-068", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Filter tolerance"},
+            {"id": "MCX8-3DHS-001-069", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DHS-001-070", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Min arc radius"},
+            {"id": "MCX8-3DHS-001-071", "name": "max_arc_radius", "type": "numeric", "unit": "mm", "default": 5000, "description": "Max arc radius"},
+            {"id": "MCX8-3DHS-001-072", "name": "smooth_corners", "type": "boolean", "default": true, "description": "Smooth corners"},
+            {"id": "MCX8-3DHS-001-073", "name": "corner_smoothing_radius", "type": "numeric", "unit": "mm", "default": 1, "description": "Smoothing radius"},
+            {"id": "MCX8-3DHS-001-074", "name": "output_3d_arcs", "type": "boolean", "default": true, "description": "Output 3D arcs"},
+            {"id": "MCX8-3DHS-001-075", "name": "helical_arc_output", "type": "boolean", "default": true, "description": "Output helical arcs"},
+            {"id": "MCX8-3DHS-001-076", "name": "arc_direction_control", "type": "enum", "values": ["any", "cw", "ccw"], "default": "any", "description": "Arc direction preference"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 4,
+          "parameters": [
+            {"id": "MCX8-3DHS-001-077", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DHS-001-078", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "air_blast", "off"], "default": "flood", "description": "Coolant type"},
+            {"id": "MCX8-3DHS-001-079", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"},
+            {"id": "MCX8-3DHS-001-080", "name": "coolant_off_code", "type": "integer", "default": 9, "description": "Coolant off M-code"}
+          ]
+        }
+      },
+      "totalParams": 80
+    },
+    {
+      "id": "MCX8-3DHS-002",
+      "name": "Area Clearance",
+      "internalCode": "TP_3D_HS_AREA_CLEAR",
+      "description": "3D area clearance with Z-level and spiral options",
+      "isDynamic": false,
+      "pages": {
+        "toolpathType": {
+          "paramCount": 22,
+          "parameters": [
+            {"id": "MCX8-3DHS-002-001", "name": "stepover", "type": "numeric", "unit": "mm", "default": 10, "description": "Radial stepover"},
+            {"id": "MCX8-3DHS-002-002", "name": "stepover_pct", "type": "numeric", "unit": "%", "default": 65, "description": "Stepover as % of diameter"},
+            {"id": "MCX8-3DHS-002-003", "name": "stepdown", "type": "numeric", "unit": "mm", "default": 3, "description": "Axial stepdown"},
+            {"id": "MCX8-3DHS-002-004", "name": "cut_pattern", "type": "enum", "values": ["zigzag", "one_way", "spiral_in", "spiral_out", "morph", "constant_overlap"], "default": "zigzag", "description": "Cutting pattern"},
+            {"id": "MCX8-3DHS-002-005", "name": "cut_angle", "type": "numeric", "unit": "deg", "min": 0, "max": 360, "default": 0, "description": "Cutting angle"},
+            {"id": "MCX8-3DHS-002-006", "name": "machine_walls", "type": "boolean", "default": true, "description": "Machine vertical walls"},
+            {"id": "MCX8-3DHS-002-007", "name": "machine_floors", "type": "boolean", "default": true, "description": "Machine horizontal floors"},
+            {"id": "MCX8-3DHS-002-008", "name": "entry_method", "type": "enum", "values": ["helix", "ramp", "plunge"], "default": "helix", "description": "Entry method"},
+            {"id": "MCX8-3DHS-002-009", "name": "helix_diameter", "type": "numeric", "unit": "mm", "default": 15, "description": "Helix diameter"},
+            {"id": "MCX8-3DHS-002-010", "name": "helix_angle", "type": "numeric", "unit": "deg", "default": 2.5, "description": "Helix angle"},
+            {"id": "MCX8-3DHS-002-011", "name": "stock_to_leave_radial", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Radial stock"},
+            {"id": "MCX8-3DHS-002-012", "name": "stock_to_leave_axial", "type": "numeric", "unit": "mm", "default": 0.25, "description": "Axial stock"},
+            {"id": "MCX8-3DHS-002-013", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.025, "description": "Machining tolerance"},
+            {"id": "MCX8-3DHS-002-014", "name": "steep_threshold", "type": "numeric", "unit": "deg", "default": 45, "description": "Steep angle threshold"},
+            {"id": "MCX8-3DHS-002-015", "name": "shallow_threshold", "type": "numeric", "unit": "deg", "default": 15, "description": "Shallow angle threshold"},
+            {"id": "MCX8-3DHS-002-016", "name": "z_level_order", "type": "enum", "values": ["top_down", "bottom_up", "optimized"], "default": "top_down", "description": "Z-level ordering"},
+            {"id": "MCX8-3DHS-002-017", "name": "island_detection", "type": "boolean", "default": true, "description": "Detect and avoid islands"},
+            {"id": "MCX8-3DHS-002-018", "name": "island_offset", "type": "numeric", "unit": "mm", "default": 1, "description": "Island offset"},
+            {"id": "MCX8-3DHS-002-019", "name": "boundary_type", "type": "enum", "values": ["stock", "silhouette", "selected", "contain"], "default": "silhouette", "description": "Boundary definition"},
+            {"id": "MCX8-3DHS-002-020", "name": "boundary_offset", "type": "numeric", "unit": "mm", "default": 0, "description": "Boundary offset"},
+            {"id": "MCX8-3DHS-002-021", "name": "optimize_regions", "type": "boolean", "default": true, "description": "Optimize region order"},
+            {"id": "MCX8-3DHS-002-022", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 16,
+          "parameters": [
+            {"id": "MCX8-3DHS-002-023", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Compensation"},
+            {"id": "MCX8-3DHS-002-024", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Tip compensation"},
+            {"id": "MCX8-3DHS-002-025", "name": "cutting_direction", "type": "enum", "values": ["climb", "conventional", "zigzag"], "default": "climb", "description": "Cut direction"},
+            {"id": "MCX8-3DHS-002-026", "name": "keep_tool_down", "type": "boolean", "default": false, "description": "Keep tool down"},
+            {"id": "MCX8-3DHS-002-027", "name": "lead_in_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DHS-002-028", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 5, "description": "Lead-in radius"},
+            {"id": "MCX8-3DHS-002-029", "name": "lead_out_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DHS-002-030", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 5, "description": "Lead-out radius"},
+            {"id": "MCX8-3DHS-002-031", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 1, "description": "Overlap distance"},
+            {"id": "MCX8-3DHS-002-032", "name": "finishing_passes", "type": "integer", "default": 1, "description": "Finish passes"},
+            {"id": "MCX8-3DHS-002-033", "name": "finish_stepover", "type": "numeric", "unit": "mm", "default": 0.3, "description": "Finish stepover"},
+            {"id": "MCX8-3DHS-002-034", "name": "floor_finish", "type": "boolean", "default": true, "description": "Floor finish pass"},
+            {"id": "MCX8-3DHS-002-035", "name": "corner_slowdown", "type": "boolean", "default": true, "description": "Corner slowdown"},
+            {"id": "MCX8-3DHS-002-036", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 60, "description": "Corner feed %"},
+            {"id": "MCX8-3DHS-002-037", "name": "roll_corners", "type": "enum", "values": ["all", "sharp", "none"], "default": "sharp", "description": "Corner rolling"},
+            {"id": "MCX8-3DHS-002-038", "name": "use_subprograms", "type": "boolean", "default": false, "description": "Output subprograms"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 14,
+          "parameters": [
+            {"id": "MCX8-3DHS-002-039", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DHS-002-040", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 5, "description": "Retract height"},
+            {"id": "MCX8-3DHS-002-041", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 2, "description": "Feed height"},
+            {"id": "MCX8-3DHS-002-042", "name": "top_of_stock", "type": "numeric", "unit": "mm", "default": 0, "description": "Top of stock"},
+            {"id": "MCX8-3DHS-002-043", "name": "depth", "type": "numeric", "unit": "mm", "default": 50, "description": "Total depth"},
+            {"id": "MCX8-3DHS-002-044", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "feed"], "default": "retract", "description": "Retract method"},
+            {"id": "MCX8-3DHS-002-045", "name": "same_depth_linking", "type": "enum", "values": ["direct", "retract", "clearance"], "default": "direct", "description": "Same-depth linking"},
+            {"id": "MCX8-3DHS-002-046", "name": "depth_change_linking", "type": "enum", "values": ["retract", "clearance"], "default": "retract", "description": "Depth change linking"},
+            {"id": "MCX8-3DHS-002-047", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize links"},
+            {"id": "MCX8-3DHS-002-048", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 500, "description": "Plunge rate"},
+            {"id": "MCX8-3DHS-002-049", "name": "ramp_rate", "type": "numeric", "unit": "mm/min", "default": 1000, "description": "Ramp rate"},
+            {"id": "MCX8-3DHS-002-050", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract rate"},
+            {"id": "MCX8-3DHS-002-051", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"},
+            {"id": "MCX8-3DHS-002-052", "name": "ramp_angle", "type": "numeric", "unit": "deg", "default": 3, "description": "Ramp angle"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 6,
+          "parameters": [
+            {"id": "MCX8-3DHS-002-053", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DHS-002-054", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Filter tolerance"},
+            {"id": "MCX8-3DHS-002-055", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DHS-002-056", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Min arc radius"},
+            {"id": "MCX8-3DHS-002-057", "name": "max_arc_radius", "type": "numeric", "unit": "mm", "default": 5000, "description": "Max arc radius"},
+            {"id": "MCX8-3DHS-002-058", "name": "output_3d_arcs", "type": "boolean", "default": false, "description": "Output 3D arcs"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 4,
+          "parameters": [
+            {"id": "MCX8-3DHS-002-059", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DHS-002-060", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "off"], "default": "flood", "description": "Coolant type"},
+            {"id": "MCX8-3DHS-002-061", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"},
+            {"id": "MCX8-3DHS-002-062", "name": "coolant_off_code", "type": "integer", "default": 9, "description": "Coolant off M-code"}
+          ]
+        }
+      },
+      "totalParams": 62
+    },
+    {
+      "id": "MCX8-3DHS-003",
+      "name": "Rest Mill 3D",
+      "internalCode": "TP_3D_HS_REST_MILL",
+      "description": "Rest machining for 3D surfaces based on previous operation stock model",
+      "isDynamic": false,
+      "pages": {
+        "toolpathType": {
+          "paramCount": 20,
+          "parameters": [
+            {"id": "MCX8-3DHS-003-001", "name": "stepover", "type": "numeric", "unit": "mm", "default": 1.5, "description": "Radial stepover"},
+            {"id": "MCX8-3DHS-003-002", "name": "stepover_pct", "type": "numeric", "unit": "%", "default": 30, "description": "Stepover as % of diameter"},
+            {"id": "MCX8-3DHS-003-003", "name": "stepdown", "type": "numeric", "unit": "mm", "default": 1.5, "description": "Axial stepdown"},
+            {"id": "MCX8-3DHS-003-004", "name": "rest_source", "type": "enum", "values": ["previous_operation", "stock_model", "stl_file", "tool_diameter"], "default": "previous_operation", "description": "Rest material source"},
+            {"id": "MCX8-3DHS-003-005", "name": "previous_tool_diameter", "type": "numeric", "unit": "mm", "default": 25, "description": "Previous tool diameter"},
+            {"id": "MCX8-3DHS-003-006", "name": "previous_tool_corner_radius", "type": "numeric", "unit": "mm", "default": 0, "description": "Previous tool corner radius"},
+            {"id": "MCX8-3DHS-003-007", "name": "cut_pattern", "type": "enum", "values": ["z_level", "parallel", "scallop", "pencil"], "default": "z_level", "description": "Cutting pattern"},
+            {"id": "MCX8-3DHS-003-008", "name": "entry_method", "type": "enum", "values": ["helix", "ramp", "plunge"], "default": "ramp", "description": "Entry method"},
+            {"id": "MCX8-3DHS-003-009", "name": "helix_diameter", "type": "numeric", "unit": "mm", "default": 6, "description": "Helix diameter"},
+            {"id": "MCX8-3DHS-003-010", "name": "helix_angle", "type": "numeric", "unit": "deg", "default": 2, "description": "Helix angle"},
+            {"id": "MCX8-3DHS-003-011", "name": "stock_to_leave_radial", "type": "numeric", "unit": "mm", "default": 0.1, "description": "Radial stock"},
+            {"id": "MCX8-3DHS-003-012", "name": "stock_to_leave_axial", "type": "numeric", "unit": "mm", "default": 0.05, "description": "Axial stock"},
+            {"id": "MCX8-3DHS-003-013", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.015, "description": "Machining tolerance"},
+            {"id": "MCX8-3DHS-003-014", "name": "min_rest_width", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Min rest area width to machine"},
+            {"id": "MCX8-3DHS-003-015", "name": "corner_cleanup", "type": "boolean", "default": true, "description": "Enable corner cleanup"},
+            {"id": "MCX8-3DHS-003-016", "name": "corner_stepover", "type": "numeric", "unit": "mm", "default": 0.3, "description": "Corner cleanup stepover"},
+            {"id": "MCX8-3DHS-003-017", "name": "steep_threshold", "type": "numeric", "unit": "deg", "default": 45, "description": "Steep angle threshold"},
+            {"id": "MCX8-3DHS-003-018", "name": "optimize_order", "type": "boolean", "default": true, "description": "Optimize region order"},
+            {"id": "MCX8-3DHS-003-019", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed"},
+            {"id": "MCX8-3DHS-003-020", "name": "air_cutting_avoidance", "type": "boolean", "default": true, "description": "Avoid air cutting"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 14,
+          "parameters": [
+            {"id": "MCX8-3DHS-003-021", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Compensation"},
+            {"id": "MCX8-3DHS-003-022", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Tip compensation"},
+            {"id": "MCX8-3DHS-003-023", "name": "cutting_direction", "type": "enum", "values": ["climb", "conventional"], "default": "climb", "description": "Cut direction"},
+            {"id": "MCX8-3DHS-003-024", "name": "keep_tool_down", "type": "boolean", "default": true, "description": "Keep tool down"},
+            {"id": "MCX8-3DHS-003-025", "name": "lead_in_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DHS-003-026", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-in radius"},
+            {"id": "MCX8-3DHS-003-027", "name": "lead_out_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DHS-003-028", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-out radius"},
+            {"id": "MCX8-3DHS-003-029", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 0.3, "description": "Overlap"},
+            {"id": "MCX8-3DHS-003-030", "name": "floor_finish", "type": "boolean", "default": true, "description": "Floor finish pass"},
+            {"id": "MCX8-3DHS-003-031", "name": "wall_finish", "type": "boolean", "default": true, "description": "Wall finish pass"},
+            {"id": "MCX8-3DHS-003-032", "name": "corner_slowdown", "type": "boolean", "default": true, "description": "Corner slowdown"},
+            {"id": "MCX8-3DHS-003-033", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 65, "description": "Corner feed %"},
+            {"id": "MCX8-3DHS-003-034", "name": "use_subprograms", "type": "boolean", "default": false, "description": "Output subprograms"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 12,
+          "parameters": [
+            {"id": "MCX8-3DHS-003-035", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DHS-003-036", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 3, "description": "Retract height"},
+            {"id": "MCX8-3DHS-003-037", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 1, "description": "Feed height"},
+            {"id": "MCX8-3DHS-003-038", "name": "top_of_stock", "type": "numeric", "unit": "mm", "default": 0, "description": "Top of stock"},
+            {"id": "MCX8-3DHS-003-039", "name": "depth", "type": "numeric", "unit": "mm", "default": 50, "description": "Total depth"},
+            {"id": "MCX8-3DHS-003-040", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "feed"], "default": "retract", "description": "Retract method"},
+            {"id": "MCX8-3DHS-003-041", "name": "same_depth_linking", "type": "enum", "values": ["direct", "retract", "clearance"], "default": "direct", "description": "Same-depth linking"},
+            {"id": "MCX8-3DHS-003-042", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize links"},
+            {"id": "MCX8-3DHS-003-043", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 400, "description": "Plunge rate"},
+            {"id": "MCX8-3DHS-003-044", "name": "ramp_rate", "type": "numeric", "unit": "mm/min", "default": 800, "description": "Ramp rate"},
+            {"id": "MCX8-3DHS-003-045", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract rate"},
+            {"id": "MCX8-3DHS-003-046", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 6,
+          "parameters": [
+            {"id": "MCX8-3DHS-003-047", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DHS-003-048", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.008, "description": "Filter tolerance"},
+            {"id": "MCX8-3DHS-003-049", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DHS-003-050", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.25, "description": "Min arc radius"},
+            {"id": "MCX8-3DHS-003-051", "name": "max_arc_radius", "type": "numeric", "unit": "mm", "default": 5000, "description": "Max arc radius"},
+            {"id": "MCX8-3DHS-003-052", "name": "output_3d_arcs", "type": "boolean", "default": true, "description": "Output 3D arcs"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 4,
+          "parameters": [
+            {"id": "MCX8-3DHS-003-053", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DHS-003-054", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "off"], "default": "flood", "description": "Coolant type"},
+            {"id": "MCX8-3DHS-003-055", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"},
+            {"id": "MCX8-3DHS-003-056", "name": "coolant_off_code", "type": "integer", "default": 9, "description": "Coolant off M-code"}
+          ]
+        }
+      },
+      "totalParams": 56
+    }
+  ],
+  "summary": {
+    "part3_toolpaths": 3,
+    "part3_params": 198,
+    "toolpaths_covered": ["Dynamic OptiRough", "Area Clearance", "Rest Mill 3D"]
+  }
+}

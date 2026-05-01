@@ -1,0 +1,135 @@
+{
+  "id": "PPG-MS38",
+  "version": "1.0.0",
+  "title": "PPG-MS38 — Operator-Facing AI Surfaces (OFAIS): holographic AR setup sheets + NLP voice authoring + GD&T-driven probe plan + multi-setup AGI sequencer + adaptive FAI sampling + dimensional reasoning + AI-rendered setup imagery",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "phase": "P2",
+  "priority": "HIGH",
+  "novel_capability_class": "first-of-kind-in-differentiating-units-defensive-parity-in-surface-units",
+  "description": "Operators see + speak with the post. AR overlay (HoloLens / Quest 3 / iPad) renders the toolpath, fixture clamps, probe approach in 3D over the actual machine. Voice authoring: 'drill 6mm hole through M2 depth 25' → wizard generates op + asks confirmation. GD&T-driven probe plan auto-generates probe macros (tight bore → in-process probe; flat datum → pre-cut; surface profile → CMM handoff). Multi-setup AGI sequencer plans 4-setup parts (which features setup 1, what fixture 2, when to flip). Adaptive FAI sampling adjusts probe density per part complexity + sigma history. Dimensional reasoning catches operator unit errors (mm hole + inch depth). AI-rendered setup imagery: photorealistic images of correct setup (not just text).",
+  "rationale": "Operators are the bottleneck on PRISM ROI. Every minute they spend deciphering a setup sheet, retyping op definitions, manually planning multi-setup sequences is a minute the post is not earning. PRISM has every backend (cobot, nlp_cam, gdt_validate, sequence_constraint_graph, cmm_sampling_strategy, dim_analysis_consistency, TextToCADGenerationEngine) — this milestone surfaces them as operator-grade UX.",
+  "leverage_existing": [
+    "TextToCADGenerationEngine + cad_generate — AI imagery for setup sheets",
+    "NeuralCADGenerationEngine — alternative CAD generation pathway",
+    "BlueprintToCADGenerationEngine — blueprint-to-3D for AR overlay",
+    "nlp_cam_parse + nlp_cam_extract_dims + nlp_cam_parse_context — voice-to-op pipeline",
+    "GDTStackupEngine + GDTCalloutParserEngine (real engines) wrapped by gdt_validate action (prism_quality) + gdt_validate + gdt_stackup — GD&T → probe macro mapping",
+    "probe_wcs_setup_gen action (prism_cam) — emits WCS setup probe macros from sidecar + probe_wcs_setup_gen + probe_first_article_gen + probe_in_process_gen — probe macro emission",
+    "sequence_constraint_graph action (prism_calc) — exists as action; engine to be built in MS38/U-PPGM229 + sequence_constraint_graph + sequence_simulate + sequence_resequence — multi-setup planning",
+    "assembly_sequence action (prism_calc) — exists as action; integrates with MS38 multi-setup planner + assembly_sequence — assembly-aware sequencing",
+    "AdaptivePipelineGeneratorEngine + adaptive_pipeline_generate + adaptive_pipeline_adapt_step — adaptive FAI sampling",
+    "cmm_sampling_strategy action (prism_calc) — exists as action; consumed by MS38/U-PPGM230 + cmm_sampling_strategy + cmm_uncertainty_budget — sampling density",
+    "dim_analysis_consistency action (prism_calc) wrapping Buckingham Pi unit-error checking + dim_analysis_consistency + dim_analysis_buckingham_pi — unit-error detection"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Holo-Krome shoulder bolt mill job at JM Die. New operator (3rd day on the job). 3-setup part. Multiple GD&T characteristics.",
+    "today_pre_ppg_ms38": "Operator reads paper setup sheet, struggles with which clamp position. Calls programmer. 12 minutes lost. Probe macros copy-pasted from previous job; wrong for this GD&T scheme. FAI sampling N=10 on every characteristic (overconservative). Multi-setup planned by programmer hand. Operator nearly enters '6 inch' for what should be '6 mm'.",
+    "should_be_post_ppg_ms38": "Operator dons Quest 3 + AR overlay shows fixture clamps + tool callouts + probe approach + first-cut path animated in real space. Operator says 'verify the depth on this M2 part is 25 mm' — voice authoring confirms + adds in-process probe. GD&T-driven probe plan emits: tight 0.025 mm bore → in-process probe with 4-touch averaging; flat datum → pre-cut probe; surface profile → CMM handoff. Adaptive FAI: critical bore N=10, tolerance-band features N=2 (saves 14 minutes per part). Multi-setup AGI sequenced: setup 1 datums + critical bore + threading; setup 2 (90° flip) finish OD + chamfer; setup 3 (mill-turn) cross-drill. Dimensional reasoning catches: 'you said 25 mm but the print says 0.984 in (24.999 mm) — confirm?'",
+    "gap_now_closed": "New operators perform like 5-year veterans on day 3. Every micro-task that wasted minutes becomes seconds."
+  },
+  "units": [
+    {
+      "id": "U-PPGM226",
+      "title": "ARSetupOverlayEngine — Quest 3 / HoloLens / iPad spatial overlay",
+      "scope": "src/engines/ARSetupOverlayEngine.ts — emits AR scene description (USDZ for iPad, glTF + spatial anchors for Quest/HoloLens); fixture clamps + tool callouts + probe paths + first-cut animation; spatial anchored to machine bed via printed fiducial. Variability: ≥3 platforms (iPad, Quest 3, HoloLens 2). Adversarial: poor lighting AR tracking, fiducial occluded, machine moved between sessions.",
+      "files_to_modify": [
+        "src/engines/ARSetupOverlayEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ARSetupOverlay.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM227",
+      "title": "VoiceAuthoringEngine — speech-to-op pipeline",
+      "scope": "src/engines/VoiceAuthoringEngine.ts — Whisper or similar speech-to-text; nlp_cam_parse extracts (operation, dim, material, tool); confirmation dialog; supports 'cancel that' rollback. Variability: ≥3 accents/speakers. Adversarial: noisy shop, ambiguous dimension ('about 6'), unsupported operation type.",
+      "files_to_modify": [
+        "src/engines/VoiceAuthoringEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/VoiceAuthoring.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM228",
+      "title": "GDTDrivenProbePlanEngine — automatic probe macro emission per GD&T",
+      "scope": "src/engines/GDTDrivenProbePlanEngine.ts — for each toleranced feature, classify (size/orientation/position/profile/runout); emit probe macro (in-process bore probe / pre-cut datum / surface CMM handoff / runout indicator); compose into setup-sheet probe section. Variability: ≥3 GD&T classes per part. Adversarial: conflicting datum schemes, GD&T missing on critical feature.",
+      "files_to_modify": [
+        "src/engines/GDTDrivenProbePlanEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/GDTDrivenProbePlan.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM229",
+      "title": "MultiSetupAGISequencerEngine — N-setup planner",
+      "scope": "src/engines/MultiSetupAGISequencerEngine.ts — sequence_constraint_graph builds dependency graph (datums first, holes before threads, etc.); assigns features to setups respecting workholding rotation + tool availability; emits setup transition plan. Variability: ≥3 part complexities (2-setup, 4-setup, 6-setup mill-turn). Adversarial: cycle in feature graph, infeasible workholding rotation.",
+      "files_to_modify": [
+        "src/engines/MultiSetupAGISequencerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MultiSetupAGISequencer.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM230",
+      "title": "AdaptiveFAISamplingEngine — sigma-history-driven probe density",
+      "scope": "src/engines/AdaptiveFAISamplingEngine.ts — given (GDT_envelope_per_characteristic, prior_sigma_history_per_characteristic, criticality_class), recommends probe N per characteristic; tight bore + low historical Cpk → N=10; loose dim + high historical Cpk → N=2; explicit confidence + audit trail. Variability: ≥3 characteristic classes. Adversarial: zero history (cold start), characteristic with bimodal historical distribution.",
+      "files_to_modify": [
+        "src/engines/AdaptiveFAISamplingEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AdaptiveFAISampling.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM231",
+      "title": "DimensionalReasoningGuardEngine + AISetupImageryEngine",
+      "scope": "src/engines/DimensionalReasoningGuardEngine.ts — dim_analysis_consistency + Buckingham Pi catches unit errors at wizard input ('25 mm hole, 0.984 in depth' → must be confirmed); plus src/engines/AISetupImageryEngine.ts which uses TextToCADGenerationEngine to render photorealistic setup imagery (operator sees what setup should LOOK like, not just text). Variability: ≥3 unit-mix scenarios + ≥3 setup types. Adversarial: deliberately consistent-but-wrong units, ambiguous photo lighting requirement.",
+      "files_to_modify": [
+        "src/engines/DimensionalReasoningGuardEngine.ts",
+        "src/engines/AISetupImageryEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/DimensionalReasoningGuard.test.ts",
+        "src/__tests__/AISetupImagery.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "AR overlay tracks machine bed within 2 mm spatial accuracy on Quest 3 + iPad",
+    "Voice authoring captures ≥85% of operator narratives correctly on UX test",
+    "GD&T-driven probe plan covers 100% of toleranced features on JM Die reference part",
+    "Multi-setup AGI sequencer matches programmer's manual sequence on ≥80% of 50-part validation",
+    "Adaptive FAI sampling reduces probe time by ≥45% with zero missed escapes on 90-day pilot",
+    "Dimensional reasoning catches 10/10 injected unit-mismatch scenarios",
+    "AI setup imagery rated ≥7/10 useful by operator UX panel (N≥10)"
+  ],
+  "depends_on": [
+    "PPG-MS7",
+    "PPG-MS13",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "leverage_class": "novel-uses-existing-engines",
+  "schemaVersion": "1.0.0",
+  "created_at": "2026-04-29T04:37:47.554Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "_patches": [
+    "ppg-round3-novel-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ],
+  "hardware_dependency_note": "R4-S03 hardened (2026-04-29): U-PPGM226 AR setup overlay defaults to iPad ($0 BYOD) — Quest 3 ($500) + HoloLens 2 ($3500) are opt-in premium tiers; track adoption rate as gating metric; explicit fiducial-print maintenance + 4-8hr operator onboarding flagged; motion sickness washout window for AR-naive operators. U-PPGM227 voice authoring requires close-talk headset SKU ($150 default — push-to-talk + visual confirm on every emit; Whisper accuracy <60% in shop noise without headset). U-PPGM231 AI setup imagery generates static reference images; not real-time AR; lower-cost path for shops without AR hardware.",
+  "tier_1_default": "Tier-1 (default): iPad-based AR ($0 BYOD); voice-optional with headset SKU; AI-rendered static setup imagery",
+  "tier_2_premium": "Tier-2 (premium): Quest 3 / HoloLens 2 immersive AR; live voice+AR composite UX",
+  "moat_clarification_2026_04_29": "R4-S01 found AR/voice/imagery surfaces are commoditizing fast (Mastercam Vision, Fusion AR plugins exist; 6mo competitor copy-threat). The DEFENSIBLE moat in MS38 is: (a) U-PPGM228 GD&T-driven probe plan auto-generation — requires Y14.5 + tolerance-stack + probe-macro coupling no vendor combines; (b) U-PPGM230 adaptive FAI sampling driven by per-characteristic sigma history — requires multi-year outcome dataset. AR/voice are 'defensive parity' not offensive moat. Novelty class downgraded: 'first-of-kind in differentiating units (GD&T probe + adaptive FAI), defensive parity in surface units (AR/voice/imagery)'."
+}

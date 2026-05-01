@@ -1,0 +1,14 @@
+{
+  "claimed_by": "claude-40c52243",
+  "claimed_at": "2026-04-19T23:31:00Z",
+  "heartbeat_at": "2026-04-19T23:35:00Z",
+  "completed_at": "2026-04-19T23:35:00Z",
+  "status": "completed",
+  "notes": "Drawing-number parser: uppercases, unifies separators to '-', zero-pads body numeric to 4 digits, strips Rev suffix; extracts prefix+numericBody+configSuffix+familyKey; part-family hierarchy by familyKey; Levenshtein ≤2 fuzzy lookup with early-exit cap.",
+  "deliverables": [
+    "mcp-server/src/schemas/cadDrawingNumberSchema.ts",
+    "mcp-server/src/engines/CADDrawingNumberNormalizerEngine.ts",
+    "mcp-server/src/__tests__/CADDrawingNumberNormalizerEngine.test.ts"
+  ],
+  "test_results": { "tests": 19, "passed": 19, "duration_ms": 258 }
+}

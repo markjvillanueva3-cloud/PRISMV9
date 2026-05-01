@@ -39,7 +39,8 @@
           ],
           "exit_conditions": [
             "Traveler scans, department handoffs, task assignment, and concurrent labor sessions flow through dedicated engines.",
-            "The execution engines produce analytics-ready events instead of UI-local state."
+            "The execution engines produce analytics-ready events instead of UI-local state.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the new execution engines and restore the seeded UI-only tracker flow.",
           "steps": [
@@ -75,7 +76,14 @@
               "line_count_est": 260
             }
           ],
-          "estimated_minutes": 170
+          "estimated_minutes": 170,
+          "description": "Traveler execution + concurrent labor timer engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -105,7 +113,8 @@
           ],
           "exit_conditions": [
             "Dedicated shop-floor routes exist for scan, check-in, task timer, and quantity actual mutations.",
-            "Realtime fanout publishes job, department, and employee room updates from one gateway."
+            "Realtime fanout publishes job, department, and employee room updates from one gateway.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the shopFloor route surface and revert consumers to the older ERP-only route bundle.",
           "steps": [
@@ -141,7 +150,14 @@
               "line_count_est": 180
             }
           ],
-          "estimated_minutes": 150
+          "estimated_minutes": 150,
+          "description": "Shop-floor routes + realtime gateway — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -171,7 +187,8 @@
           ],
           "exit_conditions": [
             "Dispatchers and analytics payloads can access scan, labor, quantity, and route state without bespoke adapters.",
-            "Shop execution data is usable by quote variance, cost, and throughput analytics surfaces."
+            "Shop execution data is usable by quote variance, cost, and throughput analytics surfaces.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Undo dispatcher wiring and return analytics consumers to previous seeded data paths.",
           "steps": [
@@ -206,7 +223,14 @@
               "line_count_est": 80
             }
           ],
-          "estimated_minutes": 120
+          "estimated_minutes": 120,
+          "description": "Dispatcher + analytics contract alignment — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -261,7 +285,8 @@
           ],
           "exit_conditions": [
             "A slash-command style doc exists for scan and check-in workflows.",
-            "A reusable template captures the canonical execution payloads and event expectations."
+            "A reusable template captures the canonical execution payloads and event expectations.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Delete the command and template artifacts and rely on raw API docs only.",
           "steps": [
@@ -296,7 +321,14 @@
               "line_count_est": 90
             }
           ],
-          "estimated_minutes": 70
+          "estimated_minutes": 70,
+          "description": "Shop-floor scan command + execution template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -326,7 +358,8 @@
           ],
           "exit_conditions": [
             "A guard detects duplicate or contradictory scan transitions before they corrupt state.",
-            "Integration coverage proves scan, timer, and quantity flows emit stable live updates."
+            "Integration coverage proves scan, timer, and quantity flows emit stable live updates.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the new guard and restore the prior integration suite if false positives block execution.",
           "steps": [
@@ -361,7 +394,14 @@
               "line_count_est": 220
             }
           ],
-          "estimated_minutes": 110
+          "estimated_minutes": 110,
+          "description": "Duplicate-scan guard + integration proof — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -474,5 +514,81 @@
   "scrutiny_log": "state/ULT-MS1/scrutiny-log.json",
   "position_file": "state/ULT-MS1/position.json",
   "state_dir": "state/ULT-MS1",
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms1-gate",
+    "mcp_action": "prism_ult:ult_ms1_run",
+    "skill_command": "/ult-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms1-gate"
+    ],
+    "new_actions": [
+      "ult_ms1_run"
+    ],
+    "new_skills": [
+      "/ult-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Turn the canonical shop domain into a production execution core for traveler scans, department check-ins, concurrent labor timers, quantity actuals, and live room fanout so the app can operate as the shop's real-time source of truth.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

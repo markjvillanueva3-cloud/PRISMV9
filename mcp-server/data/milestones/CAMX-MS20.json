@@ -19,7 +19,8 @@
             "Feature extraction",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U02",
@@ -30,7 +31,8 @@
             "Milling + turning",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U03",
@@ -40,7 +42,8 @@
             "Import/export works",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U04",
@@ -50,7 +53,8 @@
             "QIF integration works",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U05",
@@ -61,7 +65,8 @@
             "Import results",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U06",
@@ -71,7 +76,8 @@
             "NCSIMUL bridge works",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U07",
@@ -81,7 +87,8 @@
             "7 actions wired",
             "Build passes"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         },
         {
           "id": "U08",
@@ -90,10 +97,15 @@
           "exit_conditions": [
             "30+ tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
         }
       ]
     }
   ],
-  "status": "not_started"
+  "status": "complete",
+  "completed_at": "2026-04-19T15:33:00Z",
+  "completed_units": 8,
+  "total_units": 8,
+  "closure_notes": "52/52 tests pass across 8 units. Verified: STEPNCParserEngine (parse/extractFeatures/extractTooling/extractParameters), STEPNCGeneratorEngine (generateToolDefinition/Definitions/Workplan), ISO13399ToolDataEngine (listGTCClasses/mapGTCClass/importISO13399/validateISO13399), QIFIntegrationEngine (importPlan/importResults/validateQIF/mapToFeatures), VericutBridgeEngine (getMachineMapping/exportForVericut/importOptiPath/importCollisionReport), NCSIMULBridgeEngine (getMachineMapping/exportForNCSIMUL). Dispatcher wiring: 14 actions in camDispatcher enum (stepnc_parse, stepnc_generate, iso13399_{import,export,validate}, qif_{import_plan,import_results,export_plan,export_results}, vericut_{export,import_optipath,import_collision}, ncsimul_{export,import}) — exceeds U07 threshold of 7."
 }

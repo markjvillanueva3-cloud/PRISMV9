@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS20",
+  "version": "1.0.0",
+  "title": "PPG-MS20 — Compliance Spine (AS9100 + NADCAP + ITAR + CFR Part 11 + ISO 13485 + IATF 16949 + DFARS/CMMC)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 9,
+  "completed_units": 0,
+  "description": "Closes the regulatory-compliance exposure surfaced by R17 + S08 scrutiny. Adds AS9100 §8.5.2 traceability bundle (operator badge + post version + heat-lot + tool serial + machine cal state), AS9102 FAI auto-emit, NADCAP special-process credentialing, ITAR/EAR classification + segregation, ISO 13485 medical-device QMS hooks, IATF 16949 automotive PPAP/APQP/control-plan hooks, DFARS 252.204-7012 + CMMC 2.0 Level 2 cyber controls (closes S08 medical/auto/CMMC zero-coverage gap), MS8 tier-promotion two-person rule, MS11 calibration NCR/CAR ledger, OSHA LOTO predicate.",
+  "rationale": "Closes the regulatory-compliance exposure surfaced by R17 + S08 scrutiny. Adds AS9100 §8.5.2 traceability bundle (operator badge + post version + heat-lot + tool serial + machine cal state), AS9102 FAI auto-emit, NADCAP special-process credentialing, ITAR/EAR classification + segregation, ISO 13485 medical-device QMS hooks, IATF 16949 automotive PPAP/APQP/control-plan hooks, DFARS 252.204-7012 + CMMC 2.0 Level 2 cyber controls (closes S08 medical/auto/CMMC zero-coverage gap), MS8 tier-promotion two-person rule, MS11 calibration NCR/CAR ledger, OSHA LOTO predicate.",
+  "phase": "P0",
+  "priority": "CRITICAL",
+  "units": [
+    {
+      "id": "U-PPGM120",
+      "title": "AS9100 §8.5.2 traceability bundle in sidecar",
+      "scope": "Extend sidecar with traceability_bundle: {operator_badge, post_version, heat_lot, tool_serials[], machine_cal_state, fixture_id, signature_chain}. Emit on every program.",
+      "files_to_modify": [
+        "src/schemas/postPhysicsSidecarSchema.ts",
+        "src/engines/TraceabilityBundleEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AS9100Traceability.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM121",
+      "title": "AS9102 FAI auto-emit (Form 1/2/3) + balloon-from-GDT",
+      "scope": "Auto-author AS9102 Form 1/2/3 from print + emitted program; balloon characteristics from GD&T; measurement plan tied to probe macros (PPG-MS13/U-PPGM83).",
+      "files_to_modify": [
+        "src/engines/FAIPackageEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AS9102FAI.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM122",
+      "title": "NADCAP special-process credentialing gate",
+      "scope": "Pre-emit lookup of operator certifications (heat-treat, NDT, EDM, special-process); HARD BLOCK on uncertified operator + restricted operation; AC7102/AC7116 audit hooks.",
+      "files_to_modify": [
+        "src/engines/NADCAPCredentialingGateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/NADCAPGating.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM123",
+      "title": "ITAR/EAR classification on Customer + Material + Drawing",
+      "scope": "Classification field on every entity; deny-list non-US-person access; encrypted-at-rest; deny cloud Vericut/NCSIMUL on ITAR-flagged jobs; purge-on-deauth.",
+      "files_to_modify": [
+        "src/engines/ITARClassificationEngine.ts",
+        "src/middleware/itarSegregation.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ITARSegregation.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM124",
+      "title": "MS8 tier-promotion two-person rule + immutable audit log",
+      "scope": "Promotion to production+ tier requires 2nd authorized signature; sim→shop_floor demotion forbidden inside same job; every tier change logged immutably.",
+      "files_to_modify": [
+        "src/engines/OmegaSafetyScoreEngine.ts",
+        "src/engines/TierPromotionAuditEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/TierPromotionTwoPerson.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM125",
+      "title": "MS11 calibration NCR/CAR ledger (AS9100 §8.5.6 change control)",
+      "scope": "Every kc1.1/Taylor calibration delta routes through NCR/CAR ledger with electronic signature (21 CFR Part 11 if medical leakage); explainable-drift required before constants merge; rollback signature trail.",
+      "files_to_modify": [
+        "src/engines/CalibrationChangeControlEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CalibrationChangeControl.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM126",
+      "title": "OSHA LOTO + machine-guard interlock predicate (PPG-MS14 #9)",
+      "scope": "Pre-emit lock-out/tag-out predicate; machine-guard interlock check; coolant-mist exposure (PEL) check. Adds as PreEmitSafetyPredicateEngine predicate #9.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/OSHAPredicate.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM127",
+      "title": "Compliance audit-readiness package + AS9100 surveillance dry-run",
+      "scope": "Generate compliance evidence package (traceability bundles + tier audit + ITAR classifications + NCR ledger); run AS9100 surveillance dry-run with internal auditor; remediate findings.",
+      "files_to_modify": [
+        "docs/compliance/as9100-evidence-package.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM128",
+      "title": "ISO 13485 + IATF 16949 + DFARS/CMMC 2.0 thin wiring (closes S08 zero-coverage gap)",
+      "scope": "Three sub-bands all mounted on existing prism_compliance dispatcher: (a) ISO 13485 medical-device QMS — design-history-file linkage on customer entity, electronic-signature requirement on calibration deltas (extends 21 CFR Part 11), risk-classification audit; (b) IATF 16949 automotive — PPAP package auto-emit, APQP phase tracking, control-plan generation linked to FAI (U-PPGM121), customer-specific requirements (CSR) registry; (c) DFARS 252.204-7012 + CMMC 2.0 Level 2 — covered defense information (CDI) classification, incident reporting <72h, NIST SP 800-171 control mapping (110 controls), supply-chain risk management. Each band gated by customer.compliance_class field on customer entity; HARD BLOCK on missing required artifacts at emit time.",
+      "files_to_modify": [
+        "src/engines/ISO13485ComplianceEngine.ts",
+        "src/engines/IATF16949ComplianceEngine.ts",
+        "src/engines/DFARSCMMCComplianceEngine.ts",
+        "src/tools/dispatchers/complianceDispatcher.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ISO13485Compliance.integration.test.ts",
+        "src/__tests__/IATF16949Compliance.integration.test.ts",
+        "src/__tests__/DFARSCMMCCompliance.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Every emitted program carries AS9100 §8.5.2 traceability bundle",
+    "AS9102 Form 1/2/3 auto-emitted on FAI-required jobs",
+    "NADCAP credentialing gate blocks uncertified emit",
+    "ITAR/EAR segregation enforced; deny cloud-tier on flagged jobs",
+    "Tier promotion requires 2-person sign-off + immutable audit",
+    "Calibration deltas routed through NCR/CAR ledger",
+    "OSHA LOTO predicate wired into pre-emit gate",
+    "AS9100 surveillance dry-run completed; findings remediated",
+    "ISO 13485 medical-device QMS hooks pass internal audit dry-run on hypothetical medical-device customer profile",
+    "IATF 16949 automotive PPAP/APQP package auto-emit on hypothetical Tier-1/Tier-2 customer profile",
+    "DFARS 252.204-7012 + CMMC 2.0 Level 2 control mapping covers all 110 NIST SP 800-171 controls; CDI classification enforced on flagged jobs"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-MS8",
+    "PPG-MS11",
+    "PPG-MS13",
+    "PPG-MS14"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS29",
+    "PPG-MS32"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Compliance Spine — mount on existing prism_compliance dispatcher (already has 17 actions: nda_manage, export_control, audit_trail, osha_300_log, cert_manage, legal_dashboard)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-fixes-round2-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29",
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "ITARClassificationEngine",
+      "NADCAPCredentialingGateEngine",
+      "TraceabilityBundleEngine",
+      "CalibrationChangeControlEngine",
+      "TierPromotionAuditEngine",
+      "FAIPackageEngine",
+      "ISO13485ComplianceEngine",
+      "IATF16949ComplianceEngine",
+      "DFARSCMMCComplianceEngine"
+    ]
+  }
+}

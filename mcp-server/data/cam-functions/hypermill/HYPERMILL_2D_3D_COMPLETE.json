@@ -1,0 +1,965 @@
+{
+  "schema_version": "2.0.0",
+  "system_id": "hypermill",
+  "module_id": "2d_3d_complete_operations",
+  "module_name": "hyperMILL 2D and 3D Complete Operations Catalog",
+  "description": "Exhaustive enumeration of ALL 2D and 3D milling operations with every parameter, dialog, physics link, and tribal knowledge",
+  "indexed_at": "2026-04-19T04:00:00Z",
+  "source": "hyperMILL CAM 2024.1 Reference + HyperMillParameterCatalog.json (10,228 params)",
+  "total_operations": 22,
+  "total_parameters": 528,
+  "physics_formulas_linked": 47,
+  "tribal_tips_count": 86,
+
+  "common_dialogs": {
+    "tool_settings": {
+      "id": "common_tool_settings",
+      "name": "Tool Settings",
+      "description": "Common tool definition parameters shared across operations",
+      "parameters": [
+        {"id": "tool_number", "name": "Tool Number", "type": "number", "default": 1, "range": [1, 999]},
+        {"id": "tool_diameter", "name": "Diameter", "type": "distance", "unit": "mm", "default": 10, "range": [0.1, 200]},
+        {"id": "tool_length", "name": "Overall Length", "type": "distance", "unit": "mm", "default": 75, "range": [10, 400]},
+        {"id": "flute_length", "name": "Flute Length", "type": "distance", "unit": "mm", "default": 25, "range": [2, 150]},
+        {"id": "shank_diameter", "name": "Shank Diameter", "type": "distance", "unit": "mm", "default": 10, "range": [3, 50]},
+        {"id": "number_of_flutes", "name": "Number of Flutes/Teeth", "type": "number", "default": 4, "range": [1, 24]},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "distance", "unit": "mm", "default": 0, "range": [0, 25]},
+        {"id": "tool_material", "name": "Tool Material", "type": "enum", "values": ["HSS", "Carbide", "CBN", "PCD", "Ceramic"]},
+        {"id": "tool_coating", "name": "Coating", "type": "enum", "values": ["Uncoated", "TiN", "TiAlN", "AlTiN", "TiCN", "DLC", "CVD", "PVD"]},
+        {"id": "coolant_type", "name": "Coolant", "type": "enum", "values": ["None", "Flood", "Mist", "Through_Tool", "MQL", "Air_Blast"]},
+        {"id": "holder_id", "name": "Tool Holder", "type": "string", "default": ""},
+        {"id": "holder_gauge_length", "name": "Holder Gauge Length", "type": "distance", "unit": "mm", "default": 50, "range": [20, 300]}
+      ]
+    },
+    "cutting_parameters": {
+      "id": "common_cutting_parameters",
+      "name": "Cutting Parameters",
+      "description": "Speed, feed, and depth parameters",
+      "parameters": [
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "default": 3000, "range": [10, 60000], "physics": ["CUTTING_SPEED", "TAYLOR_TOOL_LIFE"]},
+        {"id": "cutting_speed", "name": "Cutting Speed (Vc)", "type": "number", "unit": "m_per_min", "default": 100, "range": [1, 1000], "physics": ["CUTTING_SPEED"]},
+        {"id": "feed_rate", "name": "Feed Rate (Vf)", "type": "number", "unit": "mm_per_min", "default": 1000, "range": [1, 30000], "physics": ["CHIP_LOAD", "KIENZLE_FORCE"]},
+        {"id": "feed_per_tooth", "name": "Feed per Tooth (fz)", "type": "number", "unit": "mm", "default": 0.1, "range": [0.001, 1.0], "physics": ["CHIP_LOAD", "SURFACE_FINISH"]},
+        {"id": "feed_per_rev", "name": "Feed per Revolution (f)", "type": "number", "unit": "mm", "default": 0.4, "range": [0.01, 5.0]},
+        {"id": "plunge_feed", "name": "Plunge Feed Rate", "type": "number", "unit": "mm_per_min", "default": 300, "range": [1, 5000]},
+        {"id": "ramp_feed", "name": "Ramp Feed Rate", "type": "number", "unit": "mm_per_min", "default": 500, "range": [1, 10000]},
+        {"id": "retract_feed", "name": "Retract Feed Rate", "type": "number", "unit": "mm_per_min", "default": 5000, "range": [100, 30000]},
+        {"id": "axial_depth", "name": "Axial Depth (ap)", "type": "distance", "unit": "mm", "default": 3, "range": [0.01, 100], "physics": ["KIENZLE_FORCE", "MRR", "STABILITY_LOBE"]},
+        {"id": "radial_depth", "name": "Radial Depth / Stepover (ae)", "type": "distance", "unit": "mm", "default": 5, "range": [0.01, 200], "physics": ["KIENZLE_FORCE", "MRR"]},
+        {"id": "stepover_percent", "name": "Stepover %", "type": "percentage", "default": 50, "range": [1, 100]},
+        {"id": "finishing_allowance", "name": "Finishing Allowance", "type": "distance", "unit": "mm", "default": 0.3, "range": [0, 5]},
+        {"id": "floor_allowance", "name": "Floor Stock Allowance", "type": "distance", "unit": "mm", "default": 0.3, "range": [0, 5]},
+        {"id": "wall_allowance", "name": "Wall Stock Allowance", "type": "distance", "unit": "mm", "default": 0.3, "range": [0, 5]}
+      ]
+    },
+    "heights": {
+      "id": "common_heights",
+      "name": "Heights / Clearance",
+      "description": "Z-level height definitions",
+      "parameters": [
+        {"id": "safety_height", "name": "Safety Height", "type": "distance", "unit": "mm", "default": 50, "range": [1, 500]},
+        {"id": "rapid_height", "name": "Rapid / Retract Height", "type": "distance", "unit": "mm", "default": 10, "range": [0.5, 200]},
+        {"id": "clearance_height", "name": "Clearance Height", "type": "distance", "unit": "mm", "default": 5, "range": [0.1, 100]},
+        {"id": "top_of_stock", "name": "Top of Stock", "type": "distance", "unit": "mm", "default": 0, "range": [-500, 500]},
+        {"id": "bottom_height", "name": "Bottom Height / Depth", "type": "distance", "unit": "mm", "default": -10, "range": [-500, 0]},
+        {"id": "approach_height", "name": "Approach Height", "type": "distance", "unit": "mm", "default": 2, "range": [0.1, 50]},
+        {"id": "retract_height", "name": "Retract Height", "type": "distance", "unit": "mm", "default": 2, "range": [0.1, 50]},
+        {"id": "height_mode", "name": "Height Reference Mode", "type": "enum", "values": ["Absolute", "Incremental", "From_Top", "From_Bottom"]}
+      ]
+    },
+    "linking": {
+      "id": "common_linking",
+      "name": "Linking / Transitions",
+      "description": "Lead-in, lead-out, and transition movements",
+      "parameters": [
+        {"id": "lead_in_type", "name": "Lead-In Type", "type": "enum", "values": ["None", "Line", "Arc", "Helix", "Ramp", "Tangent"]},
+        {"id": "lead_in_radius", "name": "Lead-In Radius", "type": "distance", "unit": "mm", "default": 5, "range": [0.1, 100]},
+        {"id": "lead_in_angle", "name": "Lead-In Angle", "type": "angle", "unit": "deg", "default": 45, "range": [1, 90]},
+        {"id": "lead_in_length", "name": "Lead-In Length", "type": "distance", "unit": "mm", "default": 10, "range": [0, 100]},
+        {"id": "lead_out_type", "name": "Lead-Out Type", "type": "enum", "values": ["None", "Line", "Arc", "Tangent", "Retract"]},
+        {"id": "lead_out_radius", "name": "Lead-Out Radius", "type": "distance", "unit": "mm", "default": 5, "range": [0.1, 100]},
+        {"id": "lead_out_angle", "name": "Lead-Out Angle", "type": "angle", "unit": "deg", "default": 45, "range": [1, 90]},
+        {"id": "lead_out_length", "name": "Lead-Out Length", "type": "distance", "unit": "mm", "default": 10, "range": [0, 100]},
+        {"id": "ramp_type", "name": "Ramp Type", "type": "enum", "values": ["Helix", "Zigzag", "Profile", "Plunge", "Entry_Point"]},
+        {"id": "ramp_angle", "name": "Ramp Angle", "type": "angle", "unit": "deg", "default": 3, "range": [0.5, 45]},
+        {"id": "helix_diameter", "name": "Helix Diameter", "type": "distance", "unit": "mm", "default": 10, "range": [1, 100]},
+        {"id": "helix_pitch", "name": "Helix Pitch", "type": "distance", "unit": "mm", "default": 2, "range": [0.1, 20]},
+        {"id": "transition_type", "name": "Transition Type", "type": "enum", "values": ["Direct", "Retract", "Follow_Surface", "Skim"]},
+        {"id": "keep_tool_down", "name": "Keep Tool Down", "type": "boolean", "default": false},
+        {"id": "smoothing_tolerance", "name": "Smoothing Tolerance", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 1]}
+      ]
+    }
+  },
+
+  "operations_2d": [
+    {
+      "id": "2d_face_milling",
+      "name": "Face Milling",
+      "category": "2D",
+      "operation_class": "face_milling",
+      "description": "Planar face milling for top surface finishing and roughing",
+      "typical_tools": ["face_mill", "shell_mill", "indexable_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking"],
+      "strategy_parameters": [
+        {"id": "face_strategy", "name": "Milling Strategy", "type": "enum", "values": ["Unidirectional", "Bidirectional", "Spiral_In", "Spiral_Out", "Zig_Zag"], "default": "Bidirectional"},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "stepover_pattern", "name": "Stepover Pattern", "type": "enum", "values": ["Constant", "Adaptive", "Maximum_Engagement"], "default": "Constant"},
+        {"id": "overlap", "name": "Overlap", "type": "percentage", "default": 10, "range": [0, 50]},
+        {"id": "start_point", "name": "Start Point", "type": "enum", "values": ["Auto", "Corner", "Center", "User_Defined"]},
+        {"id": "approach_direction", "name": "Approach Direction", "type": "angle", "unit": "deg", "default": 0, "range": [0, 360]},
+        {"id": "boundary_offset", "name": "Boundary Offset", "type": "distance", "unit": "mm", "default": 0, "range": [-50, 50]},
+        {"id": "extend_passes", "name": "Extend Passes", "type": "distance", "unit": "mm", "default": 5, "range": [0, 100]},
+        {"id": "smooth_corners", "name": "Smooth Corners", "type": "boolean", "default": true},
+        {"id": "corner_radius_percent", "name": "Corner Radius %", "type": "percentage", "default": 50, "range": [0, 100]}
+      ],
+      "physics_links": [
+        {"formula": "CUTTING_SPEED", "equation": "Vc = (pi * D * n) / 1000", "variables": {"D": "tool_diameter", "n": "spindle_speed"}},
+        {"formula": "FEED_PER_TOOTH", "equation": "fz = Vf / (n * z)", "variables": {"Vf": "feed_rate", "n": "spindle_speed", "z": "number_of_flutes"}},
+        {"formula": "MRR", "equation": "Q = ap * ae * Vf / 1000", "variables": {"ap": "axial_depth", "ae": "radial_depth", "Vf": "feed_rate"}},
+        {"formula": "KIENZLE_FORCE", "equation": "Fc = kc1.1 * b * h^(1-mc)", "affects": ["spindle_load", "tool_deflection", "power"]}
+      ],
+      "tribal_tips": [
+        {"id": "face-001", "text": "Use 1.3x part width for full coverage in single pass", "source": "shop_floor", "confidence": 0.92},
+        {"id": "face-002", "text": "For aluminum, increase RPM 2-3x over steel, reduce feed per tooth by 20%", "source": "jm_die"},
+        {"id": "face-003", "text": "High-feed face mills: ap < 1mm but stepover up to 90%", "source": "tooling_vendor"}
+      ]
+    },
+
+    {
+      "id": "2d_pocket_standard",
+      "name": "Pocket Milling (Standard)",
+      "category": "2D",
+      "operation_class": "pocket_milling",
+      "description": "Closed pocket roughing and finishing with multiple strategy options",
+      "typical_tools": ["endmill", "bullnose", "roughing_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking", "islands"],
+      "strategy_parameters": [
+        {"id": "pocket_strategy", "name": "Strategy", "type": "enum", "values": ["Contour_Parallel", "Spiral", "Trochoidal", "High_Speed", "One_Way", "Zig_Zag", "Adaptive"], "default": "Contour_Parallel"},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "roughing_mode", "name": "Roughing Mode", "type": "enum", "values": ["Multiple_Depths", "Single_Depth", "Step_Down"], "default": "Multiple_Depths"},
+        {"id": "corner_strategy", "name": "Corner Strategy", "type": "enum", "values": ["Sharp", "Rounded", "Loop", "Trochoidal"], "default": "Rounded"},
+        {"id": "corner_slowdown", "name": "Corner Slowdown", "type": "percentage", "default": 50, "range": [10, 100]},
+        {"id": "island_detection", "name": "Automatic Island Detection", "type": "boolean", "default": true},
+        {"id": "island_offset", "name": "Island Offset", "type": "distance", "unit": "mm", "default": 0, "range": [-10, 10]},
+        {"id": "order_by_depth", "name": "Order by Depth", "type": "boolean", "default": true},
+        {"id": "order_by_region", "name": "Order by Region", "type": "boolean", "default": false},
+        {"id": "finish_passes", "name": "Number of Finish Passes", "type": "number", "default": 1, "range": [0, 5]},
+        {"id": "finish_stepover", "name": "Finish Stepover", "type": "distance", "unit": "mm", "default": 0.2, "range": [0.01, 5]},
+        {"id": "spring_passes", "name": "Spring Passes", "type": "number", "default": 0, "range": [0, 3]},
+        {"id": "entry_method", "name": "Entry Method", "type": "enum", "values": ["Helix", "Ramp", "Plunge", "Pre_Drilled"], "default": "Helix"},
+        {"id": "minimum_helix_diameter", "name": "Min Helix Diameter", "type": "distance", "unit": "mm", "default": 5, "range": [1, 50]},
+        {"id": "helix_angle", "name": "Helix Angle", "type": "angle", "unit": "deg", "default": 3, "range": [0.5, 15]}
+      ],
+      "adaptive_parameters": [
+        {"id": "adaptive_enabled", "name": "Enable Adaptive Clearing", "type": "boolean", "default": false},
+        {"id": "max_engagement_angle", "name": "Max Engagement Angle", "type": "angle", "unit": "deg", "default": 90, "range": [30, 180]},
+        {"id": "optimal_load", "name": "Optimal Load %", "type": "percentage", "default": 40, "range": [10, 80]},
+        {"id": "rest_machining_enabled", "name": "Rest Machining", "type": "boolean", "default": false},
+        {"id": "rest_tool_diameter", "name": "Previous Tool Diameter", "type": "distance", "unit": "mm", "default": 0}
+      ],
+      "physics_links": [
+        {"formula": "TROCHOIDAL_ENGAGEMENT", "equation": "theta = arccos(1 - ae/R)", "affects": ["chip_load", "tool_life"]},
+        {"formula": "STABILITY_LOBE", "affects": ["chatter_avoidance", "axial_depth_limit"]}
+      ],
+      "tribal_tips": [
+        {"id": "pocket-001", "text": "For D2 steel pockets, use trochoidal with 10% stepover max", "source": "jm_die", "confidence": 0.95},
+        {"id": "pocket-002", "text": "Helix entry: diameter at least 2x tool diameter for stability", "source": "expert"},
+        {"id": "pocket-003", "text": "Leave 0.15mm on walls for finish pass to remove deflection marks", "source": "shop_floor"}
+      ]
+    },
+
+    {
+      "id": "2d_pocket_open",
+      "name": "Pocket Milling (Open)",
+      "category": "2D",
+      "operation_class": "pocket_milling",
+      "description": "Open pocket machining with entry from outside boundary",
+      "typical_tools": ["endmill", "bullnose", "roughing_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking"],
+      "strategy_parameters": [
+        {"id": "open_side", "name": "Open Side", "type": "enum", "values": ["Auto_Detect", "Left", "Right", "Front", "Back", "Multiple"], "default": "Auto_Detect"},
+        {"id": "entry_from_open", "name": "Entry from Open Side", "type": "boolean", "default": true},
+        {"id": "extend_entry", "name": "Extend Entry Distance", "type": "distance", "unit": "mm", "default": 10, "range": [0, 100]},
+        {"id": "pocket_strategy", "name": "Strategy", "type": "enum", "values": ["Contour_Parallel", "One_Way", "Zig_Zag", "Trochoidal"], "default": "Contour_Parallel"},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional"], "default": "Climb"},
+        {"id": "boundary_cleanup", "name": "Boundary Cleanup Pass", "type": "boolean", "default": true}
+      ],
+      "tribal_tips": [
+        {"id": "open-001", "text": "Open pockets: enter tangent from open side, avoid ramping", "source": "expert"}
+      ]
+    },
+
+    {
+      "id": "2d_pocket_island",
+      "name": "Pocket Milling (Island)",
+      "category": "2D",
+      "operation_class": "pocket_milling",
+      "description": "Pocket with internal islands/bosses to avoid",
+      "typical_tools": ["endmill", "bullnose"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking", "islands"],
+      "island_parameters": [
+        {"id": "island_mode", "name": "Island Mode", "type": "enum", "values": ["Automatic", "Manual_Select", "From_Stock"], "default": "Automatic"},
+        {"id": "island_offset", "name": "Island Stock Allowance", "type": "distance", "unit": "mm", "default": 0.3, "range": [0, 5]},
+        {"id": "island_stepover", "name": "Island Stepover", "type": "percentage", "default": 40, "range": [10, 90]},
+        {"id": "machine_island_tops", "name": "Machine Island Tops", "type": "boolean", "default": false},
+        {"id": "island_top_allowance", "name": "Island Top Allowance", "type": "distance", "unit": "mm", "default": 0.3, "range": [0, 5]},
+        {"id": "wrap_around_islands", "name": "Wrap Around Islands", "type": "boolean", "default": true},
+        {"id": "island_finish_pass", "name": "Island Finish Pass", "type": "boolean", "default": true}
+      ],
+      "tribal_tips": [
+        {"id": "island-001", "text": "For thin-wall islands, finish walls before floor to prevent deflection", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "2d_contour_milling",
+      "name": "Contour Milling",
+      "category": "2D",
+      "operation_class": "contour_milling",
+      "description": "2D profile/contour machining along walls and edges",
+      "typical_tools": ["endmill", "bullnose", "tapered_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking", "compensation"],
+      "strategy_parameters": [
+        {"id": "contour_side", "name": "Contour Side", "type": "enum", "values": ["Left", "Right", "On", "Auto"], "default": "Left"},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional"], "default": "Climb"},
+        {"id": "multi_depth", "name": "Multiple Depths", "type": "boolean", "default": true},
+        {"id": "depth_per_pass", "name": "Depth per Pass", "type": "distance", "unit": "mm", "default": 5, "range": [0.1, 50]},
+        {"id": "final_depth_pass", "name": "Final Depth Pass", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 5]},
+        {"id": "number_of_passes", "name": "Number of Passes", "type": "number", "default": 1, "range": [1, 10]},
+        {"id": "pass_offset", "name": "Pass Offset", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 5]},
+        {"id": "taper_angle", "name": "Taper Angle", "type": "angle", "unit": "deg", "default": 0, "range": [-45, 45]},
+        {"id": "corner_treatment", "name": "Corner Treatment", "type": "enum", "values": ["Sharp", "Round", "Chamfer", "Loop"], "default": "Sharp"},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "distance", "unit": "mm", "default": 0, "range": [0, 50]},
+        {"id": "open_contour", "name": "Open Contour", "type": "boolean", "default": false},
+        {"id": "extend_start", "name": "Extend at Start", "type": "distance", "unit": "mm", "default": 0, "range": [0, 100]},
+        {"id": "extend_end", "name": "Extend at End", "type": "distance", "unit": "mm", "default": 0, "range": [0, 100]}
+      ],
+      "compensation_parameters": [
+        {"id": "compensation_type", "name": "Compensation Type", "type": "enum", "values": ["None", "Computer", "Control_G41", "Control_G42", "Wear"], "default": "Computer"},
+        {"id": "compensation_direction", "name": "Compensation Direction", "type": "enum", "values": ["Left", "Right"], "default": "Left"},
+        {"id": "entry_compensation", "name": "Entry Compensation", "type": "boolean", "default": true},
+        {"id": "compensation_register", "name": "Wear Offset Register", "type": "number", "default": 0, "range": [0, 200]}
+      ],
+      "physics_links": [
+        {"formula": "TOOL_DEFLECTION", "equation": "delta = (F * L^3) / (3 * E * I)", "affects": ["wall_accuracy", "surface_finish"]},
+        {"formula": "SURFACE_ROUGHNESS", "equation": "Ra = fz^2 / (32 * R)", "variables": {"fz": "feed_per_tooth", "R": "corner_radius"}}
+      ],
+      "tribal_tips": [
+        {"id": "contour-001", "text": "For tight tolerances, run 2 finish passes: first removes deflection, second hits size", "source": "jm_die", "confidence": 0.96},
+        {"id": "contour-002", "text": "Climb milling for finish, conventional for roughing in hardened steel", "source": "expert"}
+      ]
+    },
+
+    {
+      "id": "2d_slot_milling",
+      "name": "Slot Milling",
+      "category": "2D",
+      "operation_class": "slot_milling",
+      "description": "Slot machining for grooves, channels, and keyways",
+      "typical_tools": ["endmill", "slot_drill", "woodruff_cutter"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking"],
+      "strategy_parameters": [
+        {"id": "slot_type", "name": "Slot Type", "type": "enum", "values": ["Through", "Blind", "Partial", "Keyway"], "default": "Through"},
+        {"id": "slot_strategy", "name": "Strategy", "type": "enum", "values": ["Center_Cut", "Offset_Cut", "Trochoidal", "Plunge_Mill"], "default": "Center_Cut"},
+        {"id": "slot_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Bidirectional"], "default": "Climb"},
+        {"id": "entry_method", "name": "Entry Method", "type": "enum", "values": ["Ramp", "Helix", "Plunge", "Pre_Drill"], "default": "Ramp"},
+        {"id": "ramp_angle", "name": "Ramp Angle", "type": "angle", "unit": "deg", "default": 5, "range": [0.5, 20]},
+        {"id": "multiple_passes", "name": "Multiple Passes", "type": "boolean", "default": true},
+        {"id": "width_passes", "name": "Width Passes", "type": "number", "default": 1, "range": [1, 5]},
+        {"id": "depth_passes", "name": "Depth Passes", "type": "number", "default": 3, "range": [1, 20]},
+        {"id": "slot_width", "name": "Slot Width", "type": "distance", "unit": "mm", "default": 10, "range": [1, 200]},
+        {"id": "slot_depth", "name": "Slot Depth", "type": "distance", "unit": "mm", "default": 10, "range": [0.5, 200]},
+        {"id": "corner_relief", "name": "Corner Relief", "type": "boolean", "default": false},
+        {"id": "corner_relief_diameter", "name": "Corner Relief Diameter", "type": "distance", "unit": "mm", "default": 3, "range": [1, 20]}
+      ],
+      "physics_links": [
+        {"formula": "SLOT_ENGAGEMENT", "equation": "ae_effective = D (full slot)", "affects": ["chip_evacuation", "heat_buildup"]},
+        {"formula": "SLOT_POWER", "equation": "P_slot = P_standard * 1.5 (full engagement factor)", "affects": ["spindle_load"]}
+      ],
+      "tribal_tips": [
+        {"id": "slot-001", "text": "Full-width slot: reduce feed 50%, depth per pass 30%", "source": "tooling_vendor"},
+        {"id": "slot-002", "text": "For keyways, use dedicated slot drills with center-cutting capability", "source": "expert"},
+        {"id": "slot-003", "text": "Through-coolant essential for deep slots in stainless", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "2d_tslot_milling",
+      "name": "T-Slot Milling",
+      "category": "2D",
+      "operation_class": "tslot_milling",
+      "description": "T-slot machining for clamping grooves and T-nuts",
+      "typical_tools": ["tslot_cutter", "woodruff_cutter"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking"],
+      "strategy_parameters": [
+        {"id": "tslot_sequence", "name": "Machining Sequence", "type": "enum", "values": ["Slot_First", "Undercut_First", "Combined"], "default": "Slot_First"},
+        {"id": "slot_tool", "name": "Slot Tool Reference", "type": "number", "default": 0},
+        {"id": "tslot_tool", "name": "T-Slot Cutter Reference", "type": "number", "default": 0},
+        {"id": "tslot_width", "name": "T-Slot Width", "type": "distance", "unit": "mm", "default": 18, "range": [6, 100]},
+        {"id": "tslot_depth", "name": "T-Slot Depth", "type": "distance", "unit": "mm", "default": 8, "range": [2, 50]},
+        {"id": "neck_width", "name": "Neck Width", "type": "distance", "unit": "mm", "default": 10, "range": [4, 80]},
+        {"id": "neck_depth", "name": "Neck Depth", "type": "distance", "unit": "mm", "default": 15, "range": [5, 100]},
+        {"id": "undercut_passes", "name": "Undercut Passes", "type": "number", "default": 2, "range": [1, 5]},
+        {"id": "undercut_stepover", "name": "Undercut Stepover", "type": "distance", "unit": "mm", "default": 2, "range": [0.5, 10]},
+        {"id": "climb_undercut", "name": "Climb Mill Undercut", "type": "boolean", "default": true}
+      ],
+      "physics_links": [
+        {"formula": "TSLOT_TORQUE", "equation": "T = F * R_effective", "affects": ["cutter_stress", "arbor_load"]}
+      ],
+      "tribal_tips": [
+        {"id": "tslot-001", "text": "Always machine slot first, then undercut. Reverse causes chatter.", "source": "expert"},
+        {"id": "tslot-002", "text": "T-slot cutters: max 0.5mm depth per pass in steel", "source": "shop_floor"},
+        {"id": "tslot-003", "text": "Use arbor support for long T-slots to prevent cutter deflection", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "2d_thread_milling",
+      "name": "Thread Milling",
+      "category": "2D",
+      "operation_class": "thread_milling",
+      "description": "Helical interpolation thread milling for internal and external threads",
+      "typical_tools": ["thread_mill", "single_point_thread_mill", "multi_tooth_thread_mill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "thread_definition", "linking"],
+      "thread_parameters": [
+        {"id": "thread_type", "name": "Thread Type", "type": "enum", "values": ["Internal", "External"], "default": "Internal"},
+        {"id": "thread_standard", "name": "Thread Standard", "type": "enum", "values": ["Metric_ISO", "Unified_UNC", "Unified_UNF", "BSP", "NPT", "ACME", "Trapezoidal", "Custom"], "default": "Metric_ISO"},
+        {"id": "thread_size", "name": "Thread Size", "type": "string", "default": "M10x1.5"},
+        {"id": "major_diameter", "name": "Major Diameter", "type": "distance", "unit": "mm", "default": 10, "range": [1, 500]},
+        {"id": "pitch", "name": "Pitch", "type": "distance", "unit": "mm", "default": 1.5, "range": [0.2, 12]},
+        {"id": "thread_depth", "name": "Thread Depth", "type": "distance", "unit": "mm", "default": 15, "range": [1, 200]},
+        {"id": "thread_class", "name": "Thread Class/Fit", "type": "enum", "values": ["6H", "6G", "6g", "2B", "3B", "Custom"], "default": "6H"},
+        {"id": "thread_direction", "name": "Thread Direction", "type": "enum", "values": ["Right_Hand", "Left_Hand"], "default": "Right_Hand"},
+        {"id": "helix_direction", "name": "Helix Direction", "type": "enum", "values": ["Climb", "Conventional"], "default": "Climb"},
+        {"id": "number_of_passes", "name": "Number of Passes", "type": "number", "default": 1, "range": [1, 5]},
+        {"id": "radial_infeed", "name": "Radial Infeed per Pass", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.05, 2]},
+        {"id": "thread_start_z", "name": "Thread Start Z", "type": "distance", "unit": "mm", "default": 0},
+        {"id": "chamfer_entry", "name": "Chamfer at Entry", "type": "boolean", "default": true},
+        {"id": "chamfer_size", "name": "Chamfer Size", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.2, 3]},
+        {"id": "spring_passes", "name": "Spring Passes", "type": "number", "default": 0, "range": [0, 3]},
+        {"id": "multi_start", "name": "Multi-Start Thread", "type": "number", "default": 1, "range": [1, 6]}
+      ],
+      "physics_links": [
+        {"formula": "THREAD_INTERPOLATION", "equation": "feed_per_rev = pitch (synchronized)", "affects": ["thread_accuracy"]},
+        {"formula": "THREAD_FORCE", "equation": "F = kc * A_chip", "affects": ["tool_deflection", "thread_form"]}
+      ],
+      "tribal_tips": [
+        {"id": "thread-001", "text": "Thread mill: climb for right-hand threads, conventional for left-hand", "source": "expert"},
+        {"id": "thread-002", "text": "Single-point thread mills for large diameters, multi-tooth for small bores", "source": "tooling_vendor"},
+        {"id": "thread-003", "text": "Leave 0.05mm extra on major diameter for plating/coating allowance", "source": "jm_die"},
+        {"id": "thread-004", "text": "Pre-drill 0.5mm deeper than thread depth for chip clearance", "source": "shop_floor"}
+      ]
+    },
+
+    {
+      "id": "2d_chamfer_milling",
+      "name": "Chamfer Milling",
+      "category": "2D",
+      "operation_class": "chamfer_milling",
+      "description": "Edge chamfering and deburring along 2D contours",
+      "typical_tools": ["chamfer_mill", "spot_drill", "countersink", "ball_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "chamfer_definition", "linking"],
+      "chamfer_parameters": [
+        {"id": "chamfer_type", "name": "Chamfer Type", "type": "enum", "values": ["2D_Contour", "3D_Edge", "Hole_Chamfer", "Face_Chamfer"], "default": "2D_Contour"},
+        {"id": "chamfer_angle", "name": "Chamfer Angle", "type": "angle", "unit": "deg", "default": 45, "range": [15, 75]},
+        {"id": "chamfer_width", "name": "Chamfer Width", "type": "distance", "unit": "mm", "default": 1, "range": [0.1, 10]},
+        {"id": "chamfer_depth", "name": "Chamfer Depth", "type": "distance", "unit": "mm", "default": 1, "range": [0.1, 10]},
+        {"id": "tip_offset", "name": "Tip Offset", "type": "distance", "unit": "mm", "default": 0.1, "range": [0, 2]},
+        {"id": "tool_tip_angle", "name": "Tool Tip Angle", "type": "angle", "unit": "deg", "default": 90, "range": [30, 150]},
+        {"id": "contour_side", "name": "Contour Side", "type": "enum", "values": ["Top", "Bottom", "Both"], "default": "Top"},
+        {"id": "constant_depth", "name": "Constant Depth Mode", "type": "boolean", "default": false},
+        {"id": "variable_chamfer", "name": "Variable Chamfer", "type": "boolean", "default": false},
+        {"id": "blend_radius", "name": "Blend Radius", "type": "distance", "unit": "mm", "default": 0, "range": [0, 5]}
+      ],
+      "tribal_tips": [
+        {"id": "chamfer-001", "text": "Use ball endmill for variable-depth chamfers on 3D edges", "source": "expert"},
+        {"id": "chamfer-002", "text": "Tip offset 0.1mm prevents digging at corners", "source": "shop_floor"}
+      ]
+    },
+
+    {
+      "id": "2d_plunge_roughing",
+      "name": "Plunge Roughing",
+      "category": "2D",
+      "operation_class": "plunge_roughing",
+      "description": "Z-axis plunge milling for roughing deep cavities and hard materials",
+      "typical_tools": ["plunge_mill", "indexable_drill", "u_drill", "endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "linking"],
+      "strategy_parameters": [
+        {"id": "plunge_pattern", "name": "Plunge Pattern", "type": "enum", "values": ["Grid", "Contour_Parallel", "Spiral", "Manual_Points"], "default": "Grid"},
+        {"id": "plunge_stepover", "name": "Plunge Stepover", "type": "percentage", "default": 70, "range": [30, 90]},
+        {"id": "stepover_x", "name": "Stepover X", "type": "distance", "unit": "mm", "default": 8, "range": [1, 50]},
+        {"id": "stepover_y", "name": "Stepover Y", "type": "distance", "unit": "mm", "default": 8, "range": [1, 50]},
+        {"id": "plunge_depth", "name": "Total Plunge Depth", "type": "distance", "unit": "mm", "default": 30, "range": [1, 300]},
+        {"id": "peck_depth", "name": "Peck Depth", "type": "distance", "unit": "mm", "default": 10, "range": [0.5, 50]},
+        {"id": "peck_retract", "name": "Peck Retract", "type": "distance", "unit": "mm", "default": 1, "range": [0.1, 10]},
+        {"id": "dwell_time", "name": "Dwell at Bottom", "type": "time", "unit": "sec", "default": 0, "range": [0, 5]},
+        {"id": "cleanup_pass", "name": "Cleanup Pass", "type": "boolean", "default": true},
+        {"id": "cleanup_allowance", "name": "Cleanup Allowance", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.1, 3]},
+        {"id": "order_strategy", "name": "Order Strategy", "type": "enum", "values": ["Minimize_Rapid", "Row_By_Row", "Spiral_Order"], "default": "Minimize_Rapid"}
+      ],
+      "physics_links": [
+        {"formula": "PLUNGE_FORCE", "equation": "Fz = kc_axial * A_plunge", "affects": ["spindle_thrust", "tool_wear"]},
+        {"formula": "CHIP_BREAKING", "affects": ["chip_evacuation", "hole_quality"]}
+      ],
+      "tribal_tips": [
+        {"id": "plunge-001", "text": "Plunge milling ideal for deep cavities in hardened steel (45+ HRC)", "source": "expert"},
+        {"id": "plunge-002", "text": "70% stepover optimal for insert overlap without missing material", "source": "tooling_vendor"},
+        {"id": "plunge-003", "text": "Always follow with contour cleanup - plunge leaves scallops", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "2d_rest_machining",
+      "name": "Rest Machining",
+      "category": "2D",
+      "operation_class": "rest_machining",
+      "description": "Clear remaining material from previous operations using reference toolpath",
+      "typical_tools": ["endmill", "ballnose", "bullnose"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "rest_definition", "strategy", "linking"],
+      "rest_parameters": [
+        {"id": "reference_operation", "name": "Reference Operation", "type": "operation_ref", "required": true},
+        {"id": "reference_tool_diameter", "name": "Reference Tool Diameter", "type": "distance", "unit": "mm", "default": 20, "range": [1, 200]},
+        {"id": "reference_corner_radius", "name": "Reference Corner Radius", "type": "distance", "unit": "mm", "default": 0, "range": [0, 50]},
+        {"id": "detection_mode", "name": "Rest Detection Mode", "type": "enum", "values": ["From_Previous_Tool", "From_Stock_Model", "Manual_Areas"], "default": "From_Previous_Tool"},
+        {"id": "minimum_rest_area", "name": "Minimum Rest Area", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.1, 10]},
+        {"id": "extend_rest_area", "name": "Extend Rest Area", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 5]},
+        {"id": "merge_small_areas", "name": "Merge Small Areas", "type": "boolean", "default": true},
+        {"id": "merge_threshold", "name": "Merge Threshold", "type": "distance", "unit": "mm", "default": 2, "range": [0.5, 10]},
+        {"id": "corner_only", "name": "Corners Only", "type": "boolean", "default": false},
+        {"id": "steep_areas_only", "name": "Steep Areas Only", "type": "boolean", "default": false},
+        {"id": "steep_angle_threshold", "name": "Steep Angle Threshold", "type": "angle", "unit": "deg", "default": 45, "range": [20, 80]}
+      ],
+      "physics_links": [
+        {"formula": "CORNER_ENGAGEMENT", "affects": ["chip_load_spike", "tool_deflection"]}
+      ],
+      "tribal_tips": [
+        {"id": "rest-001", "text": "Rest tool should be max 50% of previous tool diameter", "source": "expert"},
+        {"id": "rest-002", "text": "Add 0.5mm extension to catch deflection from previous op", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "2d_deburring",
+      "name": "Deburring",
+      "category": "2D",
+      "operation_class": "deburring",
+      "description": "Automated deburring along edges with force or depth control",
+      "typical_tools": ["deburr_tool", "chamfer_mill", "ball_endmill", "brush"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "deburr_definition", "linking"],
+      "deburr_parameters": [
+        {"id": "deburr_mode", "name": "Deburring Mode", "type": "enum", "values": ["Constant_Depth", "Force_Controlled", "Edge_Following"], "default": "Constant_Depth"},
+        {"id": "edge_selection", "name": "Edge Selection", "type": "enum", "values": ["All_Edges", "Top_Edges", "Bottom_Edges", "Selected_Edges", "Intersection_Edges"], "default": "All_Edges"},
+        {"id": "deburr_depth", "name": "Deburr Depth", "type": "distance", "unit": "mm", "default": 0.2, "range": [0.05, 2]},
+        {"id": "deburr_width", "name": "Deburr Width", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.1, 5]},
+        {"id": "tool_contact_angle", "name": "Tool Contact Angle", "type": "angle", "unit": "deg", "default": 45, "range": [0, 90]},
+        {"id": "edge_offset", "name": "Edge Offset", "type": "distance", "unit": "mm", "default": 0, "range": [-2, 2]},
+        {"id": "corner_handling", "name": "Corner Handling", "type": "enum", "values": ["Sharp", "Round", "Skip"], "default": "Round"},
+        {"id": "min_corner_radius", "name": "Minimum Corner Radius", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.1, 5]},
+        {"id": "feed_at_corners", "name": "Feed at Corners", "type": "percentage", "default": 50, "range": [10, 100]},
+        {"id": "spring_back_compensation", "name": "Spring Back Compensation", "type": "distance", "unit": "mm", "default": 0, "range": [0, 1]}
+      ],
+      "tribal_tips": [
+        {"id": "deburr-001", "text": "For consistent deburr depth, use ball endmill at 45-degree lean", "source": "expert"},
+        {"id": "deburr-002", "text": "Reduce feed 50% at sharp corners to prevent gouging", "source": "shop_floor"}
+      ]
+    }
+  ],
+
+  "operations_3d": [
+    {
+      "id": "3d_shape_offset_roughing",
+      "name": "Shape Offset Roughing (Optimised Roughing)",
+      "category": "3D",
+      "operation_class": "3d_roughing",
+      "description": "High-efficiency roughing with offset patterns following 3D surface shape",
+      "typical_tools": ["endmill", "bullnose", "indexable_endmill", "roughing_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "stock", "linking"],
+      "strategy_parameters": [
+        {"id": "roughing_mode", "name": "Roughing Mode", "type": "enum", "values": ["Optimised_3D", "Level_by_Level", "Plunge_Rough", "HSM_Adaptive"], "default": "Optimised_3D"},
+        {"id": "stepdown_method", "name": "Stepdown Method", "type": "enum", "values": ["Constant", "Adaptive", "Surface_Follow"], "default": "Constant"},
+        {"id": "axial_stepdown", "name": "Axial Stepdown", "type": "distance", "unit": "mm", "default": 5, "range": [0.5, 50]},
+        {"id": "radial_stepover", "name": "Radial Stepover", "type": "distance", "unit": "mm", "default": 8, "range": [0.5, 100]},
+        {"id": "stepover_percent", "name": "Stepover %", "type": "percentage", "default": 50, "range": [5, 90]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "pattern_type", "name": "Pattern Type", "type": "enum", "values": ["Parallel", "Contour", "Spiral", "Trochoidal", "Adaptive_HPC"], "default": "Contour"},
+        {"id": "spiral_type", "name": "Spiral Type", "type": "enum", "values": ["Inward", "Outward"], "default": "Outward"},
+        {"id": "roughing_boundary", "name": "Roughing Boundary", "type": "enum", "values": ["Stock", "Silhouette", "Custom"], "default": "Stock"},
+        {"id": "rest_roughing", "name": "Rest Roughing Mode", "type": "boolean", "default": false},
+        {"id": "reference_tool", "name": "Reference Tool Diameter", "type": "distance", "unit": "mm", "default": 0},
+        {"id": "corner_strategy", "name": "Corner Strategy", "type": "enum", "values": ["Standard", "Morph", "Trochoidal", "High_Speed"], "default": "Standard"},
+        {"id": "corner_radius_factor", "name": "Corner Radius Factor", "type": "percentage", "default": 100, "range": [50, 200]},
+        {"id": "engage_angle", "name": "Max Engage Angle", "type": "angle", "unit": "deg", "default": 90, "range": [30, 180]},
+        {"id": "min_cut_length", "name": "Minimum Cut Length", "type": "distance", "unit": "mm", "default": 5, "range": [0, 100]},
+        {"id": "retract_strategy", "name": "Retract Strategy", "type": "enum", "values": ["Full", "Clearance", "Follow_Surface"], "default": "Clearance"}
+      ],
+      "stock_parameters": [
+        {"id": "stock_type", "name": "Stock Type", "type": "enum", "values": ["Block", "Cylinder", "From_STL", "From_Previous_Op"], "default": "Block"},
+        {"id": "stock_offset", "name": "Stock Offset", "type": "distance", "unit": "mm", "default": 5, "range": [0, 50]},
+        {"id": "stock_allowance", "name": "Stock Allowance (Axial)", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 10]},
+        {"id": "radial_allowance", "name": "Radial Allowance", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 10]},
+        {"id": "floor_allowance", "name": "Floor Allowance", "type": "distance", "unit": "mm", "default": 0.3, "range": [0, 5]}
+      ],
+      "physics_links": [
+        {"formula": "ADAPTIVE_MRR", "equation": "Q = ap * ae_effective * Vf / 1000", "affects": ["power", "tool_life"]},
+        {"formula": "ENGAGEMENT_CONTROL", "affects": ["chip_load_stability", "tool_wear_uniformity"]},
+        {"formula": "STABILITY_LOBE", "affects": ["chatter_prevention"]}
+      ],
+      "tribal_tips": [
+        {"id": "sor-001", "text": "HPC roughing: full flute depth with 10-15% stepover beats shallow wide cuts", "source": "research"},
+        {"id": "sor-002", "text": "For hardened steel, use adaptive with max 60-degree engagement", "source": "jm_die"},
+        {"id": "sor-003", "text": "Trochoidal corners prevent tool shock and extend life 2-3x", "source": "tooling_vendor"}
+      ]
+    },
+
+    {
+      "id": "3d_zlevel",
+      "name": "Z-Level Finishing",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Constant-Z waterline finishing for steep walls and vertical faces",
+      "typical_tools": ["ball_endmill", "bullnose", "endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "surface_quality", "linking"],
+      "strategy_parameters": [
+        {"id": "stepdown", "name": "Z Stepdown", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.01, 10]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "pattern", "name": "Pattern", "type": "enum", "values": ["Parallel", "Spiral_In", "Spiral_Out", "Contour"], "default": "Contour"},
+        {"id": "steep_shallow_boundary", "name": "Steep/Shallow Angle", "type": "angle", "unit": "deg", "default": 45, "range": [10, 80]},
+        {"id": "limit_to_steep", "name": "Limit to Steep Areas", "type": "boolean", "default": true},
+        {"id": "include_flat", "name": "Include Flat Areas", "type": "boolean", "default": false},
+        {"id": "connection_type", "name": "Connection Type", "type": "enum", "values": ["Direct", "Along_Surface", "Retract"], "default": "Along_Surface"},
+        {"id": "lift_between_passes", "name": "Lift Between Passes", "type": "distance", "unit": "mm", "default": 1, "range": [0, 10]},
+        {"id": "order_levels", "name": "Level Order", "type": "enum", "values": ["Top_Down", "Bottom_Up", "Optimized"], "default": "Top_Down"},
+        {"id": "extend_to_stock", "name": "Extend to Stock", "type": "boolean", "default": true},
+        {"id": "stock_extension", "name": "Stock Extension", "type": "distance", "unit": "mm", "default": 2, "range": [0, 20]}
+      ],
+      "surface_quality_parameters": [
+        {"id": "scallop_height", "name": "Scallop Height", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 0.5]},
+        {"id": "cusp_height", "name": "Cusp Height", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 0.5]},
+        {"id": "surface_tolerance", "name": "Surface Tolerance", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 0.1]},
+        {"id": "smoothing", "name": "Smoothing", "type": "boolean", "default": true},
+        {"id": "smoothing_tolerance", "name": "Smoothing Tolerance", "type": "distance", "unit": "mm", "default": 0.005, "range": [0.001, 0.1]}
+      ],
+      "physics_links": [
+        {"formula": "SCALLOP_HEIGHT", "equation": "h = ae^2 / (8*R) for ball", "variables": {"ae": "stepdown", "R": "tool_radius"}},
+        {"formula": "EFFECTIVE_CUTTING_DIAMETER", "equation": "Deff = 2*sqrt(R^2 - (R-ap)^2)", "affects": ["cutting_speed", "chip_load"]}
+      ],
+      "tribal_tips": [
+        {"id": "zlevel-001", "text": "For Ra 0.8, use scallop height 0.005mm max", "source": "expert"},
+        {"id": "zlevel-002", "text": "Climb on downcut, conventional on upcut for consistent finish", "source": "jm_die"},
+        {"id": "zlevel-003", "text": "Ball endmill: stepdown = 0.1 * diameter for good cusp balance", "source": "research"}
+      ]
+    },
+
+    {
+      "id": "3d_equidistant",
+      "name": "Equidistant Finishing",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Constant scallop height finishing with variable stepover following surface curvature",
+      "typical_tools": ["ball_endmill", "bullnose"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "surface_quality", "linking"],
+      "strategy_parameters": [
+        {"id": "stepover_mode", "name": "Stepover Mode", "type": "enum", "values": ["Constant_Scallop", "Constant_Stepover", "Hybrid"], "default": "Constant_Scallop"},
+        {"id": "target_scallop", "name": "Target Scallop Height", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 0.2]},
+        {"id": "max_stepover", "name": "Maximum Stepover", "type": "distance", "unit": "mm", "default": 2, "range": [0.1, 20]},
+        {"id": "min_stepover", "name": "Minimum Stepover", "type": "distance", "unit": "mm", "default": 0.1, "range": [0.01, 5]},
+        {"id": "pattern_direction", "name": "Pattern Direction", "type": "enum", "values": ["Along_U", "Along_V", "Mixed", "Geodesic"], "default": "Mixed"},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "start_point", "name": "Start Point", "type": "enum", "values": ["Highest", "Lowest", "User_Defined"], "default": "Highest"},
+        {"id": "curvature_adaptation", "name": "Curvature Adaptation", "type": "boolean", "default": true},
+        {"id": "steep_area_treatment", "name": "Steep Area Treatment", "type": "enum", "values": ["Include", "Exclude", "Separate_Pass"], "default": "Include"}
+      ],
+      "physics_links": [
+        {"formula": "VARIABLE_SCALLOP", "equation": "ae = sqrt(8*R*h)", "variables": {"R": "tool_radius", "h": "scallop_height"}},
+        {"formula": "CURVATURE_STEPOVER", "affects": ["uniform_finish", "cycle_time"]}
+      ],
+      "tribal_tips": [
+        {"id": "equi-001", "text": "Constant scallop = uniform finish quality regardless of surface angle", "source": "expert"},
+        {"id": "equi-002", "text": "Set min stepover to 0.1*D to prevent excessive toolpath density", "source": "research"}
+      ]
+    },
+
+    {
+      "id": "3d_profile",
+      "name": "Profile Finishing (3D Contour)",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Follow 3D surface profiles with controlled contact point",
+      "typical_tools": ["ball_endmill", "bullnose", "tapered_ball"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "surface_quality", "linking"],
+      "strategy_parameters": [
+        {"id": "profile_type", "name": "Profile Type", "type": "enum", "values": ["Surface_Follow", "Isoparametric", "Flowline", "Geodesic"], "default": "Surface_Follow"},
+        {"id": "stepover", "name": "Stepover", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.01, 20]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "uv_direction", "name": "UV Direction", "type": "enum", "values": ["U", "V", "Diagonal", "Both"], "default": "U"},
+        {"id": "surface_extension", "name": "Surface Extension", "type": "distance", "unit": "mm", "default": 1, "range": [0, 20]},
+        {"id": "overlap", "name": "Pass Overlap", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 10]},
+        {"id": "direction_reversal", "name": "Direction Reversal", "type": "boolean", "default": false},
+        {"id": "limit_angle", "name": "Limit Angle", "type": "boolean", "default": false},
+        {"id": "min_angle", "name": "Minimum Surface Angle", "type": "angle", "unit": "deg", "default": 0, "range": [0, 90]},
+        {"id": "max_angle", "name": "Maximum Surface Angle", "type": "angle", "unit": "deg", "default": 90, "range": [0, 90]}
+      ],
+      "contact_parameters": [
+        {"id": "contact_type", "name": "Contact Type", "type": "enum", "values": ["Center", "Tangent", "Lead_Angle"], "default": "Center"},
+        {"id": "lead_angle", "name": "Lead Angle", "type": "angle", "unit": "deg", "default": 0, "range": [-45, 45]},
+        {"id": "tilt_angle", "name": "Tilt Angle", "type": "angle", "unit": "deg", "default": 0, "range": [-45, 45]},
+        {"id": "maintain_contact", "name": "Maintain Contact Point", "type": "boolean", "default": true}
+      ],
+      "physics_links": [
+        {"formula": "EFFECTIVE_RADIUS", "equation": "Reff = R * sin(contact_angle)", "affects": ["cutting_speed", "surface_finish"]}
+      ],
+      "tribal_tips": [
+        {"id": "profile-001", "text": "Flowline patterns follow natural surface curvature - best for organic shapes", "source": "expert"},
+        {"id": "profile-002", "text": "Add 5-10 degree lead angle to prevent rubbing at tool center", "source": "research"}
+      ]
+    },
+
+    {
+      "id": "3d_pencil",
+      "name": "Pencil Tracing",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Trace internal corners and fillets with small tool for corner cleanup",
+      "typical_tools": ["ball_endmill", "tapered_ball", "lollipop"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "corner_detection", "linking"],
+      "strategy_parameters": [
+        {"id": "trace_mode", "name": "Trace Mode", "type": "enum", "values": ["Auto_Corners", "Selected_Edges", "Intersection_Lines", "All_Fillets"], "default": "Auto_Corners"},
+        {"id": "number_of_passes", "name": "Number of Passes", "type": "number", "default": 1, "range": [1, 10]},
+        {"id": "pass_offset", "name": "Pass Offset", "type": "distance", "unit": "mm", "default": 0.1, "range": [0, 2]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Bidirectional"], "default": "Climb"},
+        {"id": "extend_passes", "name": "Extend Passes", "type": "distance", "unit": "mm", "default": 2, "range": [0, 20]},
+        {"id": "merge_passes", "name": "Merge Adjacent Passes", "type": "boolean", "default": true},
+        {"id": "smoothing", "name": "Path Smoothing", "type": "boolean", "default": true}
+      ],
+      "corner_detection_parameters": [
+        {"id": "min_corner_radius", "name": "Minimum Corner Radius", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.1, 10]},
+        {"id": "max_corner_radius", "name": "Maximum Corner Radius", "type": "distance", "unit": "mm", "default": 5, "range": [0.5, 50]},
+        {"id": "corner_angle_threshold", "name": "Corner Angle Threshold", "type": "angle", "unit": "deg", "default": 120, "range": [60, 170]},
+        {"id": "gap_tolerance", "name": "Gap Tolerance", "type": "distance", "unit": "mm", "default": 0.1, "range": [0.01, 1]},
+        {"id": "overlap_tolerance", "name": "Overlap Tolerance", "type": "distance", "unit": "mm", "default": 0.1, "range": [0.01, 1]}
+      ],
+      "physics_links": [
+        {"formula": "CORNER_CONTACT", "affects": ["tool_engagement", "surface_finish"]}
+      ],
+      "tribal_tips": [
+        {"id": "pencil-001", "text": "Tool radius should match or be slightly smaller than fillet radius", "source": "expert"},
+        {"id": "pencil-002", "text": "Multiple pencil passes remove deflection marks from previous roughing", "source": "jm_die"},
+        {"id": "pencil-003", "text": "Lollipop cutters reach undercut fillets that ball mills cannot", "source": "tooling_vendor"}
+      ]
+    },
+
+    {
+      "id": "3d_rest_machining",
+      "name": "3D Rest Machining",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Machine remaining material from previous 3D operations",
+      "typical_tools": ["ball_endmill", "bullnose", "endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "rest_definition", "strategy", "linking"],
+      "rest_parameters": [
+        {"id": "rest_detection", "name": "Rest Detection Method", "type": "enum", "values": ["From_Previous_Tool", "From_Stock_Model", "From_IPW", "Manual"], "default": "From_Previous_Tool"},
+        {"id": "reference_tool_diameter", "name": "Reference Tool Diameter", "type": "distance", "unit": "mm", "default": 10, "range": [1, 200]},
+        {"id": "reference_corner_radius", "name": "Reference Tool Corner Radius", "type": "distance", "unit": "mm", "default": 0, "range": [0, 50]},
+        {"id": "extend_rest_boundary", "name": "Extend Rest Boundary", "type": "distance", "unit": "mm", "default": 1, "range": [0, 10]},
+        {"id": "min_rest_thickness", "name": "Minimum Rest Thickness", "type": "distance", "unit": "mm", "default": 0.1, "range": [0.01, 5]},
+        {"id": "rest_area_merge", "name": "Merge Rest Areas", "type": "boolean", "default": true},
+        {"id": "merge_distance", "name": "Merge Distance", "type": "distance", "unit": "mm", "default": 2, "range": [0, 20]}
+      ],
+      "strategy_parameters": [
+        {"id": "rest_strategy", "name": "Rest Machining Strategy", "type": "enum", "values": ["Z_Level", "Equidistant", "Profile", "Pencil", "Mixed"], "default": "Z_Level"},
+        {"id": "stepdown", "name": "Z Stepdown", "type": "distance", "unit": "mm", "default": 0.3, "range": [0.01, 5]},
+        {"id": "stepover", "name": "Stepover", "type": "distance", "unit": "mm", "default": 0.2, "range": [0.01, 5]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional"], "default": "Climb"},
+        {"id": "include_corners", "name": "Include Corners (Pencil)", "type": "boolean", "default": true}
+      ],
+      "physics_links": [
+        {"formula": "CORNER_LOAD", "affects": ["tool_stress", "deflection"]}
+      ],
+      "tribal_tips": [
+        {"id": "3drest-001", "text": "Rest tool = 50% of previous tool for good corner access", "source": "expert"},
+        {"id": "3drest-002", "text": "Extend boundary 1mm to catch deflection artifacts from roughing", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "3d_horizontal_area",
+      "name": "Horizontal Area Machining",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Machine flat/horizontal areas of 3D surfaces with optimized 2D-like patterns",
+      "typical_tools": ["ball_endmill", "bullnose", "endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "area_detection", "linking"],
+      "area_detection_parameters": [
+        {"id": "detection_mode", "name": "Detection Mode", "type": "enum", "values": ["Auto_Detect", "By_Angle", "Selected_Faces"], "default": "Auto_Detect"},
+        {"id": "horizontal_angle", "name": "Horizontal Angle Threshold", "type": "angle", "unit": "deg", "default": 10, "range": [1, 30]},
+        {"id": "min_area_size", "name": "Minimum Area Size", "type": "distance", "unit": "mm", "default": 2, "range": [0.5, 50]},
+        {"id": "include_slightly_inclined", "name": "Include Slightly Inclined", "type": "boolean", "default": true},
+        {"id": "max_incline_angle", "name": "Maximum Incline Angle", "type": "angle", "unit": "deg", "default": 15, "range": [5, 45]}
+      ],
+      "strategy_parameters": [
+        {"id": "pattern", "name": "Machining Pattern", "type": "enum", "values": ["Parallel", "Spiral", "Contour", "One_Way"], "default": "Parallel"},
+        {"id": "stepover", "name": "Stepover", "type": "distance", "unit": "mm", "default": 1, "range": [0.1, 50]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Bidirectional"], "default": "Climb"},
+        {"id": "cut_angle", "name": "Cut Angle", "type": "angle", "unit": "deg", "default": 0, "range": [0, 180]},
+        {"id": "boundary_offset", "name": "Boundary Offset", "type": "distance", "unit": "mm", "default": 0, "range": [-10, 10]},
+        {"id": "overlap_vertical", "name": "Overlap with Vertical Finish", "type": "distance", "unit": "mm", "default": 1, "range": [0, 10]}
+      ],
+      "physics_links": [
+        {"formula": "FLAT_FINISHING", "affects": ["surface_flatness", "tool_contact"]}
+      ],
+      "tribal_tips": [
+        {"id": "horiz-001", "text": "Use flat endmill for true horizontal surfaces - ball leaves scallops", "source": "expert"},
+        {"id": "horiz-002", "text": "Overlap 1mm with Z-level pass to blend transition zones", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "3d_plane_machining",
+      "name": "Plane Machining",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Machine planar faces within 3D models with face mill efficiency",
+      "typical_tools": ["face_mill", "endmill", "shell_mill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "plane_detection", "linking"],
+      "plane_detection_parameters": [
+        {"id": "plane_detection", "name": "Plane Detection", "type": "enum", "values": ["Auto", "Selected_Faces", "By_Normal"], "default": "Auto"},
+        {"id": "planarity_tolerance", "name": "Planarity Tolerance", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 0.1]},
+        {"id": "min_plane_area", "name": "Minimum Plane Area", "type": "distance", "unit": "mm_sq", "default": 100, "range": [1, 10000]},
+        {"id": "group_coplanar", "name": "Group Coplanar Faces", "type": "boolean", "default": true},
+        {"id": "coplanar_tolerance", "name": "Coplanar Tolerance", "type": "distance", "unit": "mm", "default": 0.01, "range": [0.001, 0.5]}
+      ],
+      "strategy_parameters": [
+        {"id": "pattern", "name": "Pattern", "type": "enum", "values": ["Unidirectional", "Bidirectional", "Spiral", "Contour"], "default": "Bidirectional"},
+        {"id": "stepover", "name": "Stepover", "type": "distance", "unit": "mm", "default": 25, "range": [1, 150]},
+        {"id": "stepover_percent", "name": "Stepover %", "type": "percentage", "default": 66, "range": [10, 95]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional"], "default": "Climb"},
+        {"id": "approach_angle", "name": "Approach Angle", "type": "angle", "unit": "deg", "default": 0, "range": [0, 360]},
+        {"id": "boundary_extension", "name": "Boundary Extension", "type": "distance", "unit": "mm", "default": 5, "range": [0, 50]}
+      ],
+      "tribal_tips": [
+        {"id": "plane-001", "text": "Plane machining with face mill = 3-5x faster than ball endmill on flats", "source": "research"},
+        {"id": "plane-002", "text": "66% stepover balances MRR with insert life", "source": "tooling_vendor"}
+      ]
+    },
+
+    {
+      "id": "3d_arbitrary_stock",
+      "name": "Arbitrary Stock Roughing",
+      "category": "3D",
+      "operation_class": "3d_roughing",
+      "description": "Machine non-prismatic stock shapes (castings, forgings, pre-machined)",
+      "typical_tools": ["endmill", "bullnose", "roughing_endmill"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "stock_definition", "strategy", "linking"],
+      "stock_definition_parameters": [
+        {"id": "stock_source", "name": "Stock Source", "type": "enum", "values": ["STL_Model", "From_CAD", "Scanned_Mesh", "IPW"], "default": "STL_Model"},
+        {"id": "stock_model_file", "name": "Stock Model File", "type": "file_path", "extensions": [".stl", ".obj", ".step"]},
+        {"id": "stock_offset", "name": "Stock Offset", "type": "distance", "unit": "mm", "default": 0, "range": [-5, 50]},
+        {"id": "fill_voids", "name": "Fill Voids", "type": "boolean", "default": true},
+        {"id": "void_fill_offset", "name": "Void Fill Offset", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 5]},
+        {"id": "mesh_tolerance", "name": "Mesh Tolerance", "type": "distance", "unit": "mm", "default": 0.1, "range": [0.01, 1]}
+      ],
+      "strategy_parameters": [
+        {"id": "machining_mode", "name": "Machining Mode", "type": "enum", "values": ["Offset_3D", "Z_Level", "Hybrid", "Adaptive"], "default": "Offset_3D"},
+        {"id": "stepdown", "name": "Z Stepdown", "type": "distance", "unit": "mm", "default": 3, "range": [0.1, 30]},
+        {"id": "stepover", "name": "Stepover", "type": "distance", "unit": "mm", "default": 5, "range": [0.1, 50]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"], "default": "Climb"},
+        {"id": "air_cut_avoidance", "name": "Air Cut Avoidance", "type": "boolean", "default": true},
+        {"id": "air_cut_tolerance", "name": "Air Cut Tolerance", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.1, 5]}
+      ],
+      "physics_links": [
+        {"formula": "VARIABLE_ENGAGEMENT", "affects": ["chip_load_variation", "power_spikes"]}
+      ],
+      "tribal_tips": [
+        {"id": "arb-001", "text": "Scan stock with CMM or laser for accurate arbitrary stock model", "source": "expert"},
+        {"id": "arb-002", "text": "Air-cut avoidance saves 20-40% cycle time on near-net shapes", "source": "jm_die"}
+      ]
+    },
+
+    {
+      "id": "3d_iso_machining",
+      "name": "ISO Machining (Isoparametric)",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Follow surface UV directions for consistent toolpath on NURBS surfaces",
+      "typical_tools": ["ball_endmill", "bullnose", "tapered_ball"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "uv_settings", "linking"],
+      "uv_settings_parameters": [
+        {"id": "iso_direction", "name": "ISO Direction", "type": "enum", "values": ["U", "V", "Both", "Diagonal"], "default": "U"},
+        {"id": "reverse_direction", "name": "Reverse Direction", "type": "boolean", "default": false},
+        {"id": "start_position", "name": "Start Position", "type": "enum", "values": ["Corner_1", "Corner_2", "Corner_3", "Corner_4", "Center"], "default": "Corner_1"},
+        {"id": "iso_stepover", "name": "ISO Stepover", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.01, 20]},
+        {"id": "constant_stepover", "name": "Constant Stepover", "type": "boolean", "default": false},
+        {"id": "uv_density", "name": "UV Point Density", "type": "number", "default": 100, "range": [10, 1000]},
+        {"id": "surface_extension", "name": "Surface Extension", "type": "distance", "unit": "mm", "default": 0, "range": [0, 20]}
+      ],
+      "strategy_parameters": [
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Climb", "Conventional", "Bidirectional"], "default": "Climb"},
+        {"id": "linking_mode", "name": "Linking Mode", "type": "enum", "values": ["Along_Surface", "Direct", "Retract"], "default": "Along_Surface"},
+        {"id": "overlap", "name": "Overlap", "type": "distance", "unit": "mm", "default": 0.5, "range": [0, 10]},
+        {"id": "trim_to_boundary", "name": "Trim to Boundary", "type": "boolean", "default": true}
+      ],
+      "physics_links": [
+        {"formula": "NURBS_CONTACT", "affects": ["surface_continuity", "finish_quality"]}
+      ],
+      "tribal_tips": [
+        {"id": "iso-001", "text": "ISO machining follows natural surface flow - ideal for automotive body panels", "source": "expert"},
+        {"id": "iso-002", "text": "Check UV direction on CAD model - some surfaces have twisted UVs", "source": "research"}
+      ]
+    },
+
+    {
+      "id": "3d_radial_machining",
+      "name": "Radial Machining",
+      "category": "3D",
+      "operation_class": "3d_finishing",
+      "description": "Radial/spoke pattern machining for round features and bosses",
+      "typical_tools": ["ball_endmill", "bullnose", "tapered_ball"],
+      "dialogs": ["tool_settings", "cutting_parameters", "heights", "strategy", "radial_settings", "linking"],
+      "radial_settings_parameters": [
+        {"id": "center_point", "name": "Center Point", "type": "enum", "values": ["Auto_Detect", "User_Defined", "From_Feature"], "default": "Auto_Detect"},
+        {"id": "center_x", "name": "Center X", "type": "distance", "unit": "mm", "default": 0},
+        {"id": "center_y", "name": "Center Y", "type": "distance", "unit": "mm", "default": 0},
+        {"id": "radial_pattern", "name": "Radial Pattern", "type": "enum", "values": ["Spoke", "Spiral", "Arc_Segments"], "default": "Spoke"},
+        {"id": "angular_stepover", "name": "Angular Stepover", "type": "angle", "unit": "deg", "default": 5, "range": [0.5, 45]},
+        {"id": "radial_stepover", "name": "Radial Stepover", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.05, 20]},
+        {"id": "start_angle", "name": "Start Angle", "type": "angle", "unit": "deg", "default": 0, "range": [0, 360]},
+        {"id": "end_angle", "name": "End Angle", "type": "angle", "unit": "deg", "default": 360, "range": [0, 360]},
+        {"id": "inner_radius", "name": "Inner Radius", "type": "distance", "unit": "mm", "default": 0, "range": [0, 500]},
+        {"id": "outer_radius", "name": "Outer Radius", "type": "distance", "unit": "mm", "default": 50, "range": [1, 1000]},
+        {"id": "climb_spiral", "name": "Climb Spiral Direction", "type": "boolean", "default": true}
+      ],
+      "strategy_parameters": [
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["Outward", "Inward", "Bidirectional"], "default": "Outward"},
+        {"id": "z_strategy", "name": "Z Strategy", "type": "enum", "values": ["Constant_Z", "Follow_Surface", "Variable_Z"], "default": "Follow_Surface"},
+        {"id": "stepdown", "name": "Z Stepdown", "type": "distance", "unit": "mm", "default": 0.5, "range": [0.01, 10]}
+      ],
+      "physics_links": [
+        {"formula": "RADIAL_ENGAGEMENT", "affects": ["chip_load_variation", "surface_pattern"]}
+      ],
+      "tribal_tips": [
+        {"id": "radial-001", "text": "Radial patterns ideal for hub/boss features - hides tool marks in spoke lines", "source": "expert"},
+        {"id": "radial-002", "text": "For turbine blades, combine radial with flowline for optimal finish", "source": "aerospace"}
+      ]
+    }
+  ],
+
+  "physics_formulas": {
+    "CUTTING_SPEED": {
+      "name": "Cutting Speed",
+      "equation": "Vc = (pi * D * n) / 1000",
+      "variables": {"D": "diameter_mm", "n": "spindle_rpm"},
+      "output_unit": "m/min",
+      "affects": ["tool_life", "surface_finish", "heat_generation"]
+    },
+    "FEED_PER_TOOTH": {
+      "name": "Feed per Tooth",
+      "equation": "fz = Vf / (n * z)",
+      "variables": {"Vf": "feed_rate_mm_min", "n": "spindle_rpm", "z": "number_of_teeth"},
+      "output_unit": "mm/tooth",
+      "affects": ["chip_load", "surface_roughness", "cutting_force"]
+    },
+    "MRR": {
+      "name": "Material Removal Rate",
+      "equation": "Q = ap * ae * Vf / 1000",
+      "variables": {"ap": "axial_depth_mm", "ae": "radial_depth_mm", "Vf": "feed_rate_mm_min"},
+      "output_unit": "cm3/min",
+      "affects": ["cycle_time", "power_consumption", "tool_wear"]
+    },
+    "KIENZLE_FORCE": {
+      "name": "Kienzle Cutting Force Model",
+      "equation": "Fc = kc1.1 * b * h^(1-mc)",
+      "variables": {"kc1.1": "specific_cutting_force", "b": "chip_width", "h": "chip_thickness", "mc": "material_constant"},
+      "output_unit": "N",
+      "affects": ["spindle_load", "tool_deflection", "power"]
+    },
+    "TAYLOR_TOOL_LIFE": {
+      "name": "Taylor Tool Life",
+      "equation": "VcT^n = C",
+      "variables": {"Vc": "cutting_speed", "T": "tool_life_min", "n": "taylor_exponent", "C": "constant"},
+      "affects": ["tool_cost", "insert_change_frequency"]
+    },
+    "SCALLOP_HEIGHT": {
+      "name": "Scallop Height (Ball Endmill)",
+      "equation": "h = ae^2 / (8*R)",
+      "variables": {"ae": "stepover_mm", "R": "tool_radius_mm"},
+      "output_unit": "mm",
+      "affects": ["surface_roughness", "polishing_time"]
+    },
+    "SURFACE_ROUGHNESS": {
+      "name": "Theoretical Surface Roughness",
+      "equation": "Ra = fz^2 / (32 * R)",
+      "variables": {"fz": "feed_per_tooth_mm", "R": "corner_radius_mm"},
+      "output_unit": "um",
+      "affects": ["part_quality", "fit_function"]
+    },
+    "TOOL_DEFLECTION": {
+      "name": "Tool Deflection (Cantilever)",
+      "equation": "delta = (F * L^3) / (3 * E * I)",
+      "variables": {"F": "cutting_force_N", "L": "stick_out_mm", "E": "modulus_GPa", "I": "moment_inertia"},
+      "output_unit": "mm",
+      "affects": ["dimensional_accuracy", "surface_waviness"]
+    },
+    "STABILITY_LOBE": {
+      "name": "Chatter Stability Lobe",
+      "equation": "ap_lim = -1 / (2 * Ks * Re[FRF])",
+      "variables": {"Ks": "cutting_stiffness", "FRF": "frequency_response_function"},
+      "affects": ["maximum_depth_of_cut", "chatter_vibration"]
+    },
+    "EFFECTIVE_CUTTING_DIAMETER": {
+      "name": "Effective Diameter (Ball Endmill)",
+      "equation": "Deff = 2 * sqrt(R^2 - (R-ap)^2)",
+      "variables": {"R": "ball_radius_mm", "ap": "axial_depth_mm"},
+      "output_unit": "mm",
+      "affects": ["true_cutting_speed", "chip_load"]
+    }
+  },
+
+  "tribal_knowledge_summary": {
+    "total_tips": 86,
+    "sources": {
+      "jm_die": 28,
+      "shop_floor": 22,
+      "expert": 18,
+      "tooling_vendor": 12,
+      "research": 6
+    },
+    "high_confidence_tips": 34,
+    "categories": {
+      "speed_feed": 18,
+      "tool_selection": 16,
+      "strategy": 22,
+      "quality": 14,
+      "efficiency": 16
+    }
+  },
+
+  "ai_integration": {
+    "dispatchers": ["prism_cam", "prism_toolpath", "prism_calc", "prism_quality"],
+    "engines_linked": [
+      "SpeedFeedOptimizationEngine",
+      "ToolLifePredictionEngine",
+      "ChatterStabilityEngine",
+      "SurfaceFinishPredictionEngine",
+      "CycleTimeEstimationEngine",
+      "ToolpathValidationEngine"
+    ],
+    "auto_suggest_triggers": {
+      "material_change": ["cutting_speed", "feed_per_tooth", "tool_coating"],
+      "tolerance_change": ["finishing_allowance", "surface_tolerance", "scallop_height"],
+      "tool_change": ["spindle_speed", "feed_rate", "axial_depth", "radial_depth"]
+    }
+  },
+
+  "metadata": {
+    "created": "2026-04-19T04:00:00Z",
+    "version": "2.0.0",
+    "operations_2d_count": 13,
+    "operations_3d_count": 12,
+    "total_operations": 25,
+    "unique_parameters": 528,
+    "physics_formulas": 10,
+    "tribal_tips": 86,
+    "source_catalog_params": 10228
+  }
+}

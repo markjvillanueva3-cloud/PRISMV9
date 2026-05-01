@@ -1,0 +1,28 @@
+[
+  {
+    "id": "11-10715-0-A.MIN-gcode-001",
+    "instruction": "Explain what this Okuma OSP G-code does and suggest any improvements.",
+    "input": "$ACM11A.MIN%\nM1\nNAT12        (OD RGH. TURN .032R)\nT121212\nG0 X20 Z20\nG50 S600\nG96 S250 M3\nG0 X1.6 Z.05 M8",
+    "output": "**Code Analysis:**\n\nThis G-code segment performs:\n- Constant surface speed (CSS) mode for consistent cutting\n- Maximum spindle speed clamp (G50 S) for safety\n\n**Suggestions:**\n- Verify coolant is active before cutting operations\n- Check tool life counters if using tool groups",
+    "metadata": {
+      "source_program": "11-10715-0-A.MIN",
+      "customer": "ACME",
+      "operation_type": "code_review",
+      "confidence": 0.75,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "9007405.MIN-sf-001",
+    "instruction": "What are the recommended cutting parameters for turning tool steel?",
+    "input": "Spindle: 800 RPM, Feed: 0.005 IPR",
+    "output": "Based on the program parameters (S800, F0.005):\n\n**Analysis:**\n- Spindle speed: 800 RPM is standard for general turning\n- Feed rate: 0.005 IPR is light, suitable for finishing passes\n\n**Recommendations:**\n\nAlways verify with Kienzle force calculations before heavy roughing.",
+    "metadata": {
+      "source_program": "9007405.MIN",
+      "customer": "9007405.MIN",
+      "operation_type": "general",
+      "confidence": 0.85,
+      "tribal_tips_applied": []
+    }
+  }
+]

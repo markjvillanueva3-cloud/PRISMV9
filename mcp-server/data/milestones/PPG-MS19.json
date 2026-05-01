@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS19",
+  "version": "1.0.0",
+  "title": "PPG-MS19 — Security Hardening (IEC 62443 SL-2)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 8,
+  "completed_units": 0,
+  "description": "Closes the cybersecurity exposure surfaced by R16 scrutiny (score 31). Locks down the write-capable surfaces (FOCAS feed override, OPC-UA writes, Fusion Add-In HTTP bridge) to IEC 62443 SL-2. Adds Ed25519 sidecar signing, multi-tenant row-level security, SBOM/CVE response process, OT/IT segmentation, append-only audit ledger, penetration test cadence.",
+  "rationale": "Closes the cybersecurity exposure surfaced by R16 scrutiny (score 31). Locks down the write-capable surfaces (FOCAS feed override, OPC-UA writes, Fusion Add-In HTTP bridge) to IEC 62443 SL-2. Adds Ed25519 sidecar signing, multi-tenant row-level security, SBOM/CVE response process, OT/IT segmentation, append-only audit ledger, penetration test cadence.",
+  "phase": "P0",
+  "priority": "CRITICAL",
+  "units": [
+    {
+      "id": "U-PPGM112",
+      "title": "mTLS + cert pinning for FOCAS write paths",
+      "scope": "Replace plaintext FOCAS handle with mTLS-wrapped tunnel; pin Fanuc controller certs; require valid client cert per shop. Block L3 in PPG-MS1 until handshake succeeds.",
+      "files_to_modify": [
+        "src/adapters/FocasFeedOverrideAdapter.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FocasMTLS.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM113",
+      "title": "OPC-UA Sign+Encrypt + UserTokenPolicy",
+      "scope": "OPC-UA SecurityMode=SignAndEncrypt + Basic256Sha256; UserToken=x509 (per-shop cert); namespace-index pinning with version-stamp.",
+      "files_to_modify": [
+        "src/adapters/OpcUaFeedOverrideAdapter.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/OpcUaSecurity.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM114",
+      "title": "Ed25519 sidecar signature + key rotation",
+      "scope": "Replace SHA-256 only with Ed25519 detached signature; key in OS keychain; rotation per SecureKeyManager; load fail-closed on signature verify.",
+      "files_to_modify": [
+        "src/engines/SidecarSignatureEngine.ts",
+        "src/schemas/postPhysicsSidecarSchema.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SidecarEd25519.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM115",
+      "title": "Multi-tenant row-level security + per-tenant encryption-at-rest",
+      "scope": "tenant_id on every variance/calibration/telemetry row; Postgres RLS policies; per-shop encryption key; ITAR co-mingling block.",
+      "files_to_modify": [
+        "src/db/schema/multitenancy.sql",
+        "src/middleware/tenantIsolation.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/TenantIsolation.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM116",
+      "title": "SBOM (CycloneDX) + npm audit gate + CVE response SLA",
+      "scope": "Generate SBOM per release; npm audit --audit-level=high in CI; Snyk weekly scan; 7-day CVE response SLA; signed releases.",
+      "files_to_modify": [
+        ".github/workflows/security.yml",
+        "scripts/generate-sbom.mjs"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM117",
+      "title": "OT/IT network segmentation manifest",
+      "scope": "Document required network topology (shop subnet vs office vs cloud); deny-list cloud destinations on ITAR-flagged emit; reference architecture diagram for customer install.",
+      "files_to_modify": [
+        "docs/security/ot-it-segmentation.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM118",
+      "title": "Append-only WORM audit ledger for L3 writes + tier promotions",
+      "scope": "Hash-chained audit log; 7-year retention; queryable by SOC2 auditor; signed entries.",
+      "files_to_modify": [
+        "src/engines/SecurityAuditLedgerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SecurityAuditLedger.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM119",
+      "title": "Penetration test + SOC2 Type I gap analysis",
+      "scope": "External pen-test of L3 write surfaces + Fusion HTTP bridge; SOC2 Type I gap analysis; remediation roadmap to Type II.",
+      "files_to_modify": [
+        "docs/security/pentest-2026q2.pdf",
+        "docs/security/soc2-gap.md"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "FOCAS + OPC-UA writes require valid client certs",
+    "All sidecars Ed25519-signed; signature verify fail-closed",
+    "tenant_id RLS verified across MS11/MS16 stores",
+    "SBOM generated per release; CI fails on high-severity CVE",
+    "Audit ledger captures every L3 write + tier promotion",
+    "External pen-test report received; high-severity findings closed",
+    "SOC2 Type I gap analysis complete with remediation timeline"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-MS1",
+    "PPG-MS8",
+    "PPG-MS11",
+    "PPG-MS17"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Security IEC 62443 — mount on existing security_manager + auth dispatcher (no new orchestrator)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

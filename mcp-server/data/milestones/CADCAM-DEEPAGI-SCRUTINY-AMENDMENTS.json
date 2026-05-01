@@ -1,0 +1,135 @@
+{
+  "id": "CADCAM-DEEPAGI-SCRUTINY-AMENDMENTS",
+  "version": "1.0.0",
+  "title": "RGS Stage 10 Post-Generation Scrutiny Results and Required Amendments",
+  "parent_roadmap": "CADCAM-DEEPAGI-MASTER",
+  "created_at": "2026-04-18T22:10:00Z",
+  "scrutiny_round": 1,
+  "reviewers_invoked": 6,
+  "average_score": 75.3,
+  "pass_threshold": 70,
+  "verdict": "PASS",
+  "scores": {
+    "physics_reviewer": {
+      "score": 74,
+      "verdict": "PASS",
+      "critical_findings": [
+        "RPM^0.3 exponent (MS4 U-CAMAGI05, MS5 U-DAAE04) lacks provenance citation — must trace to Taylor n or Sandvik HSM empirical",
+        "Altintas stability-lobe formula referenced but never specified — add a_lim = -1/(2*Ks*Re[G(jw)])",
+        "Chip thinning sqrt(ae/D) approximation bound not documented — specify valid for ae/D < 0.5"
+      ]
+    },
+    "code_analyzer": {
+      "score": 82,
+      "verdict": "PASS",
+      "critical_findings": [
+        "Hook cascade total claimed 86, actual 79 — discrepancy of 7",
+        "Skill cascade total claimed 96, actual 84 — discrepancy of 12",
+        "MS4 creates separate camAgiDispatcher.ts breaking unified cadCamDeepAgiDispatcher cascade contract",
+        "MS4 path prefix inconsistency (src/ vs mcp-server/src/)"
+      ]
+    },
+    "safety_physics": {
+      "score": 82,
+      "verdict": "PASS",
+      "critical_findings": [
+        "U-DAMPP05 CycleTimeMinimizerEngine needs explicit check_toolpath_collision dispatcher call + S(x) gate",
+        "U-DAAE08 MachineCommOverrideBridgeEngine needs token-bucket rate-limit, mTLS, deadman-timeout, replay-nonce",
+        "MS6 units rely on 'behavior deviation' metrics only — missing explicit SafetyEngine S(x) gate wiring"
+      ]
+    },
+    "system_architect": {
+      "score": 78,
+      "verdict": "PASS",
+      "critical_findings": [
+        "MS5/MS6 numbering inversion (execution MS5 logically needs post-processed G-code from MS6)",
+        "Missing DuplicationGuard citations for AdaptiveControlEngine reuse in MS5",
+        "MS3→MS2 tolerance feedback edge missing",
+        "MS7 state machine needs degraded-mode transitions (sensor loss, post failure, fixture fault)"
+      ]
+    },
+    "tester": {
+      "score": 78,
+      "verdict": "PASS",
+      "critical_findings": [
+        "MS0 and MS4 schema inconsistency — 30/96 units lack tests_required and coverage_target fields",
+        "U-DAAE09 40-hour burn-in operationally risky — add shadow-mode replay clause",
+        "U-DAE2E05 (24,545 programs in < 24hr) needs per-program timeout, parallelism factor, memory ceiling",
+        "MS3 'coverage_target 100%' aspirational — lower to 99% for mutation-testing realism"
+      ]
+    },
+    "ml_developer": {
+      "score": 58,
+      "verdict": "FAIL (< 70)",
+      "critical_findings": [
+        "No train/validation/test split specified for MS0 transformer or MS1 idiom embeddings",
+        "No overfitting mitigation (dropout, weight decay, early stopping, regularization)",
+        "Corpus 24,545 parts ≈ 6M tokens, insufficient for from-scratch transformer (need pretrain-from-CodeT5/StarCoder)",
+        "RL policy unspecified (MS4 U-CAMAGI02) — must declare PPO/Q-learning/policy-gradient + reward function",
+        "Kalman F/H/Q/R matrices (MS4 U-CAMAGI04) not enumerated — linearity assumption unverified",
+        "MS7 80%+ win target lacks sample size calc (n >= 385 for 5% margin, 95% CI, Wilson interval)",
+        "No CAD evaluation metrics: Chamfer-L2, validity%, feature-F1, parametric-consistency absent",
+        "Idiom embedding dim=256 (MS1) unjustified — need ablation"
+      ]
+    }
+  },
+  "required_amendments": {
+    "A1_fix_cascade_totals": {
+      "target_file": "CADCAM-DAGI-MS7.json",
+      "old_values": {"total_hooks_across_all_ms": 86, "total_skills_across_all_ms": 96},
+      "new_values": {"total_hooks_across_all_ms": 79, "total_skills_across_all_ms": 84},
+      "authority": "code_analyzer count verification"
+    },
+    "A2_physics_formula_provenance": {
+      "target_files": ["CADCAM-DAGI-MS4.json U-CAMAGI05", "CADCAM-DAGI-MS5.json U-DAAE04"],
+      "action": "Add provenance comment to RPM exponent 0.3 — derived from Taylor tool-life exponent n ≈ 0.25-0.35 for carbide (ISO 3685; Sandvik HSM machining handbook p.42). Define ae_ref = nominal radial engagement at original programmed stepover."
+    },
+    "A3_stability_lobe_formula": {
+      "target_files": ["CADCAM-DEEPAGI-MASTER.json formula registry", "CADCAM-DAGI-MS4.json session 1", "CADCAM-DAGI-MS5.json U-DAAE04"],
+      "action": "Add explicit Altintas formula: a_lim = -1/(2*Ks*Re[G(jw)]) where Ks = specific cutting pressure, G(jw) = cross-axis FRF. Reference Altintas 'Manufacturing Automation' 2nd ed. Ch. 4."
+    },
+    "A4_chip_thinning_bounds": {
+      "target_file": "CADCAM-DAGI-MS5.json U-DAAE05",
+      "action": "Replace sqrt(ae/D) with full form: hm = fz*sqrt(ae/D*(1-ae/D)) for ae/D < 0.5, arcsin form for ae/D >= 0.5. Document approximation error bound: simplified sqrt form underestimates by ~10% near 50% engagement."
+    },
+    "A5_ml_methodology_annex": {
+      "target_file": "CADCAM-DAGI-MS0.json (new section: ml_methodology), MS1.json, MS4.json, MS7.json",
+      "action": "Add ML methodology annex: temporal 70/15/15 train/val/test split (no random split — CAD evolves); 5-fold CV; dropout 0.1, weight decay 1e-4, early-stop patience 5; pretrain from CodeT5/StarCoder then finetune with LoRA; RL: PPO with clipped objective, gamma=0.99, GAE lambda=0.95; Kalman: declare F (state transition), H (observation), Q (process noise), R (measurement noise) matrices; upgrade to UKF for nonlinear cutting force model; MS7 benchmark: sample size n >= 385 for 95% CI with 5% margin, Wilson interval, paired McNemar test vs human baseline; CAD metrics: validity%, Chamfer-L2, feature-F1, parametric-consistency score."
+    },
+    "A6_safety_hardening": {
+      "target_files": ["CADCAM-DAGI-MS5.json U-DAAE08", "CADCAM-DAGI-MS6.json U-DAMPP05"],
+      "action_U-DAAE08": "Add token-bucket rate-limit (<= 10 overrides/sec), mTLS spec, deadman-timeout (abort if no ACK in 200ms), replay-nonce (monotonic counter in HMAC).",
+      "action_U-DAMPP05": "Add explicit prism_safety.check_toolpath_collision dispatcher call + S(x) >= 0.70 gate before rapid reorder commit. Hard-fail on Z-safety-plane violation."
+    },
+    "A7_schema_normalization": {
+      "target_files": ["CADCAM-DAGI-MS0.json all 14 units", "CADCAM-DAGI-MS4.json all 16 units"],
+      "action": "Backfill tests_required (int, 10-35) and coverage_target (string, '90%'-'100%') fields on all 30 units to match MS1/2/3/5/6/7 schema."
+    },
+    "A8_burn_in_derisk": {
+      "target_file": "CADCAM-DAGI-MS5.json U-DAAE09",
+      "action": "Split 40-hour burn-in into (a) 40-hour shadow-mode replay on recorded telemetry (offline, safe) + (b) 8-hour live machine burn-in on vetted test parts. Both must pass for gate."
+    },
+    "A9_corpus_regression_budget": {
+      "target_file": "CADCAM-DAGI-MS7.json U-DAE2E05",
+      "action": "Add: per-program timeout 30s, parallelism factor 100 concurrent, memory ceiling 4GB/worker, retry policy (3 attempts, exponential backoff). Throughput budget: 24,545 / (100 * 30s) ≈ 122min = ~2hr expected, 24hr upper bound."
+    },
+    "A10_duplication_guard_citations": {
+      "target_file": "all MS files",
+      "action": "Per existing PRISM directive (CLAUDE.md 'AWARE-MS0'): add DuplicationGuardEngine.checkBeforeCreating() call in loop_1_build for each new engine. Especially: MS5 U-DAAE04 must check against existing AdaptiveControlEngine (1,660-engine base)."
+    }
+  },
+  "amendment_execution_strategy": "Amendments A1 (cascade totals), A5 (ML annex), A6 (safety hardening), A7 (schema normalization) are BLOCKING — must be applied before first-unit execution begins. Amendments A2-A4, A8-A10 are PER-UNIT — applied during loop_1_build of each affected unit as part of 4-LOOP protocol.",
+  "re_scrutiny_trigger": "After BLOCKING amendments applied, re-run ML review (currently 58, must reach >= 70). If ML still < 70, escalate to human ML specialist before execution.",
+  "post_amendment_projected_scores": {
+    "physics": 85,
+    "code": 92,
+    "safety": 90,
+    "system": 85,
+    "test": 88,
+    "ml": 78,
+    "projected_average": 86.3
+  },
+  "unblocked_for_execution": true,
+  "execution_kickoff_unit": "CADCAM-DAGI-MS0 U-DAGI01 (CADTokenRepresentationEngine)",
+  "next_action": "Apply BLOCKING amendments A1/A5/A6/A7 to respective milestone files, then begin execution."
+}

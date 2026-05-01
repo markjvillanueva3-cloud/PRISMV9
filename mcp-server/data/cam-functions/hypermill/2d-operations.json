@@ -1,0 +1,769 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypermill",
+  "module_id": "2d_operations",
+  "module_name": "2D Operations",
+  "description": "Complete 2D milling operations for hyperMILL — Face Milling, Pocket, Contour, Slot, Thread, Chamfer, Rest Machining",
+  "indexed_at": "2026-04-19T03:00:00Z",
+  "source": "hyperMILL CAM Manual + HyperMillParameterCatalog.json",
+  "menus": [
+    {
+      "id": "2d_face_milling",
+      "name": "Face Milling",
+      "operation_class": "face_milling",
+      "dialogs": [
+        {
+          "id": "2d_face_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "dialog_purpose": "Select and configure the face mill tool",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 50, "constraints": { "min": 6, "max": 200, "step": 1 } },
+              "physics_links": [{ "formula_id": "CUTTING_SPEED", "role": "input", "affects": ["spindle_speed"] }],
+              "tribal_tips": [
+                { "id": "hm-2d-face-tip-001", "text": "Use 1.3x part width for full coverage in single pass", "source": "shop_floor", "confidence": 0.92 }
+              ]
+            },
+            {
+              "id": "tool_teeth",
+              "name": "Number of Teeth",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 6, "constraints": { "min": 2, "max": 24 } },
+              "physics_links": [{ "formula_id": "FEED_PER_TOOTH", "role": "input", "affects": ["table_feed"] }]
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.8, "constraints": { "min": 0, "max": 6.35, "step": 0.1 } },
+              "tribal_tips": [
+                { "id": "hm-2d-face-tip-002", "text": "0.8mm corner radius = Ra 1.6 achievable with sharp insert", "source": "jm_die", "confidence": 0.88 }
+              ]
+            },
+            {
+              "id": "tool_coating",
+              "name": "Coating",
+              "category": "Tool Material",
+              "value": { "type": "enum", "constraints": { "enum_values": ["TiN", "TiAlN", "AlTiN", "TiCN", "Uncoated", "CVD", "PVD"] } }
+            }
+          ]
+        },
+        {
+          "id": "2d_face_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "dialog_purpose": "Configure cutting speeds, feeds, and depths",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 2000, "constraints": { "min": 50, "max": 24000, "step": 50 } },
+              "physics_links": [
+                { "formula_id": "CUTTING_SPEED", "role": "output", "affects": ["tool_temperature", "tool_life"] },
+                { "formula_id": "TAYLOR_TOOL_LIFE", "role": "input" }
+              ],
+              "ai_actions": [{ "dispatcher": "prism_cam", "action": "calculate_rpm", "parameter_mapping": { "spindle_speed": "rpm" } }]
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 1500, "constraints": { "min": 10, "max": 10000, "step": 10 } },
+              "physics_links": [
+                { "formula_id": "KIENZLE_FORCE", "role": "input", "affects": ["cutting_force", "power"] },
+                { "formula_id": "CHIP_LOAD", "role": "output" }
+              ]
+            },
+            {
+              "id": "axial_depth",
+              "name": "Axial Depth of Cut",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 2.0, "constraints": { "min": 0.1, "max": 12, "step": 0.1 } },
+              "physics_links": [{ "formula_id": "KIENZLE_FORCE", "role": "input", "affects": ["cutting_force", "power", "deflection"] }],
+              "tribal_tips": [
+                { "id": "hm-2d-face-tip-003", "text": "For D2 tool steel, max 0.5mm depth per pass with insert grade IC928", "source": "jm_die", "confidence": 0.95 }
+              ]
+            },
+            {
+              "id": "radial_depth",
+              "name": "Radial Depth / Stepover",
+              "category": "Depth",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 66, "constraints": { "min": 10, "max": 100, "step": 5 } },
+              "tribal_tips": [
+                { "id": "hm-2d-face-tip-004", "text": "66% stepover for balance of MRR and insert life", "source": "research", "confidence": 0.85 }
+              ]
+            },
+            {
+              "id": "cutting_direction",
+              "name": "Cutting Direction",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["climb", "conventional", "both"] }, "default_value": "climb" },
+              "tribal_tips": [
+                { "id": "hm-2d-face-tip-005", "text": "Always climb mill on CNC - better finish, longer tool life", "source": "shop_floor", "confidence": 0.98 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2d_face_strategy",
+          "name": "Machining Strategy",
+          "type": "modal",
+          "dialog_purpose": "Configure toolpath pattern and approach",
+          "parameters": [
+            {
+              "id": "pattern",
+              "name": "Cut Pattern",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["unidirectional", "bidirectional", "spiral_in", "spiral_out"] }, "default_value": "unidirectional" }
+            },
+            {
+              "id": "approach_type",
+              "name": "Approach Type",
+              "category": "Entry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["vertical", "ramp", "helix", "arc"] }, "default_value": "vertical" }
+            },
+            {
+              "id": "ramp_angle",
+              "name": "Ramp Angle",
+              "category": "Entry",
+              "value": { "type": "angle", "unit": "deg", "default_value": 3, "constraints": { "min": 0.5, "max": 45, "step": 0.5, "depends_on": ["approach_type"] } },
+              "tribal_tips": [
+                { "id": "hm-2d-face-tip-006", "text": "3 degree ramp for tool steels, 5 degree for aluminum", "source": "pdf", "confidence": 0.87 }
+              ]
+            },
+            {
+              "id": "stock_allowance",
+              "name": "Stock Allowance",
+              "category": "Allowance",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": 0, "max": 5, "step": 0.05 } }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["face", "stock"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 5,
+      "output_artifacts": ["toolpath", "nc_code", "cycle_time"]
+    },
+    {
+      "id": "2d_pocket_milling",
+      "name": "Pocket Milling",
+      "operation_class": "pocket_milling",
+      "dialogs": [
+        {
+          "id": "2d_pocket_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 12, "constraints": { "min": 1, "max": 50, "step": 0.5 } },
+              "tribal_tips": [
+                { "id": "hm-2d-pocket-tip-001", "text": "Use 60-80% of smallest pocket corner radius for good finish", "source": "shop_floor", "confidence": 0.93 }
+              ]
+            },
+            {
+              "id": "flute_count",
+              "name": "Number of Flutes",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 4, "constraints": { "min": 2, "max": 8 } },
+              "tribal_tips": [
+                { "id": "hm-2d-pocket-tip-002", "text": "3-flute for aluminum (chip evacuation), 4-flute for steel", "source": "expert", "confidence": 0.95 }
+              ]
+            },
+            {
+              "id": "helix_angle",
+              "name": "Helix Angle",
+              "category": "Tool Geometry",
+              "value": { "type": "angle", "unit": "deg", "default_value": 30, "constraints": { "min": 15, "max": 45 } }
+            },
+            {
+              "id": "flute_length",
+              "name": "Flute Length",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 30, "constraints": { "min": 5, "max": 150 } }
+            }
+          ]
+        },
+        {
+          "id": "2d_pocket_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 6000, "constraints": { "min": 100, "max": 24000 } },
+              "physics_links": [{ "formula_id": "CUTTING_SPEED", "role": "output" }]
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 2400, "constraints": { "min": 50, "max": 15000 } }
+            },
+            {
+              "id": "plunge_feed",
+              "name": "Plunge Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 500, "constraints": { "min": 10, "max": 2000 } },
+              "tribal_tips": [
+                { "id": "hm-2d-pocket-tip-003", "text": "Plunge at 20-25% of cutting feed for endmills", "source": "pdf", "confidence": 0.90 }
+              ]
+            },
+            {
+              "id": "axial_depth",
+              "name": "Depth per Pass",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 5, "constraints": { "min": 0.1, "max": 50 } },
+              "physics_links": [{ "formula_id": "STABILITY_LOBE", "role": "input" }]
+            },
+            {
+              "id": "radial_stepover",
+              "name": "Stepover",
+              "category": "Depth",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 50, "constraints": { "min": 5, "max": 90 } },
+              "tribal_tips": [
+                { "id": "hm-2d-pocket-tip-004", "text": "Trochoidal pocketing: use 10-15% stepover with full depth engagement", "source": "research", "confidence": 0.88 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2d_pocket_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "cut_pattern",
+              "name": "Cut Pattern",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["contour_parallel", "spiral", "zigzag", "hsm_trochoidal", "plunge_rough"] }, "default_value": "contour_parallel" },
+              "tribal_tips": [
+                { "id": "hm-2d-pocket-tip-005", "text": "HSM trochoidal for hardened steels - constant chip load, less heat", "source": "expert", "confidence": 0.94 }
+              ]
+            },
+            {
+              "id": "entry_method",
+              "name": "Entry Method",
+              "category": "Entry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ramp", "helix", "plunge", "predrill"] }, "default_value": "helix" }
+            },
+            {
+              "id": "helix_diameter",
+              "name": "Helix Diameter",
+              "category": "Entry",
+              "value": { "type": "percentage", "unit": "percent", "default_value": 80, "constraints": { "min": 50, "max": 100, "depends_on": ["entry_method"] } }
+            },
+            {
+              "id": "helix_pitch",
+              "name": "Helix Pitch",
+              "category": "Entry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 2, "constraints": { "min": 0.5, "max": 10, "depends_on": ["entry_method"] } },
+              "tribal_tips": [
+                { "id": "hm-2d-pocket-tip-006", "text": "Helix pitch = 1.5x axial depth for smooth entry", "source": "pdf", "confidence": 0.86 }
+              ]
+            },
+            {
+              "id": "corner_treatment",
+              "name": "Corner Treatment",
+              "category": "Corners",
+              "value": { "type": "enum", "constraints": { "enum_values": ["none", "arc", "loop", "trochoidal"] }, "default_value": "arc" }
+            },
+            {
+              "id": "floor_allowance",
+              "name": "Floor Stock Allowance",
+              "category": "Allowance",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.2, "constraints": { "min": 0, "max": 2 } }
+            },
+            {
+              "id": "wall_allowance",
+              "name": "Wall Stock Allowance",
+              "category": "Allowance",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.2, "constraints": { "min": 0, "max": 2 } }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["pocket"],
+      "machine_requirements": ["3axis", "4axis", "5axis"],
+      "typical_sequence_position": 20,
+      "prerequisite_operations": ["face_milling"],
+      "output_artifacts": ["toolpath", "nc_code", "stock_model", "cycle_time"]
+    },
+    {
+      "id": "2d_contour_milling",
+      "name": "Contour Milling",
+      "operation_class": "contour_milling",
+      "dialogs": [
+        {
+          "id": "2d_contour_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 10, "constraints": { "min": 1, "max": 50 } }
+            },
+            {
+              "id": "flute_count",
+              "name": "Number of Flutes",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 4, "constraints": { "min": 2, "max": 8 } }
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": 0, "max": 5 } }
+            }
+          ]
+        },
+        {
+          "id": "2d_contour_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 5000, "constraints": { "min": 100, "max": 24000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 2000, "constraints": { "min": 50, "max": 12000 } }
+            },
+            {
+              "id": "axial_depth",
+              "name": "Depth per Pass",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 4, "constraints": { "min": 0.1, "max": 30 } }
+            },
+            {
+              "id": "total_depth",
+              "name": "Total Depth",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "constraints": { "min": 0.1, "max": 200 } }
+            }
+          ]
+        },
+        {
+          "id": "2d_contour_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "cut_side",
+              "name": "Cut Side",
+              "category": "Geometry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["left", "right", "on"] }, "default_value": "left" }
+            },
+            {
+              "id": "compensation",
+              "name": "Tool Compensation",
+              "category": "Compensation",
+              "value": { "type": "enum", "constraints": { "enum_values": ["computer", "controller", "none"] }, "default_value": "computer" },
+              "tribal_tips": [
+                { "id": "hm-2d-contour-tip-001", "text": "Use controller comp (G41/G42) for wear adjustment flexibility", "source": "shop_floor", "confidence": 0.91 }
+              ]
+            },
+            {
+              "id": "lead_in_type",
+              "name": "Lead-In Type",
+              "category": "Entry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["line", "arc", "tangent", "none"] }, "default_value": "arc" }
+            },
+            {
+              "id": "lead_in_distance",
+              "name": "Lead-In Distance",
+              "category": "Entry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 5, "constraints": { "min": 0, "max": 50, "depends_on": ["lead_in_type"] } }
+            },
+            {
+              "id": "lead_out_type",
+              "name": "Lead-Out Type",
+              "category": "Exit",
+              "value": { "type": "enum", "constraints": { "enum_values": ["line", "arc", "tangent", "none"] }, "default_value": "arc" }
+            },
+            {
+              "id": "overlap",
+              "name": "Overlap Distance",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 2, "constraints": { "min": 0, "max": 20 } },
+              "tribal_tips": [
+                { "id": "hm-2d-contour-tip-002", "text": "2mm overlap minimum to avoid witness line at entry point", "source": "jm_die", "confidence": 0.94 }
+              ]
+            },
+            {
+              "id": "spring_passes",
+              "name": "Spring Passes",
+              "category": "Finishing",
+              "value": { "type": "number", "default_value": 0, "constraints": { "min": 0, "max": 5 } },
+              "tribal_tips": [
+                { "id": "hm-2d-contour-tip-003", "text": "1-2 spring passes for tight tolerance OD work (<0.01mm)", "source": "jm_die", "confidence": 0.96 }
+              ]
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["contour"],
+      "machine_requirements": ["3axis", "4axis", "5axis"],
+      "typical_sequence_position": 30,
+      "output_artifacts": ["toolpath", "nc_code", "cycle_time"]
+    },
+    {
+      "id": "2d_slot_milling",
+      "name": "Slot Milling",
+      "operation_class": "slot_milling",
+      "dialogs": [
+        {
+          "id": "2d_slot_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 10, "constraints": { "min": 1, "max": 50 } },
+              "tribal_tips": [
+                { "id": "hm-2d-slot-tip-001", "text": "Use tool slightly smaller than slot width for finish pass flexibility", "source": "shop_floor", "confidence": 0.87 }
+              ]
+            },
+            {
+              "id": "flute_count",
+              "name": "Number of Flutes",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 2, "constraints": { "min": 2, "max": 6 } },
+              "tribal_tips": [
+                { "id": "hm-2d-slot-tip-002", "text": "2-flute for slots - maximum chip clearance in confined space", "source": "expert", "confidence": 0.95 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2d_slot_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 4000, "constraints": { "min": 100, "max": 20000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 1000, "constraints": { "min": 20, "max": 8000 } },
+              "tribal_tips": [
+                { "id": "hm-2d-slot-tip-003", "text": "Reduce feed 30-40% for full-width slotting vs side milling", "source": "pdf", "confidence": 0.92 }
+              ]
+            },
+            {
+              "id": "axial_depth",
+              "name": "Depth per Pass",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 3, "constraints": { "min": 0.1, "max": 20 } }
+            }
+          ]
+        },
+        {
+          "id": "2d_slot_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "entry_method",
+              "name": "Entry Method",
+              "category": "Entry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["ramp", "helix", "plunge"] }, "default_value": "ramp" }
+            },
+            {
+              "id": "ramp_angle",
+              "name": "Ramp Angle",
+              "category": "Entry",
+              "value": { "type": "angle", "unit": "deg", "default_value": 2, "constraints": { "min": 0.5, "max": 15 } }
+            },
+            {
+              "id": "cut_direction",
+              "name": "Cut Direction",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["unidirectional", "bidirectional"] }, "default_value": "unidirectional" }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["slot"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 40,
+      "output_artifacts": ["toolpath", "nc_code", "cycle_time"]
+    },
+    {
+      "id": "2d_thread_milling",
+      "name": "Thread Milling",
+      "operation_class": "thread_milling",
+      "dialogs": [
+        {
+          "id": "2d_thread_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Shank Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 8, "constraints": { "min": 2, "max": 32 } }
+            },
+            {
+              "id": "thread_pitch",
+              "name": "Thread Pitch",
+              "category": "Thread",
+              "value": { "type": "distance", "unit": "mm", "default_value": 1.5, "constraints": { "min": 0.25, "max": 6 } }
+            },
+            {
+              "id": "teeth_count",
+              "name": "Number of Teeth",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 3, "constraints": { "min": 1, "max": 8 } },
+              "tribal_tips": [
+                { "id": "hm-2d-thread-tip-001", "text": "Single-tooth for interrupted cuts, multi-tooth for production speed", "source": "pdf", "confidence": 0.90 }
+              ]
+            },
+            {
+              "id": "thread_form",
+              "name": "Thread Form",
+              "category": "Thread",
+              "value": { "type": "enum", "constraints": { "enum_values": ["metric", "unc", "unf", "bsp", "npt", "acme", "buttress"] }, "default_value": "metric" }
+            }
+          ]
+        },
+        {
+          "id": "2d_thread_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 3000, "constraints": { "min": 100, "max": 15000 } }
+            },
+            {
+              "id": "feed_per_tooth",
+              "name": "Feed per Tooth",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_tooth", "default_value": 0.08, "constraints": { "min": 0.01, "max": 0.3 } },
+              "physics_links": [{ "formula_id": "THREAD_FORCE", "role": "input" }]
+            },
+            {
+              "id": "radial_passes",
+              "name": "Radial Passes",
+              "category": "Strategy",
+              "value": { "type": "number", "default_value": 1, "constraints": { "min": 1, "max": 5 } },
+              "tribal_tips": [
+                { "id": "hm-2d-thread-tip-002", "text": "Multiple radial passes for hardened materials - prevents tool breakage", "source": "jm_die", "confidence": 0.93 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2d_thread_strategy",
+          "name": "Strategy",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "thread_direction",
+              "name": "Thread Direction",
+              "category": "Thread",
+              "value": { "type": "enum", "constraints": { "enum_values": ["internal", "external"] }, "default_value": "internal" }
+            },
+            {
+              "id": "helix_direction",
+              "name": "Helix Direction",
+              "category": "Strategy",
+              "value": { "type": "enum", "constraints": { "enum_values": ["cw", "ccw"] }, "default_value": "ccw" },
+              "tribal_tips": [
+                { "id": "hm-2d-thread-tip-003", "text": "CCW helix for right-hand thread with climb milling", "source": "expert", "confidence": 0.97 }
+              ]
+            },
+            {
+              "id": "entry_type",
+              "name": "Entry Type",
+              "category": "Entry",
+              "value": { "type": "enum", "constraints": { "enum_values": ["radial", "tangent_arc"] }, "default_value": "tangent_arc" }
+            },
+            {
+              "id": "chamfer_threads",
+              "name": "Chamfer Start",
+              "category": "Thread",
+              "value": { "type": "boolean", "default_value": true }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["hole_threaded"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 50,
+      "prerequisite_operations": ["drilling"],
+      "output_artifacts": ["toolpath", "nc_code"]
+    },
+    {
+      "id": "2d_chamfer_milling",
+      "name": "Chamfer Milling",
+      "operation_class": "contour_milling",
+      "dialogs": [
+        {
+          "id": "2d_chamfer_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 12, "constraints": { "min": 3, "max": 50 } }
+            },
+            {
+              "id": "chamfer_angle",
+              "name": "Chamfer Angle",
+              "category": "Tool Geometry",
+              "value": { "type": "angle", "unit": "deg", "default_value": 45, "constraints": { "min": 15, "max": 90, "step": 5 } }
+            },
+            {
+              "id": "tip_diameter",
+              "name": "Tip Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0, "constraints": { "min": 0, "max": 20 } }
+            }
+          ]
+        },
+        {
+          "id": "2d_chamfer_cutting",
+          "name": "Cutting Parameters",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "spindle_speed",
+              "name": "Spindle Speed",
+              "category": "Speed",
+              "value": { "type": "number", "unit": "rpm", "default_value": 4000, "constraints": { "min": 100, "max": 20000 } }
+            },
+            {
+              "id": "feed_rate",
+              "name": "Feed Rate",
+              "category": "Feed",
+              "value": { "type": "number", "unit": "mm_per_min", "default_value": 1500, "constraints": { "min": 50, "max": 6000 } }
+            },
+            {
+              "id": "chamfer_width",
+              "name": "Chamfer Width",
+              "category": "Depth",
+              "value": { "type": "distance", "unit": "mm", "default_value": 1.0, "constraints": { "min": 0.1, "max": 10 } }
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["contour", "face"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 70,
+      "output_artifacts": ["toolpath", "nc_code"]
+    },
+    {
+      "id": "2d_rest_machining",
+      "name": "Rest Machining",
+      "operation_class": "pocket_milling",
+      "dialogs": [
+        {
+          "id": "2d_rest_tool",
+          "name": "Tool Settings",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "tool_diameter",
+              "name": "Diameter",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 6, "constraints": { "min": 0.5, "max": 25 } },
+              "tribal_tips": [
+                { "id": "hm-2d-rest-tip-001", "text": "Rest tool should be 50-75% of previous tool diameter", "source": "pdf", "confidence": 0.88 }
+              ]
+            },
+            {
+              "id": "flute_count",
+              "name": "Number of Flutes",
+              "category": "Tool Geometry",
+              "value": { "type": "number", "default_value": 4, "constraints": { "min": 2, "max": 8 } }
+            },
+            {
+              "id": "corner_radius",
+              "name": "Corner Radius",
+              "category": "Tool Geometry",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.5, "constraints": { "min": 0, "max": 3 } }
+            }
+          ]
+        },
+        {
+          "id": "2d_rest_strategy",
+          "name": "Rest Material Detection",
+          "type": "modal",
+          "parameters": [
+            {
+              "id": "reference_tool_diameter",
+              "name": "Reference Tool Diameter",
+              "category": "Reference",
+              "value": { "type": "distance", "unit": "mm", "constraints": { "min": 1, "max": 100 } },
+              "description": "Diameter of the tool used in previous operation"
+            },
+            {
+              "id": "stock_model_source",
+              "name": "Stock Model Source",
+              "category": "Reference",
+              "value": { "type": "enum", "constraints": { "enum_values": ["previous_operation", "3d_model", "manual"] }, "default_value": "previous_operation" }
+            },
+            {
+              "id": "rest_detection_tolerance",
+              "name": "Detection Tolerance",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 0.1, "constraints": { "min": 0.01, "max": 1 } }
+            },
+            {
+              "id": "minimum_rest_area",
+              "name": "Minimum Rest Area",
+              "category": "Strategy",
+              "value": { "type": "distance", "unit": "mm", "default_value": 1, "constraints": { "min": 0.1, "max": 10 } },
+              "tribal_tips": [
+                { "id": "hm-2d-rest-tip-002", "text": "Set min area > tool radius to avoid air cutting on insignificant corners", "source": "shop_floor", "confidence": 0.91 }
+              ]
+            }
+          ]
+        }
+      ],
+      "geometry_requirements": ["pocket", "stock"],
+      "machine_requirements": ["3axis", "5axis"],
+      "typical_sequence_position": 25,
+      "prerequisite_operations": ["pocket_milling"],
+      "output_artifacts": ["toolpath", "nc_code", "stock_model"]
+    }
+  ],
+  "statistics": {
+    "total_menus": 8,
+    "total_dialogs": 22,
+    "total_parameters": 88,
+    "total_tribal_tips": 28,
+    "coverage_percent": 85
+  }
+}

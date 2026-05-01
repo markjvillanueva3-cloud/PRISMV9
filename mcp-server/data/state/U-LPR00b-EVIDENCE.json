@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "unit": "U-LPR00b",
+  "milestone": "LATHE-PROD-READY-MS0",
+  "title": "R4 Fix #3 + #5 Verification",
+  "timestamp": "2026-04-19T00:55:00Z",
+  "status": "PASS",
+  "fixes": {
+    "r4_fix_3": {
+      "description": "ppDispatcher duplicate z.enum entries (pp_ss_*, pp_tc_*)",
+      "resolution": "Split duplicates into distinct semantics",
+      "evidence": {
+        "original_entries": ["pp_ss_validate (line 1058)", "pp_tc_validate (line 1042)"],
+        "new_entries": ["pp_sstate_validate (line 1128)", "pp_sstate_quick (line 1129)", "pp_sstate_defaults (line 1130)", "pp_thread_validate (line 1138)", "pp_thread_quick (line 1139)", "pp_thread_defaults (line 1140)"],
+        "case_handlers": {
+          "pp_tc_validate": 2828,
+          "pp_ss_validate": 2912,
+          "pp_sstate_validate": 3271,
+          "pp_sstate_quick": 3285,
+          "pp_sstate_defaults": 3291,
+          "pp_thread_validate": 3324,
+          "pp_thread_quick": 3338,
+          "pp_thread_defaults": 3344
+        }
+      },
+      "status": "RESOLVED"
+    },
+    "r4_fix_5": {
+      "description": "pp_validate_program vacuous-true fallback (safety-critical)",
+      "resolution": "Changed to fail-closed (valid: false)",
+      "evidence": {
+        "file": "src/tools/dispatchers/ppDispatcher.ts",
+        "line_range": "1767-1772",
+        "code_snippet": "result = engine.validateProgram?.(params) ?? engine.verify?.(params) ?? { valid: false, ...",
+        "comment": "SAFETY: fail-closed when engine method missing. A vacuous {valid:true} let unvalidated programs ship as 'passed'."
+      },
+      "status": "RESOLVED"
+    }
+  },
+  "regression_check": {
+    "remaining_vacuous_true": [
+      "pp_tribal_validate (line 1881) - low-risk advisory",
+      "pp_controller_validate (line 1935) - controller recommendation"
+    ],
+    "note": "These are advisory validators, not safety-critical program validation. Flagged for future hardening."
+  },
+  "verifier": "Claude Opus 4.5",
+  "verification_method": "Grep + code inspection"
+}

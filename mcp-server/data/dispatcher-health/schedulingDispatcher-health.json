@@ -1,0 +1,116 @@
+{
+  "dispatcherName": "schedulingDispatcher",
+  "dispatcherFile": "H:\\PRISM\\mcp-server\\src\\tools\\dispatchers\\schedulingDispatcher.ts",
+  "timestamp": "2026-04-19T03:20:31.877Z",
+  "totalActions": 8,
+  "healthyActions": 0,
+  "coverage": {
+    "caseCoverage": 1,
+    "schemaCoverage": 0,
+    "testCoverage": 0,
+    "skillCoverage": 0.25,
+    "smokeTestCoverage": 0
+  },
+  "actions": [
+    {
+      "action": "job_schedule",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": true,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "machine_assign",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": true,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "capacity_plan",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "priority_queue",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "bottleneck_find",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "lead_time_estimate",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "due_date_track",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "resource_balance",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    }
+  ],
+  "gaps": {
+    "missingCases": [],
+    "missingSchemas": [
+      "job_schedule",
+      "machine_assign",
+      "capacity_plan",
+      "priority_queue",
+      "bottleneck_find",
+      "lead_time_estimate",
+      "due_date_track",
+      "resource_balance"
+    ],
+    "missingTests": [
+      "job_schedule",
+      "machine_assign",
+      "capacity_plan",
+      "priority_queue",
+      "bottleneck_find",
+      "lead_time_estimate",
+      "due_date_track",
+      "resource_balance"
+    ],
+    "missingSkills": [
+      "capacity_plan",
+      "priority_queue",
+      "bottleneck_find",
+      "lead_time_estimate",
+      "due_date_track",
+      "resource_balance"
+    ],
+    "smokeTestFailures": []
+  },
+  "recommendations": [
+    "Add schemas for: job_schedule, machine_assign, capacity_plan, priority_queue, bottleneck_find (+3 more)",
+    "Test coverage 0% is below 50% threshold"
+  ]
+}

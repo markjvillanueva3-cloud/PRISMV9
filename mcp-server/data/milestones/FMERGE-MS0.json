@@ -17,7 +17,10 @@
   "published_artifacts": [
     "../../../state/shared/FMERGE-MS0-CANONICAL-FRONTEND-AUDIT.md"
   ],
-  "downstream_consumers": ["APPW-MS8", "FMERGE-MS1"],
+  "downstream_consumers": [
+    "APPW-MS8",
+    "FMERGE-MS1"
+  ],
   "queue_materialization_required": true,
   "decision_record": {
     "canonical_target": "mcp-server/web",
@@ -67,6 +70,17 @@
           "exit_criteria": [
             "A diff inventory exists for pages, components, hooks, contexts, API modules, and build/config surfaces.",
             "The overlap and app-unique surfaces are explicitly counted and named."
+          ],
+          "exit_conditions": [
+            "A diff inventory exists for pages, components, hooks, contexts, API modules, and build/config surfaces.",
+            "The overlap and app-unique surfaces are explicitly counted and named.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -78,6 +92,17 @@
           "exit_criteria": [
             "Exactly one canonical frontend target is selected.",
             "The decision includes rationale and high-level migration implications."
+          ],
+          "exit_conditions": [
+            "Exactly one canonical frontend target is selected.",
+            "The decision includes rationale and high-level migration implications.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -89,9 +114,95 @@
           "exit_criteria": [
             "A file-by-file merge checklist exists.",
             "API compatibility notes and downstream APPW impacts are captured."
+          ],
+          "exit_conditions": [
+            "A file-by-file merge checklist exists.",
+            "API compatibility notes and downstream APPW impacts are captured.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
     }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "fmerge-ms0-gate",
+    "mcp_action": "prism_fmerge:fmerge_ms0_run",
+    "skill_command": "/fmerge-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "fmerge-ms0-gate"
+    ],
+    "new_actions": [
+      "fmerge_ms0_run"
+    ],
+    "new_skills": [
+      "/fmerge-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
   ]
 }

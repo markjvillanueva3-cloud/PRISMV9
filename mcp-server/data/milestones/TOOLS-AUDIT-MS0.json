@@ -1,0 +1,446 @@
+{
+  "id": "TOOLS-AUDIT-MS0",
+  "version": "1.0.0",
+  "title": "Tools Audit — 5 High-Confidence Wins",
+  "brief": "Execute only the 5 evidence-backed migrations from TOOLS-AUDIT-2026-05-01.md after applying the conflict-matrix corrections from TOOLS-AUDIT-2026-05-01-CONFLICTS.md. Defers the 15 lower-confidence recommendations until usage telemetry justifies them. Targets ~3 working days, addresses real incidents (commit 6477d7cd5 handoff clobber, Ollama MCP gap, advisory-hook token leak).",
+  "created_at": "2026-05-01T16:14:00Z",
+  "created_by": "claude-8f04ae6a",
+  "track": "TOOLS-AUDIT",
+  "track_name": "Tools Audit Cleanup",
+  "status": "not_started",
+  "input_docs": [
+    "state/shared/TOOLS-AUDIT-2026-05-01.md",
+    "state/shared/TOOLS-AUDIT-2026-05-01-CONFLICTS.md"
+  ],
+  "blocked_by_decisions": [
+    "Decision 1: prism_ollama as new dispatcher? (recommended: yes)",
+    "Decision 2: per-hook policy for advisory→MCP vs soften (recommended: convert if fires every prompt; soften if fires only on Edit/Write)",
+    "Decision 3: Codex-side commitment to file-fallback for ≥90 days (required to start U05)",
+    "Decision 4: omega tier default after activation — DEFERRED to TOOLS-AUDIT-MS1 (not in this milestone)",
+    "Decision 7: quarterly archive cadence for bootstrap debt (recommended: yes)"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Foundation & Pure Cleanup (parallelizable, no MCP changes)",
+      "description": "Three units that can run in parallel from one fork worktree. No new MCP actions; no changes to live system behavior. Risk: zero after per-pair-diff verification in U02.",
+      "sessions": "1",
+      "primary_role": "R1",
+      "primary_model": "sonnet-4.6",
+      "scrutiny_checkpoint": false,
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Archive 74 _completed_utilities scripts to .archive/",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Cleanup Engineer",
+          "model": "sonnet-4.6",
+          "effort": 15,
+          "rationale": "Trivial file movement; zero live references confirmed via grep (only appears in .sessions/ transcripts). Audit's 'Risk: None' verified by conflict-matrix evidence collection.",
+          "tools": [
+            { "tool": "Bash", "action": "git mv", "params_hint": "preserve history" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": ["asset-deletion-block (will check; expected pass since target dir is non-asset)"],
+          "dependencies": [],
+          "entry_conditions": [
+            "Working tree clean OR explicitly carrying TOOLS-AUDIT branch",
+            "Verified zero references via: grep -r '_completed_utilities' --exclude-dir=.sessions --exclude-dir=node_modules"
+          ],
+          "exit_conditions": [
+            "All 74 files moved to .archive/scripts/completed-utilities/2026-05-01/",
+            ".gitkeep added to original dirs (preserve mount point if hooks reference path)",
+            "git status shows 74 renames (not deletions)",
+            "npm run build:fast passes",
+            "no references in package.json scripts block"
+          ],
+          "rollback": "git mv .archive/scripts/completed-utilities/2026-05-01/* scripts/_completed_utilities/ ; git mv .archive/scripts/completed-utilities/2026-05-01/* mcp-server/scripts/_completed_utilities/",
+          "steps": [
+            { "number": 1, "instruction": "List current contents of both _completed_utilities folders", "tool_calls": ["Bash: ls scripts/_completed_utilities/ mcp-server/scripts/_completed_utilities/"] },
+            { "number": 2, "instruction": "Verify zero live references", "tool_calls": ["Grep: pattern='_completed_utilities' exclude='.sessions,node_modules'"] },
+            { "number": 3, "instruction": "Create archive target dir with date stamp", "tool_calls": ["Bash: mkdir -p .archive/scripts/completed-utilities/2026-05-01/{root,mcp-server}"] },
+            { "number": 4, "instruction": "git mv files preserving history", "tool_calls": ["Bash: git mv scripts/_completed_utilities/* .archive/scripts/completed-utilities/2026-05-01/root/ ; git mv mcp-server/scripts/_completed_utilities/* .archive/scripts/completed-utilities/2026-05-01/mcp-server/"] },
+            { "number": 5, "instruction": "Verify build still passes", "tool_calls": ["Bash: cd mcp-server && npm run build:fast"] },
+            { "number": 6, "instruction": "Commit with explanatory message", "tool_calls": ["Bash: rtk git commit -m '[TOOLS-AUDIT-MS0]/U01: archive 74 _completed_utilities/ — verified zero live refs'"] }
+          ],
+          "deliverables": [
+            { "path": ".archive/scripts/completed-utilities/2026-05-01/", "type": "data", "description": "Archived bootstrap iterations" }
+          ],
+          "estimated_minutes": 30,
+          "estimated_tokens": 4000,
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U02",
+          "title": "Per-pair diff and dedup byte-identical skills (subset of 84)",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Cleanup Engineer",
+          "model": "sonnet-4.6",
+          "effort": 25,
+          "rationale": "Audit said 'delete 84'; conflict C18 surfaced that some project copies may be milestone-frozen versions. Per-pair diff is mandatory; only delete files that diff returns identical against ~/.claude/commands/ counterpart.",
+          "tools": [
+            { "tool": "Bash", "action": "diff", "params_hint": "exit 0 = identical" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": ["asset-deletion-block"],
+          "dependencies": [],
+          "entry_conditions": [
+            "Working tree clean OR explicitly carrying TOOLS-AUDIT branch",
+            "Decision 7 confirmed: quarterly archive cadence (or rejected with note)"
+          ],
+          "exit_conditions": [
+            "Diff manifest written: state/shared/TOOLS-AUDIT-MS0-skills-diff.md listing identical/divergent pairs",
+            "Identical-pair files deleted from H:/prism/.claude/commands/ ONLY",
+            "Divergent pairs flagged for human review with reason (e.g. 'project copy adds JM Die override')",
+            "git status shows N deletions where N = identical count (likely 60-80 of the 84)",
+            "asset-deletion-block hook passes (skills are not registered assets)"
+          ],
+          "rollback": "git checkout HEAD -- H:/prism/.claude/commands/",
+          "steps": [
+            { "number": 1, "instruction": "Generate pair list", "tool_calls": ["Bash: comm -12 <(ls H:/prism/.claude/commands/ | sort) <(ls C:/Users/wompu/.claude/commands/ | sort)"], "validation": "produces ~84 lines" },
+            { "number": 2, "instruction": "For each pair, run diff and classify", "tool_calls": ["Bash: for f in $pairs; do diff -q H:/prism/.claude/commands/$f C:/Users/wompu/.claude/commands/$f; done > diff-manifest.txt"] },
+            { "number": 3, "instruction": "Write manifest doc with identical/divergent split", "tool_calls": ["Write: state/shared/TOOLS-AUDIT-MS0-skills-diff.md"] },
+            { "number": 4, "instruction": "Delete identical-pair project copies only", "tool_calls": ["Bash: while read f; do rm H:/prism/.claude/commands/$f; done < identical.txt"] },
+            { "number": 5, "instruction": "Verify build + slash command discovery still works", "tool_calls": ["Bash: cd mcp-server && npm run build:fast"] },
+            { "number": 6, "instruction": "Commit", "tool_calls": ["Bash: rtk git commit -m '[TOOLS-AUDIT-MS0]/U02: dedup byte-identical project skills (N deletions; M divergent pairs flagged)'"] }
+          ],
+          "deliverables": [
+            { "path": "state/shared/TOOLS-AUDIT-MS0-skills-diff.md", "type": "doc", "description": "Per-pair diff manifest with disposition", "line_count_est": 250 }
+          ],
+          "estimated_minutes": 60,
+          "estimated_tokens": 8000,
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P0-U03",
+          "title": "Foundation deliverables: HOOK-MIGRATION-DECISIONS.md + action name reservation",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R3",
+          "role_name": "Architect",
+          "model": "opus-4.7",
+          "effort": 40,
+          "rationale": "Conflict C3 says do not do both #4 and #9 for same hook. This unit produces the per-hook decision doc that gates U05/U06. Also reserves dispatcher action names to prevent C19 enum collisions across parallel work.",
+          "tools": [
+            { "tool": "Read", "action": "scan", "params_hint": "H:/.claude/settings.json hook list" },
+            { "tool": "Grep", "action": "search", "params_hint": "fire telemetry per hook in mcp-server/data/state/hook-fire-counts.jsonl" }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "Decision 2 answered: convert-vs-soften discriminator agreed (recommended: convert if fires every prompt; soften if fires only on Edit/Write)",
+            "Read both audit + conflict docs"
+          ],
+          "exit_conditions": [
+            "state/shared/HOOK-MIGRATION-DECISIONS.md committed with per-hook disposition for the 18 advisory hooks",
+            "state/shared/MCP-ACTION-RESERVATIONS.md committed listing names reserved by this milestone (e.g. prism_ollama:offload, prism_orchestrate:bus_post)",
+            "Decision doc cites fire-rate evidence per hook"
+          ],
+          "rollback": "git checkout HEAD -- state/shared/",
+          "steps": [
+            { "number": 1, "instruction": "Read fire telemetry for last 30 days", "tool_calls": ["Read: mcp-server/data/state/hook-fire-counts.jsonl"] },
+            { "number": 2, "instruction": "Tabulate per-hook fire rate per session", "validation": "every advisory hook from audit Top 10 has a measured rate" },
+            { "number": 3, "instruction": "Apply discriminator from Decision 2 to assign convert/soften per hook", "notes": "must explicitly state which axis the hook hit" },
+            { "number": 4, "instruction": "Write HOOK-MIGRATION-DECISIONS.md", "tool_calls": ["Write: state/shared/HOOK-MIGRATION-DECISIONS.md"] },
+            { "number": 5, "instruction": "Write MCP-ACTION-RESERVATIONS.md", "tool_calls": ["Write: state/shared/MCP-ACTION-RESERVATIONS.md"] },
+            { "number": 6, "instruction": "Commit", "tool_calls": ["Bash: rtk git commit -m '[TOOLS-AUDIT-MS0]/U03: hook migration decisions + action name reservations'"] }
+          ],
+          "deliverables": [
+            { "path": "state/shared/HOOK-MIGRATION-DECISIONS.md", "type": "doc", "description": "Per-hook disposition (convert/soften/keep) with fire-rate evidence", "line_count_est": 120 },
+            { "path": "state/shared/MCP-ACTION-RESERVATIONS.md", "type": "doc", "description": "Reserved action names for parallel work", "line_count_est": 50 }
+          ],
+          "estimated_minutes": 90,
+          "estimated_tokens": 18000,
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.85,
+        "safety_floor": 0.90,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "U01: archive count = 74 (sum of root + mcp-server)",
+          "U02: identical pairs verified by diff -q (no eyeball checks)",
+          "U03: every advisory hook from audit Top 10 has a fire-rate citation"
+        ]
+      }
+    },
+    {
+      "id": "P1",
+      "title": "MCP Migrations (sequential — fork worktrees mandatory)",
+      "description": "Three migrations that each touch dispatcher action enums + multiple hooks/files. Per conflict C21, MUST run sequentially in fork worktrees, NOT in parallel chats — MCP server hot-reloads collide on action enum drift.",
+      "sessions": "2",
+      "primary_role": "R3",
+      "primary_model": "opus-4.7",
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Codex coupling and dual-write completeness in U05",
+        "telemetry queryability in U04",
+        "no auto-fire hook removed before MCP equivalent confirmed by 7-day soak in U06"
+      ],
+      "units": [
+        {
+          "id": "P1-U04",
+          "title": "Create prism_ollama dispatcher (collapses 9 skills + queryable telemetry)",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Architect + TS Engineer",
+          "model": "opus-4.7",
+          "effort": 60,
+          "rationale": "Highest-leverage MCP gap — 5 engines + 9 skills + 13 hooks but zero MCP actions. Collapses 9 skills into 6 dispatcher actions. Resolves C4 (engine overlap) via duplicationGuardEngine check before wiring.",
+          "tools": [
+            { "tool": "prism_dev", "action": "duplication_guard_check", "params_hint": "before creating dispatcher" },
+            { "tool": "prism_dev", "action": "wiring_verify", "params_hint": "after wiring" }
+          ],
+          "skills": ["/dedup", "/forge-triple", "/scrutinize", "/verify-loop"],
+          "scripts": [],
+          "hooks": ["duplication-hard-block", "stop_on_unwired_assets", "physics-canonical-constants-guard"],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": [
+            "Decision 1 answered: prism_ollama as new dispatcher (NOT actions under prism_ai)",
+            "MCP-ACTION-RESERVATIONS.md confirms names: offload, stats_get, health_check, model_load, lora_deploy, embed",
+            "duplicationGuardEngine.mustCheckBeforeCreating({assetType: 'dispatcher', proposedName: 'prism_ollama'}) returns shouldProceed=true",
+            "Fork worktree: git worktree add ../prism-ollama-mcp -b work/tools-audit-ms0-u04",
+            "OllamaClientEngine + OllamaTaskOffloaderEngine reviewed for which becomes canonical (audit suggests OllamaTaskOffloaderEngine)"
+          ],
+          "exit_conditions": [
+            "mcp-server/src/tools/dispatchers/ollamaDispatcher.ts created with z.enum of 6 actions",
+            "mcp-server/src/schemas/ollamaActionSchemas.ts created with Zod schemas for each action",
+            "Dispatcher wired in mcp-server/src/server.ts (or central registry)",
+            "Round-trip E2E test: __tests__/ollamaDispatcher.test.ts invokes through dispatcher (not engine singleton)",
+            "Coverage: happy path + 3 failure modes (Ollama unreachable, model not loaded, oversized task) + 2 adversarial (NaN-ish output, prompt injection)",
+            "9 /ollama-* skills updated to delegate to MCP via thin shell wrapper",
+            "stats_get returns same fields as ollama-offload-stats.json",
+            "npm run build (full) passes",
+            "PRISM-INVENTORY-LATEST.md regenerated; dispatcher count incremented by 1; action count incremented by 6"
+          ],
+          "rollback": "git worktree remove ../prism-ollama-mcp ; reset upstream branch",
+          "steps": [
+            { "number": 1, "instruction": "Run duplication guard check", "tool_calls": ["prism_dev:duplication_guard_check"] },
+            { "number": 2, "instruction": "Create fork worktree per CLAUDE.md conflict-fork rule", "tool_calls": ["Bash: git worktree add ../prism-ollama-mcp -b work/tools-audit-ms0-u04"] },
+            { "number": 3, "instruction": "Read existing OllamaClientEngine + OllamaTaskOffloaderEngine to identify canonical caller", "tool_calls": ["Read: mcp-server/src/engines/OllamaTaskOffloaderEngine.ts"] },
+            { "number": 4, "instruction": "Write ollamaActionSchemas.ts with Zod schemas (6 schemas + describe() per field)", "tool_calls": ["Write: mcp-server/src/schemas/ollamaActionSchemas.ts"] },
+            { "number": 5, "instruction": "Write ollamaDispatcher.ts wiring to canonical engine, lazy import, action enum exact match", "tool_calls": ["Write: mcp-server/src/tools/dispatchers/ollamaDispatcher.ts"] },
+            { "number": 6, "instruction": "Wire dispatcher into central registry", "tool_calls": ["Edit: mcp-server/src/server.ts (or registry file)"] },
+            { "number": 7, "instruction": "Write E2E test invoking through dispatcher", "tool_calls": ["Write: mcp-server/src/__tests__/ollamaDispatcher.test.ts"], "validation": "happy path + 5 edge cases (3 failure + 2 adversarial)" },
+            { "number": 8, "instruction": "Update 9 /ollama-* skills to delegate to MCP", "tool_calls": ["MultiEdit: H:/.claude/commands/ollama-*.md"] },
+            { "number": 9, "instruction": "Build + test", "tool_calls": ["Bash: cd mcp-server && rtk vitest run ollamaDispatcher && npm run build"] },
+            { "number": 10, "instruction": "Commit + scrutinize", "tool_calls": ["Bash: rtk git commit -m '[TOOLS-AUDIT-MS0]/U04: create prism_ollama dispatcher (6 actions, 5 engines unified)'", "Skill: /scrutinize"] }
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/tools/dispatchers/ollamaDispatcher.ts", "type": "source", "description": "6-action dispatcher", "line_count_est": 250, "index_in_master": "+1 dispatcher" },
+            { "path": "mcp-server/src/schemas/ollamaActionSchemas.ts", "type": "schema", "description": "Zod schemas for 6 actions", "line_count_est": 180 },
+            { "path": "mcp-server/src/__tests__/ollamaDispatcher.test.ts", "type": "test", "description": "Round-trip E2E + 5 edge cases", "line_count_est": 220 }
+          ],
+          "estimated_minutes": 360,
+          "estimated_tokens": 80000,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U05",
+          "title": "Chat-bus dual-write phase 1 (MCP + file-fallback; resolves handoff-clobber class)",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "Architect + Concurrency Specialist",
+          "model": "opus-4.7",
+          "effort": 75,
+          "rationale": "Targets the actual incident from commit 6477d7cd5 (cross-worktree handoff clobbering). Per conflict C5, C6, C7, C24: dual-write phase MANDATORY — Codex still uses file-only, 5 hooks read bus directory directly, MCP server is single-process risk.",
+          "tools": [
+            { "tool": "prism_dev", "action": "wiring_verify", "params_hint": "all 5 reading hooks updated" }
+          ],
+          "skills": ["/scrutinize"],
+          "scripts": [],
+          "hooks": ["chat-bus-inject", "file-claim-guard", "file-claim-commit-guard", "pre-edit-lane-guard", "cross-chat-directive-detector"],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": [
+            "Decision 3 answered: Codex committed to file-fallback for ≥90 days (or shipping MCP client in same window)",
+            "Action names reserved in MCP-ACTION-RESERVATIONS.md: bus_post, bus_read, claims_register, claims_release, claims_read, presence_heartbeat, presence_list, presence_reap",
+            "Fork worktree: git worktree add ../prism-bus-mcp -b work/tools-audit-ms0-u05",
+            "Multi-chat coordination posted to AGENT_CHAT.md: 'claiming bus migration; no other chat may modify state/shared/chat-bus/ until U05 ships'"
+          ],
+          "exit_conditions": [
+            "8 actions added to existing prism_orchestrate dispatcher (NOT a new dispatcher per conflict C20: codex_delegate not separate)",
+            "Each action writes to BOTH MCP-managed in-memory store AND existing chat-bus files (atomic dual-write)",
+            "5 reading hooks updated to prefer MCP, fall back to file (atomic same-commit update)",
+            "presence_reap implemented as 5-min cron (not hook); stale entries removed automatically",
+            "Idempotency keys on bus_post (suppress dupes; resolves §3.2 'duplicate post' adversarial case)",
+            "Round-trip E2E test: 6-chat simulation × 60 seconds × 1 post/sec each = 360 messages, zero loss vs file-only baseline",
+            "MCP server stays under 50ms p99 on bus_post under simulated load",
+            "Codex side reads file-store and Claude reads MCP — verified by sim test that injects file-only messages and confirms Claude sees them",
+            "Build + tests pass; full PRISM build (npm run build) clean"
+          ],
+          "rollback": "git worktree remove ../prism-bus-mcp ; reset 5 hook files to HEAD ; verify chat-bus files still readable",
+          "steps": [
+            { "number": 1, "instruction": "Read all 5 bus-reading hooks to map current behavior", "tool_calls": ["Read: .claude/hooks/chat-bus-inject.mjs", "Read: .claude/hooks/file-claim-guard.mjs", "Read: .claude/hooks/file-claim-commit-guard.mjs", "Read: .claude/hooks/pre-edit-lane-guard.mjs", "Read: .claude/hooks/cross-chat-directive-detector.mjs"] },
+            { "number": 2, "instruction": "Design BusStore service (in-memory ring buffer + journal + file mirror)", "validation": "service handles: dual-write, idempotency keys, TTL reap, MCP server restart durability via journal" },
+            { "number": 3, "instruction": "Write 8 dispatcher actions on prism_orchestrate", "tool_calls": ["Edit: mcp-server/src/tools/dispatchers/orchestrateDispatcher.ts (add 8 actions to z.enum + schemas)"] },
+            { "number": 4, "instruction": "Implement BusStore service in mcp-server/src/services/BusStore.ts", "tool_calls": ["Write: mcp-server/src/services/BusStore.ts"] },
+            { "number": 5, "instruction": "Update 5 reading hooks to prefer MCP, fall back to file (atomic same-commit)", "tool_calls": ["MultiEdit: 5 hook files"] },
+            { "number": 6, "instruction": "Implement presence_reap cron (mcp-server/src/cron/busReaper.ts; 5-min interval)", "tool_calls": ["Write: mcp-server/src/cron/busReaper.ts"] },
+            { "number": 7, "instruction": "Write 6-chat simulation test (10-min run, 360 messages, zero-loss assertion)", "tool_calls": ["Write: mcp-server/src/__tests__/busDualWrite.test.ts"] },
+            { "number": 8, "instruction": "Latency benchmark: bus_post p99 ≤ 50ms under simulated 24-RPS load", "tool_calls": ["Bash: cd mcp-server && rtk vitest run busDualWrite --reporter=verbose"] },
+            { "number": 9, "instruction": "Build + scrutinize", "tool_calls": ["Bash: npm run build", "Skill: /scrutinize"] },
+            { "number": 10, "instruction": "Commit (this branch will live ≥30 days for soak before D2 phase)", "tool_calls": ["Bash: rtk git commit -m '[TOOLS-AUDIT-MS0]/U05: chat-bus MCP dual-write phase 1 (8 actions on prism_orchestrate; file-fallback retained)'"] }
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/services/BusStore.ts", "type": "source", "description": "Atomic dual-write bus service with TTL reap", "line_count_est": 300 },
+            { "path": "mcp-server/src/cron/busReaper.ts", "type": "source", "description": "5-min stale-presence reaper", "line_count_est": 80 },
+            { "path": "mcp-server/src/__tests__/busDualWrite.test.ts", "type": "test", "description": "6-chat sim, 360-message zero-loss + p99 latency", "line_count_est": 280 },
+            { "path": "mcp-server/src/tools/dispatchers/orchestrateDispatcher.ts", "type": "source", "description": "+8 actions added to existing dispatcher", "line_count_est": 200 }
+          ],
+          "estimated_minutes": 480,
+          "estimated_tokens": 120000,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U06",
+          "title": "Convert top-5 advisory hooks to MCP per 2-phase protocol",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R3",
+          "role_name": "Architect",
+          "model": "opus-4.7",
+          "effort": 50,
+          "rationale": "Saves ~250 tok/prompt across 6 chats × 10 prompts/session = ~15K tok/session reclaimed. Per conflict C2: each hook conversion ships in 2 phases (MCP + softened, then drop). Per C3: do NOT also soften the same hook later.",
+          "tools": [
+            { "tool": "prism_dev", "action": "duplication_guard_check", "params_hint": "before each new MCP action" }
+          ],
+          "skills": ["/scrutinize", "/verify-loop"],
+          "scripts": [],
+          "hooks": ["discipline-expert-inject", "skill-chain-suggest", "ai-system-router-inject", "ai-reasoning-inject", "mcp-route-suggest"],
+          "dependencies": ["P0-U03"],
+          "entry_conditions": [
+            "HOOK-MIGRATION-DECISIONS.md from U03 has explicit 'convert' decision for these 5 hooks (not 'soften')",
+            "MCP-ACTION-RESERVATIONS.md reserves: prism_ai:discipline_check, prism_session:skill_chain_recommend, prism_session:routing_suggest, prism_ai:reasoning_suggest, prism_session:tool_route_best (already exists — verify no conflict)",
+            "Fork worktree: git worktree add ../prism-advisory-mcp -b work/tools-audit-ms0-u06"
+          ],
+          "exit_conditions": [
+            "5 new MCP actions live (or 4 + reuse of existing tool_route_best)",
+            "Each hook softened to fire 1-in-10 events with deprecation note in injected context",
+            "Each MCP action has happy path + 3 failure mode tests + 2 adversarial",
+            "Telemetry: each new action logged to hook-fire-counts.jsonl when invoked",
+            "CLAUDE.md § HOOK INJECTION RESPONSES updated to reference MCP action as canonical replacement (resolves C1)",
+            "knowledge/claude-md/project-hook-injection-responses-*.md updated to match",
+            "Build + tests pass"
+          ],
+          "rollback": "git worktree remove ../prism-advisory-mcp ; CLAUDE.md docs revert; hooks revert to 100% fire rate",
+          "steps": [
+            { "number": 1, "instruction": "Verify HOOK-MIGRATION-DECISIONS.md commits these 5 to 'convert'", "tool_calls": ["Read: state/shared/HOOK-MIGRATION-DECISIONS.md"] },
+            { "number": 2, "instruction": "For each hook: write MCP action schema + impl (5 iterations)", "tool_calls": ["Write: 5 schemas in respective ActionSchemas.ts files"] },
+            { "number": 3, "instruction": "Wire actions to existing engines (PRISMSelfAwarenessEngine for routing/skill_chain; ContextEngine for discipline; etc)", "validation": "no new engines created — wires to existing" },
+            { "number": 4, "instruction": "Update each hook to fire 1-in-10 with deprecation note", "tool_calls": ["MultiEdit: 5 hook files in .claude/hooks/"] },
+            { "number": 5, "instruction": "Update CLAUDE.md and knowledge/claude-md/project-hook-injection-responses-*.md to cite MCP actions", "tool_calls": ["MultiEdit: 2 doc files"] },
+            { "number": 6, "instruction": "Tests for each new MCP action", "tool_calls": ["Write: 5 test files in mcp-server/src/__tests__/"] },
+            { "number": 7, "instruction": "Build + scrutinize + commit", "tool_calls": ["Bash: cd mcp-server && npm run build", "Skill: /scrutinize", "Bash: rtk git commit -m '[TOOLS-AUDIT-MS0]/U06: convert 5 advisory hooks to MCP (1-in-10 softened with deprecation note)'"] }
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/schemas/aiActionSchemas.ts", "type": "schema", "description": "+2 actions: discipline_check, reasoning_suggest", "line_count_est": 80 },
+            { "path": "mcp-server/src/schemas/sessionActionSchemas.ts", "type": "schema", "description": "+2 actions: skill_chain_recommend, routing_suggest", "line_count_est": 80 },
+            { "path": "mcp-server/src/__tests__/advisoryHookMigration.test.ts", "type": "test", "description": "5 actions × 5 cases each", "line_count_est": 350 }
+          ],
+          "estimated_minutes": 360,
+          "estimated_tokens": 80000,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.85,
+        "safety_floor": 0.90,
+        "ralph_required": true,
+        "ralph_grade_floor": "B+",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "U04: prism_ollama dispatcher action count = 6, all wired to existing engines (no new engines created)",
+          "U05: 6-chat sim test shows zero message loss vs file-only baseline; bus_post p99 ≤ 50ms under 24-RPS load",
+          "U05: all 5 reading hooks updated atomically with bus storage migration",
+          "U06: each hook softened to 1-in-10 with deprecation note (not removed; rec #3 deferred to future MS)",
+          "U06: CLAUDE.md + project-hook-injection-responses doc updated in same commit as code",
+          "Codex coupling: confirm Codex side still works against file-fallback (manual smoke test)"
+        ]
+      }
+    }
+  ],
+  "deferred_to_future_milestones": {
+    "TOOLS-AUDIT-MS1": [
+      "rec #7: omega tier shadow-mode (needs Decision 4 + 7-day soak)",
+      "rec #3: formal removal of 11 disabled hooks (needs U06 telemetry showing MCP usage > 0 for 30 days)"
+    ],
+    "TOOLS-AUDIT-MS2": [
+      "rec #8: consolidate 60 claude-md fragments → 5 bundles (re-embeds Qdrant; defer until MS1 stable)",
+      "rec #12: unify 3 CLAUDE-CODEX directives → 1",
+      "rec #17: ENFORCEMENT_GATES.md single source of truth"
+    ],
+    "TOOLS-AUDIT-MS3 (only if telemetry justifies)": [
+      "rec #11: PRISM-COMMANDS-MANIFEST → MCP",
+      "rec #20: SCRIPTS_MANIFEST.json",
+      "rec #14: WikiLintEngine PostToolUse (depends on F1 HNSW which is itself deferred)"
+    ],
+    "deferred_indefinitely": [
+      "rec #10: HNSW wiki index — premature at 722 entries; revisit at ~2K",
+      "rec #13/16: prism_quality, prism_cad — wait for usage telemetry showing demand",
+      "rec #18: codex_delegate — already covered by bus_post(recipient='codex')",
+      "rec #5 SPARC promotion — verify active use first",
+      "rec #19: hook deduplication — verify intent of duplicate registration first",
+      "API surface (ERP, material, scheduling) — no external clients identified"
+    ]
+  },
+  "exit_conditions": [
+    "P0 + P1 gates passed",
+    "75 .archive/ files (74 + manifest)",
+    "1 dispatcher (prism_ollama) + 14 new actions (6 + 8) + 5 advisory MCP actions",
+    "All 5 conflict-matrix critical mitigations applied (dual-write, hook-doc atomic update, per-pair diff verification, 2-phase soften, fork-worktree per migration)",
+    "TOOLS-AUDIT-2026-05-01.md updated with 'P0+P1 status: complete on 2026-05-XX'"
+  ],
+  "rollback_plan": "Each unit has independent rollback. If P1 fails mid-flight, P0 already shipped is durable (just file moves and decisions docs). P1 fork worktrees can be discarded with no impact on main branch.",
+  "tags": [
+    "tools-audit",
+    "cleanup",
+    "mcp-migration",
+    "concurrency-fix",
+    "token-economy"
+  ]
+}

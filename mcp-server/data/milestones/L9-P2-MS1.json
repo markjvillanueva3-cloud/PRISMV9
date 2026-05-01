@@ -77,7 +77,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Three.js Scaffold & Scene Setup — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U02",
@@ -135,7 +142,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Scene Graph API Client & Parser — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U03",
@@ -193,7 +207,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Toolpath Renderer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U04",
@@ -255,7 +276,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Stock Mesh & Tool Assembly — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U05",
@@ -312,7 +340,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Heatmap Overlay — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U06",
@@ -371,7 +406,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Viewer Controls & Toolbar — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U07",
@@ -429,7 +471,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Viewer Page Integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U08",
@@ -489,7 +538,14 @@
           "creates_skill": false,
           "creates_script": false,
           "creates_hook": false,
-          "creates_command": false
+          "creates_command": false,
+          "description": "Viewer Testing — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -611,5 +667,81 @@
     ],
     "improvement_threshold": 0.92
   },
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "l9-p2-ms1-gate",
+    "mcp_action": "prism_l9:l9_p2_ms1_run",
+    "skill_command": "/l9-p2-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "l9-p2-ms1-gate"
+    ],
+    "new_actions": [
+      "l9_p2_ms1_run"
+    ],
+    "new_skills": [
+      "/l9-p2-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Three.js/react-three-fiber 3D viewer: toolpath rendering, stock visualization, tool assembly display, heatmap overlays, camera controls — consuming VisualizationEngine scene graphs.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

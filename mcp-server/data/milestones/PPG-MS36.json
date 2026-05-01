@@ -1,0 +1,118 @@
+{
+  "id": "PPG-MS36",
+  "version": "1.0.0",
+  "title": "PPG-MS36 — Multi-Sensor Real-Time Adaptive Cutting (MS-RTAC): acoustic chatter RPM-hop + time-of-day thermal-state adaptation + chip-color CV + multi-sensor wear fusion + LIBS material verification",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "phase": "P2",
+  "priority": "STRATEGIC",
+  "novel_capability_class": "first-of-kind",
+  "description": "Posts adapt to physical reality at run-time. Acoustic FFT in cabinet detects chatter in <100ms; auto-emits RPM-hop macro (M-code shifts spindle 5%) without operator intervention. Time-of-day adaptation: spindle warmup state changes through the day; first job derates 8%, jobs 10+ run full speed. Chip-color CV (camera in machine): blue chips = too hot → feed reduce; straw = optimal; silver = too cool → feed increase. Multi-sensor wear fusion: vibration FRF + audio FFT + spindle current → tool-wear state estimate in real-time. Pre-cut LIBS verifies material (e.g. confirms 17-4 PH not 304SS); catches stock mix-ups before the cutter touches.",
+  "rationale": "PRISM has every sensor module wired (acoustic_emission_monitor, sensor_fuse, sensor_anomaly_detect, thermal_machine_error, fft_analyze, vibration_modal). What's missing is closing the loop into the post — sensor sees → post auto-adjusts within the same cycle. No CAM vendor offers this because they don't own the sensor stack. PRISM does.",
+  "leverage_existing": [
+    "AcousticEmissionMonitoringEngine + acoustics_cutting_noise + acoustics_chatter_noise — acoustic baseline",
+    "fft_analyze + dominant_frequency + spectrogram + signal_envelope_analysis — chatter spectral detection",
+    "ChatterDetectEngine + chatter_neural_classify — neural chatter classification",
+    "thermal_machine_error action (prism_calc) wrapping the thermal expansion + machine error physics + thermal_machine_error + thermal_compensation_model — time-of-day thermal state",
+    "MTConnectAdapterEngine spindle_load + cnc_simulate_predictive — predictive baseline",
+    "SensorFusionEngine + sensor_fuse + sensor_anomaly_detect — multi-sensor fusion",
+    "material_cert_register action (prism_data) wrapping certification persistence + material_cert_register + material_cert_link_program — LIBS integration anchor",
+    "RealTimeAdaptiveControllerEngine (E0405) — adaptive control orchestrator (already wired in prism_adaptive_control)",
+    "post_advanced_physics + post_inject_motion + post_inject_coolant — post-pipeline injection points"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Hurco V11 cuts D2 die plate at 7am (cold start). Stock label says D2 but stockroom mix-up sent 304SS.",
+    "today_pre_ppg_ms36": "Cold-start spindle: 6 µm thermal drift, parts run mid-tolerance ±10 µm. Stock mix-up: cutter touches; immediate force spike; cutter chips; $80 lost. Mid-cut chatter: operator hears it, runs to controller, hits override, derates 15%.",
+    "should_be_post_ppg_ms36": "Pre-cut LIBS probe: spectral analysis says 304SS not D2. HARD BLOCK with 'material mismatch — verify stock'. Operator confirms mix-up; correct stock loaded. First job of day: thermal-state engine sees cold spindle + 4°C ambient; auto-derates feed 8% + adds 90s warmup G-code at top of program. Job 10: full speed. Mid-cut: acoustic FFT flags 14% chatter signature in 87ms; M-code shifts spindle from 8500 to 8925 (5% hop); chatter clears in 1 cycle. Chip color stays straw across the day.",
+    "gap_now_closed": "Sensor → post → machine loop closes inside one cycle. Catastrophes prevented at the source."
+  },
+  "units": [
+    {
+      "id": "U-PPGM216",
+      "title": "AcousticChatterRPMHopEngine — sub-100ms chatter detection + RPM macro",
+      "scope": "src/engines/AcousticChatterRPMHopEngine.ts — streams audio from cabinet mic, FFT every 50ms; chatter neural classifier confidence > 0.8 fires RPM-hop M-code (Hurco G-codes M99 P-call to subprogram, generic M0 + reload, controller-aware); shift = 5% nominal, escalating to 8% on persistent. Variability: ≥3 chatter signatures (low-freq, mid-freq, high-freq). Adversarial: shop ambient noise spike (forklift), microphone failure → must fail gracefully not BLOCK.",
+      "files_to_modify": [
+        "src/engines/AcousticChatterRPMHopEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AcousticChatterRPMHop.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM217",
+      "title": "ThermalStateAdaptationEngine — time-of-day cold-start derate",
+      "scope": "src/engines/ThermalStateAdaptationEngine.ts — reads MTConnect machine_uptime + ambient_temp; first N jobs after cold-start derate via thermal_compensation_model; warmup G-code injected at program top when needed; full speed once machine reaches steady state (typically jobs 8-12). Variability: ≥3 ambient regimes (4°C cold, 22°C nominal, 35°C summer). Adversarial: machine uptime sensor dead, ambient sensor missing.",
+      "files_to_modify": [
+        "src/engines/ThermalStateAdaptationEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ThermalStateAdaptation.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM218",
+      "title": "ChipColorCVEngine — color-driven feed correction",
+      "scope": "src/engines/ChipColorCVEngine.ts — camera in machine; CV pipeline classifies chip color (blue/dark-blue/straw/silver/white); maps to thermal regime; emits feed correction proposal (blue → feed -10%, silver → feed +5%); operator approval on shop_floor. Variability: ≥3 material/color profiles (steel: straw=good; aluminum: silver=good; titanium: dark-blue=acceptable). Adversarial: bad lighting, chip occlusion, camera failure.",
+      "files_to_modify": [
+        "src/engines/ChipColorCVEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ChipColorCV.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM219",
+      "title": "MultiSensorWearFusionEngine — vibration + audio + spindle current → wear state",
+      "scope": "src/engines/MultiSensorWearFusionEngine.ts — fuses (vibration_modal, audio FFT bands, spindle current trend); Kalman filter on tool wear state; flags imminent failure 5+ minutes before catastrophic event; tier-aware proactive tool-change alert. Variability: ≥3 wear profiles (gradual flank, abrupt edge chip, BUE buildup). Adversarial: one sensor stream stalls (must fall back), conflicting sensor signal.",
+      "files_to_modify": [
+        "src/engines/MultiSensorWearFusionEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MultiSensorWearFusion.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM220",
+      "title": "LIBSMaterialVerificationEngine — pre-cut spectral verification",
+      "scope": "src/engines/LIBSMaterialVerificationEngine.ts — laser-induced breakdown spectroscopy probe arm fires before cutter engagement; returns elemental composition; cross-checks against work-order material; HARD BLOCK on mismatch (>3% Cr/Ni/Mo deviation from spec). Variability: ≥3 stock conditions (clean, oxidized, oil-coated). Adversarial: probe arm fault, spectrometer drift, stock with surface contamination.",
+      "files_to_modify": [
+        "src/engines/LIBSMaterialVerificationEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/LIBSMaterialVerification.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Acoustic chatter RPM-hop fires in <100ms on injected chatter signature; clears chatter in <2 cycles",
+    "Thermal-state cold-start derate measurably reduces first-job dimensional drift by ≥40% on 30-day pilot",
+    "Chip-color CV agrees with operator subjective rating ≥85% (UX test)",
+    "Multi-sensor wear fusion predicts catastrophic tool failure ≥5 minutes before event on 10/10 historical incidents",
+    "LIBS verification HARD BLOCKs all 10/10 injected material-mismatch scenarios; zero false BLOCKs on 50 correct-material runs"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS9",
+    "PPG-MS14",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "leverage_class": "novel-uses-existing-engines",
+  "hardware_dependency_note": "R4-S03 hardened (2026-04-29): U-PPGM216 acoustic chatter requires accelerometer fallback + ambient-noise calibration step (gate on measured SNR>15dB; degrade gracefully if shop ambient >70 dB); U-PPGM218 chip-color CV requires camera retrofit ($800-1500 incl. mount/wiring/LED ring; coolant-mist-resistant lens); offer external-window variant for legacy Hurco/Bridgeport cabinets without mounting boss; U-PPGM219 multi-sensor wear fusion requires MTConnect/OPC-UA bus on machine OR retrofit kit (current clamp $300 + edge gateway $1500) for pre-2010 machines; degrade gracefully to spindle-current-only when bus unavailable; U-PPGM220 LIBS material verification is TIER-2 only ($15-40k probe arm + Class-3B laser safety interlock + 0.5-2hr operator training/shift); TIER-1 default falls back to barcode/RFID stock tag scan + operator visual confirm — covers 90%+ of shops without LIBS hardware. All four sensors gracefully degrade rather than HARD BLOCK on missing hardware.",
+  "schemaVersion": "1.0.0",
+  "created_at": "2026-04-29T04:37:47.554Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "_patches": [
+    "ppg-round3-novel-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ],
+  "tier_1_default": "Tier-1 (default for shops without sensor hardware): MTConnect-only fallback for all sensor-driven units; barcode/RFID for material verification; spindle-current for wear fusion; accelerometer for chatter (cabinet acoustic optional)",
+  "tier_2_premium": "Tier-2 (premium / higher-margin shops with sensor hardware): full multi-sensor fusion with LIBS + chip-color CV + acoustic FFT — incremental cost $20-50k per machine, ROI ≤6 months on shops running >2000 spindle-hours/yr"
+}

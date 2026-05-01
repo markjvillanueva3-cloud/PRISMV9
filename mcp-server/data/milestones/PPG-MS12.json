@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS12",
+  "version": "1.0.0",
+  "title": "PPG-MS12 — Regression Harness + Fleet Rollout (CI gate + JM Die cutover playbook)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 9,
+  "completed_units": 0,
+  "description": "The closing milestone: a 50-program golden corpus that locks in cycle time, surface finish, and forces; a byte-diff regression harness that runs in CI on every post change; a physics-drift detector that flags silent canonical-constant changes; and the JM Die cutover playbook that turns 12 PPG-MS milestones into a Monday-morning shop-floor rollout.",
+  "rationale": "Without a regression harness, the moment the closed loop (PPG-MS11) starts moving canonical constants there's no way to tell intentional learning from drift bug. Without a cutover playbook the operators don't know which machine to point at PRISM first or what to do when something diverges. This milestone is the difference between 'shipped' and 'in production'.",
+  "leverage_existing": [
+    "All previous PPG-MS deliverables (sidecar, block-by-block S/F, iMachining, WEDM, fleet, dialects, wizard, mill print, omega tier, AGI gates, PDF tribal, online tuning)",
+    "vitest CI workflow already wired in .github/workflows/ci.yml",
+    "PRISMSelfAwarenessEngine.searchPlaybookRules — for cutover playbook authoring",
+    "ProductionToolpathRegressionEngine + cycle_time_compare action — already in cam dispatcher"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Engineer changes kc1.1 for ISO-P from 1800 to 1850 in src/physics/constants.ts (legitimate calibration outcome from PPG-MS11).",
+    "today_pre_ppg_ms12": "Change merges. Some posts emit different feeds. No way to tell whether the new feeds are right. Programmer at JM Die gets surprised on Monday.",
+    "should_be_post_ppg_ms12": "CI byte-diff regression flags the 12 affected golden programs; cycle-time delta within ±5%; chatter/force ceilings unviolated; ProductionToolpathRegressionEngine flags drift band; PR description auto-annotated with 'kc1.1 ISO-P recalibration: -3.2% mean cycle time, max +0.6% force'. Reviewer + JM Die sign off; cutover playbook §K updates the operator note.",
+    "gap_now_closed": "Calibration is measurable, reviewable, and reversible."
+  },
+  "units": [
+    {
+      "id": "U-PPGM71",
+      "title": "Golden-program corpus (50 JM Die programs)",
+      "scope": "Curate 50 programs from JM DIE/ — mix of mill, lathe, WEDM, sinker EDM, multi-channel; persist outputs (G-code + sidecar + setup sheet); seal canonical bytes"
+    },
+    {
+      "id": "U-PPGM72",
+      "title": "Byte-diff regression harness",
+      "scope": "src/__tests__/regression/post-corpus.regression.test.ts — diff vs golden; allow tolerated changes (timestamp, sidecar SHA); flag everything else; runs in CI"
+    },
+    {
+      "id": "U-PPGM73",
+      "title": "Physics drift detector (sidecar SHA + canonical constant alerts)",
+      "scope": "src/engines/PostPhysicsDriftDetectorEngine.ts — when src/physics/constants.ts changes, recompute every golden sidecar SHA; PR comment annotates affected programs + computes cycle-time/force delta"
+    },
+    {
+      "id": "U-PPGM74",
+      "title": "CI workflow (.github/workflows/ppg-regression.yml)",
+      "scope": "Run regression harness + drift detector on every PR touching post engines, dialect emitters, physics constants, or sidecar schema"
+    },
+    {
+      "id": "U-PPGM75",
+      "title": "JM Die cutover playbook",
+      "scope": "docs/jm-die-ppg-cutover-playbook.md — Monday-morning sequence: which machine first, what to verify, fallback to manual, escalation, sign-off; per-machine quickref"
+    },
+    {
+      "id": "U-PPGM76",
+      "title": "Ops handoff docs + on-call rotation",
+      "scope": "docs/ppg-ops-runbook.md — what to do when canary flags drift, when sidecar SHA mismatches, when MTConnect/OPC-UA reader stalls, escalation tree"
+    },
+    {
+      "id": "U-PPGM75b",
+      "title": "Pipeline stage fusion (perf budget enforcement in CI)",
+      "scope": "Closes PPG-REAL-MS0/U-PPR47. Adds PostProcessorPipelineEngine perf budget per stage; CI gate fails if any stage > 2x baseline; visible in PR comment with stage delta table. PostPhysicsDriftDetectorEngine extension.",
+      "files_to_modify": [
+        "src/engines/PostPhysicsDriftDetectorEngine.ts",
+        ".github/workflows/ppg-regression.yml"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PipelineStagePerfBudget.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM75c",
+      "title": "Result caching for tool+material+machine tuples",
+      "scope": "Closes PPG-REAL-MS0/U-PPR48. Adds memoization layer keyed on (tool_id, material_id, machine_id, op_signature) for SF/chatter/force outputs; LRU + TTL; cache hit rate surfaced in regression dashboard.",
+      "files_to_modify": [
+        "src/engines/PostResultCacheEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PostResultCache.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM75d",
+      "title": "Web UI virtualization for large lists (50-program corpus, 100+ tools, 21 machines)",
+      "scope": "Closes PPG-REAL-MS0/U-PPR49. React-window or react-virtual on wizard tool/machine/material lists + program preview. Bench: 100ms first-paint at 1000 rows.",
+      "files_to_modify": [
+        "web/src/components/ppg/VirtualizedToolList.tsx",
+        "web/src/components/ppg/VirtualizedMachineList.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/VirtualizedLists.perf.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Regression harness runs in CI on every post-touching PR; passes on main",
+    "Physics drift detector annotates PRs with cycle-time/force delta tables",
+    "Cutover playbook reviewed + signed off by JM Die programmer + shop foreman",
+    "Ops runbook covers the 5 most likely failure modes with concrete remediation steps",
+    "First production cutover (one Hurco + one Okuma + the Mitsubishi MV1200R) completed and stable for 5 working days with zero rollbacks; fleet golden-corpus locked + JM Die ship playbook signed off (replaces phantom JM-PRODUCTION-CUTOVER milestone — no separate envelope required)",
+    "Strategic milestones MS33-MS38 validated through closing regression harness on the 50-program corpus + novel-feature integration tests"
+  ],
+  "depends_on": [
+    "PPG-MS2",
+    "PPG-MS4",
+    "PPG-MS5",
+    "PPG-MS6",
+    "PPG-MS7",
+    "PPG-MS8",
+    "PPG-MS9",
+    "PPG-MS10",
+    "PPG-MS11",
+    "PPG-MS13",
+    "PPG-MS14",
+    "PPG-MS15",
+    "PPG-MS16",
+    "PPG-MS17",
+    "PPG-MS18",
+    "PPG-MS19",
+    "PPG-MS20",
+    "PPG-MS21",
+    "PPG-MS22",
+    "PPG-MS23",
+    "PPG-MS24",
+    "PPG-MS25",
+    "PPG-MS26",
+    "PPG-MS30",
+    "PPG-MS31",
+    "PPG-MS32",
+    "PPG-MS33",
+    "PPG-MS34",
+    "PPG-MS35",
+    "PPG-MS36",
+    "PPG-MS37",
+    "PPG-MS38"
+  ],
+  "blocks": [
+    "PPG-MS27"
+  ],
+  "supersedes": [
+    "PPG-VARIABILITY-SWEEP-MS0 (subsumed by 50-program corpus + byte-diff harness)",
+    "PPG-SHIP-MS0 (subsumed by cutover playbook)",
+    "PPG-HARDEN-MS0 (subsumed by PPG-MS3 + PPG-MS5 + PPG-MS9 dialect/material/AGI work)",
+    "PPG-REAL-MS0 (subsumed by PPG-MS11 telemetry + PPG-MS12 50-program corpus)",
+    "PP-REV-MS6 (Program Diff + Revision Control stub — byte-diff harness in U-PPGM72 covers it)",
+    "PPG-VAR-MS0 (stub envelope — already chained via PPG-REAL-MS0 supersedes)",
+    "PPG-REAL-MS0 (53 units, 68% covered by new plan; orphans absorbed into MS5/MS14/MS17/MS12 perf units)"
+  ],
+  "_graph_reciprocity_patch": "ppg-fixes-round2-2026-04-29",
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29",
+  "_patches": [
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "ProductionToolpathRegressionEngine",
+      "PostPhysicsDriftDetectorEngine",
+      "PostResultCacheEngine"
+    ]
+  }
+}

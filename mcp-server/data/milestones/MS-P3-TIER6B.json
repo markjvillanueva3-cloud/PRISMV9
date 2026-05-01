@@ -1,0 +1,204 @@
+{
+  "id": "MS-P3-TIER6B",
+  "title": "WEDM Tier 6 — Spline Broach + PCD Tooling",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P3",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "WC carbide spline broach and PCD inserts are the two hardest tool-material pairs for WEDM. PCD requires thermal-conductivity k(T) interpolation — NOT Johnson-Cook (which is plasticity).",
+  "total_units": 7,
+  "completed_units": 0,
+  "sessions": 3,
+  "dependencies": [
+    "MS-P3-TIER6A"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.015,
+  "knowledge_sources": {
+    "engines": [
+      "WireEDMSettingsEngine",
+      "EDMProgramAssemblerEngine"
+    ],
+    "formulas": [
+      "modified thermal-conductivity k(T) interpolation for PCD per ASM Handbook Vol. 16 p. 317",
+      "internal-involute spline math (AGMA 2000-A88)",
+      "anisotropic k for PCD via diamond-Co composite rule-of-mixtures (Field 1992)"
+    ],
+    "tribal": [
+      "broach tips",
+      "PCD lapping notes"
+    ],
+    "reference": [
+      "WC/PCD wire-spec variants (Shinko)",
+      "Berkenhoff molybdenum wire for PCD",
+      "ASM Handbook Vol. 16 Machining for PCD k(T)",
+      "Field 1992 Properties of Natural and Synthetic Diamond"
+    ]
+  },
+  "smart_config": {
+    "role": "PCDToolingEngineer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 75
+  },
+  "skills": [
+    "/wedm-program",
+    "/program-validate",
+    "/wedm-preflight",
+    "/physics-verify",
+    "/test",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP",
+    "codebase-memory-mcp"
+  ],
+  "mcp_lifecycle": [
+    "context_boot",
+    "dispatcher_map",
+    "memory_recall",
+    "system_snapshot",
+    "action_search 'wire EDM PCD conductivity'",
+    "auto_checkpoint",
+    "memory_save",
+    "checkpoint_enhanced"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P3-T6B-01",
+      "U-P3-T6B-02"
+    ],
+    "session_2": [
+      "U-P3-T6B-03",
+      "U-P3-T6B-04"
+    ],
+    "session_3": [
+      "U-P3-T6B-05",
+      "U-P3-T6B-06",
+      "U-P3-T6B-07"
+    ],
+    "compact_checkpoints": [
+      "after U-P3-T6B-02",
+      "after U-P3-T6B-04"
+    ]
+  },
+  "units": [
+    {
+      "id_range": "U-P3-T6B-01..04",
+      "title": "Spline broach (internal involute, WC carbide, tight OD tolerance)",
+      "loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+      "files_created": [
+        "mcp-server/src/__tests__/fixtures/wedm-tier6b-spline-{NN}.json"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/WireEDMSettingsEngine.ts",
+        "mcp-server/src/engines/EDMProgramAssemblerEngine.ts"
+      ],
+      "abort_conditions": [
+        "npx tsc --noEmit > 0 errors",
+        "wedm-production-gate pre-flight returns safe:false",
+        "spline involute angular error > 0.02°"
+      ],
+      "rollback": "git checkout mcp-server/src/engines/WireEDMSettingsEngine.ts mcp-server/src/engines/EDMProgramAssemblerEngine.ts",
+      "exit_criteria_minimum": 6,
+      "exit_criteria": [
+        "program assembles without TS/Zod error",
+        "JM Die reference toolpath-length-mm within ±10%",
+        "NC-line count within ±10%",
+        "G-code contains structural tokens G41/G42, M00/M01, wire-thread markers",
+        "wedm-tier6-geom-gate hook passes",
+        "machinist sign-off in WEDM-TIER6-MACHINIST-SIGNOFF.md"
+      ],
+      "description": "Spline broach (internal involute, WC carbide, tight OD tolerance) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-P3T6B01"
+    },
+    {
+      "id_range": "U-P3-T6B-05..07",
+      "title": "PCD tooling (polycrystalline diamond inserts, k(T) interpolation)",
+      "loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+      "abort_conditions": [
+        "PCD path returns conductivity via Johnson-Cook (wedm-pcd-conductivity-gate blocks)",
+        "k(T) interpolator deviates > ±5% from ASM tabulated values"
+      ],
+      "exit_criteria_minimum": 7,
+      "exit_criteria_additional": [
+        "PCD k(T) interpolator returns within ±5% of ASM published values at 300-1200 K"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "PCD tooling (polycrystalline diamond inserts, k(T) interpolation) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-P3T6B05"
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-pcd-conductivity-gate",
+      "description": "blocks commits where PCD path returns conductivity via Johnson-Cook instead of k(T) interpolation",
+      "built_in": "U-P3-T6B-05"
+    },
+    "action": {
+      "name": "prism_edm:wedm_validate_pcd",
+      "built_in": "U-P3-T6B-05"
+    },
+    "skill": {
+      "name": "/wedm-pcd",
+      "built_in": "U-P3-T6B-05"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "7/7 Tier 6B parts generate",
+      "≥ 2 match JM Die toolpath-length-mm within ±10%",
+      "PCD path uses ASM k(T) interpolation",
+      "machinist sign-off committed"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+1.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-pcd-conductivity-gate"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_validate_pcd"
+    ],
+    "new_skills": [
+      "/wedm-pcd"
+    ],
+    "available_to": [
+      "P6",
+      "P7",
+      "P10"
+    ]
+  },
+  "intent": "Deliver WEDM Tier 6 — Spline Broach + PCD Tooling per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

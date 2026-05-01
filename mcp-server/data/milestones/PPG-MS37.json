@@ -1,0 +1,131 @@
+{
+  "id": "PPG-MS37",
+  "version": "1.0.0",
+  "title": "PPG-MS37 — Federated Cross-Shop Intelligence (FCSI): anonymized recipe sharing + predictive tool procurement + robot cell integration + energy-aware scheduling",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "phase": "P2",
+  "priority": "HIGH",
+  "novel_capability_class": "first-of-kind",
+  "description": "Shops in the PRISM federation (with consent) anonymously share outcome data. Your post says: 'JM Die's ALCOA work has 23% lower wear when using XX coating on D2 12mm — try?'. Predictive tool procurement: post analyzes the next 90 days of pending jobs, emits a tool order with optimal qty + grade + supplier. Robot cell integration: post emits robot loading/unloading programs alongside CNC G-code with synchronized handshakes. Energy-aware scheduling: heavy jobs shift to off-peak (industrial demand-charge) saving thousands/month. ANTITRUST GATE: ZERO pricing, cost, quote, win-rate, or financial data shared via federation; physics outcomes ONLY (wear, cycle time, surface finish, force, recast, dimensional accuracy). Sherman Antitrust Act §1 review by outside counsel mandatory before pilot. K-anonymity ≥5 floor. Per-customer opt-out enforced.",
+  "rationale": "PRISM's federation engine is wired (FederatedLearningEngine + learn_*) but no post consumer exists. Predictive procurement uses ToolROIEngine + InventoryEOQEngine — wired but unsurfaced. Robot cell uses cobot_* — wired but unwoven into post emit. Energy uses sustain_optimize + energy_carbon_footprint — wired but unconnected to scheduling. This milestone weaves the cross-shop and cross-system intelligence into one operational fabric.",
+  "leverage_existing": [
+    "FederatedLearningEngine + learn_contribute + learn_query + learn_aggregate + learn_anonymize + learn_network_stats — federation substrate",
+    "TribalEnrichmentCoordinatorEngine — shared tribal-tip backbone",
+    "ToolROIEngine + tool_roi_analyze + tool_cost_predict + InventoryEOQEngine — procurement substrate",
+    "SupplierIntegrationEngine + purchasing_search + purchasing_recommend — supplier API hooks",
+    "CobotAssessSafetyEngine + cobot_assess_safety + cobot_plan_task + cobot_select — robot cell substrate",
+    "SustainOptimizeEngine + sustain_optimize + energy_optimize + energy_carbon_footprint — energy substrate",
+    "ScheduleOptimizeEngine + schedule_optimize + schedule_balance + schedule_what_if — scheduling substrate",
+    "CapacityPlanningEngine + capacity_machine_load + capacity_what_if — capacity substrate"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die runs 800 D2 die plates/year. Federation has 12 peer fastener-die shops with shared anonymized outcomes. Energy demand-charge $0.18/kWh peak vs $0.06/kWh off-peak.",
+    "today_pre_ppg_ms37": "JM Die's coating choice based only on Sandvik catalog. Tool procurement is reactive ('we ran out of XX'). Robot cell programmed separately from CNC (operator manually syncs). Heavy jobs run when scheduled, often peak hours. ~$1,200/mo demand charge.",
+    "should_be_post_ppg_ms37": "Federation surfaces: 'peer shop X uses TiAlSiN coating on D2 12mm with measured 23% lower wear vs your TiAlN' — Mark accepts; tool order auto-includes 12 of the new coating for next quarter (predictive procurement). Robot cell program emits with handshake macros (CNC M-code triggers robot load/unload via MTConnect). Heavy jobs scheduled to off-peak; demand charge drops to ~$340/mo (~$10k/year saved).",
+    "gap_now_closed": "Each shop benefits from every shop's experience. Procurement gets ahead. Energy bill drops. Robot cells become first-class citizens."
+  },
+  "units": [
+    {
+      "id": "U-PPGM221",
+      "title": "FederatedRecipeSharingEngine — anonymized peer-shop outcome surface in wizard",
+      "scope": "src/engines/FederatedRecipeSharingEngine.ts — opt-in consent; outcomes anonymized via learn_anonymize (k-anonymity ≥5); ANTITRUST FILTER: only physics outcomes (wear, cycle, surface, force, recast) shared — pricing, cost, quote, win-rate, customer identity, supplier identity, machine identity, lead-time, throughput-rate STRIPPED before federation send (whitelist enforcement, not blacklist); wizard surfaces relevant peer-shop recipes during emit ('shops with similar profile achieved X with Y') with confidence + cohort size; HARD BLOCK on PII/financial leakage (red-team assertion test). Variability: ≥3 cohort sizes (5, 20, 100+). Adversarial: malicious peer injects bad recipe (must filter on outcome variance), cohort below k-anonymity threshold, attempt to leak pricing field through metadata smuggling (must reject).",
+      "files_to_modify": [
+        "src/engines/FederatedRecipeSharingEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FederatedRecipeSharing.integration.test.ts",
+        "src/__tests__/FederatedAntitrustWhitelist.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM222",
+      "title": "PredictiveToolProcurementEngine — 90-day forward order generator",
+      "scope": "src/engines/PredictiveToolProcurementEngine.ts — analyzes scheduled jobs over 90 days; predicts tool consumption via ToolROIEngine + Weibull life; computes EOQ; recommends purchase order with qty + grade + supplier ranked by ROI; integrates purchasing_search. Variability: ≥3 supplier strategies (cheapest, fastest, highest-quality). Adversarial: schedule with high variance (must hedge), supplier API offline.",
+      "files_to_modify": [
+        "src/engines/PredictiveToolProcurementEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PredictiveToolProcurement.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM223",
+      "title": "RobotCellPostEngine — synchronized CNC + robot load/unload program",
+      "scope": "src/engines/RobotCellPostEngine.ts — emits robot program (Fanuc/UR/KUKA/ABB) alongside CNC G-code; handshake protocol (M-code on CNC triggers robot via MTConnect digital I/O or OPC-UA); pre-cycle vision check; post-cycle inspection routine; HARD BLOCK on cobot_assess_safety failure. Variability: ≥3 robot brands. Adversarial: robot offline mid-program, vision system fault.",
+      "files_to_modify": [
+        "src/engines/RobotCellPostEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/RobotCellPost.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM224",
+      "title": "EnergyAwareSchedulingEngine — peak/off-peak job placement",
+      "scope": "src/engines/EnergyAwareSchedulingEngine.ts — for each scheduled job, computes energy footprint via sustain_optimize; ranks jobs by demand charge sensitivity; reschedules heavy jobs to off-peak; emits time-of-run annotations on programs; surfaces savings dashboard. Variability: ≥3 utility rate structures (TOU, demand-only, flat). Adversarial: schedule conflicts (deadlines vs energy), missing energy data (fall back to nominal).",
+      "files_to_modify": [
+        "src/engines/EnergyAwareSchedulingEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/EnergyAwareScheduling.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM225",
+      "title": "FederationConsentUI + opt-in audit trail",
+      "scope": "web/src/components/ppg/FederationConsentPanel.tsx — granular consent (share recipe outcomes? share tribal tips? share calibration deltas? per-customer opt-out); EXPLICIT antitrust disclosure: 'Pricing, cost, quote, customer-identity, supplier-identity NEVER shared'; audit trail; revocation propagates within 24h; consent flow includes Sherman §1 acknowledgment checkbox before activation.",
+      "files_to_modify": [
+        "web/src/components/ppg/FederationConsentPanel.tsx",
+        "src/engines/FederationConsentEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/FederationConsent.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM226",
+      "title": "Graph theory → tool/material supply-chain optimization (multi-supplier, multi-job, multi-machine flow)",
+      "scope": "src/engines/SupplyChainGraphOptimizerEngine.ts — models tool inventory + supplier lead times + job demand as a flow network; solves min-cost flow (existing graph theory algorithms in prism_calc: graph_mst_kruskal, graph_bellman_ford, graph_topo_sort, network_flow_calc) to optimize: (a) which supplier to order from, (b) when to order (lead time vs stockout risk), (c) which tools to share across jobs (set cover), (d) which jobs to bundle for tooling efficiency. Cross-domain transfer from graph theory to manufacturing supply chain. Composes with PredictiveToolProcurement (U-PPGM222). Variability: ≥3 supply chain regimes (single-supplier, multi-supplier dual-source, geographic multi-region). Adversarial: supplier outage mid-order, demand spike, missing lead-time data.",
+      "files_to_modify": [
+        "src/engines/SupplyChainGraphOptimizerEngine.ts",
+        "src/engines/PredictiveToolProcurementEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SupplyChainGraphOptimizer.integration.test.ts"
+      ],
+      "ollama_finding_source": "cross-domain: Graph theory → supply chain (qwen2.5-coder:7b 2026-04-29)"
+    }
+  ],
+  "completion_criteria": [
+    "Federated recipes surface in wizard with k-anonymity ≥5; 0 PII leaks on red-team test",
+    "Predictive tool procurement reduces stock-out events by ≥60% on 30-day pilot",
+    "Robot cell post emits synchronized programs validated on UR + Fanuc test cells",
+    "Energy-aware scheduling reduces measured peak demand charge ≥40% on JM Die quarterly bill",
+    "Consent UI revokes propagate within 24h per audit trail",
+    "Supply-chain graph optimizer reduces stockout events by additional ≥30% over U-PPGM222 baseline on 90-day pilot",
+    "Sherman Antitrust Act §1 outside-counsel review on file before pilot; whitelist filter blocks 100% of red-team pricing/cost leakage attempts"
+  ],
+  "depends_on": [
+    "PPG-MS9",
+    "PPG-MS18",
+    "PPG-MS16"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "leverage_class": "novel-uses-existing-engines",
+  "schemaVersion": "1.0.0",
+  "created_at": "2026-04-29T04:37:47.554Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "_patches": [
+    "ppg-round3-novel-2026-04-29",
+    "ollama-findings-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ]
+}

@@ -11,7 +11,7 @@
       "title": "Forward Simulation + Dead-End Detection",
       "units": [
         {
-          "id": "U01",
+          "id": "U-MF01",
           "title": "SequenceFeasibilityEngine: forward simulation with accessibility, workholding, rigidity checks at each step",
           "status": "completed",
           "completed_at": "2026-04-14T14:05:00Z",
@@ -31,10 +31,18 @@
             "Risk scores produce meaningful probabilities",
             "Performance: <500ms for 10-operation sequence",
             "20+ tests including dead-end, no-dead-end, and multi-dead-end scenarios"
+          ],
+          "legacy_id": "U01",
+          "description": "SequenceFeasibilityEngine: forward simulation with accessibility, workholding, rigidity checks at each step — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
-          "id": "U02",
+          "id": "U-MF02",
           "title": "Auto-resequencing: backtracking search with constraint propagation to find valid orderings",
           "status": "completed",
           "completed_at": "2026-04-14T14:05:00Z",
@@ -54,6 +62,14 @@
             "Reports 'no solution' with explanation for unsolvable cases",
             "whatIf produces meaningful comparison",
             "15+ tests"
+          ],
+          "legacy_id": "U02",
+          "description": "Auto-resequencing: backtracking search with constraint propagation to find valid orderings — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -63,7 +79,7 @@
       "title": "PUOA Integration",
       "units": [
         {
-          "id": "U03",
+          "id": "U-MF03",
           "title": "SequenceFeasibilityEngine PUOA Integration: LLM/CLI sequence-based pre-flight",
           "status": "completed",
           "completed_at": "2026-04-14T14:05:00Z",
@@ -90,6 +106,14 @@
             "PUOA engine has direct sequence assessment methods",
             "Pre-flight enhanced with sequence risks prefixed [Sequence]",
             "12 integration tests passing"
+          ],
+          "legacy_id": "U03",
+          "description": "SequenceFeasibilityEngine PUOA Integration: LLM/CLI sequence-based pre-flight — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -114,5 +138,81 @@
       "assessPreFlightWithSequence(puoaInput, routing, sequenceInput?): Promise<PreFlightAssessment>"
     ],
     "ai_integration": "Direct PUOA integration enables LLM-level AI reasoning with sequence-based pre-flight assessment including dead-end detection and auto-resequencing"
-  }
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mf-ms2-gate",
+    "mcp_action": "prism_mf:mf_ms2_run",
+    "skill_command": "/mf-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mf-ms2-gate"
+    ],
+    "new_actions": [
+      "mf_ms2_run"
+    ],
+    "new_skills": [
+      "/mf-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the SequenceFeasibilityEngine that forward-simulates the operation sequence, checking all physical feasibility constraints at each step. Detect dead-ends where completing one operation makes a future operation impossible. Implement backtracking search with constraint propagation to find valid orderings or prove none exist. Enhanced with PUOA integration for LLM-level AI reasoning.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

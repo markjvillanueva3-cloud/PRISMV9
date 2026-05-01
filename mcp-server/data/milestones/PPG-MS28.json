@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS28",
+  "version": "1.0.0",
+  "title": "PPG-MS28 — Self-Serve Onboarding + Customer Success",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Closes the CS gap surfaced by R15 scrutiny (score 54). Builds generic shop onboarding wizard (60s sidecar provisioning, controller auto-detect via fingerprint upload, video walkthroughs), wires CS health-score signal from MS11 telemetry, in-wizard FAQ from MS10 PDFs, expansion-hook prompts.",
+  "rationale": "Closes the CS gap surfaced by R15 scrutiny (score 54). Builds generic shop onboarding wizard (60s sidecar provisioning, controller auto-detect via fingerprint upload, video walkthroughs), wires CS health-score signal from MS11 telemetry, in-wizard FAQ from MS10 PDFs, expansion-hook prompts.",
+  "phase": "P2",
+  "priority": "MEDIUM",
+  "units": [
+    {
+      "id": "U-PPGM172",
+      "title": "Generic shop onboarding wizard + controller fingerprint upload",
+      "scope": "60s sidecar provisioning; operator uploads controller fingerprint (FOCAS probe / OPC-UA browse / manual); auto-config of MS5 dialect emitter; first program emit within 1 hour of signup.",
+      "files_to_modify": [
+        "web/src/onboarding/",
+        "src/engines/ShopOnboardingEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ShopOnboarding.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM173",
+      "title": "Video walkthroughs (3-5 min per machine family)",
+      "scope": "Hurco mill, Okuma lathe, Mitsubishi WEDM, Multus mill-turn, Roku-Roku high-speed. Embedded in wizard at relevant steps.",
+      "files_to_modify": [
+        "docs/training/videos/"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM174",
+      "title": "CS health-score signal from MS11 telemetry",
+      "scope": "Low feed-override usage, frequent SHA failures, no probe emission, high MS14 BLOCK rate, high MS17 disagreement rate → at-risk flag. CS dashboard surfaces trend per customer.",
+      "files_to_modify": [
+        "src/engines/CustomerHealthScoreEngine.ts",
+        "web/src/pages/CSHealthDashboard.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CSHealthScore.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM175",
+      "title": "In-wizard FAQ from MS10 PDFs + expansion hooks",
+      "scope": "Searchable FAQ surfaced from MS10 tribal store; contextual help per wizard step; expansion prompts ('you have a Multus B250IIW configured but unused — try lathe-mill').",
+      "files_to_modify": [
+        "web/src/components/ppg/InWizardFAQ.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/InWizardFAQ.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM176",
+      "title": "Onboarding 30-day email cadence + in-app tooltips",
+      "scope": "Day 1/7/14/30 email cadence with progressive disclosure; in-app tooltips for first-run; setup-sheet UX test (MS13) extended to onboarding flow.",
+      "files_to_modify": [
+        "src/services/EmailCadenceEngine.ts",
+        "web/src/components/ppg/Tooltips.tsx"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "Generic shop onboarding emits first program within 1 hour of signup",
+    "Video walkthroughs cover all 5 machine families",
+    "CS health-score wired to MS11 telemetry; at-risk customers flagged proactively",
+    "In-wizard FAQ surfaces relevant tribal-knowledge tips per step",
+    "30-day email cadence + tooltips deployed; onboarding NPS ≥50"
+  ],
+  "depends_on": [
+    "PPG-MS6",
+    "PPG-MS10",
+    "PPG-MS11",
+    "PPG-MS13"
+  ],
+  "blocks": [],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "CS — mount on existing prism_business customer_create + customer_pipeline (already wired)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

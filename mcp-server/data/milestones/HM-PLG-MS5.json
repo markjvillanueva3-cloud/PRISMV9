@@ -250,5 +250,59 @@
     }
   ],
   "total_units": 4,
-  "completed_units": 0
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms5-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms5_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Tool Crib panel for hyperMILL. Provides searchable access to the 95,608-tool catalog from within hyperMILL. Includes 'Import to TDB' button that exports selected tools to hyperMILL's tool database (.hmt SQLite format) via HyperMillToolExportEngine. Tool availability check against shop crib inventory. Collision geometry preview for holder + tool assembly.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS5 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS5. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

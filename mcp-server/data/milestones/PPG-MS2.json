@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS2",
+  "version": "1.0.0",
+  "title": "PPG-MS2 — PRISM Path Integration (constant-engagement adaptive spiral via PrismPathConstantEngagementEngine wiring)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Activates the existing 1242-LOC PrismPathConstantEngagementEngine (formerly SolidCAMiMachiningEngine, renamed in MS18/U-PPGM111) — PRISM's constant-engagement adaptive spiral implementation marketed as PRISM Path™ — by wiring it into the post pipeline, dispatcher action, and wizard. The engine is fully implemented but currently has zero callers; this milestone makes its constant-engagement adaptive toolpath available to every post that can emit it. Independent implementation of the constant-engagement morph-spiral concept; not derived from third-party patented algorithms.",
+  "rationale": "The 10-post audit identified PrismPathConstantEngagementEngine (the 1242-LOC constant-engagement spiral engine renamed in MS18/U-PPGM111) as the single largest piece of dormant leverage in the codebase. It implements constant-engagement adaptive spiral toolpaths under the PRISM Path brand. We already paid the implementation cost; activating it costs ~5 units of wiring. Engine renamed (MS18/U-PPGM111 dependency) from SolidCAMiMachiningEngine to PrismPathConstantEngagementEngine; no internal SolidCAM identifiers remain after rename.",
+  "leverage_existing": [
+    "PrismPathConstantEngagementEngine (1242 LOC, src/engines/PrismPathConstantEngagementEngine.ts; renamed in MS18/U-PPGM111 from internal SolidCAMiMachiningEngine.ts class symbol — file rename gated on MS18 sanitization) — morphed spiral, engagement controller, chip-thinning compensation",
+    "BlockByBlockFeedEngine (PPG-MS1) — feeds the per-block S/F that iMachining needs",
+    "InstantaneousEngagementEngine — independent verification of engagement targets",
+    "camDispatcher.ts — action enum extension target",
+    "PostProcessorGeneratorPage — wizard slot for PRISM Path mode toggle"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die D2 die plate, 60×40×25 mm pocket roughing.",
+    "today_pre_ppg_ms2": "Adaptive clearing from Fusion HSM; respectable but engagement spikes to 88% in corners → forced to derate the whole op. PrismPathConstantEngagementEngine.morphSpiral() is sitting idle.",
+    "should_be_post_ppg_ms2": "Wizard shows 'PRISM Path mode' toggle (constant-engagement adaptive spiral). Toolpath emits as morphed spiral with engagement clamped to 35%; F+RPM ride the chatter envelope; cycle time wins 28% on D2 vs adaptive clearing.",
+    "gap_now_closed": "Existing engine is reachable, callable, and produces measurable wins on real customer parts."
+  },
+  "units": [
+    {
+      "id": "U-PPGM14",
+      "title": "Morphed-spiral parameter mapping",
+      "scope": "Map wizard inputs (engagement target, chip-load target, axial DOC) to PrismPathConstantEngagementEngine.morphSpiral() parameters"
+    },
+    {
+      "id": "U-PPGM15",
+      "title": "Chip-thinning compensation pass",
+      "scope": "Wire ChipThinningEngine onto morph-spiral output before post emit; verify gamma per insert geometry"
+    },
+    {
+      "id": "U-PPGM16",
+      "title": "Dispatcher action: cam_prism_path_morph_spiral",
+      "scope": "camDispatcher.ts + camActionSchemas.ts (Zod) + lazy import; named cam_prism_path_morph_spiral (specific) to avoid ambiguity with existing imachining_compute / cam_solidcam_create_imachining family."
+    },
+    {
+      "id": "U-PPGM17",
+      "title": "Wizard panel: PRISM Path mode + parameter overrides",
+      "scope": "web/src/components/ppg/PrismPathPanel.tsx + integration into PostProcessorGeneratorPage step 2"
+    },
+    {
+      "id": "U-PPGM18",
+      "title": "Round-trip + cycle-time test (D2 pocket benchmark)",
+      "scope": "src/__tests__/PrismPathIntegration.test.ts — assert engagement-clamped output, ≥20% cycle-time win vs the named adaptive baseline (recipe: jm_die_d2_pocket_v1 pinned to commit SHA stored in tests/baselines/d2-adaptive-baseline.json), executed against the same 50-program JM Die regression corpus referenced in PPG-MS1."
+    }
+  ],
+  "completion_criteria": [
+    "PrismPathConstantEngagementEngine (renamed in MS18/U-PPGM111 from internal SolidCAMiMachiningEngine class) reachable via cam_prism_path_generate dispatcher action",
+    "Wizard exposes PRISM Path mode for any compatible operation (pocketing, slotting, profiling)",
+    "D2 reference benchmark: ≥20% cycle-time win vs the named adaptive baseline (jm_die_d2_pocket_v1 + commit SHA) on the PPG-MS1 50-program corpus, at equal-or-better surface and force ceilings",
+    "Zero engagement spikes >5% above target across the regression corpus"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS6",
+    "PPG-MS12",
+    "PPG-MS4"
+  ],
+  "legal_disclaimer": "FTO opinion required before commercial deployment (PPG-MS18/U-PPGM109). PRISM Path is an independent implementation derived from public-source-only constant-engagement adaptive-spiral literature; no third-party patented algorithms used in derivation. All internal SolidCAM identifiers sanitized via MS18/U-PPGM111 pre-commit hook. This statement is informational, not a legal opinion under 35 USC §271 — written outside-counsel FTO is required before commercial deployment.",
+  "_patches": [
+    "ppg-fixes-round2-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

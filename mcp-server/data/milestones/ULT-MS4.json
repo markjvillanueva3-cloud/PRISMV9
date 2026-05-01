@@ -39,7 +39,8 @@
           ],
           "exit_conditions": [
             "Bidirectional E2 synchronization exists for jobs, labor, routing, and status snapshots.",
-            "Accounting sync exists for actual cost, labor, and operational-finance rollups."
+            "Accounting sync exists for actual cost, labor, and operational-finance rollups.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the new connectors and fall back to manual or one-way exports if sync correctness is not ready.",
           "steps": [
@@ -74,7 +75,14 @@
               "line_count_est": 220
             }
           ],
-          "estimated_minutes": 165
+          "estimated_minutes": 165,
+          "description": "E2 shop + accounting sync engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -104,7 +112,8 @@
           ],
           "exit_conditions": [
             "A shop analytics engine turns live execution data into quote variance, throughput, downtime, and ROI signals.",
-            "An offline queue engine can buffer mobile or station mutations until connectivity resumes."
+            "An offline queue engine can buffer mobile or station mutations until connectivity resumes.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the analytics and offline queue engines and continue with online-only mutations if necessary.",
           "steps": [
@@ -139,7 +148,14 @@
               "line_count_est": 180
             }
           ],
-          "estimated_minutes": 150
+          "estimated_minutes": 150,
+          "description": "Shop analytics + offline queue engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -169,7 +185,8 @@
           ],
           "exit_conditions": [
             "Integration routes expose sync health, replay queue state, and intelligence surfaces.",
-            "Actual cost rollups align with the new analytics fabric and external sync model."
+            "Actual cost rollups align with the new analytics fabric and external sync model.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Revert the integration route and actual-cost updates and continue with the older analytics path.",
           "steps": [
@@ -204,7 +221,14 @@
               "line_count_est": 90
             }
           ],
-          "estimated_minutes": 120
+          "estimated_minutes": 120,
+          "description": "Integration routes + cost analytics alignment — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -259,7 +283,8 @@
           ],
           "exit_conditions": [
             "A sync health command doc exists for connector status, retries, and replay controls.",
-            "A forge-triple sync template exists for future connector or analytics work."
+            "A forge-triple sync template exists for future connector or analytics work.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the command and template docs and use raw integration notes instead.",
           "steps": [
@@ -294,7 +319,14 @@
               "line_count_est": 80
             }
           ],
-          "estimated_minutes": 55
+          "estimated_minutes": 55,
+          "description": "Sync health command + sync ops template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -324,7 +356,8 @@
           ],
           "exit_conditions": [
             "A credential guard validates connector readiness and blocks unsafe sync attempts.",
-            "End-to-end tests prove sync, replay, and analytics propagation work together."
+            "End-to-end tests prove sync, replay, and analytics propagation work together.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the new guard or E2E suite if connector instability causes false failures.",
           "steps": [
@@ -359,7 +392,14 @@
               "line_count_est": 220
             }
           ],
-          "estimated_minutes": 105
+          "estimated_minutes": 105,
+          "description": "Credential guard + end-to-end sync proof — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -472,5 +512,81 @@
   "scrutiny_log": "state/ULT-MS4/scrutiny-log.json",
   "position_file": "state/ULT-MS4/position.json",
   "state_dir": "state/ULT-MS4",
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms4-gate",
+    "mcp_action": "prism_ult:ult_ms4_run",
+    "skill_command": "/ult-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms4-gate"
+    ],
+    "new_actions": [
+      "ult_ms4_run"
+    ],
+    "new_skills": [
+      "/ult-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Connect the live shop system to E2, accounting, offline devices, and intelligence pipelines so PRISM becomes a durable bidirectional operating fabric rather than an isolated frontend shell.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

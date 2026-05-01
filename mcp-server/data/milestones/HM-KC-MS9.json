@@ -328,5 +328,59 @@
     }
   ],
   "total_units": 5,
-  "completed_units": 5
+  "completed_units": 5,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms9-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms9_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms9"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Verify all artifacts generated across KC-0 through KC-8: ~8,163 parameter schemas validate with Zod, ~8,163 skill templates render correctly, ~8,163 AC Python setter scripts are syntactically valid, ~500 safety hooks fire correctly, and ~8,163 physics mappings produce reasonable recommendations. Includes cross-domain consistency checks, regression testing, and performance benchmarking of the recommendation pipeline.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS9 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS9. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

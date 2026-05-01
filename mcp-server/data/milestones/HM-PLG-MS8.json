@@ -238,5 +238,59 @@
     }
   ],
   "total_units": 4,
-  "completed_units": 0
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms8-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms8_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Harden the PRISM plugin for production deployment. Implement comprehensive error handling for all HTTP calls, AC API failures, and edge cases. Build offline mode with cached physics data for air-gapped shops. Implement RS256 JWT license verification with machine fingerprint binding. Compile Python to .pyd via Cython for source code protection. Build signed .zip distribution with auto-update checking. Obfuscate HTML/JS panel code.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS8 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS8. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

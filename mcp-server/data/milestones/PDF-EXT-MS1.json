@@ -8,7 +8,9 @@
   "total_units": 4,
   "completed_units": 4,
   "description": "Deep extraction from all hyperMILL documentation (2,666 pages, 4.8M characters) plus hyperCAD-S Python API (179 scripts). Extracts cycles, procedures, warnings, and builds knowledge graph. Also extracts Python scripting API for CAD/CAM automation.",
-  "dependencies": ["PDF-EXT-MS0"],
+  "dependencies": [
+    "PDF-EXT-MS0"
+  ],
   "phases": [
     {
       "id": "P0",
@@ -29,6 +31,17 @@
           "completed_at": "2026-04-12T23:10:00Z",
           "artifacts": [
             "scripts/extract-hypermill-deep.ts"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -54,7 +67,18 @@
             "procedures": 218,
             "warnings": 90,
             "features": 31
-          }
+          },
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U03",
@@ -75,6 +99,17 @@
             "data/extracted-knowledge/hypermill/hypermill-atoms-*.json",
             "data/extracted-knowledge/hypermill/hypermill-tribal-tips-*.json",
             "data/extracted-knowledge/hypermill/hypermill-knowledge-graph-*.json"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
@@ -100,8 +135,26 @@
             "python_scripts_analyzed": 179,
             "unique_functions": 161,
             "hypercad_commands": 200,
-            "api_categories": ["CAD99", "CAD32", "CADtools", "cam", "boolean", "misc"]
-          }
+            "api_categories": [
+              "CAD99",
+              "CAD32",
+              "CADtools",
+              "cam",
+              "boolean",
+              "misc"
+            ]
+          },
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     }
@@ -139,10 +192,94 @@
       "use_case": "Use hyperCAD-S for internal CAD generation instead of building custom CAD system"
     },
     "hypermill_cycles": [
-      "Contour Milling", "Pocket Milling", "Face Milling",
-      "3D Roughing", "3D Finishing", "Rest Roughing",
-      "Z-Level", "Pencil", "Horizontal", "Equidistant",
-      "5-Axis Swarf", "5-Axis Contouring"
+      "Contour Milling",
+      "Pocket Milling",
+      "Face Milling",
+      "3D Roughing",
+      "3D Finishing",
+      "Rest Roughing",
+      "Z-Level",
+      "Pencil",
+      "Horizontal",
+      "Equidistant",
+      "5-Axis Swarf",
+      "5-Axis Contouring"
     ]
-  }
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pdf-ext-ms1-gate",
+    "mcp_action": "prism_pdf-ext:pdf_ext_ms1_run",
+    "skill_command": "/pdf-ext-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pdf-ext-ms1-gate"
+    ],
+    "new_actions": [
+      "pdf_ext_ms1_run"
+    ],
+    "new_skills": [
+      "/pdf-ext-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Deep extraction from all hyperMILL documentation (2,666 pages, 4.8M characters) plus hyperCAD-S Python API (179 scripts). Extracts cycles, procedures, warnings, and builds knowledge graph. Also extracts Python scripting API for CAD/CAM automation.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

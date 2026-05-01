@@ -1,0 +1,3040 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "FormulaHarvesterEngine",
+  "harvestedAt": "2026-04-18T19:42:15.228Z",
+  "totalFormulas": 123,
+  "formulas": [
+    {
+      "formula_id": "F-HARVEST-PRISMC-001",
+      "name": "Cutting Heat Generation",
+      "domain": "thermal",
+      "category": "thermodynamics",
+      "equation": "Q = Fc × Vc × η_heat",
+      "equation_plain": "Q = Fc × Vc × η_heat",
+      "parameters": [
+        {
+          "name": "Fc",
+          "symbol": "Fc",
+          "unit": "-",
+          "description": "Parameter Fc",
+          "type": "input"
+        },
+        {
+          "name": "Vc",
+          "symbol": "Vc",
+          "unit": "-",
+          "description": "Parameter Vc",
+          "type": "input"
+        },
+        {
+          "name": "eta_heat",
+          "symbol": "eta_heat",
+          "unit": "-",
+          "description": "Parameter eta_heat",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "Fc",
+          "Vc"
+        ]
+      },
+      "description": "Heat generated at cutting zone from mechanical work",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-002",
+      "name": "Cooling Efficiency",
+      "domain": "optimization",
+      "category": "thermodynamics",
+      "equation": "η_max = 1 - T_cold / T_hot",
+      "equation_plain": "η_max = 1 - T_cold / T_hot",
+      "parameters": [
+        {
+          "name": "T_hot",
+          "symbol": "T_hot",
+          "unit": "-",
+          "description": "Parameter T_hot",
+          "type": "input"
+        },
+        {
+          "name": "T_cold",
+          "symbol": "T_cold",
+          "unit": "-",
+          "description": "Parameter T_cold",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "T_hot"
+        ]
+      },
+      "description": "Maximum theoretical cooling efficiency for flood/mist coolant",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-003",
+      "name": "Radiative Heat Loss",
+      "domain": "thermal",
+      "category": "thermodynamics",
+      "equation": "P = ε × σ × A × (T⁴ - T_amb⁴)",
+      "equation_plain": "P = ε × σ × A × (T⁴ - T_amb⁴)",
+      "parameters": [
+        {
+          "name": "T_surface",
+          "symbol": "T_surface",
+          "unit": "-",
+          "description": "Parameter T_surface",
+          "type": "input"
+        },
+        {
+          "name": "T_ambient",
+          "symbol": "T_ambient",
+          "unit": "-",
+          "description": "Parameter T_ambient",
+          "type": "input"
+        },
+        {
+          "name": "area",
+          "symbol": "area",
+          "unit": "-",
+          "description": "Parameter area",
+          "type": "input"
+        },
+        {
+          "name": "emissivity",
+          "symbol": "emissivity",
+          "unit": "-",
+          "description": "Parameter emissivity",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "T_surface",
+          "T_ambient",
+          "area"
+        ]
+      },
+      "description": "Heat loss through radiation (important for dry machining)",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-004",
+      "name": "Entropy Generation",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "S_gen = Q/T_cold - Q/T_hot",
+      "equation_plain": "S_gen = Q/T_cold - Q/T_hot",
+      "parameters": [
+        {
+          "name": "Q",
+          "symbol": "Q",
+          "unit": "-",
+          "description": "Parameter Q",
+          "type": "input"
+        },
+        {
+          "name": "T_cold",
+          "symbol": "T_cold",
+          "unit": "-",
+          "description": "Parameter T_cold",
+          "type": "input"
+        },
+        {
+          "name": "T_hot",
+          "symbol": "T_hot",
+          "unit": "-",
+          "description": "Parameter T_hot",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "Q",
+          "T_cold"
+        ]
+      },
+      "description": "Measure of process irreversibility - lower is more efficient",
+      "theory": "Minimize entropy generation for optimal energy efficiency",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-005",
+      "name": "Tool Wear Thermodynamics",
+      "domain": "wear",
+      "category": "general",
+      "equation": "ΔG = ΔH - T × ΔS",
+      "equation_plain": "ΔG = ΔH - T × ΔS",
+      "parameters": [
+        {
+          "name": "deltaH",
+          "symbol": "deltaH",
+          "unit": "-",
+          "description": "Parameter deltaH",
+          "type": "input"
+        },
+        {
+          "name": "T",
+          "symbol": "T",
+          "unit": "-",
+          "description": "Parameter T",
+          "type": "input"
+        },
+        {
+          "name": "deltaS",
+          "symbol": "deltaS",
+          "unit": "-",
+          "description": "Parameter deltaS",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "deltaH",
+          "T"
+        ]
+      },
+      "description": "Predicts chemical wear rates based on thermodynamic favorability",
+      "theory": "Negative ΔG means wear reaction is spontaneous",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-006",
+      "name": "Reynolds Number",
+      "domain": "fluid",
+      "category": "fluid_dynamics",
+      "equation": "Re = ρ × v × D / μ",
+      "equation_plain": "Re = ρ × v × D / μ",
+      "parameters": [
+        {
+          "name": "density",
+          "symbol": "density",
+          "unit": "-",
+          "description": "Parameter density",
+          "type": "input"
+        },
+        {
+          "name": "velocity",
+          "symbol": "velocity",
+          "unit": "-",
+          "description": "Parameter velocity",
+          "type": "input"
+        },
+        {
+          "name": "diameter",
+          "symbol": "diameter",
+          "unit": "-",
+          "description": "Parameter diameter",
+          "type": "input"
+        },
+        {
+          "name": "viscosity",
+          "symbol": "viscosity",
+          "unit": "-",
+          "description": "Parameter viscosity",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "density",
+          "velocity",
+          "diameter"
+        ]
+      },
+      "description": "Determines if coolant flow is laminar or turbulent",
+      "theory": "Turbulent flow (Re > 4000) provides better heat transfer",
+      "consumers": [
+        "CoolantController",
+        "ChipEvacuationEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-007",
+      "name": "Coolant Pressure Drop",
+      "domain": "fluid",
+      "category": "fluid_dynamics",
+      "equation": "P1 + ½ρv1² = P2 + ½ρv2²",
+      "equation_plain": "P1 + ½ρv1² = P2 + ½ρv2²",
+      "parameters": [
+        {
+          "name": "P1",
+          "symbol": "P1",
+          "unit": "-",
+          "description": "Parameter P1",
+          "type": "input"
+        },
+        {
+          "name": "v1",
+          "symbol": "v1",
+          "unit": "-",
+          "description": "Parameter v1",
+          "type": "input"
+        },
+        {
+          "name": "v2",
+          "symbol": "v2",
+          "unit": "-",
+          "description": "Parameter v2",
+          "type": "input"
+        },
+        {
+          "name": "density",
+          "symbol": "density",
+          "unit": "-",
+          "description": "Parameter density",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "P1",
+          "v1",
+          "v2"
+        ]
+      },
+      "description": "Pressure-velocity relationship in coolant delivery",
+      "consumers": [
+        "CoolantController",
+        "ChipEvacuationEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-008",
+      "name": "Chip Evacuation Force",
+      "domain": "cutting_physics",
+      "category": "fluid_dynamics",
+      "equation": "F_drag = ½ × ρ × v² × C_d × A",
+      "equation_plain": "F_drag = ½ × ρ × v² × C_d × A",
+      "parameters": [
+        {
+          "name": "fluidDensity",
+          "symbol": "fluidDensity",
+          "unit": "-",
+          "description": "Parameter fluidDensity",
+          "type": "input"
+        },
+        {
+          "name": "flowVelocity",
+          "symbol": "flowVelocity",
+          "unit": "-",
+          "description": "Parameter flowVelocity",
+          "type": "input"
+        },
+        {
+          "name": "dragCoeff",
+          "symbol": "dragCoeff",
+          "unit": "-",
+          "description": "Parameter dragCoeff",
+          "type": "input"
+        },
+        {
+          "name": "chipArea",
+          "symbol": "chipArea",
+          "unit": "-",
+          "description": "Parameter chipArea",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "fluidDensity",
+          "flowVelocity",
+          "dragCoeff"
+        ]
+      },
+      "description": "Force required to evacuate chips via coolant flow",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-009",
+      "name": "Coolant Line Loss",
+      "domain": "fluid",
+      "category": "general",
+      "equation": "ΔP = f × (L/D) × (ρv²/2)",
+      "equation_plain": "ΔP = f × (L/D) × (ρv²/2)",
+      "parameters": [
+        {
+          "name": "frictionFactor",
+          "symbol": "frictionFactor",
+          "unit": "-",
+          "description": "Parameter frictionFactor",
+          "type": "input"
+        },
+        {
+          "name": "length",
+          "symbol": "length",
+          "unit": "-",
+          "description": "Parameter length",
+          "type": "input"
+        },
+        {
+          "name": "diameter",
+          "symbol": "diameter",
+          "unit": "-",
+          "description": "Parameter diameter",
+          "type": "input"
+        },
+        {
+          "name": "density",
+          "symbol": "density",
+          "unit": "-",
+          "description": "Parameter density",
+          "type": "input"
+        },
+        {
+          "name": "velocity",
+          "symbol": "velocity",
+          "unit": "-",
+          "description": "Parameter velocity",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "frictionFactor",
+          "length",
+          "diameter",
+          "density"
+        ]
+      },
+      "description": "Pressure loss in coolant delivery lines",
+      "consumers": [
+        "CoolantController",
+        "ChipEvacuationEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-010",
+      "name": "Quantum Annealing",
+      "domain": "optimization",
+      "category": "quantum",
+      "equation": "P_tunnel ∝ exp(-2γ√(2m(V-E))/ℏ)",
+      "equation_plain": "P_tunnel ∝ exp(-2γ√(2m(V-E))/ℏ)",
+      "parameters": [
+        {
+          "name": "currentEnergy",
+          "symbol": "currentEnergy",
+          "unit": "-",
+          "description": "Parameter currentEnergy",
+          "type": "input"
+        },
+        {
+          "name": "barrierHeight",
+          "symbol": "barrierHeight",
+          "unit": "-",
+          "description": "Parameter barrierHeight",
+          "type": "input"
+        },
+        {
+          "name": "temperature",
+          "symbol": "temperature",
+          "unit": "-",
+          "description": "Parameter temperature",
+          "type": "input"
+        },
+        {
+          "name": "gamma",
+          "symbol": "gamma",
+          "unit": "-",
+          "description": "Parameter gamma",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "currentEnergy",
+          "barrierHeight",
+          "temperature"
+        ]
+      },
+      "description": "Escape local minima in toolpath optimization using quantum tunneling concept",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-011",
+      "name": "Parallel Solution Exploration",
+      "domain": "optimization",
+      "category": "quantum",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "solutionStates",
+          "symbol": "solutionStates",
+          "unit": "-",
+          "description": "Parameter solutionStates",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Explore multiple toolpath solutions in superposition",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-012",
+      "name": "Measurement Uncertainty",
+      "domain": "general",
+      "category": "quantum",
+      "equation": "Δx × Δt ≥ k (where k depends on sensor characteristics)",
+      "equation_plain": "Δx × Δt ≥ k (where k depends on sensor characteristics)",
+      "parameters": [
+        {
+          "name": "desiredAccuracy",
+          "symbol": "desiredAccuracy",
+          "unit": "-",
+          "description": "Parameter desiredAccuracy",
+          "type": "input"
+        },
+        {
+          "name": "sensorConstant",
+          "symbol": "sensorConstant",
+          "unit": "-",
+          "description": "Parameter sensorConstant",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "desiredAccuracy"
+        ]
+      },
+      "description": "Fundamental trade-off between accuracy and measurement speed",
+      "theory": "Higher accuracy requires longer measurement time",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-013",
+      "name": "Tool Vibration Modes",
+      "domain": "stability",
+      "category": "wave_mechanics",
+      "equation": "f_n = (n/2L) × √(E×I / (ρ×A))",
+      "equation_plain": "f_n = (n/2L) × √(E×I / (ρ×A))",
+      "parameters": [
+        {
+          "name": "length",
+          "symbol": "length",
+          "unit": "-",
+          "description": "Parameter length",
+          "type": "input"
+        },
+        {
+          "name": "E",
+          "symbol": "E",
+          "unit": "-",
+          "description": "Parameter E",
+          "type": "input"
+        },
+        {
+          "name": "I",
+          "symbol": "I",
+          "unit": "-",
+          "description": "Parameter I",
+          "type": "input"
+        },
+        {
+          "name": "density",
+          "symbol": "density",
+          "unit": "-",
+          "description": "Parameter density",
+          "type": "input"
+        },
+        {
+          "name": "area",
+          "symbol": "area",
+          "unit": "-",
+          "description": "Parameter area",
+          "type": "input"
+        },
+        {
+          "name": "mode",
+          "symbol": "mode",
+          "unit": "-",
+          "description": "Parameter mode",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "length",
+          "E",
+          "I",
+          "density",
+          "area"
+        ]
+      },
+      "description": "Natural vibration modes of cutting tool",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-014",
+      "name": "Chatter Resonance Condition",
+      "domain": "stability",
+      "category": "wave_mechanics",
+      "equation": "f_chatter = f_tool_natural × (1 ± ε)",
+      "equation_plain": "f_chatter = f_tool_natural × (1 ± ε)",
+      "parameters": [
+        {
+          "name": "toolFreq",
+          "symbol": "toolFreq",
+          "unit": "-",
+          "description": "Parameter toolFreq",
+          "type": "input"
+        },
+        {
+          "name": "workpieceFreq",
+          "symbol": "workpieceFreq",
+          "unit": "-",
+          "description": "Parameter workpieceFreq",
+          "type": "input"
+        },
+        {
+          "name": "tolerance",
+          "symbol": "tolerance",
+          "unit": "-",
+          "description": "Parameter tolerance",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "toolFreq",
+          "workpieceFreq"
+        ]
+      },
+      "description": "Condition for regenerative chatter onset",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-015",
+      "name": "Moving Tool Frequency Shift",
+      "domain": "stability",
+      "category": "wave_mechanics",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "sourceFreq",
+          "symbol": "sourceFreq",
+          "unit": "-",
+          "description": "Parameter sourceFreq",
+          "type": "input"
+        },
+        {
+          "name": "toolVelocity",
+          "symbol": "toolVelocity",
+          "unit": "-",
+          "description": "Parameter toolVelocity",
+          "type": "input"
+        },
+        {
+          "name": "soundSpeed",
+          "symbol": "soundSpeed",
+          "unit": "-",
+          "description": "Parameter soundSpeed",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "sourceFreq",
+          "toolVelocity"
+        ]
+      },
+      "description": "Frequency shift due to relative tool motion (for acoustic monitoring)",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-016",
+      "name": "Parallel Time Optimization",
+      "domain": "optimization",
+      "category": "relativity",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "operations",
+          "symbol": "operations",
+          "unit": "-",
+          "description": "Parameter operations",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimize operations running at different time scales",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-017",
+      "name": "Coordinate Transformation",
+      "domain": "general",
+      "category": "relativity",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "point",
+          "symbol": "point",
+          "unit": "-",
+          "description": "Parameter point",
+          "type": "input"
+        },
+        {
+          "name": "transformMatrix",
+          "symbol": "transformMatrix",
+          "unit": "-",
+          "description": "Parameter transformMatrix",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "point"
+        ]
+      },
+      "description": "Transform between machine, workpiece, and tool coordinate systems",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-018",
+      "name": "Genetic Algorithm",
+      "domain": "cutting_physics",
+      "category": "evolutionary_algorithms",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Evolve optimal toolpath parameters through natural selection",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-019",
+      "name": "Differential Evolution",
+      "domain": "cutting_physics",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Robust optimization for cutting parameters",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-020",
+      "name": "Particle Swarm",
+      "domain": "optimization",
+      "category": "swarm_intelligence",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Social learning for toolpath optimization",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-021",
+      "name": "Ant Colony",
+      "domain": "optimization",
+      "category": "swarm_intelligence",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Find optimal operation sequence through pheromone trails",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-022",
+      "name": "Bee Algorithm",
+      "domain": "stability",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimize tool magazine layout based on usage frequency",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-023",
+      "name": "Hebbian Learning",
+      "domain": "learning",
+      "category": "neural_network_biology",
+      "equation": "Δw = η × x × y (weight change = learning rate × input × output)",
+      "equation_plain": "Δw = η × x × y (weight change = learning rate × input × output)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Strengthen connections between co-occurring events",
+      "consumers": [
+        "AIRecommendationEngine",
+        "PredictiveMaintenanceEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-024",
+      "name": "Stdp Learning",
+      "domain": "learning",
+      "category": "neural_network_biology",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Timing-based learning - earlier events influence later ones",
+      "theory": "Operations that prevent errors (pre) should strengthen connection to success (post)",
+      "consumers": [
+        "AIRecommendationEngine",
+        "PredictiveMaintenanceEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-025",
+      "name": "Cmac Learning",
+      "domain": "learning",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Fast motor skill learning - applicable to toolpath adaptation",
+      "consumers": [
+        "AIRecommendationEngine",
+        "PredictiveMaintenanceEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-026",
+      "name": "Gene Expression",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Turn features on/off based on environmental conditions",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-027",
+      "name": "Error Correction",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Self-healing algorithms for toolpath errors",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-028",
+      "name": "Marginal Cost",
+      "domain": "optimization",
+      "category": "microeconomics",
+      "equation": "MC = ΔTC / ΔQ",
+      "equation_plain": "MC = ΔTC / ΔQ",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Cost of producing one additional part",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-029",
+      "name": "Economies Of Scale",
+      "domain": "optimization",
+      "category": "microeconomics",
+      "equation": "AC(Q) = FC/Q + VC",
+      "equation_plain": "AC(Q) = FC/Q + VC",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Cost reduction through increased production volume",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-030",
+      "name": "Price Elasticity",
+      "domain": "general",
+      "category": "general",
+      "equation": "E = (ΔQ/Q) / (ΔP/P)",
+      "equation_plain": "E = (ΔQ/Q) / (ΔP/P)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "How quantity demanded changes with price",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-031",
+      "name": "Opportunity Cost",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Value of next best alternative foregone",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-032",
+      "name": "Nash Equilibrium",
+      "domain": "general",
+      "category": "game_theory",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Stable allocation where no agent benefits from changing",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-033",
+      "name": "Auction Theory",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Allocate machine time through bidding",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-034",
+      "name": "Cooperative Strategy",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Long-term cooperation vs short-term exploitation",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-035",
+      "name": "Efficient Frontier",
+      "domain": "optimization",
+      "category": "portfolio_theory",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimal mix of jobs balancing risk and return",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-036",
+      "name": "Value At Risk",
+      "domain": "financial",
+      "category": "general",
+      "equation": "VaR = μ - z × σ",
+      "equation_plain": "VaR = μ - z × σ",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Maximum expected loss at confidence level",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-037",
+      "name": "Kelly Criterion",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "f* = (p×b - q) / b where p=win prob, q=1-p, b=odds",
+      "equation_plain": "f* = (p×b - q) / b where p=win prob, q=1-p, b=odds",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimal fraction of capacity to allocate",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-038",
+      "name": "Dynamic Pricing",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Adjust prices based on current capacity",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-039",
+      "name": "Market Equilibrium",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Find price where supply meets demand",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-040",
+      "name": "Shannon Entropy",
+      "domain": "thermal",
+      "category": "general",
+      "equation": "H(X) = -Σ p(x) × log₂(p(x))",
+      "equation_plain": "H(X) = -Σ p(x) × log₂(p(x))",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Measure of information content / uncertainty",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-041",
+      "name": "Conditional Entropy",
+      "domain": "thermal",
+      "category": "general",
+      "equation": "H(Y|X) = Σ p(x) × H(Y|X=x)",
+      "equation_plain": "H(Y|X) = Σ p(x) × H(Y|X=x)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Remaining uncertainty after observing variable",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-042",
+      "name": "Information Gain",
+      "domain": "thermal",
+      "category": "general",
+      "equation": "IG(Y,X) = H(Y) - H(Y|X)",
+      "equation_plain": "IG(Y,X) = H(Y) - H(Y|X)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Reduction in entropy from making a decision",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-043",
+      "name": "Cross Entropy",
+      "domain": "learning",
+      "category": "general",
+      "equation": "H(p,q) = -Σ p(x) × log(q(x))",
+      "equation_plain": "H(p,q) = -Σ p(x) × log(q(x))",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Measure of prediction accuracy",
+      "consumers": [
+        "AIRecommendationEngine",
+        "PredictiveMaintenanceEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-044",
+      "name": "Shannon Limit",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "C = B × log₂(1 + S/N)",
+      "equation_plain": "C = B × log₂(1 + S/N)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Maximum data rate for communication channel",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-045",
+      "name": "Huffman Coding",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimal prefix-free coding for G-code compression",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-046",
+      "name": "Compute",
+      "domain": "financial",
+      "category": "mutual_information",
+      "equation": "I(X;Y) = H(X) + H(Y) - H(X,Y)",
+      "equation_plain": "I(X;Y) = H(X) + H(Y) - H(X,Y)",
+      "parameters": [
+        {
+          "name": "entropyX",
+          "symbol": "entropyX",
+          "unit": "-",
+          "description": "Parameter entropyX",
+          "type": "input"
+        },
+        {
+          "name": "entropyY",
+          "symbol": "entropyY",
+          "unit": "-",
+          "description": "Parameter entropyY",
+          "type": "input"
+        },
+        {
+          "name": "jointEntropy",
+          "symbol": "jointEntropy",
+          "unit": "-",
+          "description": "Parameter jointEntropy",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "entropyX",
+          "entropyY"
+        ]
+      },
+      "description": "Shared information between two variables",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-047",
+      "name": "Normalized",
+      "domain": "surface",
+      "category": "mutual_information",
+      "equation": "NMI(X;Y) = 2×I(X;Y) / (H(X) + H(Y))",
+      "equation_plain": "NMI(X;Y) = 2×I(X;Y) / (H(X) + H(Y))",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "",
+      "consumers": [
+        "SurfaceFinishPredictor",
+        "SurfaceIntegrityEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-048",
+      "name": "Bayes Theorem",
+      "domain": "general",
+      "category": "bayesian_inference",
+      "equation": "P(H|E) = P(E|H) × P(H) / P(E)",
+      "equation_plain": "P(H|E) = P(E|H) × P(H) / P(E)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Update beliefs based on evidence",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-049",
+      "name": "Naive Bayes",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Fast probabilistic classification",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-050",
+      "name": "Beta Binomial",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "A/B testing for strategy comparison",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-051",
+      "name": "Markov Chain",
+      "domain": "wear",
+      "category": "markov_chains",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Model state transitions with memory-less property",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-052",
+      "name": "Hidden Markov Model",
+      "domain": "learning",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Infer hidden states from observations",
+      "consumers": [
+        "AIRecommendationEngine",
+        "PredictiveMaintenanceEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-053",
+      "name": "Simulation",
+      "domain": "general",
+      "category": "monte_carlo",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Estimate distributions through random sampling",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-054",
+      "name": "Latin Hypercube",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Efficient sampling for parameter space exploration",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-055",
+      "name": "Mm1 Queue",
+      "domain": "general",
+      "category": "queuing_theory",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Single-server queue with exponential arrivals/service",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-056",
+      "name": "Mmc Queue",
+      "domain": "general",
+      "category": "queuing_theory",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Multi-server queue for machine cells",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-057",
+      "name": "Littles Law",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "L = λ × W (fundamental queuing relationship)",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-058",
+      "name": "Johnsons Algorithm",
+      "domain": "optimization",
+      "category": "scheduling",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimal sequence for 2-machine flow shop",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-059",
+      "name": "Priority Rules",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Heuristic rules for job sequencing",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-060",
+      "name": "Job Shop G A",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "GA for complex job shop scheduling problems",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-061",
+      "name": "Eoq",
+      "domain": "optimization",
+      "category": "inventory",
+      "equation": "Q* = √(2×D×S / H)",
+      "equation_plain": "Q* = √(2×D×S / H)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Optimal order quantity to minimize total cost",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-062",
+      "name": "Safety Stock",
+      "domain": "general",
+      "category": "inventory",
+      "equation": "SS = z × σ_L where σ_L = √(L×σ_d² + d²×σ_L²)",
+      "equation_plain": "SS = z × σ_L where σ_L = √(L×σ_d² + d²×σ_L²)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Buffer stock for demand/lead time uncertainty",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-063",
+      "name": "Abc Analysis",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Classify items by importance (Pareto principle)",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-064",
+      "name": "Wrights Law",
+      "domain": "learning",
+      "category": "learning_curves",
+      "equation": "Y_n = Y_1 × n^b where b = log(learning rate) / log(2)",
+      "equation_plain": "Y_n = Y_1 × n^b where b = log(learning rate) / log(2)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Unit time decreases by constant percentage with doubled production",
+      "consumers": [
+        "AIRecommendationEngine",
+        "PredictiveMaintenanceEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-065",
+      "name": "Forgetting Curve",
+      "domain": "general",
+      "category": "general",
+      "equation": "R = e^(-t/S) where S = stability",
+      "equation_plain": "R = e^(-t/S) where S = stability",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Memory retention decreases over time",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-066",
+      "name": "Millers Law",
+      "domain": "general",
+      "category": "cognitive_load",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Working memory limited to ~7 items",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-067",
+      "name": "Hicks Law",
+      "domain": "optimization",
+      "category": "cognitive_load",
+      "equation": "T = b × log₂(n + 1)",
+      "equation_plain": "T = b × log₂(n + 1)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Decision time increases with number of choices",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-068",
+      "name": "Fitts Law",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "MT = a + b × log₂(2D/W)",
+      "equation_plain": "MT = a + b × log₂(2D/W)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Time to acquire target depends on distance and size",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-069",
+      "name": "Prospect Theory",
+      "domain": "general",
+      "category": "decision_making",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "People weight losses more than equivalent gains",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-070",
+      "name": "Signal Detection",
+      "domain": "optimization",
+      "category": "decision_making",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Trade-off between hits and false alarms",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-071",
+      "name": "Arrhenius",
+      "domain": "wear",
+      "category": "reaction_kinetics",
+      "equation": "k = A × exp(-Ea / RT)",
+      "equation_plain": "k = A × exp(-Ea / RT)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Temperature dependence of chemical wear rate",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-072",
+      "name": "Coolant Degradation",
+      "domain": "wear",
+      "category": "general",
+      "equation": "C = C₀ × exp(-kt)",
+      "equation_plain": "C = C₀ × exp(-kt)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "First-order decay of coolant effectiveness",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-073",
+      "name": "Faradays Law",
+      "domain": "general",
+      "category": "electrochemistry",
+      "equation": "m = M × I × t / (n × F)",
+      "equation_plain": "m = M × I × t / (n × F)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Material removal in ECM",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-074",
+      "name": "Edm Energy",
+      "domain": "optimization",
+      "category": "electrochemistry",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Spark energy distribution in EDM",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-075",
+      "name": "Fick First Law",
+      "domain": "wear",
+      "category": "diffusion",
+      "equation": "J = -D × dC/dx",
+      "equation_plain": "J = -D × dC/dx",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Steady-state diffusion flux",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-076",
+      "name": "Diffusion Coefficient",
+      "domain": "thermal",
+      "category": "diffusion",
+      "equation": "D = D₀ × exp(-Q / RT)",
+      "equation_plain": "D = D₀ × exp(-Q / RT)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Temperature dependence of diffusion",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-077",
+      "name": "Dijkstra",
+      "domain": "cutting_physics",
+      "category": "shortest_path",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Shortest path from source to all nodes",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-078",
+      "name": "A Star",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Heuristic shortest path",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-079",
+      "name": "Nearest Neighbor",
+      "domain": "general",
+      "category": "traveling_salesman",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Greedy TSP approximation",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-080",
+      "name": "Two Opt",
+      "domain": "optimization",
+      "category": "traveling_salesman",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Local search improvement for TSP",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-081",
+      "name": "Max Flow",
+      "domain": "optimization",
+      "category": "network_flow",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Maximum flow through network",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-082",
+      "name": "Min Cost Max Flow",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Maximum flow at minimum cost",
+      "theory": "Use for job assignment with costs",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-083",
+      "name": "Lyapunov Exponent",
+      "domain": "stability",
+      "category": "nonlinear_dynamics",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Measure of sensitivity to initial conditions",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-084",
+      "name": "Bifurcation",
+      "domain": "stability",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "How system behavior changes with parameter",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-085",
+      "name": "Cellular Automata",
+      "domain": "surface",
+      "category": "emergence",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Simple rules creating complex patterns",
+      "consumers": [
+        "SurfaceFinishPredictor",
+        "SurfaceIntegrityEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMC-086",
+      "name": "Self Organized Criticality",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Systems naturally evolve to critical state",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_CROSS_DISCIPLINARY_FORMULAS_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-001",
+      "name": "Black Scholes",
+      "domain": "financial",
+      "category": "prism_advanced_cross",
+      "equation": "C = S₀×N(d₁) - K×e^(-rT)×N(d₂)",
+      "equation_plain": "C = S₀×N(d₁) - K×e^(-rT)×N(d₂)",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Value flexibility in investment decisions",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-002",
+      "name": "Value At Risk",
+      "domain": "financial",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Maximum expected loss at confidence level",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-003",
+      "name": "Sharpe Ratio",
+      "domain": "financial",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Risk-adjusted return measure",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-004",
+      "name": "Harmonic Series",
+      "domain": "stability",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Fundamental frequency and overtones",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-005",
+      "name": "Consonance Ratios",
+      "domain": "stability",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Simple frequency ratios = stability",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-006",
+      "name": "Beat Frequency",
+      "domain": "stability",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Interference between close frequencies",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-007",
+      "name": "Tempo Mapping",
+      "domain": "financial",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Musical tempo concepts for speed variation",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-008",
+      "name": "Logistic Growth",
+      "domain": "wear",
+      "category": "general",
+      "equation": "N(t) = K / (1 + (K/N₀ - 1) × e^(-rt))",
+      "equation_plain": "N(t) = K / (1 + (K/N₀ - 1) × e^(-rt))",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "S-curve growth that saturates",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-009",
+      "name": "Lotka Volterra",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Predator-prey dynamics for job-machine modeling",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-010",
+      "name": "Carrying Capacity",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Maximum sustainable production",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-011",
+      "name": "Simpsons Index",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Product/capability diversity measure",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-012",
+      "name": "Critical Power",
+      "domain": "cutting_physics",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Sustainable output vs time",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-013",
+      "name": "Fatigue",
+      "domain": "wear",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Performance degradation over time",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-014",
+      "name": "Elo Rating",
+      "domain": "quality",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Dynamic capability rating",
+      "consumers": [
+        "ProcessCapabilityEngine",
+        "SPCEngine",
+        "QualityControlEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-015",
+      "name": "Sir Model",
+      "domain": "surface",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Susceptible-Infected-Recovered for defect propagation",
+      "consumers": [
+        "SurfaceFinishPredictor",
+        "SurfaceIntegrityEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-016",
+      "name": "Bass Diffusion",
+      "domain": "wear",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Technology adoption modeling",
+      "consumers": [
+        "ToolWearProgression",
+        "ToolLifeEngine",
+        "TaylorToolLife"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-017",
+      "name": "Lanchester Square Law",
+      "domain": "cutting_physics",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Concentration of force advantage",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-018",
+      "name": "Ooda Loop",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Observe-Orient-Decide-Act decision cycle",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-019",
+      "name": "Gompertz Growth",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Asymmetric S-curve growth",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-020",
+      "name": "Liebig Minimum",
+      "domain": "deflection",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Output limited by scarcest resource",
+      "consumers": [
+        "ToolDeflectionEngine",
+        "PartDeflectionEngine",
+        "BoringBarDeflection"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMA-021",
+      "name": "Variable Rate Control",
+      "domain": "financial",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Adaptive parameter control based on conditions",
+      "consumers": [
+        "QuoteEstimatorEngine",
+        "InvestmentDecisionEngine",
+        "RiskManagementEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_ADVANCED_CROSS_DOMAIN_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-001",
+      "name": "Fortune's Sweep Line Algorithm",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "points",
+          "symbol": "points",
+          "unit": "-",
+          "description": "Parameter points",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Fortune's Sweep Line Algorithm — Complexity: O(n log n)",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-002",
+      "name": "Delaunay Triangulation",
+      "domain": "geometry",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "points",
+          "symbol": "points",
+          "unit": "-",
+          "description": "Parameter points",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Delaunay Triangulation — Complexity: O(n log n)",
+      "consumers": [
+        "ToolpathEngine",
+        "MeshProcessingEngine",
+        "AdaptiveClearingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-003",
+      "name": "Fast Fourier Transform",
+      "domain": "stability",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "data",
+          "symbol": "data",
+          "unit": "-",
+          "description": "Parameter data",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Fast Fourier Transform — Complexity: O(n log n)",
+      "consumers": [
+        "ChatterStabilityLobeEngine",
+        "VibrationAnalyzer",
+        "DampingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-004",
+      "name": "Log-Barrier Interior Point Method",
+      "domain": "deflection",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "c",
+          "symbol": "c",
+          "unit": "-",
+          "description": "Parameter c",
+          "type": "input"
+        },
+        {
+          "name": "A",
+          "symbol": "A",
+          "unit": "-",
+          "description": "Parameter A",
+          "type": "input"
+        },
+        {
+          "name": "b",
+          "symbol": "b",
+          "unit": "-",
+          "description": "Parameter b",
+          "type": "input"
+        },
+        {
+          "name": "options",
+          "symbol": "options",
+          "unit": "-",
+          "description": "Parameter options",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "c",
+          "A",
+          "b"
+        ]
+      },
+      "description": "Log-Barrier Interior Point Method — Complexity: O(n³ log(1/ε))",
+      "consumers": [
+        "ToolDeflectionEngine",
+        "PartDeflectionEngine",
+        "BoringBarDeflection"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-005",
+      "name": "Revised Simplex Method",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "c",
+          "symbol": "c",
+          "unit": "-",
+          "description": "Parameter c",
+          "type": "input"
+        },
+        {
+          "name": "A",
+          "symbol": "A",
+          "unit": "-",
+          "description": "Parameter A",
+          "type": "input"
+        },
+        {
+          "name": "b",
+          "symbol": "b",
+          "unit": "-",
+          "description": "Parameter b",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "c",
+          "A"
+        ]
+      },
+      "description": "Revised Simplex Method — Complexity: O(2^n) worst",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-006",
+      "name": "Gradient Descent with Line Search",
+      "domain": "cutting_physics",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "f",
+          "symbol": "f",
+          "unit": "-",
+          "description": "Parameter f",
+          "type": "input"
+        },
+        {
+          "name": "grad",
+          "symbol": "grad",
+          "unit": "-",
+          "description": "Parameter grad",
+          "type": "input"
+        },
+        {
+          "name": "x0",
+          "symbol": "x0",
+          "unit": "-",
+          "description": "Parameter x0",
+          "type": "input"
+        },
+        {
+          "name": "options",
+          "symbol": "options",
+          "unit": "-",
+          "description": "Parameter options",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": [
+          "f",
+          "grad",
+          "x0"
+        ]
+      },
+      "description": "Gradient Descent with Line Search — Complexity: O(1/ε)",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-007",
+      "name": "Extended Kalman Filter (EKF)",
+      "domain": "thermal",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Extended Kalman Filter (EKF) — Complexity: O(n³)",
+      "consumers": [
+        "CuttingTemperatureEngine",
+        "ThermalCompensationEngine",
+        "CoolantEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-008",
+      "name": "Linear Quadratic Regulator",
+      "domain": "optimization",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Linear Quadratic Regulator — Complexity: O(n³)",
+      "consumers": [
+        "SpeedFeedOrchestrator",
+        "ToolpathOptimizer",
+        "SchedulingEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-009",
+      "name": "PID Controller",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "PID Controller",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-010",
+      "name": "Johnson-Cook Constitutive Model",
+      "domain": "deflection",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Johnson-Cook Constitutive Model",
+      "consumers": [
+        "ToolDeflectionEngine",
+        "PartDeflectionEngine",
+        "BoringBarDeflection"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-011",
+      "name": "Extended Taylor Tool Life Equation",
+      "domain": "cutting_physics",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Extended Taylor Tool Life Equation",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-012",
+      "name": "Kc - Specific Cutting Force",
+      "domain": "cutting_physics",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Kc - Specific Cutting Force",
+      "consumers": [
+        "CuttingForceEngine",
+        "KienzleForceModel",
+        "PowerEngine"
+      ],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-013",
+      "name": "B+ Tree Index",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [
+        {
+          "name": "order",
+          "symbol": "order",
+          "unit": "-",
+          "description": "Parameter order",
+          "type": "output"
+        }
+      ],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "B+ Tree Index",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-014",
+      "name": "Error Budget RSS Method",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Error Budget RSS Method",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-015",
+      "name": "RTCP Transformation",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "RTCP Transformation",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    },
+    {
+      "formula_id": "F-HARVEST-PRISMU-016",
+      "name": "Singular Value Decomposition",
+      "domain": "general",
+      "category": "general",
+      "equation": "",
+      "equation_plain": "",
+      "parameters": [],
+      "validation": {
+        "required_inputs": []
+      },
+      "description": "Singular Value Decomposition",
+      "consumers": [],
+      "source": "resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/PRISM_UNIVERSITY_COURSE_REFERENCE_v1.js",
+      "version": "1.0.0-harvested",
+      "last_updated": "2026-04-18"
+    }
+  ]
+}

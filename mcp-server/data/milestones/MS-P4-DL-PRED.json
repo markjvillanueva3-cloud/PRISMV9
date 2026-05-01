@@ -1,0 +1,214 @@
+{
+  "id": "MS-P4-DL-PRED",
+  "title": "WEDM Deep Learning — Predictor Layer (Ra, WireBreak, Recast)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P4",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Physics baseline + LoRA correction + material embedding. Every prediction returns AtomicValue; every residual ≤ ±10% on held-out JM Die jobs.",
+  "total_units": 4,
+  "completed_units": 0,
+  "sessions": 2,
+  "dependencies": [
+    "MS-P4-DL-CORE"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.02,
+  "knowledge_sources": {
+    "engines": [
+      "WEDMLoRAAdapterEngine (from MS-P4-DL-CORE)",
+      "WEDMEWCMemoryEngine (from MS-P4-DL-CORE)",
+      "EDMCuttingParamFlushEngine (base wire-break model)",
+      "EDMMonitorSurfaceIntegrityEngine (base recast model)"
+    ],
+    "formulas": [
+      "Klocke Ra baseline (Ra ∝ W_e^0.33)",
+      "Carslaw & Jaeger semi-infinite moving heat source (1959 §10.7)",
+      "Brier score for calibration",
+      "LoRA residual correction (Hu 2021)"
+    ],
+    "tribal": [
+      "JM Die Ra measurements on 30 validation parts"
+    ],
+    "reference": [
+      "WEDM_JOB_HISTORY.json (MS-P4-DL-CORE schema v1)"
+    ]
+  },
+  "smart_config": {
+    "role": "MLEngineer+WireEDMPhysicist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 75
+  },
+  "skills": [
+    "/forge-engines",
+    "/test",
+    "/physics-verify",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP",
+    "codebase-memory-mcp"
+  ],
+  "mcp_lifecycle": "canonical + session split",
+  "session_split": {
+    "session_1": [
+      "U-P4-PR-01",
+      "U-P4-PR-02"
+    ],
+    "session_2": [
+      "U-P4-PR-03",
+      "U-P4-PR-04"
+    ],
+    "compact_checkpoints": [
+      "after U-P4-PR-02"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-P4-PR-01",
+      "title": "WEDMRaPredictorEngine",
+      "files_created": [
+        "mcp-server/src/engines/WEDMRaPredictorEngine.ts"
+      ],
+      "abort_conditions": [
+        "predicted Ra returns bare number (atomic-value-gate blocks)",
+        "MAE vs 30 JM Die jobs > ±10%",
+        "wedm-predictor-mae-gate rejects"
+      ],
+      "rollback": "git checkout mcp-server/src/engines/WEDMRaPredictorEngine.ts",
+      "exit_criteria": [
+        "Klocke base preserved when adapter off",
+        "MAE ≤ ±10% on 30 held-out JM Die Ra measurements",
+        "AtomicValue shape Zod-passes",
+        "WEDMRaPredictorEngine.test.ts ≥ 10 cases, 0 banned patterns"
+      ],
+      "description": "WEDMRaPredictorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-PR-02",
+      "title": "WEDMWireBreakPredictorEngine",
+      "files_created": [
+        "mcp-server/src/engines/WEDMWireBreakPredictorEngine.ts"
+      ],
+      "exit_criteria": [
+        "Brier score ≤ 0.15 on 20 held-out jobs",
+        "Calibration curve within ±10% of ideal diagonal",
+        "AtomicValue shape",
+        "≥ 10 test cases, 0 banned patterns"
+      ],
+      "description": "WEDMWireBreakPredictorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-PR-03",
+      "title": "WEDMRecastDepthPredictorEngine",
+      "files_created": [
+        "mcp-server/src/engines/WEDMRecastDepthPredictorEngine.ts"
+      ],
+      "exit_criteria": [
+        "matches Carslaw & Jaeger §10.7 closed form on synthetic inputs ±2%",
+        "MAE ≤ ±15% on published recast-depth data",
+        "AtomicValue",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMRecastDepthPredictorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-PR-04",
+      "title": "16+ tests for three predictors",
+      "files_created": [
+        "mcp-server/src/__tests__/WEDMPredictors.integration.test.ts"
+      ],
+      "abort_conditions": [
+        "banned-pattern-block reports any violation"
+      ],
+      "exit_criteria": [
+        "≥ 16 assertions",
+        "0 banned patterns",
+        "all MAE bounds use toBeCloseTo(published, N)"
+      ],
+      "description": "16+ tests for three predictors — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-predictor-mae-gate",
+      "description": "blocks commits where any predictor MAE exceeds ±10% on held-out JM Die set",
+      "built_in": "U-P4-PR-01"
+    },
+    "action": {
+      "name": "prism_edm:wedm_predict_ra",
+      "built_in": "U-P4-PR-01"
+    },
+    "skill": {
+      "name": "/wedm-predict",
+      "built_in": "U-P4-PR-04"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "3 predictors operational",
+      "all return AtomicValue",
+      "MAE within bound on held-out JM Die set",
+      "BASELINE_INVENTORY re-verified"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+2%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-predictor-mae-gate"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_predict_ra"
+    ],
+    "new_skills": [
+      "/wedm-predict"
+    ],
+    "available_to": [
+      "P5",
+      "P6",
+      "P9",
+      "P10"
+    ]
+  },
+  "intent": "Deliver WEDM Deep Learning — Predictor Layer (Ra, WireBreak, Recast) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -1,0 +1,525 @@
+{
+  "id": "CADCAM-DAGI-MS6",
+  "version": "1.0.0",
+  "title": "MasterPostProcessor AGI Enhancement — Cost-Efficient G-Code",
+  "brief": "Enhance existing MasterPostProcessorAGIOrchestrationEngine. Full machine exploitation (canned cycles, sub-programs, macros), controller-specific optimization (Fanuc/Okuma/Haas/Heidenhain), G-code compression (redundant-move removal, arc-fitting), cycle time optimization. Output: smallest, fastest, safest G-code for each machine.",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P1",
+  "omega_target": 1,
+  "created_at": "2026-04-18T22:00:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "dependencies": [
+    "CADCAM-DAGI-MS4",
+    "CADCAM-DAGI-MS5"
+  ],
+  "total_units": 8,
+  "total_sessions": 3,
+  "completed_units": 0,
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-DAMPP01",
+        "U-DAMPP02",
+        "U-DAMPP03"
+      ],
+      "title": "Controller-Specific Canned Cycle Exploitation",
+      "smart_config": {
+        "role": "Post-Processor Specialist + Controller Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "PRISM PostProcessorPipeline (38 stages)",
+          "Fanuc 0i/30i/31i G-code reference",
+          "Okuma OSP/THINC reference",
+          "Haas/Heidenhain references",
+          "JM Die existing .MIN programs (5,297 files)"
+        ]
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-DAMPP04",
+        "U-DAMPP05",
+        "U-DAMPP06"
+      ],
+      "title": "G-Code Compression + Cycle Time Optimization",
+      "smart_config": {
+        "role": "Optimization PhD + CNC Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Arc fitting algorithms (biarc, NURBS-to-G2/G3)",
+          "PRISM CycleTimeOptimizerEngine (from MS4)",
+          "Machine dynamic model (jerk, accel, velocity limits)"
+        ]
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-DAMPP07",
+        "U-DAMPP08"
+      ],
+      "title": "Sub-Program/Macro Library + Dispatcher",
+      "smart_config": {
+        "role": "G-Code Library Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "JM Die existing sub-program library",
+          "Fanuc macro B (system variables, functions)",
+          "Okuma user macro"
+        ]
+      }
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "U-DAMPP01",
+      "title": "ControllerCannedCycleExploiterEngine — replace long ops with canned cycles",
+      "intent": "Detect sequences that should use canned cycles (G81-G89 drilling, G71/G72 lathe roughing, G70 finishing). Replace verbose equivalents with canned cycle — shorter, faster, safer.",
+      "files_created": [
+        "mcp-server/src/engines/ControllerCannedCycleExploiterEngine.ts",
+        "mcp-server/src/data/canned-cycle-patterns.json",
+        "mcp-server/src/__tests__/ControllerCannedCycleExploiterEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/PostProcessorPipeline.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Pattern matcher (detect hole array → G81, lathe rough loop → G71). Parameter extractor. Controller-specific syntax gen.",
+        "loop_2_scrutinize": "Post-processor expert + machinist reviewer. Check: peck depth, retract, dwell semantics per controller.",
+        "loop_3_gap_fill": "G73 high-speed peck, G74/G84 tapping, G76 fine boring, G82 dwell drill.",
+        "loop_4_tie_up": "JSDoc. Canned cycle coverage matrix."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "G-code size reduction 40%+ on drilling-heavy programs. No behavior change vs verbose form.",
+        "abort_criteria": "If behavior deviation > 0.01mm.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "canned-cycle-semantic-validator",
+        "action": "post.cannedCycle",
+        "skill": "/canned-cycle-opt"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ControllerCannedCycleExploiterEngine — replace long ops with canned cycles — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP01"
+    },
+    {
+      "unit_id": "U-DAMPP02",
+      "title": "ArcFittingOptimizerEngine — replace linear-interp circles with G2/G3",
+      "intent": "CAM systems often output thousands of tiny G1 moves for circular/spline segments. Fit G2/G3 arcs (or G06.2 NURBS) where accurate. Reduce program size 70%+ on complex 2D profiles.",
+      "files_created": [
+        "mcp-server/src/engines/ArcFittingOptimizerEngine.ts",
+        "mcp-server/src/__tests__/ArcFittingOptimizerEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/PostProcessorPipeline.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Biarc fitter with tolerance. Chord-to-arc error check. G2/G3 emitter (I/J/K absolute or R-form).",
+        "loop_2_scrutinize": "Numerical analysis PhD + CAM expert. Check: tolerance honoring, arc direction correctness.",
+        "loop_3_gap_fill": "NURBS output (G06.2 Fanuc, G02.3 Okuma).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Program size -70% on 10 profile-heavy parts, 0 dimensional deviation beyond tolerance.",
+        "abort_criteria": "If arc fitting exceeds tolerance.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "arc-fit-tolerance-validator",
+        "action": "post.arcFit",
+        "skill": "/arc-fit"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ArcFittingOptimizerEngine — replace linear-interp circles with G2/G3 — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP02"
+    },
+    {
+      "unit_id": "U-DAMPP03",
+      "title": "ControllerDialectTranslatorEngine — Fanuc/Okuma/Haas/Heidenhain",
+      "intent": "Convert canonical G-code to controller-specific dialect. Macro variable conventions, decimal point handling, modal G-code behavior, work offsets (G54-G59.x or G15 H-).",
+      "files_created": [
+        "mcp-server/src/engines/ControllerDialectTranslatorEngine.ts",
+        "mcp-server/src/data/controller-dialects.json",
+        "mcp-server/src/__tests__/ControllerDialectTranslatorEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/PostProcessorPipeline.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Dialect table (modal states, decimal handling, block numbering). Per-controller emitter.",
+        "loop_2_scrutinize": "Multi-controller expert. Check: each dialect against real machine behavior.",
+        "loop_3_gap_fill": "Mitsubishi (WEDM), Mazak, Siemens 840D.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Dialect translation passes syntax check on 4 controller emulators; dry-run validates on real Haas/Okuma/Fanuc/Heidenhain.",
+        "abort_criteria": "If syntax errors on any dialect.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "controller-dialect-syntax-validator",
+        "action": "post.dialect",
+        "skill": "/dialect-translate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ControllerDialectTranslatorEngine — Fanuc/Okuma/Haas/Heidenhain — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP03"
+    },
+    {
+      "unit_id": "U-DAMPP04",
+      "title": "RedundantMoveEliminatorEngine — remove dead code",
+      "intent": "Detect and remove redundant moves: zero-length (same point), colinear sequences (collapse), repeated spindle/coolant/modal commands.",
+      "files_created": [
+        "mcp-server/src/engines/RedundantMoveEliminatorEngine.ts",
+        "mcp-server/src/__tests__/RedundantMoveEliminatorEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/PostProcessorPipeline.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Move scanner. Colinear collapse. Modal state tracker (don't re-emit G0/G1 when modal).",
+        "loop_2_scrutinize": "CNC specialist. Check: safety implications of collapse (no removal of essential dwells).",
+        "loop_3_gap_fill": "Approach-retract optimization.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "5-15% size reduction on JM Die programs, 0 tool path behavior change.",
+        "abort_criteria": "If tool path deviates.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "redundant-move-safety-check",
+        "action": "post.eliminateRedundant",
+        "skill": "/redundant-eliminate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "RedundantMoveEliminatorEngine — remove dead code — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP04"
+    },
+    {
+      "unit_id": "U-DAMPP05",
+      "title": "CycleTimeMinimizerEngine — motion optimization via machine dynamics (SAFETY-GATED)",
+      "intent": "Model machine kinematics (jerk/accel/velocity envelope). Optimize rapids: diagonal vs Cartesian, Z-first vs XY-first. Reorder operations for minimum positioning time. Every reorder commit must pass prism_safety.check_toolpath_collision AND S(x) >= 0.70 AND Z-safety-plane preservation. Hard-fails on any violation.",
+      "amendment_ref": "CADCAM-DEEPAGI-SCRUTINY-AMENDMENTS A6 (safety_physics reviewer finding)",
+      "files_created": [
+        "mcp-server/src/engines/CycleTimeMinimizerEngine.ts",
+        "mcp-server/src/engines/safety/ZSafetyPlaneGuard.ts",
+        "mcp-server/src/data/machine-dynamics-profiles.json",
+        "mcp-server/src/__tests__/CycleTimeMinimizerEngine.test.ts",
+        "mcp-server/src/__tests__/ZSafetyPlaneGuard.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/PostProcessorPipeline.ts"
+      ],
+      "safety_requirements": {
+        "collision_check": "Before every rapid reorder commit, call prism_safety dispatcher action 'check_toolpath_collision' with proposed trajectory. Any collision → reject reorder, keep original ordering.",
+        "sx_gate": "SafetyEngine.evaluate() on full optimized program must return S(x) >= 0.70. Below threshold → HARD BLOCK, return original program unchanged.",
+        "z_safety_plane": "Optimized rapids MUST retain Z retract to machine-specific safety plane before XY traversal. Violation = hard-fail, not a warning.",
+        "deterministic_rollback": "On ANY safety check failure, engine emits OptimizationRejected with reason and returns original program byte-for-byte identical."
+      },
+      "loops": {
+        "loop_1_build": "Per-axis dynamic profile (accel/jerk/vmax). Rapid reorder (TSP-style heuristic). Z-safety-plane guard enforced before commit. prism_safety.check_toolpath_collision call integrated as mandatory step in commit path. SafetyEngine S(x) gate wired in. Fail-closed semantics: ANY failure yields original program.",
+        "loop_2_scrutinize": "Optimization PhD + machinist + safety lead. Check: collision safety during optimized rapids, Z-safety-plane enforcement under all tool/geometry combos, S(x) gate reached for every commit, deterministic rollback on rejection.",
+        "loop_3_gap_fill": "Operation-level reorder (drill-all-holes-first vs stay-in-tool-group), with same safety envelope.",
+        "loop_4_tie_up": "JSDoc. Safety invariants documented. Review sign-off by safety-physics agent."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "10-20% cycle time reduction measured on 10 JM Die programs. 0 Z-safety-plane violations on regression corpus. 100% of reorder commits gated through prism_safety.check_toolpath_collision + S(x) >= 0.70.",
+        "abort_criteria": "If crash/collision in simulation; if ANY Z-safety violation accepted; if S(x) < 0.70 commit ever observed.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 30,
+        "coverage_target": "96%"
+      },
+      "forge_triple": {
+        "hook": "cycle-time-collision-guard",
+        "action": "post.cycleTimeOpt",
+        "skill": "/cycle-minimize"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CycleTimeMinimizerEngine — motion optimization via machine dynamics (SAFETY-GATED) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP05"
+    },
+    {
+      "unit_id": "U-DAMPP06",
+      "title": "GCodeCompressionEngine — master compression pipeline",
+      "intent": "Master compression: apply canned cycles + arc fitting + redundant elimination + dialect opts. Report: before/after bytes, estimated cycle time delta.",
+      "files_created": [
+        "mcp-server/src/engines/GCodeCompressionEngine.ts",
+        "mcp-server/src/__tests__/GCodeCompressionEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Pipeline wiring. Compression metrics. Before/after verification (diff simulator).",
+        "loop_2_scrutinize": "CAM expert + safety. Check: equivalence guarantee.",
+        "loop_3_gap_fill": "NURBS output for smoothing.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Overall 50%+ size reduction with 100% functional equivalence.",
+        "abort_criteria": "If equivalence broken.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "gcode-equivalence-verifier",
+        "action": "post.compress",
+        "skill": "/gcode-compress"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "GCodeCompressionEngine — master compression pipeline — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP06"
+    },
+    {
+      "unit_id": "U-DAMPP07",
+      "title": "SubProgramMacroLibraryEngine — reusable macro library",
+      "intent": "Detect repeated G-code blocks → extract as sub-programs (M98/M99) or macros. Build shop-wide macro library usable across programs. Shrinks library size, increases consistency.",
+      "files_created": [
+        "mcp-server/src/engines/SubProgramMacroLibraryEngine.ts",
+        "mcp-server/src/data/jm-die-macro-library.json",
+        "mcp-server/src/__tests__/SubProgramMacroLibraryEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Block-similarity detector. Macro parameterization. M98/M99 emitter. Macro B (Fanuc) / user macro (Okuma) synthesis.",
+        "loop_2_scrutinize": "G-code veteran machinist. Check: macro safety (parameter validation, bounds).",
+        "loop_3_gap_fill": "Macro versioning, shop governance (who can edit).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "20 macros extracted from JM Die library, 100% behavior match.",
+        "abort_criteria": "If macro behavior deviates.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "macro-library-governance",
+        "action": "post.macroLibrary",
+        "skill": "/macro-library"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "SubProgramMacroLibraryEngine — reusable macro library — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP07"
+    },
+    {
+      "unit_id": "U-DAMPP08",
+      "title": "MS6 Dispatcher Wiring + Feature Cascade",
+      "intent": "Wire 7 new engines. 8 actions. 8 skills. Cascade to MS7.",
+      "files_created": [
+        "mcp-server/src/data/CADCAM_DAGI_MS6_CASCADE.json",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.ms6.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/cadCamDeepAgiDispatcher.ts",
+        "mcp-server/src/tools/toolIndex.ts",
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Extend dispatcher. Schemas. Skills. Cascade.",
+        "loop_2_scrutinize": "Integration.",
+        "loop_3_gap_fill": "Missing wiring.",
+        "loop_4_tie_up": "Cascade."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "8 actions callable.",
+        "abort_criteria": "Regressions.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 10,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "ms6-dispatcher-integrity",
+        "action": "post.ms6.status",
+        "skill": "/ms6-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MS6 Dispatcher Wiring + Feature Cascade — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAMPP08"
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": 8,
+    "new_actions": 8,
+    "new_skills": 8,
+    "available_to": [
+      "CADCAM-DAGI-MS7"
+    ]
+  },
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms6-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms6_run",
+    "skill_command": "/cadcam-dagi-ms6",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Enhance existing MasterPostProcessorAGIOrchestrationEngine. Full machine exploitation (canned cycles, sub-programs, macros), controller-specific optimization (Fanuc/Okuma/Haas/Heidenhain), G-code compression (redundant-move removal, arc-fitting), cycle time optimization. Output: smallest, fastest, safest G-code for each machine.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

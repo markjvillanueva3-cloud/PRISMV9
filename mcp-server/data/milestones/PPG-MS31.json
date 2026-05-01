@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS31",
+  "version": "1.0.0",
+  "title": "PPG-MS31 — Shop Pilot + Training Budget + Bottleneck-First Sequencing",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Closes the shop-floor-readiness gap surfaced by R12 scrutiny (score 58). Adds MS-PILOT-0 (1 machine + 2-week soak), operator-training-hours field per envelope, shadow-mode week before cutover, DNC/Fusion-down fallback, MS4 reorder to bottleneck-first.",
+  "rationale": "Closes the shop-floor-readiness gap surfaced by R12 scrutiny (score 58). Adds MS-PILOT-0 (1 machine + 2-week soak), operator-training-hours field per envelope, shadow-mode week before cutover, DNC/Fusion-down fallback, MS4 reorder to bottleneck-first.",
+  "phase": "P2",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM186",
+      "title": "MS-PILOT-0: 1 machine (Mitsubishi MV1200R) + 1 op + 2-week soak",
+      "scope": "Single-machine pilot before fleet rollout. Bottleneck-first (MV1200R is highest-margin). Daily standup + weekly retro. Soak success criteria gate fleet rollout.",
+      "files_to_modify": [
+        "docs/pilot/ms-pilot-0-charter.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM187",
+      "title": "operator_training_hours field added to every envelope + cross-roll-up budget",
+      "scope": "Each PPG-MS gets operator_training_hours field; sum across all machines + operators. JM Die: 8 ops × 2 shifts × 21 machines × half-day per machine = 168 person-hours model. Roadmap dashboard shows training hours alongside dev hours.",
+      "files_to_modify": [
+        "src/schemas/roadmapMilestoneSchema.ts",
+        "scripts/update-envelopes-training-hours.mjs"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM188",
+      "title": "Shadow-mode week before MS12 cutover",
+      "scope": "PRISM emits + recommends; operator runs legacy program. Compare cycle times + scrap. Operator trust-formation gate before cutover.",
+      "files_to_modify": [
+        "docs/cutover/shadow-mode-protocol.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM189",
+      "title": "DNC + Fusion-down fallback procedure",
+      "scope": "When PRISM is unavailable: legacy DNC fallback documented + tested; Fusion-down → MS17 degrades gracefully (Tier A only); shop runs as if PRISM not installed. No production stoppage.",
+      "files_to_modify": [
+        "docs/cutover/fallback-procedures.md"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FallbackProcedure.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM190",
+      "title": "MS4 fleet reorder: bottleneck-first by $/hr saved",
+      "scope": "Reorder fleet rollout: MV1200R (highest-margin) → Hurco V11 → Okuma B250 → Multus → support machines. Each machine has $/hr-saved estimate. Skip support machines until $/hr threshold reached.",
+      "files_to_modify": [
+        "mcp-server/data/milestones/PPG-MS4.json"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "MS-PILOT-0 (MV1200R + 2 weeks) shows ≥10% cycle-time win + zero rollback",
+    "operator_training_hours field on every envelope; cross-roll-up budget signed off by foreman",
+    "Shadow-mode week completed before MS12 cutover; trust-formation criteria met",
+    "DNC/Fusion-down fallback procedure tested + documented",
+    "MS4 fleet rollout sequenced bottleneck-first; $/hr-saved estimate per machine"
+  ],
+  "depends_on": [
+    "PPG-MS4",
+    "PPG-MS6",
+    "PPG-MS17"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Pilot — keep as-is (deployment milestone)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

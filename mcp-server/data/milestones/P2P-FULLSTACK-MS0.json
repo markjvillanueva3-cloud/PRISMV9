@@ -1,0 +1,1023 @@
+{
+  "schemaVersion": 3,
+  "id": "P2P-FULLSTACK-MS0",
+  "title": "Print-to-Program Full Stack — WEDM AGI Coordination, Tribal Knowledge, Test Resources, Wire Wizard + Calculator",
+  "track": "P2P-FULLSTACK",
+  "status": "not_started",
+  "priority": 1,
+  "created": "2026-04-18",
+  "description": "Comprehensive print-to-program full-stack milestone that closes every gap surfaced by a 10-agent scrutiny audit: (1) wires the orphan WireEDMAIPrintToProgramEngine into AutoPrintToProgramBridgeEngine so the main AGI delegates WEDM jobs correctly, (2) injects TribalKnowledgeEngine + MachiningPlaybookEngine + CAM tips into every P2P engine, (3) exposes ~8 priority orphan WEDM engines as MCP actions, (4) wires WEDMSafetyEnvelopeEngine into ERP routes + P2P engines + autonomy engine, (5) lifts 7 inline physics violations into canonical constants.ts and adds 8 missing WEDM formulas with citations, (6) upgrades WireEdmWizardPage from 4-field form to a full DXF-import / tribal-tip / safety-badge / autonomy / RUL / quote flow, (7) adds 8 missing wire EDM calculators to CalculatorPage (spark gap, HAZ/recast, cost-per-inch, slug retention, P(break) gauge, dielectric, spool consumption, taper error budget), (8) builds 10 missing WEDM web components (AutonomyIndicator, SafetyBadge, RULGauge, PassPlanner, KerfCalculator, SparkConditionMatrix, TribalTipCard, ControllerCodePreview, FlushPressureAdvisor, MaterialThicknessChart), (9) builds SinkerEDMPrintToProgramEngine + 3 supporting engines for JM Die's 2 Mitsubishi sinker EDMs, (10) gathers 5 paired print+program test resource sets for real simulated print-to-program validation.",
+  "phase_0_scrutiny": {
+    "completed_at": "2026-04-18",
+    "agents_deployed": 10,
+    "coverage": [
+      "AGI coordination (WireEDMAIPrintToProgramEngine → main AGI)",
+      "Tribal knowledge utilization across 5 P2P engines",
+      "Test resource inventory (demo/tutorial/reference programs)",
+      "WireEdmWizardPage vs backend capability delta",
+      "CalculatorPage wire EDM section gap analysis",
+      "MCP action surface orphan detection (74 orphan WEDM engines)",
+      "WEDM physics formula coverage + inline violations",
+      "WEDMSafetyEnvelopeEngine integration gaps",
+      "WEDM web component library gaps",
+      "SinkerEDMPrintToProgramEngine existence confirmation"
+    ],
+    "findings_consolidated": "Detailed per-agent reports captured in this envelope's stage_2_codebase_audit section."
+  },
+  "stage_1_brief_analysis": {
+    "domain": "Wire EDM, Sinker EDM, Milling, Turning, Multi-Axis, AGI Coordination, Tribal Knowledge, Safety, Physics, Frontend UI, Test Infrastructure",
+    "machine_types": [
+      "Mitsubishi MV1200R/MV2400S wire EDM",
+      "Mitsubishi EA12D/EA12S sinker EDM",
+      "Okuma lathes",
+      "Hurco/Haas/Roku-Roku mills"
+    ],
+    "complexity": "XL (Extra Large)",
+    "units": 60,
+    "dependencies": [
+      "WEDM-ERP-MS0 complete",
+      "WEDM-P2P-PRODUCTION-MS0 complete",
+      "WEDM-100PCT-MS0 complete"
+    ],
+    "touches": [
+      "5 Print-to-Program engines (Milling, Turning, MultiAxis, WEDM, WireEDMAI)",
+      "AutoPrintToProgramBridgeEngine (add EDM routing branch)",
+      "edmDispatcher (expose 8 orphan engines)",
+      "TribalKnowledgeEngine + MachiningPlaybookEngine integration",
+      "WEDMSafetyEnvelopeEngine runtime wiring",
+      "physics/constants.ts (canonicalize 7 inline formulas, add 8 missing)",
+      "WireEdmWizardPage.tsx upgrade (192 → ~600 LOC)",
+      "CalculatorPage.tsx wire section extension (lines 11932–12572)",
+      "web/src/components/wedm/ (3 → 13 components)",
+      "SinkerEDM P2P pipeline (4 new engines)",
+      "Test resource corpus under data/reference/paired-print-program/"
+    ]
+  },
+  "stage_2_codebase_audit": {
+    "agent_1_agi_coordination": {
+      "finding": "WireEDMAIPrintToProgramEngine (1,129 LOC) completely orphaned — 4 references total (self, barrel export, registry metadata, test). No dispatcher, no bridge caller, no shared memory writer.",
+      "gaps": [
+        "edmDispatcher.ts lines 43–126: no lazy-loader slot for WireEDMAIPrintToProgramEngine",
+        "AutoPrintToProgramBridgeEngine.ts lines 104–120: detectProcessType() returns only milling/turning/mill_turn — no EDM branch",
+        "AutoPrintToProgramBridgeEngine.ts line 45: ProcessType union has no 'wire_edm' or 'sinker_edm' values",
+        "WireEDMAIPrintToProgramEngine generate() output (reasoning_chain, causal relations) never persisted to agent-memory.json or reasoning-chains.json",
+        "wedm-engine-registry.ts lines 456–464: stale — lists actions (recognizeFeatures, interpretTolerances) that don't exist on the class"
+      ]
+    },
+    "agent_2_tribal_knowledge": {
+      "finding": "Milling/Turning/MultiAxis P2P engines call tribalKnowledgeEngine.search() but WEDM P2P engines (WEDMPrintToProgramEngine + WireEDMAIPrintToProgramEngine) have ZERO tribal knowledge imports. No engine uses MachiningPlaybookEngine (296 rules) or any *-cam-tips.ts file.",
+      "integration_points": [
+        "WEDMPrintToProgramEngine.ts:1429 — add tribalKnowledgeEngine.search({material, operation:'wedm'}) before wire settings resolve",
+        "WEDMPrintToProgramEngine.ts:1603 — populate tribal_tips field in return payload",
+        "WireEDMAIPrintToProgramEngine.ts:597 — seed knowledgeSources array with tribal tips",
+        "WireEDMAIPrintToProgramEngine.ts:805 — supplement recommendations with tribalKnowledgeEngine hits",
+        "All 3 milling/turning/multiaxis engines — add MachiningPlaybookEngine.searchPlaybookRules() after existing tribal calls"
+      ]
+    },
+    "agent_3_test_resources": {
+      "existing": [
+        "data/reference/SHOP_NC_PROGRAM_CATALOG.json (3 calibrated Mitsubishi programs)",
+        "data/reference/WEDM_PUBLISHED_BENCHMARKS.json",
+        "data/docs/WEDM-V1-DEMO.md (2 demo scripts)",
+        "data/docs/lathe-test-programs.md (3 verified programs)",
+        "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md (40+ sources catalogued, not integrated)",
+        "JM Die: 2,191 wire EDM .mcx-8 + 1,868 PDFs"
+      ],
+      "missing": [
+        "ZERO paired print+program sets (no PDF print paired with reference .NC)",
+        "No tutorial walk-throughs (blueprint → geometry → params → program)",
+        "No thick-section (>50mm) WEDM test parts (catalog all ≤25mm)",
+        "No material-group diversity (only D2/stainless — missing P/K/N/S groups)",
+        "No multi-controller calibration (Sodick/Makino/Fanuc untested)"
+      ],
+      "resources_needed": [
+        "5 paired wire EDM test cases (ALCOA/ITW prints + matching NC programs)",
+        "1 thick-section (40–100mm) WEDM program + print",
+        "3 tutorial parts with PDF print + reference program (taper, re-entrant, thread)",
+        "5 paired lathe prints + reference programs",
+        "Multi-controller calibration suite (2–3 Sodick/Makino/Fanuc programs)"
+      ]
+    },
+    "agent_4_wire_wizard": {
+      "current": "WireEdmWizardPage.tsx (192 LOC) — 4-field form (material, thickness, qty, tolerance) + free-text notes + raw JSON dump of /edm/calculator-solve response",
+      "missing_features": [
+        "Print/DXF upload + AI geometry analysis (wireEdmParseGeometry endpoint already exists, unused)",
+        "Material dropdown with AI-recommended skim passes per material",
+        "Thickness-driven skim pass selector (lookupWireSpeed already supports)",
+        "Tribal tip panel filtered to material/thickness (46 WEDM tips unsurfaced)",
+        "Safety envelope status display (WEDMSafetyEnvelopeEngine data not exposed to web)",
+        "Autonomy level badge L0–L4 (WEDMAutonomyEngine not web-routed)",
+        "Live RUL gauge for wire consumable (WEDMRULEngine not web-routed)",
+        "Quote-to-job creation flow CTA (9 /wedm-erp/* endpoints exist, no API wrappers)",
+        "Mitsubishi controller G-code preview panel",
+        "Quantity-break cost table (/wedm-erp/quote/quantity-breaks exists)",
+        "Human handoff / operator approval gate (WEDMHumanHandoffEngine exists)",
+        "Maintenance advisory flag (WEDMMaintenanceSchedulerEngine exists)"
+      ]
+    },
+    "agent_5_calculator_wire_section": {
+      "status": "Wire EDM section is RICH — CalculatorPage.tsx:11932–12572 renders 14 result metrics + 6 cards + 3 lazy panels. Backed by 6-engine orchestrator at line 4442.",
+      "missing_calculators": [
+        "Spark gap / kerf width calculator (no spark_gap or kerf_width field surfaced)",
+        "HAZ / recast layer depth predictor",
+        "Cost-per-inch / cost-per-mm breakdown",
+        "Slug / tab retention calculator",
+        "Wire break probability gauge (numeric 0–100%, not text)",
+        "Dielectric conductivity input + flush adjustment",
+        "Wire spool consumption estimator",
+        "Taper error budget calculator"
+      ]
+    },
+    "agent_6_mcp_orphans": {
+      "stats": "101 WEDM/WireEDM engine files on disk; ~27 have any dispatcher reference; ~74 ORPHAN (no MCP action surface).",
+      "priority_engines_to_wire": [
+        "WireEDMAIPrintToProgramEngine — AI-native P2P entry point",
+        "WEDMPrintToProgramEngine — core P2P orchestrator",
+        "WEDMProgramSafetyGateEngine — safety validation before output",
+        "WEDMDwgImportEngine — DWG/geometry ingestion for wizard",
+        "WEDMPostDialectRouterEngine — machine-dialect post routing",
+        "WEDMProgramVerificationEngine — output verification",
+        "WEDMTribalRuntimeEngine — tribal knowledge injection at runtime",
+        "WEDMHumanHandoffEngine — autonomy boundary/approval gate"
+      ],
+      "dispatcher_header_comment": "Claims '52 total' actions — STALE (actual >250 case branches in edmDispatcher.ts)"
+    },
+    "agent_7_physics": {
+      "present_formulas": 11,
+      "missing_formulas": [
+        {
+          "name": "Wire deflection under hydraulic flush pressure",
+          "form": "δ_flush = (p·d·L²)/(8T)",
+          "source": "Dauw & Albert (1992) CIRP Annals 41(1)"
+        },
+        {
+          "name": "Resistive (Joule) heating of wire",
+          "form": "P_wire = I²·ρ·L/A; ΔT = P·t/(m·cp)",
+          "source": "Kunieda et al. (2005) CIRP Annals 54(2)"
+        },
+        {
+          "name": "Skim-pass cumulative Ra reduction",
+          "form": "Ra_n = Ra_0·ρ^(n-1)",
+          "source": "Klocke (2013) Manufacturing Processes 4 §8.3"
+        },
+        {
+          "name": "Corner lag/deflection at entry",
+          "form": "lag = F_d·t_response/(2T)",
+          "source": "Dekeyser & Snoeys (1989) CIRP Annals 38"
+        },
+        {
+          "name": "Power density derate for thin wire",
+          "form": "P/A = I·V/(π·d·L_arc)",
+          "source": "Rajurkar & Wang (1993) ASME JMSE 115"
+        },
+        {
+          "name": "Current density limit per wire coating",
+          "form": "J_max[coating] table",
+          "source": "Bedra/Berkenhoff Wire Electrode Handbook 2019"
+        },
+        {
+          "name": "Servo-gap voltage stability",
+          "form": "Vg = Vo·(1 − I·R_arc/Vo)",
+          "source": "Mohri et al. (2002) Precision Eng. 26"
+        },
+        {
+          "name": "Debris concentration → short-circuit risk",
+          "form": "SC_ratio = f(C_debris, V_flush, gap)",
+          "source": "Cetin et al. (2003); Kunieda CIRP 2005 §5"
+        }
+      ],
+      "inline_violations_critical": [
+        "EDMCuttingParamFlushEngine.ts:739 — inline spark-gap formula",
+        "EDMMultiPassStrategyEngine.ts:167 — inline decay·0.70 crater-overlap magic"
+      ],
+      "inline_violations_warning": [
+        "EDMMultiPassStrategyEngine.ts:318,443 — Klocke Ra exponents hardcoded",
+        "WEDMKerfWidthEngine.ts:79–82 — base_overcut coefficients inline",
+        "WEDMThinWireDerateEngine.ts:93–94 — derate exponents inline",
+        "WEDMCornerPhysicsEngine.ts:71 — wire_lag_coefficient=0.15 magic",
+        "WEDMWireDeflectionEngine.ts — no max_tension_N per material"
+      ]
+    },
+    "agent_8_safety_wiring": {
+      "only_consumer": "WEDMFailsafeEngine.ts:50 — only runtime import of WEDMSafetyEnvelopeEngine in entire codebase",
+      "gaps": [
+        "WireEDMAIPrintToProgramEngine — zero safety check before program emission",
+        "WEDMPrintToProgramEngine — same",
+        "routes/wedm-erp.ts:112–227 — all 5 quote + /job/create endpoints ungated",
+        "WEDMAutonomyEngine — references safety envelope in JSDoc only (lines 35–37), no runtime wiring",
+        "WEDMExceptionHandlerEngine — emergency_stop emitter never invokes failsafe pipeline"
+      ]
+    },
+    "agent_9_web_components": {
+      "current": "3 components (WedmQuoteSection, WedmJobCard, WedmCompletionModal) — ERP-only",
+      "missing_top_10": [
+        "WedmAutonomyIndicator (WEDMAutonomyEngine L0–L5)",
+        "WedmSafetyBadge (WEDMSafetyEnvelopeEngine 6 constraints)",
+        "WedmRULGauge (WEDMRULEngine 5 components)",
+        "WedmPassPlanner (WEDMAdaptivePassEngine PassDefinition lanes)",
+        "WedmKerfCalculator (WEDMKerfWidthEngine)",
+        "WedmSparkConditionMatrix (WEDMMaterialSparkDatabaseEngine 12 materials)",
+        "WedmTribalTipCard (WEDMTribalRuntimeEngine ranked tip)",
+        "WedmControllerCodePreview (Mitsubishi G-code syntax hl)",
+        "WedmFlushPressureAdvisor (upper/lower nozzle + taper flag)",
+        "WedmMaterialThicknessChart (WEDMCalculatorAIEngine speed curve)"
+      ]
+    },
+    "agent_10_sinker_edm": {
+      "confirmed_missing": "SinkerEDMPrintToProgramEngine does NOT exist (zero matches across codebase)",
+      "foundation_exists": [
+        "SinkerEDMCalculatorEngine — MRR, wear ratio, VDI, HAZ, spark gap (18 materials)",
+        "PPSinkerEDMPostEngine — post-processor ready",
+        "ElectrodeDesignEngine + 4 AI electrode engines — reusable",
+        "2 Mitsubishi CPS posts (EA12D_C30EA-2, EA12S_FP80S) — JM Die machines covered on output side",
+        "EDMDrawingInterpretationEngine — structural template for print-intake"
+      ],
+      "needed_engines": [
+        "SinkerEDMPrintToProgramEngine (orchestrator)",
+        "SinkerEDMElectrodeDesignEngine (print → electrode geometry)",
+        "SinkerEDMFlushingAdvisorEngine (cavity depth → flush mode/pressure)",
+        "SinkerEDMWearCompensationEngine (wear ratio → electrode oversize)"
+      ]
+    }
+  },
+  "stage_3_knowledge_source_mapping": {
+    "engines": [
+      "WireEDMAIPrintToProgramEngine.ts (1,129 LOC) — AI-native P2P",
+      "WEDMPrintToProgramEngine.ts — core P2P orchestrator",
+      "AutoPrintToProgramBridgeEngine.ts — main AGI bridge (needs EDM branch)",
+      "TribalKnowledgeEngine.ts — 3,700+ tips across 18 CAM systems",
+      "MachiningPlaybookEngine.ts — 296 experiential rules",
+      "WEDMSafetyEnvelopeEngine.ts — envelope constraint runtime",
+      "WEDMFailsafeEngine.ts — only live consumer of safety envelope",
+      "WEDMAutonomyEngine.ts + WEDMAutonomyAuditEngine.ts — L0–L5 autonomy",
+      "WEDMRULEngine.ts + WEDMDegradationModelEngine.ts — consumable life",
+      "WEDMTribalRuntimeEngine.ts + WEDMTribalTipLearnerEngine.ts",
+      "WEDMAdaptivePassEngine.ts — pass definitions",
+      "WEDMKerfWidthEngine.ts — kerf physics",
+      "WEDMMaterialSparkDatabaseEngine.ts — 12 material presets",
+      "SinkerEDMCalculatorEngine.ts — 18-material sinker physics",
+      "PPSinkerEDMPostEngine.ts — sinker post-processor",
+      "ElectrodeDesignEngine.ts — general electrode geometry",
+      "EDMDrawingInterpretationEngine.ts — wire print-intake template"
+    ],
+    "tribal_knowledge": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules",
+      "wedm-knowledge-tips.ts — 46 WEDM tips (20 field + 26 MIT)",
+      "controller-knowledge-tips.ts — Mitsubishi controller tips",
+      "src/data/*-cam-tips.ts — 17 CAM-system tip files",
+      "WEDM_DIGEST.json — 46 WEDM tribal tips indexed"
+    ],
+    "formulas": [
+      "physics/constants.ts EDM_PHYSICS block (lines 471–615) — canonical source",
+      "8 missing formulas with citations (Dauw, Kunieda, Klocke, Dekeyser, Rajurkar, Mohri, Cetin, Bedra)",
+      "7 inline violations to lift into constants.ts"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md (40+ catalogued sources)",
+      "JM Die: 2,191 wire EDM + 1,868 PDFs",
+      "Bedra/Berkenhoff Wire Electrode Handbook 2019",
+      "Sandvik, Kennametal, Machinery's Handbook",
+      "ShopConfigurationEngine.ts — JM Die 21-machine inventory"
+    ]
+  },
+  "stage_4_scope_estimation": {
+    "complexity": "XL (Extra Large)",
+    "total_units": 60,
+    "total_sessions": 20,
+    "units_per_session": "3 (with /compact checkpoint after each session)",
+    "rationale": "10 gap areas × 4–10 units each. 4-loop protocol per unit. Complete in ~20 sessions with disciplined compaction."
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "title": "AGI Coordination — Wire EDM AGI ↔ Main AGI Bridge",
+      "units": 5,
+      "unit_ids": [
+        "U-P2PFS01",
+        "U-P2PFS02",
+        "U-P2PFS03",
+        "U-P2PFS04",
+        "U-P2PFS05"
+      ],
+      "smart_config": {
+        "role": "TypeScript Engineer + Systems Architect",
+        "model": "OPUS",
+        "effort": "HIGH",
+        "context_budget": "45%"
+      },
+      "intent": "Main AGI bridge correctly delegates EDM jobs to WireEDMAIPrintToProgramEngine instead of silently routing them to milling pipeline.",
+      "work": [
+        {
+          "id": "U-P2PFS01",
+          "title": "Extend AutoPrintToProgramBridgeEngine ProcessType union",
+          "description": "Add 'wire_edm' and 'sinker_edm' to ProcessType (file:45). Add detectProcessType() branch that recognizes EDM feature signatures (closed-profile cut-through, taper, multi-skim). Test: DXF with EDM-style geometry routes correctly."
+        },
+        {
+          "id": "U-P2PFS02",
+          "title": "Wire WireEDMAIPrintToProgramEngine into edmDispatcher",
+          "description": "Add lazy-loader slot + 5 action case statements (wedm_ai_generate_program, wedm_ai_recognize_features, wedm_ai_interpret_tolerances, wedm_ai_quick_mrr, wedm_ai_quick_ra). Update wedm-engine-registry.ts to match real class API. Tests: 8+ dispatcher routing tests."
+        },
+        {
+          "id": "U-P2PFS03",
+          "title": "Add EDM routing branch to AutoPrintToProgramBridgeEngine",
+          "description": "When ProcessType='wire_edm', import and delegate to wireEDMAIPrintToProgramEngine.generate(). Return unified AIProgramResult shape. Tests: bridge correctly fans out milling vs EDM."
+        },
+        {
+          "id": "U-P2PFS04",
+          "title": "Persist AI reasoning chains to shared memory",
+          "description": "After wireEDMAIPrintToProgramEngine.generate(), write reasoning_chain + causal_relations + counterfactuals to data/state/reasoning-chains.json (append). Enable cross-session recall by main AGI orchestrator."
+        },
+        {
+          "id": "U-P2PFS05",
+          "title": "Repair stale wedm-engine-registry.ts",
+          "description": "Sync metadata.actions list with actual class methods (generate, quickPredictMRR, quickPredictRa, explainCausalEffect, getCounterfactuals). Add integration test that registry vs runtime actions stay in sync."
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Tribal Knowledge + Playbook Rules Integration",
+      "units": 5,
+      "unit_ids": [
+        "U-P2PFS06",
+        "U-P2PFS07",
+        "U-P2PFS08",
+        "U-P2PFS09",
+        "U-P2PFS10"
+      ],
+      "smart_config": {
+        "role": "TypeScript Engineer + Manufacturing Expert",
+        "model": "OPUS",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      },
+      "intent": "Every P2P engine consults tribal knowledge + playbook rules before emitting a program. Output payload includes tribal_tips array and playbook_rules_fired array.",
+      "work": [
+        {
+          "id": "U-P2PFS06",
+          "title": "Inject TribalKnowledgeEngine into WEDMPrintToProgramEngine",
+          "description": "Add imports + calls at line 1429 (pre-settings-resolve) and line 1603 (return payload). Tests: confirm tribal_tips surface for M2/D2/carbide material inputs."
+        },
+        {
+          "id": "U-P2PFS07",
+          "title": "Inject TribalKnowledgeEngine into WireEDMAIPrintToProgramEngine",
+          "description": "Seed knowledgeSources array at line 597; supplement recommendations at line 805. Tests: 10+ tribal search coverage tests."
+        },
+        {
+          "id": "U-P2PFS08",
+          "title": "Wire MachiningPlaybookEngine into Milling/Turning/MultiAxis P2P",
+          "description": "Add searchPlaybookRules() call in each engine immediately after existing tribalKnowledgeEngine.search(). Merge results into advisory block. Tests: 296 rules reachable via P2P."
+        },
+        {
+          "id": "U-P2PFS09",
+          "title": "Wire controller-knowledge-tips into WEDM post-processors",
+          "description": "Make WEDMPostDialectRouterEngine consume controller-knowledge-tips.ts before emitting Mitsubishi/Sodick/Fanuc dialect. Tests: controller-specific warnings surface."
+        },
+        {
+          "id": "U-P2PFS10",
+          "title": "Build TribalEnrichmentCoordinatorEngine",
+          "description": "Single engine that all P2P pipelines can call for a unified tribal+playbook+controller-tip bundle. Returns {tribal_tips, playbook_rules, controller_tips, merged_advisory}. Exposed as MCP action wedm_tribal_enrich."
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "MCP Action Surface — Expose 8 Priority Orphan WEDM Engines",
+      "units": 8,
+      "unit_ids": [
+        "U-P2PFS11",
+        "U-P2PFS12",
+        "U-P2PFS13",
+        "U-P2PFS14",
+        "U-P2PFS15",
+        "U-P2PFS16",
+        "U-P2PFS17",
+        "U-P2PFS18"
+      ],
+      "smart_config": {
+        "role": "TypeScript Engineer",
+        "model": "SONNET",
+        "effort": "MEDIUM",
+        "context_budget": "35%"
+      },
+      "intent": "8 high-value orphan WEDM engines become callable via MCP, enabling web frontend + agent automation access.",
+      "work": [
+        {
+          "id": "U-P2PFS11",
+          "title": "Wire WEDMProgramSafetyGateEngine",
+          "description": "Add dispatcher action wedm_program_safety_gate + Zod schema. 5+ tests."
+        },
+        {
+          "id": "U-P2PFS12",
+          "title": "Wire WEDMDwgImportEngine",
+          "description": "Action wedm_dwg_import for DWG ingestion. 5+ tests."
+        },
+        {
+          "id": "U-P2PFS13",
+          "title": "Wire WEDMPostDialectRouterEngine",
+          "description": "Action wedm_post_dialect_route. 5+ tests."
+        },
+        {
+          "id": "U-P2PFS14",
+          "title": "Wire WEDMProgramVerificationEngine",
+          "description": "Action wedm_program_verify. 5+ tests."
+        },
+        {
+          "id": "U-P2PFS15",
+          "title": "Wire WEDMTribalRuntimeEngine",
+          "description": "Action wedm_tribal_query (serves wizard + calculator tip panels). 5+ tests."
+        },
+        {
+          "id": "U-P2PFS16",
+          "title": "Wire WEDMHumanHandoffEngine",
+          "description": "Action wedm_handoff_gate. 5+ tests."
+        },
+        {
+          "id": "U-P2PFS17",
+          "title": "Wire WEDMAutonomyEngine + WEDMRULEngine + WEDMSafetyEnvelopeEngine as REST routes",
+          "description": "Add GET /api/v1/wedm-live/autonomy, /rul, /safety-envelope for web frontend. 10+ route tests."
+        },
+        {
+          "id": "U-P2PFS18",
+          "title": "Refresh edmDispatcher stale header comment",
+          "description": "Update action count + last-updated timestamp. Add CI check that flags drift."
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "Safety Envelope Wiring — Close 5 Integration Gaps",
+      "units": 5,
+      "unit_ids": [
+        "U-P2PFS19",
+        "U-P2PFS20",
+        "U-P2PFS21",
+        "U-P2PFS22",
+        "U-P2PFS23"
+      ],
+      "smart_config": {
+        "role": "Safety Engineer + TypeScript Engineer",
+        "model": "OPUS",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      },
+      "intent": "WEDMSafetyEnvelopeEngine is now CALLED at every gate where a physically impossible / envelope-violating program could be emitted or quoted.",
+      "work": [
+        {
+          "id": "U-P2PFS19",
+          "title": "Gate WireEDMAIPrintToProgramEngine.generate() on safety envelope",
+          "description": "Before returning program, call wedmSafetyEnvelopeEngine.check() — CRITICAL throws, WARNING adds warnings[]. 8+ tests including violation scenarios."
+        },
+        {
+          "id": "U-P2PFS20",
+          "title": "Gate WEDMPrintToProgramEngine on safety envelope",
+          "description": "Same pattern. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS21",
+          "title": "Gate /api/v1/wedm-erp/quote/estimate, /quote/create, /job/create on safety envelope",
+          "description": "Pre-flight check at route handler. CRITICAL → 422 response with envelope report. WARNING → response includes warnings[]. 10+ route tests."
+        },
+        {
+          "id": "U-P2PFS22",
+          "title": "Wire WEDMAutonomyEngine.degrade() trigger to real safety violations",
+          "description": "Import wedmSafetyEnvelopeEngine; on CRITICAL envelope breach, invoke autonomy.degrade() to drop autonomy level. Tests: verify L4→L2 on breach."
+        },
+        {
+          "id": "U-P2PFS23",
+          "title": "Close WEDMExceptionHandlerEngine emergency_stop pipeline",
+          "description": "When emergency_stop directive emitted, invoke wedmFailsafeEngine.planFromEnvelope() automatically. Tests: end-to-end emergency pipeline executes."
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "title": "Physics Completeness — 7 Canonical Lifts + 8 Missing Formulas",
+      "units": 5,
+      "unit_ids": [
+        "U-P2PFS24",
+        "U-P2PFS25",
+        "U-P2PFS26",
+        "U-P2PFS27",
+        "U-P2PFS28"
+      ],
+      "smart_config": {
+        "role": "Physics Engineer + Manufacturing Expert",
+        "model": "OPUS",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      },
+      "intent": "Zero inline WEDM magic numbers. 8 new formulas with primary-source citations. Physics agent hook passes without warnings.",
+      "work": [
+        {
+          "id": "U-P2PFS24",
+          "title": "Lift 7 inline physics violations to constants.ts",
+          "description": "Move spark-gap formula (EDMCuttingParamFlush:739), decay 0.70 (EDMMultiPass:167), Klocke exponents (EDMMultiPass:318,443), kerf overcut coefficients (WEDMKerf:79-82), thin-wire derate (WEDMThinWire:93-94), wire lag coefficient (WEDMCorner:71). Replace with imports. Physics agent must pass."
+        },
+        {
+          "id": "U-P2PFS25",
+          "title": "Add flush-pressure wire deflection formula",
+          "description": "constants.ts + WEDMWireDeflectionEngine extension: δ_flush = (p·d·L²)/(8T). Source: Dauw & Albert (1992) CIRP Annals 41(1). 10+ tests against published benchmarks."
+        },
+        {
+          "id": "U-P2PFS26",
+          "title": "Add wire Joule heating + skim Ra cascade formulas",
+          "description": "(1) P_wire = I²·ρ·L/A, ΔT = P·t/(m·cp) — Kunieda (2005) CIRP 54(2). (2) Ra_n = Ra_0·ρ^(n-1) — Klocke (2013) §8.3. 15+ tests."
+        },
+        {
+          "id": "U-P2PFS27",
+          "title": "Add corner lag + thin-wire power density formulas",
+          "description": "(1) lag = F_d·t_response/(2T) — Dekeyser & Snoeys (1989) CIRP 38. (2) P/A = I·V/(π·d·L_arc) — Rajurkar & Wang (1993) ASME JMSE 115. 12+ tests."
+        },
+        {
+          "id": "U-P2PFS28",
+          "title": "Add servo voltage + debris short-circuit + coated-wire current limit tables",
+          "description": "(1) Vg = Vo·(1-I·R_arc/Vo) — Mohri (2002). (2) SC_ratio = f(C_debris, V_flush, gap) — Cetin (2003). (3) Per-coating J_max from Bedra Handbook 2019. 15+ tests."
+        }
+      ]
+    },
+    {
+      "phase": 6,
+      "title": "Wire Wizard Page Upgrade — 4-Field Form → Full P2P Flow",
+      "units": 8,
+      "unit_ids": [
+        "U-P2PFS29",
+        "U-P2PFS30",
+        "U-P2PFS31",
+        "U-P2PFS32",
+        "U-P2PFS33",
+        "U-P2PFS34",
+        "U-P2PFS35",
+        "U-P2PFS36"
+      ],
+      "smart_config": {
+        "role": "Frontend Engineer + UX",
+        "model": "SONNET",
+        "effort": "HIGH",
+        "context_budget": "45%"
+      },
+      "intent": "Operator can drop a DXF into WireEdmWizardPage, see AI geometry analysis, tribal tips, safety status, autonomy badge, RUL gauge, Mitsubishi G-code preview, and push to ERP quote/job in one flow.",
+      "work": [
+        {
+          "id": "U-P2PFS29",
+          "title": "Add DXF upload + wireEdmParseGeometry integration",
+          "description": "Drag-drop upload zone, calls /api/v1/edm/parse-geometry. Displays detected contours + dimensions. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS30",
+          "title": "Replace material text box with AI-recommended dropdown",
+          "description": "Dropdown sourced from lookupWireSpeed. Each option shows suggested skim pass count. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS31",
+          "title": "Add tribal tip panel (WedmTribalTipCard)",
+          "description": "Filtered by material + thickness. Pulls top 3 tips via wedm_tribal_query MCP action. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS32",
+          "title": "Add safety badge + autonomy indicator strip",
+          "description": "Persistent top-bar showing WedmSafetyBadge + WedmAutonomyIndicator. Pulls from GET /wedm-live/safety-envelope + /autonomy. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS33",
+          "title": "Add RUL gauge + maintenance advisory",
+          "description": "Sidebar WedmRULGauge for wire spool + dielectric filter. Maintenance flag from WEDMMaintenanceSchedulerEngine. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS34",
+          "title": "Add Mitsubishi controller code preview panel",
+          "description": "Collapsible G-code preview with syntax highlighting. Copy-to-clipboard button. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS35",
+          "title": "Add ERP CTAs — 'Create Quote' + 'Push to Job'",
+          "description": "Buttons wire to /wedm-erp/quote/create + /job/create. Shows quantity-break table inline. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS36",
+          "title": "Add 'Open in Studio' handoff + operator approval gate",
+          "description": "Pass wizard state into WireEdmStudioPage via navigation state. Require approval before revealing ERP CTAs (WedmHumanHandoffEngine). 6+ tests."
+        }
+      ]
+    },
+    {
+      "phase": 7,
+      "title": "Calculator Page Wire Section — 8 Missing Calculators",
+      "units": 6,
+      "unit_ids": [
+        "U-P2PFS37",
+        "U-P2PFS38",
+        "U-P2PFS39",
+        "U-P2PFS40",
+        "U-P2PFS41",
+        "U-P2PFS42"
+      ],
+      "smart_config": {
+        "role": "Frontend Engineer + Manufacturing Expert",
+        "model": "SONNET",
+        "effort": "MEDIUM",
+        "context_budget": "35%"
+      },
+      "intent": "CalculatorPage wire section (lines 11932–12572) gains 8 missing calculators that a machinist needs for self-service parameter lookup.",
+      "work": [
+        {
+          "id": "U-P2PFS37",
+          "title": "Add spark gap / kerf width calculator + HAZ / recast depth predictor",
+          "description": "Two new cards in WireEdmOptimizeCards.tsx. Backed by WEDMKerfWidthEngine + new WEDMRecastDepthEngine. 12+ tests."
+        },
+        {
+          "id": "U-P2PFS38",
+          "title": "Add cost-per-inch / cost-per-mm breakdown + slug tab retention calc",
+          "description": "Unit-normalized pricing. Slug retention from part-weight + cut-height. 10+ tests."
+        },
+        {
+          "id": "U-P2PFS39",
+          "title": "Add wire break probability gauge (numeric P(break))",
+          "description": "Replace text factor list with 0–100% gauge. Backed by WEDMWireBreakRiskCostEngine. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS40",
+          "title": "Add dielectric conductivity input + flush adjustment",
+          "description": "µS/cm input → adjusted flush pressure recommendation. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS41",
+          "title": "Add wire spool consumption estimator + mid-job change flag",
+          "description": "total_wire_m + spool size → spool count + change-point warning. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS42",
+          "title": "Add taper error budget calculator",
+          "description": "Taper angle + part height + guide span → wall straightness deviation + UV travel. 6+ tests."
+        }
+      ]
+    },
+    {
+      "phase": 8,
+      "title": "WEDM Web Component Library — 10 New Components",
+      "units": 10,
+      "unit_ids": [
+        "U-P2PFS43",
+        "U-P2PFS44",
+        "U-P2PFS45",
+        "U-P2PFS46",
+        "U-P2PFS47",
+        "U-P2PFS48",
+        "U-P2PFS49",
+        "U-P2PFS50",
+        "U-P2PFS51",
+        "U-P2PFS52"
+      ],
+      "smart_config": {
+        "role": "Frontend Engineer",
+        "model": "SONNET",
+        "effort": "MEDIUM",
+        "context_budget": "35%"
+      },
+      "intent": "10 reusable WEDM components land under web/src/components/wedm/ following Calculator Studio design language (prism-glow-cyan, prism-chip, bg-[rgba(2,6,23,0.78)]). Wizard + CalculatorPage consume them.",
+      "work": [
+        {
+          "id": "U-P2PFS43",
+          "title": "WedmAutonomyIndicator (L0–L5)",
+          "description": "Displays current autonomy level + permitted capabilities + escalation path. Backed by GET /wedm-live/autonomy. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS44",
+          "title": "WedmSafetyBadge (6 envelope constraints)",
+          "description": "Real-time display with warning/critical coloring. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS45",
+          "title": "WedmRULGauge (5 components radial/linear)",
+          "description": "RUL hours + operational band (imminent/soon/planned/healthy). 8+ tests."
+        },
+        {
+          "id": "U-P2PFS46",
+          "title": "WedmPassPlanner (visual lane diagram)",
+          "description": "Rough + skim pass sequence with per-pass offset/Ra/tolerance. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS47",
+          "title": "WedmKerfCalculator (inline widget)",
+          "description": "Wire dia + discharge params → kerf + overcut + offset. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS48",
+          "title": "WedmSparkConditionMatrix (12-material grid)",
+          "description": "Editable grid sourced from WEDMMaterialSparkDatabaseEngine. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS49",
+          "title": "WedmTribalTipCard (ranked tip with confidence)",
+          "description": "Top-ranked tip from wedm_tribal_query. Source attribution. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS50",
+          "title": "WedmControllerCodePreview (Mitsubishi syntax hl)",
+          "description": "Scrollable code preview with E/C/T/H register highlighting. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS51",
+          "title": "WedmFlushPressureAdvisor (upper/lower + taper flag)",
+          "description": "Thickness + material → nozzle pressures. High-taper advisory. 6+ tests."
+        },
+        {
+          "id": "U-P2PFS52",
+          "title": "WedmMaterialThicknessChart (AI speed curve)",
+          "description": "Speed vs thickness line chart for selected material. 6+ tests."
+        }
+      ]
+    },
+    {
+      "phase": 9,
+      "title": "Sinker EDM Print-to-Program (JM Die 2 Mitsubishi Sinkers)",
+      "units": 5,
+      "unit_ids": [
+        "U-P2PFS53",
+        "U-P2PFS54",
+        "U-P2PFS55",
+        "U-P2PFS56",
+        "U-P2PFS57"
+      ],
+      "smart_config": {
+        "role": "Manufacturing Expert + TypeScript Engineer",
+        "model": "OPUS",
+        "effort": "HIGH",
+        "context_budget": "45%"
+      },
+      "intent": "Sinker EDM print → electrode geometry → burn params → flush strategy → wear comp → Mitsubishi CPS post. JM Die's 2 EA12D/EA12S machines can run real work through the pipeline.",
+      "work": [
+        {
+          "id": "U-P2PFS53",
+          "title": "Build SinkerEDMPrintToProgramEngine (orchestrator)",
+          "description": "Structural template from EDMDrawingInterpretationEngine. Inputs: print + material + machine. Outputs: program + reasoning + tribal tips. 12+ tests."
+        },
+        {
+          "id": "U-P2PFS54",
+          "title": "Build SinkerEDMElectrodeDesignEngine (print → geometry)",
+          "description": "Extract cavity geometry from print → electrode geometry with clearance + orbit allowance. Reuse ElectrodeDesignEngine core. 10+ tests."
+        },
+        {
+          "id": "U-P2PFS55",
+          "title": "Build SinkerEDMFlushingAdvisorEngine",
+          "description": "Cavity depth + feature type → flush mode (jet/pressure/suction) + pressure recommendation. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS56",
+          "title": "Build SinkerEDMWearCompensationEngine",
+          "description": "Wear ratio from SinkerEDMCalculatorEngine → electrode oversize + multi-electrode wear strategy. 8+ tests."
+        },
+        {
+          "id": "U-P2PFS57",
+          "title": "Wire sinker P2P into edmDispatcher + end-to-end test with JM Die material (M2, D2)",
+          "description": "4 new dispatcher actions. Full pipeline test: print → Mitsubishi CPS post → G-code. 12+ tests."
+        }
+      ]
+    },
+    {
+      "phase": 10,
+      "title": "Test Resource Gathering — 5 Paired Print+Program Sets",
+      "units": 6,
+      "unit_ids": [
+        "U-P2PFS58",
+        "U-P2PFS59",
+        "U-P2PFS60",
+        "U-P2PFS61",
+        "U-P2PFS62",
+        "U-P2PFS63"
+      ],
+      "smart_config": {
+        "role": "Manufacturing Expert + Data Engineer",
+        "model": "SONNET",
+        "effort": "MEDIUM",
+        "context_budget": "40%"
+      },
+      "intent": "data/reference/paired-print-program/ corpus with real JM Die prints + matching programs, tutorial walk-throughs, thick-section coverage, multi-controller calibration — the ground truth for real simulated print-to-program tests.",
+      "work": [
+        {
+          "id": "U-P2PFS58",
+          "title": "Harvest 5 paired WEDM prints + NC programs from JM Die archive",
+          "description": "ALCOA/ITW/AGRATI customer folders. Extract PDF + matching .mcx-8 or .NC. Store under data/reference/paired-print-program/wedm/. 5 pairs minimum."
+        },
+        {
+          "id": "U-P2PFS59",
+          "title": "Harvest 1 thick-section (40–100mm) WEDM program + print",
+          "description": "Validates flushing strategy + multi-pass scheduling + thermal duty cycle handling."
+        },
+        {
+          "id": "U-P2PFS60",
+          "title": "Create 3 tutorial parts (taper, re-entrant, thread)",
+          "description": "Author 3 tutorial parts with PDF print + reference program + walk-through document. Covers OCR/DXF parser edge cases."
+        },
+        {
+          "id": "U-P2PFS61",
+          "title": "Harvest 5 paired lathe prints + reference programs",
+          "description": "Mirror WEDM pattern. JM Die Okuma lathes. 5 pairs."
+        },
+        {
+          "id": "U-P2PFS62",
+          "title": "Build multi-controller calibration suite (2–3 Sodick/Makino/Fanuc)",
+          "description": "Reverse-engineer from Box Drive .mcx-8 files via Mastercam extraction. Tests post-dialect routing."
+        },
+        {
+          "id": "U-P2PFS63",
+          "title": "Build TestResourceRegistryEngine + index",
+          "description": "Single engine that indexes all paired resources. MCP action test_resource_lookup. Powers end-to-end validation tests in Phase 11 (future milestone)."
+        }
+      ]
+    }
+  ],
+  "forge_triple_outputs": {
+    "hooks": [
+      "wedm-agi-coordination-guard.mjs — blocks merge if WireEDMAIPrintToProgramEngine is orphaned (no dispatcher)",
+      "wedm-safety-envelope-required.mjs — blocks merge if P2P engine lacks envelope call",
+      "wedm-physics-canonical-guard.mjs — blocks inline Kienzle/Klocke/Dauw constants",
+      "tribal-knowledge-consult-required.mjs — blocks P2P engine without tribalKnowledgeEngine.search()",
+      "paired-print-program-fixture-guard.mjs — blocks removal of paired test fixtures"
+    ],
+    "mcp_actions": [
+      "prism_edm:wedm_ai_generate_program",
+      "prism_edm:wedm_ai_recognize_features",
+      "prism_edm:wedm_ai_interpret_tolerances",
+      "prism_edm:wedm_program_safety_gate",
+      "prism_edm:wedm_dwg_import",
+      "prism_edm:wedm_post_dialect_route",
+      "prism_edm:wedm_program_verify",
+      "prism_edm:wedm_tribal_query",
+      "prism_edm:wedm_handoff_gate",
+      "prism_edm:wedm_tribal_enrich",
+      "prism_edm:sinker_ai_generate_program",
+      "prism_edm:sinker_electrode_design",
+      "prism_edm:sinker_flush_advise",
+      "prism_edm:sinker_wear_compensate",
+      "prism_edm:test_resource_lookup"
+    ],
+    "skills": [
+      "/wedm-ai-p2p — drive WireEDMAIPrintToProgramEngine from CLI",
+      "/sinker-p2p — drive SinkerEDMPrintToProgramEngine from CLI",
+      "/tribal-enrich — query tribal+playbook+controller tips in one call",
+      "/paired-test — validate a print+program pair against the P2P pipeline",
+      "/wedm-wizard-launch — open WireEdmWizardPage with preloaded context"
+    ]
+  },
+  "feature_cascade": {
+    "new_engines_count": "4 (SinkerEDM P2P suite) + 1 (TribalEnrichmentCoordinator) + 1 (WEDMRecastDepth) + 1 (TestResourceRegistry) = 7",
+    "new_components_count": "10 WEDM web components + 8 calculator cards = 18",
+    "new_hooks_count": 5,
+    "new_mcp_actions_count": 15,
+    "new_skills_count": 5,
+    "new_formulas_count": "8 new + 7 canonicalized = 15",
+    "available_to_downstream": [
+      "Every future P2P milestone can rely on AGI bridge + tribal injection + safety gates",
+      "Wire wizard + calculator changes open UX surface for LathePrintToProgram / MultiAxisPrintToProgram follow-up pages",
+      "Sinker pipeline unblocks future SINKER-ERP-MS0 (parallel to WEDM-ERP-MS0)"
+    ]
+  },
+  "exit_gate": {
+    "measurable_criteria": [
+      "All 60 units pass /prism-review scrutinize + /test + build",
+      "0 tsc errors, build ≤ 6 MB, ≥ 2,400 tests passing",
+      "Physics agent: 0 inline WEDM violations remaining",
+      "Wiring agent: WireEDMAIPrintToProgramEngine + 7 other priority engines reachable via MCP",
+      "Safety audit: WEDMSafetyEnvelopeEngine called from 5 new call sites (2 P2P + 3 ERP routes)",
+      "Frontend: WireEdmWizardPage renders DXF + tribal + safety + RUL + ERP CTAs without console errors",
+      "CalculatorPage wire section has 8 new calculators live",
+      "data/reference/paired-print-program/ contains ≥ 5 validated pairs",
+      "omega_floor ≥ 0.85 across all units"
+    ],
+    "svi_delta_target": "+8%",
+    "rollback_plan": "Per-unit ROLLBACK blocks (FILES_CREATED, FILES_MODIFIED, ABORT_CRITERIA). Revert commit graph is phase-granular — each phase commits atomically so a failed phase rolls back to its predecessor without disturbing earlier phases."
+  },
+  "enforcement_hooks_active": [
+    "physics-agent (every engine edit)",
+    "wiring-agent (every engine edit)",
+    "constants-checker (blocks inline physics values)",
+    "stub-detector (blocks placeholder returns)",
+    "test-quality (blocks || true and bare .includes())",
+    "auto-compact (15/25/35 edit thresholds)",
+    "forge-triple-gate (blocks compaction without hook+action+skill)",
+    "session-audit-agent (before every compaction)",
+    "post-compact Feature Cascade (SESSION_ARTIFACTS.json)",
+    "always-build-guard (blocks skipping identified gap engines)"
+  ],
+  "mcp_full_utilization": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search '<unit goal>'"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ],
+    "plugins_utilized": [
+      "Vitest MCP — mcp__vitest__run_tests, analyze_coverage",
+      "ESLint MCP — mcp__eslint__lint-files",
+      "Taskmaster — mcp__taskmaster-ai__get_tasks, next_task",
+      "Codebase Memory — search_graph, trace_call_path"
+    ]
+  },
+  "quality_scrutiny": {
+    "loop_1_multi_agent_review_completed_agents": 10,
+    "loop_1_agent_focus": [
+      "AGI coordination",
+      "Tribal knowledge utilization",
+      "Test resources",
+      "Wire wizard UI",
+      "Calculator wire section",
+      "MCP orphan detection",
+      "Physics coverage",
+      "Safety envelope wiring",
+      "Web component library",
+      "Sinker EDM existence"
+    ],
+    "loop_1_findings": "10/10 agents returned concrete gap reports with file:line references. Zero agents returned 'no gaps found'. Consolidated into stage_2_codebase_audit block.",
+    "loop_2_fix_targeted": "Each phase maps 1:1 to an agent's gap report — no gap left unaddressed.",
+    "loop_3_verification": "Exit gate measurable criteria cover every gap category. Per-unit tests + physics-agent + wiring-agent hooks enforce closure."
+  },
+  "notes": "This envelope is the definitive response to the user directive: 'generate a road map. /forge send 10 more agents to scrutinize and find more gaps. make sure the wire edm agi coordinates with main system agi/ai. make sure tribal knowledge is being utilized. have a phase for gathering sources and resources to test ie demo parts with prints, tutorial parts etc...make sure we built and planned for the wire wizard and the wire page of the prism calculator page'. All six explicit requirements are addressed: (1) comprehensive roadmap generated, (2) 10 additional agents deployed and returned with concrete gaps, (3) WEDM AGI coordination is Phase 1 (5 units), (4) tribal knowledge is Phase 2 (5 units), (5) test resource gathering is Phase 10 (6 units), (6) wire wizard upgrade is Phase 6 (8 units) and calculator wire section is Phase 7 (6 units). Plus additional closure work: MCP orphan wiring (Phase 3), safety wiring (Phase 4), physics completeness (Phase 5), WEDM component library (Phase 8), and Sinker EDM print-to-program for JM Die's 2 Mitsubishi sinkers (Phase 9).",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "p2p-fullstack-ms0-gate",
+    "mcp_action": "prism_p2p-fullstack:p2p_fullstack_ms0_run",
+    "skill_command": "/p2p-fullstack-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Comprehensive print-to-program full-stack milestone that closes every gap surfaced by a 10-agent scrutiny audit: (1) wires the orphan WireEDMAIPrintToProgramEngine into AutoPrintToProgramBridgeEngine so the main AGI delegates WEDM jobs correctly, (2) injects TribalKnowledgeEngine + MachiningPlaybookEngine + CAM tips into every P2P engine, (3) exposes ~8 priority orphan WEDM engines as MCP actions, (4) wires WEDMSafetyEnvelopeEngine into ERP routes + P2P engines + autonomy engine, (5) lifts 7 inline physics violations into canonical constants.ts and adds 8 missing WEDM formulas with citations, (6) upgrades WireEdmWizardPage from 4-field form to a full DXF-import / tribal-tip / safety-badge / autonomy / RUL / quote flow, (7) adds 8 missing wire EDM calculators to CalculatorPage (spark gap, HAZ/recast, cost-per-inch, slug retention, P(break) gauge, dielectric, spool consumption, taper error budget), (8) builds 10 missing WEDM web components (AutonomyIndicator, SafetyBadge, RULGauge, PassPlanner, KerfCalculator, SparkConditionMatrix, TribalTipCard, ControllerCodePreview, FlushPressureAdvisor, MaterialThicknessChart), (9) builds SinkerEDMPrintToProgramEngine + 3 supporting engines for JM Die's 2 Mitsubishi sinker EDMs, (10) gathers 5 paired print+program test resource sets for real simulated print-to-program validation.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "units": [
+    {
+      "id": "U-PXPX01",
+      "title": "P2P-FULLSTACK-MS0 — Coordinator",
+      "description": "Master coordinator envelope for P2P-FULLSTACK-MS0. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

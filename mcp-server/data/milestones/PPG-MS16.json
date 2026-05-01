@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS16",
+  "version": "1.0.0",
+  "title": "PPG-MS16 — Quote ↔ Post ↔ Cost Backflow (close the quote-to-ship loop with measurable variance)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T02:35:00.000Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Closes the loop the master roadmap claims: quote → post → cycle-time estimate → real-shop measured cycle → cost variance → recalibrated quote. Today quote_estimate, cycle_time_estimate, and actual_cost_calculate exist as separate dispatcher actions; no PPG-MS owns the round trip from emitted post back into quote calibration. MS16 closes that gap, making PPG a measurable revenue-impacting product, not just a code generator.",
+  "rationale": "Coverage scrutiny flagged this as the highest business-value MISSING capability. The user explicitly invoked /quote-to-ship. Without quote→post→cost backflow, every quote PRISM produces is a guess against itself. With it, quote accuracy improves cut-by-cut and the shop owner can see — per machine, per material, per customer — where cost is being lost.",
+  "leverage_existing": [
+    "quote_estimate + quote_compare_materials + quote_what_if + quote_price_breaks_advanced + instant_quote + quote_revise (business dispatcher)",
+    "cycle_time_estimate + cycle_time_compare + cycle_time_bottlenecks (cam dispatcher)",
+    "actual_cost_calculate + actual_cost_variance + actual_cost_profitability + actual_cost_forecast + actual_cost_margin_alerts + actual_cost_trend (business dispatcher)",
+    "QuoteEstimatorEngine + ActualCostEngine + CapacityPlanningEngine + JobLifecycleEngine + OEEEngine (business engines, already wired)",
+    "PostOutcomeAggregatorEngine (PPG-MS11/U-PPGM67) — telemetry → outcome aggregation (this milestone consumes it for cost variance)",
+    "JM Die customer roster (100+ customers, src/data/jm-die-profile.ts) — for per-customer accuracy tracking"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die quotes an ITW shoulder-bolt die job: Hurco V11, D2, 100-piece run. Quoted at $4,200 (50 hr × $84/hr).",
+    "today_pre_ppg_ms16": "Job ships. Actual: 62 hr at the machine ($5,208 cost). Foreman knows it ran long but no system explains why. Next ITW quote stays at $84/hr × estimated hours; bid stays the same; PRISM never learns from the variance. Margin loss bleeds.",
+    "should_be_post_ppg_ms16": "Job ships. PostOutcomeAggregator records actual 62 hr. actual_cost_variance flags +24% over quoted. PRISM auto-decomposes the variance: 8 hr extra in roughing (kc1.1 underestimated for this Hurco — handed back to PPG-MS11), 4 hr extra in setup (programmer manually re-fixtured because workholding marginal — handed back to PPG-MS14). Next ITW D2 quote auto-adjusts: roughing rate +12%, setup +20%. The quote sharpens. The shop owner sees the per-machine, per-customer, per-material variance dashboard in real time.",
+    "gap_now_closed": "PRISM closes the revenue loop, not just the program loop."
+  },
+  "units": [
+    {
+      "id": "U-PPGM96",
+      "title": "QuotePostCostBackflowEngine — assemble the round trip",
+      "scope": "src/engines/QuotePostCostBackflowEngine.ts — orchestrates: quote_estimate → post emission → cycle_time_estimate → telemetry capture (PPG-MS11) → actual_cost_variance → recalibration delta → quote_revise. Single entry point.",
+      "files_to_modify": [
+        "src/engines/QuotePostCostBackflowEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/QuotePostCostBackflow.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM97",
+      "title": "Variance decomposition (per-stage attribution)",
+      "scope": "src/engines/CostVarianceDecomposerEngine.ts — given a quoted vs actual variance, attributes it across pipeline stages (roughing/finishing/setup/probe/coolant/tool-change). Hands stage deltas to PPG-MS11 for kc1.1 calibration and PPG-MS14 for safety-predicate refinement.",
+      "files_to_modify": [
+        "src/engines/CostVarianceDecomposerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CostVarianceDecomposer.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM98",
+      "title": "Per-customer / per-machine / per-material accuracy tracking",
+      "scope": "src/engines/QuoteAccuracyTrackerEngine.ts — rolling window of (customer, machine, material) → quoted vs actual; flags drift > σ; suggests next-quote calibration adjustments.",
+      "files_to_modify": [
+        "src/engines/QuoteAccuracyTrackerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/QuoteAccuracyTracker.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM99",
+      "title": "Shop owner dashboard (variance + margin alerts)",
+      "scope": "web/src/pages/QuoteAccuracyDashboard.tsx — per-customer / per-machine variance heatmap; margin-alert feed; click-through to specific job + post + sidecar + telemetry trail.",
+      "files_to_modify": [
+        "web/src/pages/QuoteAccuracyDashboard.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/QuoteAccuracyDashboard.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM100",
+      "title": "Backflow regression: 50-job retrospective + forward 30-day pilot",
+      "scope": "src/__tests__/QuoteBackflow.regression.test.ts — replay 50 historical JM Die jobs through the backflow engine; assert variance decomposition matches operator-known cause for ≥80% of cases. Forward 30-day pilot: 10 live jobs run through full backflow; assert quote accuracy improves by ≥10% across the run vs prior baseline.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/QuoteBackflow.regression.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM100b",
+      "title": "Cycle-time estimation accuracy dashboard + dedicated metric ownership",
+      "scope": "Dedicated cycle-time accuracy metric: |estimated - actual|/actual rolling window per (machine, material, feature). Closes the diffuse ownership gap flagged by value-coverage scrutiny: MS1 produces estimates, MS12 regression locks ±5%, MS16 measures + reports as a first-class metric. Surfaces in shop-owner dashboard from U-PPGM99 with drill-down per job.",
+      "files_to_modify": [
+        "src/engines/QuoteAccuracyTrackerEngine.ts",
+        "web/src/pages/QuoteAccuracyDashboard.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CycleTimeAccuracyMetric.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "QuotePostCostBackflowEngine round-trips a real JM Die job end-to-end (quote → post → telemetry → variance → recalibrated quote)",
+    "Variance decomposer attributes ≥80% of cost variance to a specific pipeline stage on the 50-job retrospective",
+    "Quote accuracy tracker flags drift > σ per (customer, machine, material) tuple with suggested calibration delta",
+    "Shop-owner dashboard surfaces variance heatmap; margin-alert feed actionable in <60s",
+    "30-day pilot demonstrates ≥10% quote-accuracy improvement vs pre-backflow baseline (measured: |actual-quoted|/quoted)"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS11",
+    "PPG-MS13"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS27",
+    "PPG-MS29",
+    "PPG-MS35",
+    "PPG-MS37"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29",
+  "_patches": [
+    "ppg-round5-fixes-2026-04-29"
+  ]
+}

@@ -1,0 +1,1117 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "mastercam_x8",
+  "system_name": "Mastercam X8",
+  "software_version": "X8 (Build 18.0.19631)",
+  "interface_type": "classic_menu",
+  "indexed_at": "2026-04-19T05:00:00Z",
+  "total_elements": 547,
+
+  "menu_bar": {
+    "region": "menu_bar_top",
+    "menus": [
+      {
+        "id": "menu_file",
+        "name": "File",
+        "type": "menu",
+        "prism_importance": "high",
+        "items": [
+          {"id": "file_new", "name": "New", "shortcut": "Ctrl+N", "action": "prism_cad.new_document"},
+          {"id": "file_open", "name": "Open", "shortcut": "Ctrl+O", "action": "prism_cad.open_file"},
+          {"id": "file_merge", "name": "Merge", "action": "prism_cad.merge_files"},
+          {"id": "file_edit", "name": "Edit", "submenu": ["file_edit_ascii", "file_edit_nc", "file_edit_post"]},
+          {"id": "file_save", "name": "Save", "shortcut": "Ctrl+S", "action": "prism_cad.save_file"},
+          {"id": "file_save_as", "name": "Save As", "action": "prism_cad.save_file_as"},
+          {"id": "file_save_some", "name": "Save Some", "action": "prism_cad.save_selective"},
+          {"id": "file_converters", "name": "Converters", "submenu": ["conv_iges_read", "conv_iges_write", "conv_step_read", "conv_step_write", "conv_parasolid_read", "conv_parasolid_write", "conv_catia_read", "conv_catia_write", "conv_solidworks", "conv_inventor", "conv_unigraphics", "conv_stl_read", "conv_stl_write", "conv_dxf_read", "conv_dxf_write", "conv_ascii_read", "conv_ascii_write", "conv_cadl"]},
+          {"id": "file_properties", "name": "Properties", "action": "prism_cad.file_properties"},
+          {"id": "file_info", "name": "Info", "action": "prism_cad.file_info"},
+          {"id": "file_print", "name": "Print", "shortcut": "Ctrl+P", "action": "prism_doc.print"},
+          {"id": "file_plotter", "name": "Plotter", "action": "prism_doc.plotter_setup"},
+          {"id": "file_communications", "name": "Communications", "action": "prism_export.nc_transfer"},
+          {"id": "file_exit", "name": "Exit", "shortcut": "Alt+F4", "action": "prism_session.exit"}
+        ]
+      },
+      {
+        "id": "menu_edit",
+        "name": "Edit",
+        "type": "menu",
+        "prism_importance": "high",
+        "items": [
+          {"id": "edit_undo", "name": "Undo", "shortcut": "Ctrl+Z", "action": "prism_cad.undo"},
+          {"id": "edit_redo", "name": "Redo", "shortcut": "Ctrl+Y", "action": "prism_cad.redo"},
+          {"id": "edit_cut", "name": "Cut", "shortcut": "Ctrl+X", "action": "prism_cad.cut"},
+          {"id": "edit_copy", "name": "Copy", "shortcut": "Ctrl+C", "action": "prism_cad.copy"},
+          {"id": "edit_paste", "name": "Paste", "shortcut": "Ctrl+V", "action": "prism_cad.paste"},
+          {"id": "edit_delete", "name": "Delete", "shortcut": "Del", "action": "prism_cad.delete"},
+          {"id": "edit_select_all", "name": "Select All", "submenu": ["sel_all_points", "sel_all_lines", "sel_all_arcs", "sel_all_splines", "sel_all_surfaces", "sel_all_solids", "sel_all_operations", "sel_all_groups"]},
+          {"id": "edit_trim_break", "name": "Trim/Break", "submenu": ["trim_1_entity", "trim_2_entities", "trim_3_entities", "trim_to_point", "trim_divide", "trim_close_arc", "trim_length"]},
+          {"id": "edit_join_entities", "name": "Join Entities", "action": "prism_cad.join_entities"}
+        ]
+      },
+      {
+        "id": "menu_view",
+        "name": "View",
+        "type": "menu",
+        "prism_importance": "medium",
+        "items": [
+          {"id": "view_zoom", "name": "Zoom", "submenu": ["zoom_window", "zoom_unzoom", "zoom_target", "zoom_fit", "zoom_80_percent"]},
+          {"id": "view_repaint", "name": "Repaint", "shortcut": "F3", "action": "prism_cad.repaint"},
+          {"id": "view_regen", "name": "Regenerate", "action": "prism_cad.regenerate"},
+          {"id": "view_gview", "name": "Gview", "submenu": ["gview_top", "gview_front", "gview_back", "gview_bottom", "gview_right", "gview_left", "gview_isometric", "gview_named", "gview_dyn_rotate", "gview_next", "gview_previous"]},
+          {"id": "view_origin", "name": "Origin", "action": "prism_cad.show_origin"},
+          {"id": "view_axes", "name": "Axes", "action": "prism_cad.show_axes"},
+          {"id": "view_planes", "name": "Planes", "action": "prism_cad.show_planes"},
+          {"id": "view_named_views", "name": "Named Views", "action": "prism_cad.named_views"},
+          {"id": "view_shade", "name": "Shade", "shortcut": "Alt+S", "action": "prism_cad.shade_view"},
+          {"id": "view_shade_settings", "name": "Shade Settings", "action": "prism_cad.shade_settings"},
+          {"id": "view_toolpaths", "name": "Toolpaths", "submenu": ["view_tp_display", "view_tp_verify", "view_tp_simulate"]},
+          {"id": "view_managers", "name": "Managers", "submenu": ["mgr_operations", "mgr_toolpaths", "mgr_planes", "mgr_levels", "mgr_solids"]}
+        ]
+      },
+      {
+        "id": "menu_analyze",
+        "name": "Analyze",
+        "type": "menu",
+        "prism_importance": "high",
+        "items": [
+          {"id": "analyze_point_position", "name": "Point Position", "action": "prism_cad.analyze_point"},
+          {"id": "analyze_distance", "name": "Distance", "action": "prism_cad.analyze_distance"},
+          {"id": "analyze_angle", "name": "Angle", "action": "prism_cad.analyze_angle"},
+          {"id": "analyze_area", "name": "Area", "action": "prism_cad.analyze_area"},
+          {"id": "analyze_volume", "name": "Volume", "action": "prism_cad.analyze_volume"},
+          {"id": "analyze_chain", "name": "Chain", "action": "prism_cad.analyze_chain"},
+          {"id": "analyze_contour", "name": "Contour", "action": "prism_cad.analyze_contour"},
+          {"id": "analyze_surface", "name": "Surface", "action": "prism_cad.analyze_surface"},
+          {"id": "analyze_solid", "name": "Solid", "action": "prism_cad.analyze_solid"},
+          {"id": "analyze_draft", "name": "Draft Angle", "action": "prism_cad.analyze_draft"},
+          {"id": "analyze_curvature", "name": "Curvature", "action": "prism_cad.analyze_curvature"},
+          {"id": "analyze_silhouette", "name": "Silhouette", "action": "prism_cad.analyze_silhouette"},
+          {"id": "analyze_dynamic", "name": "Dynamic Analysis", "submenu": ["dyn_section", "dyn_thickness", "dyn_undercut"]}
+        ]
+      },
+      {
+        "id": "menu_create",
+        "name": "Create",
+        "type": "menu",
+        "prism_importance": "critical",
+        "items": [
+          {"id": "create_point", "name": "Point", "submenu": ["pt_create", "pt_arc_center", "pt_endpoint", "pt_midpoint", "pt_intersection", "pt_along", "pt_perimeter", "pt_dynamic", "pt_node", "pt_position", "pt_projection", "pt_surface", "pt_solid_face"]},
+          {"id": "create_line", "name": "Line", "submenu": ["line_horizontal", "line_vertical", "line_endpoints", "line_multi", "line_polar", "line_tangent", "line_perpendicular", "line_parallel", "line_bisector", "line_closest", "line_create_deg", "line_normal"]},
+          {"id": "create_arc", "name": "Arc", "submenu": ["arc_polar", "arc_endpoints", "arc_3_points", "arc_tangent", "arc_circ_pt_rad", "arc_circ_pt_diam", "arc_circ_pt_edge", "arc_circ_2_pts", "arc_circ_3_pts"]},
+          {"id": "create_fillet", "name": "Fillet", "submenu": ["fillet_entities", "fillet_chains", "fillet_all"]},
+          {"id": "create_chamfer", "name": "Chamfer", "submenu": ["chamfer_entities", "chamfer_chains", "chamfer_all"]},
+          {"id": "create_spline", "name": "Spline", "submenu": ["spline_create", "spline_automatic", "spline_manual", "spline_curve"]},
+          {"id": "create_surface", "name": "Surface", "submenu": ["surf_ruled", "surf_revolved", "surf_swept", "surf_lofted", "surf_coons", "surf_fence", "surf_draft", "surf_flat_boundary", "surf_fillet", "surf_trim", "surf_extend", "surf_offset"]},
+          {"id": "create_rectangle", "name": "Rectangle", "submenu": ["rect_1_point", "rect_2_points", "rect_options"]},
+          {"id": "create_polygon", "name": "Polygon", "action": "prism_cad.create_polygon"},
+          {"id": "create_ellipse", "name": "Ellipse", "action": "prism_cad.create_ellipse"},
+          {"id": "create_helix", "name": "Helix", "action": "prism_cad.create_helix"},
+          {"id": "create_spiral", "name": "Spiral", "action": "prism_cad.create_spiral"},
+          {"id": "create_letters", "name": "Letters", "action": "prism_cad.create_letters"},
+          {"id": "create_pattern", "name": "Pattern", "action": "prism_cad.create_pattern"},
+          {"id": "create_bounding_box", "name": "Bounding Box", "action": "prism_cad.create_bounding_box"},
+          {"id": "create_curve", "name": "Curve", "submenu": ["curve_single", "curve_all_edges", "curve_silhouette", "curve_flow", "curve_section", "curve_project"]}
+        ]
+      },
+      {
+        "id": "menu_solids",
+        "name": "Solids",
+        "type": "menu",
+        "prism_importance": "high",
+        "items": [
+          {"id": "solid_extrude", "name": "Extrude", "action": "prism_cad.solid_extrude"},
+          {"id": "solid_revolve", "name": "Revolve", "action": "prism_cad.solid_revolve"},
+          {"id": "solid_sweep", "name": "Sweep", "action": "prism_cad.solid_sweep"},
+          {"id": "solid_loft", "name": "Loft", "action": "prism_cad.solid_loft"},
+          {"id": "solid_primitives", "name": "Primitives", "submenu": ["prim_box", "prim_cylinder", "prim_cone", "prim_sphere", "prim_torus"]},
+          {"id": "solid_add", "name": "Add", "action": "prism_cad.solid_boolean_add"},
+          {"id": "solid_remove", "name": "Remove", "action": "prism_cad.solid_boolean_remove"},
+          {"id": "solid_common", "name": "Common", "action": "prism_cad.solid_boolean_common"},
+          {"id": "solid_fillet", "name": "Fillet", "action": "prism_cad.solid_fillet"},
+          {"id": "solid_chamfer", "name": "Chamfer", "action": "prism_cad.solid_chamfer"},
+          {"id": "solid_shell", "name": "Shell", "action": "prism_cad.solid_shell"},
+          {"id": "solid_draft", "name": "Draft", "action": "prism_cad.solid_draft"},
+          {"id": "solid_trim", "name": "Trim", "action": "prism_cad.solid_trim"},
+          {"id": "solid_thicken", "name": "Thicken", "action": "prism_cad.solid_thicken"},
+          {"id": "solid_direct_edit", "name": "Direct Edit", "submenu": ["de_face_move", "de_face_offset", "de_face_rotate", "de_delete_face", "de_replace_face"]},
+          {"id": "solid_repair", "name": "Repair", "action": "prism_cad.solid_repair"},
+          {"id": "solid_simplify", "name": "Simplify", "action": "prism_cad.solid_simplify"}
+        ]
+      },
+      {
+        "id": "menu_xform",
+        "name": "Xform",
+        "type": "menu",
+        "prism_importance": "medium",
+        "items": [
+          {"id": "xform_mirror", "name": "Mirror", "action": "prism_cad.xform_mirror"},
+          {"id": "xform_rotate", "name": "Rotate", "action": "prism_cad.xform_rotate"},
+          {"id": "xform_scale", "name": "Scale", "action": "prism_cad.xform_scale"},
+          {"id": "xform_translate", "name": "Translate", "action": "prism_cad.xform_translate"},
+          {"id": "xform_offset", "name": "Offset", "submenu": ["offset_contour", "offset_chain", "offset_surfaces"]},
+          {"id": "xform_project", "name": "Project", "action": "prism_cad.xform_project"},
+          {"id": "xform_array", "name": "Array", "submenu": ["array_rectangular", "array_polar", "array_along_curve"]},
+          {"id": "xform_roll", "name": "Roll", "action": "prism_cad.xform_roll"},
+          {"id": "xform_stretch", "name": "Stretch", "action": "prism_cad.xform_stretch"},
+          {"id": "xform_stitchsplit", "name": "Stitch/Split", "submenu": ["stitch_surfaces", "split_surfaces"]}
+        ]
+      },
+      {
+        "id": "menu_machine_type",
+        "name": "Machine Type",
+        "type": "menu",
+        "prism_importance": "critical",
+        "items": [
+          {"id": "mtype_mill", "name": "Mill", "submenu": ["mill_default", "mill_3_axis", "mill_4_axis", "mill_5_axis"]},
+          {"id": "mtype_lathe", "name": "Lathe", "action": "prism_cam.set_machine_lathe"},
+          {"id": "mtype_wire", "name": "Wire", "action": "prism_edm.set_machine_wire"},
+          {"id": "mtype_router", "name": "Router", "action": "prism_cam.set_machine_router"},
+          {"id": "mtype_design", "name": "Design", "action": "prism_cad.set_mode_design"},
+          {"id": "mtype_mill_turn", "name": "Mill-Turn", "action": "prism_cam.set_machine_millturn"},
+          {"id": "mtype_definition", "name": "Machine Definition", "action": "prism_cam.machine_definition", "prism_importance": "critical"}
+        ]
+      },
+      {
+        "id": "menu_toolpaths",
+        "name": "Toolpaths",
+        "type": "menu",
+        "prism_importance": "critical",
+        "items": [
+          {"id": "tp_contour", "name": "Contour", "action": "prism_cam.toolpath_contour", "prism_importance": "critical"},
+          {"id": "tp_pocket", "name": "Pocket", "action": "prism_cam.toolpath_pocket", "prism_importance": "critical"},
+          {"id": "tp_facing", "name": "Facing", "action": "prism_cam.toolpath_facing"},
+          {"id": "tp_slot", "name": "Slot Mill", "action": "prism_cam.toolpath_slot"},
+          {"id": "tp_drill", "name": "Drill", "submenu": ["drill_simple", "drill_peck", "drill_chip_break", "drill_bore_back", "drill_bore_spindle", "drill_bore_feedout", "drill_tap", "drill_misc"]},
+          {"id": "tp_circle_mill", "name": "Circle Mill", "submenu": ["circ_pocket", "circ_contour"]},
+          {"id": "tp_point", "name": "Point", "action": "prism_cam.toolpath_point"},
+          {"id": "tp_helix_bore", "name": "Helix Bore", "action": "prism_cam.toolpath_helix_bore"},
+          {"id": "tp_thread_mill", "name": "Thread Mill", "action": "prism_cam.toolpath_thread_mill"},
+          {"id": "tp_engraving", "name": "Engraving", "action": "prism_cam.toolpath_engrave"},
+          {"id": "tp_surface_rough", "name": "Surface Rough", "submenu": ["srf_rough_parallel", "srf_rough_radial", "srf_rough_project", "srf_rough_flowline", "srf_rough_contour", "srf_rough_restmill", "srf_rough_pocket", "srf_rough_plunge"]},
+          {"id": "tp_surface_finish", "name": "Surface Finish", "submenu": ["srf_fin_parallel", "srf_fin_radial", "srf_fin_project", "srf_fin_flowline", "srf_fin_contour", "srf_fin_shallow", "srf_fin_pencil", "srf_fin_leftover", "srf_fin_scallop", "srf_fin_horizontal_area"]},
+          {"id": "tp_high_speed", "name": "High Speed", "submenu": ["hs_core_mill", "hs_area_mill", "hs_peel_mill", "hs_blend_mill", "hs_dynamic_contour", "hs_dynamic_area", "hs_surface_hs_finish", "hs_surface_hs_equal", "hs_surface_hs_scallop", "hs_surface_hs_waterline", "hs_surface_hs_horizontal", "hs_surface_hs_pencil", "hs_surface_hs_raster", "hs_surface_hs_spiral", "hs_surface_hs_radial", "hs_surface_hs_hybrid"]},
+          {"id": "tp_multiaxis", "name": "Multiaxis", "submenu": ["ma_curve_5ax", "ma_swarf", "ma_flow_5ax", "ma_drill_5ax", "ma_circle_5ax", "ma_port", "ma_multi_surface"]},
+          {"id": "tp_fbm_drill", "name": "FBM Drill", "action": "prism_cam.toolpath_fbm_drill"},
+          {"id": "tp_fbm_mill", "name": "FBM Mill", "action": "prism_cam.toolpath_fbm_mill"},
+          {"id": "tp_transform", "name": "Transform", "action": "prism_cam.toolpath_transform"},
+          {"id": "tp_stock_model", "name": "Stock Model", "action": "prism_cam.toolpath_stock_model"},
+          {"id": "tp_verify", "name": "Verify", "action": "prism_cam.toolpath_verify", "prism_importance": "critical"},
+          {"id": "tp_simulate", "name": "Simulate", "action": "prism_cam.toolpath_simulate", "prism_importance": "critical"},
+          {"id": "tp_operations", "name": "Operations", "action": "prism_cam.operations_manager"},
+          {"id": "tp_job_setup", "name": "Job Setup", "action": "prism_cam.job_setup", "prism_importance": "critical"},
+          {"id": "tp_tool_settings", "name": "Tool Settings", "action": "prism_cam.tool_settings"},
+          {"id": "tp_stock_setup", "name": "Stock Setup", "action": "prism_cam.stock_setup", "prism_importance": "critical"},
+          {"id": "tp_post", "name": "Post", "submenu": ["post_selected", "post_all", "post_batch"], "prism_importance": "critical"}
+        ]
+      },
+      {
+        "id": "menu_screen",
+        "name": "Screen",
+        "type": "menu",
+        "prism_importance": "low",
+        "items": [
+          {"id": "scr_fit", "name": "Fit", "shortcut": "Alt+F1", "action": "prism_cad.screen_fit"},
+          {"id": "scr_unzoom", "name": "Unzoom", "shortcut": "Alt+F2", "action": "prism_cad.screen_unzoom"},
+          {"id": "scr_configure", "name": "Configure", "action": "prism_cad.screen_configure"},
+          {"id": "scr_viewports", "name": "Viewports", "submenu": ["vp_single", "vp_two_horiz", "vp_two_vert", "vp_three_right", "vp_three_left", "vp_four"]},
+          {"id": "scr_statistics", "name": "Statistics", "action": "prism_cad.screen_statistics"},
+          {"id": "scr_clear_colors", "name": "Clear Colors", "action": "prism_cad.clear_colors"}
+        ]
+      },
+      {
+        "id": "menu_settings",
+        "name": "Settings",
+        "type": "menu",
+        "prism_importance": "high",
+        "items": [
+          {"id": "set_configuration", "name": "Configuration", "action": "prism_cam.configuration", "prism_importance": "critical"},
+          {"id": "set_toolpaths", "name": "Toolpaths", "action": "prism_cam.toolpath_settings"},
+          {"id": "set_system", "name": "System", "action": "prism_session.system_settings"},
+          {"id": "set_cad", "name": "CAD Settings", "action": "prism_cad.cad_settings"},
+          {"id": "set_cam", "name": "CAM Settings", "action": "prism_cam.cam_settings"},
+          {"id": "set_customize", "name": "Customize", "action": "prism_session.customize"},
+          {"id": "set_key_mapping", "name": "Key Mapping", "action": "prism_session.key_mapping"},
+          {"id": "set_run", "name": "Run User Application", "action": "prism_session.run_app"},
+          {"id": "set_network", "name": "Network Licensing", "action": "prism_session.network_license"},
+          {"id": "set_machine_def", "name": "Machine Definition", "action": "prism_cam.machine_definition"},
+          {"id": "set_control_def", "name": "Control Definition", "action": "prism_pp.control_definition", "prism_importance": "critical"},
+          {"id": "set_post_processor", "name": "Post Processor", "action": "prism_pp.settings"}
+        ]
+      },
+      {
+        "id": "menu_help",
+        "name": "Help",
+        "type": "menu",
+        "prism_importance": "low",
+        "items": [
+          {"id": "help_contents", "name": "Contents", "shortcut": "F1", "action": "prism_doc.help_contents"},
+          {"id": "help_search", "name": "Search", "action": "prism_doc.help_search"},
+          {"id": "help_whats_new", "name": "What's New", "action": "prism_doc.whats_new"},
+          {"id": "help_about", "name": "About Mastercam", "action": "prism_session.about"},
+          {"id": "help_tutorials", "name": "Tutorials", "action": "prism_doc.tutorials"},
+          {"id": "help_support", "name": "Technical Support", "action": "prism_doc.support"}
+        ]
+      }
+    ]
+  },
+
+  "toolbars": [
+    {
+      "id": "tb_main",
+      "name": "Main Toolbar",
+      "region": "toolbar_top",
+      "visible_default": true,
+      "prism_importance": "high",
+      "items": [
+        {"id": "tb_new", "name": "New", "icon": "new.bmp", "action": "prism_cad.new_document"},
+        {"id": "tb_open", "name": "Open", "icon": "open.bmp", "action": "prism_cad.open_file"},
+        {"id": "tb_save", "name": "Save", "icon": "save.bmp", "action": "prism_cad.save_file"},
+        {"id": "tb_undo", "name": "Undo", "icon": "undo.bmp", "action": "prism_cad.undo"},
+        {"id": "tb_redo", "name": "Redo", "icon": "redo.bmp", "action": "prism_cad.redo"},
+        {"id": "tb_fit", "name": "Fit", "icon": "fit.bmp", "action": "prism_cad.screen_fit"},
+        {"id": "tb_unzoom", "name": "Unzoom 80%", "icon": "unzoom.bmp", "action": "prism_cad.screen_unzoom"},
+        {"id": "tb_repaint", "name": "Repaint", "icon": "repaint.bmp", "action": "prism_cad.repaint"},
+        {"id": "tb_analyze", "name": "Analyze", "icon": "analyze.bmp", "action": "prism_cad.analyze"},
+        {"id": "tb_delete", "name": "Delete", "icon": "delete.bmp", "action": "prism_cad.delete"}
+      ]
+    },
+    {
+      "id": "tb_view",
+      "name": "View Toolbar",
+      "region": "toolbar_top",
+      "visible_default": true,
+      "prism_importance": "medium",
+      "items": [
+        {"id": "tb_gview_top", "name": "Top View", "icon": "gv_top.bmp", "action": "prism_cad.gview_top"},
+        {"id": "tb_gview_front", "name": "Front View", "icon": "gv_front.bmp", "action": "prism_cad.gview_front"},
+        {"id": "tb_gview_right", "name": "Right View", "icon": "gv_right.bmp", "action": "prism_cad.gview_right"},
+        {"id": "tb_gview_iso", "name": "Isometric", "icon": "gv_iso.bmp", "action": "prism_cad.gview_isometric"},
+        {"id": "tb_gview_dyn", "name": "Dynamic Rotation", "icon": "gv_dyn.bmp", "action": "prism_cad.gview_dyn_rotate"},
+        {"id": "tb_shade", "name": "Shade", "icon": "shade.bmp", "action": "prism_cad.shade_view"},
+        {"id": "tb_wireframe", "name": "Wireframe", "icon": "wireframe.bmp", "action": "prism_cad.wireframe_view"}
+      ]
+    },
+    {
+      "id": "tb_2d_toolpaths",
+      "name": "2D Toolpaths Toolbar",
+      "region": "toolbar_left",
+      "visible_default": true,
+      "prism_importance": "critical",
+      "items": [
+        {"id": "tb_tp_contour", "name": "Contour", "icon": "tp_contour.bmp", "action": "prism_cam.toolpath_contour"},
+        {"id": "tb_tp_pocket", "name": "Pocket", "icon": "tp_pocket.bmp", "action": "prism_cam.toolpath_pocket"},
+        {"id": "tb_tp_facing", "name": "Facing", "icon": "tp_facing.bmp", "action": "prism_cam.toolpath_facing"},
+        {"id": "tb_tp_drill", "name": "Drill", "icon": "tp_drill.bmp", "action": "prism_cam.toolpath_drill"},
+        {"id": "tb_tp_circle", "name": "Circle Mill", "icon": "tp_circle.bmp", "action": "prism_cam.toolpath_circle"},
+        {"id": "tb_tp_slot", "name": "Slot", "icon": "tp_slot.bmp", "action": "prism_cam.toolpath_slot"},
+        {"id": "tb_tp_engrave", "name": "Engrave", "icon": "tp_engrave.bmp", "action": "prism_cam.toolpath_engrave"},
+        {"id": "tb_tp_thread", "name": "Thread Mill", "icon": "tp_thread.bmp", "action": "prism_cam.toolpath_thread_mill"},
+        {"id": "tb_tp_helix", "name": "Helix Bore", "icon": "tp_helix.bmp", "action": "prism_cam.toolpath_helix_bore"}
+      ]
+    },
+    {
+      "id": "tb_3d_toolpaths",
+      "name": "3D Toolpaths Toolbar",
+      "region": "toolbar_left",
+      "visible_default": true,
+      "prism_importance": "critical",
+      "items": [
+        {"id": "tb_srf_rough_pocket", "name": "Surface Rough Pocket", "icon": "srf_rough_pocket.bmp", "action": "prism_cam.surface_rough_pocket"},
+        {"id": "tb_srf_rough_parallel", "name": "Surface Rough Parallel", "icon": "srf_rough_parallel.bmp", "action": "prism_cam.surface_rough_parallel"},
+        {"id": "tb_srf_rough_contour", "name": "Surface Rough Contour", "icon": "srf_rough_contour.bmp", "action": "prism_cam.surface_rough_contour"},
+        {"id": "tb_srf_rough_plunge", "name": "Surface Rough Plunge", "icon": "srf_rough_plunge.bmp", "action": "prism_cam.surface_rough_plunge"},
+        {"id": "tb_srf_fin_parallel", "name": "Surface Finish Parallel", "icon": "srf_fin_parallel.bmp", "action": "prism_cam.surface_finish_parallel"},
+        {"id": "tb_srf_fin_contour", "name": "Surface Finish Contour", "icon": "srf_fin_contour.bmp", "action": "prism_cam.surface_finish_contour"},
+        {"id": "tb_srf_fin_scallop", "name": "Surface Finish Scallop", "icon": "srf_fin_scallop.bmp", "action": "prism_cam.surface_finish_scallop"},
+        {"id": "tb_srf_fin_pencil", "name": "Surface Finish Pencil", "icon": "srf_fin_pencil.bmp", "action": "prism_cam.surface_finish_pencil"},
+        {"id": "tb_srf_fin_leftover", "name": "Surface Finish Leftover", "icon": "srf_fin_leftover.bmp", "action": "prism_cam.surface_finish_leftover"}
+      ]
+    },
+    {
+      "id": "tb_high_speed",
+      "name": "High Speed Toolpaths Toolbar",
+      "region": "toolbar_left",
+      "visible_default": true,
+      "prism_importance": "critical",
+      "items": [
+        {"id": "tb_hs_dynamic_mill", "name": "Dynamic Mill", "icon": "hs_dyn_mill.bmp", "action": "prism_cam.dynamic_mill"},
+        {"id": "tb_hs_area_mill", "name": "Area Mill", "icon": "hs_area_mill.bmp", "action": "prism_cam.area_mill"},
+        {"id": "tb_hs_peel_mill", "name": "Peel Mill", "icon": "hs_peel_mill.bmp", "action": "prism_cam.peel_mill"},
+        {"id": "tb_hs_core_mill", "name": "Core Mill", "icon": "hs_core_mill.bmp", "action": "prism_cam.core_mill"},
+        {"id": "tb_hs_blend_mill", "name": "Blend Mill", "icon": "hs_blend_mill.bmp", "action": "prism_cam.blend_mill"},
+        {"id": "tb_hs_dyn_contour", "name": "Dynamic Contour", "icon": "hs_dyn_contour.bmp", "action": "prism_cam.dynamic_contour"},
+        {"id": "tb_hs_equal", "name": "HS Equal", "icon": "hs_equal.bmp", "action": "prism_cam.hs_equal"},
+        {"id": "tb_hs_scallop", "name": "HS Scallop", "icon": "hs_scallop.bmp", "action": "prism_cam.hs_scallop"},
+        {"id": "tb_hs_waterline", "name": "HS Waterline", "icon": "hs_waterline.bmp", "action": "prism_cam.hs_waterline"},
+        {"id": "tb_hs_pencil", "name": "HS Pencil", "icon": "hs_pencil.bmp", "action": "prism_cam.hs_pencil"},
+        {"id": "tb_hs_raster", "name": "HS Raster", "icon": "hs_raster.bmp", "action": "prism_cam.hs_raster"},
+        {"id": "tb_hs_hybrid", "name": "HS Hybrid", "icon": "hs_hybrid.bmp", "action": "prism_cam.hs_hybrid"}
+      ]
+    },
+    {
+      "id": "tb_multiaxis",
+      "name": "Multiaxis Toolpaths Toolbar",
+      "region": "toolbar_left",
+      "visible_default": false,
+      "prism_importance": "high",
+      "items": [
+        {"id": "tb_ma_curve_5ax", "name": "Curve 5-Axis", "icon": "ma_curve.bmp", "action": "prism_cam.curve_5axis"},
+        {"id": "tb_ma_swarf", "name": "Swarf", "icon": "ma_swarf.bmp", "action": "prism_cam.swarf"},
+        {"id": "tb_ma_flow", "name": "Flow", "icon": "ma_flow.bmp", "action": "prism_cam.flow_5axis"},
+        {"id": "tb_ma_drill", "name": "Drill 5-Axis", "icon": "ma_drill.bmp", "action": "prism_cam.drill_5axis"},
+        {"id": "tb_ma_port", "name": "Port", "icon": "ma_port.bmp", "action": "prism_cam.port_machining"}
+      ]
+    },
+    {
+      "id": "tb_solids",
+      "name": "Solids Toolbar",
+      "region": "toolbar_right",
+      "visible_default": false,
+      "prism_importance": "medium",
+      "items": [
+        {"id": "tb_sol_extrude", "name": "Extrude", "icon": "sol_extrude.bmp", "action": "prism_cad.solid_extrude"},
+        {"id": "tb_sol_revolve", "name": "Revolve", "icon": "sol_revolve.bmp", "action": "prism_cad.solid_revolve"},
+        {"id": "tb_sol_sweep", "name": "Sweep", "icon": "sol_sweep.bmp", "action": "prism_cad.solid_sweep"},
+        {"id": "tb_sol_loft", "name": "Loft", "icon": "sol_loft.bmp", "action": "prism_cad.solid_loft"},
+        {"id": "tb_sol_add", "name": "Boolean Add", "icon": "sol_add.bmp", "action": "prism_cad.solid_boolean_add"},
+        {"id": "tb_sol_remove", "name": "Boolean Remove", "icon": "sol_remove.bmp", "action": "prism_cad.solid_boolean_remove"},
+        {"id": "tb_sol_common", "name": "Boolean Common", "icon": "sol_common.bmp", "action": "prism_cad.solid_boolean_common"},
+        {"id": "tb_sol_fillet", "name": "Fillet", "icon": "sol_fillet.bmp", "action": "prism_cad.solid_fillet"},
+        {"id": "tb_sol_chamfer", "name": "Chamfer", "icon": "sol_chamfer.bmp", "action": "prism_cad.solid_chamfer"},
+        {"id": "tb_sol_shell", "name": "Shell", "icon": "sol_shell.bmp", "action": "prism_cad.solid_shell"}
+      ]
+    },
+    {
+      "id": "tb_wireframe",
+      "name": "Wireframe Toolbar",
+      "region": "toolbar_right",
+      "visible_default": true,
+      "prism_importance": "medium",
+      "items": [
+        {"id": "tb_wf_point", "name": "Point", "icon": "wf_point.bmp", "action": "prism_cad.create_point"},
+        {"id": "tb_wf_line", "name": "Line", "icon": "wf_line.bmp", "action": "prism_cad.create_line"},
+        {"id": "tb_wf_arc", "name": "Arc", "icon": "wf_arc.bmp", "action": "prism_cad.create_arc"},
+        {"id": "tb_wf_circle", "name": "Circle", "icon": "wf_circle.bmp", "action": "prism_cad.create_circle"},
+        {"id": "tb_wf_fillet", "name": "Fillet", "icon": "wf_fillet.bmp", "action": "prism_cad.create_fillet"},
+        {"id": "tb_wf_chamfer", "name": "Chamfer", "icon": "wf_chamfer.bmp", "action": "prism_cad.create_chamfer"},
+        {"id": "tb_wf_spline", "name": "Spline", "icon": "wf_spline.bmp", "action": "prism_cad.create_spline"},
+        {"id": "tb_wf_rectangle", "name": "Rectangle", "icon": "wf_rect.bmp", "action": "prism_cad.create_rectangle"},
+        {"id": "tb_wf_polygon", "name": "Polygon", "icon": "wf_polygon.bmp", "action": "prism_cad.create_polygon"},
+        {"id": "tb_wf_ellipse", "name": "Ellipse", "icon": "wf_ellipse.bmp", "action": "prism_cad.create_ellipse"}
+      ]
+    },
+    {
+      "id": "tb_surface",
+      "name": "Surface Toolbar",
+      "region": "toolbar_right",
+      "visible_default": false,
+      "prism_importance": "medium",
+      "items": [
+        {"id": "tb_sf_ruled", "name": "Ruled Surface", "icon": "sf_ruled.bmp", "action": "prism_cad.surface_ruled"},
+        {"id": "tb_sf_revolved", "name": "Revolved Surface", "icon": "sf_revolved.bmp", "action": "prism_cad.surface_revolved"},
+        {"id": "tb_sf_swept", "name": "Swept Surface", "icon": "sf_swept.bmp", "action": "prism_cad.surface_swept"},
+        {"id": "tb_sf_lofted", "name": "Lofted Surface", "icon": "sf_lofted.bmp", "action": "prism_cad.surface_lofted"},
+        {"id": "tb_sf_coons", "name": "Coons Surface", "icon": "sf_coons.bmp", "action": "prism_cad.surface_coons"},
+        {"id": "tb_sf_fillet", "name": "Fillet Surface", "icon": "sf_fillet.bmp", "action": "prism_cad.surface_fillet"},
+        {"id": "tb_sf_trim", "name": "Trim Surface", "icon": "sf_trim.bmp", "action": "prism_cad.surface_trim"},
+        {"id": "tb_sf_extend", "name": "Extend Surface", "icon": "sf_extend.bmp", "action": "prism_cad.surface_extend"}
+      ]
+    },
+    {
+      "id": "tb_xform",
+      "name": "Transform Toolbar",
+      "region": "toolbar_right",
+      "visible_default": true,
+      "prism_importance": "medium",
+      "items": [
+        {"id": "tb_xf_mirror", "name": "Mirror", "icon": "xf_mirror.bmp", "action": "prism_cad.xform_mirror"},
+        {"id": "tb_xf_rotate", "name": "Rotate", "icon": "xf_rotate.bmp", "action": "prism_cad.xform_rotate"},
+        {"id": "tb_xf_scale", "name": "Scale", "icon": "xf_scale.bmp", "action": "prism_cad.xform_scale"},
+        {"id": "tb_xf_translate", "name": "Translate", "icon": "xf_translate.bmp", "action": "prism_cad.xform_translate"},
+        {"id": "tb_xf_offset", "name": "Offset", "icon": "xf_offset.bmp", "action": "prism_cad.xform_offset"}
+      ]
+    }
+  ],
+
+  "manager_panels": [
+    {
+      "id": "mgr_operations",
+      "name": "Operations Manager",
+      "region": "panel_left",
+      "visible_default": true,
+      "prism_importance": "critical",
+      "elements": [
+        {"id": "ops_tree", "name": "Operations Tree", "type": "tree_view", "action": "prism_cam.operations_tree"},
+        {"id": "ops_toolpath_groups", "name": "Toolpath Groups", "type": "folder_node", "action": "prism_cam.toolpath_groups"},
+        {"id": "ops_machine_group", "name": "Machine Group", "type": "folder_node", "action": "prism_cam.machine_group"},
+        {"id": "ops_properties", "name": "Properties", "type": "context_action", "action": "prism_cam.operation_properties"},
+        {"id": "ops_select_all", "name": "Select All Operations", "type": "context_action", "action": "prism_cam.select_all_operations"},
+        {"id": "ops_regen_dirty", "name": "Regen Dirty", "type": "context_action", "action": "prism_cam.regen_dirty"},
+        {"id": "ops_regen_all", "name": "Regen All", "type": "context_action", "action": "prism_cam.regen_all"},
+        {"id": "ops_verify", "name": "Verify Selected", "type": "context_action", "action": "prism_cam.verify_selected"},
+        {"id": "ops_backplot", "name": "Backplot", "type": "context_action", "action": "prism_cam.backplot"},
+        {"id": "ops_post_selected", "name": "Post Selected", "type": "context_action", "action": "prism_pp.post_selected"}
+      ]
+    },
+    {
+      "id": "mgr_toolpaths",
+      "name": "Toolpaths Manager",
+      "region": "panel_left",
+      "visible_default": true,
+      "prism_importance": "critical",
+      "elements": [
+        {"id": "tp_mgr_list", "name": "Toolpath List", "type": "list_view", "action": "prism_cam.toolpath_list"},
+        {"id": "tp_mgr_select", "name": "Select Toolpath", "type": "list_action", "action": "prism_cam.select_toolpath"},
+        {"id": "tp_mgr_edit", "name": "Edit Toolpath", "type": "context_action", "action": "prism_cam.edit_toolpath"},
+        {"id": "tp_mgr_copy", "name": "Copy Toolpath", "type": "context_action", "action": "prism_cam.copy_toolpath"},
+        {"id": "tp_mgr_delete", "name": "Delete Toolpath", "type": "context_action", "action": "prism_cam.delete_toolpath"},
+        {"id": "tp_mgr_move_up", "name": "Move Up", "type": "context_action", "action": "prism_cam.move_toolpath_up"},
+        {"id": "tp_mgr_move_down", "name": "Move Down", "type": "context_action", "action": "prism_cam.move_toolpath_down"},
+        {"id": "tp_mgr_statistics", "name": "Statistics", "type": "context_action", "action": "prism_cam.toolpath_statistics"}
+      ]
+    },
+    {
+      "id": "mgr_planes",
+      "name": "Planes Manager",
+      "region": "panel_left",
+      "visible_default": false,
+      "prism_importance": "high",
+      "elements": [
+        {"id": "pl_mgr_list", "name": "Planes List", "type": "list_view", "action": "prism_cad.planes_list"},
+        {"id": "pl_mgr_top", "name": "Top Plane", "type": "preset_plane", "action": "prism_cad.set_plane_top"},
+        {"id": "pl_mgr_front", "name": "Front Plane", "type": "preset_plane", "action": "prism_cad.set_plane_front"},
+        {"id": "pl_mgr_right", "name": "Right Plane", "type": "preset_plane", "action": "prism_cad.set_plane_right"},
+        {"id": "pl_mgr_create", "name": "Create Plane", "type": "context_action", "action": "prism_cad.create_plane"},
+        {"id": "pl_mgr_edit", "name": "Edit Plane", "type": "context_action", "action": "prism_cad.edit_plane"},
+        {"id": "pl_mgr_delete", "name": "Delete Plane", "type": "context_action", "action": "prism_cad.delete_plane"},
+        {"id": "pl_mgr_named", "name": "Named Planes", "type": "folder_node", "action": "prism_cad.named_planes"},
+        {"id": "pl_mgr_wcs", "name": "WCS (Work Coordinate System)", "type": "special_plane", "action": "prism_cad.set_wcs"}
+      ]
+    },
+    {
+      "id": "mgr_levels",
+      "name": "Levels Manager",
+      "region": "panel_left",
+      "visible_default": false,
+      "prism_importance": "medium",
+      "elements": [
+        {"id": "lv_mgr_list", "name": "Levels List", "type": "list_view", "action": "prism_cad.levels_list"},
+        {"id": "lv_mgr_main", "name": "Main Level", "type": "default_level", "action": "prism_cad.set_main_level"},
+        {"id": "lv_mgr_create", "name": "Create Level", "type": "context_action", "action": "prism_cad.create_level"},
+        {"id": "lv_mgr_visible", "name": "Toggle Visible", "type": "toggle_action", "action": "prism_cad.toggle_level_visible"},
+        {"id": "lv_mgr_rename", "name": "Rename Level", "type": "context_action", "action": "prism_cad.rename_level"},
+        {"id": "lv_mgr_number", "name": "Level Number", "type": "property", "action": "prism_cad.level_number"},
+        {"id": "lv_mgr_used", "name": "Filter Used", "type": "filter_action", "action": "prism_cad.filter_used_levels"}
+      ]
+    },
+    {
+      "id": "mgr_solids",
+      "name": "Solids Manager",
+      "region": "panel_left",
+      "visible_default": false,
+      "prism_importance": "medium",
+      "elements": [
+        {"id": "sol_mgr_tree", "name": "Solids Tree", "type": "tree_view", "action": "prism_cad.solids_tree"},
+        {"id": "sol_mgr_history", "name": "Feature History", "type": "tree_branch", "action": "prism_cad.feature_history"},
+        {"id": "sol_mgr_edit", "name": "Edit Feature", "type": "context_action", "action": "prism_cad.edit_feature"},
+        {"id": "sol_mgr_delete", "name": "Delete Feature", "type": "context_action", "action": "prism_cad.delete_feature"},
+        {"id": "sol_mgr_suppress", "name": "Suppress Feature", "type": "toggle_action", "action": "prism_cad.suppress_feature"},
+        {"id": "sol_mgr_rollback", "name": "Rollback", "type": "context_action", "action": "prism_cad.rollback_solid"}
+      ]
+    }
+  ],
+
+  "context_menus": [
+    {
+      "id": "ctx_operations",
+      "name": "Operations Context Menu",
+      "trigger": "right_click_operations_manager",
+      "prism_importance": "critical",
+      "items": [
+        {"id": "ctx_op_edit", "name": "Edit", "action": "prism_cam.edit_operation"},
+        {"id": "ctx_op_rename", "name": "Rename", "action": "prism_cam.rename_operation"},
+        {"id": "ctx_op_copy", "name": "Copy", "action": "prism_cam.copy_operation"},
+        {"id": "ctx_op_delete", "name": "Delete", "action": "prism_cam.delete_operation"},
+        {"id": "ctx_op_regen", "name": "Regenerate", "action": "prism_cam.regen_operation"},
+        {"id": "ctx_op_backplot", "name": "Backplot", "action": "prism_cam.backplot_operation"},
+        {"id": "ctx_op_verify", "name": "Verify", "action": "prism_cam.verify_operation"},
+        {"id": "ctx_op_post", "name": "Post Process", "action": "prism_pp.post_operation"},
+        {"id": "ctx_op_tool", "name": "Tool...", "action": "prism_cam.operation_tool"},
+        {"id": "ctx_op_parameters", "name": "Parameters", "action": "prism_cam.operation_parameters"},
+        {"id": "ctx_op_linking", "name": "Linking Parameters", "action": "prism_cam.operation_linking"},
+        {"id": "ctx_op_planes", "name": "Planes", "action": "prism_cam.operation_planes"},
+        {"id": "ctx_op_select_geometry", "name": "Select Geometry", "action": "prism_cam.select_operation_geometry"},
+        {"id": "ctx_op_highlight", "name": "Highlight Toolpath", "action": "prism_cam.highlight_toolpath"},
+        {"id": "ctx_op_statistics", "name": "Statistics", "action": "prism_cam.operation_statistics"}
+      ]
+    },
+    {
+      "id": "ctx_chain",
+      "name": "Chain Context Menu",
+      "trigger": "right_click_chain",
+      "prism_importance": "high",
+      "items": [
+        {"id": "ctx_chain_reverse", "name": "Reverse", "action": "prism_cam.reverse_chain"},
+        {"id": "ctx_chain_start_point", "name": "Change Start Point", "action": "prism_cam.chain_start_point"},
+        {"id": "ctx_chain_add", "name": "Add to Chain", "action": "prism_cam.add_to_chain"},
+        {"id": "ctx_chain_remove", "name": "Remove from Chain", "action": "prism_cam.remove_from_chain"},
+        {"id": "ctx_chain_analyze", "name": "Analyze Chain", "action": "prism_cad.analyze_chain"},
+        {"id": "ctx_chain_close", "name": "Close Chain", "action": "prism_cam.close_chain"},
+        {"id": "ctx_chain_window", "name": "Window Chain", "action": "prism_cam.window_chain"},
+        {"id": "ctx_chain_unchain", "name": "Unchain", "action": "prism_cam.unchain"}
+      ]
+    },
+    {
+      "id": "ctx_geometry",
+      "name": "Geometry Context Menu",
+      "trigger": "right_click_geometry",
+      "prism_importance": "medium",
+      "items": [
+        {"id": "ctx_geo_select", "name": "Select", "action": "prism_cad.select_entity"},
+        {"id": "ctx_geo_delete", "name": "Delete", "action": "prism_cad.delete_entity"},
+        {"id": "ctx_geo_change", "name": "Change Attributes", "action": "prism_cad.change_attributes"},
+        {"id": "ctx_geo_analyze", "name": "Analyze", "action": "prism_cad.analyze_entity"},
+        {"id": "ctx_geo_copy", "name": "Copy", "action": "prism_cad.copy_entity"},
+        {"id": "ctx_geo_move", "name": "Move", "action": "prism_cad.move_entity"},
+        {"id": "ctx_geo_trim", "name": "Trim", "action": "prism_cad.trim_entity"},
+        {"id": "ctx_geo_extend", "name": "Extend", "action": "prism_cad.extend_entity"},
+        {"id": "ctx_geo_level", "name": "Set Level", "action": "prism_cad.set_entity_level"},
+        {"id": "ctx_geo_color", "name": "Set Color", "action": "prism_cad.set_entity_color"}
+      ]
+    },
+    {
+      "id": "ctx_tool",
+      "name": "Tool Context Menu",
+      "trigger": "right_click_tool",
+      "prism_importance": "critical",
+      "items": [
+        {"id": "ctx_tool_edit", "name": "Edit Tool", "action": "prism_cam.edit_tool"},
+        {"id": "ctx_tool_copy", "name": "Copy Tool", "action": "prism_cam.copy_tool"},
+        {"id": "ctx_tool_delete", "name": "Delete Tool", "action": "prism_cam.delete_tool"},
+        {"id": "ctx_tool_library", "name": "Get from Library", "action": "prism_cam.tool_from_library"},
+        {"id": "ctx_tool_save", "name": "Save to Library", "action": "prism_cam.tool_to_library"},
+        {"id": "ctx_tool_holder", "name": "Edit Holder", "action": "prism_cam.edit_holder"},
+        {"id": "ctx_tool_assign", "name": "Assign to Operation", "action": "prism_cam.assign_tool"}
+      ]
+    },
+    {
+      "id": "ctx_graphics",
+      "name": "Graphics Window Context Menu",
+      "trigger": "right_click_graphics",
+      "prism_importance": "medium",
+      "items": [
+        {"id": "ctx_gfx_zoom_window", "name": "Zoom Window", "action": "prism_cad.zoom_window"},
+        {"id": "ctx_gfx_zoom_fit", "name": "Fit", "action": "prism_cad.screen_fit"},
+        {"id": "ctx_gfx_unzoom", "name": "Unzoom", "action": "prism_cad.screen_unzoom"},
+        {"id": "ctx_gfx_repaint", "name": "Repaint", "action": "prism_cad.repaint"},
+        {"id": "ctx_gfx_isometric", "name": "Isometric", "action": "prism_cad.gview_isometric"},
+        {"id": "ctx_gfx_top", "name": "Top", "action": "prism_cad.gview_top"},
+        {"id": "ctx_gfx_front", "name": "Front", "action": "prism_cad.gview_front"},
+        {"id": "ctx_gfx_right", "name": "Right", "action": "prism_cad.gview_right"},
+        {"id": "ctx_gfx_shade", "name": "Shade", "action": "prism_cad.shade_view"},
+        {"id": "ctx_gfx_wireframe", "name": "Wireframe", "action": "prism_cad.wireframe_view"}
+      ]
+    }
+  ],
+
+  "dialogs": {
+    "contour_dialog": {
+      "id": "dlg_contour",
+      "name": "2D Contour Toolpath",
+      "type": "toolpath_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_toolpath_type",
+          "name": "Toolpath Type",
+          "elements": [
+            {"id": "cnt_type_2d", "name": "2D", "type": "radio", "action": "prism_cam.contour_type_2d"},
+            {"id": "cnt_type_chamfer", "name": "Chamfer", "type": "radio", "action": "prism_cam.contour_type_chamfer"},
+            {"id": "cnt_type_ramp", "name": "Ramp", "type": "radio", "action": "prism_cam.contour_type_ramp"},
+            {"id": "cnt_type_remachine", "name": "Remachine", "type": "radio", "action": "prism_cam.contour_type_remachine"},
+            {"id": "cnt_compensation", "name": "Compensation Type", "type": "dropdown", "values": ["Computer", "Control", "Wear", "Off"], "action": "prism_cam.set_compensation"},
+            {"id": "cnt_direction", "name": "Compensation Direction", "type": "dropdown", "values": ["Left", "Right"], "action": "prism_cam.set_comp_direction"},
+            {"id": "cnt_tip_comp", "name": "Tip Compensation", "type": "checkbox", "action": "prism_cam.set_tip_comp"},
+            {"id": "cnt_roll_corners", "name": "Roll Cutter Around Corners", "type": "dropdown", "values": ["None", "Sharp", "All"], "action": "prism_cam.set_roll_corners"}
+          ]
+        },
+        {
+          "id": "tab_cut_params",
+          "name": "Cut Parameters",
+          "elements": [
+            {"id": "cnt_depth_cuts", "name": "Depth Cuts", "type": "number", "unit": "count", "action": "prism_cam.set_depth_cuts"},
+            {"id": "cnt_max_rough", "name": "Max Rough Step", "type": "distance", "unit": "mm", "action": "prism_cam.set_max_rough_step"},
+            {"id": "cnt_finish_depth", "name": "Finish Depth", "type": "distance", "unit": "mm", "action": "prism_cam.set_finish_depth"},
+            {"id": "cnt_finish_passes", "name": "Number of Finish Passes", "type": "number", "action": "prism_cam.set_finish_passes"},
+            {"id": "cnt_finish_spacing", "name": "Finish Pass Spacing", "type": "distance", "unit": "mm", "action": "prism_cam.set_finish_spacing"},
+            {"id": "cnt_keep_tool_down", "name": "Keep Tool Down", "type": "checkbox", "action": "prism_cam.set_keep_tool_down"},
+            {"id": "cnt_tapered_walls", "name": "Tapered Walls", "type": "checkbox", "action": "prism_cam.set_tapered_walls"},
+            {"id": "cnt_taper_angle", "name": "Taper Angle", "type": "angle", "unit": "deg", "action": "prism_cam.set_taper_angle"},
+            {"id": "cnt_stock_to_leave", "name": "Stock to Leave", "type": "distance", "unit": "mm", "action": "prism_cam.set_contour_stock"}
+          ]
+        },
+        {
+          "id": "tab_linking",
+          "name": "Linking Parameters",
+          "elements": [
+            {"id": "cnt_clearance", "name": "Clearance", "type": "distance", "unit": "mm", "action": "prism_cam.set_clearance"},
+            {"id": "cnt_retract", "name": "Retract", "type": "distance", "unit": "mm", "action": "prism_cam.set_retract"},
+            {"id": "cnt_feed", "name": "Feed Plane", "type": "distance", "unit": "mm", "action": "prism_cam.set_feed_plane"},
+            {"id": "cnt_top_of_stock", "name": "Top of Stock", "type": "distance", "unit": "mm", "action": "prism_cam.set_top_of_stock"},
+            {"id": "cnt_depth", "name": "Depth", "type": "distance", "unit": "mm", "action": "prism_cam.set_contour_depth"}
+          ]
+        },
+        {
+          "id": "tab_lead_in_out",
+          "name": "Lead In/Out",
+          "elements": [
+            {"id": "cnt_entry_line", "name": "Entry Line", "type": "checkbox", "action": "prism_cam.set_entry_line"},
+            {"id": "cnt_entry_line_length", "name": "Entry Line Length", "type": "distance", "unit": "mm", "action": "prism_cam.set_entry_length"},
+            {"id": "cnt_entry_arc", "name": "Entry Arc", "type": "checkbox", "action": "prism_cam.set_entry_arc"},
+            {"id": "cnt_entry_arc_radius", "name": "Entry Arc Radius", "type": "percentage", "action": "prism_cam.set_entry_arc_radius"},
+            {"id": "cnt_entry_arc_sweep", "name": "Entry Arc Sweep", "type": "angle", "unit": "deg", "action": "prism_cam.set_entry_arc_sweep"},
+            {"id": "cnt_exit_line", "name": "Exit Line", "type": "checkbox", "action": "prism_cam.set_exit_line"},
+            {"id": "cnt_exit_arc", "name": "Exit Arc", "type": "checkbox", "action": "prism_cam.set_exit_arc"},
+            {"id": "cnt_overlap", "name": "Overlap", "type": "distance", "unit": "mm", "action": "prism_cam.set_overlap"}
+          ]
+        }
+      ]
+    },
+    "pocket_dialog": {
+      "id": "dlg_pocket",
+      "name": "2D Pocket Toolpath",
+      "type": "toolpath_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_pocket_type",
+          "name": "Toolpath Type",
+          "elements": [
+            {"id": "pkt_cutting_method", "name": "Cutting Method", "type": "dropdown", "values": ["Zigzag", "Constant Overlap Spiral", "Parallel Spiral", "Parallel Spiral Clean Corners", "Morph Spiral", "High Speed", "One Way", "True Spiral"], "action": "prism_cam.set_pocket_method"},
+            {"id": "pkt_stepover_pct", "name": "Stepover (%)", "type": "percentage", "action": "prism_cam.set_pocket_stepover_pct"},
+            {"id": "pkt_stepover_dist", "name": "Stepover (Distance)", "type": "distance", "unit": "mm", "action": "prism_cam.set_pocket_stepover_dist"},
+            {"id": "pkt_machining_dir", "name": "Machining Direction", "type": "dropdown", "values": ["Climb", "Conventional"], "action": "prism_cam.set_pocket_direction"},
+            {"id": "pkt_entry", "name": "Entry Motion", "type": "dropdown", "values": ["Helix", "Ramp", "Plunge"], "action": "prism_cam.set_pocket_entry"}
+          ]
+        },
+        {
+          "id": "tab_pocket_rough_finish",
+          "name": "Roughing/Finishing",
+          "elements": [
+            {"id": "pkt_rough_passes", "name": "Roughing Passes", "type": "checkbox", "action": "prism_cam.set_rough_passes"},
+            {"id": "pkt_finish_passes", "name": "Finishing Passes", "type": "number", "action": "prism_cam.set_pocket_finish_passes"},
+            {"id": "pkt_finish_spacing", "name": "Finish Pass Spacing", "type": "distance", "unit": "mm", "action": "prism_cam.set_pocket_finish_spacing"},
+            {"id": "pkt_finish_outer", "name": "Finish Outer Boundary", "type": "checkbox", "action": "prism_cam.set_finish_outer"},
+            {"id": "pkt_spring_cuts", "name": "Spring Cuts", "type": "number", "action": "prism_cam.set_spring_cuts"},
+            {"id": "pkt_stock_to_leave", "name": "Stock to Leave (XY)", "type": "distance", "unit": "mm", "action": "prism_cam.set_pocket_stock_xy"},
+            {"id": "pkt_stock_to_leave_z", "name": "Stock to Leave (Z)", "type": "distance", "unit": "mm", "action": "prism_cam.set_pocket_stock_z"}
+          ]
+        },
+        {
+          "id": "tab_pocket_depth",
+          "name": "Depth Cuts",
+          "elements": [
+            {"id": "pkt_max_depth", "name": "Max Rough Depth", "type": "distance", "unit": "mm", "action": "prism_cam.set_pocket_max_depth"},
+            {"id": "pkt_depth_cut_num", "name": "Number of Depth Cuts", "type": "number", "action": "prism_cam.set_pocket_depth_cuts"},
+            {"id": "pkt_depth_cut_order", "name": "Depth Cut Order", "type": "dropdown", "values": ["By Region", "By Depth"], "action": "prism_cam.set_depth_cut_order"},
+            {"id": "pkt_use_island_depth", "name": "Use Island Depths", "type": "checkbox", "action": "prism_cam.set_use_island_depths"},
+            {"id": "pkt_island_facing", "name": "Island Facing", "type": "checkbox", "action": "prism_cam.set_island_facing"},
+            {"id": "pkt_subprogram", "name": "Subprogram for Depths", "type": "checkbox", "action": "prism_cam.set_depth_subprogram"}
+          ]
+        }
+      ]
+    },
+    "drill_dialog": {
+      "id": "dlg_drill",
+      "name": "Drill Toolpath",
+      "type": "toolpath_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_drill_cycle",
+          "name": "Drill Cycle",
+          "elements": [
+            {"id": "drl_cycle", "name": "Cycle", "type": "dropdown", "values": ["Drill/Counterbore", "Peck Drill", "Chip Break", "Tap", "Bore #1 (Feed Out)", "Bore #2 (Stop/Rapid Out)", "Misc #1 (Fine Bore)", "Misc #2 (Back Bore)"], "action": "prism_cam.set_drill_cycle"},
+            {"id": "drl_peck_1", "name": "1st Peck", "type": "distance", "unit": "mm", "action": "prism_cam.set_first_peck"},
+            {"id": "drl_peck_sub", "name": "Subsequent Peck", "type": "distance", "unit": "mm", "action": "prism_cam.set_subsequent_peck"},
+            {"id": "drl_peck_clear", "name": "Peck Clearance", "type": "distance", "unit": "mm", "action": "prism_cam.set_peck_clearance"},
+            {"id": "drl_retract_amount", "name": "Retract Amount", "type": "distance", "unit": "mm", "action": "prism_cam.set_retract_amount"},
+            {"id": "drl_dwell", "name": "Dwell", "type": "time", "unit": "sec", "action": "prism_cam.set_drill_dwell"},
+            {"id": "drl_shift", "name": "Shift", "type": "distance", "unit": "mm", "action": "prism_cam.set_drill_shift"}
+          ]
+        },
+        {
+          "id": "tab_drill_linking",
+          "name": "Linking Parameters",
+          "elements": [
+            {"id": "drl_clearance", "name": "Clearance", "type": "distance", "unit": "mm", "action": "prism_cam.set_drill_clearance"},
+            {"id": "drl_retract", "name": "Retract", "type": "distance", "unit": "mm", "action": "prism_cam.set_drill_retract"},
+            {"id": "drl_top_of_stock", "name": "Top of Stock", "type": "distance", "unit": "mm", "action": "prism_cam.set_drill_top"},
+            {"id": "drl_depth", "name": "Depth", "type": "distance", "unit": "mm", "action": "prism_cam.set_drill_depth"},
+            {"id": "drl_tip_comp", "name": "Tip Compensation", "type": "checkbox", "action": "prism_cam.set_drill_tip_comp"},
+            {"id": "drl_break_through", "name": "Break Through Amount", "type": "distance", "unit": "mm", "action": "prism_cam.set_break_through"},
+            {"id": "drl_subprogram", "name": "Subprogram", "type": "checkbox", "action": "prism_cam.set_drill_subprogram"}
+          ]
+        },
+        {
+          "id": "tab_drill_sort",
+          "name": "Point Sorting",
+          "elements": [
+            {"id": "drl_sort_method", "name": "Sorting Method", "type": "dropdown", "values": ["2D", "Point to Point", "Rotary Sort", "Cross Sort"], "action": "prism_cam.set_drill_sort"},
+            {"id": "drl_optimize", "name": "Optimize Point Order", "type": "checkbox", "action": "prism_cam.set_drill_optimize"},
+            {"id": "drl_select_order", "name": "Use Selection Order", "type": "checkbox", "action": "prism_cam.set_drill_select_order"}
+          ]
+        }
+      ]
+    },
+    "surface_rough_dialog": {
+      "id": "dlg_surface_rough",
+      "name": "Surface Rough Toolpath",
+      "type": "toolpath_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_srf_type",
+          "name": "Toolpath Type",
+          "elements": [
+            {"id": "srf_rough_type", "name": "Rough Type", "type": "dropdown", "values": ["Parallel", "Radial", "Project", "Flowline", "Contour", "Restmill", "Pocket", "Plunge"], "action": "prism_cam.set_srf_rough_type"},
+            {"id": "srf_cut_pattern", "name": "Cut Pattern", "type": "dropdown", "values": ["Zigzag", "One Way", "Zigzag with Retract"], "action": "prism_cam.set_srf_cut_pattern"},
+            {"id": "srf_stepover", "name": "Stepover", "type": "distance", "unit": "mm", "action": "prism_cam.set_srf_stepover"},
+            {"id": "srf_stepover_pct", "name": "Stepover (%)", "type": "percentage", "action": "prism_cam.set_srf_stepover_pct"},
+            {"id": "srf_cut_angle", "name": "Cut Angle", "type": "angle", "unit": "deg", "action": "prism_cam.set_srf_cut_angle"},
+            {"id": "srf_depth_cuts", "name": "Depth Cuts", "type": "number", "action": "prism_cam.set_srf_depth_cuts"},
+            {"id": "srf_max_step_down", "name": "Max Stepdown", "type": "distance", "unit": "mm", "action": "prism_cam.set_srf_max_stepdown"}
+          ]
+        },
+        {
+          "id": "tab_srf_stock",
+          "name": "Stock to Leave",
+          "elements": [
+            {"id": "srf_stock_drive", "name": "Drive Surface Stock", "type": "distance", "unit": "mm", "action": "prism_cam.set_srf_drive_stock"},
+            {"id": "srf_stock_check", "name": "Check Surface Stock", "type": "distance", "unit": "mm", "action": "prism_cam.set_srf_check_stock"},
+            {"id": "srf_stock_total", "name": "Total Stock", "type": "distance", "unit": "mm", "action": "prism_cam.set_srf_total_stock"}
+          ]
+        },
+        {
+          "id": "tab_srf_gap",
+          "name": "Gap Settings",
+          "elements": [
+            {"id": "srf_gap_size", "name": "Gap Size", "type": "dropdown", "values": ["Micro-lift", "Retract", "Stay Down"], "action": "prism_cam.set_srf_gap_size"},
+            {"id": "srf_micro_lift", "name": "Micro-lift Distance", "type": "distance", "unit": "mm", "action": "prism_cam.set_srf_micro_lift"},
+            {"id": "srf_back_feedrate", "name": "Back Feedrate", "type": "percentage", "action": "prism_cam.set_srf_back_feedrate"},
+            {"id": "srf_motion_type", "name": "Motion Type", "type": "dropdown", "values": ["Broken", "Smooth"], "action": "prism_cam.set_srf_motion_type"}
+          ]
+        }
+      ]
+    },
+    "tool_dialog": {
+      "id": "dlg_tool",
+      "name": "Tool Definition",
+      "type": "tool_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_tool_type",
+          "name": "Tool Type",
+          "elements": [
+            {"id": "tool_type", "name": "Type", "type": "dropdown", "values": ["End Mill", "Ball End", "Bull End", "Face Mill", "Chamfer", "Spot Drill", "Drill", "Tap", "Reamer", "Boring Bar", "Countersink", "Counterbore", "Slot Mill", "Taper Mill", "Lollipop", "Thread Mill"], "action": "prism_cam.set_tool_type"},
+            {"id": "tool_diameter", "name": "Diameter", "type": "distance", "unit": "mm", "action": "prism_cam.set_tool_diameter"},
+            {"id": "tool_corner_radius", "name": "Corner Radius", "type": "distance", "unit": "mm", "action": "prism_cam.set_tool_corner_radius"},
+            {"id": "tool_length", "name": "Overall Length", "type": "distance", "unit": "mm", "action": "prism_cam.set_tool_length"},
+            {"id": "tool_flute_length", "name": "Flute Length", "type": "distance", "unit": "mm", "action": "prism_cam.set_flute_length"},
+            {"id": "tool_shoulder_length", "name": "Shoulder Length", "type": "distance", "unit": "mm", "action": "prism_cam.set_shoulder_length"},
+            {"id": "tool_shank_diameter", "name": "Shank Diameter", "type": "distance", "unit": "mm", "action": "prism_cam.set_shank_diameter"},
+            {"id": "tool_num_flutes", "name": "Number of Flutes", "type": "number", "action": "prism_cam.set_num_flutes"}
+          ]
+        },
+        {
+          "id": "tab_tool_parameters",
+          "name": "Parameters",
+          "elements": [
+            {"id": "tool_number", "name": "Tool Number", "type": "number", "action": "prism_cam.set_tool_number"},
+            {"id": "tool_length_offset", "name": "Length Offset", "type": "number", "action": "prism_cam.set_length_offset"},
+            {"id": "tool_diameter_offset", "name": "Diameter Offset", "type": "number", "action": "prism_cam.set_diameter_offset"},
+            {"id": "tool_spindle_dir", "name": "Spindle Direction", "type": "dropdown", "values": ["CW", "CCW"], "action": "prism_cam.set_spindle_direction"},
+            {"id": "tool_feed_calc", "name": "Feed Rate Calculation", "type": "dropdown", "values": ["From Material", "User Defined", "From Library"], "action": "prism_cam.set_feed_calc"},
+            {"id": "tool_spindle_speed", "name": "Spindle Speed", "type": "speed", "unit": "rpm", "action": "prism_cam.set_spindle_speed"},
+            {"id": "tool_feedrate", "name": "Feed Rate", "type": "feedrate", "unit": "mm/min", "action": "prism_cam.set_feedrate"},
+            {"id": "tool_plunge_rate", "name": "Plunge Rate", "type": "feedrate", "unit": "mm/min", "action": "prism_cam.set_plunge_rate"},
+            {"id": "tool_retract_rate", "name": "Retract Rate", "type": "feedrate", "unit": "mm/min", "action": "prism_cam.set_retract_rate"}
+          ]
+        },
+        {
+          "id": "tab_tool_holder",
+          "name": "Holder",
+          "elements": [
+            {"id": "holder_style", "name": "Holder Style", "type": "dropdown", "values": ["ER Collet", "Hydraulic", "Shrink Fit", "Milling Chuck", "Shell Mill Arbor", "Weldon", "Face Mill Arbor"], "action": "prism_cam.set_holder_style"},
+            {"id": "holder_projection", "name": "Tool Projection", "type": "distance", "unit": "mm", "action": "prism_cam.set_tool_projection"},
+            {"id": "holder_number", "name": "Holder Number", "type": "number", "action": "prism_cam.set_holder_number"},
+            {"id": "holder_from_library", "name": "From Library", "type": "button", "action": "prism_cam.holder_from_library"}
+          ]
+        }
+      ]
+    },
+    "machine_definition_dialog": {
+      "id": "dlg_machine_def",
+      "name": "Machine Definition",
+      "type": "settings_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_machine_general",
+          "name": "General",
+          "elements": [
+            {"id": "mach_type", "name": "Machine Type", "type": "dropdown", "values": ["Vertical Mill", "Horizontal Mill", "5-Axis Mill", "3+2 Mill"], "action": "prism_cam.set_machine_type"},
+            {"id": "mach_name", "name": "Machine Name", "type": "text", "action": "prism_cam.set_machine_name"},
+            {"id": "mach_description", "name": "Description", "type": "text", "action": "prism_cam.set_machine_description"},
+            {"id": "mach_controller", "name": "Controller", "type": "dropdown", "values": ["Fanuc", "Haas", "Siemens", "Mazak", "Okuma", "Heidenhain", "Mitsubishi"], "action": "prism_cam.set_controller"}
+          ]
+        },
+        {
+          "id": "tab_machine_travel",
+          "name": "Travel Limits",
+          "elements": [
+            {"id": "mach_x_min", "name": "X Min", "type": "distance", "unit": "mm", "action": "prism_cam.set_x_min"},
+            {"id": "mach_x_max", "name": "X Max", "type": "distance", "unit": "mm", "action": "prism_cam.set_x_max"},
+            {"id": "mach_y_min", "name": "Y Min", "type": "distance", "unit": "mm", "action": "prism_cam.set_y_min"},
+            {"id": "mach_y_max", "name": "Y Max", "type": "distance", "unit": "mm", "action": "prism_cam.set_y_max"},
+            {"id": "mach_z_min", "name": "Z Min", "type": "distance", "unit": "mm", "action": "prism_cam.set_z_min"},
+            {"id": "mach_z_max", "name": "Z Max", "type": "distance", "unit": "mm", "action": "prism_cam.set_z_max"},
+            {"id": "mach_spindle_min", "name": "Min Spindle RPM", "type": "speed", "unit": "rpm", "action": "prism_cam.set_spindle_min"},
+            {"id": "mach_spindle_max", "name": "Max Spindle RPM", "type": "speed", "unit": "rpm", "action": "prism_cam.set_spindle_max"},
+            {"id": "mach_max_feed", "name": "Max Feed Rate", "type": "feedrate", "unit": "mm/min", "action": "prism_cam.set_max_feed"}
+          ]
+        },
+        {
+          "id": "tab_machine_post",
+          "name": "Post Processor",
+          "elements": [
+            {"id": "mach_post_name", "name": "Post Name", "type": "text", "action": "prism_pp.set_post_name"},
+            {"id": "mach_post_file", "name": "Post File", "type": "file_path", "action": "prism_pp.set_post_file"},
+            {"id": "mach_nc_extension", "name": "NC Extension", "type": "text", "action": "prism_pp.set_nc_extension"},
+            {"id": "mach_output_folder", "name": "Output Folder", "type": "folder_path", "action": "prism_pp.set_output_folder"}
+          ]
+        }
+      ]
+    },
+    "stock_setup_dialog": {
+      "id": "dlg_stock_setup",
+      "name": "Stock Setup",
+      "type": "settings_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_stock_shape",
+          "name": "Stock Shape",
+          "elements": [
+            {"id": "stk_shape", "name": "Shape", "type": "dropdown", "values": ["Rectangular", "Cylindrical", "From Solid", "STL"], "action": "prism_cam.set_stock_shape"},
+            {"id": "stk_length", "name": "Length (X)", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_length"},
+            {"id": "stk_width", "name": "Width (Y)", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_width"},
+            {"id": "stk_height", "name": "Height (Z)", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_height"},
+            {"id": "stk_diameter", "name": "Diameter", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_diameter"},
+            {"id": "stk_origin_x", "name": "Origin X", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_origin_x"},
+            {"id": "stk_origin_y", "name": "Origin Y", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_origin_y"},
+            {"id": "stk_origin_z", "name": "Origin Z", "type": "distance", "unit": "mm", "action": "prism_cam.set_stock_origin_z"},
+            {"id": "stk_display", "name": "Display Stock", "type": "checkbox", "action": "prism_cam.toggle_stock_display"},
+            {"id": "stk_transparency", "name": "Transparency", "type": "percentage", "action": "prism_cam.set_stock_transparency"}
+          ]
+        }
+      ]
+    },
+    "control_definition_dialog": {
+      "id": "dlg_control_def",
+      "name": "Control Definition",
+      "type": "settings_dialog",
+      "prism_importance": "critical",
+      "tabs": [
+        {
+          "id": "tab_control_general",
+          "name": "General",
+          "elements": [
+            {"id": "ctrl_name", "name": "Control Name", "type": "text", "action": "prism_pp.set_control_name"},
+            {"id": "ctrl_manufacturer", "name": "Manufacturer", "type": "dropdown", "values": ["Fanuc", "Siemens", "Haas", "Mazak", "Okuma", "Heidenhain", "Mitsubishi", "Fagor"], "action": "prism_pp.set_control_manufacturer"},
+            {"id": "ctrl_model", "name": "Model", "type": "text", "action": "prism_pp.set_control_model"}
+          ]
+        },
+        {
+          "id": "tab_control_codes",
+          "name": "G/M Codes",
+          "elements": [
+            {"id": "ctrl_modal_g", "name": "Modal G-Codes", "type": "checkbox", "action": "prism_pp.set_modal_g"},
+            {"id": "ctrl_rapid_g0", "name": "Rapid Code", "type": "text", "default": "G0", "action": "prism_pp.set_rapid_code"},
+            {"id": "ctrl_linear_g1", "name": "Linear Code", "type": "text", "default": "G1", "action": "prism_pp.set_linear_code"},
+            {"id": "ctrl_cw_arc_g2", "name": "CW Arc Code", "type": "text", "default": "G2", "action": "prism_pp.set_cw_arc_code"},
+            {"id": "ctrl_ccw_arc_g3", "name": "CCW Arc Code", "type": "text", "default": "G3", "action": "prism_pp.set_ccw_arc_code"},
+            {"id": "ctrl_spindle_cw", "name": "Spindle CW", "type": "text", "default": "M3", "action": "prism_pp.set_spindle_cw"},
+            {"id": "ctrl_spindle_ccw", "name": "Spindle CCW", "type": "text", "default": "M4", "action": "prism_pp.set_spindle_ccw"},
+            {"id": "ctrl_spindle_off", "name": "Spindle Off", "type": "text", "default": "M5", "action": "prism_pp.set_spindle_off"},
+            {"id": "ctrl_coolant_on", "name": "Coolant On", "type": "text", "default": "M8", "action": "prism_pp.set_coolant_on"},
+            {"id": "ctrl_coolant_off", "name": "Coolant Off", "type": "text", "default": "M9", "action": "prism_pp.set_coolant_off"},
+            {"id": "ctrl_program_end", "name": "Program End", "type": "text", "default": "M30", "action": "prism_pp.set_program_end"}
+          ]
+        },
+        {
+          "id": "tab_control_format",
+          "name": "Number Format",
+          "elements": [
+            {"id": "ctrl_decimal_point", "name": "Decimal Point", "type": "checkbox", "action": "prism_pp.set_decimal_point"},
+            {"id": "ctrl_trailing_zeros", "name": "Trailing Zeros", "type": "checkbox", "action": "prism_pp.set_trailing_zeros"},
+            {"id": "ctrl_leading_zeros", "name": "Leading Zeros", "type": "checkbox", "action": "prism_pp.set_leading_zeros"},
+            {"id": "ctrl_x_places", "name": "X Decimal Places", "type": "number", "action": "prism_pp.set_x_places"},
+            {"id": "ctrl_y_places", "name": "Y Decimal Places", "type": "number", "action": "prism_pp.set_y_places"},
+            {"id": "ctrl_z_places", "name": "Z Decimal Places", "type": "number", "action": "prism_pp.set_z_places"},
+            {"id": "ctrl_feed_places", "name": "Feed Decimal Places", "type": "number", "action": "prism_pp.set_feed_places"}
+          ]
+        }
+      ]
+    }
+  },
+
+  "function_keys": [
+    {"id": "fkey_f1", "key": "F1", "name": "Help", "action": "prism_doc.help_contents", "prism_importance": "low"},
+    {"id": "fkey_f2", "key": "F2", "name": "Zoom Window", "action": "prism_cad.zoom_window", "prism_importance": "medium"},
+    {"id": "fkey_f3", "key": "F3", "name": "Repaint", "action": "prism_cad.repaint", "prism_importance": "medium"},
+    {"id": "fkey_f4", "key": "F4", "name": "Select Points", "action": "prism_cad.select_points", "prism_importance": "medium"},
+    {"id": "fkey_f5", "key": "F5", "name": "Delete", "action": "prism_cad.delete", "prism_importance": "medium"},
+    {"id": "fkey_f6", "key": "F6", "name": "Blank Entities", "action": "prism_cad.blank_entities", "prism_importance": "low"},
+    {"id": "fkey_f7", "key": "F7", "name": "Unblank All", "action": "prism_cad.unblank_all", "prism_importance": "low"},
+    {"id": "fkey_f8", "key": "F8", "name": "Change Color", "action": "prism_cad.change_color", "prism_importance": "low"},
+    {"id": "fkey_f9", "key": "F9", "name": "Analyze", "action": "prism_cad.analyze_entity", "prism_importance": "high"},
+    {"id": "fkey_f10", "key": "F10", "name": "Fit", "action": "prism_cad.screen_fit", "prism_importance": "high"}
+  ],
+
+  "keyboard_shortcuts": [
+    {"id": "key_ctrl_n", "keys": "Ctrl+N", "name": "New File", "action": "prism_cad.new_document"},
+    {"id": "key_ctrl_o", "keys": "Ctrl+O", "name": "Open File", "action": "prism_cad.open_file"},
+    {"id": "key_ctrl_s", "keys": "Ctrl+S", "name": "Save File", "action": "prism_cad.save_file"},
+    {"id": "key_ctrl_z", "keys": "Ctrl+Z", "name": "Undo", "action": "prism_cad.undo"},
+    {"id": "key_ctrl_y", "keys": "Ctrl+Y", "name": "Redo", "action": "prism_cad.redo"},
+    {"id": "key_ctrl_x", "keys": "Ctrl+X", "name": "Cut", "action": "prism_cad.cut"},
+    {"id": "key_ctrl_c", "keys": "Ctrl+C", "name": "Copy", "action": "prism_cad.copy"},
+    {"id": "key_ctrl_v", "keys": "Ctrl+V", "name": "Paste", "action": "prism_cad.paste"},
+    {"id": "key_ctrl_a", "keys": "Ctrl+A", "name": "Select All", "action": "prism_cad.select_all"},
+    {"id": "key_ctrl_p", "keys": "Ctrl+P", "name": "Print", "action": "prism_doc.print"},
+    {"id": "key_del", "keys": "Delete", "name": "Delete Selection", "action": "prism_cad.delete"},
+    {"id": "key_esc", "keys": "Escape", "name": "Cancel/Escape", "action": "prism_session.cancel"},
+    {"id": "key_alt_f1", "keys": "Alt+F1", "name": "Fit Screen", "action": "prism_cad.screen_fit"},
+    {"id": "key_alt_f2", "keys": "Alt+F2", "name": "Unzoom 80%", "action": "prism_cad.screen_unzoom"},
+    {"id": "key_alt_s", "keys": "Alt+S", "name": "Shade Toggle", "action": "prism_cad.shade_view"},
+    {"id": "key_alt_f4", "keys": "Alt+F4", "name": "Exit Application", "action": "prism_session.exit"},
+    {"id": "key_ctrl_t", "keys": "Ctrl+T", "name": "Toggle Toolpaths", "action": "prism_cam.toggle_toolpath_display"},
+    {"id": "key_ctrl_g", "keys": "Ctrl+G", "name": "Regenerate", "action": "prism_cad.regenerate"},
+    {"id": "key_space", "keys": "Space", "name": "Confirm/Accept", "action": "prism_session.confirm"},
+    {"id": "key_tab", "keys": "Tab", "name": "Next Selection", "action": "prism_cad.next_selection"},
+    {"id": "key_shift_tab", "keys": "Shift+Tab", "name": "Previous Selection", "action": "prism_cad.prev_selection"},
+    {"id": "key_page_up", "keys": "PageUp", "name": "Zoom In", "action": "prism_cad.zoom_in"},
+    {"id": "key_page_down", "keys": "PageDown", "name": "Zoom Out", "action": "prism_cad.zoom_out"},
+    {"id": "key_home", "keys": "Home", "name": "Home View", "action": "prism_cad.gview_isometric"},
+    {"id": "key_end", "keys": "End", "name": "End View", "action": "prism_cad.gview_top"}
+  ],
+
+  "settings_categories": [
+    {
+      "id": "cat_machine_def",
+      "name": "Machine Definition",
+      "path": "Settings > Machine Definition",
+      "prism_importance": "critical",
+      "settings": [
+        {"id": "set_machine_type", "name": "Machine Type", "action": "prism_cam.set_machine_type"},
+        {"id": "set_machine_group", "name": "Machine Group", "action": "prism_cam.set_machine_group"},
+        {"id": "set_post_processor", "name": "Post Processor", "action": "prism_pp.set_post"},
+        {"id": "set_output_folder", "name": "Output Folder", "action": "prism_pp.set_output_folder"}
+      ]
+    },
+    {
+      "id": "cat_tool_settings",
+      "name": "Tool Settings",
+      "path": "Settings > Toolpaths > Tool Settings",
+      "prism_importance": "critical",
+      "settings": [
+        {"id": "set_tool_library", "name": "Tool Library Path", "action": "prism_cam.set_tool_library"},
+        {"id": "set_default_tool", "name": "Default Tool", "action": "prism_cam.set_default_tool"},
+        {"id": "set_tool_numbering", "name": "Tool Numbering", "action": "prism_cam.set_tool_numbering"},
+        {"id": "set_feed_calc_method", "name": "Feed Calculation Method", "action": "prism_cam.set_feed_calc_method"}
+      ]
+    },
+    {
+      "id": "cat_stock_setup",
+      "name": "Stock Setup",
+      "path": "Settings > Toolpaths > Stock Setup",
+      "prism_importance": "critical",
+      "settings": [
+        {"id": "set_stock_model", "name": "Stock Model", "action": "prism_cam.set_stock_model"},
+        {"id": "set_stock_display", "name": "Display Stock", "action": "prism_cam.toggle_stock_display"},
+        {"id": "set_stock_color", "name": "Stock Color", "action": "prism_cam.set_stock_color"}
+      ]
+    },
+    {
+      "id": "cat_control_def",
+      "name": "Control Definition",
+      "path": "Settings > Control Definition",
+      "prism_importance": "critical",
+      "settings": [
+        {"id": "set_control_type", "name": "Control Type", "action": "prism_pp.set_control_type"},
+        {"id": "set_g_code_format", "name": "G-Code Format", "action": "prism_pp.set_g_code_format"},
+        {"id": "set_arc_output", "name": "Arc Output", "action": "prism_pp.set_arc_output"},
+        {"id": "set_canned_cycles", "name": "Canned Cycles", "action": "prism_pp.set_canned_cycles"}
+      ]
+    },
+    {
+      "id": "cat_cad_settings",
+      "name": "CAD Settings",
+      "path": "Settings > CAD Settings",
+      "prism_importance": "medium",
+      "settings": [
+        {"id": "set_construction_depth", "name": "Construction Depth", "action": "prism_cad.set_construction_depth"},
+        {"id": "set_color_scheme", "name": "Color Scheme", "action": "prism_cad.set_color_scheme"},
+        {"id": "set_grid_spacing", "name": "Grid Spacing", "action": "prism_cad.set_grid_spacing"},
+        {"id": "set_snap_settings", "name": "Snap Settings", "action": "prism_cad.set_snap_settings"}
+      ]
+    },
+    {
+      "id": "cat_system",
+      "name": "System Configuration",
+      "path": "Settings > Configuration",
+      "prism_importance": "high",
+      "settings": [
+        {"id": "set_unit_system", "name": "Unit System (Inch/Metric)", "action": "prism_session.set_units"},
+        {"id": "set_default_paths", "name": "Default Paths", "action": "prism_session.set_default_paths"},
+        {"id": "set_autosave", "name": "Autosave Settings", "action": "prism_session.set_autosave"},
+        {"id": "set_startup", "name": "Startup Options", "action": "prism_session.set_startup"}
+      ]
+    }
+  ],
+
+  "prism_action_mappings": {
+    "summary": {
+      "total_actions": 312,
+      "dispatchers_used": ["prism_cam", "prism_cad", "prism_pp", "prism_doc", "prism_edm", "prism_session", "prism_export"],
+      "coverage": "Complete Mastercam X8 classic interface"
+    },
+    "dispatcher_action_counts": {
+      "prism_cam": 156,
+      "prism_cad": 89,
+      "prism_pp": 34,
+      "prism_session": 18,
+      "prism_doc": 8,
+      "prism_edm": 4,
+      "prism_export": 3
+    }
+  },
+
+  "metadata": {
+    "source": "Mastercam X8 interface documentation and UI analysis",
+    "interface_type": "classic_dropdown_menus",
+    "ribbon_interface": false,
+    "target_version": "X8 (2014-2015)",
+    "compatibility": ["X7", "X8", "X9"],
+    "notes": [
+      "X8 uses classic menu bar interface (not ribbon)",
+      "Operations Manager is primary toolpath organization",
+      "Left-side docked managers for Planes, Levels, Solids",
+      "Dynamic Mill/Contour are premium High Speed features",
+      "Surface toolpaths use separate rough/finish dialogs"
+    ]
+  }
+}

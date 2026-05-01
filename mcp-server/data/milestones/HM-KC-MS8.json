@@ -432,5 +432,59 @@
     }
   ],
   "total_units": 5,
-  "completed_units": 5
+  "completed_units": 5,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms8-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms8_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Create the physics mapping layer that connects every parameter in the ~8,163 parameter catalog to the PRISM engine that computes its optimal value. This is the intelligence layer: for each parameter, define which engine(s) compute the recommended value, what inputs they need (material, tool, machine, geometry), and how the computed value maps back to the parameter range. Covers force-based mappings (Kienzle), speed/feed mappings (SpeedFeedOrchestrator), stability mappings (SLD), deflection mappings, thermal mappings, surface quality mappings, and safety limit mappings.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS8 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS8. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

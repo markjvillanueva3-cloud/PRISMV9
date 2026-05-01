@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "cadSystem": "solidworks",
+  "scenario": "cam",
+  "featureTree": {
+    "features": [
+      {"type": "MachinedFeature", "name": "Pocket1", "parameters": {"depth": {"value": 10.0, "unit": "mm"}, "width": {"value": 30.0, "unit": "mm"}}},
+      {"type": "MachinedFeature", "name": "Hole1", "parameters": {"diameter": {"value": 6.35, "unit": "mm"}, "depth": {"value": 15.0, "unit": "mm"}}},
+      {"type": "MachinedFeature", "name": "Contour1", "parameters": {"length": {"value": 120.0, "unit": "mm"}}}
+    ],
+    "camSetup": {"machine": "Haas VF-2", "material": "6061-T6 Aluminum", "units": "mm"}
+  },
+  "boundingBox": {"min": [0, 0, 0], "max": [100, 60, 30], "units": "mm"},
+  "parameters": {
+    "stock_width": {"value": 100.0, "unit": "mm"},
+    "stock_height": {"value": 60.0, "unit": "mm"},
+    "stock_depth": {"value": 30.0, "unit": "mm"},
+    "pocket_depth": {"value": 10.0, "unit": "mm"},
+    "hole_diameter": {"value": 6.35, "unit": "mm"}
+  },
+  "massProperties": {"mass": 0.291, "volume": 108000.0, "centerOfMass": [50.0, 30.0, 15.0]},
+  "step": "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('SolidWorks CAM mock fixture'),'2;1');\nFILE_NAME('cam.STEP','2026-04-19',('PRISM'),('JM Die'),'SW2024','SolidWorks 2024','');\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));\nENDSEC;\nDATA;\n#10=PRODUCT('cam_part','cam_part','',(#20));\n#20=PRODUCT_CONTEXT('',#30,'mechanical');\n#30=APPLICATION_CONTEXT('automotive design');\n#40=MANIFOLD_SOLID_BREP('cam_solid',(#50));\n#50=CLOSED_SHELL('',(#60,#70,#80));\n#60=ADVANCED_FACE('',(#120),#130,.T.);\n#70=ADVANCED_FACE('',(#140),#150,.T.);\n#80=ADVANCED_FACE('',(#160),#170,.F.);\nENDSEC;\nEND-ISO-10303-21;"
+}

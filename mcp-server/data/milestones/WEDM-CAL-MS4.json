@@ -14,26 +14,43 @@
     {
       "id": "U-CAL18",
       "title": "Program Comparison Engine",
-      "status": "not_started",
+      "status": "completed",
       "session": 7,
       "depends_on": ["U-CAL17"],
-      "description": "Create WEDMProgramComparisonEngine: parse real NC + PRISM output, compare per-parameter, output match score and deviation report"
+      "description": "WEDMProgramComparisonEngine: parses reference NC + generated NC via WireEDMProgramParserEngine, compares 9 WEDM-specific dimensions (dialect, pass count, offset cascade, feed cascade, E-code family, taper, adaptive control, safety block, contour moves), outputs per-parameter deviation report + weighted overall_match + production_ready gate (\u226585% AND no criticals).",
+      "artifacts": [
+        "src/engines/WEDMProgramComparisonEngine.ts",
+        "src/__tests__/WEDMProgramComparisonEngine.test.ts"
+      ],
+      "test_count": 18
     },
     {
       "id": "U-CAL19",
       "title": "Deviation Dashboard Panel",
-      "status": "not_started",
+      "status": "completed",
       "session": 7,
       "depends_on": ["U-CAL18"],
-      "description": "Create WireEdmCalibrationPanel.tsx showing per-parameter deviation chart, calibration history, and 'calibrate from program' button"
+      "description": "WireEdmCalibrationPanel.tsx: Calculator-Studio-styled React panel that consumes WEDMComparisonReport and renders hero match gauge, per-parameter deviation bars with severity chips, optional history sparkline, and Calibrate/Re-compare action buttons. Pure presentational \u2014 host page owns state.",
+      "artifacts": [
+        "web/src/components/wedm/WireEdmCalibrationPanel.tsx",
+        "web/src/__tests__/WireEdmCalibrationPanel.test.tsx"
+      ],
+      "test_count": 18
     },
     {
       "id": "U-CAL20",
       "title": "Tighten Benchmark Tolerances",
-      "status": "not_started",
+      "status": "completed",
       "session": 8,
       "depends_on": ["U-CAL19"],
-      "description": "Tighten benchmark tolerance bands (area ±30%→±20%, kerf ±20%→±15%, finish ±70%→±30%, D2 speed ±70%→±25%)"
+      "description": "WEDMBenchmarkToleranceEngine + WEDM_BENCHMARK_TOLERANCES.json config file: single source of truth for all WEDM tolerance bands. v2 tightens area \u00b130%\u2192\u00b120%, kerf \u00b120%\u2192\u00b115%, finish \u00b170%\u2192\u00b130%, D2 speed \u00b170%\u2192\u00b125%, offset cascade \u00b130%\u2192\u00b125%. WEDMCalibrationReportEngine re-wired to consume via roughSpeedBandFor() and getBand() \u2014 no more inline magic numbers.",
+      "artifacts": [
+        "data/reference/WEDM_BENCHMARK_TOLERANCES.json",
+        "src/engines/WEDMBenchmarkToleranceEngine.ts",
+        "src/engines/WEDMCalibrationReportEngine.ts",
+        "src/__tests__/WEDMBenchmarkToleranceEngine.test.ts"
+      ],
+      "test_count": 24
     },
     {
       "id": "U-CAL21",

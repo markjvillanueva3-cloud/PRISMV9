@@ -1,0 +1,411 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM Setup-Sheet Generation Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 setup-sheet generation. Setup sheets are shop-floor documents auto-generated from CAM setups, enumerating tools, operations, stock, fixtures, WCS, and notes for the operator.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-28",
+    "milestone": "CAM-EXHAUST-MS1-04",
+    "source": "Autodesk Fusion 360 Help — Setup Sheet generation + Manufacturing Workspace Documentation",
+    "totalParameters": 134,
+    "toolpathCount": 7
+  },
+  "commonTabs": {
+    "description": "Standard tabs for setup-sheet generation operations",
+    "tabs": ["Header", "Tools", "Operations", "Stock", "Fixture", "Notes", "Output"]
+  },
+  "toolpaths": {
+    "SETUP_SHEET_HTML": {
+      "description": "Generate HTML setup sheet — interactive web document with tool images, operation thumbnails, sortable tables. Default Fusion output.",
+      "category": "Setup_Sheet",
+      "parameterCount": 22,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Job Number", "type": "string", "description": "Job/work-order ID", "default": ""},
+            {"name": "Part Number", "type": "string", "default": ""},
+            {"name": "Customer", "type": "string", "default": ""},
+            {"name": "Programmer Name", "type": "string", "default": ""},
+            {"name": "Date", "type": "string", "description": "ISO YYYY-MM-DD", "default": "auto_today"},
+            {"name": "Revision", "type": "string", "default": "A"}
+          ]
+        },
+        "Tools": {
+          "parameters": [
+            {"name": "Include Tool Images", "type": "checkbox", "default": true},
+            {"name": "Include Tool Holder", "type": "checkbox", "default": true},
+            {"name": "Include Tool Cutting Data", "type": "checkbox", "description": "Spindle RPM, feedrate per tool", "default": true},
+            {"name": "Include Tool Length", "type": "checkbox", "default": true}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Include Operation Thumbnails", "type": "checkbox", "description": "Render small toolpath preview per op", "default": true},
+            {"name": "Include Cycle Time Per Operation", "type": "checkbox", "default": true},
+            {"name": "Include Stock-to-Leave Per Op", "type": "checkbox", "default": true},
+            {"name": "Group Operations By", "type": "dropdown", "options": ["setup_order", "tool_number", "machining_strategy"], "default": "setup_order"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Include Stock Image", "type": "checkbox", "default": true},
+            {"name": "Include Stock Dimensions", "type": "checkbox", "default": true},
+            {"name": "Include Stock Material", "type": "checkbox", "default": true}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Include Fixture Image", "type": "checkbox", "default": true},
+            {"name": "Include WCS Table", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Path", "type": "string", "default": "./setup_sheets/"},
+            {"name": "Include Custom CSS", "type": "checkbox", "default": false},
+            {"name": "Custom CSS Path", "type": "string", "default": ""},
+            {"name": "Include QR Code", "type": "checkbox", "description": "QR linking to digital traveler", "default": false}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_PDF": {
+      "description": "Generate PDF setup sheet — single-document, print-friendly. Best for shop-floor printing or archive.",
+      "category": "Setup_Sheet",
+      "parameterCount": 18,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Page Size", "type": "dropdown", "options": ["Letter", "A4", "Legal", "Tabloid"], "default": "Letter"},
+            {"name": "Orientation", "type": "dropdown", "options": ["portrait", "landscape"], "default": "portrait"},
+            {"name": "Include Company Logo", "type": "checkbox", "default": true},
+            {"name": "Logo Path", "type": "string", "default": "./assets/logo.png"}
+          ]
+        },
+        "Tools": {
+          "parameters": [
+            {"name": "Tool Table Layout", "type": "dropdown", "options": ["compact", "expanded", "imageless"], "default": "compact"},
+            {"name": "Page Break After Tool Table", "type": "checkbox", "default": false}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Operation Detail Level", "type": "dropdown", "options": ["minimal", "standard", "verbose_with_params"], "default": "standard"},
+            {"name": "Page Break Per Setup", "type": "checkbox", "default": true},
+            {"name": "Operations Per Page", "type": "numeric", "default": 6, "min": 1, "max": 20}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Section Compact", "type": "checkbox", "description": "Single-line stock vs full block", "default": false}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Fixture Image Size", "type": "dropdown", "options": ["thumbnail", "half_page", "full_page"], "default": "half_page"}
+          ]
+        },
+        "Notes": {
+          "parameters": [
+            {"name": "Operator Notes Field", "type": "checkbox", "description": "Reserve blank space for handwritten notes", "default": true},
+            {"name": "Notes Field Lines", "type": "numeric", "default": 6, "min": 1, "max": 30},
+            {"name": "Include Setup Photo", "type": "checkbox", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Path", "type": "string", "default": "./setup_sheets/"},
+            {"name": "Filename Pattern", "type": "string", "description": "Tokens: {part}, {rev}, {date}, {job}", "default": "{job}_{part}_rev{rev}.pdf"},
+            {"name": "Embed Original CAM File", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_EXCEL": {
+      "description": "Generate Excel-format setup sheet — sortable, filterable tables. Used for scheduling integration and ERP imports.",
+      "category": "Setup_Sheet",
+      "parameterCount": 18,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Workbook Layout", "type": "dropdown", "options": ["one_sheet_per_setup", "all_in_one_sheet", "tab_per_section"], "default": "tab_per_section"},
+            {"name": "Include Header Row Style", "type": "checkbox", "default": true},
+            {"name": "Freeze Header Rows", "type": "checkbox", "default": true}
+          ]
+        },
+        "Tools": {
+          "parameters": [
+            {"name": "Tool Table Columns", "type": "string", "description": "Comma-separated; default = T,desc,dia,corner,length,coating,RPM,feedrate", "default": "T_number,description,diameter,corner_radius,length,coating,spindle_rpm,feedrate,coolant"},
+            {"name": "Sort Tools By", "type": "dropdown", "options": ["t_number", "diameter", "first_use_order"], "default": "t_number"}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Operation Table Columns", "type": "string", "default": "op_id,strategy,tool,wcs,stock_to_leave,cycle_time,Z_min,Z_max"},
+            {"name": "Include Hyperlinks to Toolpaths", "type": "checkbox", "default": true},
+            {"name": "Include Cycle Time Total Row", "type": "checkbox", "default": true}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Tab Name", "type": "string", "default": "Stock"},
+            {"name": "Include Material Cost Estimate", "type": "checkbox", "default": false}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "WCS Table Columns", "type": "string", "default": "wcs_id,X_offset,Y_offset,Z_offset,A_rotation,B_rotation,C_rotation"}
+          ]
+        },
+        "Notes": {
+          "parameters": [
+            {"name": "Notes Sheet", "type": "checkbox", "default": true},
+            {"name": "Include QC Sign-off Row", "type": "checkbox", "default": true},
+            {"name": "Include Setup Sign-off Row", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Path", "type": "string", "default": "./setup_sheets/"},
+            {"name": "Filename Pattern", "type": "string", "default": "{job}_{part}_rev{rev}.xlsx"},
+            {"name": "Lock Workbook", "type": "checkbox", "description": "Read-only protection", "default": false},
+            {"name": "Workbook Password", "type": "string", "description": "If protected", "default": ""}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_JSON": {
+      "description": "Generate machine-readable JSON setup sheet — for ERP integration, traveler systems, MES upload.",
+      "category": "Setup_Sheet",
+      "parameterCount": 14,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Schema Version", "type": "dropdown", "options": ["fusion_1.0", "fusion_2.0", "QIF_3.0", "MTConnect_v2"], "default": "fusion_2.0"},
+            {"name": "Include Schema Reference URL", "type": "checkbox", "default": true},
+            {"name": "Pretty Print", "type": "checkbox", "default": true}
+          ]
+        },
+        "Tools": {
+          "parameters": [
+            {"name": "Tool Identification Standard", "type": "dropdown", "options": ["ISO_13399", "fusion_internal_id", "vendor_part_number"], "default": "ISO_13399"},
+            {"name": "Include Tool Holder Geometry", "type": "checkbox", "default": true}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Operation Detail Level", "type": "dropdown", "options": ["minimal_metadata", "standard_with_params", "full_geometry"], "default": "standard_with_params"},
+            {"name": "Include Toolpath Statistics", "type": "checkbox", "description": "Total length, rapid time, cut time", "default": true},
+            {"name": "Include Stock Removal Volume", "type": "checkbox", "default": true}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Stock Geometry Format", "type": "dropdown", "options": ["bounding_box", "STEP_reference", "STL_reference"], "default": "bounding_box"}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "WCS Format", "type": "dropdown", "options": ["matrix_4x4", "translation_rotation", "G_code_offsets"], "default": "translation_rotation"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Path", "type": "string", "default": "./setup_sheets/"},
+            {"name": "Filename Pattern", "type": "string", "default": "{job}_{part}_rev{rev}.json"},
+            {"name": "Include Digital Signature", "type": "checkbox", "description": "SHA-256 hash + signer ID", "default": false},
+            {"name": "Embed CAM Hash", "type": "checkbox", "description": "Hash of source CAM doc for traceability", "default": true}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_QR_TRAVELER": {
+      "description": "Generate QR-coded traveler card linking shop-floor card to digital setup sheet. Operator scans QR to get full sheet on tablet.",
+      "category": "Setup_Sheet",
+      "parameterCount": 14,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Card Size", "type": "dropdown", "options": ["3x5", "4x6", "letter_half", "tablet_screen"], "default": "4x6"},
+            {"name": "Include Logo", "type": "checkbox", "default": true},
+            {"name": "Job Number", "type": "string", "required": true}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Show First-Op Tool", "type": "checkbox", "default": true},
+            {"name": "Show Total Op Count", "type": "checkbox", "default": true},
+            {"name": "Show Estimated Total Time", "type": "checkbox", "default": true}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Show Stock Material", "type": "checkbox", "default": true},
+            {"name": "Show Stock Size", "type": "checkbox", "default": true}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Show First WCS", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "QR Target URL", "type": "string", "description": "Where QR resolves (digital traveler URL)", "required": true},
+            {"name": "QR Error Correction", "type": "dropdown", "options": ["L_low", "M_medium", "Q_quartile", "H_high"], "default": "M_medium"},
+            {"name": "QR Size", "type": "numeric", "default": 25, "unit": "mm"},
+            {"name": "Output Path", "type": "string", "default": "./travelers/"},
+            {"name": "Filename Pattern", "type": "string", "default": "{job}_{part}_traveler.pdf"}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_CMM_EXPORT": {
+      "description": "Export inspection-focused setup sheet for CMM operator. Includes critical dimensions, tolerance band table, datum scheme.",
+      "category": "Setup_Sheet",
+      "parameterCount": 16,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Inspection Standard", "type": "dropdown", "options": ["AS9102_FAI", "PPAP_Level_3", "ISO_2768", "custom"], "default": "AS9102_FAI"},
+            {"name": "Inspection Plan Type", "type": "dropdown", "options": ["First_Article", "In_Process", "Final", "Periodic"], "default": "First_Article"}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Include Critical-Feature List", "type": "checkbox", "default": true},
+            {"name": "Critical Feature Tag", "type": "string", "description": "GD&T flag character marking critical features", "default": "CRIT"},
+            {"name": "Group By Datum Scheme", "type": "checkbox", "default": true}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Include Material Certification Reference", "type": "checkbox", "default": true},
+            {"name": "Material Cert Path", "type": "string", "default": ""}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Include Datum Reference Frame", "type": "checkbox", "default": true},
+            {"name": "Include 3-2-1 Probing Plan", "type": "checkbox", "default": true},
+            {"name": "Datum A Description", "type": "string", "default": "Bottom face (planar)"},
+            {"name": "Datum B Description", "type": "string", "default": "Side face (planar)"},
+            {"name": "Datum C Description", "type": "string", "default": "End face (planar)"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["QIF_xml", "PDF_with_form_fields", "CSV", "Zeiss_PiWeb"], "default": "QIF_xml"},
+            {"name": "Output Path", "type": "string", "default": "./inspection_plans/"},
+            {"name": "Filename Pattern", "type": "string", "default": "{job}_{part}_inspect.qif"},
+            {"name": "Include Sample Frequency", "type": "string", "description": "Sampling plan (e.g. 1:5, 100%)", "default": "1:5"}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_CUSTOM_TEMPLATE": {
+      "description": "Generate setup sheet using custom user template (HTML/Mustache/Handlebars). Allows full layout customization for proprietary shop formats.",
+      "category": "Setup_Sheet",
+      "parameterCount": 16,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Template Engine", "type": "dropdown", "options": ["Mustache", "Handlebars", "Liquid", "EJS"], "default": "Handlebars"},
+            {"name": "Template Path", "type": "string", "description": "Path to user-supplied template file", "required": true}
+          ]
+        },
+        "Tools": {
+          "parameters": [
+            {"name": "Pass Tool Data Block", "type": "checkbox", "description": "Make {{tools}} array available", "default": true},
+            {"name": "Tool Image Resolution", "type": "dropdown", "options": ["96dpi", "150dpi", "300dpi", "600dpi"], "default": "150dpi"}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Pass Operations Data Block", "type": "checkbox", "default": true},
+            {"name": "Render Toolpath Thumbnails", "type": "checkbox", "default": true},
+            {"name": "Toolpath Thumbnail Size px", "type": "numeric", "default": 300, "min": 100, "max": 1200},
+            {"name": "Toolpath Thumbnail View", "type": "dropdown", "options": ["iso", "top", "front", "side", "auto"], "default": "iso"}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Pass Stock Data Block", "type": "checkbox", "default": true}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Pass Fixture Data Block", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["HTML", "PDF_via_chromium", "DOCX", "RTF"], "default": "HTML"},
+            {"name": "Output Path", "type": "string", "default": "./setup_sheets/"},
+            {"name": "Filename Pattern", "type": "string", "default": "{job}_{part}_rev{rev}.html"},
+            {"name": "Render Engine for PDF", "type": "dropdown", "description": "Used if Output Format = PDF_via_chromium", "options": ["puppeteer", "wkhtmltopdf", "weasyprint"], "default": "puppeteer"},
+            {"name": "Open After Generate", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SETUP_SHEET_BATCH_EXPORT": {
+      "description": "Generate setup sheets for multiple setups in a single CAM document at once. Used for production releases — one click outputs all sheets.",
+      "category": "Setup_Sheet",
+      "parameterCount": 16,
+      "tabs": {
+        "Header": {
+          "parameters": [
+            {"name": "Setups to Process", "type": "dropdown", "options": ["all_setups", "only_marked_for_release", "user_selection"], "default": "all_setups"},
+            {"name": "Skip Empty Setups", "type": "checkbox", "description": "Setups with no operations", "default": true}
+          ]
+        },
+        "Tools": {
+          "parameters": [
+            {"name": "Aggregate Tool List Across Setups", "type": "checkbox", "description": "Master tool list at top of bundle", "default": true},
+            {"name": "Output Tool Crib Layout", "type": "checkbox", "default": true}
+          ]
+        },
+        "Operations": {
+          "parameters": [
+            {"name": "Combine into Single PDF", "type": "checkbox", "default": false},
+            {"name": "Add Bundle Cover Page", "type": "checkbox", "default": true},
+            {"name": "Add Setup Sequence Diagram", "type": "checkbox", "description": "Visual order-of-operations diagram", "default": true}
+          ]
+        },
+        "Stock": {
+          "parameters": [
+            {"name": "Aggregate Material BOM", "type": "checkbox", "default": true},
+            {"name": "Material Cost Roll-Up", "type": "checkbox", "default": false}
+          ]
+        },
+        "Fixture": {
+          "parameters": [
+            {"name": "Aggregate Fixture List", "type": "checkbox", "default": true},
+            {"name": "Generate Setup Order Diagram", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["zip_of_individual", "single_combined_pdf", "directory_per_setup"], "default": "zip_of_individual"},
+            {"name": "Output Path", "type": "string", "default": "./release_packages/"},
+            {"name": "Filename Pattern", "type": "string", "default": "{job}_release_{date}.zip"},
+            {"name": "Auto-Email Distribution", "type": "checkbox", "description": "Email to shop-floor distribution list", "default": false},
+            {"name": "Email Distribution List", "type": "string", "default": ""}
+          ]
+        }
+      }
+    }
+  },
+  "physics_formulas_linked": [],
+  "tribal_knowledge_summary": {
+    "tip_count": 4,
+    "sources": ["jm_die", "shop_floor", "fusion_help"],
+    "highlights": [
+      {"id": "tt_setup_sheet_qr", "text": "QR traveler cards beat printed sheets when shop has tablets — operators scan-and-go and cuts setup-sheet print waste 60%.", "source": "shop_floor", "confidence": 0.85},
+      {"id": "tt_setup_sheet_jmdie_pdf", "text": "JM Die uses PDF + handwritten Operator Notes field — keeps audit trail when operator catches issue mid-run; HTML alone loses that record.", "source": "jm_die", "confidence": 0.92},
+      {"id": "tt_setup_sheet_qif", "text": "QIF JSON setup sheets feed CMM directly — saves manual program-up time and reduces transcription errors on critical dimensions.", "source": "fusion_help", "confidence": 0.9},
+      {"id": "tt_setup_sheet_setup_diagram", "text": "Setup sequence diagram (visual flowchart) prevents operator running setups out of order on multi-setup parts — typical scrap cause on first articles.", "source": "shop_floor", "confidence": 0.88}
+    ]
+  }
+}

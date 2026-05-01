@@ -1,0 +1,267 @@
+{
+  "id": "MS-P4-DL-CORE",
+  "title": "WEDM On-Device Learning Infrastructure (LoRA + EWC + Few-Shot)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P4",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Every finished WEDM job feeds a learning loop. Wire-break-rate, Ra, recast-depth predictors improve job-over-job without catastrophic forgetting.",
+  "total_units": 5,
+  "completed_units": 0,
+  "sessions": 2,
+  "dependencies": [
+    "MS-P1-100PCT",
+    "MS-P2-GAPFILL"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.02,
+  "knowledge_sources": {
+    "engines": [
+      "WEDMDegradationModelEngine",
+      "WEDMRULEngine",
+      "PRISMCreativeReasoningEngine",
+      "CrossDisciplinaryDeepLearningEngine",
+      "sona-learning-optimizer agent",
+      "WEDM_RL_POLICY v1 state snapshot (LinUCB bandit) — NOT a WEDMRLPolicyEngine class"
+    ],
+    "formulas": [
+      "LoRA rank-4 adapters (Hu 2021)",
+      "EWC++ Fisher information (Chaudhry 2018)",
+      "ridge-regression posterior update",
+      "LinUCB bandit"
+    ],
+    "tribal": [],
+    "reference": [
+      "WEDM_JOB_HISTORY.json schema v1 (U-P4-DL-01 creates)",
+      "Hu 2021 LoRA paper",
+      "Chaudhry 2018 EWC++ paper"
+    ]
+  },
+  "smart_config": {
+    "role": "MLEngineer+WireEDMPhysicist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 80
+  },
+  "skills": [
+    "/forge-engines",
+    "/test",
+    "/physics-verify",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP",
+    "codebase-memory-mcp"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P4-DL-01",
+      "U-P4-DL-02",
+      "U-P4-DL-03"
+    ],
+    "session_2": [
+      "U-P4-DL-04",
+      "U-P4-DL-05"
+    ],
+    "compact_checkpoints": [
+      "after U-P4-DL-03"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-P4-DL-01",
+      "title": "WEDMJobOutcomeEngine — capture telemetry to WEDM_JOB_HISTORY.json schema v1",
+      "files_created": [
+        "mcp-server/src/engines/WEDMJobOutcomeEngine.ts",
+        "mcp-server/data/state/WEDM_JOB_HISTORY.json",
+        "mcp-server/src/schemas/wedmJobHistorySchema.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/edmDispatcher.ts"
+      ],
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "Zod rejects recorded job",
+        "BASELINE_INVENTORY WEDM engine count not +1"
+      ],
+      "exit_criteria": [
+        "10 synthetic jobs record+replay bit-exact",
+        "schema Zod-parses",
+        "dispatcher action surfaces",
+        "≥10 test cases incl. zero/negative/extreme"
+      ],
+      "description": "WEDMJobOutcomeEngine — capture telemetry to WEDM_JOB_HISTORY.json schema v1 — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-DL-02",
+      "title": "WEDMLoRAAdapterEngine — rank-4 adapters on Klocke/DiBitonto base",
+      "files_created": [
+        "mcp-server/src/engines/WEDMLoRAAdapterEngine.ts",
+        "mcp-server/data/state/WEDM_LORA_WEIGHTS.json"
+      ],
+      "abort_conditions": [
+        "forward-pass deviates > 1% from Hu 2021 reference vector",
+        "rank ≠ 4"
+      ],
+      "exit_criteria": [
+        "forward-pass matches ±1%",
+        "backward-pass gradient ±0.5%",
+        "weights serialise+reload bit-exact",
+        "Klocke base unchanged when adapter scale = 0"
+      ],
+      "description": "WEDMLoRAAdapterEngine — rank-4 adapters on Klocke/DiBitonto base — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-DL-03",
+      "title": "WEDMEWCMemoryEngine — EWC++ Fisher-information penalty",
+      "files_created": [
+        "mcp-server/src/engines/WEDMEWCMemoryEngine.ts"
+      ],
+      "abort_conditions": [
+        "Fisher-info not computed per Chaudhry 2018 §3.2",
+        "λ schedule fabricated"
+      ],
+      "exit_criteria": [
+        "λ schedule matches Chaudhry 2018 Table 1",
+        "after 3 material batches old-material MAE regresses ≤10%",
+        "≥10 test cases",
+        "wiring gate green"
+      ],
+      "description": "WEDMEWCMemoryEngine — EWC++ Fisher-information penalty — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-DL-04",
+      "title": "WEDMFewShotMaterialEngine — 3-5 job bootstrap",
+      "abort_conditions": [
+        "MAE on nearby thickness > base MAE"
+      ],
+      "exit_criteria": [
+        "3-job bootstrap on D2 improves Ra MAE ≥20% vs base",
+        "≥10 test cases incl. 1-job fallback",
+        "wiring green"
+      ],
+      "description": "WEDMFewShotMaterialEngine — 3-5 job bootstrap — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P4-DL-05",
+      "title": "18+ tests",
+      "abort_conditions": [
+        "any banned pattern"
+      ],
+      "exit_criteria": [
+        "≥18 assertions",
+        "0 banned patterns",
+        "coverage ≥90% on WEDMLoRA/EWC/FewShot"
+      ],
+      "description": "18+ tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-learning-freshness",
+      "description": "warns if no job logged > 72h",
+      "built_in": "U-P4-DL-01"
+    },
+    "action": {
+      "name": "prism_edm:wedm_learn_from_job",
+      "built_in": "U-P4-DL-01"
+    },
+    "skill": {
+      "name": "/wedm-learn",
+      "built_in": "U-P4-DL-01"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "LoRA loads/saves bit-exact",
+      "EWC prevents >10% regression",
+      "few-shot +20% MAE reduction",
+      "machinist-acceptance",
+      "BASELINE_INVENTORY +7 engines",
+      "0 banned patterns"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+2%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-learning-freshness"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_learn_from_job"
+    ],
+    "new_skills": [
+      "/wedm-learn"
+    ],
+    "available_to": [
+      "P5",
+      "P6",
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM On-Device Learning Infrastructure (LoRA + EWC + Few-Shot) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

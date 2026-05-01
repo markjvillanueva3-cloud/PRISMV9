@@ -21,6 +21,17 @@
         "Feature flag system: checkAccess(userId, action) → boolean",
         "Usage metering types: per-calculation, unlimited, or daily-limit",
         "Build passes"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -36,6 +47,17 @@
         "Lock overlay component for gated features",
         "Responsive breakpoints matching monolith (600px, 1801px, 2401px)",
         "Dark mode only (matches monolith aesthetic)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -51,6 +73,17 @@
         "Breadcrumb navigation",
         "Active route highlighting",
         "Settings gear icon → settings page"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -67,6 +100,17 @@
         "CTA buttons linking to Stripe checkout",
         "Social proof section (metrics: 1003 engines, 86K tools, 910 machines)",
         "Mobile responsive"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -81,6 +125,17 @@
         "Tier-specific featured tools",
         "Upgrade prompts for locked features",
         "System status indicator"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -98,6 +153,17 @@
         "Playbook warnings and recommendations",
         "Export results (CSV, PDF, clipboard)",
         "Tier gating: Free=5/day, Machinist+=unlimited"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -114,6 +180,17 @@
         "Auto speed/feed overlay on G-code",
         "Program compare (diff view)",
         "Tier gating: Programmer+ for full features"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -132,6 +209,17 @@
         "Quote PDF export",
         "Quote history and analytics",
         "Tier gating: Machinist+ basic, Engineer+ full"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -148,6 +236,17 @@
         "Setup transition planner",
         "Risk score per operation",
         "Tier gating: Engineer+"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -164,6 +263,17 @@
         "Machine Setup (25 actions): spindle, balancing, RTCP",
         "Each category page with tabbed calculator interface",
         "Tier gating: varies by category"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -179,6 +289,17 @@
         "Material database browser: 2957 materials, filterable by ISO group",
         "Material detail card with properties, machinability, cutting data",
         "Comparison mode (select 2-3 items to compare side-by-side)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -195,7 +316,94 @@
         "Default preferences (units, CAM system, machine, material)",
         "API key management (for API access add-on)",
         "Data export (all user data)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "app-ms0-gate",
+    "mcp_action": "prism_app:app_ms0_run",
+    "skill_command": "/app-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "app-ms0-gate"
+    ],
+    "new_actions": [
+      "app_ms0_run"
+    ],
+    "new_skills": [
+      "/app-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Complete product redesign: 5-tier pricing model, feature packaging for 1003 engines, à la carte add-ons, new web UI with dark industrial theme, feature gating, Stripe integration, and dashboard pages for all 67 dispatchers.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
   ]
 }

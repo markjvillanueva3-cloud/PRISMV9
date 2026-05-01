@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "cadSystem": "solidworks",
+  "scenario": "simple_part",
+  "featureTree": {
+    "features": [
+      {"type": "Extrude", "name": "Boss-Extrude1", "parameters": {"depth": {"value": 25.4, "unit": "mm"}}},
+      {"type": "Fillet", "name": "Fillet1", "parameters": {"radius": {"value": 2.0, "unit": "mm"}}}
+    ]
+  },
+  "boundingBox": {"min": [0, 0, 0], "max": [50, 50, 25.4], "units": "mm"},
+  "parameters": {
+    "width": {"value": 50.0, "unit": "mm"},
+    "height": {"value": 50.0, "unit": "mm"},
+    "depth": {"value": 25.4, "unit": "mm"},
+    "fillet_radius": {"value": 2.0, "unit": "mm"}
+  },
+  "massProperties": {"mass": 0.178, "volume": 63500.0, "centerOfMass": [25.0, 25.0, 12.7]},
+  "step": "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('SolidWorks simple_part mock fixture'),'2;1');\nFILE_NAME('simple_part.STEP','2026-04-19',('PRISM'),('JM Die'),'SW2024','SolidWorks 2024','');\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));\nENDSEC;\nDATA;\n#10=PRODUCT('simple_part','simple_part','',(#20));\n#20=PRODUCT_CONTEXT('',#30,'mechanical');\n#30=APPLICATION_CONTEXT('automotive design');\n#40=MANIFOLD_SOLID_BREP('solid',(#50));\n#50=CLOSED_SHELL('',(#60,#70,#80,#90,#100,#110));\n#60=ADVANCED_FACE('',(#120),#130,.T.);\n#70=ADVANCED_FACE('',(#140),#150,.T.);\n#80=ADVANCED_FACE('',(#160),#170,.F.);\n#90=ADVANCED_FACE('',(#180),#190,.T.);\n#100=ADVANCED_FACE('',(#200),#210,.F.);\n#110=ADVANCED_FACE('',(#220),#230,.T.);\n#130=PLANE('',#240);\n#240=AXIS2_PLACEMENT_3D('',#250,#260,#270);\n#250=CARTESIAN_POINT('',(0.0,0.0,0.0));\n#260=DIRECTION('',(0.0,0.0,1.0));\n#270=DIRECTION('',(1.0,0.0,0.0));\nENDSEC;\nEND-ISO-10303-21;"
+}

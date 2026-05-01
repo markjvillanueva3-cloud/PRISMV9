@@ -39,7 +39,8 @@
           ],
           "exit_conditions": [
             "A unified command center surfaces launch-critical health, blockers, live shop load, and sync readiness.",
-            "The dashboard consumes the same platform-wide operational narrative."
+            "The dashboard consumes the same platform-wide operational narrative.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the command-center layer and fall back to separate operational dashboards if the aggregate view is not ready.",
           "steps": [
@@ -74,7 +75,14 @@
               "line_count_est": 140
             }
           ],
-          "estimated_minutes": 150
+          "estimated_minutes": 150,
+          "description": "Shop command center + dashboard integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -104,7 +112,8 @@
           ],
           "exit_conditions": [
             "A launch-readiness engine scores configuration, data health, adoption, and sync safety before production rollout.",
-            "A replay engine can inspect and reconstruct recent live operational events for debugging or training."
+            "A replay engine can inspect and reconstruct recent live operational events for debugging or training.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable readiness scoring and replay tooling if they produce unreliable gates or burdensome storage costs.",
           "steps": [
@@ -139,7 +148,14 @@
               "line_count_est": 220
             }
           ],
-          "estimated_minutes": 145
+          "estimated_minutes": 145,
+          "description": "Launch readiness + replay engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -169,7 +185,8 @@
           ],
           "exit_conditions": [
             "The shop-floor experience reflects launch-readiness cues, coaching aids, and replay-aware troubleshooting.",
-            "A rollout playbook exists for phased adoption, owner responsibilities, and recovery paths."
+            "A rollout playbook exists for phased adoption, owner responsibilities, and recovery paths.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the launch cues and revert to the previous tracker UX if adoption changes create confusion.",
           "steps": [
@@ -204,7 +221,14 @@
               "line_count_est": 160
             }
           ],
-          "estimated_minutes": 130
+          "estimated_minutes": 130,
+          "description": "Shop-floor adoption updates + rollout playbook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -259,7 +283,8 @@
           ],
           "exit_conditions": [
             "A launch gate command doc exists for readiness review, go-live, rollback, and recovery checks.",
-            "A forge-triple readiness template exists for future launch and adoption work."
+            "A forge-triple readiness template exists for future launch and adoption work.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the command and template docs if rollout policy changes before launch.",
           "steps": [
@@ -294,7 +319,14 @@
               "line_count_est": 80
             }
           ],
-          "estimated_minutes": 55
+          "estimated_minutes": 55,
+          "description": "Launch gate command + readiness template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -324,7 +356,8 @@
           ],
           "exit_conditions": [
             "A production-readiness gate can block release when safety, sync, policy, or adoption thresholds fail.",
-            "A release proof validates the full operational platform before go-live."
+            "A release proof validates the full operational platform before go-live.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the new release gate if it blocks valid launches for reasons the business cannot yet support.",
           "steps": [
@@ -359,7 +392,14 @@
               "line_count_est": 220
             }
           ],
-          "estimated_minutes": 110
+          "estimated_minutes": 110,
+          "description": "Production readiness gate + release proof — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -472,5 +512,81 @@
   "scrutiny_log": "state/ULT-MS5/scrutiny-log.json",
   "position_file": "state/ULT-MS5/position.json",
   "state_dir": "state/ULT-MS5",
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms5-gate",
+    "mcp_action": "prism_ult:ult_ms5_run",
+    "skill_command": "/ult-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms5-gate"
+    ],
+    "new_actions": [
+      "ult_ms5_run"
+    ],
+    "new_skills": [
+      "/ult-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Turn the connected platform into a production-ready operating system with launch gates, command-center visibility, replay and audit tooling, and rollout materials that drive confident adoption on the shop floor and in management workflows.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

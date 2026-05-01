@@ -1,0 +1,14 @@
+{
+  "claimed_by": "claude-40c52243",
+  "claimed_at": "2026-04-20T00:10:00Z",
+  "heartbeat_at": "2026-04-20T00:15:00Z",
+  "completed_at": "2026-04-20T00:15:00Z",
+  "status": "completed",
+  "notes": "RBAC (viewer/editor/owner/auditor) + ABAC (public/proprietary/export_controlled/itar/ear) with US-person + country allow-list + license; audit log for every decision (allow + deny); session recording toggle with startedAt/endedAt + action timeline; checkout/checkin soft-lock with holder-only checkin; expired grant detection with injectable clock.",
+  "deliverables": [
+    "mcp-server/src/schemas/cadAccessControlSchema.ts",
+    "mcp-server/src/engines/CADAccessControlRBACABACEngine.ts",
+    "mcp-server/src/__tests__/CADAccessControlRBACABACEngine.test.ts"
+  ],
+  "test_results": { "tests": 20, "passed": 20, "duration_ms": 265 }
+}

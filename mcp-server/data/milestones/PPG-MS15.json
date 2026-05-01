@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS15",
+  "version": "1.0.0",
+  "title": "PPG-MS15 — Multi-Process Job Package (mill → grind → EDM in one quote, multi-machine sequencing)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T02:35:00.000Z",
+  "last_updated": "2026-04-29T04:37:47.554Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Today every PRISM post emits ONE program for ONE machine. Real JM Die jobs touch 4 machines (lathe → wire EDM → mill → grinder) sequentially, each requiring its own post output, setup sheet, and traveler. MS15 owns multi-process job packages: one master ticket spans N machines, each gets its own post + sidecar + setup sheet, and the package carries the inter-machine WCS hand-off plus material allowance plan.",
+  "rationale": "Coverage scrutiny flagged this as MISSING — `multi_process_route` action exists but no PPG-MS sequences across machine types in one program package. Without it, the operator surface from MS13 only delivers single-machine output; the programmer assembles cross-machine jobs by hand, which is exactly the failure mode this whole roadmap exists to fix.",
+  "leverage_existing": [
+    "multi_process_route + multi_process_analyze + multi_process_sequence + multi_process_cost + multi_process_alternatives + multi_process_consolidate (camDispatcher actions, already exist)",
+    "multi_process_detect + multi_process_full_pipeline + multi_process_physics (camDispatcher)",
+    "PostProcessorPipelineEngine — emits one machine; MS15 wraps it in a Package Builder",
+    "TravelerCreate + TravelerStartSetup + TravelerScan (business dispatcher) — for cross-machine routing tracking",
+    "MillTurnLiveTooling + MillTurnSubSpindle + MillTurnMultiChannel + MillTurnSwiss (already wired) — for combo machines (Multus B250IIW from PPG-MS4/U-PPGM33)",
+    "Material allowance + stock-allowance + bend-allowance actions for cross-process geometry hand-off"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Optimas fastener die — 100-piece run through 4 of JM Die's 21 machines: Okuma LB300II (lathe roughing) → Mitsubishi MV1200R (WEDM internal profile) → Hurco V11 (mill external pocket) → centerless grinder (final OD).",
+    "today_pre_ppg_ms15": "Programmer emits 4 separate posts manually. WCS hand-off: each post assumes raw stock from scratch. Material allowance: programmer guesses 0.5 mm grind stock; actual leaves 0.7 mm because lathe finish was rougher than spec. Grind cycle runs 30% over budget. Traveler: hand-written.",
+    "should_be_post_ppg_ms15": "Wizard accepts the multi-process job. multi_process_route sequences the 4 machines with WCS chain (lathe Z=0 → WEDM origin offset → mill WCS via probe touchpoint → grinder centerless). Material allowance per process auto-computed (lathe→WEDM = 0 mm, WEDM→mill = 0 mm, mill→grind = 0.4 mm). Each machine gets its own post + sidecar + setup sheet. Master traveler carries the routing chain. Single quote.",
+    "gap_now_closed": "Cross-machine jobs are first-class artifacts."
+  },
+  "units": [
+    {
+      "id": "U-PPGM90",
+      "title": "MultiProcessPackageBuilderEngine — wraps PostProcessorPipelineEngine for N machines",
+      "scope": "src/engines/MultiProcessPackageBuilderEngine.ts — accepts a multi-process job spec (N machines + sequence); calls multi_process_route to validate; calls PostProcessorPipelineEngine per machine; assembles into one package ZIP with cross-references.",
+      "files_to_modify": [
+        "src/engines/MultiProcessPackageBuilderEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MultiProcessPackageBuilder.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM91",
+      "title": "Inter-machine WCS chain + datum hand-off planner",
+      "scope": "src/engines/InterMachineWCSChainEngine.ts — given the route, plans WCS for each machine such that the previous machine's reference datum is reachable on the next; emits probe macros for re-establishing WCS at each station.",
+      "files_to_modify": [
+        "src/engines/InterMachineWCSChainEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/InterMachineWCSChain.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM92",
+      "title": "Cross-process material allowance planner",
+      "scope": "src/engines/CrossProcessAllowancePlannerEngine.ts — computes per-stage stock allowance based on previous-stage finish + next-stage capability (lathe Ra→WEDM kerf, WEDM Ra→mill, mill Ra→grind). Pulls from src/physics/constants.ts surface tables.",
+      "files_to_modify": [
+        "src/engines/CrossProcessAllowancePlannerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CrossProcessAllowance.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM93",
+      "title": "Master traveler integration (TravelerCreate + multi-stage)",
+      "scope": "Wire multi-process package into TravelerCreate; one traveler spans the route; each stage has its own scan + setup + cycle log; aggregated into the parent quote.",
+      "files_to_modify": [
+        "mcp-server/src/tools/dispatchers/businessDispatcher.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MultiProcessTraveler.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM94",
+      "title": "Wizard multi-process mode (route picker + per-stage configurator)",
+      "scope": "web/src/components/ppg/MultiProcessRoutePicker.tsx + per-stage MS6 wizard panels; route validation UI; package preview before generation.",
+      "files_to_modify": [
+        "web/src/components/ppg/MultiProcessRoutePicker.tsx",
+        "web/src/pages/PostProcessorGeneratorPage.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/MultiProcessWizard.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM95",
+      "title": "End-to-end multi-process integration test (4-machine reference job)",
+      "scope": "src/__tests__/MultiProcessJobPackage.e2e.test.ts — exercises Optimas fastener-die reference job through 4 JM Die machines; asserts package contains 4 posts + 4 sidecars + 4 setup sheets + 1 master traveler + cross-references.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/MultiProcessJobPackage.e2e.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "MultiProcessPackageBuilderEngine emits a coherent multi-machine package from a single wizard run",
+    "Inter-machine WCS chain validated end-to-end on the 4-machine reference job (Optimas fastener die)",
+    "Cross-process allowance computed correctly: predicted vs measured allowance within ±0.05 mm on the reference job",
+    "Master traveler aggregates per-stage logs into one quote-cost record",
+    "Wizard multi-process mode usable end-to-end in operator UX test (N≥3 programmers)"
+  ],
+  "depends_on": [
+    "PPG-MS4",
+    "PPG-MS5",
+    "PPG-MS6",
+    "PPG-MS13"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS32"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

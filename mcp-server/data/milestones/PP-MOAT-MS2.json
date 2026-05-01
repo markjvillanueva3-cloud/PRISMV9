@@ -5,7 +5,9 @@
   "track": "PP-MOAT",
   "created_at": "2026-04-01T17:00:00Z",
   "description": "Wire the compound moat engines: RLPostProcessorEngine learns optimal G-code formatting per controller from shop floor feedback. PredictionCalibrationEngine auto-calibrates Kienzle kc1.1 and Taylor C/n from measured results. ThermalWearCouplingEngine replaces simplified inline thermal with coupled RK4 ODE. SustainabilityLCAEngine adds ISO 14040 CO2/energy per program.",
-  "dependencies": ["PP-MOAT-MS1"],
+  "dependencies": [
+    "PP-MOAT-MS1"
+  ],
   "knowledge_sources": {
     "engines": [
       "RLPostProcessorEngine (243 lines) — Q-learning G-code format optimizer",
@@ -35,7 +37,7 @@
       "title": "Calibration + Thermal-Wear Coupling",
       "units": [
         {
-          "id": "U01",
+          "id": "U-PMMO01",
           "title": "Wire PredictionCalibrationEngine as Stage 0.8 — load calibrated Kienzle/Taylor constants",
           "status": "complete",
           "steps": [
@@ -51,10 +53,18 @@
             "New test: calibrated constants override canonical when confidence > 0.6",
             "New test: no calibration data → graceful fallback to canonical",
             "Analytics shows calibration source"
+          ],
+          "legacy_id": "U01",
+          "description": "Wire PredictionCalibrationEngine as Stage 0.8 — load calibrated Kienzle/Taylor constants — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
-          "id": "U02",
+          "id": "U-PMMO02",
           "title": "Wire ThermalWearCouplingEngine — coupled RK4 ODE as Stage 2.7b",
           "status": "complete",
           "steps": [
@@ -70,6 +80,14 @@
             "New test: coupled ODE produces monotonically increasing VB over cutting time",
             "New test: thermal rise accelerates wear rate (coupling verified)",
             "New test: dimensional error accumulation tracked in analytics"
+          ],
+          "legacy_id": "U02",
+          "description": "Wire ThermalWearCouplingEngine — coupled RK4 ODE as Stage 2.7b — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -79,7 +97,7 @@
       "title": "RL Formatting + Sustainability",
       "units": [
         {
-          "id": "U03",
+          "id": "U-PMMO03",
           "title": "Wire RLPostProcessorEngine as Stage 6.1c — RL-learned G-code formatting per controller",
           "status": "complete",
           "steps": [
@@ -96,10 +114,18 @@
             "New test: RL engine produces valid G-code (syntax check passes)",
             "New test: Q-table persists across pipeline runs",
             "Feedback endpoint accepts and processes learning data"
+          ],
+          "legacy_id": "U03",
+          "description": "Wire RLPostProcessorEngine as Stage 6.1c — RL-learned G-code formatting per controller — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         },
         {
-          "id": "U04",
+          "id": "U-PMMO04",
           "title": "Wire SustainabilityLCAEngine into Stage 5.5b + Analytics — ISO 14040 CO2/energy per program",
           "status": "complete",
           "steps": [
@@ -115,6 +141,14 @@
             "New test: analytics report includes co2_kg_per_part field",
             "New test: sustainability_score between 0-100",
             "New test: different materials/coolants produce different LCA scores"
+          ],
+          "legacy_id": "U04",
+          "description": "Wire SustainabilityLCAEngine into Stage 5.5b + Analytics — ISO 14040 CO2/energy per program — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -123,5 +157,56 @@
   "exit_gate": "Learning loop wired: calibrated constants (Stage 0.7), coupled thermal-wear (Stage 2), RL formatting (Stage 6.1b), sustainability LCA (Stage 5.5/6.5). Feedback API endpoint active. /prism-review passed.",
   "status": "complete",
   "completed_at": "2026-04-05T00:45:00Z",
-  "test_results": "44/44 MS2 tests pass, 303/303 total PP tests pass (0 regressions)"
+  "test_results": "44/44 MS2 tests pass, 303/303 total PP tests pass (0 regressions)",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pp-moat-ms2-gate"
+    ],
+    "new_actions": [
+      "pp_moat_ms2_run"
+    ],
+    "new_skills": [
+      "/pp-moat-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Wire the compound moat engines: RLPostProcessorEngine learns optimal G-code formatting per controller from shop floor feedback. PredictionCalibrationEngine auto-calibrates Kienzle kc1.1 and Taylor C/n from measured results. ThermalWearCouplingEngine replaces simplified inline thermal with coupled RK4 ODE. SustainabilityLCAEngine adds ISO 14040 CO2/energy per program.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

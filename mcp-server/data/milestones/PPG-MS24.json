@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS24",
+  "version": "1.0.0",
+  "title": "PPG-MS24 — Constants v2 (Physics Depth: Kγ/Kver/Kvb + Johnson-Cook + Multi-mode SLD + BUE + σ)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Closes the physics-depth gaps surfaced by R05 scrutiny (score 79 — but with critical findings). Extends src/physics/constants.ts to v2.0 with Kienzle correction factors (Kγ rake, Kver wear, Kvb BUE, Ksch chip breaker, Kkühl coolant), Johnson-Cook table, multi-mode SLD, BUE regime guard, process damping, σ + (μ, σ, n_obs) tuple per material. Hard prerequisite for MS9/MS11 closing the loop without corrupting canonical priors.",
+  "rationale": "Closes the physics-depth gaps surfaced by R05 scrutiny (score 79 — but with critical findings). Extends src/physics/constants.ts to v2.0 with Kienzle correction factors (Kγ rake, Kver wear, Kvb BUE, Ksch chip breaker, Kkühl coolant), Johnson-Cook table, multi-mode SLD, BUE regime guard, process damping, σ + (μ, σ, n_obs) tuple per material. Hard prerequisite for MS9/MS11 closing the loop without corrupting canonical priors.",
+  "phase": "P1",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM149",
+      "title": "Kienzle correction factor tables (Kγ/Kver/Kvb/Ksch/Kkühl)",
+      "scope": "Per ISO group: Kγ_ref_deg + Kγ_slope (Victor 1957); Kver_VB_table (wear progression); Kvb_BUE_band; Ksch_chipbreaker_lookup; Kkühl_dry_wet_mql.",
+      "files_to_modify": [
+        "src/physics/constants.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/KienzleCorrections.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM150",
+      "title": "Johnson-Cook constitutive table per material",
+      "scope": "(A, B, n, C, eps_dot_0, m, T_melt, T_room) for steel (Lesuer LLNL), Ti-6Al-4V (Lee-Lin), Inconel 718 (Erice), Al 7075, Mg AZ31, etc. Sourced + cited.",
+      "files_to_modify": [
+        "src/physics/constants.ts",
+        "src/physics/johnson-cook-data.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/JohnsonCook.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM151",
+      "title": "Multi-mode FRF schema (frf_modes[] not single-lobe SLD)",
+      "scope": "frf_modes: Array<{f_n, zeta, k_modal}> in sidecar; required for slender boring bars, long-stickout endmills.",
+      "files_to_modify": [
+        "src/schemas/postPhysicsSidecarSchema.ts",
+        "src/engines/MultiModeSLDEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MultiModeSLD.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM152",
+      "title": "BUE regime guard + process damping (PPG-MS14 predicate #10)",
+      "scope": "CANONICAL_BUE_REGIME (Vc_min/max per ISO group); inhibit Kienzle extrapolation in BUE band; process damping below Vc threshold (Tunc-Budak 2012) — guard SLD lookup.",
+      "files_to_modify": [
+        "src/physics/constants.ts",
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/BUERegimeGuard.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM153",
+      "title": "σ + (μ, σ, n_obs, last_updated) per material constant",
+      "scope": "Replace point-estimate kc1.1/Taylor C with statistical tuple; propagate σ to MS9 drift canary so '2σ' threshold is computable; Bayesian prior precision explicit.",
+      "files_to_modify": [
+        "src/physics/constants.ts",
+        "src/engines/CalibrationDeltaEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CalibrationStatistics.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM154",
+      "title": "Loewen-Shaw thermal partition + Komanduri shear-plane temp",
+      "scope": "Thermal partition β as derived sidecar field with explicit (k_workpiece, k_tool, ρcp) traceability; shear-plane temp via Komanduri-Hou.",
+      "files_to_modify": [
+        "src/engines/ThermalPartitionEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ThermalPartition.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "constants.ts v2.0 ships all 5 correction factors per ISO group",
+    "Johnson-Cook table covers ≥6 materials with literature citations",
+    "Multi-mode FRF in sidecar; multi-frequency chatter reachable",
+    "BUE regime + process damping wired into PreEmitSafetyPredicateEngine",
+    "σ + (μ, σ, n) tuple replaces point estimate; drift canary uses real σ",
+    "Loewen-Shaw + Komanduri thermal partition derived in sidecar"
+  ],
+  "depends_on": [
+    "PPG-MS0"
+  ],
+  "blocks": [
+    "PPG-MS9",
+    "PPG-MS11",
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Constants v2 — split into MS24a (data hardening), MS24b (wire existing physics), MS24c (UQ wiring through StochasticForcePipelineEngine + MonteCarloProcessEngine — already exist)",
+    "target_unit_count_after_refactor": "split into 3 sub-milestones",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

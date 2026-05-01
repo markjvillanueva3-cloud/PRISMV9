@@ -1,0 +1,120 @@
+{
+  "id": "PPG-MS35",
+  "version": "1.0.0",
+  "title": "PPG-MS35 — Pareto Multi-Program Authoring + Programmer Genome (PMA-PG): 5-candidate Pareto frontier + per-programmer personalization + cost-aware optimization + quote-win prediction",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "phase": "P2",
+  "priority": "STRATEGIC",
+  "novel_capability_class": "category-defining",
+  "description": "Wizard emits 3-5 candidate programs simultaneously across the Pareto frontier (cycle time × surface × tool wear × $/part). Programmer picks. Each programmer carries a 'genome' learned from their commit history (corner radius philosophy, climb-vs-conventional, peck depth conservatism, surface finish target priors); the wizard personalizes candidate generation per programmer. Cost-aware: optimizes for $/part not just cycle (factor: tool cost amortized over predicted life, machine hourly rate, energy, coolant lifecycle). Quote-win prediction: at quote time, predicts probability the customer accepts based on competitor pricing intelligence + customer history.",
+  "rationale": "Today's wizards emit ONE answer. Reality is multi-objective: every programmer has different priorities. PRISM has NSGA-II + tribal embeddings + cost_aware_route already wired — this milestone surfaces them into the post-authoring UX. Quote-win prediction is novel and creates a flywheel: more wins → more outcome data → better predictions.",
+  "leverage_existing": [
+    "moo_nsga2 + moo_pareto_dominates + moo_non_dominated_sort — Pareto frontier (already in prism_calc)",
+    "TribalEnrichmentCoordinatorEngine + per-author tribal-tip indexing",
+    "cost_aware_route + roi_advisor_analyze + tool_cost_per_part + tool_roi_analyze — cost-aware substrate",
+    "QuoteEstimatorEngine + quote_estimate + quote_what_if + quote_compare_materials — quoting substrate",
+    "AnalyticsConversionEngine + analytics_conversion + analytics_calibration — quote-win training data",
+    "BayesianOptimizeEngine + bayesopt_optimize + bayesian_suggest — guided Pareto search",
+    "PRISMCreativeReasoningEngine.explore({mode: 'innovative'}) — novel candidate generation",
+    "GA + DE + PSO + SA — alternative search heuristics for diverse candidates"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die programmer Mark opens a new D2 die plate job. Mark's genome (from 4 years of commits): conservative on corners, prefers climb, rough at 75% engagement target, finish at 0.8 µm Ra target.",
+    "today_pre_ppg_ms35": "Wizard emits one program. Mark hand-tweaks if not to taste. 8 minutes lost. Mark's preferences are not captured for next time.",
+    "should_be_post_ppg_ms35": "Wizard emits 5 candidates: (A) Mark's genome (his usual), (B) min cycle (more aggressive), (C) min wear (longest tool life), (D) min $/part (best amortized cost), (E) max surface (tightest Ra). Pareto frontier visualized; Mark sees A pre-selected; clicks compare to D, sees $0.18/part savings, picks D. Genome updates: Mark is shifting toward cost-awareness over cycle. Quote-win prediction shows 78% probability customer accepts at this quoted price (based on prior 12 ITW jobs — they typically accept >75% confidence quotes).",
+    "gap_now_closed": "Multi-objective truth surfaces. Each programmer's evolution captured. Quoting becomes data-driven."
+  },
+  "units": [
+    {
+      "id": "U-PPGM211",
+      "title": "ParetoCandidateAuthoringEngine — emit 3-5 candidates across frontier",
+      "scope": "src/engines/ParetoCandidateAuthoringEngine.ts — for given operation, runs NSGA-II across (cycle, surface, wear, $/part); returns 3-5 non-dominated candidates with full sidecar each; presents in wizard. Variability: ≥3 operation classes (rough mill, finish lathe, WEDM skim). Adversarial: degenerate frontier (all candidates identical), infeasible objective (negative cycle).",
+      "files_to_modify": [
+        "src/engines/ParetoCandidateAuthoringEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ParetoCandidateAuthoring.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM212",
+      "title": "ProgrammerGenomeEngine — per-programmer preference learning",
+      "scope": "src/engines/ProgrammerGenomeEngine.ts — extracts programmer preference vector (corner_radius_bias, climb_vs_conventional, peck_conservatism, surface_finish_priority, cost_vs_cycle_priority, etc) from commit history of programs they've authored or accepted; updates per-emit. Genome biases candidate generation. Variability: ≥3 programmer profiles. Adversarial: new programmer with empty history (cold start), programmer with contradictory commit signal.",
+      "files_to_modify": [
+        "src/engines/ProgrammerGenomeEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ProgrammerGenome.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM213",
+      "title": "CostPerPartOptimizationEngine — $/part objective in Pareto search",
+      "scope": "src/engines/CostPerPartOptimizationEngine.ts — composite cost: amortized tool cost over predicted Weibull life + machine hourly rate × cycle + energy cost + coolant lifecycle + floor space; objective for NSGA-II. Variability: ≥3 cost regimes (high tool, high machine, high energy). Adversarial: missing cost components (energy unknown), inverted price signals.",
+      "files_to_modify": [
+        "src/engines/CostPerPartOptimizationEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CostPerPartOptimization.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM214",
+      "title": "QuoteWinPredictionEngine — probability of customer acceptance",
+      "scope": "src/engines/QuoteWinPredictionEngine.ts — given (customer, material, qty, lead, quoted_price, internal_cost), trains on AnalyticsConversion historical wins/losses; returns P(win) + price-sensitivity curve. Variability: ≥3 customer profiles (price-sensitive, lead-sensitive, quality-sensitive). Adversarial: new customer with no history (cold start), customer with binary win/loss only.",
+      "files_to_modify": [
+        "src/engines/QuoteWinPredictionEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/QuoteWinPrediction.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM215",
+      "title": "Wizard ParetoFrontierPanel + GenomeOverlay UI",
+      "scope": "web/src/components/ppg/ParetoFrontierPanel.tsx + GenomeOverlay.tsx — 3-5 candidate cards on a 4-axis radar; programmer's genome highlights their natural pick; one-click 'take me up the frontier' button.",
+      "files_to_modify": [
+        "web/src/components/ppg/ParetoFrontierPanel.tsx",
+        "web/src/components/ppg/GenomeOverlay.tsx",
+        "web/src/pages/PostProcessorGeneratorPage.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/ParetoFrontierUI.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Wizard emits 3-5 non-dominated candidates per operation in <2s",
+    "Programmer genome converges within 30 commits; predicted-pick accuracy ≥70% on held-out commits",
+    "$/part objective matches measured cost within ±8% on 50-program validation",
+    "Quote-win prediction calibrated on JM Die ITW history; AUC ≥0.75",
+    "Pareto UI usable in <60s per decision (UX test)"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS16"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "leverage_class": "novel-uses-existing-engines",
+  "schemaVersion": "1.0.0",
+  "created_at": "2026-04-29T04:37:47.554Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "_patches": [
+    "ppg-round3-novel-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ],
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "AnalyticsConversionEngine"
+    ]
+  }
+}

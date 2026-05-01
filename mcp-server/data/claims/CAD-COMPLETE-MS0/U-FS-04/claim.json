@@ -1,0 +1,14 @@
+{
+  "claimed_by": "claude-40c52243",
+  "claimed_at": "2026-04-19T23:20:00Z",
+  "heartbeat_at": "2026-04-19T23:25:00Z",
+  "completed_at": "2026-04-19T23:25:00Z",
+  "status": "completed",
+  "notes": "Revision promotion state machine: draft→in_review→released with 2-distinct-signer gate; immutability enforced (released can only → superseded|obsolete); supersedes prior current on new release; rollback creates new draft (does not mutate released record); full append-only transition history.",
+  "deliverables": [
+    "mcp-server/src/schemas/cadRevisionPromotionSchema.ts",
+    "mcp-server/src/engines/CADRevisionPromotionWorkflowEngine.ts",
+    "mcp-server/src/__tests__/CADRevisionPromotionWorkflowEngine.test.ts"
+  ],
+  "test_results": { "tests": 17, "passed": 17, "duration_ms": 207 }
+}

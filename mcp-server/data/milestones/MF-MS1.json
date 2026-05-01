@@ -11,7 +11,7 @@
       "title": "Accessibility Analysis",
       "units": [
         {
-          "id": "U01",
+          "id": "U-MF01",
           "title": "AccessibilityAnalysisEngine: tool reach, holder clearance, corner radius, approach angle, chip evacuation, 5-axis reachability",
           "status": "completed",
           "completed_at": "2026-04-14T14:00:00Z",
@@ -34,6 +34,14 @@
             "Corner radius mismatch flagged",
             "5-axis singularity zones identified",
             "20+ tests covering all 7 geometry failure modes"
+          ],
+          "legacy_id": "U01",
+          "description": "AccessibilityAnalysisEngine: tool reach, holder clearance, corner radius, approach angle, chip evacuation, 5-axis reachability — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -43,7 +51,7 @@
       "title": "Workholding Viability",
       "units": [
         {
-          "id": "U02",
+          "id": "U-MF02",
           "title": "WorkholdingViabilityEngine: surface tracking, grip degradation, vacuum seal, datum integrity",
           "status": "completed",
           "completed_at": "2026-04-14T14:00:00Z",
@@ -66,6 +74,14 @@
             "Datum surface destruction warned before it happens",
             "Re-fixturing feasibility verified for multi-setup jobs",
             "15+ tests covering 9 workholding failure modes"
+          ],
+          "legacy_id": "U02",
+          "description": "WorkholdingViabilityEngine: surface tracking, grip degradation, vacuum seal, datum integrity — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -75,7 +91,7 @@
       "title": "Rigidity Degradation",
       "units": [
         {
-          "id": "U03",
+          "id": "U-MF03",
           "title": "RigidityDegradationEngine: wall/floor stiffness evolution, natural frequency, chatter onset, support strategies",
           "status": "completed",
           "completed_at": "2026-04-14T14:00:00Z",
@@ -99,6 +115,14 @@
             "Chatter risk increases for thin features",
             "Support strategies recommended for sub-1mm walls",
             "20+ tests covering 7 rigidity failure modes"
+          ],
+          "legacy_id": "U03",
+          "description": "RigidityDegradationEngine: wall/floor stiffness evolution, natural frequency, chatter onset, support strategies — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -108,7 +132,7 @@
       "title": "PUOA Integration",
       "units": [
         {
-          "id": "U04",
+          "id": "U-MF04",
           "title": "FeasibilityOrchestratorEngine PUOA Integration: LLM/CLI physics-based pre-flight",
           "status": "completed",
           "completed_at": "2026-04-14T14:00:00Z",
@@ -134,6 +158,14 @@
             "PUOA engine has direct physics assessment method",
             "Pre-flight enhanced with physics risks prefixed [Physics]",
             "16 integration tests passing"
+          ],
+          "legacy_id": "U04",
+          "description": "FeasibilityOrchestratorEngine PUOA Integration: LLM/CLI physics-based pre-flight — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
           ]
         }
       ]
@@ -156,5 +188,81 @@
       "assessPreFlightWithPhysics(puoaInput, routing, physicsInput?): Promise<PreFlightAssessment>"
     ],
     "ai_integration": "Direct PUOA integration enables LLM-level AI reasoning with physics-based pre-flight assessment for manufacturing feasibility"
-  }
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mf-ms1-gate",
+    "mcp_action": "prism_mf:mf_ms1_run",
+    "skill_command": "/mf-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mf-ms1-gate"
+    ],
+    "new_actions": [
+      "mf_ms1_run"
+    ],
+    "new_skills": [
+      "/mf-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the three core physical feasibility engines: AccessibilityAnalysisEngine (tool reach, holder clearance, corner radius, approach angle, chip evacuation), WorkholdingViabilityEngine (clamping surface tracking, grip degradation, vacuum/magnetic seal, datum integrity), RigidityDegradationEngine (wall/floor stiffness evolution, natural frequency, chatter onset, support strategies). Enhanced with PUOA integration for LLM-level AI reasoning.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS9",
+  "version": "1.0.0",
+  "title": "PPG-MS9 — AGI Maturity Gates (RAG warm-start, drift canary, ProtoMAML new-material adapter)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 10,
+  "completed_units": 0,
+  "description": "Brings the PSAU-PPG-SFC closed-loop substrate (already shipped) into the post pipeline as inference gates. RAG warm-start primes new operations from similar-feature provenance; drift canary blocks emit when measured kc1.1 / Taylor C drifts >σ from canonical; ProtoMAML adapter handles new materials with ≤5 outcome samples by transferring from nearest-neighbor in material space.",
+  "rationale": "PSAU-PPG-SFC delivered the substrate (provenance, outcome capture, RAG, drift detection, ProtoMAML). PPG-WIRE-MS0 wired the master posts. Without this milestone the substrate has no decision authority over the posts — outcomes are recorded but never feed back. This is the closed-loop closure.",
+  "leverage_existing": [
+    "PSAU-PPG-SFC — provenance store, outcome capture, RAG retrieval, drift canary, ProtoMAML new-material adapter (all shipped)",
+    "PostProcessorPipelineEngine — 38-stage pipeline; AGI gates become a dedicated stage band",
+    "OmegaSafetyScoreEngine + omega-thresholds.json (PPG-MS8) — gate strictness depends on tier",
+    "BayesianToolLifeEngine — Weibull confidence already wired; this milestone adds drift detection on its parameters",
+    "MasterPostProcessorUnifiedAGI (E0322) — already wired in prism_cam (post_*); the canonical orchestrator for AGI gates, NOT a new build",
+    "PPValidatorAGIWiring (E0385) — AGI Orchestration for 50+ PP Validators (exact fit for MS9 gate band)",
+    "TribalEnrichmentCoordinator (E0468) — 3,700+ tribal tips runtime injection (already in prism_knowledge)",
+    "MillingAGIMaster (E0328) + MillMasterOrchestratorFacade (E0331) + CAMAGIMasterOrchestrator (E0072) — mill-domain AGI mounts",
+    "LatheLoRAMasterOrchestrator (E0238) + LatheLoRAPipeline (E0250) + LatheLoRAEnsembleOrchestrator (E0229) + LatheLoRANeuralOrchestrator (E0245) + LatheLoRACadenceOrchestrator (E0220) + LatheLoRAPipelineCoordinator (E0249) — lathe-domain AGI mounts",
+    "MastercamAIOrchestration (E0305) + HyperMillAIOrchestration (E0185) + FusionAIOrchestration (E0163) + InventorCAMAIOrchestration (E0201) + NXCAMAIOrchestration (E0350) + PowerMillAIOrchestration (E0384) + SolidCAMAIOrchestration (E0436) + CATIAMachiningAIOrchestration (E0101) — 8 vendor orchestrators (cite, do not rebuild)",
+    "OrchestratorConfidenceFeedback (E0366) — orchestrator-level confidence aggregation (CAM-ML-CLOSEDLOOP-MS0 U-CMCCL13)",
+    "OfflineRLOrchestrator (E0354) — RL-based feedback loop substrate",
+    "RealTimeAdaptiveController (E0405) — adaptive control orchestrator (already in prism_adaptive_control)",
+    "CAMPostInvokeOrchestrator (E0091) — post-emission orchestrator (LatheMasterPostRouter E0269 already wired)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die quotes a job in 17-4 PH H1025, a material it has never run.",
+    "today_pre_ppg_ms9": "Post emits using nearest static material profile (assume H13). 30% chance of bad surface or tool failure on first cut.",
+    "should_be_post_ppg_ms9": "RAG retrieves 17-4 outcomes from peer shops in the federation (anonymized). ProtoMAML interpolates from H13 + 17-4 prior. Drift canary asserts kc1.1 within 2σ of consensus. Confidence overlay shows 'NEW MATERIAL — sim tier' until 10 successful cuts elevate the tier.",
+    "gap_now_closed": "PRISM handles new materials safely instead of falsely confidently."
+  },
+  "units": [
+    {
+      "id": "U-PPGM56",
+      "title": "RAG warm-start stage in post pipeline",
+      "scope": "PostProcessorPipelineEngine stage 5 — query PSAU-PPG-SFC RAG by (material, feature, machine); inject prior outcomes into block-by-block S/F"
+    },
+    {
+      "id": "U-PPGM57",
+      "title": "Drift canary thresholds + emit gate",
+      "scope": "src/engines/PostDriftCanaryEngine.ts — compare runtime-resolved kc1.1/Taylor C/n vs canonical from sidecar; gate emit if drift >2σ; tier-aware HARD BLOCK on shop_floor"
+    },
+    {
+      "id": "U-PPGM58",
+      "title": "ProtoMAML new-material adapter wiring",
+      "scope": "Wire ProtoMAML adapter from PSAU-PPG-SFC into post pipeline for ≤5-sample materials; adapter output becomes sidecar override with confidence"
+    },
+    {
+      "id": "U-PPGM59",
+      "title": "Inference gate dispatcher actions",
+      "scope": "Move post-pipeline AGI gate actions to prism_cam (domain-coherent for post pipeline): post_rag_warm_start, post_drift_canary_check, post_protomaml_adapt. Optional thin pass-through stubs in prism_ai for cross-discoverability."
+    },
+    {
+      "id": "U-PPGM60",
+      "title": "Confidence overlays in PhysicsDetailsPanel",
+      "scope": "Extend PhysicsDetailsPanel to show RAG hit count, drift canary result (PASS/WARN/BLOCK), ProtoMAML transfer source + confidence"
+    },
+    {
+      "id": "U-PPGM61",
+      "title": "AGI maturity test suite",
+      "scope": "src/__tests__/AGIMaturityGates.integration.test.ts — RAG warm start hit, drift block, ProtoMAML transfer, confidence overlays end-to-end"
+    },
+    {
+      "id": "U-PPGM61b",
+      "title": "Emit-time tribal-playbook enforcement gate",
+      "scope": "Wire TribalPlaybookEnforcementEngine (E0470) as PostProcessorPipelineEngine stage 7; gate emit on tribal-rule violations; tier-aware.",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/TribalPlaybookEmitGate.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM61c",
+      "title": "AGI containment + failure-mode gate at emit",
+      "scope": "Wire agi_containment_evaluate + failure_modes_list dispatcher actions as a PostProcessor pipeline gate; HARD BLOCK on shop_floor when containment fails OR failure-mode predicted ≥ moderate.",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AGIContainmentEmitGate.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM61d",
+      "title": "Mount AGI gates on E0322 + E0385 (the existing master orchestrator pair)",
+      "scope": "Wire RAG warm-start, drift canary, ProtoMAML adapter as method calls on MasterPostProcessorUnifiedAGI (E0322) → routed through PPValidatorAGIWiring (E0385) → vendor orchestrator (E0163/E0185/E0201/E0305/E0350/E0384/E0436/E0101 by source CAM). Asserts no new master orchestrator created (would HARD BLOCK via duplicationGuardEngine). Failure-mode tests ≥3: (1) attempt to instantiate a duplicate master orchestrator → must HARD BLOCK on duplicationGuardEngine; (2) E0322 returns null/error → routing must fall back to E0385 with WARN; (3) all 8 vendor orchestrators offline → must degrade to E0072 CAMAGIMasterOrchestrator with explicit confidence drop. Adversarial: (a) sidecar.cam_source field missing → default to E0072; (b) cam_source claims unsupported vendor → reject at gate.",
+      "files_to_modify": [
+        "src/engines/MasterPostProcessorUnifiedAGIEngine.ts",
+        "src/engines/PPValidatorAGIWiringEngine.ts",
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AGIGatesOnExistingOrchestrator.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM61e",
+      "title": "Confidence aggregation through E0366 OrchestratorConfidenceFeedback",
+      "scope": "Aggregate per-gate confidence (RAG hit rate, drift canary σ-distance, ProtoMAML transfer source, tribal-rule match count) through OrchestratorConfidenceFeedbackEngine; surface composite confidence in wizard PhysicsDetailsPanel. Composite-failure cases ≥3: (1) RAG hit count = 0 → confidence floor = sim-tier; (2) drift canary >3σ → confidence = 0 (HARD BLOCK on shop_floor); (3) ProtoMAML transfer source distance >0.5 → confidence ≤0.6 (warn). Adversarial: (a) all 4 inputs at confidence floor → composite must be ≤ floor (not averaged up); (b) one input NaN → composite must reject, not silently treat as 0.",
+      "files_to_modify": [
+        "src/engines/OrchestratorConfidenceFeedbackEngine.ts",
+        "web/src/components/ppg/PhysicsDetailsPanel.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/OrchestratorConfidenceAggregation.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Post pipeline calls RAG warm-start before block-by-block S/F; hits visible in confidence overlay",
+    "Drift canary blocks emit on shop_floor when kc1.1/Taylor drifts >2σ; warns on lower tiers",
+    "ProtoMAML adapter handles ≤5-sample materials with sidecar overrides",
+    "Confidence overlay end-to-end visible in wizard; user understands AGI is in or out of its competence envelope",
+    "AGI gates mount on E0322 + E0385 (no new master orchestrator built)",
+    "8 vendor orchestrators routed by source CAM at gate time",
+    "Composite confidence visible in wizard via E0366 aggregation"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS8",
+    "PSAU-PPG-SFC",
+    "PPG-MS24"
+  ],
+  "blocks": [
+    "PPG-MS11",
+    "PPG-MS12",
+    "PPG-MS33",
+    "PPG-MS34",
+    "PPG-MS36",
+    "PPG-MS37"
+  ],
+  "supersedes": [
+    "CAM-PARITY-AGI-MS0/U-CAMP14 (MasterPostProcessorUnifiedAGIEngine — PPG-MS9 AGI gates own this)",
+    "CAM-PARITY-AGI-MS0/U-CAMP15 (MasterPostFineTuningEngine)",
+    "F360-FULL-MS5#bayesian-prefs (Bayesian preference learning — PPG-MS9 ProtoMAML covers it)",
+    "LATHE-MASTER/U-LTH17 (Dialect Transfer Learning)",
+    "LATHE-MASTER/U-LTH20 (Knowledge-Graph Integration)",
+    "LATHE-MASTER/U-LTH21 (Active-Learning Feedback Loop)",
+    "LATHE-MASTER/U-LTH22 (Uncertainty Quantification)",
+    "LATHE-MASTER/U-LTH27 + U-LTH28 (Master post AGI scope)"
+  ],
+  "consumes_from_psau": [
+    "PSAU-PPG-SFC/U-03..08 (Provenance/InferenceGate/RAG)",
+    "PSAU-PPG-SFC/U-11..12 (DriftCanary)",
+    "PSAU-PPG-SFC/U-13 (FewShotNewMaterial)"
+  ],
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "_graph_reciprocity_patch": "ppg-fixes-round2-2026-04-29",
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "RAGRetrievalEngine",
+      "ProtoMAMLAdapterEngine",
+      "PostDriftCanaryEngine"
+    ]
+  }
+}

@@ -40,9 +40,16 @@
           "description": "Read first 5-10 pages of each PDF catalog. Classify by: manufacturer, tool type (turning/milling/drilling/threading/tooling), content type (geometry specs, grade tables, speed/feed charts, ordering info). Create inventory JSON.",
           "exit_conditions": [
             "Inventory JSON with 45 entries",
-            "Classification accuracy verified on sample"
+            "Classification accuracy verified on sample",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U02",
@@ -66,7 +73,13 @@
             "Mapping to existing ToolRegistry verified",
             "Sample data validates against schema"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     },
@@ -107,7 +120,13 @@
             "Grade-to-material mapping complete",
             "Speed/feed data validated against existing strategy_db"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -136,7 +155,13 @@
             "Speed/feed tables parsed",
             "Cross-referenced with turning grades"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -165,7 +190,13 @@
             "Speed/feed tables parsed",
             "Peck parameters mapped"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     },
@@ -206,7 +237,13 @@
             "IC grade mapping complete",
             "Speed/feed data validated"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -235,7 +272,13 @@
             "KCP grade mapping to ISO complete",
             "Speed/feed data validated"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U03",
@@ -264,7 +307,13 @@
             "Coating-to-material recommendations mapped",
             "Speed/feed data validated"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U04",
@@ -293,7 +342,13 @@
             "Unique data extracted and merged",
             "No duplicate entries"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     },
@@ -331,7 +386,13 @@
             "Taper/runout data mapped",
             "RPM limits integrated with machine profiles"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P3-U02",
@@ -354,9 +415,16 @@
           "description": "Extract from Orange Vise and related catalogs: vise specs, clamping force, jaw types, repeatability. Feed into workholding intelligence engine.",
           "exit_conditions": [
             "Workholding specs extracted",
-            "Clamping force data available for setup sheets"
+            "Clamping force data available for setup sheets",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     },
@@ -392,7 +460,13 @@
             "All extracted data loaded",
             "Dedup logic verified"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P4-U02",
@@ -421,7 +495,13 @@
             "Outliers flagged and resolved",
             "Integration tests passing"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P4-U03",
@@ -445,10 +525,92 @@
             "Search/recommend/compare working",
             "Tests passing"
           ],
-          "status": "pending"
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     }
   ],
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "tc-ms0-gate",
+    "mcp_action": "prism_tc:tc_ms0_run",
+    "skill_command": "/tc-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "tc-ms0-gate"
+    ],
+    "new_actions": [
+      "tc_ms0_run"
+    ],
+    "new_skills": [
+      "/tc-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Extract structured cutting tool data from 45 manufacturer PDF catalogs (Tungaloy, Sandvik, Kennametal, ISCAR, OSG, Guhring, etc.) into PRISM's tool registry. Multi-session project: OCR/table extraction, schema mapping, validation, registry population.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

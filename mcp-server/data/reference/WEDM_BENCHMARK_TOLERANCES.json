@@ -1,0 +1,59 @@
+{
+  "title": "WEDM Benchmark Tolerance Bands — Production-Gate Thresholds",
+  "version": "2.0.0",
+  "compiled": "2026-04-19",
+  "reference_milestone": "WEDM-CAL-MS4/U-CAL20",
+  "note": "v2 (tightened) replaces v1 (±30/±20/±70/±70) after MS3 validated that the pipeline is stable enough to hold production-grade bands. Values below are absolute-percentage tolerances — |shop-published|/published < band → 'acceptable'.",
+  "tolerances": {
+    "area_cutting_rate_pct": {
+      "value": 20,
+      "prior_value": 30,
+      "unit": "%",
+      "applies_to": "shop area rate (mm²/min) vs published area rate for ISO group",
+      "rationale": "±20% captures real shop variance from wire diameter choice (brass vs coated), flushing pressure, and machine wear. ±30% was too permissive — admits programs that leave 25% productivity on the table."
+    },
+    "kerf_width_pct": {
+      "value": 15,
+      "prior_value": 20,
+      "unit": "%",
+      "applies_to": "measured kerf vs wire_diameter + 2·spark_gap",
+      "rationale": "Kerf is a pure geometric sum; variance should come only from spark gap drift. ±15% matches operator measurement repeatability."
+    },
+    "surface_finish_ra_pct": {
+      "value": 30,
+      "prior_value": 70,
+      "unit": "%",
+      "applies_to": "predicted Ra vs measured Ra after finishing passes",
+      "rationale": "Ra prediction is now Bayesian-calibrated per-material (see WEDMFeedbackCalibrationEngine k_ra posterior). ±30% is the 95% CI of the calibrated posterior after 50+ programs."
+    },
+    "d2_rough_speed_pct": {
+      "value": 25,
+      "prior_value": 70,
+      "unit": "%",
+      "applies_to": "D2 tool steel rough cutting speed (linear mm/min) vs published for thickness",
+      "rationale": "D2 is the most-run material at JM Die (>40% of programs). ±25% is tight enough to flag real process drift but loose enough not to false-alarm on 6 mm vs 25 mm thickness variance."
+    },
+    "offset_cascade_pct": {
+      "value": 25,
+      "prior_value": 30,
+      "unit": "%",
+      "applies_to": "total offset cascade range (rough − final skim) vs wire_diameter × 0.35",
+      "rationale": "Previously 30% (line 197 of WEDMCalibrationReportEngine). Tightened with the surface-finish band."
+    },
+    "rough_speed_pct_default": {
+      "value": 20,
+      "prior_value": 20,
+      "unit": "%",
+      "applies_to": "Rough cut speed (non-D2 materials) vs published for ISO group",
+      "rationale": "Unchanged — was already at the ±20% target. Kept here for single-source-of-truth."
+    }
+  },
+  "enforcement": {
+    "engine": "WEDMBenchmarkToleranceEngine",
+    "consumers": [
+      "WEDMCalibrationReportEngine (area/speed/offset/kerf bands)",
+      "WEDMProgramComparisonEngine (via custom tolerances option)",
+      "WEDMProductionGateEngine (readiness scoring)"
+    ]
+  }
+}

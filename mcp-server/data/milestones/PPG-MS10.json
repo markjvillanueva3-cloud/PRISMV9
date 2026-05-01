@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS10",
+  "version": "1.0.0",
+  "title": "PPG-MS10 — PDF Knowledge Extraction (4 authoritative post-processor PDFs unextracted)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T04:37:47.554Z",
+  "total_units": 4,
+  "completed_units": 0,
+  "description": "Closes the highest-leverage knowledge gap surfaced in the audit: 4 authoritative post-processor PDFs in resources are completely unextracted. Once extracted, they will populate the tribal-knowledge store with hundreds of concrete machine-specific behaviors that the generator currently has to guess at. Uses the existing /pdf-learn skill backed by DocumentKnowledgeExtractionEngine.",
+  "rationale": "Pre-precompact audit found the tribal store has 280 PP tribal tips but the 4 unextracted PDFs (Fusion Post Processor Manual, hyperMILL Post Configuration Guide, Mastercam MP/MPMaster, Heidenhain CYCLE/CYCL DEF reference) typically yield 100-300 tips each. This is ~1000 free tips behind a /pdf-learn invocation — by far the cheapest knowledge gain on the board.",
+  "leverage_existing": [
+    "/pdf-learn skill — already wired (prism_doc_learn dispatcher actions)",
+    "DocumentKnowledgeExtractionEngine — extracts tribal tips, formulas, procedures from PDF",
+    "JM_DIE_POST_PROCESSOR_TRIBAL_KNOWLEDGE.json — destination store (currently 280 entries)",
+    "POST_PROCESSOR_KNOWLEDGE_EXTRACT.json — secondary tribal store",
+    "ONLINE_POST_PROCESSOR_KNOWLEDGE.json — third store (online sources)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Generator emits a Heidenhain CYCL DEF 220 polar pattern but uses wrong default Q-parameter order.",
+    "today_pre_ppg_ms10": "Generator infers from Fanuc convention; Heidenhain treats Q-params positionally and the order is wrong. CYCL DEF compiles but cuts the wrong pattern. Operator catches it on prove-out, shop loses 30 min.",
+    "should_be_post_ppg_ms10": "Heidenhain CYCL DEF reference PDF extracted → tribal tip 'CYCL DEF 220: Q-param order is Q216,Q217,Q244,Q245,Q246' wired to HeidenhainDialectEmitterEngine → emit correct on first try.",
+    "gap_now_closed": "Reference manuals stop being PDFs on a shelf and become living tribal tips."
+  },
+  "units": [
+    {
+      "id": "U-PPGM62",
+      "title": "PDF inventory + classification",
+      "scope": "Walk H:/prism/resources/ tree exhaustively; classify EVERY PDF (not just 4) plus generic CPS/PST/MP/MCAM/ESP files; mark the PP-relevant ones; record where each slots in."
+    },
+    {
+      "id": "U-PPGM63",
+      "title": "/pdf-learn batch extract on 4 PP PDFs",
+      "scope": "/pdf-learn batch extract on identified PP PDFs (Fusion Post Processor Manual, hyperMILL Post Configuration Guide, Mastercam MP/MPMaster, Heidenhain CYCL DEF reference, Esprit reference if found, plus any others surfaced in U-PPGM62); persist outputs into the 3 PP tribal stores."
+    },
+    {
+      "id": "U-PPGM64",
+      "title": "Tribal tip insertion + dedup against existing 280 tips",
+      "scope": "Use DuplicationGuardEngine to dedup; extract net-new tips; categorize by (vendor, controller, topic)"
+    },
+    {
+      "id": "U-PPGM65",
+      "title": "Cross-link tribal tips to engine code",
+      "scope": "For each new tip with concrete behavior (e.g., 'CYCL DEF 220 Q-param order'), add a code reference comment in the relevant dialect emitter so future readers see provenance"
+    }
+  ],
+  "completion_criteria": [
+    "All 4 PP PDFs classified, extracted, persisted into tribal stores",
+    "Net new tribal tip count ≥600 (audit baseline 280 + ≥600 = ≥880)",
+    "Every dialect emitter (PPG-MS5) has at least 30 tribal-tip-backed behaviors with PDF citations",
+    "Duplication guard run successful; no tip count regression"
+  ],
+  "depends_on": [],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS13",
+    "PPG-MS28"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

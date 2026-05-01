@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS29",
+  "version": "1.0.0",
+  "title": "PPG-MS29 — Override Path + Trust Telemetry + Plain-English Mode",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 4,
+  "completed_units": 0,
+  "description": "Closes the operator-trust gap surfaced by R01/R03/R11 scrutiny. Adds operator override path with reason capture (feeds MS11 calibration), 'WHY blocked' plain-English mode, first-shift assist mode, ensemble agreement % over time per machine.",
+  "rationale": "Closes the operator-trust gap surfaced by R01/R03/R11 scrutiny. Adds operator override path with reason capture (feeds MS11 calibration), 'WHY blocked' plain-English mode, first-shift assist mode, ensemble agreement % over time per machine.",
+  "phase": "P2",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM177",
+      "title": "Operator override w/ reason capture + audit trail",
+      "scope": "When MS14/MS17 BLOCKs, operator can override with mandatory reason field. Override + reason routed through MS11 calibration as learning signal ('operator was right 8/10 times on D2 corner-engagement → recalibrate'). Two-person rule on shop_floor tier (per PPG-MS20/U-PPGM124).",
+      "files_to_modify": [
+        "src/engines/OperatorOverrideEngine.ts",
+        "web/src/components/ppg/OverrideDialog.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/OperatorOverride.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM178",
+      "title": "'WHY blocked' plain-English mode toggle",
+      "scope": "Wizard banner has toggle: physics-mode (Kienzle, σ, kc1.1) vs operator-mode (plain English, location-anchored, action-as-button). Per PPG-MS30 operator-voice copy review.",
+      "files_to_modify": [
+        "web/src/components/ppg/PreEmitVerdictBanner.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PlainEnglishMode.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM179",
+      "title": "First-shift assist mode + disagreement-as-learning",
+      "scope": "PRISM watches first program of new wizard, asks 'did this match what you'd do?'; captures disagreement as learning signal; trust-formation telemetry tracked per operator.",
+      "files_to_modify": [
+        "src/engines/FirstShiftAssistEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FirstShiftAssist.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM180",
+      "title": "Trust telemetry: ensemble agreement % + override-rate dashboard",
+      "scope": "Per-machine ensemble agreement % over time; per-operator override rate; per-customer disagreement clusters. Visualized in shop-owner dashboard (PPG-MS16/U-PPGM99).",
+      "files_to_modify": [
+        "src/engines/TrustTelemetryEngine.ts",
+        "web/src/pages/QuoteAccuracyDashboard.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/TrustTelemetry.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Operator override w/ reason capture wired into MS14/MS17; reasons feed MS11 calibration",
+    "Plain-English banner mode usable in <10s by unfamiliar operator (UX test N≥5)",
+    "First-shift assist captures disagreement-as-learning; trust score per operator tracked",
+    "Trust telemetry surfaces ensemble agreement + override rate per machine + customer in shop-owner dashboard"
+  ],
+  "depends_on": [
+    "PPG-MS11",
+    "PPG-MS14",
+    "PPG-MS16",
+    "PPG-MS17",
+    "PPG-MS20"
+  ],
+  "blocks": [],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Override — mount on existing wedm_override_quality_gate + wedm_get_gate_overrides pattern; extend to mill + lathe",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

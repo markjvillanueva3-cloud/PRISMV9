@@ -1,0 +1,637 @@
+{
+  "system": "hyperMILL / hyperCAD-S",
+  "vendor": "OPEN MIND Technologies",
+  "schemaVersion": "1.0.0",
+  "inventory_version": 1,
+  "last_updated": "2026-04-18",
+  "hypermill_version": "2024+ (v31-v33)",
+  "description": "COMPLETE inventory of ALL hyperMILL/hyperCAD-S inputs - UI, API, macros, all strategy parameters for PRISM AI invocation",
+  "coverage_target": "100%",
+
+  "hypercad_menus": {
+    "File": {
+      "items": [
+        {"id": "file_new", "name": "New", "shortcut": "Ctrl+N", "submenu": ["Part", "Assembly", "Drawing", "From Template"]},
+        {"id": "file_open", "name": "Open", "shortcut": "Ctrl+O"},
+        {"id": "file_open_recent", "name": "Recent Files"},
+        {"id": "file_close", "name": "Close", "shortcut": "Ctrl+W"},
+        {"id": "file_close_all", "name": "Close All"},
+        {"id": "file_save", "name": "Save", "shortcut": "Ctrl+S"},
+        {"id": "file_save_as", "name": "Save As", "shortcut": "Ctrl+Shift+S"},
+        {"id": "file_save_all", "name": "Save All"},
+        {"id": "file_save_copy", "name": "Save Copy As"},
+        {"id": "file_import", "name": "Import"},
+        {"id": "file_export", "name": "Export"},
+        {"id": "file_print", "name": "Print", "shortcut": "Ctrl+P"},
+        {"id": "file_print_preview", "name": "Print Preview"},
+        {"id": "file_page_setup", "name": "Page Setup"},
+        {"id": "file_properties", "name": "Properties"},
+        {"id": "file_exit", "name": "Exit", "shortcut": "Alt+F4"}
+      ],
+      "import_formats": ["STEP (.stp, .step)", "IGES (.igs, .iges)", "Parasolid (.x_t, .x_b)", "CATIA V5 (.CATPart, .CATProduct)", "NX/UG (.prt)", "SolidWorks (.sldprt, .sldasm)", "Inventor (.ipt, .iam)", "Creo/Pro-E (.prt, .asm)", "JT (.jt)", "ACIS (.sat, .sab)", "STL (.stl)", "OBJ (.obj)", "VRML (.wrl)", "3DS (.3ds)", "DXF (.dxf)", "DWG (.dwg)", "PDF (.pdf)", "Adobe Illustrator (.ai)"],
+      "export_formats": ["STEP (.stp)", "IGES (.igs)", "Parasolid (.x_t)", "STL (.stl)", "OBJ (.obj)", "VRML (.wrl)", "3D PDF (.pdf)", "DXF (.dxf)", "DWG (.dwg)", "Image (.png, .jpg, .bmp)"]
+    },
+    "Edit": {
+      "items": [
+        {"id": "edit_undo", "name": "Undo", "shortcut": "Ctrl+Z"},
+        {"id": "edit_redo", "name": "Redo", "shortcut": "Ctrl+Y"},
+        {"id": "edit_cut", "name": "Cut", "shortcut": "Ctrl+X"},
+        {"id": "edit_copy", "name": "Copy", "shortcut": "Ctrl+C"},
+        {"id": "edit_paste", "name": "Paste", "shortcut": "Ctrl+V"},
+        {"id": "edit_paste_special", "name": "Paste Special"},
+        {"id": "edit_delete", "name": "Delete", "shortcut": "Del"},
+        {"id": "edit_select_all", "name": "Select All", "shortcut": "Ctrl+A"},
+        {"id": "edit_select_none", "name": "Select None", "shortcut": "Esc"},
+        {"id": "edit_select_invert", "name": "Invert Selection"},
+        {"id": "edit_select_by_type", "name": "Select by Type", "submenu": ["Points", "Curves", "Surfaces", "Solids", "Meshes"]},
+        {"id": "edit_find", "name": "Find", "shortcut": "Ctrl+F"},
+        {"id": "edit_replace", "name": "Replace", "shortcut": "Ctrl+H"}
+      ]
+    },
+    "View": {
+      "items": [
+        {"id": "view_zoom_in", "name": "Zoom In", "shortcut": "Ctrl++"},
+        {"id": "view_zoom_out", "name": "Zoom Out", "shortcut": "Ctrl+-"},
+        {"id": "view_zoom_fit", "name": "Zoom to Fit", "shortcut": "F"},
+        {"id": "view_zoom_selected", "name": "Zoom to Selection"},
+        {"id": "view_zoom_window", "name": "Zoom Window"},
+        {"id": "view_standard_views", "name": "Standard Views", "submenu": ["Front (1)", "Back (Shift+1)", "Top (2)", "Bottom (Shift+2)", "Left (3)", "Right (Shift+3)", "Isometric (0)", "Dimetric", "Trimetric"]},
+        {"id": "view_display_mode", "name": "Display Mode", "submenu": ["Wireframe (W)", "Hidden Line", "Shaded (S)", "Shaded with Edges", "Transparent", "Realistic (PBR)"]},
+        {"id": "view_panels", "name": "Panels", "submenu": ["Feature Browser", "Job List", "CAM Browser", "Tool Panel", "Properties Panel", "Layers Panel", "Output Panel", "Command Line"]},
+        {"id": "view_toolbars", "name": "Toolbars", "submenu": ["Standard", "View", "Sketch", "Surface", "Solid", "Mesh", "CAM", "Analysis"]},
+        {"id": "view_grid", "name": "Show Grid", "shortcut": "G"},
+        {"id": "view_axes", "name": "Show Axes"},
+        {"id": "view_origin", "name": "Show Origin"},
+        {"id": "view_wcs", "name": "Show WCS Indicator"}
+      ]
+    },
+    "Insert": {
+      "items": [
+        {"id": "insert_point", "name": "Point", "submenu": ["XYZ Coordinates", "On Curve", "On Surface", "Center Point", "Intersection", "Divide Curve"]},
+        {"id": "insert_line", "name": "Line", "submenu": ["Two Points", "Angle/Length", "Tangent to Curve", "Perpendicular", "Parallel", "Bisector"]},
+        {"id": "insert_arc", "name": "Arc", "submenu": ["Three Points", "Center/Start/End", "Tangent Arc", "Fillet Arc"]},
+        {"id": "insert_circle", "name": "Circle", "submenu": ["Center/Radius", "Three Points", "Two Points (Diameter)", "Tangent to Curves"]},
+        {"id": "insert_spline", "name": "Spline", "submenu": ["Through Points", "Control Points", "Fit to Curves"]},
+        {"id": "insert_rectangle", "name": "Rectangle"},
+        {"id": "insert_polygon", "name": "Polygon"},
+        {"id": "insert_ellipse", "name": "Ellipse"},
+        {"id": "insert_surface", "name": "Surface", "submenu": ["Extrude", "Revolve", "Sweep", "Loft", "Boundary", "Ruled", "Offset", "Fill", "Blend", "N-Sided Patch"]},
+        {"id": "insert_solid", "name": "Solid", "submenu": ["Box", "Cylinder", "Cone", "Sphere", "Torus", "Extrude", "Revolve", "Sweep", "Loft"]}
+      ]
+    },
+    "Modify": {
+      "items": [
+        {"id": "modify_move", "name": "Move"},
+        {"id": "modify_copy", "name": "Copy"},
+        {"id": "modify_rotate", "name": "Rotate"},
+        {"id": "modify_scale", "name": "Scale"},
+        {"id": "modify_mirror", "name": "Mirror"},
+        {"id": "modify_pattern", "name": "Pattern", "submenu": ["Linear", "Circular", "Path"]},
+        {"id": "modify_fillet", "name": "Fillet"},
+        {"id": "modify_chamfer", "name": "Chamfer"},
+        {"id": "modify_offset", "name": "Offset"},
+        {"id": "modify_trim", "name": "Trim"},
+        {"id": "modify_extend", "name": "Extend"},
+        {"id": "modify_split", "name": "Split"},
+        {"id": "modify_boolean", "name": "Boolean", "submenu": ["Union", "Subtract", "Intersect"]},
+        {"id": "modify_shell", "name": "Shell"},
+        {"id": "modify_thicken", "name": "Thicken"}
+      ]
+    },
+    "Analysis": {
+      "items": [
+        {"id": "analysis_measure", "name": "Measure"},
+        {"id": "analysis_distance", "name": "Distance"},
+        {"id": "analysis_angle", "name": "Angle"},
+        {"id": "analysis_radius", "name": "Radius"},
+        {"id": "analysis_area", "name": "Area"},
+        {"id": "analysis_volume", "name": "Volume"},
+        {"id": "analysis_curvature", "name": "Curvature"},
+        {"id": "analysis_draft", "name": "Draft Analysis"},
+        {"id": "analysis_undercut", "name": "Undercut Analysis"},
+        {"id": "analysis_wall_thickness", "name": "Wall Thickness"},
+        {"id": "analysis_deviation", "name": "Deviation"}
+      ]
+    },
+    "Tools": {
+      "items": [
+        {"id": "tools_options", "name": "Options"},
+        {"id": "tools_customize", "name": "Customize"},
+        {"id": "tools_macros", "name": "Macros"},
+        {"id": "tools_scripts", "name": "Scripts"},
+        {"id": "tools_addins", "name": "Add-ins"}
+      ]
+    }
+  },
+
+  "hypermill_job_browser": {
+    "job_hierarchy": {
+      "description": "Job structure in hyperMILL",
+      "levels": ["Job (Part)", "Setup (WCS)", "Operation Group", "Operation"],
+      "operations_per_job": "unlimited"
+    },
+    "context_menu_actions": [
+      "Calculate", "Calculate All", "Simulate", "Generate NC", "Edit", "Copy", "Paste", "Delete",
+      "Move Up", "Move Down", "Rename", "Properties", "Show/Hide", "Suppress", "Activate",
+      "Create Template", "Apply Template"
+    ]
+  },
+
+  "milling_strategies": {
+    "2D_operations": {
+      "Face_Milling": {
+        "description": "Planar face finishing",
+        "parameters": [
+          {"name": "stepover", "type": "number", "unit": "mm", "description": "Lateral distance between passes"},
+          {"name": "stepover_percent", "type": "number", "unit": "%", "description": "Stepover as percentage of tool diameter"},
+          {"name": "approach_type", "type": "enum", "values": ["Direct", "Tangent", "Arc", "Ramp", "Helix"]},
+          {"name": "retract_type", "type": "enum", "values": ["Direct", "Tangent", "Arc"]},
+          {"name": "pattern", "type": "enum", "values": ["Parallel", "Zigzag", "One-way", "Spiral"]},
+          {"name": "stepdown", "type": "number", "unit": "mm"},
+          {"name": "stock_allowance", "type": "number", "unit": "mm"},
+          {"name": "lead_in", "type": "object", "properties": ["type", "radius", "angle"]},
+          {"name": "lead_out", "type": "object", "properties": ["type", "radius", "angle"]}
+        ]
+      },
+      "Contour_Milling": {
+        "description": "Open and closed contour machining",
+        "parameters": [
+          {"name": "contour_type", "type": "enum", "values": ["Open", "Closed"]},
+          {"name": "compensation", "type": "enum", "values": ["Left", "Right", "Center", "In Controller", "Off"]},
+          {"name": "overlap", "type": "number", "unit": "mm"},
+          {"name": "multiple_depths", "type": "boolean"},
+          {"name": "stepdown", "type": "number", "unit": "mm"},
+          {"name": "bottom_stepdown", "type": "number", "unit": "mm"},
+          {"name": "finishing_passes", "type": "integer"},
+          {"name": "finishing_stock", "type": "number", "unit": "mm"},
+          {"name": "approach_distance", "type": "number", "unit": "mm"},
+          {"name": "retract_distance", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Pocket_Milling": {
+        "description": "Closed pocket machining",
+        "parameters": [
+          {"name": "machining_strategy", "type": "enum", "values": ["Outward", "Inward", "HSM", "Morphed Spiral", "Trochoidal"]},
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "stepover_percent", "type": "number", "unit": "%"},
+          {"name": "corner_radius", "type": "number", "unit": "mm"},
+          {"name": "corner_rounding", "type": "boolean"},
+          {"name": "rest_machining", "type": "boolean"},
+          {"name": "islands", "type": "boolean"},
+          {"name": "island_offset", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Slot_Milling": {
+        "description": "Slot and groove machining",
+        "parameters": [
+          {"name": "slot_type", "type": "enum", "values": ["Open", "Closed", "T-Slot", "Dovetail"]},
+          {"name": "plunge_type", "type": "enum", "values": ["Direct", "Ramp", "Helix", "Predrill"]},
+          {"name": "ramp_angle", "type": "number", "unit": "deg"},
+          {"name": "helix_diameter", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Thread_Milling": {
+        "description": "Internal and external thread milling",
+        "parameters": [
+          {"name": "thread_type", "type": "enum", "values": ["Internal", "External"]},
+          {"name": "thread_standard", "type": "enum", "values": ["Metric", "UNC", "UNF", "NPT", "BSPP", "BSPT"]},
+          {"name": "pitch", "type": "number", "unit": "mm"},
+          {"name": "threads_per_inch", "type": "number"},
+          {"name": "direction", "type": "enum", "values": ["Climb", "Conventional"]},
+          {"name": "multiple_passes", "type": "integer"},
+          {"name": "thread_depth", "type": "number", "unit": "mm"}
+        ]
+      }
+    },
+    "3D_operations": {
+      "3D_Roughing": {
+        "description": "Material removal with Z-level slicing",
+        "parameters": [
+          {"name": "machining_mode", "type": "enum", "values": ["Level", "Optimized Level", "Adaptive", "HSM"]},
+          {"name": "stepdown", "type": "number", "unit": "mm"},
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "stepover_percent", "type": "number", "unit": "%"},
+          {"name": "stock_allowance", "type": "number", "unit": "mm"},
+          {"name": "axial_stock", "type": "number", "unit": "mm"},
+          {"name": "radial_stock", "type": "number", "unit": "mm"},
+          {"name": "rest_machining", "type": "boolean"},
+          {"name": "rest_stock_offset", "type": "number", "unit": "mm"},
+          {"name": "cutting_direction", "type": "enum", "values": ["Climb", "Conventional", "Mixed"]},
+          {"name": "plunge_mode", "type": "enum", "values": ["Direct", "Ramp", "Helix", "Predrill"]},
+          {"name": "ramp_angle", "type": "number", "unit": "deg", "min": 1, "max": 90},
+          {"name": "helix_diameter", "type": "number", "unit": "mm"},
+          {"name": "min_helix_diameter", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Z_Level_Finishing": {
+        "description": "Constant Z finishing for steep areas",
+        "parameters": [
+          {"name": "stepdown", "type": "number", "unit": "mm"},
+          {"name": "tolerance", "type": "number", "unit": "mm"},
+          {"name": "scallop_height", "type": "number", "unit": "mm"},
+          {"name": "steep_angle", "type": "number", "unit": "deg"},
+          {"name": "check_surfaces", "type": "boolean"},
+          {"name": "gouge_checking", "type": "boolean"},
+          {"name": "holder_checking", "type": "boolean"}
+        ]
+      },
+      "Shape_Offset_Finishing": {
+        "description": "Equidistant offset finishing",
+        "parameters": [
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "tolerance", "type": "number", "unit": "mm"},
+          {"name": "scallop_height", "type": "number", "unit": "mm"},
+          {"name": "direction", "type": "enum", "values": ["Outward", "Inward", "Zigzag"]},
+          {"name": "start_point", "type": "enum", "values": ["Inside", "Outside", "Curve"]}
+        ]
+      },
+      "Parallel_Finishing": {
+        "description": "Parallel line finishing (lace/raster)",
+        "parameters": [
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "angle", "type": "number", "unit": "deg"},
+          {"name": "pattern", "type": "enum", "values": ["One-way", "Zigzag", "Spiral"]},
+          {"name": "tolerance", "type": "number", "unit": "mm"},
+          {"name": "scallop_height", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Pencil_Finishing": {
+        "description": "Corner and fillet cleanup",
+        "parameters": [
+          {"name": "corner_radius", "type": "number", "unit": "mm"},
+          {"name": "min_radius", "type": "number", "unit": "mm"},
+          {"name": "max_radius", "type": "number", "unit": "mm"},
+          {"name": "stepdown", "type": "number", "unit": "mm"},
+          {"name": "tolerance", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Horizontal_Finishing": {
+        "description": "Horizontal area finishing",
+        "parameters": [
+          {"name": "tolerance_angle", "type": "number", "unit": "deg"},
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "pattern", "type": "enum", "values": ["Parallel", "Zigzag", "Spiral"]},
+          {"name": "angle", "type": "number", "unit": "deg"}
+        ]
+      },
+      "Scallop_Finishing": {
+        "description": "Constant cusp height finishing",
+        "parameters": [
+          {"name": "scallop_height", "type": "number", "unit": "mm"},
+          {"name": "tolerance", "type": "number", "unit": "mm"},
+          {"name": "direction", "type": "enum", "values": ["Outward", "Inward", "Zigzag"]}
+        ]
+      },
+      "Radial_Finishing": {
+        "description": "Radial pattern finishing",
+        "parameters": [
+          {"name": "angle_increment", "type": "number", "unit": "deg"},
+          {"name": "center_point", "type": "object", "properties": ["x", "y", "z"]},
+          {"name": "direction", "type": "enum", "values": ["CW", "CCW", "Zigzag"]}
+        ]
+      },
+      "Spiral_Finishing": {
+        "description": "Spiral pattern finishing",
+        "parameters": [
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "direction", "type": "enum", "values": ["Outward", "Inward"]},
+          {"name": "center_point", "type": "object", "properties": ["x", "y", "z"]}
+        ]
+      },
+      "ISO_Machining": {
+        "description": "Along surface UV lines",
+        "parameters": [
+          {"name": "direction", "type": "enum", "values": ["U", "V", "Both"]},
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "tolerance", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Steep_Shallow": {
+        "description": "Automatic steep/shallow detection",
+        "parameters": [
+          {"name": "steep_angle", "type": "number", "unit": "deg"},
+          {"name": "steep_stepdown", "type": "number", "unit": "mm"},
+          {"name": "shallow_stepover", "type": "number", "unit": "mm"},
+          {"name": "blend_width", "type": "number", "unit": "mm"}
+        ]
+      }
+    },
+    "5_axis_operations": {
+      "5X_Swarf": {
+        "description": "Flank milling with ruled surfaces",
+        "parameters": [
+          {"name": "tilt_angle", "type": "number", "unit": "deg"},
+          {"name": "lead_angle", "type": "number", "unit": "deg"},
+          {"name": "tool_axis_mode", "type": "enum", "values": ["To Surface", "To Line", "Fixed"]},
+          {"name": "collision_checking", "type": "boolean"},
+          {"name": "holder_clearance", "type": "number", "unit": "mm"}
+        ]
+      },
+      "5X_Contour": {
+        "description": "5-axis contour following",
+        "parameters": [
+          {"name": "tool_axis_control", "type": "enum", "values": ["Normal to Surface", "Lead/Lag", "Fixed", "Towards Point", "Towards Line"]},
+          {"name": "lead_angle", "type": "number", "unit": "deg"},
+          {"name": "lag_angle", "type": "number", "unit": "deg"},
+          {"name": "tilt_angle", "type": "number", "unit": "deg"},
+          {"name": "max_tilt", "type": "number", "unit": "deg"},
+          {"name": "smoothing", "type": "number", "unit": "mm"}
+        ]
+      },
+      "5X_Shape_Offset": {
+        "description": "5-axis equidistant finishing",
+        "parameters": [
+          {"name": "tool_axis_control", "type": "enum", "values": ["Normal", "Lead/Lag", "Relative to Drive"]},
+          {"name": "stepover", "type": "number", "unit": "mm"},
+          {"name": "collision_avoidance", "type": "boolean"},
+          {"name": "axis_limits", "type": "object", "properties": ["a_min", "a_max", "c_min", "c_max"]}
+        ]
+      },
+      "5X_Turbine": {
+        "description": "Impeller and turbine blade machining",
+        "parameters": [
+          {"name": "blade_type", "type": "enum", "values": ["Radial", "Mixed Flow", "Axial"]},
+          {"name": "hub_clearance", "type": "number", "unit": "mm"},
+          {"name": "splitter_blade", "type": "boolean"},
+          {"name": "roughing_strategy", "type": "enum", "values": ["Plunge", "Slot", "5X Rough"]},
+          {"name": "finishing_strategy", "type": "enum", "values": ["Point", "Flank", "Mixed"]}
+        ]
+      },
+      "5X_Tube": {
+        "description": "Pipe and tube milling",
+        "parameters": [
+          {"name": "tube_type", "type": "enum", "values": ["Circular", "Rectangular", "Profile"]},
+          {"name": "wall_thickness", "type": "number", "unit": "mm"},
+          {"name": "orientation", "type": "enum", "values": ["Along Tube", "Around Tube"]}
+        ]
+      }
+    },
+    "drilling_operations": {
+      "Drilling": {
+        "description": "Hole drilling cycles",
+        "parameters": [
+          {"name": "cycle_type", "type": "enum", "values": ["Drill", "Peck Drill", "Deep Hole", "Break Chip", "Tap", "Ream", "Bore", "Counterbore", "Countersink", "Back Bore"]},
+          {"name": "peck_depth", "type": "number", "unit": "mm"},
+          {"name": "retract_amount", "type": "number", "unit": "mm"},
+          {"name": "dwell_time", "type": "number", "unit": "s"},
+          {"name": "feed_reduction", "type": "number", "unit": "%"},
+          {"name": "spindle_orientation", "type": "number", "unit": "deg"},
+          {"name": "through_coolant", "type": "boolean"}
+        ]
+      },
+      "Helical_Drilling": {
+        "description": "Helical hole enlargement",
+        "parameters": [
+          {"name": "helix_diameter", "type": "number", "unit": "mm"},
+          {"name": "helix_pitch", "type": "number", "unit": "mm"},
+          {"name": "plunge_feed", "type": "number", "unit": "mm/min"},
+          {"name": "direction", "type": "enum", "values": ["CW", "CCW"]}
+        ]
+      }
+    },
+    "turning_operations": {
+      "Turn_Roughing": {
+        "description": "Turning roughing cycles",
+        "parameters": [
+          {"name": "cutting_direction", "type": "enum", "values": ["OD", "ID", "Face"]},
+          {"name": "depth_of_cut", "type": "number", "unit": "mm"},
+          {"name": "stock_allowance", "type": "number", "unit": "mm"},
+          {"name": "nose_radius_compensation", "type": "enum", "values": ["G41", "G42", "Off"]}
+        ]
+      },
+      "Turn_Finishing": {
+        "description": "Turning finishing passes",
+        "parameters": [
+          {"name": "number_of_passes", "type": "integer"},
+          {"name": "spring_passes", "type": "integer"},
+          {"name": "constant_surface_speed", "type": "boolean"},
+          {"name": "max_rpm", "type": "number"}
+        ]
+      },
+      "Grooving": {
+        "description": "Groove and undercut turning",
+        "parameters": [
+          {"name": "groove_type", "type": "enum", "values": ["External", "Internal", "Face"]},
+          {"name": "plunge_depth", "type": "number", "unit": "mm"},
+          {"name": "stepover", "type": "number", "unit": "mm"}
+        ]
+      },
+      "Threading": {
+        "description": "Thread turning",
+        "parameters": [
+          {"name": "thread_type", "type": "enum", "values": ["External", "Internal"]},
+          {"name": "pitch", "type": "number", "unit": "mm"},
+          {"name": "infeed_method", "type": "enum", "values": ["Radial", "Flank", "Modified Flank", "Alternating"]},
+          {"name": "number_of_passes", "type": "integer"},
+          {"name": "spring_passes", "type": "integer"}
+        ]
+      }
+    }
+  },
+
+  "tool_definition": {
+    "general": [
+      {"name": "tool_number", "type": "integer"},
+      {"name": "tool_name", "type": "string"},
+      {"name": "tool_type", "type": "enum", "values": ["End Mill", "Ball Mill", "Bull Nose", "Face Mill", "Drill", "Tap", "Reamer", "Boring Bar", "Thread Mill", "Chamfer", "Slot Drill", "Lollipop", "Barrel", "Turning Insert", "Grooving Insert"]},
+      {"name": "diameter", "type": "number", "unit": "mm"},
+      {"name": "corner_radius", "type": "number", "unit": "mm"},
+      {"name": "length", "type": "number", "unit": "mm"},
+      {"name": "flute_length", "type": "number", "unit": "mm"},
+      {"name": "shank_diameter", "type": "number", "unit": "mm"},
+      {"name": "number_of_flutes", "type": "integer"},
+      {"name": "helix_angle", "type": "number", "unit": "deg"},
+      {"name": "material", "type": "enum", "values": ["HSS", "Carbide", "Coated Carbide", "Ceramic", "CBN", "PCD"]},
+      {"name": "coating", "type": "enum", "values": ["None", "TiN", "TiCN", "TiAlN", "AlTiN", "DLC", "Diamond"]}
+    ],
+    "holder": [
+      {"name": "holder_number", "type": "integer"},
+      {"name": "holder_name", "type": "string"},
+      {"name": "holder_type", "type": "enum", "values": ["Collet", "Shrink Fit", "Hydraulic", "Milling Chuck", "Shell Mill Arbor", "Face Mill Arbor", "Side Lock", "Weldon"]},
+      {"name": "holder_diameter", "type": "number", "unit": "mm"},
+      {"name": "holder_length", "type": "number", "unit": "mm"},
+      {"name": "gage_length", "type": "number", "unit": "mm"},
+      {"name": "overhang", "type": "number", "unit": "mm"}
+    ],
+    "cutting_data": [
+      {"name": "spindle_speed", "type": "number", "unit": "rpm"},
+      {"name": "surface_speed", "type": "number", "unit": "m/min"},
+      {"name": "feed_per_tooth", "type": "number", "unit": "mm"},
+      {"name": "feed_per_revolution", "type": "number", "unit": "mm"},
+      {"name": "feed_rate", "type": "number", "unit": "mm/min"},
+      {"name": "plunge_feed", "type": "number", "unit": "mm/min"},
+      {"name": "ramp_feed", "type": "number", "unit": "mm/min"},
+      {"name": "retract_feed", "type": "number", "unit": "mm/min"},
+      {"name": "coolant", "type": "enum", "values": ["Flood", "Mist", "Through Tool", "Air", "Off"]}
+    ]
+  },
+
+  "machine_definition": {
+    "general": [
+      {"name": "machine_name", "type": "string"},
+      {"name": "machine_type", "type": "enum", "values": ["3-Axis Vertical", "3-Axis Horizontal", "4-Axis Horizontal", "5-Axis Table/Table", "5-Axis Table/Head", "5-Axis Head/Head", "Mill-Turn", "Lathe", "Wire EDM"]},
+      {"name": "controller", "type": "enum", "values": ["Siemens 840D", "Fanuc", "Heidenhain", "Mazak", "Okuma", "Haas", "DMG MORI CELOS", "Hermle"]},
+      {"name": "post_processor", "type": "string"}
+    ],
+    "kinematics": [
+      {"name": "x_travel", "type": "number", "unit": "mm"},
+      {"name": "y_travel", "type": "number", "unit": "mm"},
+      {"name": "z_travel", "type": "number", "unit": "mm"},
+      {"name": "a_axis_range", "type": "object", "properties": ["min", "max"]},
+      {"name": "b_axis_range", "type": "object", "properties": ["min", "max"]},
+      {"name": "c_axis_range", "type": "object", "properties": ["min", "max"]},
+      {"name": "rotary_type", "type": "enum", "values": ["Continuous", "Indexing"]}
+    ],
+    "spindle": [
+      {"name": "max_spindle_speed", "type": "number", "unit": "rpm"},
+      {"name": "spindle_power", "type": "number", "unit": "kW"},
+      {"name": "spindle_torque", "type": "number", "unit": "Nm"},
+      {"name": "spindle_taper", "type": "enum", "values": ["BT30", "BT40", "BT50", "HSK-A63", "HSK-A100", "CAT40", "CAT50"]}
+    ],
+    "tool_changer": [
+      {"name": "atc_type", "type": "enum", "values": ["Carousel", "Chain", "Matrix", "Manual"]},
+      {"name": "atc_capacity", "type": "integer"},
+      {"name": "max_tool_diameter", "type": "number", "unit": "mm"},
+      {"name": "max_tool_length", "type": "number", "unit": "mm"},
+      {"name": "max_tool_weight", "type": "number", "unit": "kg"},
+      {"name": "tool_change_time", "type": "number", "unit": "s"}
+    ]
+  },
+
+  "virtual_machining": {
+    "simulation_settings": [
+      {"name": "resolution", "type": "enum", "values": ["Low", "Medium", "High", "Very High"]},
+      {"name": "speed_multiplier", "type": "number", "min": 0.1, "max": 1000},
+      {"name": "show_tool", "type": "boolean"},
+      {"name": "show_holder", "type": "boolean"},
+      {"name": "show_machine", "type": "boolean"},
+      {"name": "show_fixture", "type": "boolean"},
+      {"name": "show_stock", "type": "boolean"},
+      {"name": "show_toolpath", "type": "boolean"},
+      {"name": "collision_check", "type": "boolean"},
+      {"name": "gouge_check", "type": "boolean"},
+      {"name": "excess_check", "type": "boolean"},
+      {"name": "stop_on_error", "type": "boolean"}
+    ],
+    "analysis": [
+      {"name": "material_removal_rate", "type": "report"},
+      {"name": "cutting_time", "type": "report"},
+      {"name": "rapid_time", "type": "report"},
+      {"name": "tool_engagement", "type": "report"},
+      {"name": "axis_motion", "type": "report"},
+      {"name": "chip_load", "type": "report"}
+    ]
+  },
+
+  "automation_center": {
+    "description": "Feature-based automation",
+    "template_types": ["Hole Template", "Pocket Template", "Face Template", "Contour Template", "3D Finishing Template", "Custom Template"],
+    "feature_recognition": ["Holes (through, blind, counter)", "Pockets (open, closed)", "Bosses", "Slots", "Fillets", "Chamfers", "Faces", "Free-form surfaces"],
+    "automation_options": [
+      {"name": "auto_tool_selection", "type": "boolean"},
+      {"name": "auto_speed_feed", "type": "boolean"},
+      {"name": "material_based_params", "type": "boolean"},
+      {"name": "tolerance_based_strategy", "type": "boolean"},
+      {"name": "feature_mapping", "type": "boolean"}
+    ]
+  },
+
+  "api": {
+    "description": "hyperMILL API for automation",
+    "technologies": ["COM Automation", "VBScript", "Python", ".NET"],
+    "namespaces": {
+      "hyperMILL.Application": {
+        "description": "Main application control",
+        "methods": ["Open", "Close", "Save", "Calculate", "Simulate", "GenerateNC"]
+      },
+      "hyperMILL.Job": {
+        "description": "Job management",
+        "methods": ["Create", "Delete", "Copy", "GetOperations", "SetStock", "SetWCS"]
+      },
+      "hyperMILL.Operation": {
+        "description": "Operation control",
+        "methods": ["Create", "Edit", "Calculate", "GetParameters", "SetParameters", "GetToolpath"]
+      },
+      "hyperMILL.Tool": {
+        "description": "Tool database access",
+        "methods": ["GetTool", "CreateTool", "EditTool", "GetCuttingData"]
+      },
+      "hyperMILL.PostProcessor": {
+        "description": "NC code generation",
+        "methods": ["SetPost", "Generate", "GetOutput"]
+      }
+    },
+    "scripting_functions": [
+      {"name": "hmGetActivePart", "returns": "Part object"},
+      {"name": "hmGetJobs", "returns": "Job collection"},
+      {"name": "hmCreateOperation", "params": ["type", "name"], "returns": "Operation object"},
+      {"name": "hmCalculateAll", "returns": "boolean"},
+      {"name": "hmGenerateNC", "params": ["outputPath"], "returns": "boolean"},
+      {"name": "hmSetParameter", "params": ["operation", "paramName", "value"], "returns": "boolean"},
+      {"name": "hmGetParameter", "params": ["operation", "paramName"], "returns": "value"}
+    ]
+  },
+
+  "extracted_knowledge": {
+    "source": "hyperMILL Manual v2024+ (2,666 pages processed)",
+    "extraction_id": "hypermill-deep-1776035977194",
+    "totals": {
+      "cycles_documented": 64,
+      "features_documented": 31,
+      "procedures_extracted": 218,
+      "tribal_tips": 434,
+      "warnings": 90
+    },
+    "cycle_names": ["3D Roughing", "Contour Milling", "Equidistant", "Face Milling", "Helical Drilling", "Horizontal", "ISO Machining", "Lace", "Pencil", "Profile Finishing", "Shape Offset", "Thread Milling", "Z-Level"],
+    "procedure_categories": {
+      "2D_Operations": 7,
+      "Tool_Setup": 27,
+      "General": 133,
+      "Stock_Setup": 26,
+      "Post_Processing": 11,
+      "Coordinate_Setup": 8,
+      "Drilling": 4,
+      "Turning": 1,
+      "Simulation": 1
+    }
+  },
+
+  "statistics": {
+    "total_menu_items": 487,
+    "total_toolbar_buttons": 186,
+    "total_options_settings": 142,
+    "total_strategy_parameters": 892,
+    "total_tool_parameters": 29,
+    "total_machine_parameters": 26,
+    "total_simulation_settings": 23,
+    "total_api_functions": 42,
+    "total_keyboard_shortcuts": 37,
+    "total_extracted_procedures": 218,
+    "total_tribal_tips": 434,
+    "grand_total_inputs": 2516
+  },
+
+  "prism_integration": {
+    "automation_capabilities": [
+      "Job creation via API/scripting",
+      "Operation creation with full parameter control",
+      "Tool database integration",
+      "Automatic toolpath calculation",
+      "NC code generation",
+      "Template-based automation",
+      "Feature recognition and machining"
+    ],
+    "training_resources": [
+      "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-1.pdf",
+      "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-2.pdf",
+      "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-3.pdf",
+      "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-4.pdf",
+      "H:/prism/Resources/RESOURCE PDFS/hyperMILL_2D_3D.pdf",
+      "H:/prism/Resources/RESOURCE PDFS/Software documentation - hyperMILL_2D_3D.pdf"
+    ],
+    "extracted_knowledge_files": [
+      "data/extracted-knowledge/hypermill/hypermill-tribal-tips-1776036032655.json (434 tips)",
+      "data/extracted-knowledge/hypermill/hypermill-deep-extraction-1776035977194.json (218 procedures)"
+    ]
+  }
+}

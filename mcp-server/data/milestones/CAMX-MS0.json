@@ -19,7 +19,7 @@
             "All strategies normalized",
             "Unique canonical IDs"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U02",
@@ -30,7 +30,7 @@
             "20+ CAM systems mapped",
             "Tests validate groups"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U03",
@@ -41,7 +41,7 @@
             "All strategies covered",
             "Queryable API"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U04",
@@ -52,7 +52,7 @@
             "No legacy strategy names",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U05",
@@ -63,7 +63,7 @@
             "From CrossCamRecommender data",
             "Validated against known values"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U06",
@@ -74,7 +74,7 @@
             "TCO-comparable across strategies",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U07",
@@ -85,7 +85,7 @@
             "z.enum updated",
             "Build passes"
           ],
-          "status": "not_started"
+          "status": "complete"
         },
         {
           "id": "U08",
@@ -95,10 +95,13 @@
             "30+ tests pass",
             "Build passes"
           ],
-          "status": "not_started"
+          "status": "complete"
         }
       ]
     }
   ],
-  "status": "not_started"
+  "status": "complete",
+  "closure_notes": "Closed via CAMX-MS0-StrategyTaxonomy.test.ts (46/46 passing). StrategyTaxonomyEngine (1826 LOC, singleton strategyTaxonomyEngine) provides 3-tier canonical taxonomy (category→family→variant) with CamSystemId covering 22 CAM systems. Each strategy: canonical_id, display_name, category, family, cam_equivalents[], required_axes (3/4/5), engagement_control, chip_thinning, hsm_capable, applicable_features[], applicable_operations[]. 13 query methods (lookup, fromNative, equivalents, search, byCategory, byFeature, byFamily, byCamSystem, byAxes, stats, allIds, all, translate). Dispatcher wiring added: 7 new strategy_taxonomy_* actions in camDispatcher (enum+case+lazy-import). StrategyCostOptimalEngine + CrossCamRecommenderEngine + PipelineCostModelEngine confirmed as downstream consumers of cost and physics profile fields.",
+  "closed_at": "2026-04-19T22:00:00Z",
+  "closed_by": "claude-opus-4.7"
 }

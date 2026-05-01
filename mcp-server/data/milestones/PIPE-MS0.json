@@ -24,6 +24,17 @@
         "Wired to cadDispatcher as 'print_to_geometry' action",
         "Tests: ≥5 (simple plate with holes, shaft with keyway, bracket, boss, complex prismatic)",
         "Build: 0 TS errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -41,6 +52,17 @@
         "Suggests tool consolidation (one tool for multiple features when possible)",
         "Wired to camDispatcher as 'inventory_tool_select' action",
         "Tests: ≥5 (full inventory match, partial inventory, empty inventory, worn tools, tool consolidation)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -57,6 +79,17 @@
         "Calculates: cycle time reduction, tool life improvement, quality improvement, scrap reduction",
         "Wired to businessDispatcher as 'roi_advisor' action",
         "Tests: ≥4 (tool upgrade ROI, machine upgrade ROI, mixed upgrades, break-even analysis)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -74,6 +107,17 @@
         "Progress callback for UI progress bar",
         "Wired to camDispatcher as 'print_to_program' action",
         "Tests: ≥3 (full pipeline, direct mode, partial failure recovery)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -89,6 +133,17 @@
         "Handles: rotation correction, perspective warp, contrast enhancement",
         "Wired to cadDispatcher as 'photo_to_blueprint' action",
         "Tests: ≥3"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -105,6 +160,17 @@
         "STEP: extracts planar faces, cylindrical faces, bounding box (basic level)",
         "Wired to cadDispatcher as 'cad_import' action",
         "Tests: ≥4 (DXF with holes, DXF with pockets, simple STEP, format detection)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -127,6 +193,17 @@
         "ROI suggestions panel",
         "Full pipeline: types + API + hook + page",
         "Build: 0 TS errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -143,6 +220,17 @@
         "Types: C:/PRISM/web/src/types/pipeline.ts",
         "Hook: C:/PRISM/web/src/hooks/usePipeline.ts",
         "Build: 0 TS errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -157,6 +245,17 @@
         "Wired to machineSetupDispatcher as 'user_machine_add/list/update/remove'",
         "Settings page updated with 'My Machines' section",
         "Tests: ≥3"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -171,6 +270,17 @@
         "Each template: default features, operations, typical materials, S/F ranges",
         "Wired to camDispatcher as 'template_list/template_apply'",
         "Tests: ≥3"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -185,6 +295,17 @@
         "Calibration suggestions based on prediction accuracy",
         "Wired to businessDispatcher as 'pipeline_history_save/list/compare'",
         "Tests: ≥2"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     },
     {
@@ -198,7 +319,94 @@
         "Tests: full pipeline (print→program), direct mode (features→program), photo mode, CAD import mode, inventory-constrained mode",
         "≥8 tests total",
         "All pass with 0 errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
       ]
     }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pipe-ms0-gate",
+    "mcp_action": "prism_pipe:pipe_ms0_run",
+    "skill_command": "/pipe-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pipe-ms0-gate"
+    ],
+    "new_actions": [
+      "pipe_ms0_run"
+    ],
+    "new_skills": [
+      "/pipe-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the crown jewel pipeline: User uploads engineering print (PDF/photo/DXF) or CAD file → system extracts features → selects tools FROM USER'S INVENTORY → generates operation sequence → calculates physics-backed S/F → assembles CNC program with correct post for their machine → generates setup sheet + cost estimate + ROI suggestions for upgrades. Two paths: (1) Print→CAD→CAM→Program (full reconstruction), (2) Print→Program (direct using templates + user library).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
   ]
 }

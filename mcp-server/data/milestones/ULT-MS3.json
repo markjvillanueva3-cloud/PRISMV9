@@ -39,7 +39,8 @@
           ],
           "exit_conditions": [
             "Approvals and comments share a single event-aware timeline contract.",
-            "Attachments, @mentions, decisions, and acknowledgements can be tracked against any operational object."
+            "Attachments, @mentions, decisions, and acknowledgements can be tracked against any operational object.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Remove the new workflow engines and revert approval or comment handling to page-local state.",
           "steps": [
@@ -74,7 +75,14 @@
               "line_count_est": 200
             }
           ],
-          "estimated_minutes": 145
+          "estimated_minutes": 145,
+          "description": "Approval timeline + comment thread engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U02",
@@ -104,7 +112,8 @@
           ],
           "exit_conditions": [
             "A command center engine can aggregate approvals, shortages, blockers, and owner queues across domains.",
-            "A shortage engine can track demand, supply promise, escalation owner, and next action."
+            "A shortage engine can track demand, supply promise, escalation owner, and next action.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the command-center engines and restore separate queue logic in jobs and scheduling surfaces.",
           "steps": [
@@ -139,7 +148,14 @@
               "line_count_est": 220
             }
           ],
-          "estimated_minutes": 150
+          "estimated_minutes": 150,
+          "description": "Workflow command center + shortage resolution engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P1-U03",
@@ -169,7 +185,8 @@
           ],
           "exit_conditions": [
             "Workflow routes expose command-center, approval, shortage, and comment payloads.",
-            "The jobs and scheduling desks consume the same operational workflow language."
+            "The jobs and scheduling desks consume the same operational workflow language.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Unwire the command-center routes and return the desks to locally seeded workflow data.",
           "steps": [
@@ -210,7 +227,14 @@
               "line_count_est": 140
             }
           ],
-          "estimated_minutes": 170
+          "estimated_minutes": 170,
+          "description": "Workflow routes + jobs and scheduling desk integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -265,7 +289,8 @@
           ],
           "exit_conditions": [
             "A workflow triage command doc exists for approvals, blockers, and ownership queues.",
-            "A forge-triple workflow template exists for future command-center work."
+            "A forge-triple workflow template exists for future command-center work.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Delete the command and template docs and rely on raw workflow API notes only.",
           "steps": [
@@ -300,7 +325,14 @@
               "line_count_est": 80
             }
           ],
-          "estimated_minutes": 60
+          "estimated_minutes": 60,
+          "description": "Workflow triage command + command-center template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P2-U02",
@@ -330,7 +362,8 @@
           ],
           "exit_conditions": [
             "A workflow transition guard blocks invalid moves or owner mismatches.",
-            "Integration coverage proves workflow actions stay coherent across jobs and scheduling desks."
+            "Integration coverage proves workflow actions stay coherent across jobs and scheduling desks.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
           ],
           "rollback": "Disable the new transition guard if it blocks valid operations and revert to the old integration path.",
           "steps": [
@@ -365,7 +398,14 @@
               "line_count_est": 210
             }
           ],
-          "estimated_minutes": 100
+          "estimated_minutes": 100,
+          "description": "Workflow transition guard + integration suite — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ],
       "gate": {
@@ -478,5 +518,81 @@
   "scrutiny_log": "state/ULT-MS3/scrutiny-log.json",
   "position_file": "state/ULT-MS3/position.json",
   "state_dir": "state/ULT-MS3",
-  "status": "not_started"
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms3-gate",
+    "mcp_action": "prism_ult:ult_ms3_run",
+    "skill_command": "/ult-ms3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms3-gate"
+    ],
+    "new_actions": [
+      "ult_ms3_run"
+    ],
+    "new_skills": [
+      "/ult-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Unify jobs, scheduling, approvals, shortages, comments, attachments, and action queues into one operational workflow system so planners, leads, and managers can run the business from a coherent live command center.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
 }

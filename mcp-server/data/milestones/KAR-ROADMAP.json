@@ -87,17 +87,37 @@
   },
   "scrutiny_round_5": {
     "session_estimates": {
-      "underestimated": ["KAR-MS2 (3→4)", "KAR-MS2.5 (2→3-4)", "KAR-MS2.6 (1→2)", "KAR-MS2.1 (1→1-2)", "KAR-MS1 (2→2-3)", "KAR-MS3 (2→2-3)"],
+      "underestimated": [
+        "KAR-MS2 (3→4)",
+        "KAR-MS2.5 (2→3-4)",
+        "KAR-MS2.6 (1→2)",
+        "KAR-MS2.1 (1→1-2)",
+        "KAR-MS1 (2→2-3)",
+        "KAR-MS3 (2→2-3)"
+      ],
       "total_gap": "+6-8 sessions"
     },
     "rollback_completeness": {
       "score": "36/50 units complete",
-      "issues": ["4 vague abort_criteria", "4 incomplete rollback procedures", "6 missing thresholds"],
-      "critical_fixes": ["U-KAR03 missing data file rollback", "U-KAR06 incomplete package.json", "U-KAR26 missing package.json"]
+      "issues": [
+        "4 vague abort_criteria",
+        "4 incomplete rollback procedures",
+        "6 missing thresholds"
+      ],
+      "critical_fixes": [
+        "U-KAR03 missing data file rollback",
+        "U-KAR06 incomplete package.json",
+        "U-KAR26 missing package.json"
+      ]
     },
     "missing_engines": {
-      "CRITICAL": ["GCodeParserEngine (assumed by KAR-MS2.6)"],
-      "RESOLVED": ["LatheDialectParser → OkumaOSPParserEngine (574 LOC, 2026-04-13)", "STEPParserEngine → STEPFeatureExtractorEngine"],
+      "CRITICAL": [
+        "GCodeParserEngine (assumed by KAR-MS2.6)"
+      ],
+      "RESOLVED": [
+        "LatheDialectParser → OkumaOSPParserEngine (574 LOC, 2026-04-13)",
+        "STEPParserEngine → STEPFeatureExtractorEngine"
+      ],
       "action": "Create GCodeParserEngine BEFORE KAR-MS2.6",
       "alternatives": {
         "GCodeParserEngine": "Create new — GCodeTemplateEngine is for generation not parsing"
@@ -107,13 +127,24 @@
     "exit_criteria": {
       "average_score": "1.8/3.0",
       "needs_improvement": "48% of units (24 units scored 1)",
-      "worst_units": ["U-KAR03", "U-KAR05", "U-KAR07", "U-KAR16-19", "U-KAR30-37"]
+      "worst_units": [
+        "U-KAR03",
+        "U-KAR05",
+        "U-KAR07",
+        "U-KAR16-19",
+        "U-KAR30-37"
+      ]
     },
     "parallelization": {
       "waves": 5,
       "max_agents": 6,
       "bottleneck": "U-KAR01-03 (MS0) blocks everything",
-      "fully_parallel_after_MS0": ["KAR-MS2", "KAR-MS2.5", "KAR-MS4.1", "KAR-MS1"]
+      "fully_parallel_after_MS0": [
+        "KAR-MS2",
+        "KAR-MS2.5",
+        "KAR-MS4.1",
+        "KAR-MS1"
+      ]
     }
   },
   "scrutiny_round_6": {
@@ -137,8 +168,22 @@
     },
     "route_contract_mismatches": {
       "document_learning": {
-        "frontend_expects": ["/doc/upload", "/doc/extract", "/doc/list", "/doc/get", "/doc/delete"],
-        "backend_exposes": ["/doc/list", "/doc/read", "/doc/write", "/doc/append", "/doc/roadmap-status", "/doc/action-tracker", "/doc/migrate"],
+        "frontend_expects": [
+          "/doc/upload",
+          "/doc/extract",
+          "/doc/list",
+          "/doc/get",
+          "/doc/delete"
+        ],
+        "backend_exposes": [
+          "/doc/list",
+          "/doc/read",
+          "/doc/write",
+          "/doc/append",
+          "/doc/roadmap-status",
+          "/doc/action-tracker",
+          "/doc/migrate"
+        ],
         "action": "Reconcile before any document-learning closeout"
       },
       "machine_live": {
@@ -159,7 +204,20 @@
       "prism_ai_dispatcher": {
         "path": "src/tools/dispatchers/aiReasoningDispatcher.ts",
         "tool": "prism_ai",
-        "actions": ["reason", "speed_feed", "tool_select", "sequence", "strategy", "quote", "resolve_error", "safety_check", "feasibility", "process_plan", "gcode", "stats"]
+        "actions": [
+          "reason",
+          "speed_feed",
+          "tool_select",
+          "sequence",
+          "strategy",
+          "quote",
+          "resolve_error",
+          "safety_check",
+          "feasibility",
+          "process_plan",
+          "gcode",
+          "stats"
+        ]
       },
       "prism_orchestrate_dispatcher": {
         "path": "src/tools/dispatchers/orchestrationDispatcher.ts",
@@ -215,20 +273,52 @@
       "realistic_optimistic": 35,
       "critical_path_sessions": "17-22 (serial)",
       "by_milestone": {
-        "KAR-MS0": {"original": 2, "adjusted": "2-3", "reason": "KnowledgeLineageEngine is heavy lift"},
-        "KAR-MS1": {"original": "2-3", "adjusted": "3-4", "reason": "Hook integration (chokidar memory leak risk) non-trivial"},
-        "KAR-MS2": {"original": 4, "adjusted": "6-7", "reason": "25,600 files across 4+ formats, LatheDialectParser MISSING"},
-        "KAR-MS2.5": {"original": "3-4", "adjusted": "5-6", "reason": "No DWG parser exists (AutoCAD binary is complex)"},
-        "KAR-MS3": {"original": "2-3", "adjusted": 3, "reason": "70-80% built but stubs need real implementations"},
-        "KAR-MS5": {"original": 4, "adjusted": "5-6", "reason": "Must wrap 71 orchestrators, EngineCapabilityRegistry for 1,559 engines"},
-        "KAR-MS7": {"original": 3, "adjusted": "4-5", "reason": "Full-stack wiring complexity, 5 missing backend + 3 missing frontend files"}
+        "KAR-MS0": {
+          "original": 2,
+          "adjusted": "2-3",
+          "reason": "KnowledgeLineageEngine is heavy lift"
+        },
+        "KAR-MS1": {
+          "original": "2-3",
+          "adjusted": "3-4",
+          "reason": "Hook integration (chokidar memory leak risk) non-trivial"
+        },
+        "KAR-MS2": {
+          "original": 4,
+          "adjusted": "6-7",
+          "reason": "25,600 files across 4+ formats, LatheDialectParser MISSING"
+        },
+        "KAR-MS2.5": {
+          "original": "3-4",
+          "adjusted": "5-6",
+          "reason": "No DWG parser exists (AutoCAD binary is complex)"
+        },
+        "KAR-MS3": {
+          "original": "2-3",
+          "adjusted": 3,
+          "reason": "70-80% built but stubs need real implementations"
+        },
+        "KAR-MS5": {
+          "original": 4,
+          "adjusted": "5-6",
+          "reason": "Must wrap 71 orchestrators, EngineCapabilityRegistry for 1,559 engines"
+        },
+        "KAR-MS7": {
+          "original": 3,
+          "adjusted": "4-5",
+          "reason": "Full-stack wiring complexity, 5 missing backend + 3 missing frontend files"
+        }
       }
     },
     "parallelization_correction": {
       "claimed": "1.9x speedup with 6 agents",
       "actual": "1.4x speedup possible",
       "reason": "Convergence bottlenecks at KAR-MS3 and KAR-MS5 limit parallelization",
-      "effective_agents": {"wave_1_2": "2-3", "wave_3": "3-4", "wave_4_MS5_MS7": "1 (serial critical path)"}
+      "effective_agents": {
+        "wave_1_2": "2-3",
+        "wave_3": "3-4",
+        "wave_4_MS5_MS7": "1 (serial critical path)"
+      }
     },
     "lane_integration_errors": {
       "error_count": 4,
@@ -257,25 +347,48 @@
     },
     "cnc_parser_audit": {
       "existing_parsers": 7,
-      "parsers_with_extractSpeedFeeds": ["OkumaOSPParserEngine", "HaasParserEngine", "HurcoParserEngine", "RokuRokuParserEngine", "WireEDMProgramParserEngine"],
+      "parsers_with_extractSpeedFeeds": [
+        "OkumaOSPParserEngine",
+        "HaasParserEngine",
+        "HurcoParserEngine",
+        "RokuRokuParserEngine",
+        "WireEDMProgramParserEngine"
+      ],
       "jm_die_coverage": {
         "parseable": 17066,
         "total_files": 36928,
         "coverage_percent": 46,
-        "fully_parseable": [".MIN (16,947)", ".nc (76)", ".hnc (43)"],
-        "not_parseable": [".mcx-8 (7,092 - binary)", ".mcx (1,779 - binary)"]
+        "fully_parseable": [
+          ".MIN (16,947)",
+          ".nc (76)",
+          ".hnc (43)"
+        ],
+        "not_parseable": [
+          ".mcx-8 (7,092 - binary)",
+          ".mcx (1,779 - binary)"
+        ]
       },
       "missing_aggregator": "ProvenSpeedFeedAggregatorEngine does NOT exist — S/F data extracted but goes nowhere"
     },
     "wiring_routes_audit": {
       "infrastructure_completeness": "70-80%",
-      "existing": ["KNOWLEDGE_CONSUMERS (50+ consumers)", "CATEGORY_WIRING map", "TYPE_INDICATORS/DOMAIN_INDICATORS", "5 routing hooks"],
+      "existing": [
+        "KNOWLEDGE_CONSUMERS (50+ consumers)",
+        "CATEGORY_WIRING map",
+        "TYPE_INDICATORS/DOMAIN_INDICATORS",
+        "5 routing hooks"
+      ],
       "stubs_need_implementation": [
         "wireToEngines() just logs, doesn't call engines",
         "wireTipInject() returns 'queued' but doesn't write",
         "wireRegistryAdd() returns 'queued' but doesn't call registry"
       ],
-      "missing": ["WiringManifest schema", "MCP dispatcher actions for wiring", "FormulaRegistry.register() API", "Integration tests"]
+      "missing": [
+        "WiringManifest schema",
+        "MCP dispatcher actions for wiring",
+        "FormulaRegistry.register() API",
+        "Integration tests"
+      ]
     },
     "puoa_core_audit": {
       "existing_orchestrators": 21,
@@ -285,15 +398,31 @@
         "tier_routing": "PhysicsFusionOrchestratorEngine has 4-tier pattern",
         "chain_execution": "BuildGuardChainEngine has 7-step chain state machine"
       },
-      "missing_for_MS5": ["PRISMIntentClassifierEngine", "EngineCapabilityRegistry (1,559 engines)", "EngineChainPlannerEngine", "KnowledgeGathererEngine", "TierRouterEngine"]
+      "missing_for_MS5": [
+        "PRISMIntentClassifierEngine",
+        "EngineCapabilityRegistry (1,559 engines)",
+        "EngineChainPlannerEngine",
+        "KnowledgeGathererEngine",
+        "TierRouterEngine"
+      ]
     },
     "app_integration_audit": {
       "kar_ms7_status": "NOT STARTED (0/6 units)",
-      "blocking_milestones": ["KAR-MS0", "KAR-MS1", "KAR-MS2", "KAR-MS3", "KAR-MS5", "KAR-MS6"],
+      "blocking_milestones": [
+        "KAR-MS0",
+        "KAR-MS1",
+        "KAR-MS2",
+        "KAR-MS3",
+        "KAR-MS5",
+        "KAR-MS6"
+      ],
       "blocking_units": "32 units across 6 milestones",
       "existing_routes": "/api/v1/orchestration/* (26 endpoints)",
       "missing_routes": "/api/orchestrate/* (reserved for KAR-MS7)",
-      "missing_hooks": ["useOrchestrator.ts", "useUnifiedOrchestrator.ts"],
+      "missing_hooks": [
+        "useOrchestrator.ts",
+        "useUnifiedOrchestrator.ts"
+      ],
       "missing_api_client": "web/src/api/orchestrate.ts"
     },
     "test_infrastructure_audit": {
@@ -304,7 +433,11 @@
       "coverage_target": "95% on KAR-MS0 modules",
       "reusable_fixtures": "85+ (programs, materials)",
       "reusable_helpers": 11,
-      "missing_test_infrastructure": ["KnowledgeAtom fixture generator", "WiringManifest route validation", "Multi-tier orchestration harness"]
+      "missing_test_infrastructure": [
+        "KnowledgeAtom fixture generator",
+        "WiringManifest route validation",
+        "Multi-tier orchestration harness"
+      ]
     },
     "critical_path": {
       "sequence": "KAR-MS0 → KAR-MS1 → KAR-MS3 → KAR-MS5 → KAR-MS6 → KAR-MS7",
@@ -333,18 +466,49 @@
       "KAR Forge Triple Validation"
     ],
     "implementation_readiness": {
-      "KAR-MS0": {"score": "6/10", "finding": "13 knowledge-like interfaces need unifying, 35-45 files affected"},
-      "KAR-MS1": {"score": "5/10", "finding": "All hook phases exist, uses polling not chokidar (by design for network drives)"},
-      "KAR-MS2": {"score": "6/10", "finding": "Parsers handle 17K files (~10-15s), but NO incremental parsing, NO error handling in OkumaOSPParser"},
-      "KAR-MS3": {"score": "GAPS", "finding": "FormulaRegistry and ToolRegistry are READ-ONLY, need mutation APIs"},
-      "KAR-MS4": {"score": "92%", "finding": "Feedback infrastructure COMPLETE - quote/cost/cycle tracking + Bayesian calibration all exist"},
-      "KAR-MS5": {"score": "3/10", "finding": "TaskAgentClassifier hardcoded, only 1.7% action coverage, needs config-driven refactor (~22h)"},
-      "KAR-MS6": {"score": "8/10", "finding": "7 chain patterns exist (SwarmExecutor, BuildGuardChain, etc.), high reuse potential"},
-      "KAR-MS7": {"score": "8/10", "finding": "41 hooks with consistent AsyncState pattern, useQuickGenerate (219 LOC) is template"}
+      "KAR-MS0": {
+        "score": "6/10",
+        "finding": "13 knowledge-like interfaces need unifying, 35-45 files affected"
+      },
+      "KAR-MS1": {
+        "score": "5/10",
+        "finding": "All hook phases exist, uses polling not chokidar (by design for network drives)"
+      },
+      "KAR-MS2": {
+        "score": "6/10",
+        "finding": "Parsers handle 17K files (~10-15s), but NO incremental parsing, NO error handling in OkumaOSPParser"
+      },
+      "KAR-MS3": {
+        "score": "GAPS",
+        "finding": "FormulaRegistry and ToolRegistry are READ-ONLY, need mutation APIs"
+      },
+      "KAR-MS4": {
+        "score": "92%",
+        "finding": "Feedback infrastructure COMPLETE - quote/cost/cycle tracking + Bayesian calibration all exist"
+      },
+      "KAR-MS5": {
+        "score": "3/10",
+        "finding": "TaskAgentClassifier hardcoded, only 1.7% action coverage, needs config-driven refactor (~22h)"
+      },
+      "KAR-MS6": {
+        "score": "8/10",
+        "finding": "7 chain patterns exist (SwarmExecutor, BuildGuardChain, etc.), high reuse potential"
+      },
+      "KAR-MS7": {
+        "score": "8/10",
+        "finding": "41 hooks with consistent AsyncState pattern, useQuickGenerate (219 LOC) is template"
+      }
     },
     "interface_unification": {
       "existing_interfaces": 13,
-      "common_fields": ["id", "source", "category", "confidence", "tags", "title"],
+      "common_fields": [
+        "id",
+        "source",
+        "category",
+        "confidence",
+        "tags",
+        "title"
+      ],
       "conflicts": {
         "confidence_scale": "0-100 vs 0-1 (requires normalization)",
         "content_field": "body vs content vs text vs tip vs insight",
@@ -384,13 +548,29 @@
     },
     "chain_executor_patterns": {
       "existing_patterns": 7,
-      "patterns": ["sequential (BuildGuardChain)", "parallel (SwarmExecutor)", "pipeline", "map-reduce", "consensus", "hierarchical", "38-stage (PostProcessor)"],
-      "reuse_components": ["PipelineCheckpointManager", "DurableJobQueueEngine (dead letter)", "EventBus (progress)"],
+      "patterns": [
+        "sequential (BuildGuardChain)",
+        "parallel (SwarmExecutor)",
+        "pipeline",
+        "map-reduce",
+        "consensus",
+        "hierarchical",
+        "38-stage (PostProcessor)"
+      ],
+      "reuse_components": [
+        "PipelineCheckpointManager",
+        "DurableJobQueueEngine (dead letter)",
+        "EventBus (progress)"
+      ],
       "new_needed": "Orchestrator abstraction layer for multi-orchestrator coordination"
     },
     "forge_triple_conflicts": {
       "risk": "MEDIUM",
-      "skill_conflicts": ["/tribal", "/plan", "/execute"],
+      "skill_conflicts": [
+        "/tribal",
+        "/plan",
+        "/execute"
+      ],
       "action_conflict": "tribal_tips near-collision with tribal_search/tribal_suggest",
       "recommendations": [
         "Rename /tribal → /tribal-tips",
@@ -416,7 +596,11 @@
         "MS5: 'Tier routing optimized' is very vague",
         "MS5: 'All domains' should enumerate specific 6 domains"
       ],
-      "tooling_missing": ["LatheDialectParser", "GCodeParserEngine", "labeled intent test set (50+)"]
+      "tooling_missing": [
+        "LatheDialectParser",
+        "GCodeParserEngine",
+        "labeled intent test set (50+)"
+      ]
     },
     "surprising_findings": {
       "KAR-MS4_nearly_complete": "Feedback loop infrastructure is 92% done - quote/cost/cycle tracking + 6-level Bayesian calibration all exist",
@@ -426,20 +610,49 @@
   },
   "prerequisite_engines": {
     "must_create_first": [
-      {"name": "GCodeParserEngine", "blocks": "U-KAR47", "alternative": "create new parser"}
+      {
+        "name": "GCodeParserEngine",
+        "blocks": "U-KAR47",
+        "alternative": "create new parser"
+      }
     ],
     "use_existing": [
-      {"roadmap_name": "LatheDialectParserEngine", "actual": "OkumaOSPParserEngine + UnifiedProgramParserEngine", "path": "src/engines/OkumaOSPParserEngine.ts", "note": "RESOLVED 2026-04-13: OkumaOSPParser handles .MIN, UnifiedProgramParser auto-detects and delegates to all CNC parsers"},
-      {"roadmap_name": "STEPParserEngine", "actual": "STEPFeatureExtractorEngine", "path": "src/engines/hypermill/"},
-      {"roadmap_name": "GeometryAnalysisEngine", "actual": "GeometryEngine", "path": "src/engines/GeometryEngine.ts"}
+      {
+        "roadmap_name": "LatheDialectParserEngine",
+        "actual": "OkumaOSPParserEngine + UnifiedProgramParserEngine",
+        "path": "src/engines/OkumaOSPParserEngine.ts",
+        "note": "RESOLVED 2026-04-13: OkumaOSPParser handles .MIN, UnifiedProgramParser auto-detects and delegates to all CNC parsers"
+      },
+      {
+        "roadmap_name": "STEPParserEngine",
+        "actual": "STEPFeatureExtractorEngine",
+        "path": "src/engines/hypermill/"
+      },
+      {
+        "roadmap_name": "GeometryAnalysisEngine",
+        "actual": "GeometryEngine",
+        "path": "src/engines/GeometryEngine.ts"
+      }
     ]
   },
   "scrutiny_round_4": {
     "test_coverage": "5 milestones lacked test units — added 5 test units (U-KAR46-50)",
     "engine_collisions": {
       "collision": "MachiningFeatureRecognitionEngine → USE FeatureRecognitionEngine.ts",
-      "extend": ["STEPFeatureExtractorEngine", "DXFGeometryParserEngine", "TribalKnowledgeEngine", "QuoteAnalyticsEngine"],
-      "safe_to_create": ["KnowledgeLineageEngine", "JMDieProgramInventoryEngine", "ProvenSpeedFeedAggregatorEngine", "InventorFileScannerEngine", "ExcelShopDataScannerEngine", "CostTrackingExtractorEngine"]
+      "extend": [
+        "STEPFeatureExtractorEngine",
+        "DXFGeometryParserEngine",
+        "TribalKnowledgeEngine",
+        "QuoteAnalyticsEngine"
+      ],
+      "safe_to_create": [
+        "KnowledgeLineageEngine",
+        "JMDieProgramInventoryEngine",
+        "ProvenSpeedFeedAggregatorEngine",
+        "InventorFileScannerEngine",
+        "ExcelShopDataScannerEngine",
+        "CostTrackingExtractorEngine"
+      ]
     },
     "forge_triple": "All clear — renamed video_knowledge to video_tips_query to avoid near-collision",
     "jm_die_gaps": {
@@ -452,7 +665,13 @@
     "structure_audit": "99/100 — unit naming, SMART CONFIG, exit gates all compliant",
     "dependency_analysis": "Critical path 4 milestones, 4 parallelizable after MS0, 17→9 sessions optimized",
     "coverage_gaps": "CRITICAL: 25,817 JM Die files (.MIN + .mcx) had NO wiring target — fixed by KAR-MS2.1",
-    "future_tracks": ["ML-LEARN (24u)", "SCHED-OPT (20u)", "CAM-STRAT (16u)", "TOOL-LIFE (16u)", "QUOTE-ML (20u)"],
+    "future_tracks": [
+      "ML-LEARN (24u)",
+      "SCHED-OPT (20u)",
+      "CAM-STRAT (16u)",
+      "TOOL-LIFE (16u)",
+      "QUOTE-ML (20u)"
+    ],
     "authority_physics": "75/100 authority, 85/100 physics — fixed canonical ranking, need AuthorityLevel enum"
   },
   "agent_analysis": {
@@ -468,7 +687,9 @@
       "title": "Universal KnowledgeAtom Model + WiringManifest Schema",
       "description": "Define unified data model for all knowledge types and declarative wiring configuration",
       "track": "KAR",
-      "dependencies": ["PDF-EXT-MS2"],
+      "dependencies": [
+        "PDF-EXT-MS2"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -480,10 +701,22 @@
         "context_budget": "60%"
       },
       "knowledge_sources": {
-        "engines": ["KnowledgeIngestionOrchestratorEngine", "FormulaRegistry", "MaterialRegistry", "ToolCatalogEngine"],
-        "tribal": ["TribalKnowledgeEngine domains", "authority ranking patterns"],
-        "formulas": ["N/A - infrastructure milestone"],
-        "reference": ["CATEGORY_WIRING in KnowledgeIngestionOrchestratorEngine.ts"]
+        "engines": [
+          "KnowledgeIngestionOrchestratorEngine",
+          "FormulaRegistry",
+          "MaterialRegistry",
+          "ToolCatalogEngine"
+        ],
+        "tribal": [
+          "TribalKnowledgeEngine domains",
+          "authority ranking patterns"
+        ],
+        "formulas": [
+          "N/A - infrastructure milestone"
+        ],
+        "reference": [
+          "CATEGORY_WIRING in KnowledgeIngestionOrchestratorEngine.ts"
+        ]
       },
       "intent": "Machinists get consistent knowledge regardless of source (handbook, catalog, course)",
       "units": [
@@ -492,11 +725,20 @@
           "title": "Define KnowledgeAtom interface with source provenance",
           "description": "Create unified interface: { id, type, source: { path, category, confidence, authority }, payload, targets[], extractedAt }",
           "build": "Create src/types/KnowledgeAtom.ts with full Zod validation",
-          "exit_criteria": ["TypeScript compiles", "Zod schema validates 10 test payloads", "Covers all 6 data types"],
+          "exit_criteria": [
+            "TypeScript compiles",
+            "Zod schema validates 10 test payloads",
+            "Covers all 6 data types"
+          ],
           "rollback": {
-            "files_created": ["src/types/KnowledgeAtom.ts"],
+            "files_created": [
+              "src/types/KnowledgeAtom.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["Type conflicts with existing interfaces", ">50% test failures"],
+            "abort_criteria": [
+              "Type conflicts with existing interfaces",
+              ">50% test failures"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/types/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -506,11 +748,23 @@
           "title": "Define WiringManifest schema",
           "description": "Create declarative mapping: source category → extracted types → target engines with priority",
           "build": "Create src/schemas/WiringManifest.ts, migrate CATEGORY_WIRING to JSON-driven",
-          "exit_criteria": ["Schema validates current 6 categories", "Supports custom transforms", "Priority levels 1-3"],
+          "exit_criteria": [
+            "Schema validates current 6 categories",
+            "Supports custom transforms",
+            "Priority levels 1-3"
+          ],
           "rollback": {
-            "files_created": ["src/schemas/WiringManifest.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts"],
-            "abort_criteria": ["Breaks existing wiring", "Schema too rigid for future sources"],
+            "files_created": [
+              "src/schemas/WiringManifest.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "Breaks existing wiring",
+              "Schema too rigid for future sources"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/schemas/ data/wiring/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -520,11 +774,23 @@
           "title": "Implement KnowledgeLineageEngine",
           "description": "Track provenance: which source provided which value, conflict resolution, version history",
           "build": "Create src/engines/KnowledgeLineageEngine.ts with lineage graph persistence",
-          "exit_criteria": ["Can trace any value to source", "Conflict resolution follows authority ranking", "Lineage graph persisted to JSON"],
+          "exit_criteria": [
+            "Can trace any value to source",
+            "Conflict resolution follows authority ranking",
+            "Lineage graph persisted to JSON"
+          ],
           "rollback": {
-            "files_created": ["src/engines/KnowledgeLineageEngine.ts", "data/state/knowledge-lineage.json"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Performance regression >100ms", "Circular lineage detected"],
+            "files_created": [
+              "src/engines/KnowledgeLineageEngine.ts",
+              "data/state/knowledge-lineage.json"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Performance regression >100ms",
+              "Circular lineage detected"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeLineageEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -534,11 +800,21 @@
           "title": "Write tests for KnowledgeAtom + WiringManifest + Lineage",
           "description": "15+ tests covering schema validation, wiring resolution, lineage tracking",
           "build": "Create src/__tests__/knowledge-atom-wiring.test.ts with real data",
-          "exit_criteria": ["15+ tests pass", "95% coverage on new modules", "Golden test data for 5 source types"],
+          "exit_criteria": [
+            "15+ tests pass",
+            "95% coverage on new modules",
+            "Golden test data for 5 source types"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/knowledge-atom-wiring.test.ts", "src/__tests__/fixtures/golden-knowledge-atoms.json"],
+            "files_created": [
+              "src/__tests__/knowledge-atom-wiring.test.ts",
+              "src/__tests__/fixtures/golden-knowledge-atoms.json"
+            ],
             "files_modified": [],
-            "abort_criteria": ["<80% coverage", "Tests use mocks instead of real data"],
+            "abort_criteria": [
+              "<80% coverage",
+              "Tests use mocks instead of real data"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -550,7 +826,11 @@
         "skill": "/lineage → show knowledge origin"
       },
       "exit_gate": {
-        "criteria": ["All 4 units complete", "Tests pass", "Schemas documented"],
+        "criteria": [
+          "All 4 units complete",
+          "Tests pass",
+          "Schemas documented"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.5%"
       }
@@ -560,7 +840,9 @@
       "title": "Auto-Ingestion Hooks + File Watcher",
       "description": "Automatic knowledge discovery and extraction via hooks",
       "track": "KAR",
-      "dependencies": ["KAR-MS0"],
+      "dependencies": [
+        "KAR-MS0"
+      ],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
@@ -572,10 +854,21 @@
         "context_budget": "50%"
       },
       "knowledge_sources": {
-        "engines": ["HookExecutor", "LifecycleHooks", "CadenceDefinitions"],
-        "tribal": ["Session lifecycle patterns", "File watcher best practices"],
-        "formulas": ["N/A - infrastructure"],
-        "reference": ["src/hooks/*.ts patterns"]
+        "engines": [
+          "HookExecutor",
+          "LifecycleHooks",
+          "CadenceDefinitions"
+        ],
+        "tribal": [
+          "Session lifecycle patterns",
+          "File watcher best practices"
+        ],
+        "formulas": [
+          "N/A - infrastructure"
+        ],
+        "reference": [
+          "src/hooks/*.ts patterns"
+        ]
       },
       "intent": "New resources automatically discovered and queued for extraction without manual intervention",
       "units": [
@@ -584,11 +877,20 @@
           "title": "Session-start resource scan hook",
           "description": "On session start, scan resources folder, queue new/modified for extraction",
           "build": "Add on-session-start-resource-scan to LifecycleHooks.ts",
-          "exit_criteria": ["Hook fires on session start", "Logs pending count", "Queues to KnowledgeIngestionOrchestrator"],
+          "exit_criteria": [
+            "Hook fires on session start",
+            "Logs pending count",
+            "Queues to KnowledgeIngestionOrchestrator"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/hooks/LifecycleHooks.ts"],
-            "abort_criteria": ["Hook slows session start >2s", "False positives queue non-resources"],
+            "files_modified": [
+              "src/hooks/LifecycleHooks.ts"
+            ],
+            "abort_criteria": [
+              "Hook slows session start >2s",
+              "False positives queue non-resources"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/hooks/LifecycleHooks.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -598,11 +900,23 @@
           "title": "File watcher hook with chokidar",
           "description": "Real-time detection of new PDFs/programs in resources folder",
           "build": "Create src/hooks/ResourceWatcherHook.ts with chokidar integration",
-          "exit_criteria": ["Detects new .pdf/.min/.json files", "Classifies category", "Queues within 5s"],
+          "exit_criteria": [
+            "Detects new .pdf/.min/.json files",
+            "Classifies category",
+            "Queues within 5s"
+          ],
           "rollback": {
-            "files_created": ["src/hooks/ResourceWatcherHook.ts"],
-            "files_modified": ["src/hooks/index.ts", "package.json"],
-            "abort_criteria": ["Memory leak from watcher", "CPU spike >20%"],
+            "files_created": [
+              "src/hooks/ResourceWatcherHook.ts"
+            ],
+            "files_modified": [
+              "src/hooks/index.ts",
+              "package.json"
+            ],
+            "abort_criteria": [
+              "Memory leak from watcher",
+              "CPU spike >20%"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/hooks/ResourceWatcherHook.ts && npm uninstall chokidar"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -612,11 +926,22 @@
           "title": "Post-extraction auto-wire hook",
           "description": "After extraction completes, auto-route data to target engines via WiringManifest",
           "build": "Create on-extraction-complete-wire hook in KnowledgeHooks.ts",
-          "exit_criteria": ["Routes to correct engines per manifest", "Logs wiring audit trail", "Handles conflicts"],
+          "exit_criteria": [
+            "Routes to correct engines per manifest",
+            "Logs wiring audit trail",
+            "Handles conflicts"
+          ],
           "rollback": {
-            "files_created": ["src/hooks/KnowledgeHooks.ts"],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts"],
-            "abort_criteria": ["Wiring to wrong engine", "Data corruption"],
+            "files_created": [
+              "src/hooks/KnowledgeHooks.ts"
+            ],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "Wiring to wrong engine",
+              "Data corruption"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/hooks/KnowledgeHooks.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -626,11 +951,20 @@
           "title": "Cadence hook for periodic re-index",
           "description": "Daily scan for modified resources, gap detection, coverage report",
           "build": "Add knowledge-reindex to CadenceDefinitions.ts",
-          "exit_criteria": ["Runs every 24h", "Detects modified files", "Generates coverage report"],
+          "exit_criteria": [
+            "Runs every 24h",
+            "Detects modified files",
+            "Generates coverage report"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/hooks/CadenceDefinitions.ts"],
-            "abort_criteria": ["Cadence conflicts", "Re-index takes >5min"],
+            "files_modified": [
+              "src/hooks/CadenceDefinitions.ts"
+            ],
+            "abort_criteria": [
+              "Cadence conflicts",
+              "Re-index takes >5min"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/hooks/CadenceDefinitions.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -640,11 +974,20 @@
           "title": "Validation hook for extraction quality",
           "description": "Block wiring if confidence <0.7, validate formula syntax, check required fields",
           "build": "Create on-extraction-validate-quality hook",
-          "exit_criteria": ["Blocks low-confidence data", "Validates formulas parseable", "Logs rejections"],
+          "exit_criteria": [
+            "Blocks low-confidence data",
+            "Validates formulas parseable",
+            "Logs rejections"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/hooks/KnowledgeHooks.ts"],
-            "abort_criteria": ["Blocks valid data", "Too strict >30% rejection"],
+            "files_modified": [
+              "src/hooks/KnowledgeHooks.ts"
+            ],
+            "abort_criteria": [
+              "Blocks valid data",
+              "Too strict >30% rejection"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/hooks/KnowledgeHooks.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -656,7 +999,11 @@
         "skill": "/ingest-status → show ingestion pipeline status"
       },
       "exit_gate": {
-        "criteria": ["All 5 hooks functional", "Integration test passes", "No performance regression"],
+        "criteria": [
+          "All 5 hooks functional",
+          "Integration test passes",
+          "No performance regression"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.3%"
       }
@@ -666,7 +1013,9 @@
       "title": "CNC Program Extraction Engine (JM Die 20K Programs)",
       "description": "Parse .MIN and .nc files from JM Die to extract proven speed/feed parameters",
       "track": "KAR",
-      "dependencies": ["KAR-MS0"],
+      "dependencies": [
+        "KAR-MS0"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -679,10 +1028,24 @@
         "context_budget": "70%"
       },
       "knowledge_sources": {
-        "engines": ["LatheDialectParser", "MillPatternMiner", "ProvenPipelineEngine"],
-        "tribal": ["G-code parsing patterns", "Okuma dialect quirks", "JM Die controller map"],
-        "formulas": ["MRR = Vc * ap * f", "Cycle time estimation"],
-        "reference": ["H:/prism/JM DIE/ program archive", "jm-die-profile.ts"]
+        "engines": [
+          "LatheDialectParser",
+          "MillPatternMiner",
+          "ProvenPipelineEngine"
+        ],
+        "tribal": [
+          "G-code parsing patterns",
+          "Okuma dialect quirks",
+          "JM Die controller map"
+        ],
+        "formulas": [
+          "MRR = Vc * ap * f",
+          "Cycle time estimation"
+        ],
+        "reference": [
+          "H:/prism/JM DIE/ program archive",
+          "jm-die-profile.ts"
+        ]
       },
       "intent": "JM Die's 20+ years of proven programs become searchable speed/feed recommendations",
       "units": [
@@ -691,11 +1054,23 @@
           "title": "JM Die program inventory scan",
           "description": "Index all 20,157 programs: .MIN (lathe), .nc (mill), count by controller/machine",
           "build": "Create src/engines/JMDieProgramInventoryEngine.ts",
-          "exit_criteria": ["Inventory matches 20,157 count", "Indexed by machine/controller", "Stats persisted"],
+          "exit_criteria": [
+            "Inventory matches 20,157 count",
+            "Indexed by machine/controller",
+            "Stats persisted"
+          ],
           "rollback": {
-            "files_created": ["src/engines/JMDieProgramInventoryEngine.ts", "data/jm-die/program-inventory.json"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Count mismatch >1%", "Missing program types"],
+            "files_created": [
+              "src/engines/JMDieProgramInventoryEngine.ts",
+              "data/jm-die/program-inventory.json"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Count mismatch >1%",
+              "Missing program types"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/JMDieProgramInventoryEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -705,11 +1080,20 @@
           "title": "Okuma OSP .MIN parser enhancement",
           "description": "Extract S (spindle), F (feed), T (tool), G71/G72 cycles from Okuma lathe programs",
           "build": "Enhance OkumaOSPParserEngine (574 LOC, already parses NAT labels, 6-digit tools, G85/G87 cycles)",
-          "exit_criteria": ["Parses 90% of JM Die .MIN files", "Extracts S/F per operation", "Handles G71/G72 cycles"],
+          "exit_criteria": [
+            "Parses 90% of JM Die .MIN files",
+            "Extracts S/F per operation",
+            "Handles G71/G72 cycles"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/OkumaOSPParserEngine.ts"],
-            "abort_criteria": ["Parse errors >10%", "Breaks existing tests"],
+            "files_modified": [
+              "src/engines/OkumaOSPParserEngine.ts"
+            ],
+            "abort_criteria": [
+              "Parse errors >10%",
+              "Breaks existing tests"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/OkumaOSPParserEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
@@ -720,11 +1104,20 @@
           "title": "Mill program pattern miner for JM Die",
           "description": "Extract from Mastercam-generated programs: toolpaths, HSM patterns, cycle times",
           "build": "Enhance MillPatternMiner with JM Die-specific patterns",
-          "exit_criteria": ["Parses Hurco/Okuma mill programs", "Extracts HSM engagement patterns", "Links to Mastercam .mcx"],
+          "exit_criteria": [
+            "Parses Hurco/Okuma mill programs",
+            "Extracts HSM engagement patterns",
+            "Links to Mastercam .mcx"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/MillPatternMinerEngine.ts"],
-            "abort_criteria": ["False pattern detection >15%", "Memory issues on large files"],
+            "files_modified": [
+              "src/engines/MillPatternMinerEngine.ts"
+            ],
+            "abort_criteria": [
+              "False pattern detection >15%",
+              "Memory issues on large files"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/MillPatternMinerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -734,11 +1127,22 @@
           "title": "Proven speed/feed aggregator",
           "description": "Aggregate extracted S/F data by material/operation/tool into proven recommendations",
           "build": "Create ProvenSpeedFeedAggregator with statistical analysis",
-          "exit_criteria": ["Aggregates by material group", "Calculates mean/stddev/confidence", "Flags outliers"],
+          "exit_criteria": [
+            "Aggregates by material group",
+            "Calculates mean/stddev/confidence",
+            "Flags outliers"
+          ],
           "rollback": {
-            "files_created": ["src/engines/ProvenSpeedFeedAggregatorEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Statistical errors", "Outliers pollute recommendations"],
+            "files_created": [
+              "src/engines/ProvenSpeedFeedAggregatorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Statistical errors",
+              "Outliers pollute recommendations"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ProvenSpeedFeedAggregatorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -748,11 +1152,20 @@
           "title": "Wire to SpeedFeedOrchestrator",
           "description": "Connect proven parameters as PRISM data source with 'proven' authority level",
           "build": "Add 'proven_program' source to SpeedFeedOrchestratorEngine",
-          "exit_criteria": ["SpeedFeed queries include proven data", "Authority: proven > calculated", "Lineage tracked"],
+          "exit_criteria": [
+            "SpeedFeed queries include proven data",
+            "Authority: proven > calculated",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/SpeedFeedOrchestratorEngine.ts"],
-            "abort_criteria": ["Breaks existing speed/feed", "Authority conflicts"],
+            "files_modified": [
+              "src/engines/SpeedFeedOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "Breaks existing speed/feed",
+              "Authority conflicts"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/SpeedFeedOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -762,11 +1175,20 @@
           "title": "CNC extraction tests with real JM Die programs",
           "description": "20+ tests validating extraction against actual .MIN/.nc files",
           "build": "Create src/__tests__/jm-die-program-extraction.test.ts",
-          "exit_criteria": ["20+ tests pass", "Uses real JM Die files", "Validates S/F extraction accuracy"],
+          "exit_criteria": [
+            "20+ tests pass",
+            "Uses real JM Die files",
+            "Validates S/F extraction accuracy"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/jm-die-program-extraction.test.ts"],
+            "files_created": [
+              "src/__tests__/jm-die-program-extraction.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["Tests use mocks", "<15 tests"],
+            "abort_criteria": [
+              "Tests use mocks",
+              "<15 tests"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -778,8 +1200,12 @@
         "skill": "/proven → show proven speed/feed for material+operation"
       },
       "exit_gate": {
-        "criteria": ["5,000+ programs parsed", "Proven DB populated", "SpeedFeed queries work"],
-        "omega_floor": 0.90,
+        "criteria": [
+          "5,000+ programs parsed",
+          "Proven DB populated",
+          "SpeedFeed queries work"
+        ],
+        "omega_floor": 0.9,
         "svi_delta": "+1.0%"
       }
     },
@@ -788,7 +1214,9 @@
       "title": "JM Die Program Category Wiring (CRITICAL GAP FIX)",
       "description": "Wire jm_die_program category to CATEGORY_WIRING — 25,817 files (.MIN + .mcx) currently extracted but NOT consumed",
       "track": "KAR",
-      "dependencies": ["KAR-MS2"],
+      "dependencies": [
+        "KAR-MS2"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -800,10 +1228,24 @@
         "context_budget": "60%"
       },
       "knowledge_sources": {
-        "engines": ["KnowledgeIngestionOrchestratorEngine", "OkumaDialectKnowledgeEngine", "MillPatternMinerEngine", "SpeedFeedOrchestratorEngine"],
-        "tribal": ["JM Die controller map (7 Okuma, 5 Hurco/Haas)", "Mastercam .mcx patterns"],
-        "formulas": ["MRR validation", "Physics-bounded S/F limits"],
-        "reference": ["ResourceCategory.jm_die_program", "FolderScannerEngine output"]
+        "engines": [
+          "KnowledgeIngestionOrchestratorEngine",
+          "OkumaDialectKnowledgeEngine",
+          "MillPatternMinerEngine",
+          "SpeedFeedOrchestratorEngine"
+        ],
+        "tribal": [
+          "JM Die controller map (7 Okuma, 5 Hurco/Haas)",
+          "Mastercam .mcx patterns"
+        ],
+        "formulas": [
+          "MRR validation",
+          "Physics-bounded S/F limits"
+        ],
+        "reference": [
+          "ResourceCategory.jm_die_program",
+          "FolderScannerEngine output"
+        ]
       },
       "intent": "Every JM Die program contributes to PRISM's proven speed/feed intelligence",
       "units": [
@@ -812,11 +1254,20 @@
           "title": "Add jm_die_program to CATEGORY_WIRING",
           "description": "Define wiring targets for jm_die_program category with priority order",
           "build": "Add CATEGORY_WIRING['jm_die_program'] = { targets: ['SpeedFeedOrchestratorEngine', 'OkumaDialectKnowledgeEngine', 'MillPatternMinerEngine'], priority: 1 }",
-          "exit_criteria": ["jm_die_program in CATEGORY_WIRING", "3+ target engines defined", "Priority 1 (proven data)"],
+          "exit_criteria": [
+            "jm_die_program in CATEGORY_WIRING",
+            "3+ target engines defined",
+            "Priority 1 (proven data)"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts"],
-            "abort_criteria": ["Wrong target engines", "Breaks existing wiring"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "Wrong target engines",
+              "Breaks existing wiring"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeIngestionOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -826,11 +1277,20 @@
           "title": "Wire .MIN (lathe) patterns to OkumaDialectKnowledgeEngine",
           "description": "Connect 16,947 .MIN file extractions to Okuma-specific knowledge base",
           "build": "Add lathe pattern wiring with G71/G72 cycle recognition, tool change patterns",
-          "exit_criteria": ["Okuma cycles stored", "Per-material S/F captured", "Lineage tracked"],
+          "exit_criteria": [
+            "Okuma cycles stored",
+            "Per-material S/F captured",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/OkumaDialectKnowledgeEngine.ts"],
-            "abort_criteria": ["Duplicate entries", "Wrong cycle interpretation"],
+            "files_modified": [
+              "src/engines/OkumaDialectKnowledgeEngine.ts"
+            ],
+            "abort_criteria": [
+              "Duplicate entries",
+              "Wrong cycle interpretation"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/OkumaDialectKnowledgeEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -840,11 +1300,20 @@
           "title": "Wire .mcx (mill) patterns to MillPatternMinerEngine",
           "description": "Connect 8,870 Mastercam .mcx extractions to mill pattern database",
           "build": "Add mill pattern wiring with HSM detection, toolpath strategy extraction",
-          "exit_criteria": ["Toolpath strategies captured", "Engagement patterns stored", "Machine-specific"],
+          "exit_criteria": [
+            "Toolpath strategies captured",
+            "Engagement patterns stored",
+            "Machine-specific"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/MillPatternMinerEngine.ts"],
-            "abort_criteria": ["Wrong strategy mapping", "Missing toolpath types"],
+            "files_modified": [
+              "src/engines/MillPatternMinerEngine.ts"
+            ],
+            "abort_criteria": [
+              "Wrong strategy mapping",
+              "Missing toolpath types"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/MillPatternMinerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -854,11 +1323,20 @@
           "title": "Integration test: jm_die_program → consumers",
           "description": "E2E test validating full pipeline from .MIN/.mcx extraction to SpeedFeed queries",
           "build": "Create src/__tests__/jm-die-program-wiring.test.ts with real file samples",
-          "exit_criteria": ["E2E test passes", "Uses real JM Die files", "Validates S/F recommendations include proven data"],
+          "exit_criteria": [
+            "E2E test passes",
+            "Uses real JM Die files",
+            "Validates S/F recommendations include proven data"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/jm-die-program-wiring.test.ts"],
+            "files_created": [
+              "src/__tests__/jm-die-program-wiring.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["Test uses mocks", "Flaky assertions"],
+            "abort_criteria": [
+              "Test uses mocks",
+              "Flaky assertions"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -870,7 +1348,11 @@
         "skill": "/jm-die-wiring → show JM Die program utilization stats"
       },
       "exit_gate": {
-        "criteria": ["25,817 programs wireable", "3 consumers receive data", "SpeedFeed returns proven recommendations"],
+        "criteria": [
+          "25,817 programs wireable",
+          "3 consumers receive data",
+          "SpeedFeed returns proven recommendations"
+        ],
         "omega_floor": 0.95,
         "svi_delta": "+1.5%"
       }
@@ -880,7 +1362,10 @@
       "title": "Real Engine Wiring + Registry Updates",
       "description": "Replace placeholder wiring with actual engine calls that update registries",
       "track": "KAR",
-      "dependencies": ["KAR-MS0", "KAR-MS1"],
+      "dependencies": [
+        "KAR-MS0",
+        "KAR-MS1"
+      ],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
@@ -892,10 +1377,22 @@
         "context_budget": "60%"
       },
       "knowledge_sources": {
-        "engines": ["FormulaRegistry", "MaterialRegistry", "ToolCatalogEngine", "KnowledgeGraphEngine"],
-        "tribal": ["Registry update patterns", "Merge conflict resolution"],
-        "formulas": ["Authority ranking: User > Proven > MachineIntel > OEM > Registry > Physics > Tribal"],
-        "reference": ["Existing registry APIs"]
+        "engines": [
+          "FormulaRegistry",
+          "MaterialRegistry",
+          "ToolCatalogEngine",
+          "KnowledgeGraphEngine"
+        ],
+        "tribal": [
+          "Registry update patterns",
+          "Merge conflict resolution"
+        ],
+        "formulas": [
+          "Authority ranking: User > Proven > MachineIntel > OEM > Registry > Physics > Tribal"
+        ],
+        "reference": [
+          "Existing registry APIs"
+        ]
       },
       "intent": "Extracted knowledge immediately available in all PRISM calculations",
       "units": [
@@ -904,11 +1401,21 @@
           "title": "FormulaRegistry.register() integration",
           "description": "Wire handbook/MIT formula extractions to FormulaRegistry with validation",
           "build": "Implement real wiring in KnowledgeIngestionOrchestratorEngine.wireToEngines()",
-          "exit_criteria": ["Formulas appear in FormulaRegistry", "Validation prevents invalid formulas", "Lineage tracked"],
+          "exit_criteria": [
+            "Formulas appear in FormulaRegistry",
+            "Validation prevents invalid formulas",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "src/registries/FormulaRegistry.ts"],
-            "abort_criteria": ["Registry corruption", "Duplicate formulas"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "src/registries/FormulaRegistry.ts"
+            ],
+            "abort_criteria": [
+              "Registry corruption",
+              "Duplicate formulas"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeIngestionOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -918,11 +1425,21 @@
           "title": "MaterialRegistry.upsert() integration",
           "description": "Wire material property extractions to MaterialRegistry with merge strategy",
           "build": "Implement material wiring with authority-based merge",
-          "exit_criteria": ["Materials updated with extracted properties", "Authority ranking respected", "Version tracked"],
+          "exit_criteria": [
+            "Materials updated with extracted properties",
+            "Authority ranking respected",
+            "Version tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "src/registries/MaterialRegistry.ts"],
-            "abort_criteria": ["Material data corruption", "Wrong authority wins"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "src/registries/MaterialRegistry.ts"
+            ],
+            "abort_criteria": [
+              "Material data corruption",
+              "Wrong authority wins"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/registries/MaterialRegistry.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -932,11 +1449,21 @@
           "title": "ToolCatalog integration for extracted tools",
           "description": "Wire catalog tool extractions to ToolCatalogEngine with dedup",
           "build": "Implement tool wiring with manufacturer deduplication",
-          "exit_criteria": ["Tools added to catalog", "No duplicates", "Manufacturer attribution preserved"],
+          "exit_criteria": [
+            "Tools added to catalog",
+            "No duplicates",
+            "Manufacturer attribution preserved"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "src/engines/ToolCatalogEngine.ts"],
-            "abort_criteria": ["Duplicate tools", "Wrong manufacturer"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "src/engines/ToolCatalogEngine.ts"
+            ],
+            "abort_criteria": [
+              "Duplicate tools",
+              "Wrong manufacturer"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ToolCatalogEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -946,11 +1473,21 @@
           "title": "KnowledgeGraph node creation",
           "description": "Wire all extractions to KnowledgeGraphEngine for relationship tracking",
           "build": "Add KnowledgeGraph nodes for formulas, tools, materials, algorithms",
-          "exit_criteria": ["Nodes created with relationships", "Queryable via graph API", "Cross-references work"],
+          "exit_criteria": [
+            "Nodes created with relationships",
+            "Queryable via graph API",
+            "Cross-references work"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "src/engines/KnowledgeGraphEngine.ts"],
-            "abort_criteria": ["Graph corruption", "Missing relationships"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "src/engines/KnowledgeGraphEngine.ts"
+            ],
+            "abort_criteria": [
+              "Graph corruption",
+              "Missing relationships"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeGraphEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -960,11 +1497,20 @@
           "title": "End-to-end wiring integration test",
           "description": "Test full pipeline: PDF → extract → wire → query",
           "build": "Create src/__tests__/knowledge-wiring-e2e.test.ts",
-          "exit_criteria": ["E2E test passes", "Covers all 4 registry types", "Uses real data"],
+          "exit_criteria": [
+            "E2E test passes",
+            "Covers all 4 registry types",
+            "Uses real data"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/knowledge-wiring-e2e.test.ts"],
+            "files_created": [
+              "src/__tests__/knowledge-wiring-e2e.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["Test incomplete", "Uses mocks instead of real registries"],
+            "abort_criteria": [
+              "Test incomplete",
+              "Uses mocks instead of real registries"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -976,8 +1522,12 @@
         "skill": "/wire-check → verify knowledge wiring integrity"
       },
       "exit_gate": {
-        "criteria": ["All 4 registry types receive data", "E2E test passes", "No data corruption"],
-        "omega_floor": 0.90,
+        "criteria": [
+          "All 4 registry types receive data",
+          "E2E test passes",
+          "No data corruption"
+        ],
+        "omega_floor": 0.9,
         "svi_delta": "+0.5%"
       }
     },
@@ -986,7 +1536,10 @@
       "title": "Business Data Learning (Cost/Quote/Job Actuals)",
       "description": "Learn from historical quotes, job costs, and actual vs estimated deltas",
       "track": "KAR",
-      "dependencies": ["KAR-MS3", "INGEST-MS5"],
+      "dependencies": [
+        "KAR-MS3",
+        "INGEST-MS5"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -998,10 +1551,23 @@
         "context_budget": "50%"
       },
       "knowledge_sources": {
-        "engines": ["BusinessDocumentExtractorEngine", "QuoteEstimator", "ActualCostEngine", "JobLifecycleEngine"],
-        "tribal": ["JM Die pricing patterns", "Setup time estimates"],
-        "formulas": ["Quote accuracy = actual / estimated"],
-        "reference": ["Historical quotes", "Job completion data"]
+        "engines": [
+          "BusinessDocumentExtractorEngine",
+          "QuoteEstimator",
+          "ActualCostEngine",
+          "JobLifecycleEngine"
+        ],
+        "tribal": [
+          "JM Die pricing patterns",
+          "Setup time estimates"
+        ],
+        "formulas": [
+          "Quote accuracy = actual / estimated"
+        ],
+        "reference": [
+          "Historical quotes",
+          "Job completion data"
+        ]
       },
       "intent": "PRISM quotes become more accurate over time by learning from actuals",
       "units": [
@@ -1010,11 +1576,21 @@
           "title": "Quote vs Actual delta capture",
           "description": "When jobs complete, capture estimated vs actual time/cost delta",
           "build": "Add post-job-complete hook to capture deltas",
-          "exit_criteria": ["Deltas captured for completed jobs", "Stored with job ID", "Queryable by operation type"],
+          "exit_criteria": [
+            "Deltas captured for completed jobs",
+            "Stored with job ID",
+            "Queryable by operation type"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/hooks/JobHooks.ts", "src/engines/JobLifecycleEngine.ts"],
-            "abort_criteria": ["Missing deltas", "Wrong calculations"],
+            "files_modified": [
+              "src/hooks/JobHooks.ts",
+              "src/engines/JobLifecycleEngine.ts"
+            ],
+            "abort_criteria": [
+              "Missing deltas",
+              "Wrong calculations"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/hooks/JobHooks.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1024,11 +1600,22 @@
           "title": "Quote calibration engine",
           "description": "Analyze historical deltas to calibrate future quote estimates",
           "build": "Create QuoteCalibrationEngine with statistical calibration",
-          "exit_criteria": ["Calculates calibration factors by operation", "Applies to new quotes", "Improves accuracy >10%"],
+          "exit_criteria": [
+            "Calculates calibration factors by operation",
+            "Applies to new quotes",
+            "Improves accuracy >10%"
+          ],
           "rollback": {
-            "files_created": ["src/engines/QuoteCalibrationEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Calibration makes quotes worse", "Statistical errors"],
+            "files_created": [
+              "src/engines/QuoteCalibrationEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Calibration makes quotes worse",
+              "Statistical errors"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/QuoteCalibrationEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1038,11 +1625,21 @@
           "title": "Cost learning feedback loop",
           "description": "Feed actual costs back to improve material/time estimates",
           "build": "Wire ActualCostEngine to QuoteEstimator learning",
-          "exit_criteria": ["Actual costs influence future estimates", "Learning persisted", "Lineage tracked"],
+          "exit_criteria": [
+            "Actual costs influence future estimates",
+            "Learning persisted",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/ActualCostEngine.ts", "src/engines/QuoteEstimator.ts"],
-            "abort_criteria": ["Feedback loop causes instability", "Estimates diverge"],
+            "files_modified": [
+              "src/engines/ActualCostEngine.ts",
+              "src/engines/QuoteEstimator.ts"
+            ],
+            "abort_criteria": [
+              "Feedback loop causes instability",
+              "Estimates diverge"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/QuoteEstimator.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1052,11 +1649,20 @@
           "title": "Business learning tests + metrics",
           "description": "Tests and metrics dashboard for quote accuracy improvement",
           "build": "Create tests and metrics tracking",
-          "exit_criteria": ["Tests validate calibration", "Metrics show accuracy trend", "Dashboard displays improvement"],
+          "exit_criteria": [
+            "Tests validate calibration",
+            "Metrics show accuracy trend",
+            "Dashboard displays improvement"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/quote-calibration.test.ts"],
+            "files_created": [
+              "src/__tests__/quote-calibration.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["Tests incomplete", "Metrics not trackable"],
+            "abort_criteria": [
+              "Tests incomplete",
+              "Metrics not trackable"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1068,7 +1674,11 @@
         "skill": "/quote-health → show quote accuracy trends"
       },
       "exit_gate": {
-        "criteria": ["Quote accuracy improves", "Feedback loop functional", "Metrics dashboard live"],
+        "criteria": [
+          "Quote accuracy improves",
+          "Feedback loop functional",
+          "Metrics dashboard live"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.3%"
       }
@@ -1078,7 +1688,9 @@
       "title": "CAD Geometry Extraction (Inventor/STEP/DXF)",
       "description": "Extract geometry features from 4,651+ JM Die CAD files for machining analysis",
       "track": "KAR",
-      "dependencies": ["KAR-MS0"],
+      "dependencies": [
+        "KAR-MS0"
+      ],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
@@ -1091,10 +1703,24 @@
         "context_budget": "70%"
       },
       "knowledge_sources": {
-        "engines": ["GeometryEngine", "FeatureRecognitionEngine", "STEPFeatureExtractorEngine"],
-        "tribal": ["Inventor file structure", "STEP AP203/AP214 patterns", "DXF layer conventions"],
-        "formulas": ["Geometric tolerance analysis", "Feature accessibility algorithms"],
-        "reference": ["H:/prism/JM DIE/ CAD files", "Open Cascade geometry API"]
+        "engines": [
+          "GeometryEngine",
+          "FeatureRecognitionEngine",
+          "STEPFeatureExtractorEngine"
+        ],
+        "tribal": [
+          "Inventor file structure",
+          "STEP AP203/AP214 patterns",
+          "DXF layer conventions"
+        ],
+        "formulas": [
+          "Geometric tolerance analysis",
+          "Feature accessibility algorithms"
+        ],
+        "reference": [
+          "H:/prism/JM DIE/ CAD files",
+          "Open Cascade geometry API"
+        ]
       },
       "intent": "Part geometry automatically analyzed for setup planning, tool access, and feature ordering",
       "units": [
@@ -1103,11 +1729,23 @@
           "title": "Inventor .ipt/.iam file scanner",
           "description": "Index all 4,651+ Inventor files in JM Die archive with metadata extraction",
           "build": "Create InventorFileScanner with file inventory and basic metadata",
-          "exit_criteria": ["Inventory matches file count", "Extracts part name, revision, material", "Handles assemblies"],
+          "exit_criteria": [
+            "Inventory matches file count",
+            "Extracts part name, revision, material",
+            "Handles assemblies"
+          ],
           "rollback": {
-            "files_created": ["src/engines/InventorFileScannerEngine.ts", "data/jm-die/inventor-inventory.json"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Missing file types", "Memory issues on large assemblies"],
+            "files_created": [
+              "src/engines/InventorFileScannerEngine.ts",
+              "data/jm-die/inventor-inventory.json"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Missing file types",
+              "Memory issues on large assemblies"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/InventorFileScannerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1117,11 +1755,23 @@
           "title": "STEP geometry extractor",
           "description": "Parse STEP files to extract B-rep geometry, faces, edges, features",
           "build": "Create STEPGeometryExtractorEngine using Open Cascade bindings",
-          "exit_criteria": ["Extracts solid bodies", "Identifies faces/edges", "Calculates bounding box"],
+          "exit_criteria": [
+            "Extracts solid bodies",
+            "Identifies faces/edges",
+            "Calculates bounding box"
+          ],
           "rollback": {
-            "files_created": ["src/engines/STEPGeometryExtractorEngine.ts"],
-            "files_modified": ["src/engines/index.ts", "package.json"],
-            "abort_criteria": ["Geometry corruption", "Unsupported STEP variants"],
+            "files_created": [
+              "src/engines/STEPGeometryExtractorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts",
+              "package.json"
+            ],
+            "abort_criteria": [
+              "Geometry corruption",
+              "Unsupported STEP variants"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/STEPGeometryExtractorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1131,11 +1781,22 @@
           "title": "DXF profile analyzer",
           "description": "Extract 2D profiles from DXF for wire EDM and lathe profile validation",
           "build": "Create DXFProfileAnalyzerEngine for 2D geometry extraction",
-          "exit_criteria": ["Parses DXF entities", "Extracts closed profiles", "Identifies holes/slots"],
+          "exit_criteria": [
+            "Parses DXF entities",
+            "Extracts closed profiles",
+            "Identifies holes/slots"
+          ],
           "rollback": {
-            "files_created": ["src/engines/DXFProfileAnalyzerEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Missing entity types", "Open profile detection fails"],
+            "files_created": [
+              "src/engines/DXFProfileAnalyzerEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Missing entity types",
+              "Open profile detection fails"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/DXFProfileAnalyzerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1145,11 +1806,20 @@
           "title": "Feature recognition for machining",
           "description": "Identify machining features: holes, pockets, bosses, profiles, grooves",
           "build": "EXTEND existing FeatureRecognitionEngine.ts with CAD geometry input adapter",
-          "exit_criteria": ["Recognizes 10+ feature types", "Calculates access direction", "Estimates machining time"],
+          "exit_criteria": [
+            "Recognizes 10+ feature types",
+            "Calculates access direction",
+            "Estimates machining time"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/FeatureRecognitionEngine.ts"],
-            "abort_criteria": ["False feature detection >20%", "Missing critical features"],
+            "files_modified": [
+              "src/engines/FeatureRecognitionEngine.ts"
+            ],
+            "abort_criteria": [
+              "False feature detection >20%",
+              "Missing critical features"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/FeatureRecognitionEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
@@ -1160,11 +1830,21 @@
           "title": "Wire CAD features to SetupSheetEngine + OperationSequencer",
           "description": "Connect extracted geometry features to setup planning and operation ordering",
           "build": "Wire feature data to SetupSheetEngine, OperationSequencerEngine via WiringManifest",
-          "exit_criteria": ["Features appear in setup sheets", "Operation order considers access", "Lineage tracked"],
+          "exit_criteria": [
+            "Features appear in setup sheets",
+            "Operation order considers access",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "abort_criteria": ["Wrong engine routing", "Missing feature data"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "abort_criteria": [
+              "Wrong engine routing",
+              "Missing feature data"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeIngestionOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1176,7 +1856,11 @@
         "skill": "/cad-analyze → analyze CAD file for machining features"
       },
       "exit_gate": {
-        "criteria": ["1,000+ CAD files processed", "Feature DB populated", "Setup planning uses features"],
+        "criteria": [
+          "1,000+ CAD files processed",
+          "Feature DB populated",
+          "Setup planning uses features"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.8%"
       }
@@ -1186,7 +1870,9 @@
       "title": "G-Code & Cycle Program Extraction (.cyc/.nc/.hnc)",
       "description": "Extract proven parameters from 3,026+ additional JM Die program files not covered by .MIN/.mcx",
       "track": "KAR",
-      "dependencies": ["KAR-MS2.1"],
+      "dependencies": [
+        "KAR-MS2.1"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -1199,10 +1885,23 @@
         "context_budget": "50%"
       },
       "knowledge_sources": {
-        "engines": ["GCodeParserEngine", "LatheDialectParser", "OkumaDialectKnowledgeEngine"],
-        "tribal": ["Okuma cycle program structure", "G-code dialect variations"],
-        "formulas": ["Cycle time from G-code", "MRR extraction"],
-        "reference": ["JM DIE .cyc files", "Raw .nc programs"]
+        "engines": [
+          "GCodeParserEngine",
+          "LatheDialectParser",
+          "OkumaDialectKnowledgeEngine"
+        ],
+        "tribal": [
+          "Okuma cycle program structure",
+          "G-code dialect variations"
+        ],
+        "formulas": [
+          "Cycle time from G-code",
+          "MRR extraction"
+        ],
+        "reference": [
+          "JM DIE .cyc files",
+          "Raw .nc programs"
+        ]
       },
       "intent": "All JM Die G-code programs contribute proven parameters regardless of file extension",
       "units": [
@@ -1211,11 +1910,20 @@
           "title": "Okuma .cyc cycle program parser",
           "description": "Parse 2,876 .cyc files — Okuma OSP cycle programs with embedded S/F/T data",
           "build": "Extend OkumaDialectKnowledgeEngine with .cyc file support",
-          "exit_criteria": ["Parses 90%+ of .cyc files", "Extracts canned cycle parameters", "Maps to operations"],
+          "exit_criteria": [
+            "Parses 90%+ of .cyc files",
+            "Extracts canned cycle parameters",
+            "Maps to operations"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/OkumaDialectKnowledgeEngine.ts"],
-            "abort_criteria": ["Parse errors >15%", "Missing cycle types"],
+            "files_modified": [
+              "src/engines/OkumaDialectKnowledgeEngine.ts"
+            ],
+            "abort_criteria": [
+              "Parse errors >15%",
+              "Missing cycle types"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/OkumaDialectKnowledgeEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1225,11 +1933,20 @@
           "title": "Raw .nc G-code parser",
           "description": "Parse 150 raw .nc files with generic G-code extraction",
           "build": "Use GCodeParserEngine to extract S/F/T from standard G-code",
-          "exit_criteria": ["Extracts modal groups", "Handles multiple dialects", "Links to machine"],
+          "exit_criteria": [
+            "Extracts modal groups",
+            "Handles multiple dialects",
+            "Links to machine"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/GCodeParserEngine.ts"],
-            "abort_criteria": ["Modal state tracking errors", "Wrong dialect detection"],
+            "files_modified": [
+              "src/engines/GCodeParserEngine.ts"
+            ],
+            "abort_criteria": [
+              "Modal state tracking errors",
+              "Wrong dialect detection"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/GCodeParserEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1239,11 +1956,20 @@
           "title": "Wire .cyc/.nc to ProvenSpeedFeedAggregator",
           "description": "Route extracted parameters to aggregator with source tracking",
           "build": "Add gcode_program category to CATEGORY_WIRING with ProvenSpeedFeedAggregator target",
-          "exit_criteria": ["Parameters flow to aggregator", "Source type distinguished", "Confidence weighted"],
+          "exit_criteria": [
+            "Parameters flow to aggregator",
+            "Source type distinguished",
+            "Confidence weighted"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts"],
-            "abort_criteria": ["Duplicate wiring", "Wrong aggregation"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "Duplicate wiring",
+              "Wrong aggregation"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeIngestionOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1253,11 +1979,20 @@
           "title": "G-code extraction tests with real .cyc/.nc files",
           "description": "15+ tests validating .cyc and .nc parsing against actual JM Die files",
           "build": "Create src/__tests__/gcode-cycle-extraction.test.ts",
-          "exit_criteria": ["15+ tests pass", "Uses real JM Die files", "Tests all cycle types"],
+          "exit_criteria": [
+            "15+ tests pass",
+            "Uses real JM Die files",
+            "Tests all cycle types"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/gcode-cycle-extraction.test.ts"],
+            "files_created": [
+              "src/__tests__/gcode-cycle-extraction.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["<10 tests", "Uses mocks"],
+            "abort_criteria": [
+              "<10 tests",
+              "Uses mocks"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1269,8 +2004,12 @@
         "skill": "/gcode-stats → show G-code program extraction statistics"
       },
       "exit_gate": {
-        "criteria": ["3,000+ programs parsed", "Parameters in aggregator", "SpeedFeed queries include G-code data"],
-        "omega_floor": 0.90,
+        "criteria": [
+          "3,000+ programs parsed",
+          "Parameters in aggregator",
+          "SpeedFeed queries include G-code data"
+        ],
+        "omega_floor": 0.9,
         "svi_delta": "+0.6%"
       }
     },
@@ -1279,7 +2018,10 @@
       "title": "Video Learning → Consumer Wiring",
       "description": "Wire VideoLearningEngine output to MachiningPlaybook, Troubleshooting, SetupSheet",
       "track": "KAR",
-      "dependencies": ["KAR-MS0", "KAR-MS1"],
+      "dependencies": [
+        "KAR-MS0",
+        "KAR-MS1"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -1291,10 +2033,23 @@
         "context_budget": "60%"
       },
       "knowledge_sources": {
-        "engines": ["VideoLearningEngine", "MachiningPlaybookEngine", "TroubleshootingEngine", "SetupSheetEngine"],
-        "tribal": ["Video transcript patterns", "Timestamp → knowledge mapping"],
-        "formulas": ["N/A - wiring infrastructure"],
-        "reference": ["resources/videos/", "VideoLearningEngine output schema"]
+        "engines": [
+          "VideoLearningEngine",
+          "MachiningPlaybookEngine",
+          "TroubleshootingEngine",
+          "SetupSheetEngine"
+        ],
+        "tribal": [
+          "Video transcript patterns",
+          "Timestamp → knowledge mapping"
+        ],
+        "formulas": [
+          "N/A - wiring infrastructure"
+        ],
+        "reference": [
+          "resources/videos/",
+          "VideoLearningEngine output schema"
+        ]
       },
       "intent": "Video tutorials automatically enhance playbooks, troubleshooting guides, and setup sheets",
       "units": [
@@ -1303,11 +2058,20 @@
           "title": "VideoLearningEngine output normalization",
           "description": "Normalize video transcripts to KnowledgeAtom format with timestamps",
           "build": "Add KnowledgeAtom output adapter to VideoLearningEngine",
-          "exit_criteria": ["Transcripts become KnowledgeAtoms", "Timestamps preserved", "Category assigned"],
+          "exit_criteria": [
+            "Transcripts become KnowledgeAtoms",
+            "Timestamps preserved",
+            "Category assigned"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/VideoLearningEngine.ts"],
-            "abort_criteria": ["Loses timestamp data", "Wrong category assignment"],
+            "files_modified": [
+              "src/engines/VideoLearningEngine.ts"
+            ],
+            "abort_criteria": [
+              "Loses timestamp data",
+              "Wrong category assignment"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/VideoLearningEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1317,11 +2081,21 @@
           "title": "Wire to MachiningPlaybookEngine",
           "description": "Route best-practice video clips to playbook rules with video reference",
           "build": "Add video wiring to WiringManifest for playbook category",
-          "exit_criteria": ["Video tips appear in playbook", "Linked to timestamp", "Searchable by operation"],
+          "exit_criteria": [
+            "Video tips appear in playbook",
+            "Linked to timestamp",
+            "Searchable by operation"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "abort_criteria": ["Wrong playbook section", "Missing video link"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "abort_criteria": [
+              "Wrong playbook section",
+              "Missing video link"
+            ],
             "rollback_procedure": "git checkout HEAD -- data/wiring/WIRING_MANIFEST.json"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1331,11 +2105,21 @@
           "title": "Wire to TroubleshootingEngine",
           "description": "Route problem-solution video segments to troubleshooting knowledge base",
           "build": "Add video wiring for troubleshooting category with symptom extraction",
-          "exit_criteria": ["Problem videos indexed", "Symptoms extracted", "Solutions linked"],
+          "exit_criteria": [
+            "Problem videos indexed",
+            "Symptoms extracted",
+            "Solutions linked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "src/engines/TroubleshootingEngine.ts"],
-            "abort_criteria": ["Wrong symptom extraction", "Missing solution"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "src/engines/TroubleshootingEngine.ts"
+            ],
+            "abort_criteria": [
+              "Wrong symptom extraction",
+              "Missing solution"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/TroubleshootingEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1345,11 +2129,21 @@
           "title": "Wire to SetupSheetEngine with video demos",
           "description": "Link setup demonstration videos to setup sheet steps",
           "build": "Add video demo links to SetupSheetEngine output",
-          "exit_criteria": ["Setup steps have video links", "Relevant clips matched", "QR codes for mobile"],
+          "exit_criteria": [
+            "Setup steps have video links",
+            "Relevant clips matched",
+            "QR codes for mobile"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/SetupSheetEngine.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "abort_criteria": ["Wrong video matches", "Broken links"],
+            "files_modified": [
+              "src/engines/SetupSheetEngine.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "abort_criteria": [
+              "Wrong video matches",
+              "Broken links"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/SetupSheetEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1361,7 +2155,11 @@
         "skill": "/video-tips → show video tips for current operation"
       },
       "exit_gate": {
-        "criteria": ["Video content wired to 3 consumers", "Links functional", "Search works"],
+        "criteria": [
+          "Video content wired to 3 consumers",
+          "Links functional",
+          "Search works"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.4%"
       }
@@ -1371,7 +2169,10 @@
       "title": "TribalKnowledge Auto-Wire (Fix Dead End)",
       "description": "Wire 4,129 tribal tips to SpeedFeed, Setup, and Operation ordering engines",
       "track": "KAR",
-      "dependencies": ["KAR-MS0", "KAR-MS3"],
+      "dependencies": [
+        "KAR-MS0",
+        "KAR-MS3"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -1383,10 +2184,24 @@
         "context_budget": "60%"
       },
       "knowledge_sources": {
-        "engines": ["TribalKnowledgeEngine", "SpeedFeedOrchestratorEngine", "SetupSheetEngine", "OperationSequencerEngine"],
-        "tribal": ["18 CAM system tip files", "controller-knowledge-tips.ts", "Domain-specific anti-patterns"],
-        "formulas": ["Authority ranking: User > Proven > MachineIntel > OEM > Registry > Physics > Tribal"],
-        "reference": ["src/data/*-cam-tips.ts (3,700+ tips)", "TribalKnowledgeEngine domains"]
+        "engines": [
+          "TribalKnowledgeEngine",
+          "SpeedFeedOrchestratorEngine",
+          "SetupSheetEngine",
+          "OperationSequencerEngine"
+        ],
+        "tribal": [
+          "18 CAM system tip files",
+          "controller-knowledge-tips.ts",
+          "Domain-specific anti-patterns"
+        ],
+        "formulas": [
+          "Authority ranking: User > Proven > MachineIntel > OEM > Registry > Physics > Tribal"
+        ],
+        "reference": [
+          "src/data/*-cam-tips.ts (3,700+ tips)",
+          "TribalKnowledgeEngine domains"
+        ]
       },
       "intent": "Tribal knowledge tips automatically influence speed/feed, setup, and operation decisions",
       "units": [
@@ -1395,11 +2210,22 @@
           "title": "Categorize tribal tips by target engine",
           "description": "Analyze 4,129 tips to determine which target engines they should wire to",
           "build": "Create tip categorization logic with material/operation/machine classifiers",
-          "exit_criteria": ["All tips categorized", "Multiple targets per tip supported", "Confidence scores assigned"],
+          "exit_criteria": [
+            "All tips categorized",
+            "Multiple targets per tip supported",
+            "Confidence scores assigned"
+          ],
           "rollback": {
-            "files_created": ["src/engines/TribalKnowledgeCategorizer.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Mis-categorization >20%", "Missing categories"],
+            "files_created": [
+              "src/engines/TribalKnowledgeCategorizer.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Mis-categorization >20%",
+              "Missing categories"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/TribalKnowledgeCategorizer.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1409,11 +2235,21 @@
           "title": "Wire tips to SpeedFeedOrchestratorEngine",
           "description": "Connect speed/feed-relevant tips as 'tribal' authority source",
           "build": "Add 'tribal_knowledge' source to SpeedFeedOrchestrator with tip filtering",
-          "exit_criteria": ["Tips influence S/F recommendations", "Authority ranking respected", "Lineage tracked"],
+          "exit_criteria": [
+            "Tips influence S/F recommendations",
+            "Authority ranking respected",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/SpeedFeedOrchestratorEngine.ts", "src/engines/KnowledgeIngestionOrchestratorEngine.ts"],
-            "abort_criteria": ["Tips override physics", "Authority conflicts"],
+            "files_modified": [
+              "src/engines/SpeedFeedOrchestratorEngine.ts",
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "Tips override physics",
+              "Authority conflicts"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/SpeedFeedOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1423,11 +2259,21 @@
           "title": "Wire tips to SetupSheetEngine",
           "description": "Add setup-relevant tips as warnings/notes on setup sheets",
           "build": "Add tribal tip integration to SetupSheetEngine output",
-          "exit_criteria": ["Setup tips appear as notes", "Material/machine-specific", "Prioritized by relevance"],
+          "exit_criteria": [
+            "Setup tips appear as notes",
+            "Material/machine-specific",
+            "Prioritized by relevance"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/SetupSheetEngine.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "abort_criteria": ["Too many tips (noise)", "Wrong context matching"],
+            "files_modified": [
+              "src/engines/SetupSheetEngine.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "abort_criteria": [
+              "Too many tips (noise)",
+              "Wrong context matching"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/SetupSheetEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1437,11 +2283,21 @@
           "title": "Wire tips to OperationSequencerEngine",
           "description": "Connect operation ordering tips to influence sequence decisions",
           "build": "Add tribal knowledge influence to operation ordering logic",
-          "exit_criteria": ["Tips affect operation order", "Anti-patterns avoided", "Reasoning logged"],
+          "exit_criteria": [
+            "Tips affect operation order",
+            "Anti-patterns avoided",
+            "Reasoning logged"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/OperationSequencerEngine.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "abort_criteria": ["Wrong sequence changes", "Breaks valid orderings"],
+            "files_modified": [
+              "src/engines/OperationSequencerEngine.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "abort_criteria": [
+              "Wrong sequence changes",
+              "Breaks valid orderings"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/OperationSequencerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1453,7 +2309,11 @@
         "skill": "/tribal → show relevant tribal knowledge tips"
       },
       "exit_gate": {
-        "criteria": ["4,000+ tips wired", "3 consumers receive tips", "Authority ranking enforced"],
+        "criteria": [
+          "4,000+ tips wired",
+          "3 consumers receive tips",
+          "Authority ranking enforced"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.5%"
       }
@@ -1463,7 +2323,9 @@
       "title": "Excel Shop Data Extractor (Scheduling/Costing)",
       "description": "Extract scheduling patterns and cost data from JM Die Excel spreadsheets",
       "track": "KAR",
-      "dependencies": ["KAR-MS0"],
+      "dependencies": [
+        "KAR-MS0"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -1475,10 +2337,24 @@
         "context_budget": "50%"
       },
       "knowledge_sources": {
-        "engines": ["BusinessDocumentExtractorEngine", "SchedulingEngine", "ActualCostEngine", "QuoteEstimator"],
-        "tribal": ["JM Die spreadsheet conventions", "Scheduling patterns"],
-        "formulas": ["Setup time calibration", "Cost per hour calculations"],
-        "reference": ["JM Die scheduling spreadsheets", "Historical cost tracking"]
+        "engines": [
+          "BusinessDocumentExtractorEngine",
+          "SchedulingEngine",
+          "ActualCostEngine",
+          "QuoteEstimator"
+        ],
+        "tribal": [
+          "JM Die spreadsheet conventions",
+          "Scheduling patterns"
+        ],
+        "formulas": [
+          "Setup time calibration",
+          "Cost per hour calculations"
+        ],
+        "reference": [
+          "JM Die scheduling spreadsheets",
+          "Historical cost tracking"
+        ]
       },
       "intent": "Historical scheduling and cost data calibrate PRISM estimates automatically",
       "units": [
@@ -1487,11 +2363,22 @@
           "title": "Excel file scanner for shop data",
           "description": "Identify and index Excel files containing scheduling, costing, and tracking data",
           "build": "Create ExcelShopDataScanner with file classification",
-          "exit_criteria": ["Finds all relevant Excel files", "Classifies by content type", "Extracts sheet metadata"],
+          "exit_criteria": [
+            "Finds all relevant Excel files",
+            "Classifies by content type",
+            "Extracts sheet metadata"
+          ],
           "rollback": {
-            "files_created": ["src/engines/ExcelShopDataScannerEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Misses file types", "Wrong classification"],
+            "files_created": [
+              "src/engines/ExcelShopDataScannerEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Misses file types",
+              "Wrong classification"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ExcelShopDataScannerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1501,11 +2388,22 @@
           "title": "Scheduling pattern extractor",
           "description": "Extract job scheduling patterns: lead times, setup times, machine utilization",
           "build": "Create SchedulingPatternExtractor with historical analysis",
-          "exit_criteria": ["Extracts lead time patterns", "Calculates setup time distributions", "Per-machine utilization"],
+          "exit_criteria": [
+            "Extracts lead time patterns",
+            "Calculates setup time distributions",
+            "Per-machine utilization"
+          ],
           "rollback": {
-            "files_created": ["src/engines/SchedulingPatternExtractorEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Statistical errors", "Pattern detection fails"],
+            "files_created": [
+              "src/engines/SchedulingPatternExtractorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Statistical errors",
+              "Pattern detection fails"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/SchedulingPatternExtractorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1515,11 +2413,22 @@
           "title": "Cost tracking data extractor",
           "description": "Extract historical costs: material, labor, overhead per job type",
           "build": "Create CostTrackingExtractor with normalization",
-          "exit_criteria": ["Extracts cost components", "Normalizes to standard units", "Calculates averages"],
+          "exit_criteria": [
+            "Extracts cost components",
+            "Normalizes to standard units",
+            "Calculates averages"
+          ],
           "rollback": {
-            "files_created": ["src/engines/CostTrackingExtractorEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Currency/unit confusion", "Missing cost types"],
+            "files_created": [
+              "src/engines/CostTrackingExtractorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Currency/unit confusion",
+              "Missing cost types"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/CostTrackingExtractorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1529,11 +2438,21 @@
           "title": "Wire to SchedulingEngine + QuoteEstimator",
           "description": "Connect extracted patterns to calibrate scheduling and quote estimates",
           "build": "Wire scheduling/cost data to target engines via WiringManifest",
-          "exit_criteria": ["Scheduling uses historical patterns", "Quotes calibrated", "Lineage tracked"],
+          "exit_criteria": [
+            "Scheduling uses historical patterns",
+            "Quotes calibrated",
+            "Lineage tracked"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/KnowledgeIngestionOrchestratorEngine.ts", "data/wiring/WIRING_MANIFEST.json"],
-            "abort_criteria": ["Calibration degrades estimates", "Wrong engine routing"],
+            "files_modified": [
+              "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+              "data/wiring/WIRING_MANIFEST.json"
+            ],
+            "abort_criteria": [
+              "Calibration degrades estimates",
+              "Wrong engine routing"
+            ],
             "rollback_procedure": "git checkout HEAD -- data/wiring/WIRING_MANIFEST.json"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1545,7 +2464,11 @@
         "skill": "/shop-data → show historical shop data insights"
       },
       "exit_gate": {
-        "criteria": ["Key Excel files processed", "Scheduling calibrated", "Quote accuracy improved"],
+        "criteria": [
+          "Key Excel files processed",
+          "Scheduling calibrated",
+          "Quote accuracy improved"
+        ],
         "omega_floor": 0.85,
         "svi_delta": "+0.4%"
       }
@@ -1555,7 +2478,10 @@
       "title": "Unified Intent Classifier + Engine Chain Planner",
       "description": "The brain entry point — classifies user intent and plans optimal engine execution chain",
       "track": "KAR",
-      "dependencies": ["KAR-MS0", "KAR-MS3"],
+      "dependencies": [
+        "KAR-MS0",
+        "KAR-MS3"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -1567,10 +2493,23 @@
         "context_budget": "80%"
       },
       "knowledge_sources": {
-        "engines": ["All 79 dispatchers", "KnowledgeGraphEngine", "WiringManifest"],
-        "tribal": ["Domain classification patterns", "Engine capability mapping"],
-        "formulas": ["Chain optimization algorithms", "Authority ranking"],
-        "reference": ["DISPATCHER_DIGEST.md", "ENGINE_DIGEST.md"]
+        "engines": [
+          "All 79 dispatchers",
+          "KnowledgeGraphEngine",
+          "WiringManifest"
+        ],
+        "tribal": [
+          "Domain classification patterns",
+          "Engine capability mapping"
+        ],
+        "formulas": [
+          "Chain optimization algorithms",
+          "Authority ranking"
+        ],
+        "reference": [
+          "DISPATCHER_DIGEST.md",
+          "ENGINE_DIGEST.md"
+        ]
       },
       "intent": "Users describe what they want in natural language; PRISM figures out the optimal engine chain",
       "units": [
@@ -1579,11 +2518,23 @@
           "title": "Intent Classification Engine (EXTEND TaskAgentClassifier)",
           "description": "EXTEND existing TaskAgentClassifier to classify into PRISM domains: machining, business, CAD, learning, scheduling, quality",
           "build": "EXTEND TaskAgentClassifier with PRISM domain taxonomy — add machining/CAD/business intents to existing classifier",
-          "exit_criteria": ["Classifies 50+ intent patterns", "95%+ accuracy on test set", "Returns domain + confidence"],
+          "exit_criteria": [
+            "Classifies 50+ intent patterns",
+            "95%+ accuracy on test set",
+            "Returns domain + confidence"
+          ],
           "rollback": {
-            "files_created": ["src/engines/PRISMIntentClassifierEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Classification accuracy <90%", "Missing domains", ">200ms latency"],
+            "files_created": [
+              "src/engines/PRISMIntentClassifierEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Classification accuracy <90%",
+              "Missing domains",
+              ">200ms latency"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/PRISMIntentClassifierEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1593,11 +2544,23 @@
           "title": "Engine Capability Registry",
           "description": "Map each engine to its capabilities, inputs, outputs, and authority level",
           "build": "Create EngineCapabilityRegistry with full 1,559 engine mapping",
-          "exit_criteria": ["All engines mapped", "Input/output types defined", "Authority levels assigned"],
+          "exit_criteria": [
+            "All engines mapped",
+            "Input/output types defined",
+            "Authority levels assigned"
+          ],
           "rollback": {
-            "files_created": ["src/registries/EngineCapabilityRegistry.ts", "data/registries/engine-capabilities.json"],
-            "files_modified": ["src/registries/index.ts"],
-            "abort_criteria": ["Missing engines >5%", "Wrong capability mapping"],
+            "files_created": [
+              "src/registries/EngineCapabilityRegistry.ts",
+              "data/registries/engine-capabilities.json"
+            ],
+            "files_modified": [
+              "src/registries/index.ts"
+            ],
+            "abort_criteria": [
+              "Missing engines >5%",
+              "Wrong capability mapping"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/registries/EngineCapabilityRegistry.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1607,11 +2570,23 @@
           "title": "Engine Chain Planner",
           "description": "Given intent + domain, plan optimal sequence of engines to execute",
           "build": "Create EngineChainPlannerEngine with DAG optimization",
-          "exit_criteria": ["Plans chains for 20+ intent types", "Handles parallel branches", "Respects dependencies"],
+          "exit_criteria": [
+            "Plans chains for 20+ intent types",
+            "Handles parallel branches",
+            "Respects dependencies"
+          ],
           "rollback": {
-            "files_created": ["src/engines/EngineChainPlannerEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Invalid chains", "Missing dependencies", "Cycles in plan"],
+            "files_created": [
+              "src/engines/EngineChainPlannerEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Invalid chains",
+              "Missing dependencies",
+              "Cycles in plan"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/EngineChainPlannerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1621,11 +2596,23 @@
           "title": "Knowledge Gatherer",
           "description": "Before chain execution, gather all relevant knowledge from wired sources",
           "build": "Create KnowledgeGathererEngine that queries WiringManifest for relevant data",
-          "exit_criteria": ["Gathers from all wired sources", "Respects authority ranking", "Caches results"],
+          "exit_criteria": [
+            "Gathers from all wired sources",
+            "Respects authority ranking",
+            "Caches results"
+          ],
           "rollback": {
-            "files_created": ["src/engines/KnowledgeGathererEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Missing sources", "Authority ranking violated", ">500ms gather time"],
+            "files_created": [
+              "src/engines/KnowledgeGathererEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Missing sources",
+              "Authority ranking violated",
+              ">500ms gather time"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/KnowledgeGathererEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1635,11 +2622,22 @@
           "title": "Tier Router (Simple vs Guided vs Unified)",
           "description": "Route requests to appropriate tier to avoid over-engineering simple requests",
           "build": "Create TierRouterEngine: Tier1=direct dispatch, Tier2=domain orchestrator, Tier3=full PUOA",
-          "exit_criteria": ["Routes 80% to Tier1/2 (fast)", "Only complex queries use Tier3", "<50ms routing decision"],
+          "exit_criteria": [
+            "Routes 80% to Tier1/2 (fast)",
+            "Only complex queries use Tier3",
+            "<50ms routing decision"
+          ],
           "rollback": {
-            "files_created": ["src/engines/TierRouterEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Over-routes to Tier3", "Misclassifies simple requests"],
+            "files_created": [
+              "src/engines/TierRouterEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Over-routes to Tier3",
+              "Misclassifies simple requests"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/TierRouterEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1649,11 +2647,20 @@
           "title": "Intent + Chain tests with real PRISM queries",
           "description": "25+ tests covering intent classification, chain planning, knowledge gathering",
           "build": "Create src/__tests__/unified-orchestrator-planning.test.ts",
-          "exit_criteria": ["25+ tests pass", "Covers all 6 domains", "Tests tier routing accuracy"],
+          "exit_criteria": [
+            "25+ tests pass",
+            "Covers all 6 domains",
+            "Tests tier routing accuracy"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/unified-orchestrator-planning.test.ts"],
+            "files_created": [
+              "src/__tests__/unified-orchestrator-planning.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["<20 tests", "Uses mocks instead of real engines"],
+            "abort_criteria": [
+              "<20 tests",
+              "Uses mocks instead of real engines"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1665,8 +2672,12 @@
         "skill": "/plan → show execution plan for a query"
       },
       "exit_gate": {
-        "criteria": ["Intent classifier 95%+ accurate", "Chain planner handles all domains", "Tier routing optimized"],
-        "omega_floor": 0.90,
+        "criteria": [
+          "Intent classifier 95%+ accurate",
+          "Chain planner handles all domains",
+          "Tier routing optimized"
+        ],
+        "omega_floor": 0.9,
         "svi_delta": "+1.0%"
       }
     },
@@ -1675,7 +2686,9 @@
       "title": "Chain Executor + Result Synthesizer",
       "description": "Execute planned engine chains with full lineage tracking and synthesize results",
       "track": "KAR",
-      "dependencies": ["KAR-MS5"],
+      "dependencies": [
+        "KAR-MS5"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -1687,10 +2700,22 @@
         "context_budget": "70%"
       },
       "knowledge_sources": {
-        "engines": ["All domain orchestrators", "KnowledgeLineageEngine", "SpeedFeedOrchestratorEngine"],
-        "tribal": ["Execution patterns", "Error recovery strategies"],
-        "formulas": ["Result aggregation algorithms", "Confidence combination"],
-        "reference": ["Existing orchestrator patterns"]
+        "engines": [
+          "All domain orchestrators",
+          "KnowledgeLineageEngine",
+          "SpeedFeedOrchestratorEngine"
+        ],
+        "tribal": [
+          "Execution patterns",
+          "Error recovery strategies"
+        ],
+        "formulas": [
+          "Result aggregation algorithms",
+          "Confidence combination"
+        ],
+        "reference": [
+          "Existing orchestrator patterns"
+        ]
       },
       "intent": "Engine chains execute reliably with full traceability; results synthesized into actionable recommendations",
       "units": [
@@ -1699,11 +2724,23 @@
           "title": "Chain Executor Engine (EXTEND BuildGuardChainEngine)",
           "description": "EXTEND existing BuildGuardChainEngine + AutomationChainEngine patterns for PUOA chain execution",
           "build": "EXTEND BuildGuardChainEngine with multi-orchestrator routing — wrap existing 71 orchestrators",
-          "exit_criteria": ["Executes chains with parallel branches", "Handles failures gracefully", "Tracks execution time"],
+          "exit_criteria": [
+            "Executes chains with parallel branches",
+            "Handles failures gracefully",
+            "Tracks execution time"
+          ],
           "rollback": {
-            "files_created": ["src/engines/ChainExecutorEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Execution failures >5%", "No error recovery", "Memory leaks"],
+            "files_created": [
+              "src/engines/ChainExecutorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Execution failures >5%",
+              "No error recovery",
+              "Memory leaks"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ChainExecutorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1713,11 +2750,22 @@
           "title": "Lineage Tracker Integration",
           "description": "Track full lineage through chain execution — which engine contributed which value",
           "build": "Integrate KnowledgeLineageEngine into ChainExecutor for automatic lineage capture",
-          "exit_criteria": ["Every value has lineage", "Can trace to original source", "Lineage persisted"],
+          "exit_criteria": [
+            "Every value has lineage",
+            "Can trace to original source",
+            "Lineage persisted"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/engines/ChainExecutorEngine.ts", "src/engines/KnowledgeLineageEngine.ts"],
-            "abort_criteria": ["Missing lineage", "Circular references", ">100ms lineage overhead"],
+            "files_modified": [
+              "src/engines/ChainExecutorEngine.ts",
+              "src/engines/KnowledgeLineageEngine.ts"
+            ],
+            "abort_criteria": [
+              "Missing lineage",
+              "Circular references",
+              ">100ms lineage overhead"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ChainExecutorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1727,11 +2775,23 @@
           "title": "Result Synthesizer Engine",
           "description": "Combine results from multiple engines into coherent, actionable recommendations",
           "build": "Create ResultSynthesizerEngine with authority-weighted combination and conflict resolution",
-          "exit_criteria": ["Synthesizes multi-engine results", "Resolves conflicts via authority", "Produces actionable output"],
+          "exit_criteria": [
+            "Synthesizes multi-engine results",
+            "Resolves conflicts via authority",
+            "Produces actionable output"
+          ],
           "rollback": {
-            "files_created": ["src/engines/ResultSynthesizerEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Conflicting recommendations", "Lost data in synthesis", "Unclear output"],
+            "files_created": [
+              "src/engines/ResultSynthesizerEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Conflicting recommendations",
+              "Lost data in synthesis",
+              "Unclear output"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ResultSynthesizerEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1741,11 +2801,23 @@
           "title": "Confidence Aggregator",
           "description": "Combine confidence scores from multiple sources using Bayesian methods",
           "build": "Create ConfidenceAggregatorEngine with Bayesian confidence combination",
-          "exit_criteria": ["Aggregates confidence correctly", "Handles conflicting confidences", "Returns combined score"],
+          "exit_criteria": [
+            "Aggregates confidence correctly",
+            "Handles conflicting confidences",
+            "Returns combined score"
+          ],
           "rollback": {
-            "files_created": ["src/engines/ConfidenceAggregatorEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Statistical errors", "Confidence > 1.0", "NaN results"],
+            "files_created": [
+              "src/engines/ConfidenceAggregatorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Statistical errors",
+              "Confidence > 1.0",
+              "NaN results"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ConfidenceAggregatorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1755,11 +2827,23 @@
           "title": "Execution Cache Layer",
           "description": "Cache chain execution results to avoid redundant computation",
           "build": "Create ExecutionCacheEngine with TTL, invalidation, and cache warming",
-          "exit_criteria": ["Cache hit rate >60%", "Invalidates on data change", "Reduces latency 50%+"],
+          "exit_criteria": [
+            "Cache hit rate >60%",
+            "Invalidates on data change",
+            "Reduces latency 50%+"
+          ],
           "rollback": {
-            "files_created": ["src/engines/ExecutionCacheEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Stale cache issues", "Cache corruption", "Memory bloat"],
+            "files_created": [
+              "src/engines/ExecutionCacheEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Stale cache issues",
+              "Cache corruption",
+              "Memory bloat"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/ExecutionCacheEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1769,11 +2853,20 @@
           "title": "Executor + Synthesizer tests",
           "description": "25+ tests covering chain execution, lineage, synthesis, caching",
           "build": "Create src/__tests__/unified-orchestrator-execution.test.ts",
-          "exit_criteria": ["25+ tests pass", "Tests failure recovery", "Tests cache behavior"],
+          "exit_criteria": [
+            "25+ tests pass",
+            "Tests failure recovery",
+            "Tests cache behavior"
+          ],
           "rollback": {
-            "files_created": ["src/__tests__/unified-orchestrator-execution.test.ts"],
+            "files_created": [
+              "src/__tests__/unified-orchestrator-execution.test.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["<20 tests", "Missing edge cases"],
+            "abort_criteria": [
+              "<20 tests",
+              "Missing edge cases"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1785,8 +2878,12 @@
         "skill": "/execute → execute a query through the unified orchestrator"
       },
       "exit_gate": {
-        "criteria": ["Chain execution reliable", "Full lineage captured", "Results synthesized correctly"],
-        "omega_floor": 0.90,
+        "criteria": [
+          "Chain execution reliable",
+          "Full lineage captured",
+          "Results synthesized correctly"
+        ],
+        "omega_floor": 0.9,
         "svi_delta": "+1.0%"
       }
     },
@@ -1795,7 +2892,9 @@
       "title": "PRISM App Integration + Unified API",
       "description": "Wire the unified orchestrator into the PRISM web app as the primary intelligence layer",
       "track": "KAR",
-      "dependencies": ["KAR-MS6"],
+      "dependencies": [
+        "KAR-MS6"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -1807,10 +2906,21 @@
         "context_budget": "70%"
       },
       "knowledge_sources": {
-        "engines": ["PRISMUnifiedOrchestratorEngine", "All web page components"],
-        "tribal": ["React patterns", "API design best practices"],
-        "formulas": ["N/A - integration"],
-        "reference": ["web/src/ components", "src/routes/*.ts"]
+        "engines": [
+          "PRISMUnifiedOrchestratorEngine",
+          "All web page components"
+        ],
+        "tribal": [
+          "React patterns",
+          "API design best practices"
+        ],
+        "formulas": [
+          "N/A - integration"
+        ],
+        "reference": [
+          "web/src/ components",
+          "src/routes/*.ts"
+        ]
       },
       "intent": "PRISM app users get intelligent responses powered by the unified orchestrator",
       "units": [
@@ -1819,11 +2929,23 @@
           "title": "PRISMUnifiedOrchestratorEngine (main entry point)",
           "description": "The single entry point that ties intent → plan → execute → synthesize",
           "build": "Create PRISMUnifiedOrchestratorEngine that composes all KAR-MS5/MS6 engines",
-          "exit_criteria": ["Single execute(intent) method", "Returns PRISMResult with lineage", "Handles all domains"],
+          "exit_criteria": [
+            "Single execute(intent) method",
+            "Returns PRISMResult with lineage",
+            "Handles all domains"
+          ],
           "rollback": {
-            "files_created": ["src/engines/PRISMUnifiedOrchestratorEngine.ts"],
-            "files_modified": ["src/engines/index.ts"],
-            "abort_criteria": ["Integration failures", "Missing domains", ">2s total latency"],
+            "files_created": [
+              "src/engines/PRISMUnifiedOrchestratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "Integration failures",
+              "Missing domains",
+              ">2s total latency"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/engines/PRISMUnifiedOrchestratorEngine.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1833,11 +2955,23 @@
           "title": "Unified API Route (/api/orchestrate)",
           "description": "REST API endpoint for unified orchestrator access",
           "build": "Create src/routes/orchestrate.ts with POST /api/orchestrate/execute",
-          "exit_criteria": ["REST endpoint works", "Validates input", "Returns structured response"],
+          "exit_criteria": [
+            "REST endpoint works",
+            "Validates input",
+            "Returns structured response"
+          ],
           "rollback": {
-            "files_created": ["src/routes/orchestrate.ts"],
-            "files_modified": ["src/routes/index.ts"],
-            "abort_criteria": ["API errors", "Security issues", "Missing validation"],
+            "files_created": [
+              "src/routes/orchestrate.ts"
+            ],
+            "files_modified": [
+              "src/routes/index.ts"
+            ],
+            "abort_criteria": [
+              "API errors",
+              "Security issues",
+              "Missing validation"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/routes/orchestrate.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1847,11 +2981,21 @@
           "title": "MCP Dispatcher Action (prism_orchestrate:unified_execute)",
           "description": "MCP action for unified orchestrator — primary entry for Claude/AI access",
           "build": "Add unified_execute action to orchestrateDispatcher.ts",
-          "exit_criteria": ["MCP action callable", "Returns PRISMResult", "Full lineage in response"],
+          "exit_criteria": [
+            "MCP action callable",
+            "Returns PRISMResult",
+            "Full lineage in response"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["src/tools/dispatchers/orchestrateDispatcher.ts", "src/schemas/orchestrateActionSchemas.ts"],
-            "abort_criteria": ["Schema errors", "Missing response fields"],
+            "files_modified": [
+              "src/tools/dispatchers/orchestrateDispatcher.ts",
+              "src/schemas/orchestrateActionSchemas.ts"
+            ],
+            "abort_criteria": [
+              "Schema errors",
+              "Missing response fields"
+            ],
             "rollback_procedure": "git checkout HEAD -- src/tools/dispatchers/orchestrateDispatcher.ts"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1861,11 +3005,20 @@
           "title": "React Hook: useUnifiedOrchestrator",
           "description": "React hook for web app components to call the unified orchestrator",
           "build": "Create web/src/hooks/useUnifiedOrchestrator.ts with loading, error, result state",
-          "exit_criteria": ["Hook works in all pages", "Handles loading/error states", "Caches results"],
+          "exit_criteria": [
+            "Hook works in all pages",
+            "Handles loading/error states",
+            "Caches results"
+          ],
           "rollback": {
-            "files_created": ["web/src/hooks/useUnifiedOrchestrator.ts"],
+            "files_created": [
+              "web/src/hooks/useUnifiedOrchestrator.ts"
+            ],
             "files_modified": [],
-            "abort_criteria": ["React errors", "State management issues"],
+            "abort_criteria": [
+              "React errors",
+              "State management issues"
+            ],
             "rollback_procedure": "git checkout HEAD -- web/src/hooks/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1875,11 +3028,22 @@
           "title": "Integrate into Calculator + Advisor pages",
           "description": "Wire useUnifiedOrchestrator into CalculatorPage and ToolpathAdvisorPage",
           "build": "Replace direct engine calls with unified orchestrator in key pages",
-          "exit_criteria": ["Calculator uses orchestrator", "Advisor uses orchestrator", "Results show lineage"],
+          "exit_criteria": [
+            "Calculator uses orchestrator",
+            "Advisor uses orchestrator",
+            "Results show lineage"
+          ],
           "rollback": {
             "files_created": [],
-            "files_modified": ["web/src/pages/CalculatorPage.tsx", "web/src/pages/ToolpathAdvisorPage.tsx"],
-            "abort_criteria": ["Page breaks", "Worse UX", "Slower response"],
+            "files_modified": [
+              "web/src/pages/CalculatorPage.tsx",
+              "web/src/pages/ToolpathAdvisorPage.tsx"
+            ],
+            "abort_criteria": [
+              "Page breaks",
+              "Worse UX",
+              "Slower response"
+            ],
             "rollback_procedure": "git checkout HEAD -- web/src/pages/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1889,11 +3053,20 @@
           "title": "E2E Integration tests (API → Orchestrator → App)",
           "description": "Full end-to-end tests from API call through orchestrator to app display",
           "build": "Create web/src/__tests__/unified-orchestrator-e2e.test.tsx",
-          "exit_criteria": ["E2E tests pass", "Tests all integration points", "Tests error scenarios"],
+          "exit_criteria": [
+            "E2E tests pass",
+            "Tests all integration points",
+            "Tests error scenarios"
+          ],
           "rollback": {
-            "files_created": ["web/src/__tests__/unified-orchestrator-e2e.test.tsx"],
+            "files_created": [
+              "web/src/__tests__/unified-orchestrator-e2e.test.tsx"
+            ],
             "files_modified": [],
-            "abort_criteria": ["<10 E2E tests", "Flaky tests"],
+            "abort_criteria": [
+              "<10 E2E tests",
+              "Flaky tests"
+            ],
             "rollback_procedure": "git checkout HEAD -- web/src/__tests__/"
           },
           "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
@@ -1905,7 +3078,12 @@
         "skill": "/ask → natural language query through unified orchestrator"
       },
       "exit_gate": {
-        "criteria": ["API endpoint live", "MCP action callable", "App pages use orchestrator", "E2E tests pass"],
+        "criteria": [
+          "API endpoint live",
+          "MCP action callable",
+          "App pages use orchestrator",
+          "E2E tests pass"
+        ],
         "omega_floor": 0.95,
         "svi_delta": "+2.0%"
       }
@@ -1988,5 +3166,88 @@
     "orchestrator_integration": "Added proven_program authority to SpeedFeedOrchestrator, tribal_knowledge source wired",
     "video_learning": "Wired to MachiningPlaybook, Troubleshooting, SetupSheet via KAR-MS3.1",
     "jm_die_analyst": "36,865+ files total, TIER 1 = 17K MIN files with proven S/F data, TIER 2 = CAD/Excel extraction"
-  }
+  },
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "kar-ms2-gate",
+    "mcp_action": "prism_kar:kar_ms2_run",
+    "skill_command": "/kar-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Universal auto-ingestion, extraction, wiring, and unified orchestration system — the intelligence layer that powers the PRISM app",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-KAR01",
+      "title": "KAR-MS2 — Coordinator",
+      "description": "Master coordinator envelope for KAR-MS2. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

@@ -1,0 +1,64 @@
+{
+  "id": "MS-P2-GAPFILL",
+  "title": "WEDM Production Hardening (alias of WEDM-GAPFILL-MS0)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P2",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "alias_of": "WEDM-GAPFILL-MS0",
+  "canonical_envelope": "mcp-server/data/milestones/WEDM-GAPFILL-MS0.json",
+  "philosophy": "Reuse WEDM-GAPFILL-MS0 verbatim. Unit IDs U-WGAP01..U-WGAP11 remain canonical. This alias exists so the consolidated roadmap can reference a single MS-P2-GAPFILL id without copy/paste drift.",
+  "total_units": 11,
+  "completed_units": 0,
+  "sessions": 5,
+  "dependencies": ["MS-P1-100PCT"],
+  "omega_target": 1.0,
+  "svi_delta_target": 0.025,
+
+  "knowledge_sources": {
+    "engines": ["(see WEDM-GAPFILL-MS0 canonical envelope)"],
+    "formulas": ["(see WEDM-GAPFILL-MS0 canonical envelope)"],
+    "tribal": ["(see WEDM-GAPFILL-MS0 canonical envelope)"],
+    "reference": ["mcp-server/data/milestones/WEDM-GAPFILL-MS0.json"]
+  },
+
+  "smart_config": {"role": "ProductionEngineer+WireEDMSpecialist", "model": "opus", "effort": "MAX", "context_budget_pct": 80},
+
+  "skills": ["/wedm-preflight", "/wedm-cite", "/test", "/scope", "/checkpoint"],
+  "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+
+  "session_split": {
+    "session_1": ["U-WGAP01", "U-WGAP02", "U-WGAP03"],
+    "session_2": ["U-WGAP04", "U-WGAP05"],
+    "session_3": ["U-WGAP06", "U-WGAP07"],
+    "session_4": ["U-WGAP08", "U-WGAP09"],
+    "session_5": ["U-WGAP10", "U-WGAP11"],
+    "compact_checkpoints": ["after U-WGAP03", "after U-WGAP06", "after U-WGAP09"]
+  },
+
+  "units": [
+    {"id_range": "U-WGAP01..U-WGAP11", "delegated_to": "WEDM-GAPFILL-MS0.json"}
+  ],
+
+  "forge_triple": {
+    "hook": {"name": "wedm-production-gate", "description": "blocks programs with safe:false pre-flight", "built_in": "U-WGAP09"},
+    "action": {"name": "prism_edm:wedm_preflight_check", "built_in": "U-WGAP09"},
+    "skill": {"name": "/wedm-preflight", "built_in": "U-WGAP09"},
+    "additional_actions": ["wedm_plan_break_recovery (U-WGAP03)", "wedm_reserve_machine (U-WGAP05)", "wedm_check_availability (U-WGAP06)"]
+  },
+
+  "exit_gate": {
+    "criteria": ["all 11 WGAP units green per WEDM-GAPFILL-MS0 exit criteria", "wedm-production-gate hook live", "machinist-acceptance", "BASELINE_INVENTORY re-verified"],
+    "omega_target": 1.0,
+    "svi_delta": "+2.5%"
+  },
+
+  "feature_cascade": {
+    "new_hooks": ["wedm-production-gate"],
+    "new_actions": ["prism_edm:wedm_preflight_check", "prism_edm:wedm_plan_break_recovery", "prism_edm:wedm_reserve_machine", "prism_edm:wedm_check_availability"],
+    "new_skills": ["/wedm-preflight"],
+    "available_to": ["P3", "P4", "P5", "P6", "P7", "P9", "P10"]
+  }
+}

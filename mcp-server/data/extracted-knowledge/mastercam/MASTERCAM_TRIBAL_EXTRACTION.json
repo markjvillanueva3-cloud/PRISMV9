@@ -1,0 +1,1804 @@
+{
+  "schemaVersion": 1,
+  "generated_at": "2026-04-18T23:58:00.000Z",
+  "source_system": "Mastercam X8",
+  "extraction_method": "PDF text extraction + AI synthesis",
+  "source_pdfs": [
+    "Dynamic_Milling.pdf (78 pages)",
+    "Tool_Manager_GSG.pdf (66 pages)",
+    "Introduction_to_WCS.pdf (64 pages)",
+    "RenishawProbe-GS.pdf (34 pages)",
+    "Getting Started with Mastercam Solids.pdf (78 pages)"
+  ],
+  "statistics": {
+    "total_tips": 94,
+    "total_procedures": 28,
+    "total_parameter_guidance": 42,
+    "total_hsm_tips": 18,
+    "total_x8_specific": 12
+  },
+
+  "tips": [
+    {
+      "id": "MCAM-TIP-001",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 5,
+      "content": "Dynamic toolpaths utilize as much of the tool's flute length as possible while minimizing tool burial. This enables rapid and efficient material removal while extending tool life.",
+      "operation_type": "2D_HIGH_SPEED",
+      "importance": "critical",
+      "keywords": ["dynamic milling", "flute length", "tool life", "material removal"]
+    },
+    {
+      "id": "MCAM-TIP-002",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 1,
+      "content": "2D high speed dynamic milling toolpaths provide three key benefits: tool burial avoidance, minimum heat buildup, and better chip evacuation.",
+      "operation_type": "2D_HIGH_SPEED",
+      "importance": "critical",
+      "keywords": ["tool burial", "heat buildup", "chip evacuation", "HSM"]
+    },
+    {
+      "id": "MCAM-TIP-003",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 6,
+      "content": "Dynamic Mill with Stay Inside strategy machines pockets using one or more chains to drive the toolpath. Material is removed from inside to outside in a highly efficient manner.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["stay inside", "pocket", "chaining", "material removal"]
+    },
+    {
+      "id": "MCAM-TIP-004",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 7,
+      "content": "Dynamic Mill Rest Material strategy targets material left from previous operations. Only unmachined areas are processed, making it ideal when roughing tools leave material in corners or narrow part areas.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["rest mill", "corners", "narrow areas", "previous operations"]
+    },
+    {
+      "id": "MCAM-TIP-005",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 7,
+      "content": "Dynamic Mill From Outside strategy machines open pocket shapes or standing core shapes. The tool moves freely outside the stock boundary and works from outside toward the inner boundary.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["from outside", "open pocket", "core shapes", "facing"]
+    },
+    {
+      "id": "MCAM-TIP-006",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 8,
+      "content": "Dynamic Contour mills material off walls supporting closed or open chains. The tool motion converts to dynamic in areas where the tool would bind or encounter too much material. Use on walls or contours with small radii.",
+      "operation_type": "DYNAMIC_CONTOUR",
+      "importance": "critical",
+      "keywords": ["dynamic contour", "walls", "small radii", "tool binding"]
+    },
+    {
+      "id": "MCAM-TIP-007",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 9,
+      "content": "Micro lift options allow the tool to rise above the floor during non-cutting moves. Benefits include chip clearing and avoiding excess tool heat. The feedrate is controllable for the back move.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["micro lift", "chip clearing", "tool heat", "feedrate"]
+    },
+    {
+      "id": "MCAM-TIP-008",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 9,
+      "content": "Use entry feeds and speeds to avoid placing too much load on the tool upon entry. Set a short dwell interval after entry to allow the spindle to reach necessary speed before material removal.",
+      "operation_type": "2D_HIGH_SPEED",
+      "importance": "critical",
+      "keywords": ["entry feed", "entry speed", "dwell", "spindle speed"]
+    },
+    {
+      "id": "MCAM-TIP-009",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 9,
+      "content": "Contour wall parameters provide input for remaining stock and previous tool information. These values help Mastercam calculate the most efficient material removal strategy when machining part walls.",
+      "operation_type": "DYNAMIC_CONTOUR",
+      "importance": "high",
+      "keywords": ["contour wall", "remaining stock", "wall machining", "efficiency"]
+    },
+    {
+      "id": "MCAM-TIP-010",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 14,
+      "content": "Use Analyze > Volume/Area > 2D Area on selected chains if the toolpath is not being created as expected. The cause will often be an incorrect assumption about the enclosed 2D area of geometry.",
+      "operation_type": "TROUBLESHOOTING",
+      "importance": "high",
+      "keywords": ["analyze", "2D area", "troubleshooting", "chaining"]
+    },
+    {
+      "id": "MCAM-TIP-011",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 17,
+      "content": "Avoidance regions allow you to add geometry to avoid without modifying original part geometry. Simply sketch a rectangle to represent a clamp, add it to the operation's chains, and regenerate.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["avoidance region", "clamps", "fixtures", "chaining"]
+    },
+    {
+      "id": "MCAM-TIP-012",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 19,
+      "content": "Containment regions are areas that the tool cannot move outside of. The toolpath is constrained inside the containment boundary while still avoiding avoidance regions.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["containment region", "boundary", "constraint", "chaining"]
+    },
+    {
+      "id": "MCAM-TIP-013",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 23,
+      "content": "Air regions define areas with no material. By partially chaining a line segment as an Air region, Mastercam knows there is no material there, allowing the tool to travel through when machining.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["air region", "partial chain", "no material", "entry"]
+    },
+    {
+      "id": "MCAM-TIP-014",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 29,
+      "content": "Use micro lift distance to raise the tool above the floor when making connecting moves. The lift creates time where heat is not being added to the tool or part, extending tool life.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "critical",
+      "keywords": ["micro lift", "heat management", "tool life", "connecting moves"]
+    },
+    {
+      "id": "MCAM-TIP-015",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 29,
+      "content": "Profile entry method with Z clearance and plunge angle parameters provides controlled entry into the material for Dynamic Mill operations.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["profile entry", "Z clearance", "plunge angle", "entry motion"]
+    },
+    {
+      "id": "MCAM-TIP-016",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 31,
+      "content": "Dynamic Mill can cut material at full depth using as much of the tool's flute length as necessary. Depth cuts are available for pocket depths and materials that prevent full-depth single-pass machining.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "critical",
+      "keywords": ["full depth", "flute length", "depth cuts", "single pass"]
+    },
+    {
+      "id": "MCAM-TIP-017",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 35,
+      "content": "Dynamic Mill with Stay Inside strategy can remove pocket material in less than half the time of a standard Pocket operation while achieving similar surface finish on walls.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "critical",
+      "keywords": ["cycle time", "efficiency", "pocket comparison", "productivity"]
+    },
+    {
+      "id": "MCAM-TIP-018",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 40,
+      "content": "For Dynamic Mill Rest operations, deselect 'Optimize cut order within pocket' and set % of tool diameter to 500% to maximize engagement with remaining material.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["rest mill", "cut order", "tool diameter", "engagement"]
+    },
+    {
+      "id": "MCAM-TIP-019",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 4,
+      "content": "Tool Manager's new TOOLDB database format is faster and more reliable than older formats. Its non-proprietary format allows tooling manufacturers to keep you updated with recent tooling components.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "high",
+      "keywords": ["TOOLDB", "tool library", "database", "manufacturer data"]
+    },
+    {
+      "id": "MCAM-TIP-020",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 10,
+      "content": "Work in stand-alone Tool Manager without Mastercam open to organize tool libraries. This increases computer performance and reserves the licensed Mastercam seat for someone else.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["stand-alone", "tool manager", "license", "performance"]
+    },
+    {
+      "id": "MCAM-TIP-021",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 10,
+      "content": "Copy tools, holders, and assemblies between TOOLDB libraries by opening different libraries in separate Tool Manager instances and using drag-and-drop between them.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["copy tools", "drag-drop", "multiple libraries", "tool transfer"]
+    },
+    {
+      "id": "MCAM-TIP-022",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 11,
+      "content": "Set up tool libraries using stand-alone Tool Manager, then use those libraries in Mastercam for specific jobs, parts, and machines. Libraries can be part of a job kit that travels with the part.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "high",
+      "keywords": ["workflow", "job kit", "tool library", "machine-specific"]
+    },
+    {
+      "id": "MCAM-TIP-023",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 23,
+      "content": "The default unit setting in Tool Manager is read from Mastercam's System Configuration. Tool Manager remains in metric/inch state until manually changed, even across multiple sessions.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["units", "metric", "inch", "configuration"]
+    },
+    {
+      "id": "MCAM-TIP-024",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 23,
+      "content": "You can have both inch and metric tooling components in the same TOOLDB library file.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["mixed units", "inch", "metric", "TOOLDB"]
+    },
+    {
+      "id": "MCAM-TIP-025",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 43,
+      "content": "Cut parameters stored in Tool Manager integrate manufacturer's cutting recommendations. Access these from Mastercam when creating or editing tools with the Tool Wizard.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "high",
+      "keywords": ["cut parameters", "manufacturer data", "Tool Wizard", "speeds feeds"]
+    },
+    {
+      "id": "MCAM-TIP-026",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 3,
+      "content": "When creating a new WCS: XY plane maps to the plane of the view, the origin becomes your new (0,0,0) point, and the plane becomes the Top plane in the new working coordinate system.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "critical",
+      "keywords": ["WCS", "coordinate system", "origin", "plane mapping"]
+    },
+    {
+      "id": "MCAM-TIP-027",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 3,
+      "content": "Gviews, Cplanes, and Tplanes are all measured relative to the WCS and its origin. Select a new WCS much less often than views and planes, and only for specific machining purposes.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["Gview", "Cplane", "Tplane", "WCS relationship"]
+    },
+    {
+      "id": "MCAM-TIP-028",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 4,
+      "content": "Construction plane (Cplane) is where geometry is created. You can look at your part in Isometric Gview while drawing geometry in the Front Cplane - they do not have to match.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["Cplane", "construction plane", "drawing", "Gview"]
+    },
+    {
+      "id": "MCAM-TIP-029",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 4,
+      "content": "Tool plane (Tplane) is typically normal to the tool axis. Unless Tplane is parallel to the default XY plane, selecting a Tplane typically results in A- and/or B-axis codes when posting.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "critical",
+      "keywords": ["Tplane", "tool axis", "rotary axis", "A-axis", "B-axis"]
+    },
+    {
+      "id": "MCAM-TIP-030",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 8,
+      "content": "To post A- and B-axis code results, your machine definition must be configured with proper rotary axis components and your post must be properly configured for rotary output.",
+      "operation_type": "POST_PROCESSING",
+      "importance": "critical",
+      "keywords": ["rotary axis", "machine definition", "post processor", "5-axis"]
+    },
+    {
+      "id": "MCAM-TIP-031",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 15,
+      "content": "Change the WCS to machine a part lying flat instead of rotating the tool. Rotate the coordinate system parallel with the desired face to machine on a 3-axis mill without rotary capability.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["WCS", "fixture", "3-axis", "coordinate rotation"]
+    },
+    {
+      "id": "MCAM-TIP-032",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 21,
+      "content": "Machine two parts on different fixtures using one setup by creating separate WCS planes for each fixture position, then applying appropriate planes to each toolpath group.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["multiple fixtures", "WCS planes", "setup", "production"]
+    },
+    {
+      "id": "MCAM-TIP-033",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 35,
+      "content": "Update previously created toolpaths when part position changes by creating new WCS planes and reassigning them to existing operations rather than recreating toolpaths from scratch.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["update toolpath", "WCS", "plane reassignment", "efficiency"]
+    },
+    {
+      "id": "MCAM-TIP-034",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 1,
+      "content": "Use Renishaw Productivity+ for part setup, tool height settings, tool breakage checking, and inspection/reporting of basic geometric features (points, lines, planes, circles, web and pocket sizes).",
+      "operation_type": "PROBING",
+      "importance": "high",
+      "keywords": ["probing", "Renishaw", "part setup", "inspection"]
+    },
+    {
+      "id": "MCAM-TIP-035",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 2,
+      "content": "Productivity+ can measure machined areas and dynamically set offsets to remachine features that are undersized. It also detects oversized features that cannot be remachined and can stop the machine.",
+      "operation_type": "PROBING",
+      "importance": "critical",
+      "keywords": ["remachining", "offset adjustment", "tolerance checking", "automation"]
+    },
+    {
+      "id": "MCAM-TIP-036",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 2,
+      "content": "Productivity+ supports only Renishaw probes and will not probe complex free flowing surfaces. Current version does not support continuous 4- or 5-axis motion for probing.",
+      "operation_type": "PROBING",
+      "importance": "medium",
+      "keywords": ["probe limitations", "Renishaw", "surface probing", "multiaxis"]
+    },
+    {
+      "id": "MCAM-TIP-037",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 6,
+      "content": "Probing operations require two-stage posting: standard Mastercam post creates initial output, then Renishaw machine file (.RenMF) incorporates probe-specific instructions.",
+      "operation_type": "PROBING",
+      "importance": "high",
+      "keywords": ["probing post", "RenMF", "two-stage", "post processing"]
+    },
+    {
+      "id": "MCAM-TIP-038",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 9,
+      "content": "Calibrate your probe with your controller AND with Productivity+ software before attempting to use it in production. Create a calibration cycle from Probe Calibration button in Probing Dialog.",
+      "operation_type": "PROBING",
+      "importance": "critical",
+      "keywords": ["probe calibration", "controller", "production", "setup"]
+    },
+    {
+      "id": "MCAM-TIP-039",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 10,
+      "content": "In one probe operation, you can establish tool offsets for all tools in the tool magazine. Create tool setting cycle for each tool including tool length and diameter measurements.",
+      "operation_type": "PROBING",
+      "importance": "high",
+      "keywords": ["tool offsets", "tool setting", "magazine", "automation"]
+    },
+    {
+      "id": "MCAM-TIP-040",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 11,
+      "content": "Use tool breakage detection during processing to determine aberrations in tool diameter and length. If breakage is detected, an error is automatically output to the control.",
+      "operation_type": "PROBING",
+      "importance": "critical",
+      "keywords": ["tool breakage", "detection", "automation", "safety"]
+    },
+    {
+      "id": "MCAM-TIP-041",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 13,
+      "content": "Probing can update WCS by measuring part position. Probe a point at part top to redefine Z coordinate, then probe pocket sides to establish XY center position.",
+      "operation_type": "PROBING",
+      "importance": "high",
+      "keywords": ["WCS update", "part position", "Z coordinate", "center finding"]
+    },
+    {
+      "id": "MCAM-TIP-042",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 14,
+      "content": "WCS planes available for probing updates are populated from Mastercam's Plane Manager. Work offset numbers assigned in Plane Manager are automatically used when the plane is changed.",
+      "operation_type": "PROBING",
+      "importance": "medium",
+      "keywords": ["Plane Manager", "work offsets", "WCS", "probing integration"]
+    },
+    {
+      "id": "MCAM-TIP-043",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 16,
+      "content": "Use logic statements in probe operations to check for out-of-tolerance measurements. Program Productivity+ to modify tool offsets and remachine, or stop for features that cannot be repaired.",
+      "operation_type": "PROBING",
+      "importance": "critical",
+      "keywords": ["logic statements", "tolerance", "remachine", "process control"]
+    },
+    {
+      "id": "MCAM-TIP-044",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 3,
+      "content": "When creating solids in Mastercam, all operations appear in the solids history tree where you can edit, move, delete, and suppress operations to modify the model.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "high",
+      "keywords": ["history tree", "solid editing", "operations", "modeling"]
+    },
+    {
+      "id": "MCAM-TIP-045",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 3,
+      "content": "Model Prep functions let you modify solid models lacking a history tree. Mastercam can identify individual geometry elements and features for modification using Push-Pull, Move, and Split Solid Face.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "high",
+      "keywords": ["Model Prep", "imported solids", "Push-Pull", "brick solids"]
+    },
+    {
+      "id": "MCAM-TIP-046",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 7,
+      "content": "Use Add boss operation to create extrusions as new material on the part. This adds geometry rather than creating a separate solid body.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["Add boss", "extrude", "solid creation", "geometry"]
+    },
+    {
+      "id": "MCAM-TIP-047",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 7,
+      "content": "Draft angle settings are remembered during your Mastercam session. Turn on Draft in the Advanced tab with a specified angle (e.g., 5 degrees) to apply to extrusions automatically.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["draft angle", "extrude", "session settings", "automation"]
+    },
+    {
+      "id": "MCAM-TIP-048",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 11,
+      "content": "Use Shading Translucency Toggle to see geometry hidden under existing solid features. This helps when chaining wireframe that is embedded in or under solid bodies.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["translucency", "hidden geometry", "chaining", "visualization"]
+    },
+    {
+      "id": "MCAM-TIP-049",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 13,
+      "content": "Cut body operation is opposite of Add boss - it removes material from the part. Use Through all option with Cut body to cut completely through the solid regardless of depth.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["Cut body", "material removal", "Through all", "extrude cut"]
+    },
+    {
+      "id": "MCAM-TIP-050",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 5,
+      "content": "Dynamic Mill requires at least one Machining region defined (closed or open chain). Remaining geometry can be Avoidance region, Containment region, or Air region.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "critical",
+      "keywords": ["machining region", "chaining", "region types", "setup"]
+    },
+    {
+      "id": "MCAM-TIP-051",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 6,
+      "content": "Dynamic Contour does not require a closed chain to calculate a toolpath. All geometry selected will be cut by the tool motion, making it flexible for wall machining.",
+      "operation_type": "DYNAMIC_CONTOUR",
+      "importance": "high",
+      "keywords": ["open chain", "wall machining", "flexibility", "contour"]
+    },
+    {
+      "id": "MCAM-TIP-052",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 9,
+      "content": "Entry methods for Dynamic Mill range from simple helix to medial path with trochoidal motion to selected open chain. Choose based on material, tool, and part geometry.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["entry method", "helix", "trochoidal", "medial path"]
+    },
+    {
+      "id": "MCAM-TIP-053",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 4,
+      "content": "Data in Tool Manager is automatically saved as you work, avoiding possible work loss and eliminating the need for manual backups during tool library editing.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["auto-save", "tool library", "data protection", "backup"]
+    },
+    {
+      "id": "MCAM-TIP-054",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 5,
+      "content": "Tool Manager Database Explorer accesses content in TOOLDB files. Right-click items to expand/collapse. Double-click Cutting Tools, Tool Assemblies, Holders, Materials, or Cut Parameters to work with them.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["Database Explorer", "TOOLDB", "navigation", "interface"]
+    },
+    {
+      "id": "MCAM-TIP-055",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 5,
+      "content": "Tool Assemblies may contain one tool and one or more holder components. Use the Assembly Tree to navigate individual assembly items and create complete tool setups.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "high",
+      "keywords": ["tool assembly", "holder", "tool setup", "Assembly Tree"]
+    },
+    {
+      "id": "MCAM-TIP-056",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 17,
+      "content": "Display relative to WCS option shows names of tool and construction planes relative to the WCS rather than absolute names, making it easier to understand plane relationships.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "medium",
+      "keywords": ["display option", "relative", "plane names", "visualization"]
+    },
+    {
+      "id": "MCAM-TIP-057",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 7,
+      "content": "XY plane of your toolpath is parallel to the selected view. The origin of the selected view determines the zero point of your part program. Plan WCS carefully for proper output.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "critical",
+      "keywords": ["XY plane", "origin", "zero point", "program output"]
+    },
+    {
+      "id": "MCAM-TIP-058",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 5,
+      "content": "Probe operation is stored in Toolpaths Manager like other operations. The operation is a snapshot of your model at creation time - updating the part model will not mark a probe operation dirty.",
+      "operation_type": "PROBING",
+      "importance": "medium",
+      "keywords": ["probe operation", "Toolpaths Manager", "model snapshot", "update"]
+    },
+    {
+      "id": "MCAM-TIP-059",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 12,
+      "content": "You can probe points, lines, circles/arcs, planes, 2D corners, 3D corners, webs, and pockets. Select probe method from Probing Dialog toolbar and enter required data for inspection.",
+      "operation_type": "PROBING",
+      "importance": "high",
+      "keywords": ["probe features", "inspection", "feature types", "measurement"]
+    },
+    {
+      "id": "MCAM-TIP-060",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 10,
+      "content": "Use the visual ruler when extruding to enter distances by moving mouse. Zoom in with mouse wheel to see smaller increments. Values snap to ruler increments when mouse is over the ruler.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "low",
+      "keywords": ["visual ruler", "extrude distance", "snapping", "interface"]
+    },
+    {
+      "id": "MCAM-TIP-061",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 34,
+      "content": "Backplot Info tab shows total runtime for each operation. Use this to compare Dynamic Mill vs standard Pocket operations and quantify efficiency improvements.",
+      "operation_type": "VERIFICATION",
+      "importance": "high",
+      "keywords": ["backplot", "runtime", "comparison", "optimization"]
+    },
+    {
+      "id": "MCAM-TIP-062",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 35,
+      "content": "Dynamic Mill operations can achieve similar wall finish to Pocket with finish pass, but in significantly less time. Even without optimization, Dynamic shows substantial productivity improvements.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "critical",
+      "keywords": ["productivity", "finish quality", "cycle time", "comparison"]
+    },
+    {
+      "id": "MCAM-TIP-063",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 27,
+      "content": "Use the Search window in Tool Manager to find components matching criteria. Save searches as Favorites for reuse and view recent searches for quick access.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["search", "favorites", "tool lookup", "efficiency"]
+    },
+    {
+      "id": "MCAM-TIP-064",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 38,
+      "content": "Create assemblies by dragging and dropping components into Assembly Tree, or work directly in the graphics window to edit. Properties Grid allows editing of assembly and individual component parameters.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["assembly creation", "drag-drop", "Properties Grid", "editing"]
+    },
+    {
+      "id": "MCAM-TIP-065",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 31,
+      "content": "Only display selected toolpaths button in Toolpaths Manager helps reduce visual clutter when multiple operations exist. Toggle toolpath display with T key.",
+      "operation_type": "INTERFACE",
+      "importance": "low",
+      "keywords": ["toolpath display", "visibility", "T key", "interface"]
+    },
+    {
+      "id": "MCAM-TIP-066",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 12,
+      "content": "Set linking parameters with Retract, Feed plane, Top of stock, and Depth values. Use Incremental setting for most parameters except Top of stock which is typically Absolute.",
+      "operation_type": "TOOLPATH_PARAMETERS",
+      "importance": "high",
+      "keywords": ["linking parameters", "retract", "feed plane", "depth"]
+    },
+    {
+      "id": "MCAM-TIP-067",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 20,
+      "content": "Add draft to solids before adding fillets. Draft operation works on flat faces; filleted edges may prevent proper draft application. Sequence solid operations for best results.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "high",
+      "keywords": ["draft", "fillet", "operation sequence", "best practice"]
+    },
+    {
+      "id": "MCAM-TIP-068",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 24,
+      "content": "Shell operation hollows out a solid with specified wall thickness. Select faces to remain open (removed) during shelling. Useful for creating enclosures and housings.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["shell", "wall thickness", "hollow", "enclosure"]
+    },
+    {
+      "id": "MCAM-TIP-069",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 26,
+      "content": "Revolve creates solids by rotating a profile around an axis. Define the profile geometry and select the axis of revolution. Use for cylindrical or axisymmetric parts.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["revolve", "axis", "cylindrical", "rotation"]
+    },
+    {
+      "id": "MCAM-TIP-070",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 28,
+      "content": "Sweep creates solids by sweeping a profile along a path. The profile follows the path orientation. Use for complex shapes that follow a curve or trajectory.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["sweep", "profile", "path", "complex geometry"]
+    },
+    {
+      "id": "MCAM-TIP-071",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 29,
+      "content": "Boolean operations combine solids: Add (union) joins solids, Remove (subtract) cuts one solid from another, Common (intersect) keeps only overlapping volume.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "high",
+      "keywords": ["boolean", "union", "subtract", "intersect"]
+    },
+    {
+      "id": "MCAM-TIP-072",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 37,
+      "content": "Split Solid Face in Model Prep separates a solid into multiple bodies at a specified face. Use to separate features for individual machining or modification.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["split solid", "Model Prep", "separate bodies", "feature isolation"]
+    },
+    {
+      "id": "MCAM-TIP-073",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 45,
+      "content": "Push-Pull in Model Prep modifies face positions on brick solids. Select a face and drag or enter a distance to move it, automatically adjusting connected geometry.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["Push-Pull", "face modification", "brick solid", "direct edit"]
+    },
+    {
+      "id": "MCAM-TIP-074",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 32,
+      "content": "Standard Pocket with 50% stepover equals 8mm stepover distance for 16mm tool. Compare this engagement to Dynamic Mill's full-depth engagement for efficiency analysis.",
+      "operation_type": "POCKET",
+      "importance": "medium",
+      "keywords": ["stepover", "pocket", "engagement", "comparison"]
+    },
+    {
+      "id": "MCAM-TIP-075",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 32,
+      "content": "Ramp entry with specified parameters (angle, minimum ramp length, XY clearance) provides controlled material entry for Pocket operations. Enable with checkbox on Entry Motion page.",
+      "operation_type": "POCKET",
+      "importance": "high",
+      "keywords": ["ramp entry", "pocket", "entry motion", "angle"]
+    },
+    {
+      "id": "MCAM-TIP-076",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 33,
+      "content": "Depth cuts with specified max rough step break deep pockets into multiple Z-level passes. Essential for materials that cannot be machined at full depth in single pass.",
+      "operation_type": "POCKET",
+      "importance": "high",
+      "keywords": ["depth cuts", "rough step", "Z-level", "deep pocket"]
+    },
+    {
+      "id": "MCAM-TIP-077",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 46,
+      "content": "Access cut parameters directly from Mastercam during toolpath creation. When selecting a tool, the associated cut parameters (speeds, feeds) are loaded from the Tool Manager database.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "high",
+      "keywords": ["cut parameters", "toolpath creation", "speeds", "feeds"]
+    },
+    {
+      "id": "MCAM-TIP-078",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 51,
+      "content": "Create tools and holders directly from toolpath dialog. Launch Tool Wizard to define new tool geometry and parameters without leaving the toolpath creation workflow.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["Tool Wizard", "inline creation", "toolpath workflow", "efficiency"]
+    },
+    {
+      "id": "MCAM-TIP-079",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 4,
+      "content": "Enter 0 for tool offset index to match it to the tool change ID for any value greater than 9. Simplifies tool setting setup for large tool magazines.",
+      "operation_type": "PROBING",
+      "importance": "medium",
+      "keywords": ["tool offset", "tool change ID", "magazine", "setup"]
+    },
+    {
+      "id": "MCAM-TIP-080",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 44,
+      "content": "Create new WCS planes using solid face selection. Select a flat face on the solid and Mastercam creates a plane aligned with that face for toolpath orientation.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["WCS from face", "solid face", "plane creation", "orientation"]
+    },
+    {
+      "id": "MCAM-TIP-081",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "page": 47,
+      "content": "When updating toolpaths to new WCS planes, select the operation's Planes page and choose new WCS. Regenerate the operation to apply the new coordinate system.",
+      "operation_type": "COORDINATE_SYSTEMS",
+      "importance": "high",
+      "keywords": ["toolpath update", "WCS change", "regenerate", "Planes page"]
+    },
+    {
+      "id": "MCAM-TIP-082",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 44,
+      "content": "Area Mill toolpath with Rest Mill strategy is the predecessor to Dynamic Mill Rest. Both target leftover material, but Dynamic Mill uses modern efficient motion patterns.",
+      "operation_type": "2D_HIGH_SPEED",
+      "importance": "medium",
+      "keywords": ["Area Mill", "Rest Mill", "evolution", "comparison"]
+    },
+    {
+      "id": "MCAM-TIP-083",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 37,
+      "content": "Dynamic Mill with Rest Mill strategy improves on Area Mill with Rest Mill by avoiding tool burial while taking full depth of cut. Choose Dynamic for efficiency in corner cleanup.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "critical",
+      "keywords": ["Dynamic vs Area", "Rest Mill", "tool burial", "corners"]
+    },
+    {
+      "id": "MCAM-TIP-084",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 52,
+      "content": "Dynamic Mill From Outside strategy starts toolpath outside the selected boundary and works inward. Tool is allowed to move freely outside the Machining region boundary.",
+      "operation_type": "DYNAMIC_MILL",
+      "importance": "high",
+      "keywords": ["From Outside", "boundary", "inward", "facing"]
+    },
+    {
+      "id": "MCAM-TIP-085",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 62,
+      "content": "Dynamic Contour uses Entry chain option for controlled material entry. Select an open chain at the part edge for the tool to follow before engaging the contour.",
+      "operation_type": "DYNAMIC_CONTOUR",
+      "importance": "high",
+      "keywords": ["Entry chain", "open chain", "controlled entry", "edge approach"]
+    },
+    {
+      "id": "MCAM-TIP-086",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 65,
+      "content": "Standard Contour toolpath with ramping entry can compare to Dynamic Contour. Dynamic version prevents tool binding in tight radii and converts motion dynamically as needed.",
+      "operation_type": "DYNAMIC_CONTOUR",
+      "importance": "high",
+      "keywords": ["Contour comparison", "ramping", "tight radii", "binding prevention"]
+    },
+    {
+      "id": "MCAM-TIP-087",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 57,
+      "content": "Use Align Vertical Wall in Model Prep to adjust wall angle on imported solids. Specify the target angle (e.g., 90 degrees) to make walls perpendicular to the base.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["Align Vertical", "wall angle", "Model Prep", "imported solid"]
+    },
+    {
+      "id": "MCAM-TIP-088",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 60,
+      "content": "Expand Wall Opening in Model Prep increases hole or pocket size on brick solids. Select the faces defining the opening and specify new dimensions or offset amount.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["Expand Opening", "hole resize", "Model Prep", "pocket size"]
+    },
+    {
+      "id": "MCAM-TIP-089",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 62,
+      "content": "Increase Wall Height in Model Prep extends vertical faces of brick solids. Select the top face and specify additional height without recreating the solid from scratch.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["Wall Height", "extend", "Model Prep", "vertical face"]
+    },
+    {
+      "id": "MCAM-TIP-090",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "page": 53,
+      "content": "Create counterbores on imported solids using Hole modification in Model Prep. Select existing hole and add counterbore geometry without rebuilding the solid model.",
+      "operation_type": "SOLID_MODELING",
+      "importance": "medium",
+      "keywords": ["counterbore", "Hole modification", "Model Prep", "imported"]
+    },
+    {
+      "id": "MCAM-TIP-091",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 10,
+      "content": "Multi-editing allows selecting multiple tools in Tool Manager and editing common properties for all selected items simultaneously via Properties Grid. Massive time saver for bulk changes.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "high",
+      "keywords": ["multi-edit", "bulk changes", "Properties Grid", "efficiency"]
+    },
+    {
+      "id": "MCAM-TIP-092",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "page": 19,
+      "content": "Productivity+ can generate reports of probing results. Configure reporting options to output measurement data, deviations, and pass/fail status for quality documentation.",
+      "operation_type": "PROBING",
+      "importance": "high",
+      "keywords": ["probing reports", "measurement data", "quality", "documentation"]
+    },
+    {
+      "id": "MCAM-TIP-093",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "page": 69,
+      "content": "Mastercam YouTube channel (youtube.com/user/MastercamTechDocs) contains video tutorials referenced in documentation. Use for visual learning of Dynamic Milling and other features.",
+      "operation_type": "LEARNING",
+      "importance": "low",
+      "keywords": ["YouTube", "video tutorials", "learning", "documentation"]
+    },
+    {
+      "id": "MCAM-TIP-094",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "page": 58,
+      "content": "Mill and Lathe products provide both classic Tool Manager (integrated) and new stand-alone Tool Manager. Use classic for quick in-toolpath tool selection; stand-alone for library management.",
+      "operation_type": "TOOL_MANAGEMENT",
+      "importance": "medium",
+      "keywords": ["classic vs standalone", "Tool Manager", "workflow", "selection"]
+    }
+  ],
+
+  "procedures": [
+    {
+      "id": "MCAM-PROC-001",
+      "title": "Create Dynamic Mill Toolpath (Stay Inside Strategy)",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Mastercam X8 installed", "Mill machine definition loaded", "Part geometry open"],
+      "steps": [
+        "Select Toolpaths > 2D High Speed > Dynamic Mill from menu",
+        "Click OK if prompted for new NC file name",
+        "In Chain Options, click Select under Machining regions",
+        "Chain the boundary geometry counterclockwise",
+        "Click OK to close Chaining dialog",
+        "Add Avoidance regions if needed for islands or fixtures",
+        "Verify Machining region strategy is set to Stay inside",
+        "Click OK to close Chain Options",
+        "Select Tool page and choose appropriate end mill",
+        "Set Cut Parameters including micro lift distance",
+        "Select Entry Motion and choose entry method (Profile, Helix, etc.)",
+        "Set Linking Parameters with appropriate depths",
+        "Click OK to generate toolpath"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-002",
+      "title": "Create Dynamic Mill Toolpath (Rest Mill Strategy)",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Previous roughing operation completed", "Rest material remaining"],
+      "steps": [
+        "Select Toolpaths > 2D High Speed > Dynamic Mill",
+        "Chain Machining regions (outer boundary)",
+        "Chain Avoidance regions (islands)",
+        "Close chaining dialogs",
+        "Select smaller tool than previous operation",
+        "On Cut Parameters page, set % of tool diameter (e.g., 500%)",
+        "Deselect 'Optimize cut order within pocket'",
+        "Go to Rest Material page and enable Rest material checkbox",
+        "Specify previous tool diameter or select from operations",
+        "Set Entry Motion method",
+        "Configure Linking Parameters",
+        "Click OK to generate rest mill toolpath"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-003",
+      "title": "Create Dynamic Contour Toolpath",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Wall geometry selected", "Appropriate tool available"],
+      "steps": [
+        "Select Toolpaths > 2D High Speed > Dynamic Contour",
+        "Select geometry chains (can be open or closed)",
+        "Click OK in Chain Options",
+        "Select appropriate tool (bullnose recommended for walls)",
+        "Set Cut Parameters for wall machining",
+        "Configure Entry Motion (Entry chain for edge approach)",
+        "Set Linking Parameters with retract and depth values",
+        "Click OK to generate dynamic contour"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-004",
+      "title": "Add Avoidance/Containment/Air Regions to Dynamic Toolpath",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Dynamic toolpath created", "Additional geometry to add"],
+      "steps": [
+        "Click Geometry under the operation in Toolpaths Manager",
+        "In Chain Options, click Select under desired region type",
+        "For Avoidance: chain geometry to avoid (islands, fixtures)",
+        "For Containment: chain boundary to constrain tool",
+        "For Air: use Partial chaining for open chain at air/no-material areas",
+        "Click OK in Chaining dialog",
+        "Click OK in Chain Options",
+        "Click Regenerate all dirty operations"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-005",
+      "title": "Create Tool Library in Stand-Alone Tool Manager",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "prerequisites": ["Mastercam installed", "Tool Manager launched from Start menu"],
+      "steps": [
+        "Open Tool Manager from Windows Start > Mastercam folder",
+        "Click File tab > Options > General > set Units to Metric/Inch as needed",
+        "Click OK to save settings",
+        "To create new library: File > New > enter library name",
+        "To copy existing: Open source library, File > Save As new name",
+        "Double-click Cutting Tools in Database Explorer to view tools",
+        "Add new tools: right-click > New Tool > select tool type",
+        "Fill tool geometry and parameters in Properties Grid",
+        "Create holders similarly under Holders",
+        "Create assemblies by dragging tools and holders to Assembly Tree"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-006",
+      "title": "Configure Work Coordinate System (WCS)",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "prerequisites": ["Part loaded in Mastercam", "Planes Manager accessible"],
+      "steps": [
+        "Click Planes in Status Bar > Named planes > Plane List",
+        "Create new plane or select existing plane",
+        "To create from face: select solid face as plane basis",
+        "To create manually: specify origin and orientation",
+        "Set as WCS: click WCS in Status Bar > select plane name",
+        "Verify Gview shows updated coordinate orientation",
+        "In toolpath, go to Planes (WCS) page",
+        "Click Select WCS plane button",
+        "Choose appropriate plane from list",
+        "Enable 'Display relative to WCS' for clarity"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-007",
+      "title": "Set Up Renishaw Probing",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "prerequisites": ["Renishaw probe installed on machine", "RenMF file for machine", "Productivity+ enabled post"],
+      "steps": [
+        "Select Toolpaths > Probe from menu",
+        "In Select probe dialog, click Create for new probe setup",
+        "Enter Probe name matching machine/installation",
+        "Set Tool change ID to probe's tool slot number",
+        "Select Probe module from dropdown matching hardware",
+        "Select Stylus type attached to probe module",
+        "Click OK to save to database (.RenPD)",
+        "Run probe calibration cycle before production use",
+        "Create probe operations for part setup, tool setting, or inspection",
+        "Post with Renishaw-enabled post processor"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-008",
+      "title": "Create Probing Cycle for Part Setup",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "prerequisites": ["Probe configured", "Part geometry defined"],
+      "steps": [
+        "Select Toolpaths > Probe",
+        "Probing Dialog opens with configured probe",
+        "Select measurement type: Point, Circle, Pocket, etc.",
+        "Select geometry or enter measurement parameters",
+        "Add Machine Update cycle after measurement",
+        "Choose update type: WCS Update, Tool Lengths, etc.",
+        "Select target WCS plane from Plane Manager list",
+        "Configure X, Y, Z coordinate updates as needed",
+        "Add logic statements for tolerance checking if required",
+        "Click OK to create probe operation",
+        "Post with two-stage process (MP post + RenMF)"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-009",
+      "title": "Create Solid Model Using Extrude",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "prerequisites": ["2D wireframe profile created", "Solids menu available"],
+      "steps": [
+        "Create 2D profile geometry (rectangle, circle, or complex shape)",
+        "Select Solids > Extrude from menu",
+        "Chaining dialog opens - select profile geometry",
+        "Click OK in Chaining dialog",
+        "Use function panel to set extrusion direction (Reverse All if needed)",
+        "Set extrude distance using number entry or visual ruler",
+        "For adding material: select Add boss operation",
+        "For cutting material: select Cut body operation",
+        "Optional: click Advanced tab to add Draft angle",
+        "Click OK to finalize extrude operation",
+        "Operation appears in Solids history tree"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-010",
+      "title": "Modify Imported Solid Using Model Prep",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "prerequisites": ["Solid model imported (STEP, IGES, etc.)", "No history tree available"],
+      "steps": [
+        "Open imported solid file in Mastercam",
+        "Select Solids > Model Prep from menu",
+        "Choose modification type: Push-Pull, Split Face, etc.",
+        "For Push-Pull: select face to move, drag or enter distance",
+        "For Split: select face to split solid bodies",
+        "For Align Vertical: select wall faces, specify angle (90 deg)",
+        "For Expand Opening: select hole/pocket faces, specify new size",
+        "For Wall Height: select top face, specify height increase",
+        "Mastercam adjusts connected geometry automatically",
+        "Verify results and repeat for additional modifications"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-011",
+      "title": "Compare Dynamic Mill vs Standard Pocket Performance",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Both toolpaths created on same geometry"],
+      "steps": [
+        "Create Dynamic Mill toolpath with full-depth parameters",
+        "Create Pocket toolpath on same geometry with depth cuts",
+        "Select first operation in Toolpaths Manager",
+        "Click Backplot selected operations",
+        "Click Expand and select Info tab",
+        "Note total runtime displayed",
+        "Close backplot and select second operation",
+        "Repeat backplot and record runtime",
+        "Compare cycle times - Dynamic typically 50%+ faster",
+        "Verify surface finish quality if needed"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-012",
+      "title": "Copy Tools Between Tool Libraries",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "prerequisites": ["Stand-alone Tool Manager", "Multiple TOOLDB libraries"],
+      "steps": [
+        "Open first Tool Manager instance",
+        "Load source TOOLDB library",
+        "Open second Tool Manager instance (new window)",
+        "Load destination TOOLDB library",
+        "In source: navigate to tools to copy",
+        "Select tools in document datagrid (Ctrl+click for multiple)",
+        "Drag selected tools to destination Tool Manager window",
+        "Drop on Cutting Tools in Database Explorer",
+        "Tools are copied with all properties",
+        "Repeat for holders and assemblies as needed"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-013",
+      "title": "Update Toolpath for New Fixture Position",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "prerequisites": ["Existing toolpaths", "New fixture position defined"],
+      "steps": [
+        "Create new WCS plane for new fixture position",
+        "Set origin and orientation to match fixture",
+        "In Toolpaths Manager, click Parameters under operation",
+        "Navigate to Planes (WCS) page",
+        "Click Select WCS plane button",
+        "Choose new fixture plane from list",
+        "Click OK to accept changes",
+        "Regenerate dirty operations",
+        "Verify toolpath position in graphics window",
+        "Post process with updated coordinate output"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-014",
+      "title": "Create Tool Assembly with Holder",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "prerequisites": ["Tool Manager open", "Tool and holder defined"],
+      "steps": [
+        "Double-click Tool Assemblies in Database Explorer",
+        "Assembly Tree appears below Database Explorer",
+        "Right-click in Assembly Tree > New Assembly",
+        "Enter assembly name",
+        "Drag cutting tool from Cutting Tools document to assembly",
+        "Drag holder from Holders document to assembly",
+        "Use Properties Grid to adjust offset/orientation",
+        "Graphics window shows assembled tool",
+        "Verify reach and clearance visually",
+        "Save assembly - auto-saved to TOOLDB"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-015",
+      "title": "Create Probing Remachine Cycle",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "prerequisites": ["Probe configured", "Feature to inspect defined"],
+      "steps": [
+        "Create probe operation for feature measurement",
+        "Select feature type (circle, pocket, etc.)",
+        "Define nominal dimensions and tolerances",
+        "Add Logic statement after inspection",
+        "Configure IF condition for undersized feature",
+        "Add tool offset update action (diameter, wear)",
+        "Add remachine toolpath reference",
+        "Configure ELSE for oversized (cannot remachine)",
+        "Add stop/error action for out-of-spec oversized",
+        "Close logic statement",
+        "Post and verify cycle sequence"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-016",
+      "title": "Configure Entry Motion for Dynamic Mill",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Dynamic Mill toolpath parameters open"],
+      "steps": [
+        "Navigate to Entry Motion page in toolpath dialog",
+        "Select Entry method from dropdown: Helix, Profile, or Custom chain",
+        "For Helix: set minimum radius, plunge angle, Z clearance",
+        "For Profile: set Z clearance and plunge angle",
+        "For Custom chain: click Select, chain open entry geometry",
+        "Set Entry speed/feed percentages if different from cut",
+        "Set Dwell interval after entry (allows spindle stabilization)",
+        "Click OK to apply entry settings",
+        "Backplot to verify entry motion path"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-017",
+      "title": "Add Boolean Operations to Solid Model",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "prerequisites": ["Two or more solid bodies exist"],
+      "steps": [
+        "Select Solids > Boolean from menu",
+        "Choose operation type: Add, Remove, or Common",
+        "For Add (union): select bodies to join together",
+        "For Remove (subtract): select target, then tool body",
+        "For Common (intersect): select bodies to intersect",
+        "Preview shows result before accepting",
+        "Click OK to perform boolean operation",
+        "Result is single solid body",
+        "Operation recorded in history tree for editing"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-018",
+      "title": "Shell Solid Model",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "prerequisites": ["Solid body created", "Enclosed shape suitable for shelling"],
+      "steps": [
+        "Select Solids > Shell from menu",
+        "Enter wall thickness value",
+        "Select faces to remain open (removed during shelling)",
+        "Typically select top face for box/enclosure shapes",
+        "Preview shows hollow result",
+        "Adjust thickness if walls appear too thin/thick",
+        "Click OK to create shelled solid",
+        "Interior is hollowed with uniform wall thickness"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-019",
+      "title": "Post Process with Probe Operations",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "prerequisites": ["Probe operations created", "Renishaw-enabled post available"],
+      "steps": [
+        "Select operations to post in Toolpaths Manager",
+        "Click Post selected operations",
+        "In Post Processing dialog, select Renishaw-enabled post",
+        "Click OK - Probing Post Tool dialog appears",
+        "Select appropriate RenMF file for your machine",
+        "Configure probing output options",
+        "Click OK to generate NC code",
+        "NC file includes both machining and probing code",
+        "Verify probing sequences in code output"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-020",
+      "title": "Machine Multiple Fixtures with Single Setup",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "prerequisites": ["Part geometry", "Multiple fixture positions defined"],
+      "steps": [
+        "Open Plane Manager from Status Bar",
+        "Create WCS plane for first fixture position",
+        "Set origin at fixture datum, orientation to match fixture",
+        "Create second WCS plane for second fixture position",
+        "Create toolpaths for first part using first WCS",
+        "Transform or copy toolpaths for second fixture",
+        "Assign second WCS to copied toolpaths",
+        "Work offsets (G54, G55, etc.) assigned via Plane Manager",
+        "Post process all operations",
+        "NC code includes work offset changes between fixtures"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-021",
+      "title": "Add Fillet and Chamfer to Solid Model",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "prerequisites": ["Solid model with edges to blend"],
+      "steps": [
+        "For Fillet: Select Solids > Fillet",
+        "Select edges to fillet (can select multiple)",
+        "Enter fillet radius",
+        "Preview shows blended result",
+        "For Chamfer: Select Solids > Chamfer",
+        "Choose chamfer type: Distance, Distance-Angle, etc.",
+        "Select edges to chamfer",
+        "Enter chamfer values",
+        "Click OK to apply",
+        "Note: Apply draft before fillets for best results"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-022",
+      "title": "Troubleshoot Unexpected Toolpath Results",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Toolpath created but not as expected"],
+      "steps": [
+        "Check chaining direction using Analyze > Volume/Area > 2D Area",
+        "Verify enclosed 2D area matches expectations",
+        "Check region assignments (Machining, Avoidance, Containment)",
+        "Verify Machining region strategy (Stay Inside, From Outside, Rest)",
+        "Check for overlapping or intersecting chains",
+        "Verify tool diameter vs geometry clearances",
+        "Check stock-to-leave values",
+        "Regenerate operation after changes",
+        "Use Backplot to visualize actual tool motion",
+        "Compare with similar working toolpath if available"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-023",
+      "title": "Configure Micro Lift for Dynamic Toolpath",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Dynamic Mill or Dynamic Contour parameters open"],
+      "steps": [
+        "Navigate to Cut Parameters page",
+        "Locate Micro lift section",
+        "Enable micro lift checkbox",
+        "Set lift distance (amount tool raises above floor)",
+        "Set back feedrate percentage for retract moves",
+        "Benefits: chip clearing, reduced tool heat",
+        "Adjust based on material and chip characteristics",
+        "Backplot to verify lift motion in toolpath"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-024",
+      "title": "Create Tool Breakage Detection Cycle",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "prerequisites": ["Probe configured", "Tool setter available on machine"],
+      "steps": [
+        "Create probe operation from Toolpaths menu",
+        "Select Tool Setting from menu in Probing Dialog",
+        "Choose Broken Tool Detection from fly-out",
+        "Select tool setter type matching your hardware",
+        "Enter Tool change ID number",
+        "Enter tool offset index (0 to match ID if >9)",
+        "Configure measurement type and parameters",
+        "Add to toolpath sequence after cutting operations",
+        "If breakage detected, error outputs to control",
+        "Program stops for operator intervention"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-025",
+      "title": "Access Cut Parameters from Tool Library",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "prerequisites": ["TOOLDB with cut parameters defined", "Creating toolpath"],
+      "steps": [
+        "In toolpath dialog, select Tool page",
+        "Click Select library tool button",
+        "Navigate to tool with cut parameters",
+        "Select tool and click OK",
+        "Cut parameters (speeds/feeds) auto-populate",
+        "Values based on material and operation type",
+        "Adjust parameters if needed for specific application",
+        "To view/edit cut parameters: open Tool Manager",
+        "Double-click Cut Parameters in Database Explorer"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-026",
+      "title": "Create Counterbore on Imported Solid",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "prerequisites": ["Imported solid with existing hole", "Model Prep available"],
+      "steps": [
+        "Select Solids > Model Prep > Hole modification",
+        "Select existing hole face",
+        "Choose Add counterbore option",
+        "Enter counterbore diameter (larger than hole)",
+        "Enter counterbore depth",
+        "Preview shows counterbore feature",
+        "Click OK to create counterbore",
+        "Counterbore added without rebuilding model"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-027",
+      "title": "Multi-Edit Tools in Tool Manager",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "prerequisites": ["Multiple tools requiring same change"],
+      "steps": [
+        "Open Tools document in Tool Manager",
+        "Select first tool to edit",
+        "Ctrl+click to add additional tools to selection",
+        "Or Shift+click for range selection",
+        "Properties Grid shows common properties",
+        "Edit shared property (e.g., coolant type)",
+        "Change applies to ALL selected tools",
+        "Different values show as blank - edit to set same value",
+        "Significant time savings for bulk updates"
+      ]
+    },
+    {
+      "id": "MCAM-PROC-028",
+      "title": "Verify Dynamic Mill Cycle Time Savings",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "prerequisites": ["Dynamic Mill and Pocket operations on same geometry"],
+      "steps": [
+        "Select Dynamic Mill operation",
+        "Click Backplot selected operations",
+        "Click Play to run simulation",
+        "Click Expand > Info tab",
+        "Record total runtime",
+        "Close backplot",
+        "Select Pocket operation",
+        "Repeat backplot and record runtime",
+        "Calculate percentage savings",
+        "Document for process improvement tracking"
+      ]
+    }
+  ],
+
+  "parameter_guidance": [
+    {
+      "parameter_name": "Micro Lift Distance",
+      "guidance": "Set 0.5-2mm above floor to clear chips and reduce tool heat during non-cutting moves. Higher values for sticky materials.",
+      "when_to_use": "Dynamic Mill and Dynamic Contour operations",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Entry Method",
+      "guidance": "Helix for open areas with room to spiral. Profile for controlled plunge with clearance. Custom chain when entry point must be at specific location (edge, pre-drilled hole).",
+      "when_to_use": "All Dynamic toolpaths requiring material entry",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "% of Tool Diameter (Stepover)",
+      "guidance": "For Dynamic Mill Rest, use 400-500% to maximize engagement with remaining material. Standard operations typically 25-75% depending on material.",
+      "when_to_use": "Rest Mill strategy",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Machining Region Strategy",
+      "guidance": "Stay Inside: standard pockets. From Outside: facing with island avoidance, open shapes. Rest Material: leftover cleanup from larger tools.",
+      "when_to_use": "Dynamic Mill operation setup",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Entry Dwell",
+      "guidance": "Set 0.5-2 seconds after entry to allow spindle to reach target RPM before material engagement. Critical for high-speed spindles.",
+      "when_to_use": "High-speed machining operations",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Contour Wall Stock",
+      "guidance": "Enter remaining stock amount from previous operations. Mastercam uses this to calculate efficient wall machining strategy.",
+      "when_to_use": "Dynamic Contour for wall finishing",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Tool Flute Length",
+      "guidance": "Dynamic toolpaths use full flute length. Ensure flute length exceeds required depth of cut. Insufficient flute length causes tool burial.",
+      "when_to_use": "Tool selection for Dynamic operations",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Depth Cuts",
+      "guidance": "For standard Pocket: enable when material/tool cannot handle full-depth cutting. Dynamic Mill typically uses full depth without depth cuts.",
+      "when_to_use": "Deep pockets in hard materials",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Optimize Cut Order",
+      "guidance": "Disable for Rest Mill operations to ensure all remaining material is addressed. Enable for standard operations to minimize rapid movements.",
+      "when_to_use": "Dynamic Mill Rest strategy",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Back Feedrate",
+      "guidance": "Set micro lift retract feedrate as percentage of cut feedrate. 100-200% typical. Higher reduces non-cutting time.",
+      "when_to_use": "Dynamic operations with micro lift enabled",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Plunge Angle (Profile Entry)",
+      "guidance": "1-3 degrees typical for controlled material entry. Lower angles reduce entry forces but increase entry time.",
+      "when_to_use": "Profile entry method",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Z Clearance (Entry)",
+      "guidance": "Height above material where controlled entry begins. 0.5-2mm typical. Must clear chips and provide safe transition.",
+      "when_to_use": "All entry methods",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Retract Height",
+      "guidance": "Safe Z for rapid moves between cuts. Set above all obstructions including clamps and fixtures. Use Incremental from Top of Stock typically.",
+      "when_to_use": "Linking Parameters page",
+      "source_pdf": "Introduction_to_WCS.pdf"
+    },
+    {
+      "parameter_name": "Feed Plane Height",
+      "guidance": "Height where tool switches from rapid to feed. Typically 2-5mm above Top of Stock. Set Incremental.",
+      "when_to_use": "Linking Parameters page",
+      "source_pdf": "Introduction_to_WCS.pdf"
+    },
+    {
+      "parameter_name": "Tool Offset Index",
+      "guidance": "Set to 0 to auto-match Tool Change ID when ID is greater than 9. Simplifies setup for large tool magazines.",
+      "when_to_use": "Probing tool setting cycles",
+      "source_pdf": "RenishawProbe-GS.pdf"
+    },
+    {
+      "parameter_name": "Draft Angle (Solids)",
+      "guidance": "2-5 degrees typical for injection molds. Apply before fillets as draft works on flat faces.",
+      "when_to_use": "Solid extrude operations for moldable parts",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf"
+    },
+    {
+      "parameter_name": "Shell Wall Thickness",
+      "guidance": "Ensure minimum wall thickness is machinable (typically >0.5mm for milling). Consider part function and material strength.",
+      "when_to_use": "Solid shell operations",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf"
+    },
+    {
+      "parameter_name": "Stock to Leave on Walls",
+      "guidance": "Set 0.5-1mm for roughing operations that will be followed by finishing. Set 0 for final operations.",
+      "when_to_use": "Pocket and Dynamic Mill operations",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Stock to Leave on Floors",
+      "guidance": "Typically 0 for pockets. Non-zero if floor will be re-machined by separate finishing operation.",
+      "when_to_use": "Pocket operations",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Chaining Tolerance",
+      "guidance": "Default 0.0254mm (0.001 inch). Increase if geometry has small gaps. Decrease for precision work.",
+      "when_to_use": "System Configuration / Chaining options",
+      "source_pdf": "Introduction_to_WCS.pdf"
+    },
+    {
+      "parameter_name": "Helix Minimum Radius",
+      "guidance": "Set to allow tool to spiral without hitting walls. Typically 25-50% of tool diameter plus allowance.",
+      "when_to_use": "Helix entry method",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "WCS Origin",
+      "guidance": "Align with fixture datum or part zero. All toolpath coordinates are relative to this point.",
+      "when_to_use": "Setting up Work Coordinate System",
+      "source_pdf": "Introduction_to_WCS.pdf"
+    },
+    {
+      "parameter_name": "Tplane Orientation",
+      "guidance": "Set normal to tool axis direction. Non-default Tplane triggers rotary axis output in posted code.",
+      "when_to_use": "Multi-axis or tilted toolpaths",
+      "source_pdf": "Introduction_to_WCS.pdf"
+    },
+    {
+      "parameter_name": "Probe Stylus Selection",
+      "guidance": "Match stylus in software to physical stylus on machine. Incorrect selection causes measurement errors.",
+      "when_to_use": "Probe configuration",
+      "source_pdf": "RenishawProbe-GS.pdf"
+    },
+    {
+      "parameter_name": "Probe Module Selection",
+      "guidance": "Select exact Renishaw module model installed on machine. Different modules have different specifications.",
+      "when_to_use": "Probe configuration",
+      "source_pdf": "RenishawProbe-GS.pdf"
+    },
+    {
+      "parameter_name": "Cut Parameter Material",
+      "guidance": "Select workpiece material when accessing cut parameters. Speeds/feeds adjust based on material selection.",
+      "when_to_use": "Accessing manufacturer cut data",
+      "source_pdf": "Tool_Manager_GSG.pdf"
+    },
+    {
+      "parameter_name": "Tool Assembly Holder Offset",
+      "guidance": "Set Z offset where holder connects to tool. Verify in graphics window for proper assembly visualization.",
+      "when_to_use": "Creating tool assemblies",
+      "source_pdf": "Tool_Manager_GSG.pdf"
+    },
+    {
+      "parameter_name": "Roughing Stepover Percentage",
+      "guidance": "50% typical for standard pocketing. Dynamic Mill calculates engagement automatically for optimal performance.",
+      "when_to_use": "Pocket Roughing page",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Finish Pass Count",
+      "guidance": "1 pass typical for wall finish. Additional passes for better surface finish at cost of cycle time.",
+      "when_to_use": "Pocket finishing options",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Ramp Angle",
+      "guidance": "2-5 degrees for controlled ramp entry into pockets. Lower angles = less axial force but longer entry.",
+      "when_to_use": "Pocket entry motion",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Maximum Rough Step (Depth Cut)",
+      "guidance": "Set based on tool capability and material. Typically 1-3mm for steels with standard end mills.",
+      "when_to_use": "Pocket Depth Cuts page",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Display Relative to WCS",
+      "guidance": "Enable to show plane names relative to current WCS instead of absolute names. Improves clarity when working with multiple coordinate systems.",
+      "when_to_use": "Planes (WCS) page in toolpath parameters",
+      "source_pdf": "Introduction_to_WCS.pdf"
+    },
+    {
+      "parameter_name": "Probing Tolerance",
+      "guidance": "Set acceptance tolerance for probed measurements. Features outside tolerance trigger logic actions (remachine or stop).",
+      "when_to_use": "Probe inspection cycles",
+      "source_pdf": "RenishawProbe-GS.pdf"
+    },
+    {
+      "parameter_name": "Tool Number Range",
+      "guidance": "1-999 available for tool numbers. Plan numbering scheme for tool magazine organization.",
+      "when_to_use": "Tool definition",
+      "source_pdf": "Tool_Manager_GSG.pdf"
+    },
+    {
+      "parameter_name": "Holder Number",
+      "guidance": "Assign unique holder numbers for tool magazine management. Used with tool assemblies.",
+      "when_to_use": "Holder and assembly definition",
+      "source_pdf": "Tool_Manager_GSG.pdf"
+    },
+    {
+      "parameter_name": "Air Region Chain",
+      "guidance": "Use partial chaining for air regions. Open chain indicates no material boundary allowing tool to pass through.",
+      "when_to_use": "Dynamic Mill with air entry required",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Containment Region",
+      "guidance": "Chain closed boundary that tool must stay within. Useful for limiting machining to specific part area.",
+      "when_to_use": "Dynamic Mill with area constraints",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Avoidance Region",
+      "guidance": "Chain geometry to avoid (islands, fixtures). Toolpath routes around these areas automatically.",
+      "when_to_use": "Dynamic Mill with obstacles",
+      "source_pdf": "Dynamic_Milling.pdf"
+    },
+    {
+      "parameter_name": "Boolean Operation Type",
+      "guidance": "Add (union) joins solids. Remove (subtract) cuts tool from target. Common (intersect) keeps only overlap.",
+      "when_to_use": "Combining solid bodies",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf"
+    },
+    {
+      "parameter_name": "Extrude Direction",
+      "guidance": "Use Reverse All to flip extrusion direction. Direction determines which side material is added/removed.",
+      "when_to_use": "Solid extrude operations",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf"
+    },
+    {
+      "parameter_name": "Through All (Cut Body)",
+      "guidance": "Enable to cut completely through solid regardless of specified depth. Useful for holes and slots.",
+      "when_to_use": "Extrude cut operations",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf"
+    }
+  ],
+
+  "high_speed_machining": [
+    {
+      "id": "MCAM-HSM-001",
+      "content": "Dynamic toolpaths minimize tool burial by using full flute length engagement. Tool moves through material rather than plunging into it.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "critical"
+    },
+    {
+      "id": "MCAM-HSM-002",
+      "content": "Micro lift during non-cutting moves prevents heat accumulation in tool and workpiece. Essential for high-speed operations.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "critical"
+    },
+    {
+      "id": "MCAM-HSM-003",
+      "content": "Entry dwell allows spindle to reach programmed RPM before cutting engagement. Prevents tool loading during spindle acceleration.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-004",
+      "content": "Dynamic Mill achieves 50%+ cycle time reduction compared to standard Pocket operations while maintaining or improving surface finish.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "critical"
+    },
+    {
+      "id": "MCAM-HSM-005",
+      "content": "Better chip evacuation with dynamic motion results from consistent engagement and reduced dwelling in cuts.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-006",
+      "content": "Dynamic Contour automatically converts to dynamic motion in areas where standard contour would cause tool binding.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-007",
+      "content": "Profile entry method provides controlled low-angle entry into material, reducing shock loads on tool and spindle.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-008",
+      "content": "Full-depth cutting with Dynamic Mill extends tool life by maintaining consistent chip load rather than varying with multiple depth passes.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "critical"
+    },
+    {
+      "id": "MCAM-HSM-009",
+      "content": "Entry feeds/speeds separate from cut parameters allow optimized entry conditions without compromising main cutting efficiency.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-010",
+      "content": "Toolpath stays inside machining region boundary (Stay Inside strategy), eliminating outside-material rapid moves.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-HSM-011",
+      "content": "Rest Mill strategy targets only unmachined areas, eliminating air cutting over previously machined surfaces.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-012",
+      "content": "High stepover percentage (400-500%) for rest milling maximizes engagement with remaining material pockets.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-013",
+      "content": "Dynamic motion pattern avoids sharp direction changes that cause tool deflection and chatter at high speeds.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-014",
+      "content": "Contour wall parameters help calculate most efficient removal strategy when approaching walls at high speed.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-HSM-015",
+      "content": "Helix entry with controlled plunge angle provides smooth tool loading for high-speed entry into pockets.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-HSM-016",
+      "content": "Custom entry chain option allows entry at known air/pre-machined locations for fastest safe engagement.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-HSM-017",
+      "content": "From Outside strategy provides efficient facing with island avoidance, tool free to move outside boundary for optimal paths.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-HSM-018",
+      "content": "Dynamic toolpaths are incremental evolution of HST family, combining familiar 2D concepts with intelligent motion patterns.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    }
+  ],
+
+  "x8_specific": [
+    {
+      "id": "MCAM-X8-001",
+      "content": "Tool Manager in X8 uses new TOOLDB database format - faster, more reliable, and non-proprietary for manufacturer integration.",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-X8-002",
+      "content": "Stand-alone Tool Manager can run without Mastercam open (after initial Mastercam launch to build support files).",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-003",
+      "content": "Renishaw Productivity+ integrated into X8 for probing operations. Requires Mill Level 1 minimum.",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-X8-004",
+      "content": "Model Prep functions in X8 allow modification of imported brick solids without history tree access.",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "importance": "high"
+    },
+    {
+      "id": "MCAM-X8-005",
+      "content": "Dynamic Mill X8 supports three machining strategies: Stay Inside, From Outside, and Rest Material.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "critical"
+    },
+    {
+      "id": "MCAM-X8-006",
+      "content": "X8 configuration files: mcamxm.config for Metric, mcamx.config for English. Load via Settings > Configuration.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-007",
+      "content": "X8 file format is MCX-8 (full version) or EMCX-8 (Demo/HLE - limited functionality, cannot post).",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-008",
+      "content": "Productivity+ in X8 supports 3-axis, 4-axis, and multiaxis (3+2) mills but not continuous 4/5-axis probing.",
+      "source_pdf": "RenishawProbe-GS.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-009",
+      "content": "X8 Solids features dynamic preview showing results as parameters are edited before finalizing operations.",
+      "source_pdf": "Getting Started with Mastercam Solids.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-010",
+      "content": "Tool Manager X8 auto-saves work as you edit, eliminating manual backup requirements during tool library management.",
+      "source_pdf": "Tool_Manager_GSG.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-011",
+      "content": "X8 Planes page in toolpath dialog includes 'Display relative to WCS' option for clearer plane relationship understanding.",
+      "source_pdf": "Introduction_to_WCS.pdf",
+      "importance": "medium"
+    },
+    {
+      "id": "MCAM-X8-012",
+      "content": "Chain Options dialog in X8 Dynamic Mill provides dedicated Select buttons for Machining, Avoidance, Containment, and Air regions.",
+      "source_pdf": "Dynamic_Milling.pdf",
+      "importance": "high"
+    }
+  ]
+}

@@ -1,0 +1,1433 @@
+{
+  "schema_version": "2.0.0",
+  "system_id": "hypermill",
+  "catalog_id": "5axis_maxx_millturn_advanced",
+  "catalog_name": "hyperMILL Advanced Modules - 5-Axis, MAXX Machining, Mill-Turn",
+  "description": "Complete parameter enumeration for hyperMILL advanced CAM modules extracted from v33.0 CFG files",
+  "generated_at": "2026-04-19T04:30:00Z",
+  "source": "H:/prism/resources/OPEN MIND/hyperMILL/33.0/Metric.cfg/",
+  "total_parameters": 847,
+  "modules": {
+    "5axis": {
+      "module_id": "5axis",
+      "module_name": "5-Axis Module",
+      "description": "Full simultaneous 5-axis and 3+2 indexed machining strategies",
+      "total_operations": 15,
+      "total_parameters": 512,
+      "operations": [
+        {
+          "id": "5ax_swarf_cutting",
+          "name": "5-Axis Swarf Cutting",
+          "cfg_file": "hmBwX5.cfg",
+          "description": "Side milling with tool flank tangent to ruled surfaces",
+          "dialogs": [
+            {
+              "id": "5ax_swarf_geometry",
+              "name": "Geometry Selection",
+              "parameters": [
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol", "unit": "mm", "description": "Resolution for surface tessellation"},
+                {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "default": "mtol", "unit": "mm", "description": "Resolution for profile curves"},
+                {"id": "CURVE_CONTACT", "name": "Curve Contact Mode", "type": "integer", "default": 1, "range": [0, 1], "description": "0=Surface, 1=Curve contact point reference"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "STEP_STRATEGY", "name": "Step Strategy", "type": "integer", "default": 1, "range": [0, 2], "description": "0=Constant, 1=Scallop height, 2=Adaptive"},
+                {"id": "CUT_DIRECTION", "name": "Cut Direction", "type": "integer", "default": 0, "range": [0, 2], "description": "0=Climb, 1=Conventional, 2=Zigzag"},
+                {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "default": 1, "range": [0, 1], "description": "0=Absolute, 1=Percentage"},
+                {"id": "HORIZUSTEL", "name": "Horizontal Stepover", "type": "number", "default": 1, "unit": "mm", "range": [0.01, 100], "description": "Stepover distance or percentage"},
+                {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "default": 1, "unit": "mm", "range": [0.01, 50], "description": "Vertical depth per pass"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_allowance",
+              "name": "Allowances",
+              "parameters": [
+                {"id": "AUFMASS", "name": "Radial Allowance", "type": "number", "default": 0, "unit": "mm", "range": [-1, 10], "description": "Stock to leave on walls"},
+                {"id": "AUFMASS_HORI", "name": "Axial Allowance", "type": "number", "default": 0, "unit": "mm", "range": [-1, 10], "description": "Stock to leave on floor"},
+                {"id": "ZOFFSET", "name": "Z Offset", "type": "number", "default": 0, "unit": "mm", "range": [-50, 50], "description": "Additional Z offset"},
+                {"id": "STOCK_WIDTH", "name": "Stock Width", "type": "number", "default": 5, "unit": "mm", "range": [0, 100], "description": "Stock width for collision check"},
+                {"id": "STOCK_HEIGHT", "name": "Stock Height", "type": "number", "default": 0, "unit": "mm", "range": [0, 100], "description": "Stock height for collision check"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "SMOOTH_5AX", "name": "Smooth 5-Axis", "type": "integer", "default": 0, "range": [0, 1], "description": "Enable axis smoothing"},
+                {"id": "TILT_ANGLE", "name": "Lead Angle", "type": "number", "default": 10, "unit": "deg", "range": [0, 45], "description": "Tool lead/tilt angle"},
+                {"id": "SIDE_ANGLE", "name": "Side Angle", "type": "number", "default": 0, "unit": "deg", "range": [-45, 45], "description": "Tool side tilt angle"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_macro",
+              "name": "Approach/Retract",
+              "parameters": [
+                {"id": "MACRO_START", "name": "Approach Type", "type": "integer", "default": 2, "range": [1, 3], "description": "1=Axial, 2=Circular, 3=Linear"},
+                {"id": "MACRO_SRAD", "name": "Approach Radius", "type": "number", "default": 3, "unit": "mm", "range": [0.5, 50], "description": "Approach arc radius"},
+                {"id": "MACRO_SABST", "name": "Approach Distance", "type": "number", "default": 0, "unit": "mm", "range": [0, 50], "description": "Additional approach distance"},
+                {"id": "MACRO_END", "name": "Retract Type", "type": "integer", "default": 2, "range": [1, 3], "description": "1=Axial, 2=Circular, 3=Linear"},
+                {"id": "MACRO_ERAD", "name": "Retract Radius", "type": "number", "default": 3, "unit": "mm", "range": [0.5, 50], "description": "Retract arc radius"},
+                {"id": "MACRO_EABST", "name": "Retract Distance", "type": "number", "default": 0, "unit": "mm", "range": [0, 50], "description": "Additional retract distance"},
+                {"id": "MACRO_RETURN", "name": "Return Move", "type": "integer", "default": 1, "range": [0, 2], "description": "0=None, 1=Clearance, 2=Safe plane"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "default": 5, "unit": "mm", "range": [0.5, 100], "description": "Rapid approach distance above part"},
+                {"id": "SICHEBENE", "name": "Clearance Plane", "type": "number", "default": 100, "unit": "mm", "range": [1, 500], "description": "Z clearance plane height"},
+                {"id": "TOOL_LENGTH_INCR", "name": "Tool Length Increment", "type": "number", "default": 1, "unit": "mm", "range": [0, 50], "description": "Additional tool length for collision check"},
+                {"id": "SHANK_CLEARANCE", "name": "Shank Clearance", "type": "number", "default": 0.05, "unit": "mm", "range": [0, 5], "description": "Clearance for tool shank"},
+                {"id": "EXTENSION_CLEARANCE", "name": "Extension Clearance", "type": "number", "default": 0.25, "unit": "mm", "range": [0, 5], "description": "Clearance for tool extension"},
+                {"id": "HOLDER_CLEARANCE", "name": "Holder Clearance", "type": "number", "default": 0.25, "unit": "mm", "range": [0, 10], "description": "Clearance for tool holder"},
+                {"id": "HEAD_CLEARANCE", "name": "Head Clearance", "type": "number", "default": 1.5, "unit": "mm", "range": [0, 20], "description": "Clearance for spindle head"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "PRECISION", "name": "Machining Tolerance", "type": "number", "default": 0.005, "unit": "mm", "range": [0.001, 0.5], "description": "Toolpath calculation precision"},
+                {"id": "OUTPUT_TOL", "name": "Output Tolerance", "type": "number", "default": 0.05, "unit": "mm", "range": [0.005, 0.5], "description": "NC output point tolerance"},
+                {"id": "STEP_MAX", "name": "Max Point Distance", "type": "number", "default": 1, "unit": "mm", "range": [0.1, 10], "description": "Maximum distance between NC points"},
+                {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "default": 10, "unit": "mm", "range": [1, 100], "description": "Maximum direct approach distance"},
+                {"id": "STEP_WIN", "name": "Max Angle Increment", "type": "number", "default": 0.5, "unit": "deg", "range": [0.1, 5], "description": "Maximum angle change per point"},
+                {"id": "MAX_DIST_ANGLE", "name": "Max Distance Angle", "type": "number", "default": 91, "unit": "deg", "range": [45, 180], "description": "Maximum angle for distance calculation"},
+                {"id": "CLEAR_RADIUS", "name": "Clear Radius", "type": "number", "default": 100, "unit": "mm", "range": [10, 500], "description": "Radius for clearance moves"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_collision",
+              "name": "Collision Control",
+              "parameters": [
+                {"id": "CHECK_PLANE", "name": "Check Clearance Plane", "type": "integer", "default": 1, "range": [0, 1], "description": "0=No, 1=Yes - collision check on clearance plane"},
+                {"id": "CHECK_STARTPT", "name": "Check Start Position", "type": "integer", "default": 1, "range": [0, 1], "description": "0=No, 1=Yes - collision check at start"},
+                {"id": "ALLOW_WEAK_CHECK", "name": "Allow Weak Check", "type": "integer", "default": 0, "range": [0, 1], "description": "0=Strict, 1=Relaxed collision checking"}
+              ]
+            },
+            {
+              "id": "5ax_swarf_feeds",
+              "name": "Feed Rates",
+              "parameters": [
+                {"id": "AUTO_FEED", "name": "Auto Feed", "type": "integer", "default": 0, "range": [0, 1], "description": "0=Manual, 1=Automatic feed calculation"},
+                {"id": "AUTO_FEED_RAD", "name": "Auto Feed Radius", "type": "number", "default": 10, "unit": "mm", "range": [1, 100], "description": "Radius for automatic feed calculation"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_point_milling",
+          "name": "5-Axis Point Milling",
+          "cfg_file": "hmBpX5.cfg",
+          "description": "Ball nose milling with continuous 5-axis orientation",
+          "dialogs": [
+            {
+              "id": "5ax_point_geometry",
+              "name": "Geometry",
+              "parameters": [
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol", "unit": "mm"},
+                {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "default": "mtol", "unit": "mm"},
+                {"id": "CURVE_CONTACT", "name": "Curve Contact", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_point_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "STOCK_WIDTH", "name": "Stock Width", "type": "number", "default": 0, "unit": "mm", "range": [0, 100]},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 1, "unit": "mm", "range": [0.01, 50]},
+                {"id": "AUFMASS_HORI", "name": "Horizontal Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_point_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 10, "unit": "deg", "range": [0, 60]},
+                {"id": "SIDE_ANGLE", "name": "Side Angle", "type": "number", "default": 30, "unit": "deg", "range": [-60, 60]},
+                {"id": "EDGE_AUTO", "name": "Auto Edge Detection", "type": "integer", "default": 1, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_point_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "SICHEBENE", "name": "Clearance Plane", "type": "number", "default": 100, "unit": "mm"},
+                {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "ZUST_EILGANG", "name": "Rapid Approach", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_point_macro",
+              "name": "Approach/Retract",
+              "parameters": [
+                {"id": "MACRO_SLEN", "name": "Approach Length", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_SHEIGHT", "name": "Approach Height", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_ELEN", "name": "Retract Length", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_EHEIGHT", "name": "Retract Height", "type": "number", "default": 5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_point_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "PRECISION", "name": "Machining Tolerance", "type": "number", "default": 0.005, "unit": "mm"},
+                {"id": "OUTPUT_TOL", "name": "Output Tolerance", "type": "number", "default": 0.05, "unit": "mm"},
+                {"id": "STEP_MAX", "name": "Max Step", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "default": 10, "unit": "mm"},
+                {"id": "STEP_WIN", "name": "Max Angle Step", "type": "number", "default": 2, "unit": "deg"},
+                {"id": "MAX_DIST_ANGLE", "name": "Max Distance Angle", "type": "number", "default": 91, "unit": "deg"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_tangent_plane",
+          "name": "5-Axis Tangent Plane Machining",
+          "cfg_file": "hmBtX5.cfg",
+          "description": "Blade top milling with tangent plane strategy",
+          "dialogs": [
+            {
+              "id": "5ax_tang_geometry",
+              "name": "Geometry",
+              "parameters": [
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol"},
+                {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "default": "mtol"},
+                {"id": "BOTTOM_ON", "name": "Bottom Boundary", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "BOTTOM_AUTO", "name": "Auto Bottom", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "BOTTOM_OFFSET", "name": "Bottom Offset", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "TOP_ON", "name": "Top Boundary", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "TOP_AUTO", "name": "Auto Top", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TOP_OFFSET", "name": "Top Offset", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_tang_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "STEP_STRATEGY", "name": "Step Strategy", "type": "integer", "default": 1, "range": [0, 2]},
+                {"id": "CUT_DIRECTION", "name": "Cut Direction", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "FIRST_CUT_INV", "name": "Invert First Cut", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FIRST_CUT_ONLY", "name": "First Cut Only", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FIRST_CUT_SPIRAL", "name": "Spiral First Cut", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "SCAL_HEIGHT", "name": "Scallop Height", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "ZUST_MIN", "name": "Minimum Step", "type": "number", "default": 0.01, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_tang_allowance",
+              "name": "Allowances",
+              "parameters": [
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AUFMASS_HORI", "name": "Horizontal Allowance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_tang_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "SMOOTH_5AX", "name": "Smooth 5-Axis", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 10, "unit": "deg"},
+                {"id": "TILT_AUTO", "name": "Auto Tilt", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "TILT_MIN_ANGLE", "name": "Min Tilt Angle", "type": "number", "default": 2, "unit": "deg"},
+                {"id": "FAN_DIST", "name": "Fan Distance", "type": "number", "default": 20, "unit": "mm"},
+                {"id": "CLIP_RETRACT", "name": "Clip Retract", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CLIP_HEIGHT", "name": "Clip Height", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_contour",
+          "name": "5-Axis Contour Milling",
+          "cfg_file": "hmCtX5.cfg",
+          "description": "5-axis contouring along curves with automatic tilt control",
+          "dialogs": [
+            {
+              "id": "5ax_cont_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "SEITE", "name": "Side", "type": "integer", "default": 0, "range": [0, 2], "description": "0=Left, 1=Right, 2=Center"},
+                {"id": "ZOFFSET", "name": "Z Offset", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "TILT_STRATEGY", "name": "Tilt Strategy", "type": "integer", "default": 1, "range": [0, 12]},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"},
+                {"id": "FAN_DIST", "name": "Fan Distance", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "AVOID_COLL", "name": "Avoid Collision", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_cont_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "ZUST_EILGANG", "name": "Rapid Infeed", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_cont_macro",
+              "name": "Approach/Retract",
+              "parameters": [
+                {"id": "MACRO_START", "name": "Approach Type", "type": "integer", "default": 1, "range": [1, 3]},
+                {"id": "MACRO_SRAD", "name": "Approach Radius", "type": "number", "default": 3, "unit": "mm"},
+                {"id": "MACRO_SABST", "name": "Approach Distance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "MACRO_END", "name": "Retract Type", "type": "integer", "default": 1, "range": [1, 3]},
+                {"id": "MACRO_ERAD", "name": "Retract Radius", "type": "number", "default": 3, "unit": "mm"},
+                {"id": "MACRO_EABST", "name": "Retract Distance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_cont_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "PRECISION", "name": "Tolerance", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "STEP_MAX", "name": "Max Step", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "default": 10, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_cont_feeds",
+              "name": "Feed Rates",
+              "parameters": [
+                {"id": "CLEAR_FEEDRATE", "name": "Clearance Feed", "type": "number", "default": 50000, "unit": "mm/min"},
+                {"id": "RAPID_IPOL_TOL", "name": "Rapid Interpolation Tolerance", "type": "number", "default": 0.02, "unit": "mm"},
+                {"id": "XVORSCHUB", "name": "X Feed", "type": "number", "default": 200, "unit": "mm/min"},
+                {"id": "ZVORSCHUB", "name": "Z Feed", "type": "number", "default": 50, "unit": "mm/min"},
+                {"id": "RVORSCHUB", "name": "Retract Feed", "type": "number", "default": 100, "unit": "mm/min"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_flowline",
+          "name": "5-Axis Flowline Machining",
+          "cfg_file": "HMPFX5.CFG",
+          "description": "Profile finishing following surface flow lines",
+          "dialogs": [
+            {
+              "id": "5ax_flow_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "BEARBEITRICHT", "name": "Machining Direction", "type": "integer", "default": 2, "range": [0, 3]},
+                {"id": "CROSS_OPTI", "name": "Cross Optimization", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_PROFIL1", "name": "Invert Profile 1", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_PROFIL2", "name": "Invert Profile 2", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "PROFIL_MIN", "name": "Profile Min", "type": "number", "default": 0},
+                {"id": "PROFIL_MAX", "name": "Profile Max", "type": "number", "default": 0},
+                {"id": "OFFSET", "name": "Offset", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AUFSTIEG", "name": "Ascent", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "SLOPE_MODE", "name": "Slope Mode", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "SLOPE_FLAT_ANGLE", "name": "Flat Slope Angle", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "SLOPE_ANGLE", "name": "Slope Angle", "type": "number", "default": 45, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_flow_depth",
+              "name": "Depth Control",
+              "parameters": [
+                {"id": "OBERFL", "name": "Surface", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "TIEF", "name": "Depth", "type": "number", "default": -10, "unit": "mm"},
+                {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "default": 1000, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_flow_stepover",
+              "name": "Stepover",
+              "parameters": [
+                {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "SCAL_HEIGHT", "name": "Scallop Height", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "ZUST_MIN", "name": "Min Step", "type": "number", "default": 0.01, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_flow_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "TILT_FIXED", "name": "Fixed Tilt", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILTFIX_Z", "name": "Fixed Tilt Z", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILTFIX_XY", "name": "Fixed Tilt XY", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 15, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"},
+                {"id": "TILT_STRATEGY", "name": "Tilt Strategy", "type": "integer", "default": 12, "range": [0, 12]},
+                {"id": "TILT_OFFSET", "name": "Tilt Offset", "type": "number", "default": 5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_flow_segment",
+              "name": "Segment Optimization",
+              "parameters": [
+                {"id": "SEG_OPT", "name": "Segment Optimization", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SEG_ANGLE", "name": "Segment Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "SEG_RADIUS", "name": "Segment Radius", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "SEG_HEIGHT", "name": "Segment Height", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_flow_linking",
+              "name": "Path Linking",
+              "parameters": [
+                {"id": "LAUF", "name": "Direction", "type": "integer", "default": 2, "range": [0, 2]},
+                {"id": "CONNECT_SMOOTH", "name": "Smooth Connect", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "ZUST_BAHN", "name": "Path Infeed", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_RICHT", "name": "Invert Direction", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_ZUST", "name": "Invert Infeed", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_flow_collision",
+              "name": "Collision Control",
+              "parameters": [
+                {"id": "TAPER_CHECK", "name": "Taper Check", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "HOLDCHECK", "name": "Holder Check", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "HOLDCHECK_MODE", "name": "Holder Check Mode", "type": "integer", "default": 0, "range": [0, 3]},
+                {"id": "AVOID_COLL", "name": "Avoid Collision", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_impeller_roughing",
+          "name": "5-Axis Impeller Roughing",
+          "cfg_file": "hmIfX5.cfg",
+          "description": "Specialized impeller/blisk roughing with hub and blade strategies",
+          "dialogs": [
+            {
+              "id": "5ax_imp_rough_geometry",
+              "name": "Impeller Geometry",
+              "parameters": [
+                {"id": "PARTIAL", "name": "Partial Machining", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "BLADE_COUNT", "name": "Blade Count", "type": "integer", "default": 6, "range": [1, 100]},
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol"},
+                {"id": "ENTRY_POS", "name": "Entry Position", "type": "integer", "default": 0, "range": [0, 2]}
+              ]
+            },
+            {
+              "id": "5ax_imp_rough_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "LAUF", "name": "Direction", "type": "integer", "default": 2, "range": [0, 2]},
+                {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 0.8, "unit": "mm"},
+                {"id": "SCAL_HEIGHT", "name": "Scallop Height", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "AUFMASS_HUB", "name": "Hub Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AUFMASS_HORI", "name": "Blade Allowance", "type": "number", "default": 0.1, "unit": "mm"},
+                {"id": "FILLET_TOL", "name": "Fillet Tolerance", "type": "number", "default": 0.3, "unit": "mm"},
+                {"id": "PATH_CT", "name": "Path Count", "type": "integer", "default": 1, "range": [1, 10]},
+                {"id": "ENTRY_PASS_CT", "name": "Entry Pass Count", "type": "integer", "default": 0, "range": [0, 5]},
+                {"id": "ENTRY_HEIGHT", "name": "Entry Height", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_imp_rough_open",
+              "name": "Open Machining",
+              "parameters": [
+                {"id": "OPEN_SPINDLE", "name": "Open Spindle Speed", "type": "number", "default": 2000, "unit": "rpm"},
+                {"id": "OPEN_FEED", "name": "Open Feed Rate", "type": "number", "default": 200, "unit": "mm/min"},
+                {"id": "HUB_FEED_CT", "name": "Hub Feed Count", "type": "integer", "default": 0},
+                {"id": "HUB_SPINDLE", "name": "Hub Spindle Speed", "type": "number", "default": 2000, "unit": "rpm"},
+                {"id": "HUB_FEEDRATE", "name": "Hub Feed Rate", "type": "number", "default": 200, "unit": "mm/min"}
+              ]
+            },
+            {
+              "id": "5ax_imp_rough_tilt",
+              "name": "Lead/Lag Control",
+              "parameters": [
+                {"id": "LEAD_ANGLE", "name": "Lead Angle", "type": "number", "default": 5, "unit": "deg"},
+                {"id": "LEADUP_ANGLE", "name": "Lead Up Angle", "type": "number", "default": 5, "unit": "deg"},
+                {"id": "EXT_LEAD", "name": "Extend Lead", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "EXT_TRAIL", "name": "Extend Trail", "type": "number", "default": 1, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_imp_rough_linking",
+              "name": "Linking",
+              "parameters": [
+                {"id": "MACRO_LRAD", "name": "Link Radius", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "MACRO_LDIST", "name": "Link Distance", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "LINK_FEED", "name": "Link Feed", "type": "number", "default": 200, "unit": "mm/min"},
+                {"id": "MACRO_EDIST", "name": "Exit Distance", "type": "number", "default": 1, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_imp_rough_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "APPROX_OK", "name": "Approximation OK", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CHECK_TOL", "name": "Check Tolerance", "type": "number", "default": 0.1, "unit": "mm"},
+                {"id": "PRECISION", "name": "Precision", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "STEP_MAX", "name": "Max Step", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "TOL_ANGLE", "name": "Tolerance Angle", "type": "number", "default": 0.2, "unit": "deg"},
+                {"id": "STEP_WIN", "name": "Step Window", "type": "number", "default": 0.2, "unit": "deg"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_impeller_finishing",
+          "name": "5-Axis Impeller Flank Milling",
+          "cfg_file": "hmIeX5.cfg",
+          "description": "Flank milling for impeller blade finishing",
+          "dialogs": [
+            {
+              "id": "5ax_imp_fin_geometry",
+              "name": "Geometry",
+              "parameters": [
+                {"id": "POINT_BLADE", "name": "Point Blade", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "BLADE_COUNT", "name": "Blade Count", "type": "integer", "default": 1, "range": [1, 100]},
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol*0.7"},
+                {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "default": "mtol*0.7"},
+                {"id": "ENTRY_POS", "name": "Entry Position", "type": "integer", "default": 0}
+              ]
+            },
+            {
+              "id": "5ax_imp_fin_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "LAUF", "name": "Direction", "type": "integer", "default": 2, "range": [0, 2]},
+                {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 0.2, "unit": "mm"},
+                {"id": "SCAL_HEIGHT", "name": "Scallop Height", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "AUFMASS_HUB", "name": "Hub Allowance", "type": "number", "default": 0.1, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "ENTRY_PASS_CT", "name": "Entry Passes", "type": "integer", "default": 0},
+                {"id": "ENTRY_HEIGHT", "name": "Entry Height", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_imp_fin_tilt",
+              "name": "Tilt Control",
+              "parameters": [
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 20, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_imp_fin_linking",
+              "name": "Linking",
+              "parameters": [
+                {"id": "MACRO_SRAD", "name": "Approach Radius", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "MACRO_SABST", "name": "Approach Distance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "MACRO_ERAD", "name": "Retract Radius", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "MACRO_EABST", "name": "Retract Distance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "MACRO_LDIST", "name": "Lift Distance", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "LIFT_OF_DISTANCE", "name": "Lift Off Distance", "type": "number", "default": 0.2, "unit": "mm"},
+                {"id": "LIFT_OF_FEEDRATE", "name": "Lift Off Feed", "type": "number", "default": 200, "unit": "mm/min"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_tube",
+          "name": "5-Axis Tube Machining",
+          "cfg_file": "HMTPX5.CFG",
+          "description": "Machining tubular and cylindrical surfaces",
+          "dialogs": [
+            {
+              "id": "5ax_tube_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "INV_RICHT", "name": "Invert Direction", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_ZUST", "name": "Invert Infeed", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "BOUND_MODE", "name": "Boundary Mode", "type": "integer", "default": 1, "range": [0, 3]}
+              ]
+            },
+            {
+              "id": "5ax_tube_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "default": 10, "unit": "mm"},
+                {"id": "SICHEBENE", "name": "Clearance Plane", "type": "number", "default": 50, "unit": "mm"},
+                {"id": "ZUST_EILGANG", "name": "Rapid Infeed", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_tube_tilt",
+              "name": "Tilt Control",
+              "parameters": [
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_tube_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "PRECISION", "name": "Precision", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "STEP_MAX", "name": "Max Step", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "STEP_MIN", "name": "Min Step for G0", "type": "number", "default": 20, "unit": "mm"},
+                {"id": "STEP_WIN", "name": "Max Angle Step", "type": "number", "default": 5, "unit": "deg"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_remachining",
+          "name": "5-Axis Rest Machining",
+          "cfg_file": "HMRMX5.CFG",
+          "description": "Automatic detection and machining of rest material areas",
+          "dialogs": [
+            {
+              "id": "5ax_rest_reference",
+              "name": "Reference Tool",
+              "parameters": [
+                {"id": "REF_FRTYP", "name": "Reference Tool Type", "type": "integer", "default": 1, "range": [1, 3]},
+                {"id": "REF_RADIUS", "name": "Reference Radius", "type": "number", "default": 3, "unit": "mm"},
+                {"id": "RIF_TOL", "name": "RIF Tolerance", "type": "number", "default": 0.01, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_rest_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "ZANGLE", "name": "Z Angle Threshold", "type": "number", "default": 60, "unit": "deg"},
+                {"id": "METHOD", "name": "Method", "type": "integer", "default": 2, "range": [0, 2]},
+                {"id": "VCUT", "name": "V-Cut", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CONNECT_SMOOTH", "name": "Smooth Connect", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "FILLET_RADIUS", "name": "Fillet Radius", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_rest_depth",
+              "name": "Depth Control",
+              "parameters": [
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "PROJ_DEPTH", "name": "Projection Depth", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "ZAUFMASS", "name": "Z Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "ZPROJ_DEPTH", "name": "Z Projection Depth", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "ZPATH", "name": "Z Path", "type": "integer", "default": 1, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_rest_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "TILT_STRATEGY", "name": "Tilt Strategy", "type": "integer", "default": 12, "range": [0, 12]},
+                {"id": "TILT_OFFSET", "name": "Tilt Offset", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "TILT_FIXED", "name": "Fixed Tilt", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILTFIX_Z", "name": "Fixed Z Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILTFIX_XY", "name": "Fixed XY Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 15, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_rest_collision",
+              "name": "Collision Control",
+              "parameters": [
+                {"id": "ACCEPT_UNDERCUT", "name": "Accept Undercut", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "AVOID_COLL", "name": "Avoid Collision", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_blade_roughing",
+          "name": "5-Axis Blade Roughing",
+          "cfg_file": "hmBrX5.cfg",
+          "description": "Roughing strategy for turbine blade channels",
+          "dialogs": [
+            {
+              "id": "5ax_blade_rough_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "STEP_STRATEGY", "name": "Step Strategy", "type": "integer", "default": 1, "range": [0, 2]},
+                {"id": "CUT_DIRECTION", "name": "Cut Direction", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "FIRST_CUT_INV", "name": "Invert First Cut", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FIRST_CUT_ONLY", "name": "First Cut Only", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FIRST_CUT_SPIRAL", "name": "Spiral First Cut", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_blade_rough_depth",
+              "name": "Depth Control",
+              "parameters": [
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0.5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_blade_rough_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "SMOOTH_5AX", "name": "Smooth 5-Axis", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 10, "unit": "deg"},
+                {"id": "TILT_AUTO", "name": "Auto Tilt", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILT_MIN_ANGLE", "name": "Min Tilt Angle", "type": "number", "default": 2, "unit": "deg"},
+                {"id": "FAN_DIST", "name": "Fan Distance", "type": "number", "default": 20, "unit": "mm"},
+                {"id": "CLIP_RETRACT", "name": "Clip Retract", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CLIP_HEIGHT", "name": "Clip Height", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_zlevel",
+          "name": "5-Axis Z-Level Finishing",
+          "cfg_file": "HMZFX5.CFG",
+          "description": "Constant Z finishing with 5-axis tilt control",
+          "dialogs": [
+            {
+              "id": "5ax_zf_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "RAMPCONNECT", "name": "Ramp Connect", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CONNECT_FACTOR", "name": "Connect Factor", "type": "number", "default": 0},
+                {"id": "SEITE", "name": "Side", "type": "integer", "default": 1, "range": [0, 2]},
+                {"id": "SLOPE_MODE", "name": "Slope Mode", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "SLOPE_ANGLE", "name": "Slope Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "SPIRAL", "name": "Spiral", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "LAUF", "name": "Direction", "type": "integer", "default": 1, "range": [0, 2]},
+                {"id": "BEARBEITRICHT", "name": "Milling Direction", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "BEARBEITRAND", "name": "Machining Border", "type": "integer", "default": 1, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_zf_stepover",
+              "name": "Stepover",
+              "parameters": [
+                {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "SCAL_HEIGHT", "name": "Scallop Height", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "ZUST_MIN", "name": "Min Step", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "STEP_FACTOR", "name": "Step Factor", "type": "number", "default": 0.5},
+                {"id": "STEP_MODE", "name": "Step Mode", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "ZPLANES", "name": "Z Planes", "type": "integer", "default": 0}
+              ]
+            },
+            {
+              "id": "5ax_zf_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "TILT_STRATEGY", "name": "Tilt Strategy", "type": "integer", "default": 12, "range": [0, 12]},
+                {"id": "TILT_OFFSET", "name": "Tilt Offset", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "TILT_FIXED", "name": "Fixed Tilt", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILTFIX_Z", "name": "Fixed Z Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILTFIX_XY", "name": "Fixed XY Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 15, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_zf_linking",
+              "name": "Path Linking",
+              "parameters": [
+                {"id": "CONNECT_SMOOTH", "name": "Smooth Connect", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "CONNECT_RAPID", "name": "Rapid Connect", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "PLUNGE_ONCE", "name": "Plunge Once", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FINISH_PASS", "name": "Finish Pass", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "PLANES_ONLY", "name": "Planes Only", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_zf_stock",
+              "name": "Stock Control",
+              "parameters": [
+                {"id": "STOCK_MODE", "name": "Stock Mode", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "STOCK_MOVEMENT", "name": "Stock Movement", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SKIP_SMALL_POCKETS", "name": "Skip Small Pockets", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "SKIP_FACTOR", "name": "Skip Factor", "type": "number", "default": 1.0}
+              ]
+            },
+            {
+              "id": "5ax_zf_auto_macro",
+              "name": "Automatic Macros",
+              "parameters": [
+                {"id": "MACRO_AUTO", "name": "Auto Macro", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "MACRO_SLENGTH", "name": "Approach Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "MACRO_SCLEAR_SIDE", "name": "Approach Side Clearance", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "MACRO_SCLEAR_AXIAL", "name": "Approach Axial Clearance", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "MACRO_SLIFT_MAX", "name": "Max Approach Lift", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "MACRO_ELENGTH", "name": "Retract Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "MACRO_ECLEAR_SIDE", "name": "Retract Side Clearance", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "MACRO_ECLEAR_AXIAL", "name": "Retract Axial Clearance", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "MACRO_ELIFT_MAX", "name": "Max Retract Lift", "type": "number", "default": 0.5, "unit": "mm"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_equidistant",
+          "name": "5-Axis Equidistant Finishing",
+          "cfg_file": "HMSCX5.CFG",
+          "description": "Constant stepover finishing with 5-axis tilt",
+          "dialogs": [
+            {
+              "id": "5ax_equi_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "BEARBEITRICHT", "name": "Machining Direction", "type": "integer", "default": 3, "range": [0, 3]},
+                {"id": "PROFIL_3D", "name": "3D Profile", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CONNECT_FACTOR", "name": "Connect Factor", "type": "number", "default": 0},
+                {"id": "SKIP_FIRST_PATH", "name": "Skip First Path", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_PROFIL1", "name": "Invert Profile 1", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_PROFIL2", "name": "Invert Profile 2", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_equi_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "TILT_STRATEGY", "name": "Tilt Strategy", "type": "integer", "default": 12, "range": [0, 12]},
+                {"id": "TILT_OFFSET", "name": "Tilt Offset", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "TILT_FIXED", "name": "Fixed Tilt", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILTFIX_Z", "name": "Fixed Z Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILTFIX_XY", "name": "Fixed XY Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 15, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_equi_linking",
+              "name": "Path Linking",
+              "parameters": [
+                {"id": "MULTI_POLY", "name": "Multiple Polygons", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SPIRAL", "name": "Spiral", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_RICHT", "name": "Invert Direction", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "INV_ZUST", "name": "Invert Infeed", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "LAUF", "name": "Direction", "type": "integer", "default": 1, "range": [0, 2]},
+                {"id": "ZUST_BAHN", "name": "Path Infeed", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CONNECT_SMOOTH", "name": "Smooth Connect", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "5ax_equi_collision",
+              "name": "Collision Control",
+              "parameters": [
+                {"id": "HOLDCHECK", "name": "Holder Check", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "HOLDCHECK_MODE", "name": "Holder Check Mode", "type": "integer", "default": 0, "range": [0, 3]},
+                {"id": "TAPER_CHECK", "name": "Taper Check", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "AVOID_COLL", "name": "Avoid Collision", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_optimized_roughing",
+          "name": "5-Axis Optimized Roughing",
+          "cfg_file": "HMOrX5.CFG",
+          "description": "High-efficiency roughing with rest material optimization",
+          "dialogs": [
+            {
+              "id": "5ax_opt_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "INFEED_RADIUS", "name": "Infeed Radius", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "FILLET_RADIUS", "name": "Fillet Radius", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "FILLET_CORNERS", "name": "Fillet Corners", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "STEP_FACTOR", "name": "Step Factor", "type": "number", "default": 0.5},
+                {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0.5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_opt_boundary",
+              "name": "Boundary Control",
+              "parameters": [
+                {"id": "BOUND_MODE", "name": "Boundary Mode", "type": "integer", "default": 0, "range": [0, 3]},
+                {"id": "BOUND_OFFSET", "name": "Boundary Offset", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_opt_collision",
+              "name": "Collision Control",
+              "parameters": [
+                {"id": "HOLDCHECK", "name": "Holder Check", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "HOLDCHECK_MODE", "name": "Holder Check Mode", "type": "integer", "default": 3, "range": [0, 3]}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "5ax_indexed",
+          "name": "3+2 Indexed Machining",
+          "cfg_file": "HMISX5.CFG",
+          "description": "Indexed 5-axis (3+2) machining with fixed orientations",
+          "note": "Uses 3-axis strategies with fixed A/B/C axis positions"
+        },
+        {
+          "id": "5ax_free_path",
+          "name": "5-Axis Free Path Milling",
+          "cfg_file": "hmCvX5.cfg",
+          "description": "Free curve following with 5-axis tilt control",
+          "dialogs": [
+            {
+              "id": "5ax_free_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "STOCK_HEIGHT", "name": "Stock Height", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "STEP_DOWN", "name": "Step Down", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "SPIRAL", "name": "Spiral", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CHECK_MODEL", "name": "Check Model", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "AVOID_COLL", "name": "Avoid Collision", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "ZOFFSET", "name": "Z Offset", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "5ax_free_tilt",
+              "name": "Tilt Control",
+              "parameters": [
+                {"id": "TILT_STRATEGY", "name": "Tilt Strategy", "type": "integer", "default": 12, "range": [0, 12]},
+                {"id": "TILT_FIXED", "name": "Fixed Tilt", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TILTFIX_Z", "name": "Fixed Z Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILTFIX_XY", "name": "Fixed XY Tilt", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 15, "unit": "deg"},
+                {"id": "TILT_MAX", "name": "Max Tilt", "type": "number", "default": 90, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "5ax_free_segment",
+              "name": "Segment Optimization",
+              "parameters": [
+                {"id": "SEG_OPT", "name": "Segment Optimization", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SEG_ANGLE", "name": "Segment Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "SEG_RADIUS", "name": "Segment Radius", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "SEG_HEIGHT", "name": "Segment Height", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "maxx": {
+      "module_id": "maxx",
+      "module_name": "MAXX Machining (Barrel Cutter)",
+      "description": "High-performance machining with barrel/circle segment cutters",
+      "total_operations": 3,
+      "total_parameters": 156,
+      "operations": [
+        {
+          "id": "maxx_finishing",
+          "name": "MAXX Finishing",
+          "cfg_file": "hmFBfX5.cfg",
+          "description": "Barrel cutter finishing for large radius blending",
+          "dialogs": [
+            {
+              "id": "maxx_fin_geometry",
+              "name": "Geometry",
+              "parameters": [
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol"},
+                {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "default": "mtol"},
+                {"id": "CLIMB", "name": "Climb Milling", "type": "integer", "default": 1, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "maxx_fin_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "STOCK_WIDTH", "name": "Stock Width", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "AUFMASS_HORI", "name": "Horizontal Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AUFMASS", "name": "Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "ENTRY_WIDTH", "name": "Entry Width", "type": "number", "default": 0.1, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "maxx_fin_tilt",
+              "name": "5-Axis Control",
+              "parameters": [
+                {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "default": 10, "unit": "deg"},
+                {"id": "SIDE_ANGLE", "name": "Side Angle", "type": "number", "default": 30, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "maxx_fin_macro",
+              "name": "Approach/Retract",
+              "parameters": [
+                {"id": "MACRO_SLEN", "name": "Approach Length", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_SHEIGHT", "name": "Approach Height", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_SDIST", "name": "Approach Distance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "MACRO_ELEN", "name": "Retract Length", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_EHEIGHT", "name": "Retract Height", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "MACRO_EDIST", "name": "Retract Distance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "maxx_fin_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "SICHEBENE", "name": "Clearance Plane", "type": "number", "default": 100, "unit": "mm"},
+                {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "ZUST_EILGANG", "name": "Rapid Infeed", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "maxx_fin_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "PRECISION", "name": "Machining Tolerance", "type": "number", "default": 0.005, "unit": "mm"},
+                {"id": "OUTPUT_TOL", "name": "Output Tolerance", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "STEP_MAX", "name": "Max Step", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "default": 10, "unit": "mm"},
+                {"id": "STEP_WIN", "name": "Max Angle Step", "type": "number", "default": 2, "unit": "deg"},
+                {"id": "MAX_DIST_ANGLE", "name": "Max Distance Angle", "type": "number", "default": 91, "unit": "deg"},
+                {"id": "CLEAR_RADIUS", "name": "Clear Radius", "type": "number", "default": 100, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "maxx_fin_feeds",
+              "name": "Feed Rates",
+              "parameters": [
+                {"id": "AUTO_FEED_RAD", "name": "Auto Feed Radius", "type": "number", "default": 10, "unit": "mm"},
+                {"id": "XVORSCHUB", "name": "X Feed", "type": "number", "default": 200, "unit": "mm/min"},
+                {"id": "ZVORSCHUB", "name": "Z Feed", "type": "number", "default": 50, "unit": "mm/min"},
+                {"id": "RVORSCHUB", "name": "Retract Feed", "type": "number", "default": 100, "unit": "mm/min"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "maxx_roughing",
+          "name": "MAXX Roughing",
+          "cfg_file": "hmFBgX5.cfg",
+          "description": "Barrel cutter roughing with tangent strategy",
+          "dialogs": [
+            {
+              "id": "maxx_rough_geometry",
+              "name": "Geometry",
+              "parameters": [
+                {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "default": "mtol"},
+                {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "default": "mtol"}
+              ]
+            },
+            {
+              "id": "maxx_rough_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "default": 1, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "maxx_rough_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "default": 5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "maxx_rough_precision",
+              "name": "Precision",
+              "parameters": [
+                {"id": "PRECISION", "name": "Machining Tolerance", "type": "number", "default": 0.005, "unit": "mm"},
+                {"id": "OUTPUT_TOL", "name": "Output Tolerance", "type": "number", "default": 0.05, "unit": "mm"},
+                {"id": "STEP_MAX", "name": "Max Step", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "default": 10, "unit": "mm"},
+                {"id": "STEP_WIN", "name": "Max Angle Step", "type": "number", "default": 0.5, "unit": "deg"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "barrel_tool_params",
+          "name": "Barrel Tool Parameters",
+          "description": "Specific parameters for barrel/circle segment cutters",
+          "parameters": [
+            {"id": "BARREL_RADIUS", "name": "Barrel Radius", "type": "number", "unit": "mm", "description": "Main cutting radius of barrel profile"},
+            {"id": "BARREL_LENGTH", "name": "Barrel Length", "type": "number", "unit": "mm", "description": "Effective cutting length on barrel profile"},
+            {"id": "TAPER_ANGLE", "name": "Taper Angle", "type": "number", "unit": "deg", "description": "Taper angle for tapered barrel tools"},
+            {"id": "TIP_RADIUS", "name": "Tip Radius", "type": "number", "unit": "mm", "description": "Radius at tool tip"},
+            {"id": "SHANK_DIAMETER", "name": "Shank Diameter", "type": "number", "unit": "mm"},
+            {"id": "OVERALL_LENGTH", "name": "Overall Length", "type": "number", "unit": "mm"},
+            {"id": "CUTTING_EDGE_LENGTH", "name": "Cutting Edge Length", "type": "number", "unit": "mm"}
+          ]
+        }
+      ]
+    },
+    "millturn": {
+      "module_id": "millturn",
+      "module_name": "Mill-Turn Module",
+      "description": "Integrated turning and milling for mill-turn machines",
+      "total_operations": 10,
+      "total_parameters": 179,
+      "operations": [
+        {
+          "id": "turn_roughing",
+          "name": "Turning Roughing",
+          "cfg_file": "hmTrnr.cfg",
+          "description": "Longitudinal and face turning roughing cycles",
+          "dialogs": [
+            {
+              "id": "turn_rough_cutting",
+              "name": "Cutting Parameters",
+              "parameters": [
+                {"id": "TCUTTINGSPEED", "name": "Cutting Speed", "type": "number", "default": 200, "unit": "m/min"},
+                {"id": "TSPINDLESPEED_INTERNAL_MAX", "name": "Max Internal Spindle Speed", "type": "number", "default": 0, "unit": "rpm"},
+                {"id": "CUTTINGSPEED_UNIT", "name": "Cutting Speed Unit", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "FEEDRATE", "name": "Feed Rate", "type": "number", "default": 0.3, "unit": "mm/rev"},
+                {"id": "FVORSCHUB", "name": "Finish Feed", "type": "number", "default": 0.1, "unit": "mm/rev"},
+                {"id": "TFEEDRATE", "name": "Thread Feed", "type": "number", "default": 0.1, "unit": "mm/rev"}
+              ]
+            },
+            {
+              "id": "turn_rough_depth",
+              "name": "Depth of Cut",
+              "parameters": [
+                {"id": "INFEED_LENGTH", "name": "Infeed Length", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "INFEED_MODE", "name": "Infeed Mode", "type": "integer", "default": 1, "range": [0, 2]},
+                {"id": "ADD_STEP", "name": "Additional Step", "type": "number", "default": 0.25, "unit": "mm"},
+                {"id": "ADD_STEP_MIN", "name": "Min Additional Step", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "ADD_STEP_MAX", "name": "Max Additional Step", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "CRAMP_STEP", "name": "Ramp Step", "type": "number", "default": 0.5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "turn_rough_allowance",
+              "name": "Allowances",
+              "parameters": [
+                {"id": "ALLOWANCE", "name": "Total Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "RADIAL_ALLOWANCE", "name": "Radial Allowance", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "AXIAL_ALLOWANCE", "name": "Axial Allowance", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "turn_rough_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "METHOD", "name": "Method", "type": "integer", "default": 1, "range": [0, 4], "description": "0=Constant, 1=Decreasing, 2=Mixed, 3=Plunge, 4=Contour"},
+                {"id": "LEFT_RIGHT", "name": "Left/Right", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FINISH_PATH", "name": "Finish Path", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "INTERIOR", "name": "Interior", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CUT_DIR", "name": "Cut Direction", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "PLANE_DIR", "name": "Plane Direction", "type": "integer", "default": 2, "range": [0, 2]},
+                {"id": "FALLING", "name": "Falling", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "ACCEPT_UNDERCUT", "name": "Accept Undercut", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TRIM_UNDERCUT", "name": "Trim Undercut", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "turn_rough_infeed",
+              "name": "Infeed Control",
+              "parameters": [
+                {"id": "INFEED_TYPE", "name": "Infeed Type", "type": "integer", "default": 3, "range": [0, 4]},
+                {"id": "FINTRIM_STOCK", "name": "Finish Trim Stock", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "LEFT_INFEED_TYPE", "name": "Left Infeed Type", "type": "integer", "default": 2, "range": [0, 3]},
+                {"id": "TRIM_TANGLEN_LEFT", "name": "Left Trim Tangent Length", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "TRIM_TANGLEN_RIGHT", "name": "Right Trim Tangent Length", "type": "number", "default": 5, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "turn_rough_approach",
+              "name": "Approach",
+              "parameters": [
+                {"id": "APPROACH_TYPE", "name": "Approach Type", "type": "integer", "default": 2, "range": [0, 4], "description": "0=Direct, 1=Axial, 2=Circular, 3=Ramp, 4=Tangent"},
+                {"id": "APPROACH_LENGTH_CIRC", "name": "Approach Circular Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "APPROACH_LENGTH_AX", "name": "Approach Axial Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "APPROACH_LENGTH_RAMP", "name": "Approach Ramp Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "APPROACH_LENGTH_TAN", "name": "Approach Tangent Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "APPROACH_ANGLE_RAMP", "name": "Approach Ramp Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "APPROACH_ANGLE_CIRC", "name": "Approach Circular Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "APPROACH_ANGLE_TAN", "name": "Approach Tangent Angle", "type": "number", "default": 15, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "turn_rough_retract",
+              "name": "Retract",
+              "parameters": [
+                {"id": "RETRACT_TYPE", "name": "Retract Type", "type": "integer", "default": 4, "range": [0, 4]},
+                {"id": "RETRACT_LENGTH_CIRC", "name": "Retract Circular Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "RETRACT_LENGTH_AX", "name": "Retract Axial Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "RETRACT_LENGTH_RAMP", "name": "Retract Ramp Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "RETRACT_LENGTH_TAN", "name": "Retract Tangent Length", "type": "number", "default": 2, "unit": "mm"},
+                {"id": "RETRACT_ANGLE_RAMP", "name": "Retract Ramp Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "RETRACT_ANGLE_CIRC", "name": "Retract Circular Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "RETRACT_ANGLE_TAN", "name": "Retract Tangent Angle", "type": "number", "default": 15, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "turn_rough_radial",
+              "name": "Radial Lift",
+              "parameters": [
+                {"id": "RADIAL_LIFT", "name": "Radial Lift", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "RADIAL_RADIUS", "name": "Radial Radius", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "RADIAL_ANGLE", "name": "Radial Angle", "type": "number", "default": 45, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "turn_rough_clearance",
+              "name": "Clearances",
+              "parameters": [
+                {"id": "CLEARANCE_DISTANCE", "name": "Clearance Distance", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "RETRACT_HEIGHT_IN", "name": "Retract Height In", "type": "number", "default": 10, "unit": "mm"},
+                {"id": "MACRO_CLEARANCE", "name": "Macro Clearance", "type": "number", "default": 0.05, "unit": "mm"},
+                {"id": "RETRACT_HEIGHT_OUT", "name": "Retract Height Out", "type": "number", "default": 100, "unit": "mm"},
+                {"id": "SICHEBENE", "name": "Clearance Plane", "type": "number", "default": 15, "unit": "mm"},
+                {"id": "RETRACT_PLAN", "name": "Retract Plan", "type": "number", "default": 20, "unit": "mm"}
+              ]
+            },
+            {
+              "id": "turn_rough_rapid",
+              "name": "Rapid Angles",
+              "parameters": [
+                {"id": "TRANSITION_MODE", "name": "Transition Mode", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "RAPID_ANGLE1", "name": "Rapid Angle 1", "type": "number", "default": 20, "unit": "deg"},
+                {"id": "RAPID_ANGLE2", "name": "Rapid Angle 2", "type": "number", "default": 20, "unit": "deg"},
+                {"id": "RAPID_ANGLE3", "name": "Rapid Angle 3", "type": "number", "default": 20, "unit": "deg"},
+                {"id": "RAPID_ANGLE_APPROACH", "name": "Rapid Approach Angle", "type": "number", "default": 20, "unit": "deg"},
+                {"id": "RAPID_ANGLE_RETRACT", "name": "Rapid Retract Angle", "type": "number", "default": 20, "unit": "deg"}
+              ]
+            },
+            {
+              "id": "turn_rough_insert",
+              "name": "Insert Control",
+              "parameters": [
+                {"id": "TREG_TIP", "name": "Tip Register", "type": "integer", "default": 1, "range": [1, 9]},
+                {"id": "INSERT_Y_OFFSET", "name": "Insert Y Offset", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "INSERT_REFERENCE_ANGLE", "name": "Insert Reference Angle", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "COLL_ANGLE", "name": "Collision Angle", "type": "number", "default": 2, "unit": "deg"},
+                {"id": "ROTATE_SPINDLE", "name": "Rotate Spindle", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "ANGLE_X", "name": "Angle X", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TOOLANGLE_SET", "name": "Tool Angle Set", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            },
+            {
+              "id": "turn_rough_stock",
+              "name": "Stock Control",
+              "parameters": [
+                {"id": "COLL_CHECK", "name": "Collision Check", "type": "integer", "default": 1, "range": [0, 1]},
+                {"id": "GENERATE_STOCK", "name": "Generate Stock", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "GENERATE_MILLSTOCK", "name": "Generate Mill Stock", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "FROM_MILLSTOCK", "name": "From Mill Stock", "type": "integer", "default": 0, "range": [0, 1]}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "turn_finishing",
+          "name": "Turning Finishing",
+          "cfg_file": "hmTrnf.cfg",
+          "description": "Contour turning finishing with corner control",
+          "dialogs": [
+            {
+              "id": "turn_fin_corner",
+              "name": "Corner Control",
+              "parameters": [
+                {"id": "CORNERBRAKE", "name": "Corner Break", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CORNER_MODE", "name": "Corner Mode", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "CHAMFER_LENGTH", "name": "Chamfer Length", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "CORNER_ANGLE", "name": "Corner Angle", "type": "number", "default": 90, "unit": "deg"},
+                {"id": "CHAMFER_ANGLE", "name": "Chamfer Angle", "type": "number", "default": 45, "unit": "deg"},
+                {"id": "ROUNDING_RADIUS", "name": "Rounding Radius", "type": "number", "default": 0.5, "unit": "mm"},
+                {"id": "CORNER_TYPE", "name": "Corner Type", "type": "integer", "default": 0, "range": [0, 2]}
+              ]
+            },
+            {
+              "id": "turn_fin_strategy",
+              "name": "Strategy",
+              "parameters": [
+                {"id": "METHOD", "name": "Method", "type": "integer", "default": 4, "range": [0, 4]},
+                {"id": "SLOPE_CONDITION", "name": "Slope Condition", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SLOPE_ANGLE", "name": "Slope Angle", "type": "number", "default": 60, "unit": "deg"},
+                {"id": "CUTCOMP", "name": "Cutter Compensation", "type": "integer", "default": 1, "range": [0, 2]}
+              ]
+            },
+            {
+              "id": "turn_fin_blending",
+              "name": "Blending",
+              "parameters": [
+                {"id": "BLEND_LENGTH", "name": "Blend Length", "type": "number", "default": 1, "unit": "mm"},
+                {"id": "BLEND_DIST", "name": "Blend Distance", "type": "number", "default": 0.05, "unit": "mm"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "turn_grooving",
+          "name": "Grooving",
+          "cfg_file": "hmTrnl.cfg",
+          "description": "Face and OD/ID grooving cycles",
+          "inherits_from": "turn_finishing",
+          "additional_parameters": [
+            {"id": "GROOVE_WIDTH", "name": "Groove Width", "type": "number", "unit": "mm"},
+            {"id": "GROOVE_DEPTH", "name": "Groove Depth", "type": "number", "unit": "mm"},
+            {"id": "GROOVE_STYLE", "name": "Groove Style", "type": "integer", "range": [0, 3]}
+          ]
+        },
+        {
+          "id": "turn_parting",
+          "name": "Parting",
+          "cfg_file": "hmTrnp.cfg",
+          "description": "Part-off/parting cycles",
+          "inherits_from": "turn_roughing"
+        },
+        {
+          "id": "turn_threading",
+          "name": "Threading",
+          "cfg_file": "hmTrnt.cfg",
+          "description": "Single and multi-start threading cycles",
+          "dialogs": [
+            {
+              "id": "turn_thread_transfer",
+              "name": "Transfer Settings",
+              "parameters": [
+                {"id": "TRANSFER_USE_PARTING", "name": "Use Parting", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TRANSFER_CLEANUPTOOL", "name": "Cleanup Tool", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TRANSFER_DIR", "name": "Transfer Direction", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TRANSFER_ROT_DIR", "name": "Rotation Direction", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "TRANSFER_SPINDLE_SPEED", "name": "Transfer Spindle Speed", "type": "number", "default": 100, "unit": "rpm"},
+                {"id": "TRANSFER_ANGLE", "name": "Transfer Angle", "type": "number", "default": 0, "unit": "deg"},
+                {"id": "TRANSFER_POSITION", "name": "Transfer Position", "type": "number", "default": 10000, "unit": "mm"},
+                {"id": "TRANSFER_FEED_RED_DIST", "name": "Feed Reduction Distance", "type": "number", "default": 1000, "unit": "mm"},
+                {"id": "TRANSFER_FEED", "name": "Transfer Feed", "type": "number", "default": 100, "unit": "mm/min"}
+              ]
+            },
+            {
+              "id": "turn_thread_parting",
+              "name": "Parting Settings",
+              "parameters": [
+                {"id": "PARTING_PO_PLUNGE", "name": "Plunge Parting", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "PARTING_PO_OVERRUN_X", "name": "X Overrun", "type": "number", "default": 0, "unit": "mm"},
+                {"id": "PARTING_PO_ALLOW_Z", "name": "Allow Z", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "PARTING_CLEARANCE_DISTANCE", "name": "Clearance Distance", "type": "number", "default": 5, "unit": "mm"},
+                {"id": "PARTING_RETRACT_HEIGHT", "name": "Retract Height", "type": "number", "default": 100, "unit": "mm"},
+                {"id": "PARTING_DWELL_TIME", "name": "Dwell Time", "type": "number", "default": 1, "unit": "s"},
+                {"id": "PARTING_DWELL_ROTATIONS", "name": "Dwell Rotations", "type": "number", "default": 1},
+                {"id": "PARTING_DWELL_MODE", "name": "Dwell Mode", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "PARTING_PO_CHAMFER", "name": "Parting Chamfer", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "PARTING_PO_CHAMFER_SIZE", "name": "Chamfer Size", "type": "number", "default": 0, "unit": "mm"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "live_tool_face",
+          "name": "Live Tool Face Milling (C-Axis)",
+          "description": "Face milling with C-axis positioning",
+          "parameters": [
+            {"id": "C_AXIS_ANGLE", "name": "C-Axis Angle", "type": "number", "unit": "deg"},
+            {"id": "C_AXIS_CLAMP", "name": "Clamp C-Axis", "type": "integer", "range": [0, 1]},
+            {"id": "SPINDLE_SPEED", "name": "Milling Spindle Speed", "type": "number", "unit": "rpm"},
+            {"id": "FEED_RATE", "name": "Feed Rate", "type": "number", "unit": "mm/min"}
+          ]
+        },
+        {
+          "id": "live_tool_radial",
+          "name": "Live Tool Radial Milling (Y-Axis)",
+          "description": "Radial milling with Y-axis",
+          "parameters": [
+            {"id": "Y_AXIS_OFFSET", "name": "Y-Axis Offset", "type": "number", "unit": "mm"},
+            {"id": "Y_AXIS_LIMIT", "name": "Y-Axis Travel Limit", "type": "number", "unit": "mm"},
+            {"id": "C_AXIS_INDEX", "name": "C-Axis Index Angle", "type": "number", "unit": "deg"}
+          ]
+        },
+        {
+          "id": "b_axis_milling",
+          "name": "B-Axis Operations",
+          "description": "Tilting B-axis milling operations",
+          "parameters": [
+            {"id": "B_AXIS_ANGLE", "name": "B-Axis Angle", "type": "number", "unit": "deg", "range": [-120, 120]},
+            {"id": "B_AXIS_INTERPOLATION", "name": "B-Axis Interpolation", "type": "integer", "range": [0, 1]},
+            {"id": "B_AXIS_CLAMP", "name": "Clamp B-Axis", "type": "integer", "range": [0, 1]},
+            {"id": "TOOL_ORIENTATION", "name": "Tool Orientation", "type": "integer", "range": [0, 3]}
+          ]
+        },
+        {
+          "id": "feature_recognition_turn",
+          "name": "Turning Feature Recognition",
+          "cfg_file": "hmRecTurn.cfg",
+          "description": "Automatic feature detection for turning",
+          "dialogs": [
+            {
+              "id": "turn_feature_main",
+              "name": "Main Settings",
+              "parameters": [
+                {"id": "TURNTOLERANCE", "name": "Turn Tolerance", "type": "number", "default": 0.01, "unit": "mm"},
+                {"id": "SPLITPOINTON", "name": "Split Point On", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SPLITPOINTON2", "name": "Second Split Point", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "CREATETURNINGAREA", "name": "Create Turning Area", "type": "integer", "default": 0, "range": [0, 1]},
+                {"id": "SELECTMODE", "name": "Select Mode", "type": "integer", "default": 0, "range": [0, 2]},
+                {"id": "LAYERNAME", "name": "Layer Name", "type": "string", "default": "Default"},
+                {"id": "COLORCURVES", "name": "Curve Color", "type": "integer", "default": 255}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spindle_control",
+          "name": "Spindle Control",
+          "description": "Main and sub-spindle control parameters",
+          "parameters": [
+            {"id": "MAIN_SPINDLE_RPM", "name": "Main Spindle RPM", "type": "number", "unit": "rpm"},
+            {"id": "SUB_SPINDLE_RPM", "name": "Sub-Spindle RPM", "type": "number", "unit": "rpm"},
+            {"id": "SPINDLE_SYNC", "name": "Spindle Synchronization", "type": "integer", "range": [0, 2]},
+            {"id": "SPINDLE_CLAMP", "name": "Spindle Clamp", "type": "integer", "range": [0, 1]},
+            {"id": "SPINDLE_ORIENT", "name": "Spindle Orientation", "type": "number", "unit": "deg"},
+            {"id": "CSS_MODE", "name": "Constant Surface Speed Mode", "type": "integer", "range": [0, 1]},
+            {"id": "CSS_MAX_RPM", "name": "CSS Max RPM", "type": "number", "unit": "rpm"}
+          ]
+        }
+      ]
+    }
+  },
+  "common_parameters": {
+    "description": "Parameters shared across multiple operations",
+    "display_colors": {
+      "COLOR_G0": {"name": "Rapid Color", "type": "color", "default": 255},
+      "COLOR_G1": {"name": "Feed Color", "type": "color", "default": 65535},
+      "COLOR_COLL": {"name": "Collision Color", "type": "color", "default": 16711935},
+      "COLOR_TAXES": {"name": "Tool Axis Color", "type": "color", "default": 16777215},
+      "SIZE_TAXES": {"name": "Tool Axis Size", "type": "integer", "default": 0, "range": [0, 3]},
+      "SIZE_COLL": {"name": "Collision Display Size", "type": "integer", "default": 1, "range": [0, 3]}
+    },
+    "tool_types": {
+      "FRTYP": {"name": "Tool Type", "type": "integer", "values": {"1": "Ball nose", "2": "End mill", "3": "Bull nose", "5": "Drill", "20": "Thread mill", "101": "Turning insert"}}
+    },
+    "resolution_formulas": {
+      "APPROXRES": {"name": "Approximation Resolution", "type": "formula", "default": "mtol*0.9|mtol*0.1|mtol*0.1"},
+      "SAFESRFRES": {"name": "Safety Surface Resolution", "type": "formula", "default": "mtol"},
+      "BNDRES": {"name": "Boundary Resolution", "type": "formula", "default": "mtol*10"},
+      "TILTCVRES": {"name": "Tilt Curve Resolution", "type": "formula", "default": "mtol*0.00025"},
+      "SEGSYNCRES": {"name": "Segment Sync Resolution", "type": "formula", "default": "mtol*10"}
+    }
+  },
+  "tilt_strategies": {
+    "description": "5-axis tilt strategy options",
+    "values": {
+      "0": "Fixed",
+      "1": "Normal to surface",
+      "2": "To point",
+      "3": "To line",
+      "4": "To plane",
+      "5": "Relative to surface",
+      "6": "Lead/lag",
+      "7": "Side tilt",
+      "8": "4-axis",
+      "9": "Indexed",
+      "10": "User defined",
+      "11": "Auto avoid collision",
+      "12": "Automatic"
+    }
+  },
+  "macro_types": {
+    "description": "Approach/Retract macro types",
+    "values": {
+      "1": "Axial",
+      "2": "Circular/Arc",
+      "3": "Linear/Tangent",
+      "4": "Ramp"
+    }
+  },
+  "tribal_knowledge": [
+    {"id": "hm-5ax-tribal-001", "category": "5axis_swarf", "tip": "For ruled surfaces, use swarf cutting with CURVE_CONTACT=1 for better surface finish", "confidence": 0.92},
+    {"id": "hm-5ax-tribal-002", "category": "5axis_tilt", "tip": "TILT_STRATEGY=12 (Automatic) works best for complex freeform surfaces", "confidence": 0.89},
+    {"id": "hm-5ax-tribal-003", "category": "5axis_impeller", "tip": "Set LEAD_ANGLE and LEADUP_ANGLE to 3-5 deg for titanium blisks to reduce tool wear", "confidence": 0.94},
+    {"id": "hm-maxx-tribal-001", "category": "maxx_finishing", "tip": "MAXX barrel cutters achieve 10x stepover vs ball nose for same scallop height", "confidence": 0.96},
+    {"id": "hm-turn-tribal-001", "category": "turning", "tip": "Set RADIAL_LIFT=1 with RADIAL_ANGLE=45 for chip evacuation in deep grooves", "confidence": 0.91},
+    {"id": "hm-turn-tribal-002", "category": "millturn", "tip": "Always use CSS_MODE=1 for consistent surface finish across diameter changes", "confidence": 0.95}
+  ]
+}

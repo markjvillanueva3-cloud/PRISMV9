@@ -1,0 +1,253 @@
+{
+  "id": "MS-P8-FEBE",
+  "title": "WEDM Frontend ↔ Backend Surface Audit",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P8",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Honest audit of what the Codex-built frontend exposes vs what the backend supports after P1-P7. Produces a coverage matrix, reachability report, top-10 gap lists in both directions, and a severity-tagged audit in R0-P0/U04 format.",
+  "total_units": 5,
+  "completed_units": 0,
+  "sessions": 2,
+  "dependencies": [
+    "MS-P7-UI-M1",
+    "MS-P7-UI-M2",
+    "MS-P7-UI-M3",
+    "MS-P7-UI-M4",
+    "MS-P7-UI-M5",
+    "MS-P7-UI-M7"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.015,
+  "knowledge_sources": {
+    "engines": [
+      "DispatcherInventoryEngine",
+      "WEDMDispatcherCoverageEngine (to build)",
+      "WEDMComponentReachabilityEngine (to build)"
+    ],
+    "formulas": [],
+    "tribal": [],
+    "reference": [
+      "mcp-server/audits/R0-P0/U04-skills-scripts-hooks-audit.md (format)",
+      "web/src/",
+      "mcp-server/web/src/",
+      "mcp-server/src/tools/dispatchers/edmDispatcher.ts"
+    ]
+  },
+  "smart_config": {
+    "role": "SystemAuditor+ProductEngineer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-audit",
+    "/prism-review",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "codebase-memory-mcp",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P8-FEBE-01",
+      "U-P8-FEBE-02",
+      "U-P8-FEBE-03"
+    ],
+    "session_2": [
+      "U-P8-FEBE-04",
+      "U-P8-FEBE-05"
+    ],
+    "compact_checkpoints": [
+      "after U-P8-FEBE-03"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-P8-FEBE-01",
+      "title": "WEDMDispatcherCoverageEngine — coverage matrix",
+      "files_created": [
+        "mcp-server/src/engines/WEDMDispatcherCoverageEngine.ts",
+        "state/shared/WEDM_FE_BE_COVERAGE.json"
+      ],
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "< 100% of 61 actions classified"
+      ],
+      "rollback": "git checkout engine && rm -f state/shared/WEDM_FE_BE_COVERAGE.json",
+      "exit_criteria": [
+        "JSON lists each action with {frontend_callers, backend_tests, orphan, missing_ui}",
+        "100% of 61 prism_edm actions classified",
+        "coverage matrix reconciles with WEDM digest counts",
+        "wedm-febe-drift-watch hook live (BUILT here)"
+      ],
+      "description": "WEDMDispatcherCoverageEngine — coverage matrix — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P8-FEBE-02",
+      "title": "WEDMComponentReachabilityEngine — frontend reachability",
+      "files_created": [
+        "mcp-server/src/engines/WEDMComponentReachabilityEngine.ts",
+        "state/shared/WEDM_FE_REACHABILITY.md"
+      ],
+      "abort_conditions": [
+        "any fetch('/api/v1/edm/...') resolves to dead route"
+      ],
+      "exit_criteria": [
+        "walk web/src/**/*.tsx collects every edm fetch",
+        "red/green per component",
+        "zero orphans"
+      ],
+      "description": "WEDMComponentReachabilityEngine — frontend reachability — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P8-FEBE-03",
+      "title": "Top-10 backend capabilities with no UI",
+      "files_created": [
+        "state/shared/WEDM_BE_NO_UI_TOP10.md"
+      ],
+      "exit_criteria": [
+        "ordered list with effort estimate",
+        "explicit mention of wedm_plan_break_recovery (known orphan from P2)",
+        "each item tagged Tier 1/2/3 by UI effort"
+      ],
+      "description": "Top-10 backend capabilities with no UI — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P8-FEBE-04",
+      "title": "Top-10 frontend paths that mock/simulate backend",
+      "files_created": [
+        "state/shared/WEDM_FE_MOCK_VIOLATIONS.md"
+      ],
+      "exit_criteria": [
+        "file path + line number per violation",
+        "cross-checked with wedm-ui-mock-block hook",
+        "zero tolerance — every entry has remediation action"
+      ],
+      "description": "Top-10 frontend paths that mock/simulate backend — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P8-FEBE-05",
+      "title": "WEDM-FE-BE-AUDIT-2026-04.md + /wedm-febe-audit skill",
+      "files_created": [
+        "mcp-server/audits/WEDM-FE-BE-AUDIT-2026-04.md",
+        "~/.claude/commands/wedm-febe-audit.md"
+      ],
+      "exit_criteria": [
+        "audit matches R0-P0/U04 format",
+        "severity-tagged findings",
+        "reconciliation table",
+        "recommendations section",
+        "prism_edm:wedm_audit_febe action surfaces (BUILT)",
+        "/wedm-febe-audit skill available (BUILT)"
+      ],
+      "description": "WEDM-FE-BE-AUDIT-2026-04.md + /wedm-febe-audit skill — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-febe-drift-watch",
+      "description": "warns if new dispatcher action lands with no frontend caller within 7d",
+      "built_in": "U-P8-FEBE-01"
+    },
+    "action": {
+      "name": "prism_edm:wedm_audit_febe",
+      "built_in": "U-P8-FEBE-05"
+    },
+    "skill": {
+      "name": "/wedm-febe-audit",
+      "built_in": "U-P8-FEBE-05"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "coverage matrix 100% classified",
+      "reachability report zero orphans",
+      "top-10 BE-no-UI and FE-mock lists committed",
+      "WEDM-FE-BE-AUDIT-2026-04.md committed in R0-P0/U04 format",
+      "BASELINE_INVENTORY re-verified"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+1.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-febe-drift-watch"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_audit_febe"
+    ],
+    "new_skills": [
+      "/wedm-febe-audit"
+    ],
+    "available_to": [
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Frontend ↔ Backend Surface Audit per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

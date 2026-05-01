@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "cadSystem": "solidworks",
+  "scenario": "assembly",
+  "featureTree": {
+    "features": [
+      {"type": "Component", "name": "base_plate<1>", "parameters": {"suppressed": {"value": 0, "unit": "bool"}}},
+      {"type": "Component", "name": "top_cap<1>", "parameters": {"suppressed": {"value": 0, "unit": "bool"}}},
+      {"type": "MateCoincident", "name": "Coincident1", "parameters": {}}
+    ],
+    "components": ["base_plate", "top_cap"]
+  },
+  "boundingBox": {"min": [0, 0, 0], "max": [100, 80, 60], "units": "mm"},
+  "parameters": {
+    "assembly_width": {"value": 100.0, "unit": "mm"},
+    "assembly_height": {"value": 80.0, "unit": "mm"},
+    "assembly_depth": {"value": 60.0, "unit": "mm"},
+    "component_count": {"value": 2, "unit": "count"}
+  },
+  "massProperties": {"mass": 0.845, "volume": 302400.0, "centerOfMass": [50.0, 40.0, 30.0]},
+  "step": "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('SolidWorks assembly mock fixture'),'2;1');\nFILE_NAME('assembly.STEP','2026-04-19',('PRISM'),('JM Die'),'SW2024','SolidWorks 2024','');\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));\nENDSEC;\nDATA;\n#10=PRODUCT('assembly','assembly','',(#20));\n#20=PRODUCT_CONTEXT('',#30,'mechanical');\n#30=APPLICATION_CONTEXT('automotive design');\n#40=PRODUCT('base_plate','base_plate','',(#20));\n#50=PRODUCT('top_cap','top_cap','',(#20));\n#60=NEXT_ASSEMBLY_USAGE_OCCURENCE('base_plate<1>','','',(#10),(#40),$);\n#70=NEXT_ASSEMBLY_USAGE_OCCURENCE('top_cap<1>','','',(#10),(#50),$);\nENDSEC;\nEND-ISO-10303-21;"
+}

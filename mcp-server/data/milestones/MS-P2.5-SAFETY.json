@@ -1,0 +1,354 @@
+{
+  "id": "MS-P2.5-SAFETY",
+  "title": "WEDM Runtime Safety Gate Closure — S(x) ≥ 0.70 hard-gate (Round 4 patch)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P2.5",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "insertion_point": "between MS-P2-GAPFILL and MS-P3-TRIBAL",
+  "philosophy": "Round 4 scrutiny (safety-physics agent) measured S(x) ≤ 0.24 floor on WEDM pipeline — HARD BLOCK. WEDMPrintToProgramEngine returns success:true unconditionally at line 1603, G-code output is a bare string with no unit tag (25.4× mm/inch risk), WEDMHeadClearanceEngine exists but is NOT imported by the pipeline, PCD k(T) interpolation is commit-time only rather than runtime. This milestone installs the 6 runtime safety gates that are required before ANY program is emitted to a controller.",
+  "scrutiny_round": 4,
+  "blocks_reached_by": [
+    "safety-physics"
+  ],
+  "s_of_x_before": 0.24,
+  "s_of_x_target": 0.72,
+  "total_units": 6,
+  "completed_units": 0,
+  "sessions": 2,
+  "dependencies": [
+    "MS-P1.5-ONESHOT",
+    "MS-P2-GAPFILL"
+  ],
+  "blocks": [
+    "MS-P3-TRIBAL",
+    "MS-P4-DL-PRED",
+    "MS-P5-AGI-CORE",
+    "MS-P6-VAL30",
+    "MS-P7-UI-M1"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.03,
+  "knowledge_sources": {
+    "engines": [
+      "WEDMPrintToProgramEngine (returns success:true at line 1603 unconditionally)",
+      "WEDMHeadClearanceEngine (EXISTS, orphan — NOT imported by pipeline)",
+      "WEDMSafetyEnvelopeEngine (EXISTS from Phase 4)",
+      "WEDMFailsafeEngine (EXISTS from Phase 4)",
+      "AtomicValue schema {value, unit, uncertainty, source}",
+      "WEDMProgramSafetyGateEngine (MISSING — to build)",
+      "WEDMFlushAdequacyGateEngine (MISSING — to build)",
+      "WEDMThermalReleaseGateEngine (MISSING — to build)",
+      "WEDMControllerDialectVerifierEngine (MISSING — to build)"
+    ],
+    "formulas": [
+      "Dauw & Snoeys 1986 CIRP wire deflection δ = q·L²/(8·T) distributed",
+      "ASM Handbook Vol. 16 k(T) interpolation (PCD, NOT Johnson-Cook)",
+      "Shigley collar bolt preload (head clearance)",
+      "flushing velocity v_f = Q/(π·g·L) where g = gap, L = kerf length",
+      "thermal release: ΔH = ρ·V·c_p·ΔT + ρ·V·L_f"
+    ],
+    "tribal": [
+      "JM Die tribal: 'always G21 for wire EDM, G20 crashes the head' (1 of 4,493)",
+      "JM Die tribal: 'minimum 3mm head clearance above top clamp' (1 of 4,493)"
+    ],
+    "reference": [
+      "H:/prism/SCRUTINY-PRINT-TO-CNC-ONESHOT-2026-04-16.md §5",
+      "mcp-server/src/engines/WEDMPrintToProgramEngine.ts:1603",
+      "mcp-server/src/engines/WEDMHeadClearanceEngine.ts",
+      "mcp-server/src/engines/WEDMSafetyEnvelopeEngine.ts",
+      "mcp-server/src/types/AtomicValue.ts"
+    ]
+  },
+  "smart_config": {
+    "role": "SafetyEngineer+MaterialsPhysicist+ControllerSpecialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-triple",
+    "/dedup",
+    "/scrutinize",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "codebase-memory-mcp",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P2.5-SAFE-01",
+      "U-P2.5-SAFE-02",
+      "U-P2.5-SAFE-03"
+    ],
+    "session_2": [
+      "U-P2.5-SAFE-04",
+      "U-P2.5-SAFE-05",
+      "U-P2.5-SAFE-06"
+    ],
+    "compact_checkpoints": [
+      "after U-P2.5-SAFE-03"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-P2.5-SAFE-01",
+      "title": "WEDMProgramSafetyGateEngine — S(x) ≥ 0.70 hard-gate before program emit",
+      "files_created": [
+        "mcp-server/src/engines/WEDMProgramSafetyGateEngine.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/WEDMPrintToProgramEngine.ts"
+      ],
+      "estimated_loc": 380,
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "gate allows program emit when S(x) < 0.70",
+        "WEDMPrintToProgramEngine.line:1603 still returns unconditional success:true",
+        "S(x) calculation omits any of {collision, head-clearance, flush, thermal, dialect, unit-tag}"
+      ],
+      "rollback": "git checkout WEDMPrintToProgramEngine && rm -f WEDMProgramSafetyGateEngine.ts",
+      "exit_criteria": [
+        "S(x) weighted sum over {collision(0.20), head-clearance(0.15), flush(0.15), thermal(0.15), dialect(0.10), unit-tag(0.10), deflection(0.15)}",
+        "any S(x) component < gate threshold → HARD BLOCK with explicit failure reason",
+        "WEDMPrintToProgramEngine returns success:false with S(x) breakdown when below 0.70",
+        "wedm-program-safety-gate hook BUILT here: CI blocks merge on any bypass",
+        "unit test: 10 deliberately-unsafe inputs all BLOCKED with correct reason"
+      ],
+      "description": "WEDMProgramSafetyGateEngine — S(x) ≥ 0.70 hard-gate before program emit — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P2.5-SAFE-02",
+      "title": "AtomicValue + G20/G21 unit tag propagation through pipeline",
+      "files_modified": [
+        "mcp-server/src/engines/WEDMPrintToProgramEngine.ts",
+        "mcp-server/src/engines/WEDMPostMitsubishiEngine.ts",
+        "mcp-server/src/engines/WEDMPostSodickEngine.ts",
+        "mcp-server/src/engines/WEDMPostMakinoEngine.ts",
+        "mcp-server/src/engines/WEDMPostAgieEngine.ts",
+        "mcp-server/src/engines/WEDMPostFanucEngine.ts"
+      ],
+      "estimated_loc": 260,
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "any numeric output lacks {value, unit, uncertainty, source}",
+        "program header lacks G20 or G21",
+        "mixed-unit program can be emitted (mm feed + inch coords)"
+      ],
+      "exit_criteria": [
+        "every pipeline stage emits AtomicValue instead of raw number",
+        "program header always includes G21 (metric) or G20 (imperial) matching input unit tag",
+        "unit mismatch detection: input mm + shop profile inch → HARD BLOCK",
+        "wedm-unit-tag-gate hook BUILT here",
+        "integration test: 25.4× unit-confusion attempt blocked"
+      ],
+      "description": "AtomicValue + G20/G21 unit tag propagation through pipeline — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P2.5-SAFE-03",
+      "title": "WEDMHeadClearanceEngine wiring into pipeline",
+      "files_modified": [
+        "mcp-server/src/engines/WEDMPrintToProgramEngine.ts"
+      ],
+      "estimated_loc": 180,
+      "abort_conditions": [
+        "WEDMHeadClearanceEngine remains orphan (not imported)",
+        "head clearance check not included in S(x) calculation",
+        "<3mm clearance passes gate"
+      ],
+      "exit_criteria": [
+        "WEDMHeadClearanceEngine imported and invoked by WEDMPrintToProgramEngine",
+        "upper head clearance ≥ 3mm above top clamp OR HARD BLOCK",
+        "lower head clearance ≥ 2mm below bottom clamp OR HARD BLOCK",
+        "head clearance component contributes 0.15 to S(x)",
+        "integration test: low-clearance fixture blocks, high-clearance passes"
+      ],
+      "description": "WEDMHeadClearanceEngine wiring into pipeline — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P2.5-SAFE-04",
+      "title": "WEDMFlushAdequacyGateEngine — flushing pressure/velocity adequacy",
+      "files_created": [
+        "mcp-server/src/engines/WEDMFlushAdequacyGateEngine.ts"
+      ],
+      "estimated_loc": 320,
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "flush gate accepts v_f < 0.5 m/s on thick workpiece",
+        "no tribal-knowledge override pathway for experienced operator"
+      ],
+      "exit_criteria": [
+        "v_f = Q/(π·g·L) computed from pump specs + kerf geometry",
+        "minimum v_f thresholds by thickness: ≤25mm (0.5 m/s), 25-75mm (0.8 m/s), >75mm (1.2 m/s)",
+        "side-flush vs submerged-flush branch",
+        "contributes 0.15 to S(x)",
+        "unit test: 3 thickness bands × 2 flush modes = 6 scenarios pass"
+      ],
+      "description": "WEDMFlushAdequacyGateEngine — flushing pressure/velocity adequacy — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P2.5-SAFE-05",
+      "title": "WEDMThermalReleaseGateEngine — thermal energy release validation",
+      "files_created": [
+        "mcp-server/src/engines/WEDMThermalReleaseGateEngine.ts"
+      ],
+      "estimated_loc": 340,
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "thermal calc uses Johnson-Cook (wrong for PCD — must use ASM Vol. 16 k(T))",
+        "no recast depth prediction included"
+      ],
+      "exit_criteria": [
+        "ASM Handbook Vol. 16 k(T) interpolation for material (NOT Johnson-Cook)",
+        "thermal release ΔH per pulse validated against dielectric cooling capacity",
+        "recast depth prediction included",
+        "contributes 0.15 to S(x)",
+        "integration test: PCD workpiece correctly uses ASM table, steel correctly uses alternate"
+      ],
+      "description": "WEDMThermalReleaseGateEngine — thermal energy release validation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P2.5-SAFE-06",
+      "title": "WEDMControllerDialectVerifierEngine — emitted code runs on stated controller",
+      "files_created": [
+        "mcp-server/src/engines/WEDMControllerDialectVerifierEngine.ts"
+      ],
+      "estimated_loc": 380,
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "verifier accepts Sodick program emitted as Mitsubishi dialect",
+        "no E-code/C-code table per controller"
+      ],
+      "exit_criteria": [
+        "dialect verifier cross-checks emitted program against controller grammar",
+        "E-code (energy), C-code (condition), M-code lookup per controller",
+        "mismatch → HARD BLOCK with diff report",
+        "contributes 0.10 to S(x)",
+        "roundtrip test: Mitsubishi plan emitted as Sodick → verifier catches dialect mismatch"
+      ],
+      "description": "WEDMControllerDialectVerifierEngine — emitted code runs on stated controller — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-program-safety-gate",
+      "description": "CI blocks merge on any pipeline exit with S(x) < 0.70",
+      "built_in": "U-P2.5-SAFE-01"
+    },
+    "action": {
+      "name": "prism_edm:wedm_safety_gate",
+      "built_in": "U-P2.5-SAFE-01"
+    },
+    "skill": {
+      "name": "/wedm-safety-gate",
+      "built_in": "U-P2.5-SAFE-01"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "S(x) floor ≥ 0.72 measured across 30-part validation corpus (up from 0.24)",
+      "WEDMPrintToProgramEngine never returns unconditional success:true",
+      "all 6 safety gates active + contribute to S(x)",
+      "WEDMHeadClearanceEngine no longer orphan",
+      "AtomicValue + G20/G21 propagates end-to-end",
+      "controller dialect verifier blocks cross-dialect emit",
+      "1255 existing tests still green",
+      "new safety tests ≥48 cases (8 per gate)"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+3%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-program-safety-gate",
+      "wedm-unit-tag-gate"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_safety_gate"
+    ],
+    "new_skills": [
+      "/wedm-safety-gate"
+    ],
+    "available_to": [
+      "P3",
+      "P4",
+      "P5",
+      "P6",
+      "P7",
+      "P8",
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Runtime Safety Gate Closure — S(x) ≥ 0.70 hard-gate (Round 4 patch) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

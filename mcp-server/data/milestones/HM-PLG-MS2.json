@@ -280,5 +280,59 @@
     }
   ],
   "total_units": 5,
-  "completed_units": 0
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms2-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms2_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Physics Advisor panel that displays inside hyperMILL. Shows Kienzle cutting force predictions, stability lobe diagram (SLD) safe RPM zones, tool deflection warnings, and recommended speeds/feeds with P90 confidence bands. Includes an 'Apply to Operation' button that injects optimized parameters into the active hyperMILL cycle. Material-specific warnings for Ti thermal limits, Inconel work hardening, and hardened steel CBN routing.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS2 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS2. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
 }

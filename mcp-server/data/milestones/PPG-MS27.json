@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS27",
+  "version": "1.0.0",
+  "title": "PPG-MS27 — Demo Pack + ROI Proof + Pricing + ICP",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Closes the GTM gap surfaced by R14 scrutiny (score 58). Builds the 3-screen close-the-deal demo, 5-part operator-signed witness report, public ROI calculator, ICP definition, pricing model with ASC 606 performance obligations, ≥2 design-partner LOIs, license-displacement strategy.",
+  "rationale": "Closes the GTM gap surfaced by R14 scrutiny (score 58). Builds the 3-screen close-the-deal demo, 5-part operator-signed witness report, public ROI calculator, ICP definition, pricing model with ASC 606 performance obligations, ≥2 design-partner LOIs, license-displacement strategy.",
+  "phase": "P2",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM166",
+      "title": "3-screen close-the-deal demo flow",
+      "scope": "Demo: (1) Drop STEP → instant quote with cycle time; (2) Cut on real machine, telemetry overlays prediction in real-time; (3) Variance dashboard recalibrates next quote. Canned data + reset button. Sales engineer artifact.",
+      "files_to_modify": [
+        "web/src/demo/",
+        "docs/sales/demo-flow.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM167",
+      "title": "5-part operator-signed witness report (lighthouse proof pack)",
+      "scope": "5 JM Die parts: before/after PDFs + operator video + signed witness + measured ROI table. Public-shareable. Spec includes shop foreman + programmer + operator signatures.",
+      "files_to_modify": [
+        "docs/sales/witness-report-template.md",
+        "data/proof-pack/"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM168",
+      "title": "Public ROI calculator + landing page",
+      "scope": "Public web tool: shop inputs (machines, materials, customers, current cycle time, hourly rate) → projected savings + payback period. Bound to MS16 measured outcomes for credibility. Direct binding (S10 closure): files_to_modify wires the public ROI calculator to existing prism_business actions savings_dashboard + roi_advisor_analyze + tool_roi_analyze (already wired in business dispatcher); calculator inputs route through these engines for credibility, not duplicated math.",
+      "files_to_modify": [
+        "web/src/pages/ROICalculator.tsx",
+        "src/engines/SavingsDashboardEngine.ts",
+        "src/engines/ROIAdvisorEngine.ts",
+        "src/engines/ToolROIEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/ROICalculator.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM169",
+      "title": "ICP definition + customer #2/3/4 plan",
+      "scope": "Ideal Customer Profile: shop size (5-30 machines), CAM stack (Fusion-primary, hyperMILL/Mastercam-secondary), top 3 pains, decision process. Named customer #2/3/4 candidates with discovery-call status.",
+      "files_to_modify": [
+        "docs/sales/ICP.md",
+        "docs/sales/customer-pipeline.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM170",
+      "title": "Pricing model + ASC 606 performance obligations",
+      "scope": "Per-shop SaaS ($2k/mo base + $200/machine/mo + 2% measured savings). ASC 606: identify performance obligations (sidecar emit / AGI gates / cutover), recognition timing, deferred revenue treatment. Auditor-ready.",
+      "files_to_modify": [
+        "docs/finance/pricing-model.md",
+        "docs/finance/asc606-recognition.md"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM171",
+      "title": "License-displacement strategy + ≥2 design-partner LOIs",
+      "scope": "SolidCAM iMachining ($8-15k/seat), Vericut ($5-12k), NCSIMUL: bundle / pass-through / displacement strategy per license. ≥2 design-partner LOIs signed before MS12 cutover.",
+      "files_to_modify": [
+        "docs/sales/license-strategy.md",
+        "legal/LOI-design-partner.docx"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "3-screen demo flow shippable to prospect in 90 seconds; sales engineer signoff",
+    "Lighthouse proof pack with 5 operator-signed witness reports public-shareable",
+    "ROI calculator live, calibrated to MS16 measured outcomes",
+    "ICP defined; ≥3 customer #2/3/4 candidates in active discovery",
+    "Pricing model + ASC 606 performance obligations documented; auditor pre-review complete",
+    "≥2 design-partner LOIs signed before MS12 cutover"
+  ],
+  "depends_on": [
+    "PPG-MS12",
+    "PPG-MS16"
+  ],
+  "blocks": [],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Demo/ROI — mount on existing prism_business savings_dashboard + roi_advisor_analyze + tool_roi_analyze",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ]
+}
