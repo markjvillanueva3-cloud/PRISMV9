@@ -51,7 +51,9 @@ const ACTIONS = [
   "roadmap_claim", "roadmap_release", "roadmap_heartbeat", "roadmap_discover",
   "roadmap_register", "roadmap_populate_context",
   // P1-U03: PRISMCodexBridgeEngine bridge — delegate planning + adversarial review to Codex CLI
-  "codex_delegate", "codex_review"
+  "codex_delegate", "codex_review",
+  // P2-U03: Forge-team multi-agent review — parallel Codex+Claude reviewers with provider-tagged ledger
+  "forge_team_review"
 ] as const;
 
 function ok(data: any) {
@@ -687,6 +689,69 @@ export function registerOrchestrationDispatcher(server: any): void {
                 : undefined,
             });
             return ok(result);
+          }
+
+          // ============================================================================
+          // P2-U03 — Forge-team multi-agent review wiring
+          // Dispatches the codex reviewer member(s) via PRISMCodexBridgeEngine.review and
+          // merges them with caller-supplied Claude review records (Claude subagents are
+          // dispatched from inside Claude Code via the Agent tool, not from runtime).
+          // ============================================================================
+          case "forge_team_review": {
+            const { MultiAgentAIInterfaceEngine } = await import("../../engines/MultiAgentAIInterfaceEngine.js");
+            const brief = params.brief as string | undefined;
+            const reviewers = params.reviewers as Array<Record<string, unknown>> | undefined;
+            const target = params.target as Record<string, unknown> | undefined;
+            const sessionId = typeof params.sessionId === "string" ? params.sessionId : undefined;
+            const claudeRecordsParam = params.claudeReviewRecords as Array<Record<string, unknown>> | undefined;
+            if (typeof brief !== "string" || brief.length === 0) {
+              return ok({ error: "Missing brief param" });
+            }
+            if (!Array.isArray(reviewers) || reviewers.length === 0) {
+              return ok({ error: "Missing or empty reviewers array" });
+            }
+            if (typeof target !== "object" || target === null || typeof target.filePath !== "string") {
+              return ok({ error: "Missing target.filePath" });
+            }
+            const cfg = { brief, reviewers, sessionId } as Parameters<typeof MultiAgentAIInterfaceEngine.dispatchReviewers>[0];
+            const tgt = target as Parameters<typeof MultiAgentAIInterfaceEngine.dispatchReviewers>[1];
+            // Build a Claude handler that returns pre-collected records keyed by reviewer name.
+            const claudeRecords = new Map<string, Record<string, unknown>>();
+            if (Array.isArray(claudeRecordsParam)) {
+              for (const r of claudeRecordsParam) {
+                if (typeof r.reviewerName === "string") claudeRecords.set(r.reviewerName, r);
+              }
+            }
+            const providers = {
+              claude: async (m: { name: string; provider: "claude" | "codex" }, _t: unknown) => {
+                const pre = claudeRecords.get(m.name);
+                if (!pre) {
+                  throw new Error(`forge_team_review: no pre-collected Claude record for reviewer '${m.name}' — Claude subagents must be dispatched by the caller and their ReviewRecord passed in claudeReviewRecords[]`);
+                }
+                return {
+                  provider: "claude" as const,
+                  reviewerName: m.name,
+                  verdict: pre.verdict as "PASS" | "WARN" | "BLOCK",
+                  findings: (pre.findings ?? []) as never,
+                  rawOutput: typeof pre.rawOutput === "string" ? pre.rawOutput : "",
+                  durationMs: typeof pre.durationMs === "number" ? pre.durationMs : 0,
+                  recordedAt: new Date().toISOString(),
+                };
+              },
+              codex: MultiAgentAIInterfaceEngine.defaultCodexHandler,
+            };
+            try {
+              const records = await MultiAgentAIInterfaceEngine.dispatchReviewers(cfg, tgt, providers);
+              return ok({
+                sessionId: cfg.sessionId ?? null,
+                reviewCount: records.length,
+                providers: records.map((r) => r.provider),
+                verdicts: records.map((r) => r.verdict),
+                records,
+              });
+            } catch (e) {
+              return ok({ error: e instanceof Error ? e.message : String(e) });
+            }
           }
 
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });

@@ -270,6 +270,51 @@ const codex_review = z.object({
 }).passthrough();
 
 // ============================================================================
+// P2-U03 — Forge-team multi-agent review schemas
+// ============================================================================
+
+const forge_team_review = z.object({
+  brief: z.string().min(1).describe("Feature/edit brief shared with all reviewers"),
+  reviewers: z.array(
+    z.object({
+      name: z.string().min(1).describe("Stable reviewer display name"),
+      provider: z.enum(["claude", "codex"]).describe("AI provider family"),
+      subagent_type: z.string().optional().describe("Required when provider='claude' — Agent subagent_type"),
+      tier: z.enum(["shop_floor", "production", "proven_out", "sim"]).optional().describe("Required when provider='codex' — safety tier"),
+    }),
+  ).min(1).describe("1+ reviewers; mixed providers allowed"),
+  target: z.object({
+    filePath: z.string().min(1).describe("Path to the file under review"),
+    fileContent: z.string().optional().describe("Inline file content; reviewer otherwise reads from disk"),
+    brief: z.string().min(1).describe("Per-target brief (may differ from team brief)"),
+  }).describe("File + brief routed to every reviewer"),
+  sessionId: z.string().optional().describe("Stable session id for arbitration-log records; auto-generated if absent"),
+  /**
+   * Pre-collected Claude review records — Claude subagents are dispatched
+   * from inside Claude Code via the Agent tool, NOT from runtime engine code.
+   * Callers spawn the Claude subagents themselves and pass the resulting
+   * ReviewRecords here. Each entry's reviewer name must match a reviewers[]
+   * entry with provider='claude'.
+   */
+  claudeReviewRecords: z.array(
+    z.object({
+      reviewerName: z.string().min(1),
+      verdict: z.enum(["PASS", "WARN", "BLOCK"]),
+      findings: z.array(
+        z.object({
+          severity: z.enum(["INFO", "WARNING", "CRITICAL"]),
+          message: z.string().min(1),
+          line: z.number().int().nonnegative().optional(),
+          filePath: z.string().optional(),
+        }),
+      ),
+      rawOutput: z.string(),
+      durationMs: z.number().nonnegative(),
+    }),
+  ).optional().describe("Pre-collected Claude subagent review records keyed by reviewerName"),
+}).passthrough();
+
+// ============================================================================
 // EXPORT: ACTION_ORCHESTRATION_SCHEMAS
 // ============================================================================
 
@@ -315,4 +360,7 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
   // P1-U03 — Codex bridge actions
   codex_delegate,
   codex_review,
+
+  // P2-U03 — Forge-team multi-agent review
+  forge_team_review,
 };
