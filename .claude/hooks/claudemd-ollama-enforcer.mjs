@@ -36,9 +36,14 @@ const MAX_OUTPUT_TOKENS = 300; // Keep injection compact
 const USER_CLAUDEMD = `${(process.env.USERPROFILE || process.env.HOME || "").replace(/\\/g, "/")}/.claude/CLAUDE.md`;
 const PROJECT_CLAUDEMD = "H:/prism/CLAUDE.md";
 
-// Rate limiting: max 1 injection per 3 minutes (rules don't change that fast)
+// Rate limiting: max 1 injection per 30 seconds.
+// P4-U03 (INTEL-OLLAMA-OBSIDIAN-MS0): relaxed from 3min when this hook moved
+// from "scan full 3000-token CLAUDE.md every fire" to "semantic-vault top-3
+// per prompt" via prism_memory:semantic_search (line 161 below). The cheaper
+// invocation pattern can support 30s without Ollama overload while keeping
+// rule freshness on cross-prompt context shifts.
 const RATE_FILE = "H:/prism/.claude/cache/claudemd-enforcer-rate.json";
-const RATE_WINDOW_MS = 3 * 60 * 1000;
+const RATE_WINDOW_MS = 30 * 1000;
 
 // ── Helpers ───────────────────────────────────────────────────────────
 function log(entry) {

@@ -48,12 +48,11 @@
         "notes": "5/5 units shipped. The slot envelope-labeled 'P3-U06' is actually P10-U04 (envelope structural drift — the 6th P3 entry's id field is P10-U04, see phases[3].units[5]). Phase fully shipped on sibling branch."
       },
       "P4": {
-        "branch": "work/intel-ollama-obsidian-ms1",
-        "shipped_units": ["P4-U01"],
-        "partial_units": ["P4-U03"],
+        "branch": "work/intel-ollama-obsidian-ms1 + work/intel-p8-schema",
+        "shipped_units": ["P4-U01", "P4-U03"],
         "not_started_units": ["P4-U02", "P4-U04"],
-        "commits": {"P4-U01": "86aedc3fb"},
-        "notes": "P4-U01 (GSD chunked + indexed) shipped via 86aedc3fb. P4-U03 (claudemd-ollama-enforcer rewire) PARTIAL — vector-index query works (.claude/hooks/claudemd-ollama-enforcer.mjs:161 calls prism_memory:semantic_search with kind:rule, limit:3) but the exit-condition rate-limit relaxation from 3min to 30s was NOT done (RATE_WINDOW_MS = 3*60*1000 still on line 41). P4-U02 (directive summaries via Ollama) NOT STARTED — none of scripts/summarize-directives-via-ollama.mjs, .claude/hooks/directive-summary-refresh.mjs, or H:/prism/knowledge/directives/SUMMARIES.md exist. P4-U04 (wiki query bridge) NOT STARTED — scripts/embed-wiki-index.mjs absent."
+        "commits": {"P4-U01": "86aedc3fb", "P4-U03": "[work/intel-p8-schema] partial via initial enforcer commit + rate-limit-relax in this branch"},
+        "notes": "P4-U01 (GSD chunked + indexed) shipped via 86aedc3fb. P4-U03 (claudemd-ollama-enforcer rewire) NOW COMPLETE — vector-index query works (.claude/hooks/claudemd-ollama-enforcer.mjs:161 calls prism_memory:semantic_search with kind:rule, limit:3) AND rate-limit relaxed from 3min to 30s in this branch (RATE_WINDOW_MS = 30 * 1000 on line 47, with documenting comment block at lines 39-44). P4-U02 (directive summaries via Ollama) NOT STARTED — none of scripts/summarize-directives-via-ollama.mjs, .claude/hooks/directive-summary-refresh.mjs, or H:/prism/knowledge/directives/SUMMARIES.md exist. P4-U04 (wiki query bridge) NOT STARTED — scripts/embed-wiki-index.mjs absent."
       },
       "P5": {
         "branch": "work/intel-ollama-obsidian-ms1 (no per-unit commits)",
@@ -100,15 +99,16 @@
       "high_confidence_complete_phases": ["P1", "P2", "P3", "P5"],
       "high_confidence_partial_phases": ["P0", "P4", "P6", "P7", "P8"],
       "verified_unit_states": {
-        "shipped_full": ["P0-U01", "P0-U02", "P0-U03", "P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05", "P2-U01", "P2-U02", "P2-U03", "P2-U04", "P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05", "P4-U01", "P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05", "P6-U02", "P6-U03", "P7-U02", "P8-U01", "P8-U02", "P8-U03", "P8-U05"],
-        "shipped_partial": ["P0-U04", "P4-U03", "P6-U01", "P8-U04", "P8-U06"],
+        "shipped_full": ["P0-U01", "P0-U02", "P0-U03", "P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05", "P2-U01", "P2-U02", "P2-U03", "P2-U04", "P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05", "P4-U01", "P4-U03", "P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05", "P6-U02", "P6-U03", "P7-U02", "P8-U01", "P8-U02", "P8-U03", "P8-U05"],
+        "shipped_partial": ["P0-U04", "P6-U01", "P8-U04", "P8-U06"],
         "not_started": ["P4-U02", "P4-U04", "P7-U01"],
         "audited_count": 38
       }
     },
     "audit_history": [
       {"by": "claude-ba192f8a", "at": "2026-05-01T20:25:00.000Z", "scope": "phase-level cross-branch grep map (initial cross_branch_shipping_status)"},
-      {"by": "claude-ba192f8a", "at": "2026-05-01T20:55:00.000Z", "scope": "verified 5 status-unknown units (P4-U02, P4-U03, P4-U04, P6-U01, P7-U01) against deliverables; P3-U06 was envelope drift (slot is P10-U04)"}
+      {"by": "claude-ba192f8a", "at": "2026-05-01T20:55:00.000Z", "scope": "verified 5 status-unknown units (P4-U02, P4-U03, P4-U04, P6-U01, P7-U01) against deliverables; P3-U06 was envelope drift (slot is P10-U04)"},
+      {"by": "claude-ba192f8a", "at": "2026-05-01T21:02:00.000Z", "scope": "P4-U03 promoted partial→shipped_full via rate-limit relax 3min→30s (.claude/hooks/claudemd-ollama-enforcer.mjs:47)"}
     ]
   },
   "phases": [
