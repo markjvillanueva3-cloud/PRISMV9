@@ -45,6 +45,14 @@
       "parameter_count_estimate": 83,
       "description": "Frame Generator environment — Inventor-only assembly-level workspace with no Fusion 360 / hyperCAD-S equivalent. 12 operations across member placement (Insert Frame Member with 9-position alignment grid + Custom1/Custom2 offsets + Content Center family selection, Change, Reuse, Author custom Content Center frame member from sketch profile), end treatments (Mitre single+double, Notch profile/face/dual-face, Trim-To-Frame, Extend-To-Frame, Trim-and-Extend with auto-detect, Lengthen/Shorten, Remove End Treatment), and Frame BOM emission (CSV/XLSX/XML/parts-list with cut-list grouping + end-treatment summaries). Skeleton-driven: each member is bound to a sketch line in a parent skeleton part. Bindings reference FrameComponentDefinition COM API (FrameMembers / MitreFrameMembers / NotchFrameMembers / TrimFrameMembers / ExtendFrameMembers / TrimExtendFrameMembers / LengthenShortenFrameMembers / RemoveEndTreatments collections + ContentCenterEditor.AuthorFrameMember).",
       "dependencies": ["sketch_operations", "part_operations"]
+    },
+    {
+      "module_id": "weldment_operations",
+      "path": "cad-functions/inventor/weldment-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-06"],
+      "parameter_count_estimate": 95,
+      "description": "Weldment environment — assembly subtype activated by Convert-to-Weldment, enforces a 3-phase build order (Preparations → Welds → Machining). 12 operations: setup (Convert-to-Weldment with 6 welding standards: AWS A2.4, ISO 2553, DIN ISO 2553, JIS Z 3021, GB/T 324, ANSI Y14.5), preparations (Cope for tubular saddle joints, Chamfer for V/bevel/J/U groove prep, Edge-Fillet for stress-relief), weld beads (Cosmetic annotation-only with intermittent stitch params, Fillet 2-or-3-face with leg/throat/contour/all-around/intermittent, Groove with full/partial penetration + root-opening + reinforcement + backing-bar + double-sided), Machining post-weld (hole/cut/face/fillet/chamfer with hole/extrude/revolve/sweep modes), Weld Symbol AWS A2.4-compliant drawing annotation (15 weld types with arrow/other/both side, finish symbols G/M/C/H/R, tail text), End Fill cap for hollow members, Multi-Pass Weld Schedule (root + filler + cap with SMAW/GMAW/FCAW/GTAW/SAW/ESW/EW process), and Weldment BOM with bead length + bead volume + electrode mass + deposition efficiency. Bindings reference WeldmentComponentDefinition COM API (Preparations / WeldBeads / MachiningFeatures / WeldPasses collections + AddCopeFeature / AddChamferFeature / AddFilletEdgeFeature / AddFilletWeldBead / AddCosmeticWeldBead / AddGrooveWeldBead / AddWeldEndFill methods + WeldSymbol drawing-side annotation).",
+      "dependencies": ["sketch_operations", "part_operations"]
     }
   ],
   "global_cross_references": {
@@ -67,21 +75,21 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 5,
+    "total_modules": 6,
     "total_units_covered": [
       "U-CAD-FIDX-INV-01",
       "U-CAD-FIDX-INV-02",
       "U-CAD-FIDX-INV-03",
       "U-CAD-FIDX-INV-04",
-      "U-CAD-FIDX-INV-05"
+      "U-CAD-FIDX-INV-05",
+      "U-CAD-FIDX-INV-06"
     ],
-    "estimated_parameter_total": 613,
+    "estimated_parameter_total": 708,
     "api_surface": {
       "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 3,
+      "phase_1_target_modules_remaining": 2,
       "phase_1_modules_pending": [
-        "weldment_operations",
         "drawing_operations",
         "assembly_operations"
       ]
@@ -104,12 +112,6 @@
     "vault": false
   },
   "future_modules": [
-    {
-      "planned_id": "weldment_operations",
-      "scope": "Weldment environment: Preparations (Cope / Chamfer / Fillet for groove prep), Weld Beads (Cosmetic / Fillet / Groove with material removal), Machining (post-weld features), Weld Symbol annotation. Triggered by Convert-to-Weldment.",
-      "estimated_params": 95,
-      "deferred_to": "U-CAD-FIDX-INV-06"
-    },
     {
       "planned_id": "drawing_operations",
       "scope": "2D drawing output: Base View, Projected View, Section View (Full / Half / Aligned / Offset), Detail View, Auxiliary View, Break View, Crop View, dimensions (Linear / Angular / Radius / Diameter / Chamfer / Baseline / Ordinate / Hole Table / Bend Table for sheet metal flat patterns), Note / Leader / Surface Texture / Weld Symbol / GD&T Frame, Title Block + Revision Table + Parts List.",

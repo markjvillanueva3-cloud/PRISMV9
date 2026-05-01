@@ -259,8 +259,9 @@ describe("cadDispatcher — Autodesk Inventor discovery actions (U-CAD-FIDX-INV-
       "surface_operations",
       "sheet_metal_operations",
       "frame_generator_operations",
+      "weldment_operations",
     ]);
-    expect(out.count).toBe(5);
+    expect(out.count).toBe(6);
   });
 
   it("cad_inventor_get_operation('sketch_operations','LINE') returns the LINE op", async () => {

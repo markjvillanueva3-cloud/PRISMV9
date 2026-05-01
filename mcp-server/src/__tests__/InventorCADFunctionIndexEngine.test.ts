@@ -84,8 +84,22 @@ const KNOWN_FRAME_GENERATOR_OPS = [
   "FRAME_BOM",
 ];
 
+const KNOWN_WELDMENT_OPS = [
+  // setup (1)
+  "CONVERT_TO_WELDMENT",
+  // preparations (3)
+  "PREPARATION_COPE", "PREPARATION_CHAMFER", "PREPARATION_FILLET",
+  // weld beads (3)
+  "COSMETIC_WELD_BEAD", "FILLET_WELD_BEAD", "GROOVE_WELD_BEAD",
+  // post-weld (1)
+  "MACHINING_FEATURE",
+  // annotation + cap + schedule (3)
+  "WELD_SYMBOL", "END_FILL", "WELD_PASSES",
+  // output (1)
+  "WELDMENT_BOM",
+];
+
 const PLANNED_FUTURE_MODULES = [
-  "weldment_operations",
   "drawing_operations",
   "assembly_operations",
 ];
@@ -99,16 +113,17 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(5);
+    expect(idx.modules.length).toBe(6);
   });
 
-  it("listModules surfaces sketch / part / surface / sheet_metal / frame_generator in registration order", () => {
+  it("listModules surfaces sketch / part / surface / sheet_metal / frame_generator / weldment in registration order", () => {
     expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
       "sketch_operations",
       "part_operations",
       "surface_operations",
       "sheet_metal_operations",
       "frame_generator_operations",
+      "weldment_operations",
     ]);
   });
 
@@ -124,20 +139,20 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 3 follow-ups (after INV-05 ship)", () => {
+  it("future_modules registers exactly the planned 2 follow-ups (after INV-06 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
     expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id (06..08)", () => {
+  it("each future_modules entry has scope, params, and a valid INV unit id (07..08)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(3);
+    expect(futureModules.length).toBe(2);
     for (const fm of futureModules) {
       expect(fm.scope.length).toBeGreaterThan(20);
       expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[6-8]$/);
+      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[7-8]$/);
     }
   });
 
@@ -305,8 +320,8 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 98 operations across sketch + part + surface + sheet_metal + frame_generator modules", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(98);
+  it("listAllOperations returns 110 operations across sketch + part + surface + sheet_metal + frame_generator + weldment modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(110);
   });
 });
 
@@ -583,6 +598,179 @@ describe("InventorCADFunctionIndexEngine — frame_generator_operations module (
   });
 });
 
+describe("InventorCADFunctionIndexEngine — weldment_operations module (U-CAD-FIDX-INV-06)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 12 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("weldment_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-06");
+    expect(mod?.metadata?.operationCount).toBe(12);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(12);
+  });
+
+  it("listOperations returns exactly KNOWN_WELDMENT_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("weldment_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_WELDMENT_OPS].sort());
+  });
+
+  it("each weldment operation carries a Weldment_-prefixed category", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("weldment_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^Weldment_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("getOperation('CONVERT_TO_WELDMENT') exposes 6 welding standards", () => {
+    const conv = InventorCADFunctionIndexEngine.getOperation(
+      "weldment_operations",
+      "CONVERT_TO_WELDMENT",
+    );
+    expect(conv?.category).toBe("Weldment_Setup_Convert");
+    expect(conv?.python_api).toBe("AssemblyDocument.ConvertToWeldment");
+    const std = conv?.tabs?.Properties?.parameters?.find((p) => p.name === "Welding Standard");
+    expect(std?.options).toEqual([
+      "aws_a2_4",
+      "iso_2553",
+      "din_iso_2553",
+      "jis_z_3021",
+      "gb_t_324",
+      "ansi_y14_5",
+    ]);
+  });
+
+  it("getOperation('PREPARATION_CHAMFER') registers 6 groove geometry types", () => {
+    const ch = InventorCADFunctionIndexEngine.getOperation(
+      "weldment_operations",
+      "PREPARATION_CHAMFER",
+    );
+    const groove = ch?.tabs?.Selection?.parameters?.find((p) => p.name === "Groove Type");
+    expect(groove?.options).toEqual([
+      "v_groove",
+      "single_bevel",
+      "double_bevel",
+      "j_groove",
+      "u_groove",
+      "double_v",
+    ]);
+    const angle = ch?.tabs?.Selection?.parameters?.find((p) => p.name === "Chamfer Angle");
+    expect(angle?.default).toBe(60);
+    expect(angle?.min).toBe(10);
+    expect(angle?.max).toBe(90);
+  });
+
+  it("getOperation('FILLET_WELD_BEAD') splits 4 tabs and 13 params with optional Face Set 3", () => {
+    const fw = InventorCADFunctionIndexEngine.getOperation(
+      "weldment_operations",
+      "FILLET_WELD_BEAD",
+    );
+    expect(fw?.category).toBe("Weldment_Bead_Fillet");
+    expect(Object.keys(fw?.tabs ?? {})).toEqual(["Selection", "Bead", "Termination"]);
+    expect(fw?.parameterCount).toBe(13);
+    const face1 = fw?.tabs?.Selection?.parameters?.find((p) => p.name === "Face Set 1");
+    const face3 = fw?.tabs?.Selection?.parameters?.find((p) => p.name === "Face Set 3");
+    expect(face1?.required).toBe(true);
+    expect(face3?.required).not.toBe(true);
+    const contour = fw?.tabs?.Bead?.parameters?.find((p) => p.name === "Contour");
+    expect(contour?.options).toEqual(["flat", "convex", "concave"]);
+    const dir = fw?.tabs?.Termination?.parameters?.find((p) => p.name === "Direction");
+    expect(dir?.options).toEqual(["from_face_1", "from_face_2", "centered"]);
+  });
+
+  it("getOperation('GROOVE_WELD_BEAD') exposes full vs partial penetration + 4 contours", () => {
+    const gw = InventorCADFunctionIndexEngine.getOperation(
+      "weldment_operations",
+      "GROOVE_WELD_BEAD",
+    );
+    const pen = gw?.tabs?.Selection?.parameters?.find((p) => p.name === "Penetration");
+    expect(pen?.options).toEqual(["full", "partial"]);
+    const contour = gw?.tabs?.Bead?.parameters?.find((p) => p.name === "Contour");
+    expect(contour?.options).toEqual(["flat", "convex", "concave", "ground_flush"]);
+    const reinforcement = gw?.tabs?.Bead?.parameters?.find((p) => p.name === "Reinforcement");
+    expect(reinforcement?.default).toBe(1.5);
+  });
+
+  it("getOperation('WELD_SYMBOL') registers 15 weld types per AWS A2.4 / ISO 2553", () => {
+    const sym = InventorCADFunctionIndexEngine.getOperation("weldment_operations", "WELD_SYMBOL");
+    const wt = sym?.tabs?.Symbol?.parameters?.find((p) => p.name === "Weld Type");
+    expect(wt?.options?.length).toBe(15);
+    expect(wt?.options).toContain("fillet");
+    expect(wt?.options).toContain("v_groove");
+    expect(wt?.options).toContain("flare_v");
+    const finish = sym?.tabs?.Bead?.parameters?.find((p) => p.name === "Finish Symbol");
+    expect(finish?.options).toEqual([
+      "none",
+      "g_grind",
+      "m_machine",
+      "c_chip",
+      "h_hammer",
+      "r_roll",
+      "u_unspecified",
+    ]);
+  });
+
+  it("getOperation('WELD_PASSES') supports the 7 AWS welding processes", () => {
+    const wp = InventorCADFunctionIndexEngine.getOperation("weldment_operations", "WELD_PASSES");
+    const process = wp?.tabs?.Pass?.parameters?.find((p) => p.name === "Process");
+    expect(process?.options).toEqual(["smaw", "gmaw", "fcaw", "gtaw", "saw", "esw", "ew"]);
+    const passCount = wp?.tabs?.Pass?.parameters?.find((p) => p.name === "Pass Count");
+    expect(passCount?.required).toBe(true);
+    expect(passCount?.min).toBe(1);
+  });
+
+  it("getOperation('WELDMENT_BOM') emits 6 output formats including weld_procedure_form", () => {
+    const bom = InventorCADFunctionIndexEngine.getOperation(
+      "weldment_operations",
+      "WELDMENT_BOM",
+    );
+    const fmt = bom?.tabs?.Output?.parameters?.find((p) => p.name === "Output Format");
+    expect(fmt?.options).toEqual([
+      "xlsx",
+      "csv",
+      "xml",
+      "inventor_parts_list",
+      "iam_drawing_table",
+      "weld_procedure_form",
+    ]);
+    const dens = bom?.tabs?.Output?.parameters?.find((p) => p.name === "Electrode Density");
+    expect(dens?.default).toBe(7.85);
+    const eff = bom?.tabs?.Output?.parameters?.find((p) => p.name === "Deposition Efficiency");
+    expect(eff?.default).toBe(0.95);
+    expect(eff?.min).toBe(0);
+    expect(eff?.max).toBe(1);
+  });
+
+  it("weldment_operations declares dependencies on sketch + part_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("weldment_operations");
+    expect(entry?.dependencies).toEqual(["sketch_operations", "part_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within weldment_operations", () => {
+    const setupOps = InventorCADFunctionIndexEngine.getOperationsByCategory(
+      "Weldment_Setup_Convert",
+      "weldment_operations",
+    );
+    expect(setupOps.length).toBe(1);
+    expect(setupOps[0]?.operation_id).toBe("CONVERT_TO_WELDMENT");
+
+    const beadOps = InventorCADFunctionIndexEngine.listOperations("weldment_operations").filter(
+      (o) => o.category.startsWith("Weldment_Bead_"),
+    );
+    // Cosmetic + Fillet + Groove + EndFill + PassSchedule (multi-pass schedule
+    // attaches to a parent bead so it lives in the Bead category family).
+    expect(beadOps.length).toBe(5);
+    const beadCategories = beadOps.map((o) => o.category).sort();
+    expect(beadCategories).toEqual([
+      "Weldment_Bead_Cosmetic",
+      "Weldment_Bead_EndFill",
+      "Weldment_Bead_Fillet",
+      "Weldment_Bead_Groove",
+      "Weldment_Bead_PassSchedule",
+    ]);
+  });
+});
+
 describe("InventorCADFunctionIndexEngine — surface_operations module (U-CAD-FIDX-INV-03)", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
@@ -734,8 +922,8 @@ describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 613 (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(613);
+  it("getTotalParameterCount equals 708 (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83 + weldment 95)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(708);
   });
 
   it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
@@ -798,6 +986,18 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(83);
   });
 
+  it("weldment_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("weldment_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
+      for (const tab of Object.values(op.tabs ?? {})) {
+        actual += (tab.parameters ?? tab.params ?? []).length;
+      }
+    }
+    expect(actual).toBe(95);
+    expect(mod?.metadata?.totalParameters).toBe(95);
+  });
+
   it("each per-op declared parameterCount matches actual tab-sum across all modules", () => {
     for (const moduleId of [
       "sketch_operations",
@@ -805,6 +1005,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "surface_operations",
       "sheet_metal_operations",
       "frame_generator_operations",
+      "weldment_operations",
     ]) {
       const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
       for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
@@ -833,6 +1034,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "U-CAD-FIDX-INV-03",
       "U-CAD-FIDX-INV-04",
       "U-CAD-FIDX-INV-05",
+      "U-CAD-FIDX-INV-06",
     ]);
   });
 
@@ -861,6 +1063,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     const frameGen = InventorCADFunctionIndexEngine.getModule("frame_generator_operations");
     expect(Object.keys(frameGen?.operations ?? {}).length).toBe(12);
     expect(frameGen?.metadata?.operationCount).toBe(12);
+
+    const weldment = InventorCADFunctionIndexEngine.getModule("weldment_operations");
+    expect(Object.keys(weldment?.operations ?? {}).length).toBe(12);
+    expect(weldment?.metadata?.operationCount).toBe(12);
   });
 });
 
