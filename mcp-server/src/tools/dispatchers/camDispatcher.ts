@@ -1611,6 +1611,8 @@ export const ACTIONS = [
   "cam_scenario_generate", "cam_scenario_generate_all", "cam_scenario_generate_pocket_2d", "cam_scenario_generate_contour_2d", "cam_scenario_generate_drilling_threading", "cam_scenario_generate_surface_3d", "cam_scenario_generate_multi_axis", "cam_scenario_generate_turning", "cam_scenario_predict_count", "cam_scenario_audit",
   // CAM-EXHAUST-MS0 U-CAMTEST14 — Central 7-family assertion bundle (host-agnostic)
   "cam_assertion_bundle_evaluate", "cam_assertion_bundle_failed", "cam_assertion_bundle_by_name", "cam_assertion_bundle_audit", "cam_assertion_bundle_families",
+  // CAM-EXHAUST-MS0 U-CAMTEST15 — Results bridge (host → hub → state file aggregator)
+  "cam_results_bridge_ingest", "cam_results_bridge_list", "cam_results_bridge_list_failures", "cam_results_bridge_summarize", "cam_results_bridge_persist", "cam_results_bridge_load", "cam_results_bridge_reset", "cam_results_bridge_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12646,6 +12648,59 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_assertion_bundle_families": {
             const { CAMInHostAssertionBundleEngine } = await import("../../engines/CAMInHostAssertionBundleEngine.js");
             result = { families: CAMInHostAssertionBundleEngine.ASSERTION_FAMILIES };
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST15: Results bridge ──
+          case "cam_results_bridge_ingest": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            const env = params.envelope as Parameters<typeof CAMInHostResultsBridgeEngine.ingestEnvelope>[0];
+            result = { envelope: CAMInHostResultsBridgeEngine.ingestEnvelope(env) };
+            break;
+          }
+          case "cam_results_bridge_list": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            const host = params.host as Parameters<typeof CAMInHostResultsBridgeEngine.listByHost>[0] | undefined;
+            const category = params.category as Parameters<typeof CAMInHostResultsBridgeEngine.listByCategory>[0] | undefined;
+            let envelopes;
+            if (host !== undefined) envelopes = CAMInHostResultsBridgeEngine.listByHost(host);
+            else if (category !== undefined) envelopes = CAMInHostResultsBridgeEngine.listByCategory(category);
+            else envelopes = CAMInHostResultsBridgeEngine.list();
+            result = { envelopes, count: envelopes.length };
+            break;
+          }
+          case "cam_results_bridge_list_failures": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            const failures = CAMInHostResultsBridgeEngine.listFailures();
+            result = { envelopes: failures, count: failures.length };
+            break;
+          }
+          case "cam_results_bridge_summarize": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            result = { summary: CAMInHostResultsBridgeEngine.summarize() };
+            break;
+          }
+          case "cam_results_bridge_persist": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            const target = (params.path as string | undefined) ?? CAMInHostResultsBridgeEngine.DEFAULT_RESULTS_PATH;
+            result = CAMInHostResultsBridgeEngine.persist(target);
+            break;
+          }
+          case "cam_results_bridge_load": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            const source = (params.path as string | undefined) ?? CAMInHostResultsBridgeEngine.DEFAULT_RESULTS_PATH;
+            result = CAMInHostResultsBridgeEngine.load(source);
+            break;
+          }
+          case "cam_results_bridge_reset": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            CAMInHostResultsBridgeEngine.reset();
+            result = { reset: true };
+            break;
+          }
+          case "cam_results_bridge_audit": {
+            const { CAMInHostResultsBridgeEngine } = await import("../../engines/CAMInHostResultsBridgeEngine.js");
+            result = CAMInHostResultsBridgeEngine.auditBridge();
             break;
           }
 

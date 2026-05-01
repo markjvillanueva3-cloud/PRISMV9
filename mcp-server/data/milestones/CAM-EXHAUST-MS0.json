@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 132,
+  "completed_units": 133,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -254,7 +254,8 @@
     "U-CAMTEST11",
     "U-CAMTEST12",
     "U-CAMTEST13",
-    "U-CAMTEST14"
+    "U-CAMTEST14",
+    "U-CAMTEST15"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6618,7 +6619,7 @@
       "title": "Results Bridge â€” In-Host â†’ PRISM via Hub",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Collects per-scenario assertion results inside each host and ships them back over the hub as structured result envelopes. PRISM-side aggregator writes to data/state/CAM_INHOST_RESULTS.json.",
       "entry_conditions": [
         "U-CAMTEST14 complete"
@@ -6630,6 +6631,20 @@
       "deliverables": [
         "src/engines/CAMInHostResultsBridgeEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMInHostResultsBridgeEngine.ts",
+        "src/__tests__/CAMInHostResultsBridgeEngine.test.ts",
+        "src/tools/dispatchers/camDispatcher.ts (cam_results_bridge_{ingest,list,list_failures,summarize,persist,load,reset,audit})"
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 35,
+        "tests_min_30": true,
+        "schema_version": "1.0.0",
+        "default_path": "data/state/CAM_INHOST_RESULTS.json",
+        "dispatcher_wiring": "wired (cam_results_bridge_* — 8 actions) + 3 round-trip tests"
+      },
+      "completion_note": "In-memory store keyed by `${host}::${scenario_id}` (host is part of the key so the same scenario_id can run on multiple hosts). Last-write-wins on ingest re-fires (runners retry transient errors so this is the correct policy). summarize() partitions across host × category × assertion family in one pass. persist() writes a versioned ResultsFile (schemaVersion 1.0.0, envelopes, written_at_ms) and creates parent dirs as needed; load() round-trips through ResultsFileSchema and rejects mismatched schemaVersion. 35 tests cover ingest happy path, cross-host + cross-category aggregation correctness, last-write-wins on (host, scenario_id) collisions, persist+load round-trip on real fs (temp paths), corrupt-JSON / missing-file / version-mismatch failure modes, schema rejection on bad envelopes, audit invariant, reset semantics, and 3 dispatcher round-trip tests."
+      ,
       "estimated_tokens": 14000,
       "four_loop": [
         "BUILD",
