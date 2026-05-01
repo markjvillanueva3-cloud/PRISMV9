@@ -5306,11 +5306,21 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 safe_z_mm?: number;
                 tool_change_position?: { x: number; y: number; z: number };
               };
+              /** U-PPGM15: gate tier for the post-emit verifier; omit to skip. */
+              verify_tier?: "sim" | "proven_out" | "production" | "shop_floor";
             };
-            result = hurcoV11MillMasterPostEngine.generateProgram(
+            const engineOutput = hurcoV11MillMasterPostEngine.generateProgram(
               p.operations as any,
               p.config
             );
+            // U-PPGM15: seal sidecar from engine's block_annotations[] and
+            // optionally run the gate. Single dispatch returns the full
+            // verified package (gcode + sidecar + verify result).
+            const { sealMasterPostOutput } = await import("../../cps/sealMasterPostOutput.js");
+            result = sealMasterPostOutput(engineOutput, {
+              source_engine_versions: { "HurcoV11MillMasterPostEngine": "1.1.0" },
+              verify_tier: p.verify_tier,
+            });
             break;
           }
 
@@ -5353,11 +5363,20 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 c_axis_enabled?: boolean;
                 tailstock_position_mm?: number;
               };
+              /** U-PPGM15: gate tier for the post-emit verifier; omit to skip. */
+              verify_tier?: "sim" | "proven_out" | "production" | "shop_floor";
             };
-            result = okumaB250LatheMasterPostEngine.generateProgram(
+            const okumaEngineOutput = okumaB250LatheMasterPostEngine.generateProgram(
               p.operations as any,
               p.config
             );
+            // U-PPGM15: seal sidecar (G97 ops only — G96 CSS bypasses
+            // annotation; gate's anonymous-block rule skips them).
+            const { sealMasterPostOutput: sealOkuma } = await import("../../cps/sealMasterPostOutput.js");
+            result = sealOkuma(okumaEngineOutput, {
+              source_engine_versions: { "OkumaB250LatheMasterPostEngine": "1.1.0" },
+              verify_tier: p.verify_tier,
+            });
             break;
           }
           case "master_post_mitsubishi_mv1200r": {
