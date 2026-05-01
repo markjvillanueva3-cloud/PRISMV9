@@ -1,0 +1,2808 @@
+{
+  "schemaVersion": "1.0.0",
+  "unit_id": "U-CAM68",
+  "title": "InventorCAM Specialty Operations Extraction",
+  "cam_platform": "inventorcam",
+  "generated_at": "2026-05-01T20:47:40.963Z",
+  "source_documents": [
+    {
+      "knowledge_store_doc": "doc-inventorcam2024-edge-breaking",
+      "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Edge_Breaking.pdf",
+      "page_count": 29,
+      "tips_unique": 10,
+      "formulas_total": 0,
+      "tables_total": 0
+    },
+    {
+      "knowledge_store_doc": "doc-inventorcam2024-rotary-finishing-4x",
+      "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_Rotary_Finishing_4X.pdf",
+      "page_count": 27,
+      "tips_unique": 6,
+      "formulas_total": 0,
+      "tables_total": 0
+    },
+    {
+      "knowledge_store_doc": "doc-inventorcam2024-hss-user-guide",
+      "source_pdf": "H:/prism/resources/RESOURCE PDFS/InventorCAM2024_HSS_User_Guide.pdf",
+      "page_count": 132,
+      "tips_unique": 153,
+      "formulas_total": 3,
+      "tables_total": 0
+    }
+  ],
+  "totals": {
+    "source_documents": 3,
+    "tips": 169,
+    "formulas": 3,
+    "parameter_tables": 0
+  },
+  "tips": [
+    {
+      "title": "Set Facet tolerance value",
+      "body": "0.002",
+      "category": "toolpath",
+      "tags": [
+        "facet_tolerance"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Add Machine Setup at start of operations tree",
+      "body": "Right click Operations > Machine Setup > Add at start of operations tree.",
+      "category": "machine_setup",
+      "tags": [
+        "machine_setup"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Set Z value for Machine Setup",
+      "body": "Z value as 128.080.",
+      "category": "machine_setup",
+      "tags": [
+        "z_value"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Add Milling Operation for Edge Breaking",
+      "body": "Right click Setup > Add Milling Operation > Edge Breaking.",
+      "category": "toolpath",
+      "tags": [
+        "edge_breaking"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Select BALL NOSE MILL tool for Edge Breaking operation",
+      "body": "Double click the BALL NOSE MILL tool to add it for the operation.",
+      "category": "tool_selection",
+      "tags": [
+        "ball_nose_mill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.19",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Set Retract distance and Safety distance for Edge Breaking operation",
+      "body": "Retract distance: 20, Safety distance: 10.",
+      "category": "toolpath",
+      "tags": [
+        "retract_distance",
+        "safety_distance"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.23",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Select Clearance blend spline for Link page",
+      "body": "In the Type list, select Clearance blend spline.",
+      "category": "toolpath",
+      "tags": [
+        "link_type"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Set Max. Interpolation Angle value for SolidVerify tab",
+      "body": "Max. Interpolation Angle: 1.",
+      "category": "toolpath",
+      "tags": [
+        "interpolation_angle"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.25",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Set Cut tolerance value for Edge Breaking operation",
+      "body": "Cut tolerance value: 0.03.",
+      "category": "toolpath",
+      "tags": [
+        "cut_tolerance"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Set Output format to 5 Axis for Edge Breaking operation",
+      "body": "In the Output format list, click 5 Axis.",
+      "category": "toolpath",
+      "tags": [
+        "output_format"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-edge-breaking"
+    },
+    {
+      "title": "Set Lower level value for corner radius",
+      "body": "Lower level = -3 mm to ensure no steps remain while machining.",
+      "category": "workholding",
+      "tags": [
+        "corner_radius",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-rotary-finishing-4x"
+    },
+    {
+      "title": "Select TAPER BALL NOSE tool for Rotary Machining",
+      "body": "Choose TAPER BALL NOSE as the tool for rotary machining operations.",
+      "category": "tool_selection",
+      "tags": [
+        "taper_ball_nose",
+        "rotary_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-rotary-finishing-4x"
+    },
+    {
+      "title": "Set tool path parameters for Rotary Machining",
+      "body": "Enter parameters as shown in the image on page 22.",
+      "category": "toolpath",
+      "tags": [
+        "rotary_machining",
+        "tool_path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-rotary-finishing-4x"
+    },
+    {
+      "title": "Use Zigzag cutting method for Rotary Machining",
+      "body": "Select Zigzag as the Cutting method in the Sorting tab.",
+      "category": "toolpath",
+      "tags": [
+        "zigzag",
+        "rotary_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-rotary-finishing-4x"
+    },
+    {
+      "title": "Use Spiral cutting method for Rotary Machining",
+      "body": "Select Spiral as the Cutting method in the Sorting tab.",
+      "category": "toolpath",
+      "tags": [
+        "spiral",
+        "rotary_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-rotary-finishing-4x"
+    },
+    {
+      "title": "Simulate and verify the operation",
+      "body": "Simulate the operation to ensure it looks as displayed in the image, then run SolidVerify.",
+      "category": "troubleshooting",
+      "tags": [
+        "simulation",
+        "solidverify"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.24",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-rotary-finishing-4x"
+    },
+    {
+      "title": "Set cut tolerance for surface quality",
+      "body": "Cut tolerance: 0.005 mm to 0.1 mm, depending on material and finish requirements.",
+      "category": "surface_quality",
+      "tags": [
+        "cutting",
+        "precision"
+      ],
+      "confidence": 90,
+      "material_groups": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ],
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Adjust step over for surface quality",
+      "body": "Step over: 50% to 75% of the tool diameter, depending on material and finish requirements.",
+      "category": "surface_quality",
+      "tags": [
+        "step_over",
+        "precision"
+      ],
+      "confidence": 90,
+      "material_groups": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ],
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.41",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use advanced options for surface quality",
+      "body": "Enable advanced surface quality options to fine-tune the toolpath for better finish.",
+      "category": "surface_quality",
+      "tags": [
+        "advanced",
+        "finishing"
+      ],
+      "confidence": 85,
+      "material_groups": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ],
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.42",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Sort cutting method by direction",
+      "body": "Select 'Direction of machining' to control the order in which features are machined.",
+      "category": "sorting",
+      "tags": [
+        "machining_order",
+        "direction"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Enforce direction of machining",
+      "body": "Enable 'Enforce direction of machining' to maintain consistent machining direction.",
+      "category": "sorting",
+      "tags": [
+        "direction",
+        "consistency"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Flip step over direction",
+      "body": "Use 'Flip step over' to reverse the direction of step over for better material removal.",
+      "category": "sorting",
+      "tags": [
+        "step_over",
+        "direction"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.46",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set default lead-in/out type",
+      "body": "Choose 'Type' for default lead-in/out: Linear, Arc, or Spiral.",
+      "category": "tool_control",
+      "tags": [
+        "lead_in_out",
+        "type"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.67",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Configure approach/retreat parameters",
+      "body": "Set 'Approach/retreat parameters' to control the distance and feed rate for approach/retract.",
+      "category": "tool_control",
+      "tags": [
+        "approach",
+        "retreat"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.70",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Enable gouge checking",
+      "body": "Activate 'Gouge checking' to ensure the toolpath does not intersect with material.",
+      "category": "gouge_check",
+      "tags": [
+        "safety",
+        "toolpath"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.74",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Add an HSS Operation",
+      "body": "Right-click the Operations header in InventorCAM Manager and choose the HSS command from the Add Milling Operation sub-menu or press Ctrl+H.",
+      "category": "strategy",
+      "tags": [
+        "HSS",
+        "operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.13",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define the Coordinate System for HSS operations",
+      "body": "Choose an existing CoordSys from the list or define a new one using the CoordSys Manager dialog box.",
+      "category": "workholding",
+      "tags": [
+        "CoordSys",
+        "Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define machining geometry for Parallel cuts strategies",
+      "body": "Select the drive surface, configure settings, and define edge curves or check surfaces as needed.",
+      "category": "geometry",
+      "tags": [
+        "Parallel cuts",
+        "Drive surface",
+        "Edge curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set drive surface offset for Parallel cuts",
+      "body": "Define the machining allowance by specifying a distance from the drive surface.",
+      "category": "geometry",
+      "tags": [
+        "Drive surface offset",
+        "Parallel cuts"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define lead curve for Parallel to curves strategy",
+      "body": "Select the appropriate geometry from the list or define a new one by clicking on the model.",
+      "category": "geometry",
+      "tags": [
+        "Parallel to curves",
+        "Lead curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define drive and check surfaces for Parallel to surface strategy",
+      "body": "Ensure the drive and check surfaces are adjacent with a common edge.",
+      "category": "geometry",
+      "tags": [
+        "Parallel to surface",
+        "Drive surface",
+        "Check surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.23",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define lead curve for Perpendicular to curve strategy",
+      "body": "The lead curve does not need to be on the surface; virtual points are projected onto the drive surface.",
+      "category": "geometry",
+      "tags": [
+        "Perpendicular to curve",
+        "Lead curve"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.25",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define drive surface for Morph between two boundary curves strategy",
+      "body": "Select the surface to be machined in the operation.",
+      "category": "geometry",
+      "tags": [
+        "Morph between two boundary curves",
+        "Drive surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.25",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define leading curves for morphing",
+      "body": "Use drive surface edges as lead curves for better morphing of tool paths.",
+      "category": "toolpath",
+      "tags": [
+        "morphing",
+        "drive surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.26",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Generate tool path front side option",
+      "body": "Check box to generate tool path taking into account the direction of check surfaces normals.",
+      "category": "toolpath",
+      "tags": [
+        "normals",
+        "tangent angle"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.27",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define drive surface for projection strategies",
+      "body": "Drive surface section to define the surface to be machined in the operation.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "drive surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define direction for projection strategies",
+      "body": "Specify the direction to which the curve is projected (X, Y, Z, Line, Surface normal).",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "direction"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.28",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define center point for radial/spiral passes",
+      "body": "Center point section to define the position of a center point of the virtual circle.",
+      "category": "toolpath",
+      "tags": [
+        "radial",
+        "spiral"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.29",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define radius for radial/spiral passes",
+      "body": "Start and End options to define the virtual inner and outer circles.",
+      "category": "toolpath",
+      "tags": [
+        "radial",
+        "spiral"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.29",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define angle for radial strategy",
+      "body": "Angle section to define an area based on two angles for tool path calculation.",
+      "category": "toolpath",
+      "tags": [
+        "radial"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.29",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define cutting area options",
+      "body": "Options to define the cutting area on the drive surface (Full, avoid cuts at exact edges, etc.).",
+      "category": "toolpath",
+      "tags": [
+        "area",
+        "cutting"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.30",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Avoid cuts at exact edges",
+      "body": "Generate tool path on the whole drive surface avoiding the drive surface edges.",
+      "category": "toolpath",
+      "tags": [
+        "avoid cuts",
+        "edges"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.30",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Start and end at exact surface edges",
+      "body": "Generate tool path starting and finishing exactly at the drive surface edges.",
+      "category": "toolpath",
+      "tags": [
+        "start",
+        "end"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.30",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Limit cuts by one or two points",
+      "body": "Define limiting points with the Limit cuts between 2 points dialog box.",
+      "category": "toolpath",
+      "tags": [
+        "limit",
+        "points"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Determined by number of cuts",
+      "body": "Limit the tool path by a number of cutting passes defined with the Number of cuts parameter.",
+      "category": "toolpath",
+      "tags": [
+        "cuts",
+        "number"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define margin for Morph between two adjacent surfaces",
+      "body": "Click Margins button to set Start and End margins, available for Morph between two adjacent surfaces and Morph between two boundary curves.",
+      "category": "toolpath",
+      "tags": [
+        "margin",
+        "Morph"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set projection direction for planar boundary",
+      "body": "Choose an axis of the Coordinate System or define a vector by an end point for the projection direction.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "boundary"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.32",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define feed for HSS operation",
+      "body": "Feed can be defined in units per minute (F) or units per tooth (FZ). FZ is calculated using the formula: FZ = F/(Number of Flutes * S).",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed",
+        "HSS"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set cutting feed rate for tool",
+      "body": "Define the cutting feed rate in the Cutting feed field.",
+      "category": "speeds_feeds",
+      "tags": [
+        "cutting_feed"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define feed Z for tool movements",
+      "body": "Feed Z defines the feed of tool movements from safety position to cutting depth. For Tap tools, InventorCAM calculates F and FZ automatically.",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed_z"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set retract feed for tool movements",
+      "body": "Define the feed of tool movements from material to retract level in the Retract feed field.",
+      "category": "speeds_feeds",
+      "tags": [
+        "retract_feed"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define spin for tool",
+      "body": "Spin can be defined in units per minute (S) or material cutting speed (V). V is calculated using the formula: V = (S * PI * Tool Diameter) / 1000.",
+      "category": "speeds_feeds",
+      "tags": [
+        "spin"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Select tool for operation",
+      "body": "Choose a tool from the Part Tool Table in the Tool page.",
+      "category": "tool_selection",
+      "tags": [
+        "tool"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.36",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define feed control parameters",
+      "body": "Click the Feed Control tab to define feed zone control, offset, and feed rate percentage.",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed_control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.38",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Optimize feed rate for different segments",
+      "body": "Use the Feed Rate Control Optimization dialog box to define feed rates based on surface radius, flat tool path, large and small radius, and sharp corners.",
+      "category": "speeds_feeds",
+      "tags": [
+        "feed_rate_optimization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.38",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Replace rapid movements with non-rapid in G1 mode",
+      "body": "Check the Rapid motion in G1 mode box to replace rapid movements (G0) with non-rapid ones using a particular feed rate.",
+      "category": "speeds_feeds",
+      "tags": [
+        "rapid_motion"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.39",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Optimize feed rate based on tool contact",
+      "body": "Check the Tool contact based cut feed rate optimization box to control tool path feed rate by actual surface and tool contact points.",
+      "category": "speeds_feeds",
+      "tags": [
+        "tool_contact_optimization"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.39",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define clearance area and machining levels",
+      "body": "Set parameters for clearance area and machining levels in the Levels page.",
+      "category": "workholding",
+      "tags": [
+        "clearance_area",
+        "machining_levels"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define direction vector for toolpath",
+      "body": "Use User-defined direction option to set direction vector by coordinates (dX, dY, dZ) or select start and end points on the solid model.",
+      "category": "toolpath",
+      "tags": [
+        "direction",
+        "vector"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set tool retraction height",
+      "body": "Choose Automatic for automatic clearance plane determination or User-defined to specify a height value.",
+      "category": "toolpath",
+      "tags": [
+        "retraction",
+        "height"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define clearance area as cylinder",
+      "body": "Use Cylinder option to define a cylindrical surface enclosing the drive surface for tool retraction.",
+      "category": "toolpath",
+      "tags": [
+        "cylinder",
+        "clearance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set incremental clearance area traversing type",
+      "body": "Choose Step for horizontal line connection or Direct for diagonal line connection between cuts.",
+      "category": "toolpath",
+      "tags": [
+        "incremental",
+        "traversing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define safety distances",
+      "body": "Set Retract distance, Entry safety distance, and Exit safety distance for approach and retraction movements.",
+      "category": "toolpath",
+      "tags": [
+        "safety",
+        "distances"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Perform rapid retract with rapid feed",
+      "body": "Check Rapid retract box to perform retraction with rapid feed.",
+      "category": "toolpath",
+      "tags": [
+        "rapid",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set rapid distance in tool plane",
+      "body": "Check Rapid distance in tool plane box to retract along the tool plane until reaching a specified height.",
+      "category": "toolpath",
+      "tags": [
+        "rapid",
+        "distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define cut tolerance for surface finish",
+      "body": "Adjust Cut tolerance parameter to control tool path accuracy and surface finish quality.",
+      "category": "surface_quality",
+      "tags": [
+        "cut",
+        "tolerance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set point spacing for tool path",
+      "body": "Use Minimum distance and Maximum distance check boxes to define the maximal and minimal distance between consecutive tool path points.",
+      "category": "toolpath",
+      "tags": [
+        "point",
+        "spacing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define maximum step over for machining strategies",
+      "body": "Set Maximum step over parameter based on the selected machining strategy to define the distance between consecutive cuts.",
+      "category": "toolpath",
+      "tags": [
+        "step",
+        "over"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define scallop for ball nose mill tool",
+      "body": "Set Scallop parameter to define the cusp height of the machined surface when using a Ball Nose Mill tool.",
+      "category": "toolpath",
+      "tags": [
+        "scallop",
+        "ball_nose"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Approximate for Step over calculation",
+      "body": "For Parallel to curves or Morph between two boundary curves, use Approximate for better control over tool path results without adding additional geometry.",
+      "category": "speeds_feeds",
+      "tags": [
+        "step_over",
+        "tool_path"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "parallel_to_curves",
+        "morph_between_boundary_curves"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Enable Extend edge curve for better tool path control",
+      "body": "When using Parallel to curves or Morph between two boundary curves with Approximate step over, enable Extend edge curve for different tool paths without additional geometry.",
+      "category": "speeds_feeds",
+      "tags": [
+        "extend_edge_curve",
+        "tool_path"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "parallel_to_curves",
+        "morph_between_boundary_curves"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Adjust Chaining tolerance for surface quality",
+      "body": "Set the Chaining tolerance parameter between 1 to 10 times the Cut tolerance for better surface quality. For simple surfaces, it can be up to 100 times the Cut tolerance.",
+      "category": "speeds_feeds",
+      "tags": [
+        "chaining_tolerance",
+        "surface_quality"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.50",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Adaptive cuts for steep surfaces",
+      "body": "Enable Adaptive cuts to adjust step over between passes, especially useful in machining of steep surfaces, molds, and U-shaped parts.",
+      "category": "speeds_feeds",
+      "tags": [
+        "adaptive_cuts",
+        "steep_surfaces"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Choose Cutting method based on tool path requirements",
+      "body": "Select One Way, Zigzag, or Spiral for the Cutting method depending on how cuts are connected and direction of machining.",
+      "category": "toolpath",
+      "tags": [
+        "cutting_method",
+        "direction_of_machining"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Spiral pitch with Max. step over",
+      "body": "Set the spiral pitch using the Max. step over parameter when using Spiral cutting method.",
+      "category": "toolpath",
+      "tags": [
+        "spiral_pitch",
+        "max_step_over"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "spiral_machining"
+      ],
+      "page_ref": "p.51",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Full for constant spiral motions",
+      "body": "When using Spiral machining, select the Full option to perform cuts in constant spiral motions.",
+      "category": "toolpath",
+      "tags": [
+        "spiral_machining",
+        "full_option"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "spiral_machining"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Adjust Enforce direction of machining for open contours",
+      "body": "Enable Enforce direction of machining to keep the imposed cutting direction when input geometry is an open contour.",
+      "category": "toolpath",
+      "tags": [
+        "enforce_direction",
+        "open_contours"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.54",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Start point for tool path",
+      "body": "Set the start point of the first cut using Position, Surface normal direction, Shift by value, Rotate by, or Minimize surface normal change.",
+      "category": "toolpath",
+      "tags": [
+        "start_point",
+        "position"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.54",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Reverse toolpath start point",
+      "body": "Select 'Reverse' to start toolpath from outside and move towards center; unselect for inside-to-outside movement. Applies to Projection (Radial) strategy.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "radial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set tool path cutting side",
+      "body": "Choose 'Center', 'Left', or 'Right' for toolpath position relative to model. Applies to Projection (User defined and Offset) strategy.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "user-defined",
+        "offset"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Modify tool path parameters",
+      "body": "Access 'Modify' tab for advanced settings affecting toolpath, visible when 'Advanced' checkbox is selected.",
+      "category": "toolpath",
+      "tags": [
+        "modify",
+        "advanced"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Surface edge merge distance",
+      "body": "Define surface edge merge distance as a numeric value or percentage of tool diameter, must be >= cut tolerance.",
+      "category": "toolpath",
+      "tags": [
+        "surface",
+        "merge"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Apply outer sharp corners",
+      "body": "Enable 'Apply outer sharp corners' to preserve corner sharpness by extending toolpath and connecting with a loop.",
+      "category": "toolpath",
+      "tags": [
+        "sharp",
+        "corners"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "3D tool compensation formula",
+      "body": "Tool path recalculated using formula C = T + R * N, where C is new tool center, T is tip, R is corner radius, and N is tool vector.",
+      "category": "toolpath",
+      "tags": [
+        "compensation",
+        "3d"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Smooth toolpath corners",
+      "body": "Enable 'Smooth Toolpath' to replace sharp corners with splines, controlled by 'Smoothing' and 'Detection Angle'.",
+      "category": "toolpath",
+      "tags": [
+        "smooth",
+        "corners"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Round toolpath corners",
+      "body": "Use 'Round Corners' to avoid fish tail movements in sharp corners by defining rounding based on tool radius and additional value.",
+      "category": "toolpath",
+      "tags": [
+        "round",
+        "corners"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define cutting area by angle range",
+      "body": "Use 'Angle Range' to define machining area based on surface inclination angles, using dialog box for parameters.",
+      "category": "toolpath",
+      "tags": [
+        "angle",
+        "range"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Extend/Trim toolpath tangentially",
+      "body": "Enable 'Extend/Trim' to extend or trim toolpath tangentially along cuts, using dialog box for extension and trimming distances.",
+      "category": "toolpath",
+      "tags": [
+        "extend",
+        "trim"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Side extensions for toolpath",
+      "body": "Use 'Side Extensions' to extend toolpath beyond drive surface, defining distances as values or percentage of tool diameter.",
+      "category": "toolpath",
+      "tags": [
+        "side",
+        "extensions"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.58",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Axial shift tool control",
+      "body": "Set 'Axial Shift' to offset tool along axis, options include constant for each contour, gradual for all cuts, or gradual for each contour.",
+      "category": "toolpath",
+      "tags": [
+        "axial",
+        "shift"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.59",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Smooth tool path with damp option",
+      "body": "Enable 'Damp' in 'Axial Shift' to smooth toolpath and avoid vertical jumps, resulting in smoother movement.",
+      "category": "toolpath",
+      "tags": [
+        "damp",
+        "smooth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.59",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define tool contact point",
+      "body": "Choose 'Auto', 'At Center', 'At Radius', or 'At Front' to define the point on tool surface that contacts drive surfaces.",
+      "category": "toolpath",
+      "tags": [
+        "contact",
+        "point"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Approach/Retract options",
+      "body": "Choose from Direct, From clearance area, Use retract distance, or Use safety distance for tool approach and retraction.",
+      "category": "toolpath",
+      "tags": [
+        "approach",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.65",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Home position for tool path linking",
+      "body": "Define a Home position to control the initial and final movements of the tool during approach and retreat.",
+      "category": "toolpath",
+      "tags": [
+        "home_position"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.67",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Gap movement options",
+      "body": "Select from Direct, Safety distance, Clearance area, Follow surfaces, Blend spline, or Incremental clearance area for gap movements.",
+      "category": "toolpath",
+      "tags": [
+        "gap_movement"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.70",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Slices movement options",
+      "body": "Choose from Direct, Safety distance, Clearance area, Follow surfaces, Blend spline, or Incremental clearance area for movements between slices.",
+      "category": "toolpath",
+      "tags": [
+        "slices_movement"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.72",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set safety distance and rapid feed",
+      "body": "The tool performs a retract movement in the tool axis direction to the Retract distance, followed by direct movement at the Safety distance with rapid feed rate.",
+      "category": "safety",
+      "tags": [
+        "retract",
+        "rapid_feed"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Follow Stock for gap areas",
+      "body": "When a gap area is detected, the tool performs a retract movement to the stock upper level and makes a link at the upper level height.",
+      "category": "toolpath",
+      "tags": [
+        "follow_stock",
+        "gap_area"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Implement Incremental clearance area for shorter retracts",
+      "body": "The approach movement enables you to retract to an incremental clearance plane, reducing machining time by maintaining a safe reposition height.",
+      "category": "toolpath",
+      "tags": [
+        "incremental_clearance",
+        "retract"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Clearance blend spline for collision-free links",
+      "body": "This option enables you to link two contours with a new blend spline, ensuring the link is collision free.",
+      "category": "toolpath",
+      "tags": [
+        "clearance_blend",
+        "collision_free"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.74",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define default Lead-In/Lead-Out strategies",
+      "body": "You can define parameters for approach/retreat movements using Tangential arc, Reverse tangential arc, Vertical tangential arc, etc.",
+      "category": "toolpath",
+      "tags": [
+        "lead_in",
+        "lead_out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.75",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Tangential arc for approach/retreat movements",
+      "body": "The approach/retreat movement is performed with an arc tangential to the drive surface in a plane orthogonal to the tool axis.",
+      "category": "toolpath",
+      "tags": [
+        "tangential_arc"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.76",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Flip approach/retreat arc to avoid collisions",
+      "body": "When regular approach/retreat by arc is obstructed, flip the defined approach/retreat arc to ensure unobstructed access.",
+      "category": "toolpath",
+      "tags": [
+        "flip_arc"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define approach/retreat parameters",
+      "body": "Set dimensions for the approach/retreat arc or line using Width, Length, Arc sweep, and Arc diameter.",
+      "category": "toolpath",
+      "tags": [
+        "approach_retreat",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Gouge check to avoid collisions",
+      "body": "Automatically detect and avoid possible collisions between the tool (with the tool holder) and the workpiece.",
+      "category": "safety",
+      "tags": [
+        "gouge_check"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define gouge checking parameters for tools and geometry",
+      "body": "Choose components of the tool holding system and model faces to check possible collisions between them.",
+      "category": "safety",
+      "tags": [
+        "gouge_check",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Select gouge checking strategy to avoid collisions",
+      "body": "Choose strategies like Retract tool, Reverse tool path, etc., to avoid possible collisions.",
+      "category": "safety",
+      "tags": [
+        "gouge_check",
+        "strategy"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.81",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define tool path on a flat surface",
+      "body": "Create a new flat surface for defining tool paths, which facilitates setting parameters like distance between cuts and machining angles in the XY-plane.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "flat surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Project tool path onto a 3D model",
+      "body": "After defining the tool path on a flat surface, project it onto the faces of the model to be machined.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "3D model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Edit tool path on flat surface",
+      "body": "Check and edit the resulting tool path on the flat surface before projecting it onto the model.",
+      "category": "toolpath",
+      "tags": [
+        "editing",
+        "flat surface"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Drop tool along tool axis",
+      "body": "Activate the projection of the tool path on the required 3D geometry by checking 'Drop tool down wherever needed'.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "tool axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Remove areas where tool drop fails",
+      "body": "Exclude areas from the tool path where projection cannot be performed by checking 'Remove areas where tool drop fails'.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "failure"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Drop tool after rotations",
+      "body": "Activate the projection of the tool on the surface after rotating or transforming the tool path by checking 'Drop tool after rotations'. This option is available if 'Rotate&Translate' is activated.",
+      "category": "toolpath",
+      "tags": [
+        "projection",
+        "rotations"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Smooth retracts",
+      "body": "Smooth the transition from collision-free area to tool retraction area by checking 'Smooth retracts' and setting the 'Smooth distance field'.",
+      "category": "toolpath",
+      "tags": [
+        "retract",
+        "smoothing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.84",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Retract tool in various directions",
+      "body": "Choose the retract direction from options like Along +X, -X, +Y, -Y, +Z, -Z, along planes, optimized directions, surface normal, away from origin, cut center, contact line, user-defined direction, and tool axis.",
+      "category": "toolpath",
+      "tags": [
+        "retract",
+        "directions"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.85",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Trim tool path on collision",
+      "body": "Use trimming options like 'Trim collision only', 'Trim tool path after first collision', 'Trim tool path before last collision', 'Trim tool path between first and last collision', or 'Trim tool path before/after first/last collision' to remove gouges.",
+      "category": "toolpath",
+      "tags": [
+        "trimming",
+        "collision"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.86",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Stop tool path calculation on gouge",
+      "body": "Choose 'Stop tool path calculation' to generate the tool path until the first gouge, then edit parameters and recalculate.",
+      "category": "toolpath",
+      "tags": [
+        "calculation",
+        "gouge"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.86",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Report remaining collisions",
+      "body": "Enable 'Report remaining collisions' to generate a report about possible collisions after gouge checking, using tolerance two times greater than specified.",
+      "category": "toolpath",
+      "tags": [
+        "report",
+        "collisions"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.87",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Check gouge between positions",
+      "body": "Enable 'Check gouge between positions' to avoid possible gouges between tool path positions, especially useful for flat faces machining.",
+      "category": "toolpath",
+      "tags": [
+        "gouge",
+        "positions"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.87",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Extend tool to infinity",
+      "body": "Consider the tool as extended to infinity during collision check by enabling 'Extend tool to infinity'.",
+      "category": "toolpath",
+      "tags": [
+        "extension",
+        "collision"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.87",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Check link motions for collision",
+      "body": "Automatically perform gouge checking for link movements by enabling 'Check link motions for collision'. This check is available when 'Trim contour for safe retract' is selected.",
+      "category": "toolpath",
+      "tags": [
+        "link",
+        "collision"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.87",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define roughing and finishing passes",
+      "body": "Use Multi-passes option to perform roughing and finishing layers with specified number of passes and spacing.",
+      "category": "speeds_feeds | toolpath",
+      "tags": [
+        "multi-pass",
+        "roughing",
+        "finishing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.92",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Sort passes by slices or passes",
+      "body": "Choose sorting method in Multi-passes dialog box: Slices for current cutting pass, Passes for current offset level.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "sort",
+        "slices",
+        "passes"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.92",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define machining angle for multi-cut roughing",
+      "body": "Enable Machining angle XY change in Multi-passes dialog box to gradually rotate tool path with every new pass.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "machining angle",
+        "multi-cut"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.93",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Perform depth cuts in tool axis direction",
+      "body": "Use Depth cuts option for 5-axis rough and finish machining, generating passes in the direction of the tool axis.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "depth cuts",
+        "5-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Apply depth cuts to entire tool path or first pass",
+      "body": "Choose whether depth cuts parameters apply to the whole tool path or only the first pass in Depth cuts dialog box.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "depth cuts",
+        "apply"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use ramp for single spiral cutting pass",
+      "body": "Enable Use ramp option to convert multiple separate passes into a single taper spiral cutting pass.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "use ramp",
+        "spiral cut"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "roughing",
+        "finishing"
+      ],
+      "page_ref": "p.94",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Rotate tool path around specific axis",
+      "body": "Use Rotating strategy to repeat the same tool path a given number of times by rotation around a specific axis.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "rotate",
+        "axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "rotating"
+      ],
+      "page_ref": "p.95",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define rotation parameters",
+      "body": "Set orientation, base point, number of steps, start angle, and rotation angle in Rotate/Translate Tool Path dialog box.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "orientation",
+        "base point"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "rotating"
+      ],
+      "page_ref": "p.95",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Transform tool path with start and step over distances",
+      "body": "Use Start distance and Step over distance parameters to transform a 5-axis tool path.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "start distance",
+        "step over"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "rotating"
+      ],
+      "page_ref": "p.96",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Sort tool path by complete, passes, slices, or partial",
+      "body": "Choose sorting method in Sorting dialog box: Complete tool path, Passes, Slices, or Partial tool path.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "sort",
+        "partial"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "rotating"
+      ],
+      "page_ref": "p.96",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Link tool path before or after rotation",
+      "body": "Choose whether to link the tool path before or after rotation in Sorting dialog box.",
+      "category": "toolpath | strategy",
+      "tags": [
+        "linking",
+        "before rotation"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "rotating"
+      ],
+      "page_ref": "p.96",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Choose Updated Stock model method",
+      "body": "InventorCAM provides two modes for the Updated Stock model calculation: Automatic and Manual.",
+      "category": "toolpath",
+      "tags": [
+        "stock",
+        "model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.97",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set Shrink/Expand value",
+      "body": "The defined Shrink/Expand value enables you to define the 3D offset by which the stock model will be modified.",
+      "category": "toolpath",
+      "tags": [
+        "stock",
+        "model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.97",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Check for collisions",
+      "body": "InventorCAM enables you to prevent the collisions between the tool/holder components and the machined stock model.",
+      "category": "toolpath",
+      "tags": [
+        "collision",
+        "prevention"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.97",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Trim contours shorter than specified length",
+      "body": "This option enables you to exclude the contours of the tool path that are shorter than a specified length.",
+      "category": "toolpath",
+      "tags": [
+        "trimming",
+        "contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.97",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Avoid trimming in case gap smaller than specified length",
+      "body": "This option enables you to ignore small gaps on the tool path that are shorter than a specified length.",
+      "category": "toolpath",
+      "tags": [
+        "trimming",
+        "gaps"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.97",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Step over value for pocket machining",
+      "body": "This parameter enables you to define the distance between two successive cuts in the pocket pass.",
+      "category": "toolpath",
+      "tags": [
+        "stepover",
+        "pocket"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set Plunge height value for plunging",
+      "body": "The height of this tool path is defined by the Plunge height value.",
+      "category": "toolpath",
+      "tags": [
+        "plunging",
+        "height"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Slide length value for plunging",
+      "body": "The distance the tool travels after the plunging move is defined by the Slide length value.",
+      "category": "toolpath",
+      "tags": [
+        "plunging",
+        "slide"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Step length value for Morph pocket",
+      "body": "The distance between two successive tool positions is defined by the Step length value.",
+      "category": "toolpath",
+      "tags": [
+        "morph",
+        "step"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Plunge height value for Morph pocket",
+      "body": "The height of this tool path is defined by the Plunge height value.",
+      "category": "toolpath",
+      "tags": [
+        "morph",
+        "plunge"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Slide length value for Morph pocket",
+      "body": "The distance the tool travels after the plunging move is defined by the Slide length value.",
+      "category": "toolpath",
+      "tags": [
+        "morph",
+        "slide"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "5axis"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Spiral machining check box for pocket machining",
+      "body": "When this check box is selected, InventorCAM generates a spiral tool path to machine the pocket.",
+      "category": "toolpath",
+      "tags": [
+        "spiral",
+        "pocket"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.98",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Reverse order of passes/tool path",
+      "body": "When the check box is selected and the Passes option is chosen from the list, the tool path passes are performed in the reversed order.",
+      "category": "toolpath",
+      "tags": [
+        "sorting",
+        "reverse"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.99",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Connect slices by shortest distance",
+      "body": "When this check box is selected, the tool path slices are connected by lines automatically calculated by InventorCAM.",
+      "category": "toolpath",
+      "tags": [
+        "sorting",
+        "connect"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.99",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Axis/Direction for Mirror option",
+      "body": "The mirror plane on which you can mirror the tool path is defined using an axis and a base point.",
+      "category": "toolpath",
+      "tags": [
+        "mirror",
+        "axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define Base point for Mirror option",
+      "body": "Click the Base button to select the base point of the plane.",
+      "category": "toolpath",
+      "tags": [
+        "mirror",
+        "base"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Use Lead-In/Out for Links between passes",
+      "body": "The approach movement is performed to the cutting level using the specified Lead-In options and performs the retreat movement from the cutting level using the specified Lead-Out options.",
+      "category": "toolpath",
+      "tags": [
+        "links",
+        "lead"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "multi-passes"
+      ],
+      "page_ref": "p.102",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set Indexial first rotation angle",
+      "body": "Select the Indexial first rotation angle to generate the trace output.",
+      "category": "toolpath",
+      "tags": [
+        "4th Axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.106",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Choose coordinate type for GCode",
+      "body": "Select Polar to calculate tool path in polar coordinates or Cartesian if cartez_4x = Y is defined.",
+      "category": "toolpath",
+      "tags": [
+        "Coordinate Type"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.107",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Select plane for rotary axis",
+      "body": "Choose XC, YC or ZC to select the rotary axis.",
+      "category": "toolpath",
+      "tags": [
+        "Plane"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.107",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Enable point interpolation for linear tool movements",
+      "body": "Interpolation for distance adds new interpolated tool positions at each distance defined by the Interpolation for distance parameter.",
+      "category": "toolpath",
+      "tags": [
+        "Point Interpolation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.107",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Limit tool path movements with machine limits",
+      "body": "Select No limits, Translation limits, Rotation limits or Limits All to control tool path movements within the machine definition.",
+      "category": "toolpath",
+      "tags": [
+        "Machine Limits"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.107",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use tool center based calculation for accurate machining",
+      "body": "Enable Tool center based calculation to perform the tool path calculation based on the tool center.",
+      "category": "toolpath",
+      "tags": [
+        "Tool Center Based Calculation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.110",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Custom triangulation for higher accuracy",
+      "body": "Enable Custom triangulation to achieve higher rate of accurate triangulation with options for Triangulation tolerance and Max. edge length.",
+      "category": "toolpath",
+      "tags": [
+        "Custom Triangulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.110",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Define message in GCode file",
+      "body": "Type a message that will appear in the generated GCode file in the Message field.",
+      "category": "gcode",
+      "tags": [
+        "Message"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.110",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Extra parameters for special operation options",
+      "body": "Enable Extra parameters to use special operation options implemented in the post-processor for the current CAM-Part.",
+      "category": "gcode",
+      "tags": [
+        "Extra Parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.110",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Display Operation Option window with Flyout Window",
+      "body": "Enable Flyout Window to display the Operation Option window for a larger working area.",
+      "category": "gcode",
+      "tags": [
+        "Flyout Window"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.110",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Set Gaps along cut option for Large gaps",
+      "body": "Direct for Large gaps, Blend spline for Links between slices",
+      "category": "toolpath",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.121",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Linear Parallel cuts for machining",
+      "body": "Drive surface is defined as shown, parallel cuts performed",
+      "category": "toolpath",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.121",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Perform Constant Z machining for undercut faces",
+      "body": "Drive surface is defined as shown, parallel Constant Z cuts performed",
+      "category": "toolpath",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.122",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Trim drive surface by 12 mm on each side",
+      "body": "Drive surface trimmed by 12 mm for Constant Z machining",
+      "category": "toolpath",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.122",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Ball nose mill tool for inner fillets",
+      "body": "Ø8 ball nose mill tool used for machining part inner fillets",
+      "category": "tool_selection",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.123",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Slot mill tool for back and bottom faces",
+      "body": "Ø30 slot mill tool used for Constant Z machining of part back and bottom faces",
+      "category": "tool_selection",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.125",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Trim drive surface by 3 mm on each side",
+      "body": "Drive surface extended by 3 mm for Constant Z machining of back and bottom faces",
+      "category": "toolpath",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.125",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Lollipop mill tool for back and bottom faces",
+      "body": "Ø16 lollipop mill tool used for Constant Z machining of part back and bottom faces",
+      "category": "tool_selection",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.126",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Ball nose mill tool for faces",
+      "body": "Ø6 ball nose mill tool used for machining part faces between two edge curves",
+      "category": "tool_selection",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.127",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "title": "Use Lollipop tool for finish machining",
+      "body": "Ø5 lollipop tool used for finish machining of part faces containing the undercut area",
+      "category": "tool_selection",
+      "tags": [
+        "HSS",
+        "Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring",
+        "pocketing"
+      ],
+      "page_ref": "p.129",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    }
+  ],
+  "formulas": [
+    {
+      "name": "Cutting feed rate (FZ)",
+      "expression": "FZ = F/(Number of Flutes * S)",
+      "variables": {
+        "FZ": "cutting feed rate [units per tooth]"
+      },
+      "page_ref": "p.37",
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "name": "Material cutting speed (V)",
+      "expression": "V = (S * PI * Tool Diameter) / 1000",
+      "variables": {
+        "V": "material cutting speed [m/min or ft/min]"
+      },
+      "page_ref": "p.37",
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    },
+    {
+      "name": "3D Tool Compensation Formula",
+      "expression": "C = T + R * N",
+      "variables": {
+        "C": "new coordinate of tool center [mm]",
+        "T": "coordinate of tool tip [mm]",
+        "R": "corner radius of tool [mm]",
+        "N": "tool vector"
+      },
+      "page_ref": "p.57",
+      "_source_doc": "doc-inventorcam2024-hss-user-guide"
+    }
+  ],
+  "parameter_tables": []
+}
