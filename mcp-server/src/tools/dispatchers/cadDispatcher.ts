@@ -175,6 +175,8 @@ const ACTIONS = [
   "cad_fusion360_get_index", "cad_fusion360_list_modules", "cad_fusion360_list_operations",
   "cad_fusion360_get_operation", "cad_fusion360_find_parameter", "cad_fusion360_search_parameters",
   "cad_fusion360_operations_by_category",
+  // Fusion 360 discovery surface (U-CAD-FIDX-AUDIT-02 — parity with hyperCAD-S)
+  "cad_fusion360_summary", "cad_fusion360_total_parameter_count", "cad_fusion360_load_errors",
   // Autodesk Fusion MCP Proxy (U-CAD-FIDX-FUS-INT-01)
   "cad_fusion_mcp_initialize", "cad_fusion_mcp_list_tools", "cad_fusion_mcp_execute_script",
   "cad_fusion_mcp_read_api_doc", "cad_fusion_mcp_screenshot", "cad_fusion_mcp_list_projects",
@@ -1466,6 +1468,58 @@ Params vary by action — pass relevant fields in params object.`,
               moduleId
             );
             result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+          // ─── Fusion 360 discovery surface (U-CAD-FIDX-AUDIT-02) ───────────
+          // Parity mirror of cad_hypercad_{summary,total_parameter_count,load_errors}
+          // for the Fusion 360 CAD Function Index discovery surface.
+          case "cad_fusion360_summary": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const index = Fusion360CADFunctionIndexEngine.getIndex();
+            const allOps = Fusion360CADFunctionIndexEngine.listAllOperations();
+            const totalParams = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
+            result = {
+              success: true,
+              system_id: index.system_id,
+              module_name: index.module_name,
+              total_modules: index.coverage_summary.total_modules,
+              total_operations: allOps.length,
+              total_parameters: totalParams,
+              estimated_parameter_total: index.coverage_summary.estimated_parameter_total,
+              coverage_state:
+                (index.coverage_summary.api_surface as { coverage_state?: string } | undefined)
+                  ?.coverage_state ?? "UNKNOWN",
+              modules: index.modules.map((m) => ({
+                module_id: m.module_id,
+                covered_units: m.covered_units,
+                parameter_count_estimate: m.parameter_count_estimate,
+              })),
+            };
+            break;
+          }
+          case "cad_fusion360_total_parameter_count": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
+            const declared = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+              .estimated_parameter_total;
+            result = {
+              success: true,
+              total_parameters: total,
+              declared_total: declared,
+              drift: total - declared,
+            };
+            break;
+          }
+          case "cad_fusion360_load_errors": {
+            const { Fusion360CADFunctionIndexEngine } = await import(
+              "../../engines/Fusion360CADFunctionIndexEngine.js"
+            );
+            const errors = Fusion360CADFunctionIndexEngine.getLoadErrors();
+            result = { success: true, count: errors.length, errors };
             break;
           }
           // ─── Autodesk Fusion MCP Proxy (U-CAD-FIDX-FUS-INT-01) ────────────
