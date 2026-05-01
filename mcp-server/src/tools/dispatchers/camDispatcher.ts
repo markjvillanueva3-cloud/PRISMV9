@@ -1601,6 +1601,8 @@ export const ACTIONS = [
   "cam_inhost_inventor_hsm_register", "cam_inhost_inventor_hsm_plan", "cam_inhost_inventor_hsm_summarize", "cam_inhost_inventor_hsm_stats", "cam_inhost_inventor_hsm_reset",
   // CAM-EXHAUST-MS0 U-CAMTEST04 — Mastercam X8 in-host runner (PRISM-side companion)
   "cam_inhost_mastercam_register", "cam_inhost_mastercam_plan", "cam_inhost_mastercam_summarize", "cam_inhost_mastercam_stats", "cam_inhost_mastercam_reset",
+  // CAM-EXHAUST-MS0 U-CAMTEST05 — Fixture Part Catalog (20 parametric parts driving scenario generators)
+  "cam_fixture_part_list", "cam_fixture_part_list_by_category", "cam_fixture_part_list_by_host", "cam_fixture_part_get", "cam_fixture_part_count", "cam_fixture_part_count_by_category", "cam_fixture_part_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12423,6 +12425,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { MastercamInHostRunnerEngine } = await import("../../engines/MastercamInHostRunnerEngine.js");
             MastercamInHostRunnerEngine.resetSession((params.session_id as string) ?? "default");
             result = { reset: true, session_id: params.session_id };
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST05: Fixture Part Catalog ──
+          case "cam_fixture_part_list": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            result = { parts: FixturePartCatalogEngine.list() };
+            break;
+          }
+          case "cam_fixture_part_list_by_category": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            const category = params.category as Parameters<typeof FixturePartCatalogEngine.listByCategory>[0];
+            result = { category, parts: FixturePartCatalogEngine.listByCategory(category) };
+            break;
+          }
+          case "cam_fixture_part_list_by_host": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            const host = params.host as Parameters<typeof FixturePartCatalogEngine.listByHost>[0];
+            result = { host, parts: FixturePartCatalogEngine.listByHost(host) };
+            break;
+          }
+          case "cam_fixture_part_get": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            const partId = params.part_id as string;
+            result = { part_id: partId, part: FixturePartCatalogEngine.get(partId) };
+            break;
+          }
+          case "cam_fixture_part_count": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            result = { count: FixturePartCatalogEngine.count(), expected: FixturePartCatalogEngine.EXPECTED_TOTAL };
+            break;
+          }
+          case "cam_fixture_part_count_by_category": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            result = { distribution: FixturePartCatalogEngine.countByCategory() };
+            break;
+          }
+          case "cam_fixture_part_audit": {
+            const { FixturePartCatalogEngine } = await import("../../engines/FixturePartCatalogEngine.js");
+            result = FixturePartCatalogEngine.auditCatalog();
             break;
           }
 
