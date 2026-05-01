@@ -69,6 +69,8 @@ const ACTIONS = [
   "lathe_partoff_safety_eval", "lathe_slo_evaluate", "lathe_job_schedule",
   // LATHE-WIRE-MS0/Batch4: cost reconcile + job profitability + inventory upsert
   "lathe_cost_reconcile", "lathe_job_profitability_record", "lathe_inventory_upsert",
+  // LATHE-WIRE-MS0/Batch5: print pipeline (strategy plan + sequence plan + setup select)
+  "lathe_print_strategy_plan", "lathe_print_sequence_plan", "lathe_print_setup_select",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -542,6 +544,66 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = latheInventoryIntelligenceEngine.upsertItem(
                 input as Parameters<typeof latheInventoryIntelligenceEngine.upsertItem>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_print_strategy_plan": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import("../../engines/LathePrintFeatureStrategySelectorEngine.js");
+            const features = (params as Record<string, unknown>).features;
+            const material = (params as Record<string, unknown>).material;
+            if (!Array.isArray(features)) { result = { success: false, error: "features array required (FeatureInput[])" }; break; }
+            if (!material || typeof material !== "object") { result = { success: false, error: "material required (MaterialInput)" }; break; }
+            try {
+              const machine = (params as Record<string, unknown>).machine;
+              const tolerance = (params as Record<string, unknown>).tolerance;
+              result = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+                features as Parameters<typeof lathePrintFeatureStrategySelectorEngine.generateStrategyPlan>[0],
+                material as Parameters<typeof lathePrintFeatureStrategySelectorEngine.generateStrategyPlan>[1],
+                machine as Parameters<typeof lathePrintFeatureStrategySelectorEngine.generateStrategyPlan>[2],
+                tolerance as Parameters<typeof lathePrintFeatureStrategySelectorEngine.generateStrategyPlan>[3],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_print_sequence_plan": {
+            const { lathePrintSequencePlannerEngine } = await import("../../engines/LathePrintSequencePlannerEngine.js");
+            const strategyPlan = (params as Record<string, unknown>).strategy_plan;
+            const stock = (params as Record<string, unknown>).stock;
+            const features = (params as Record<string, unknown>).features;
+            if (!strategyPlan || typeof strategyPlan !== "object") { result = { success: false, error: "strategy_plan required (StrategyPlan)" }; break; }
+            if (!stock || typeof stock !== "object") { result = { success: false, error: "stock required (StockInput)" }; break; }
+            if (!Array.isArray(features)) { result = { success: false, error: "features array required (FeatureInput[])" }; break; }
+            try {
+              result = lathePrintSequencePlannerEngine.planSequence(
+                strategyPlan as Parameters<typeof lathePrintSequencePlannerEngine.planSequence>[0],
+                stock as Parameters<typeof lathePrintSequencePlannerEngine.planSequence>[1],
+                features as Parameters<typeof lathePrintSequencePlannerEngine.planSequence>[2],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_print_setup_select": {
+            const { lathePrintSetupSelectionEngine } = await import("../../engines/LathePrintSetupSelectionEngine.js");
+            const geometry = (params as Record<string, unknown>).geometry;
+            const material = (params as Record<string, unknown>).material;
+            const loads = (params as Record<string, unknown>).loads;
+            if (!geometry || typeof geometry !== "object") { result = { success: false, error: "geometry required (PartGeometry)" }; break; }
+            if (!material || typeof material !== "object") { result = { success: false, error: "material required (MaterialInput)" }; break; }
+            if (!loads || typeof loads !== "object") { result = { success: false, error: "loads required (CuttingLoadInput)" }; break; }
+            try {
+              const chucks = (params as Record<string, unknown>).chucks;
+              result = lathePrintSetupSelectionEngine.selectSetup(
+                geometry as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[0],
+                material as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[1],
+                loads as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[2],
+                chucks as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[3],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

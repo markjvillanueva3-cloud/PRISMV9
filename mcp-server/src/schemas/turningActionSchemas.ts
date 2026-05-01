@@ -335,4 +335,22 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_inventory_upsert: z.object({
     input: z.record(z.string(), z.unknown()).describe("UpsertItemInput — SKU + stock level upsert for LatheInventoryIntelligenceEngine.upsertItem()"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch5: print pipeline (strategy plan + sequence plan + setup select)
+  lathe_print_strategy_plan: z.object({
+    features: z.array(z.record(z.string(), z.unknown())).describe("FeatureInput[] — print features (face, OD turn, ID bore, thread, groove)"),
+    material: z.record(z.string(), z.unknown()).describe("MaterialInput — workpiece material spec for strategy selection"),
+    machine: z.record(z.string(), z.unknown()).optional().describe("MachineCapability — optional lathe capability constraints"),
+    tolerance: z.record(z.string(), z.unknown()).optional().describe("ToleranceStackOutput — optional tolerance-stack-driven hints"),
+  }).passthrough(),
+  lathe_print_sequence_plan: z.object({
+    strategy_plan: z.record(z.string(), z.unknown()).describe("StrategyPlan from lathe_print_strategy_plan — operation list with strategies"),
+    stock: z.record(z.string(), z.unknown()).describe("StockInput — initial stock dimensions"),
+    features: z.array(z.record(z.string(), z.unknown())).describe("FeatureInput[] — print features for geometry context"),
+  }).passthrough(),
+  lathe_print_setup_select: z.object({
+    geometry: z.record(z.string(), z.unknown()).describe("PartGeometry — inferred or specified part geometry"),
+    material: z.record(z.string(), z.unknown()).describe("MaterialInput — workpiece material for clamping force calc"),
+    loads: z.record(z.string(), z.unknown()).describe("CuttingLoadInput — cutting force loads for chuck-grip sizing"),
+    chucks: z.array(z.record(z.string(), z.unknown())).optional().describe("ChuckSpec[] — optional candidate chucks (defaults supplied if omitted)"),
+  }).passthrough(),
 };
