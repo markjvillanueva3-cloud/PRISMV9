@@ -1,0 +1,291 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-01T20:09:41.071Z",
+  "unit": "U-CAM106",
+  "milestone": "CAM-EXHAUST-MS0",
+  "phase": "PHASE-7",
+  "source_test": "src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+  "vitest": {
+    "success": true,
+    "num_total_tests": 27,
+    "num_passed_tests": 27,
+    "num_failed_tests": 0,
+    "num_skipped_tests": 0,
+    "num_total_test_suites": 9,
+    "num_passed_test_suites": 9,
+    "num_failed_test_suites": 0,
+    "start_time_epoch_ms": 1777666178868,
+    "total_duration_ms": 118.935546875
+  },
+  "plugin_targets": {
+    "hypermill": {
+      "target": "hypermill",
+      "coverage_count": 5,
+      "direct_count": 1,
+      "collective_count": 4,
+      "passed": 5,
+      "failed": 0,
+      "validated": true
+    },
+    "fusion360": {
+      "target": "fusion360",
+      "coverage_count": 5,
+      "direct_count": 1,
+      "collective_count": 4,
+      "passed": 5,
+      "failed": 0,
+      "validated": true
+    },
+    "inventor_hsm": {
+      "target": "inventor_hsm",
+      "coverage_count": 5,
+      "direct_count": 1,
+      "collective_count": 4,
+      "passed": 5,
+      "failed": 0,
+      "validated": true
+    },
+    "mastercam": {
+      "target": "mastercam",
+      "coverage_count": 5,
+      "direct_count": 1,
+      "collective_count": 4,
+      "passed": 5,
+      "failed": 0,
+      "validated": true
+    },
+    "generic": {
+      "target": "generic",
+      "coverage_count": 4,
+      "direct_count": 0,
+      "collective_count": 4,
+      "passed": 4,
+      "failed": 0,
+      "validated": true
+    }
+  },
+  "acceptance": {
+    "all_plugins_validated": true,
+    "physics_within_5pct": true,
+    "tests_pass_min_10": true,
+    "overall": true
+  },
+  "assertions": [
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — handshake to routing-ready",
+      "title": "registers all 5 targets and reports healthy registry",
+      "status": "passed",
+      "duration_ms": 4.051800000000185,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — handshake to routing-ready",
+      "title": "hub.routeAll delivers a force overlay frame to every registered target",
+      "status": "passed",
+      "duration_ms": 1.4504000000001724,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — handshake to routing-ready",
+      "title": "registry compatibility honors the plugin's compat_range",
+      "status": "passed",
+      "duration_ms": 0.43659999999999854,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — handshake to routing-ready",
+      "title": "registry rejects compatibility check for unknown plugin",
+      "status": "passed",
+      "duration_ms": 0.22879999999986467,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — geometry → speed/feed → prediction",
+      "title": "geometry blob registered and chunked end-to-end",
+      "status": "passed",
+      "duration_ms": 1.0861999999997352,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — geometry → speed/feed → prediction",
+      "title": "after geometry registration, speed/feed bridge produces a real response",
+      "status": "passed",
+      "duration_ms": 2.147899999999936,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — geometry → speed/feed → prediction",
+      "title": "predicting a benign segment yields no critical alerts",
+      "status": "passed",
+      "duration_ms": 1.0025000000000546,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — geometry → speed/feed → prediction",
+      "title": "predicting an aggressive segment yields a critical worst priority",
+      "status": "passed",
+      "duration_ms": 0.8413999999997941,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — optimization respects predictor safety contract",
+      "title": "every cycle_time suggestion keeps predictors below PRIORITY_HIGH",
+      "status": "passed",
+      "duration_ms": 2.9218000000000757,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — optimization respects predictor safety contract",
+      "title": "tool_life suggestions monotonically reduce rpm or fz vs baseline",
+      "status": "passed",
+      "duration_ms": 0.4001000000002932,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — optimization respects predictor safety contract",
+      "title": "surface_finish suggestion brings predicted Ra below target",
+      "status": "passed",
+      "duration_ms": 0.3324999999999818,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — tooltip render across all targets",
+      "title": "renders a real-corpus tooltip for every plugin target",
+      "status": "passed",
+      "duration_ms": 25.117999999999938,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — tooltip render across all targets",
+      "title": "aggregate session summary across 6 overlay engines is structurally complete",
+      "status": "passed",
+      "duration_ms": 52.5338999999999,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — post-selector + speed/feed cross-engine",
+      "title": "each lathe machine recommendation produces a parseable post status",
+      "status": "passed",
+      "duration_ms": 1.1563000000001011,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — post-selector + speed/feed cross-engine",
+      "title": "PostSelector dashboard counts sum to total machines",
+      "status": "passed",
+      "duration_ms": 0.3002000000001317,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — failure-mode contract",
+      "title": "hub route to a target with no registered plugin returns unknown_target",
+      "status": "passed",
+      "duration_ms": 0.2575000000001637,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — failure-mode contract",
+      "title": "registry reportFailure walks plugin to offline after FAIL_BEFORE_OFFLINE failures",
+      "status": "passed",
+      "duration_ms": 0.27189999999973224,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — failure-mode contract",
+      "title": "optimization on baseline at limits returns zero suggestions, not throw",
+      "status": "passed",
+      "duration_ms": 0.1914000000001579,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — failure-mode contract",
+      "title": "prediction with empty toolpath returns 0 alerts and null worst_priority",
+      "status": "passed",
+      "duration_ms": 0.13609999999971478,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — cohesive-unit cross-engine contract",
+      "title": "every plugin-aware engine supports the same 5 targets",
+      "status": "passed",
+      "duration_ms": 0.599999999999909,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — cohesive-unit cross-engine contract",
+      "title": "geometry exchange supports the standard formats expected by CAM hosts",
+      "status": "passed",
+      "duration_ms": 0.4157999999997628,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — cohesive-unit cross-engine contract",
+      "title": "hub supports both transports referenced by plugin SDKs",
+      "status": "passed",
+      "duration_ms": 0.19729999999981374,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — cohesive-unit cross-engine contract",
+      "title": "hub frame types match the 6 overlay engines",
+      "status": "passed",
+      "duration_ms": 0.12820000000010623,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — end-to-end operator scenario",
+      "title": "Fusion 360: handshake → predict → optimize → tooltip → all surfaces emit",
+      "status": "passed",
+      "duration_ms": 5.56269999999995,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — end-to-end operator scenario",
+      "title": "Mastercam: same scenario, pipe-delimited payloads",
+      "status": "passed",
+      "duration_ms": 5.0046000000002095,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — end-to-end operator scenario",
+      "title": "hyperMILL: same scenario, all XML envelopes parse",
+      "status": "passed",
+      "duration_ms": 5.302400000000034,
+      "failure_messages": []
+    },
+    {
+      "file": "H:/PRISM/mcp-server/src/__tests__/cam-plugins/full-pipeline.integration.test.ts",
+      "describe": "U-CAM104 — end-to-end operator scenario",
+      "title": "Inventor HSM: typed JSON envelopes parse end-to-end",
+      "status": "passed",
+      "duration_ms": 4.935500000000047,
+      "failure_messages": []
+    }
+  ]
+}

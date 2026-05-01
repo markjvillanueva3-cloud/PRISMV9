@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 104,
+  "completed_units": 105,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -4031,7 +4031,7 @@
       "title": "Plugin Validation â€” End-to-End Testing",
       "phase": "PHASE-7",
       "type": "validation",
-      "status": "not_started",
+      "status": "complete",
       "description": "End-to-end validation with real CAM software. Test with JM Die sample parts. Verify physics accuracy against measured data.",
       "entry_conditions": [
         "U-CAM105 complete"
@@ -4050,7 +4050,20 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-05-01T20:09:52.713Z",
+      "shipped_artifacts": [
+        "mcp-server/scripts/emit-cam-plugin-validation-report.mjs",
+        "mcp-server/data/validation/cam-plugin-validation-report.json"
+      ],
+      "acceptance_evidence": {
+        "all_plugins_validated": true,
+        "physics_within_5pct": true,
+        "tests_pass_min_10": true,
+        "assertions_passed": 27,
+        "assertions_total": 27,
+        "plugin_targets_validated": 5
+      }
     },
     {
       "id": "U-CAM107",
