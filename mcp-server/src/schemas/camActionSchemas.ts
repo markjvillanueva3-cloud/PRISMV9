@@ -238,4 +238,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_job_pattern_learn: z.object({
     jobs: z.array(z.record(z.string(), z.unknown())).min(1).describe("JobRecord[] array - past WEDM jobs to learn patterns from"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch3: corner physics + dielectric correction + current density guard
+  wedm_corner_analyze: z.object({
+    input: z.record(z.string(), z.unknown()).describe("CornerAnalysisInput - corner geometry + wire/material context for WEDMCornerPhysicsEngine.analyzeCorner()"),
+  }).passthrough(),
+  wedm_dielectric_correct: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DielectricCorrectionInput - dielectric type + temperature + flow context for WEDMDielectricCorrectionEngine.calculateCorrectedGap()"),
+  }).passthrough(),
+  wedm_current_density_validate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("CurrentDensityInput - wire spec + peak current for WEDMCurrentDensityGuardEngine.validate()"),
+  }).passthrough(),
 };

@@ -1159,6 +1159,8 @@ export const ACTIONS = [
   "wedm_program_verify", "wedm_tier6_geom_validate", "wedm_preflight_checklist",
   // WEDM-WIRE-MS0/Batch2: wire-break risk + setup sheet + job-pattern learner
   "wedm_wire_break_risk", "wedm_setup_sheet_generate", "wedm_job_pattern_learn",
+  // WEDM-WIRE-MS0/Batch3: corner physics + dielectric correction + current density guard
+  "wedm_corner_analyze", "wedm_dielectric_correct", "wedm_current_density_validate",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -5951,6 +5953,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             if (!Array.isArray(jobs)) { result = { success: false, error: "jobs array required (JobRecord[])" }; break; }
             try {
               result = wedmJobPatternLearnerEngine.learn(jobs as Parameters<typeof wedmJobPatternLearnerEngine.learn>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch3: corner physics + dielectric correction + current density guard ──
+          case "wedm_corner_analyze": {
+            const { wedmCornerPhysicsEngine } = await import("../../engines/WEDMCornerPhysicsEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (CornerAnalysisInput)" }; break; }
+            try {
+              result = wedmCornerPhysicsEngine.analyzeCorner(
+                input as Parameters<typeof wedmCornerPhysicsEngine.analyzeCorner>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_dielectric_correct": {
+            const { wedmDielectricCorrectionEngine } = await import("../../engines/WEDMDielectricCorrectionEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DielectricCorrectionInput)" }; break; }
+            try {
+              result = wedmDielectricCorrectionEngine.calculateCorrectedGap(
+                input as Parameters<typeof wedmDielectricCorrectionEngine.calculateCorrectedGap>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_current_density_validate": {
+            const { wedmCurrentDensityGuardEngine } = await import("../../engines/WEDMCurrentDensityGuardEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (CurrentDensityInput)" }; break; }
+            try {
+              result = wedmCurrentDensityGuardEngine.validate(
+                input as Parameters<typeof wedmCurrentDensityGuardEngine.validate>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
