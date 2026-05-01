@@ -1,0 +1,490 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Assembly Operations — Multi-Component Assembly Environment",
+    "description": "Parameter catalog for the Inventor Assembly environment (.iam) — the multi-part document type that aggregates parts and sub-assemblies via component placement, geometric constraints, kinematic joints, patterns, and adaptive features. Inventor maintains TWO parallel relation systems: (1) classical AssemblyConstraints (Mate / Angle / Tangent / Insert / Symmetry / Rotation) — DOF-by-DOF removal style, dating from R1; and (2) AssemblyJoints (Rigid / Rotational / Slider / Cylindrical / Planar / Ball) — origin-pair based, introduced in 2014 to mirror SolidWorks-style mate references. Joints are recommended for new designs; constraints remain supported and many existing assemblies mix both. Catalog covers 21 operations: 2 placement (Place Component, Place from Content Center), 3 pattern (Rectangular / Circular / Mirror), 6 constraint types, 6 joint types, Adaptivity (per-component flag enabling parts to morph based on assembly context), Frame Analysis (FEA bridge for frame-generator assemblies), BOM (assembly bill of materials), and Interference Analysis (collision detection). Bindings reference real ComponentDefinition COM API (Occurrences.Add / OccurrencePatterns / AssemblyConstraints / AssemblyJoints / BOM / AnalyzeInterference + FrameAnalysis manager).",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-08",
+    "source": "Autodesk Inventor 2025 Help — Assembly Reference + Joints Reference; Inventor API Reference — Assembly namespace (AssemblyComponentDefinition, Occurrences, OccurrencePatterns.AddRectangularOccurrencePattern / AddCircularOccurrencePattern / AddMirrorOccurrencePattern, AssemblyConstraints.AddMateConstraint / AddAngleConstraint / AddTangentConstraint / AddInsertConstraint / AddSymmetryConstraint / AddRotationMotionConstraint, AssemblyJoints.Add with kRigidJointType / kRotationalJointType / kSliderJointType / kCylindricalJointType / kPlanarJointType / kBallJointType, BOM, AnalyzeInterference); FrameAnalysisManager for FEA on frame assemblies; Content Center API (ContentCenterFamilies.GetFamilyByDispName)",
+    "totalParameters": 130,
+    "operationCount": 21,
+    "cad_concepts_used": [
+      "ASSEMBLY_OCCURRENCE",
+      "ASSEMBLY_CONSTRAINT",
+      "ASSEMBLY_JOINT",
+      "DEGREES_OF_FREEDOM",
+      "GROUNDED_COMPONENT",
+      "ADAPTIVE_PART",
+      "PATTERN_OCCURRENCE",
+      "INTERFERENCE_DETECTION",
+      "BOM_FLATTENING",
+      "FRAME_ANALYSIS_FEA",
+      "CONTENT_CENTER_PLACE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor Assembly features. Constraint and joint ops use Selection / Solution / Limits tabs; placement uses Source / Position; patterns use Components / Pattern; analysis uses Setup / Output.",
+    "tabs": ["Source", "Position", "Selection", "Solution", "Limits", "Pattern", "Components", "Setup", "Output", "Properties"]
+  },
+  "operations": {
+    "PLACE_COMPONENT": {
+      "description": "Insert a component (.ipt part or .iam sub-assembly) into the active assembly. Position controls placement strategy: free-place (drop at cursor), at-origin (align component origin to assembly origin), at-snap (snap to a face/edge/point). Grounded flag locks the component's position so it cannot move under solver — typically set on the first / base component. Quantity places multiple identical occurrences in one operation.",
+      "category": "Assembly_Place_Component",
+      "python_api": "AssemblyComponentDefinition.Occurrences.Add",
+      "parameterCount": 9,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source File", "type": "string", "description": "Filesystem path to .ipt or .iam file", "required": true},
+            {"name": "Quantity", "type": "numeric", "description": "Number of occurrences to place in one operation", "default": 1, "min": 1},
+            {"name": "Naming Pattern", "type": "string", "description": "Naming convention for placed occurrences (e.g., '{name}:{n}')"}
+          ]
+        },
+        "Position": {
+          "parameters": [
+            {"name": "Placement Mode", "type": "dropdown", "options": ["free_place", "at_origin", "at_snap_face", "at_snap_edge", "at_snap_point", "by_constraint"], "default": "free_place"},
+            {"name": "Position", "type": "selection", "description": "Snap target (when Placement Mode = at_snap_*)"},
+            {"name": "Orientation Override", "type": "string", "description": "Override default orientation as 'X,Y,Z' Euler angles in degrees"},
+            {"name": "Grounded", "type": "checkbox", "description": "Lock component's position (cannot move under solver)", "default": false},
+            {"name": "Auto-Constraint", "type": "checkbox", "description": "Auto-detect and apply constraints to nearby geometry on place", "default": false},
+            {"name": "Default Material Override", "type": "string", "description": "Material override for placed component (defaults to source's iProperties)"}
+          ]
+        }
+      }
+    },
+    "PLACE_FROM_CONTENT_CENTER": {
+      "description": "Insert a Content Center component (standard hardware: bolts, washers, nuts, bearings, etc.). Standard selects the dimensional convention; Family selects within the standard (e.g., 'ANSI Hex Bolt'); Family Member selects specific size. Material defaults from family but can override.",
+      "category": "Assembly_Place_ContentCenter",
+      "python_api": "AssemblyComponentDefinition.Occurrences.AddByContentCenter",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["ansi", "iso", "din", "jis", "as", "bsi", "gb", "custom"], "default": "ansi"},
+            {"name": "Family", "type": "string", "description": "Content Center family (e.g., 'ANSI Hex Bolt')", "required": true},
+            {"name": "Family Member", "type": "string", "description": "Specific family member size (e.g., '1/4-20 x 1.000')", "required": true},
+            {"name": "Material Override", "type": "string", "description": "Material override (defaults to family default)"},
+            {"name": "Quantity", "type": "numeric", "description": "Number of occurrences", "default": 1, "min": 1},
+            {"name": "Naming Pattern", "type": "string", "description": "Naming convention for placed parts"}
+          ]
+        }
+      }
+    },
+    "PATTERN_RECTANGULAR": {
+      "description": "Rectangular occurrence pattern — replicates one or more components along two directions. Spacing 1 / Count 1 control the first direction; Spacing 2 / Count 2 control the perpendicular direction (set Count 2 = 1 for a linear pattern).",
+      "category": "Assembly_Pattern_Rectangular",
+      "python_api": "AssemblyComponentDefinition.OccurrencePatterns.AddRectangularOccurrencePattern",
+      "parameterCount": 7,
+      "tabs": {
+        "Components": {
+          "parameters": [
+            {"name": "Components", "type": "selection", "description": "Component(s) to pattern", "required": true}
+          ]
+        },
+        "Pattern": {
+          "parameters": [
+            {"name": "Direction 1", "type": "selection", "description": "Edge / axis / sketch line defining first direction", "required": true},
+            {"name": "Spacing 1", "type": "numeric", "unit": "mm", "description": "Distance between occurrences along Direction 1", "required": true},
+            {"name": "Count 1", "type": "numeric", "description": "Number of occurrences along Direction 1 (including original)", "default": 2, "min": 1},
+            {"name": "Direction 2", "type": "selection", "description": "Optional second direction"},
+            {"name": "Spacing 2", "type": "numeric", "unit": "mm", "description": "Distance along Direction 2", "default": 0},
+            {"name": "Count 2", "type": "numeric", "description": "Number of occurrences along Direction 2", "default": 1, "min": 1}
+          ]
+        }
+      }
+    },
+    "PATTERN_CIRCULAR": {
+      "description": "Circular occurrence pattern around an axis. Total Angle of 360 produces a closed ring; smaller angles produce arcs. Distribution selects spacing strategy: Equal (uniform angular spacing), Compute (set angle between adjacent items), Specify (explicit angle list). Skip Pattern allows omitting specific instances.",
+      "category": "Assembly_Pattern_Circular",
+      "python_api": "AssemblyComponentDefinition.OccurrencePatterns.AddCircularOccurrencePattern",
+      "parameterCount": 6,
+      "tabs": {
+        "Components": {
+          "parameters": [
+            {"name": "Components", "type": "selection", "description": "Component(s) to pattern", "required": true}
+          ]
+        },
+        "Pattern": {
+          "parameters": [
+            {"name": "Axis", "type": "selection", "description": "Rotation axis (edge / work-axis / cylindrical face)", "required": true},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "description": "Total angular spread (360 = full ring)", "default": 360},
+            {"name": "Count", "type": "numeric", "description": "Number of occurrences (including original)", "default": 6, "min": 2},
+            {"name": "Distribution", "type": "dropdown", "options": ["equal", "compute_angle", "specify_angles"], "default": "equal"},
+            {"name": "Skip Pattern", "type": "string", "description": "Comma-separated indices of instances to suppress (e.g., '2,5')"}
+          ]
+        }
+      }
+    },
+    "PATTERN_MIRROR": {
+      "description": "Mirror occurrence pattern across a plane. Reuse Components controls whether mirrored instances reference the same source files (true, recommended for symmetry) or generate flipped child files (false, required when symmetry breaks: e.g., asymmetric features). Status flags whether mirrored copies are active or initially suppressed.",
+      "category": "Assembly_Pattern_Mirror",
+      "python_api": "AssemblyComponentDefinition.OccurrencePatterns.AddMirrorOccurrencePattern",
+      "parameterCount": 5,
+      "tabs": {
+        "Components": {
+          "parameters": [
+            {"name": "Components", "type": "selection", "description": "Component(s) to mirror", "required": true}
+          ]
+        },
+        "Pattern": {
+          "parameters": [
+            {"name": "Mirror Plane", "type": "selection", "description": "Plane to mirror across (work-plane or planar face)", "required": true},
+            {"name": "Reuse Components", "type": "checkbox", "description": "Mirrored instances share source files (vs flipped child files)", "default": true},
+            {"name": "Naming Convention", "type": "dropdown", "options": ["mirrored_suffix", "specified_prefix", "incremental"], "default": "mirrored_suffix"},
+            {"name": "Status", "type": "dropdown", "options": ["active", "suppressed"], "default": "active"}
+          ]
+        }
+      }
+    },
+    "CONSTRAINT_MATE": {
+      "description": "Mate / Flush constraint — the most common assembly constraint. Mate solution aligns face normals opposite (faces touch); Flush solution aligns face normals same direction (faces flush in plane). Mate-Tangent solution makes a face tangent to a cylindrical face. Mate-Insert combines axial alignment + planar mate (single constraint replaces 2 — used to seat fasteners into holes).",
+      "category": "Assembly_Constraint_Mate",
+      "python_api": "AssemblyComponentDefinition.AssemblyConstraints.AddMateConstraint",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Geometry", "type": "selection", "description": "First face / edge / axis / point", "required": true},
+            {"name": "Second Geometry", "type": "selection", "description": "Second face / edge / axis / point", "required": true},
+            {"name": "Mate Side", "type": "dropdown", "options": ["first_to_second", "second_to_first"], "default": "first_to_second"}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Solution", "type": "dropdown", "options": ["mate", "flush", "mate_tangent_outside", "mate_tangent_inside", "mate_insert_aligned", "mate_insert_opposed"], "default": "mate"},
+            {"name": "Offset", "type": "numeric", "unit": "mm", "description": "Signed distance between mated faces (0 = touching)", "default": 0},
+            {"name": "Mate Direction Override", "type": "selection", "description": "Optional explicit normal direction"},
+            {"name": "Solution Method", "type": "dropdown", "options": ["best_fit", "lock", "ignore_redundancy"], "default": "best_fit"},
+            {"name": "Predict Offset Sign", "type": "checkbox", "description": "Auto-flip offset sign if solver finds opposite-side fit", "default": true}
+          ]
+        }
+      }
+    },
+    "CONSTRAINT_ANGLE": {
+      "description": "Angle constraint between two faces / edges / axes. Solution selects how the angle is interpreted: Directed (signed; rotates from first to second), Undirected (unsigned; absolute), Explicit Reference Vector (uses an explicit reference for repeatable signed-angle behavior even when geometry rotates).",
+      "category": "Assembly_Constraint_Angle",
+      "python_api": "AssemblyComponentDefinition.AssemblyConstraints.AddAngleConstraint",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Geometry", "type": "selection", "description": "First face / edge / axis", "required": true},
+            {"name": "Second Geometry", "type": "selection", "description": "Second face / edge / axis", "required": true},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Angle between geometries", "required": true}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Solution", "type": "dropdown", "options": ["directed", "undirected", "explicit_reference_vector"], "default": "directed"},
+            {"name": "Reference Vector", "type": "selection", "description": "Reference vector (when Solution=explicit_reference_vector)"},
+            {"name": "Predict Offset", "type": "checkbox", "description": "Auto-pick solution sign that matches current pose", "default": true}
+          ]
+        }
+      }
+    },
+    "CONSTRAINT_TANGENT": {
+      "description": "Tangent constraint between a face and a cylindrical / spherical / conical face. Solution selects which side: Outside (faces touch externally — typical bearing-on-shaft) or Inside (one geometry inside the other — bearing-in-housing).",
+      "category": "Assembly_Constraint_Tangent",
+      "python_api": "AssemblyComponentDefinition.AssemblyConstraints.AddTangentConstraint",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Geometry", "type": "selection", "description": "First face", "required": true},
+            {"name": "Second Geometry", "type": "selection", "description": "Second face (cylindrical / spherical / conical)", "required": true}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Solution", "type": "dropdown", "options": ["outside", "inside"], "default": "outside", "description": "Tangent side"},
+            {"name": "Offset", "type": "numeric", "unit": "mm", "description": "Tangent offset (typically 0; negative for clearance)", "default": 0},
+            {"name": "Combination Method", "type": "dropdown", "options": ["best_fit", "lock"], "default": "best_fit"}
+          ]
+        }
+      }
+    },
+    "CONSTRAINT_INSERT": {
+      "description": "Insert constraint — combines axial-alignment + face-mate in one constraint. Removes 5 DOF (leaves rotation about the axis). Standard usage: seating a bolt into a hole — Pin Geometry is the bolt's shank axis, Hole Geometry is the hole's axis. Solution direction (Aligned / Opposed) controls which way the bolt's head ends up facing.",
+      "category": "Assembly_Constraint_Insert",
+      "python_api": "AssemblyComponentDefinition.AssemblyConstraints.AddInsertConstraint",
+      "parameterCount": 4,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Pin Geometry", "type": "selection", "description": "Cylindrical edge / axis of the inserted component (e.g., bolt shank)", "required": true},
+            {"name": "Hole Geometry", "type": "selection", "description": "Cylindrical edge / axis of the receiving feature (e.g., bolt hole)", "required": true}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Solution", "type": "dropdown", "options": ["aligned", "opposed"], "default": "aligned", "description": "Direction of the inserted component along the axis"},
+            {"name": "Offset", "type": "numeric", "unit": "mm", "description": "Axial offset along the insert axis (typical 0)", "default": 0}
+          ]
+        }
+      }
+    },
+    "CONSTRAINT_SYMMETRY": {
+      "description": "Symmetry constraint — keeps two components symmetric across a plane. Component on one side mirrors the other across the symmetry plane in real-time as parameters change. Show Symmetry Plane visualizes the constraint plane in the assembly view.",
+      "category": "Assembly_Constraint_Symmetry",
+      "python_api": "AssemblyComponentDefinition.AssemblyConstraints.AddSymmetryConstraint",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Geometry", "type": "selection", "description": "First component / face / edge", "required": true},
+            {"name": "Second Geometry", "type": "selection", "description": "Second component / face / edge", "required": true},
+            {"name": "Symmetry Plane", "type": "selection", "description": "Plane the symmetry is enforced across", "required": true}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Component Override", "type": "checkbox", "description": "Apply symmetry to whole component vs single geometry", "default": false},
+            {"name": "Show Symmetry Plane", "type": "checkbox", "description": "Visualize the symmetry plane in assembly", "default": false}
+          ]
+        }
+      }
+    },
+    "CONSTRAINT_ROTATION": {
+      "description": "Rotation / Rotation-Translation motion constraint. Type=Rotation gears two rotating components (e.g., gear pair) by a ratio; Type=Rotation-Translation links a rotating component to a translating component (e.g., rack-and-pinion). Driving flag selects which side is the driving body (other follows).",
+      "category": "Assembly_Constraint_Rotation",
+      "python_api": "AssemblyComponentDefinition.AssemblyConstraints.AddRotationMotionConstraint",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Component", "type": "selection", "description": "First component (rotating axis)", "required": true},
+            {"name": "Second Component", "type": "selection", "description": "Second component (rotating or translating axis)", "required": true}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["rotation", "rotation_translation"], "default": "rotation"},
+            {"name": "Ratio", "type": "numeric", "description": "Motion ratio (gear ratio for rotation, mm-per-rev for rotation_translation)", "required": true},
+            {"name": "Reverse", "type": "checkbox", "description": "Reverse direction of driven component", "default": false},
+            {"name": "Driving", "type": "dropdown", "options": ["first", "second", "either"], "default": "first"}
+          ]
+        }
+      }
+    },
+    "JOINT_RIGID": {
+      "description": "Rigid joint — locks two component origins together with all 6 DOF removed. Equivalent to grounding one component to another. Used as a base joint when components must move together (e.g., welded sub-assemblies represented as separate parts).",
+      "category": "Assembly_Joint_Rigid",
+      "python_api": "AssemblyComponentDefinition.AssemblyJoints.Add (kRigidJointType)",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Origin", "type": "selection", "description": "Origin point on first component (face / edge midpoint / vertex / work-point)", "required": true},
+            {"name": "Second Origin", "type": "selection", "description": "Origin point on second component", "required": true}
+          ]
+        },
+        "Solution": {
+          "parameters": [
+            {"name": "Connection Type", "type": "dropdown", "options": ["between_components", "to_ground"], "default": "between_components"},
+            {"name": "Lock Position", "type": "checkbox", "description": "Snap origins exactly together (vs preserving current offset)", "default": true},
+            {"name": "Show Origin Triads", "type": "checkbox", "description": "Display triad markers at each origin", "default": false}
+          ]
+        }
+      }
+    },
+    "JOINT_ROTATIONAL": {
+      "description": "Rotational joint — single rotational DOF about an axis (1 DOF active, 5 removed). Used for hinges, rotating shafts, pin joints. Limits Min/Max optionally bound the rotation angle (e.g., a hinge that opens 0..120 deg). Damping adds simulated rotational damping for dynamic-simulation studies.",
+      "category": "Assembly_Joint_Rotational",
+      "python_api": "AssemblyComponentDefinition.AssemblyJoints.Add (kRotationalJointType)",
+      "parameterCount": 7,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Origin", "type": "selection", "description": "Origin point on first component", "required": true},
+            {"name": "Second Origin", "type": "selection", "description": "Origin point on second component", "required": true},
+            {"name": "Axis Reference", "type": "selection", "description": "Rotation axis (defaults to Z of origin if omitted)"}
+          ]
+        },
+        "Limits": {
+          "parameters": [
+            {"name": "Limits Type", "type": "dropdown", "options": ["none", "min_only", "max_only", "both"], "default": "none"},
+            {"name": "Limits Min", "type": "numeric", "unit": "deg", "description": "Minimum rotation angle"},
+            {"name": "Limits Max", "type": "numeric", "unit": "deg", "description": "Maximum rotation angle"},
+            {"name": "Damping", "type": "numeric", "unit": "Nms/rad", "description": "Rotational damping coefficient (for dynamic simulation)", "default": 0}
+          ]
+        }
+      }
+    },
+    "JOINT_SLIDER": {
+      "description": "Slider joint — single linear DOF along an axis (1 DOF active, 5 removed). Used for telescoping members, drawer slides, hydraulic cylinder rods. Linear limits bound the translation (e.g., 0..50 mm stroke). Friction parameter is for dynamic simulation only.",
+      "category": "Assembly_Joint_Slider",
+      "python_api": "AssemblyComponentDefinition.AssemblyJoints.Add (kSliderJointType)",
+      "parameterCount": 7,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Origin", "type": "selection", "description": "Origin point on first component", "required": true},
+            {"name": "Second Origin", "type": "selection", "description": "Origin point on second component", "required": true},
+            {"name": "Axis Reference", "type": "selection", "description": "Slide axis"}
+          ]
+        },
+        "Limits": {
+          "parameters": [
+            {"name": "Limits Type", "type": "dropdown", "options": ["none", "min_only", "max_only", "both"], "default": "none"},
+            {"name": "Limits Min", "type": "numeric", "unit": "mm", "description": "Minimum slide position"},
+            {"name": "Limits Max", "type": "numeric", "unit": "mm", "description": "Maximum slide position"},
+            {"name": "Friction", "type": "numeric", "unit": "fraction", "description": "Coefficient of friction (0..1, for dynamic simulation)", "default": 0, "min": 0, "max": 1}
+          ]
+        }
+      }
+    },
+    "JOINT_CYLINDRICAL": {
+      "description": "Cylindrical joint — combined rotation + translation about/along the same axis (2 DOF active, 4 removed). Used for sleeve bearings, lead screws (rotation + translation coupled in real-world but free in cylindrical joint), telescoping rotating shafts.",
+      "category": "Assembly_Joint_Cylindrical",
+      "python_api": "AssemblyComponentDefinition.AssemblyJoints.Add (kCylindricalJointType)",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Origin", "type": "selection", "description": "Origin on first component", "required": true},
+            {"name": "Second Origin", "type": "selection", "description": "Origin on second component", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Cylindrical axis"}
+          ]
+        },
+        "Limits": {
+          "parameters": [
+            {"name": "Linear Limits", "type": "string", "description": "Min,Max in mm (e.g., '0,100' or 'none')"},
+            {"name": "Angular Limits", "type": "string", "description": "Min,Max in deg (e.g., '-180,180' or 'none')"},
+            {"name": "Friction", "type": "numeric", "unit": "fraction", "default": 0, "min": 0, "max": 1}
+          ]
+        }
+      }
+    },
+    "JOINT_PLANAR": {
+      "description": "Planar joint — translation in 2D plane + rotation about the plane normal (3 DOF active, 3 removed). Used for components sliding on a surface (puck on table, hovercraft on ground).",
+      "category": "Assembly_Joint_Planar",
+      "python_api": "AssemblyComponentDefinition.AssemblyJoints.Add (kPlanarJointType)",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Origin", "type": "selection", "description": "Origin on first component", "required": true},
+            {"name": "Second Origin", "type": "selection", "description": "Origin on second component", "required": true},
+            {"name": "Plane Normal", "type": "selection", "description": "Plane normal direction"}
+          ]
+        },
+        "Limits": {
+          "parameters": [
+            {"name": "X-Limits", "type": "string", "description": "Min,Max in mm along plane X-axis"},
+            {"name": "Y-Limits", "type": "string", "description": "Min,Max in mm along plane Y-axis"},
+            {"name": "Damping", "type": "numeric", "unit": "Ns/m", "description": "Translational damping for dynamic simulation", "default": 0}
+          ]
+        }
+      }
+    },
+    "JOINT_BALL": {
+      "description": "Ball joint — 3 rotational DOF about a center point, 0 translational (3 DOF active, 3 removed). Used for spherical bearings, ball-and-socket joints, gimbals. Pitch / Yaw limits bound the rotation cone (typical 0..30 deg for a real ball joint).",
+      "category": "Assembly_Joint_Ball",
+      "python_api": "AssemblyComponentDefinition.AssemblyJoints.Add (kBallJointType)",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "First Origin", "type": "selection", "description": "Origin on first component", "required": true},
+            {"name": "Second Origin", "type": "selection", "description": "Origin on second component", "required": true},
+            {"name": "Center Override", "type": "selection", "description": "Optional explicit ball center (defaults to origin midpoint)"}
+          ]
+        },
+        "Limits": {
+          "parameters": [
+            {"name": "Pitch Limits", "type": "string", "description": "Min,Max pitch rotation in deg"},
+            {"name": "Yaw Limits", "type": "string", "description": "Min,Max yaw rotation in deg"}
+          ]
+        }
+      }
+    },
+    "ADAPTIVITY": {
+      "description": "Per-component adaptivity flag. When enabled, an adaptive part can morph its geometry based on the assembly context — e.g., a sketch-driven extrude depth adapts to fit between mating parts. Geometry / Sketch / Feature flags control which subsystems participate in the adaptation.",
+      "category": "Assembly_Adaptivity",
+      "python_api": "ComponentOccurrence.Adaptive",
+      "parameterCount": 5,
+      "tabs": {
+        "Properties": {
+          "parameters": [
+            {"name": "Component", "type": "selection", "description": "Component to set adaptive", "required": true},
+            {"name": "Adaptive Features Enabled", "type": "checkbox", "description": "Master enable for adaptivity on this component", "default": false},
+            {"name": "Geometry Adaptive", "type": "checkbox", "description": "Allow geometry projections / extrude-to-face to adapt", "default": false},
+            {"name": "Sketch Adaptive", "type": "checkbox", "description": "Allow sketch geometry to adapt", "default": false},
+            {"name": "Feature Adaptive", "type": "checkbox", "description": "Allow individual features (extrude depth, etc.) to adapt", "default": false}
+          ]
+        }
+      }
+    },
+    "FRAME_ANALYSIS": {
+      "description": "Frame Analysis — beam-element FEA on a frame-generator assembly (or any assembly of slender members). Computes static or modal response. Loads / Constraints accept JSON arrays of {location, force/moment/displacement}. Beam Element Order selects polynomial degree (linear / quadratic). Convergence tolerance bounds residual at solver termination.",
+      "category": "Assembly_Analysis_Frame",
+      "python_api": "AssemblyDocument.FrameAnalysisManager.Run",
+      "parameterCount": 8,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Analysis Type", "type": "dropdown", "options": ["static", "modal", "buckling"], "default": "static"},
+            {"name": "Loads JSON", "type": "string", "description": "JSON array of load objects: [{location, type:force|moment|pressure, magnitude, direction}]"},
+            {"name": "Constraints JSON", "type": "string", "description": "JSON array of constraint objects: [{location, type:fixed|pinned|roller, dof_lock}]"},
+            {"name": "Mesh Refinement", "type": "dropdown", "options": ["coarse", "medium", "fine", "custom"], "default": "medium"},
+            {"name": "Beam Element Order", "type": "dropdown", "options": ["linear", "quadratic"], "default": "linear"},
+            {"name": "Convergence Tolerance", "type": "numeric", "description": "Solver residual tolerance (e.g., 1e-6)", "default": 1e-6, "min": 1e-12, "max": 1e-2}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Material Override", "type": "string", "description": "Override frame member material for analysis (defaults per-member)"},
+            {"name": "Result Variables", "type": "string", "description": "Comma-separated result outputs (e.g., 'displacement,axial_stress,bending_moment,reaction_force')"}
+          ]
+        }
+      }
+    },
+    "BILL_OF_MATERIALS": {
+      "description": "Assembly Bill of Materials. View Type selects depth: Structured (full sub-assembly hierarchy), Parts Only (flat leaf parts), Compact (top-level only with QPA — Quantity Per Assembly). Standard Hardware Treatment controls BOM behavior for Content Center parts: Promote (treat as normal items), Aggregate (single line with QTY), Hide (omit from BOM). Sub-Assembly Roll-Up rolls sub-assemblies into single rows or expands them as separate sections.",
+      "category": "Assembly_BOM",
+      "python_api": "AssemblyComponentDefinition.BOM",
+      "parameterCount": 8,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "View Type", "type": "dropdown", "options": ["structured", "parts_only", "compact"], "default": "structured"},
+            {"name": "Item Filter", "type": "string", "description": "Filter expression (e.g., 'Material=Steel' or 'Vendor=McMaster')"},
+            {"name": "Group By", "type": "dropdown", "options": ["item", "part_number", "material", "vendor", "custom_property"], "default": "item"},
+            {"name": "Standard Hardware Treatment", "type": "dropdown", "options": ["promote", "aggregate", "hide"], "default": "aggregate"},
+            {"name": "Sub-Assembly Roll-Up", "type": "checkbox", "description": "Roll sub-assembly up as single line (vs expand)", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Custom Columns", "type": "string", "description": "Comma-separated custom-property columns to include"},
+            {"name": "Sort", "type": "dropdown", "options": ["item_ascending", "qty_descending", "part_number_ascending", "alphabetical"], "default": "item_ascending"},
+            {"name": "Output Format", "type": "dropdown", "options": ["xlsx", "csv", "xml", "drawing_table", "vault_export"], "default": "xlsx"}
+          ]
+        }
+      }
+    },
+    "INTERFERENCE_ANALYSIS": {
+      "description": "Interference (collision) detection between component pairs. Detection Mode selects which pairs are checked: All-vs-All (every component pair, expensive on large assemblies), Selected-vs-All (one selection vs everything else), Selected-vs-Selected (specific pair list). Contact Threshold defines the minimum interference volume to report (filters out tiny numerical noise). Excluded Pairs lists known-good interferences (e.g., bolt-thread engagement) to skip.",
+      "category": "Assembly_Analysis_Interference",
+      "python_api": "AssemblyDocument.AnalyzeInterference",
+      "parameterCount": 6,
+      "tabs": {
+        "Setup": {
+          "parameters": [
+            {"name": "Components", "type": "selection", "description": "Components to analyze (semantics depend on Detection Mode)"},
+            {"name": "Detection Mode", "type": "dropdown", "options": ["all_vs_all", "selected_vs_all", "selected_vs_selected"], "default": "all_vs_all"},
+            {"name": "Contact Threshold", "type": "numeric", "unit": "mm^3", "description": "Minimum interference volume to report", "default": 0.001},
+            {"name": "Excluded Pairs", "type": "string", "description": "Comma-separated component-pair names to skip (e.g., 'Bolt1:Thread,Pin:Bushing')"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Surface Hatch", "type": "checkbox", "description": "Display interference volumes as hatched bodies in view", "default": true},
+            {"name": "Result Output", "type": "dropdown", "options": ["dialog_only", "csv_export", "xml_export", "annotated_view"], "default": "dialog_only"}
+          ]
+        }
+      }
+    }
+  }
+}

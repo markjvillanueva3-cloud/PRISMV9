@@ -115,23 +115,59 @@ const KNOWN_DRAWING_OPS = [
   "TITLE_BLOCK", "REVISION_TABLE",
 ];
 
-const PLANNED_FUTURE_MODULES = [
-  "assembly_operations",
+const KNOWN_ASSEMBLY_OPS = [
+  // placement (2)
+  "PLACE_COMPONENT", "PLACE_FROM_CONTENT_CENTER",
+  // patterns (3)
+  "PATTERN_RECTANGULAR", "PATTERN_CIRCULAR", "PATTERN_MIRROR",
+  // constraints (6)
+  "CONSTRAINT_MATE", "CONSTRAINT_ANGLE", "CONSTRAINT_TANGENT",
+  "CONSTRAINT_INSERT", "CONSTRAINT_SYMMETRY", "CONSTRAINT_ROTATION",
+  // joints (6)
+  "JOINT_RIGID", "JOINT_ROTATIONAL", "JOINT_SLIDER",
+  "JOINT_CYLINDRICAL", "JOINT_PLANAR", "JOINT_BALL",
+  // analysis + adaptivity (4)
+  "ADAPTIVITY", "FRAME_ANALYSIS", "BILL_OF_MATERIALS", "INTERFERENCE_ANALYSIS",
 ];
+
+// All 6 constraint type op IDs — exercised together to verify span
+const ASSEMBLY_CONSTRAINT_OPS = [
+  "CONSTRAINT_MATE",
+  "CONSTRAINT_ANGLE",
+  "CONSTRAINT_TANGENT",
+  "CONSTRAINT_INSERT",
+  "CONSTRAINT_SYMMETRY",
+  "CONSTRAINT_ROTATION",
+];
+
+// All 6 joint type op IDs
+const ASSEMBLY_JOINT_OPS = [
+  "JOINT_RIGID",
+  "JOINT_ROTATIONAL",
+  "JOINT_SLIDER",
+  "JOINT_CYLINDRICAL",
+  "JOINT_PLANAR",
+  "JOINT_BALL",
+];
+
+// Phase 1 is COMPLETE — no remaining future modules
+const PLANNED_FUTURE_MODULES: string[] = [];
 
 describe("InventorCADFunctionIndexEngine — index navigation", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getIndex returns Autodesk Inventor metadata", () => {
+  it("getIndex returns Autodesk Inventor metadata with COMPLETE Phase 1 coverage", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     expect(idx.system_id).toBe("inventor");
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(7);
+    expect(idx.modules.length).toBe(8);
+    expect(idx.coverage_summary.api_surface.coverage_state).toBe("COMPLETE");
+    expect(idx.coverage_summary.api_surface.phase_1_target_modules_remaining).toBe(0);
   });
 
-  it("listModules surfaces sketch / part / surface / sheet_metal / frame_generator / weldment / drawing in registration order", () => {
+  it("listModules surfaces all 8 Phase 1 Inventor modules in registration order", () => {
     expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
       "sketch_operations",
       "part_operations",
@@ -140,6 +176,7 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
       "frame_generator_operations",
       "weldment_operations",
       "drawing_operations",
+      "assembly_operations",
     ]);
   });
 
@@ -155,21 +192,16 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 1 follow-up (after INV-07 ship)", () => {
+  it("future_modules is empty after Phase 1 COMPLETE (INV-08 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
-    expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
+    expect(planned).toEqual(PLANNED_FUTURE_MODULES);
+    expect(idx.future_modules ?? []).toEqual([]);
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id (08 only)", () => {
+  it("phase_1_modules_pending is empty array after COMPLETE", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
-    const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(1);
-    for (const fm of futureModules) {
-      expect(fm.scope.length).toBeGreaterThan(20);
-      expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toBe("U-CAD-FIDX-INV-08");
-    }
+    expect(idx.coverage_summary.api_surface.phase_1_modules_pending).toEqual([]);
   });
 
   it("global_cross_references names InventorCADFunctionIndexEngine in engines_linked", () => {
@@ -336,8 +368,8 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 129 operations across sketch + part + surface + sheet_metal + frame_generator + weldment + drawing modules", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(129);
+  it("listAllOperations returns 150 operations across all 8 Phase 1 modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(150);
   });
 });
 
@@ -955,6 +987,272 @@ describe("InventorCADFunctionIndexEngine — drawing_operations module (U-CAD-FI
   });
 });
 
+describe("InventorCADFunctionIndexEngine — assembly_operations module (U-CAD-FIDX-INV-08)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 21 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("assembly_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-08");
+    expect(mod?.metadata?.operationCount).toBe(21);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(21);
+  });
+
+  it("listOperations returns exactly KNOWN_ASSEMBLY_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("assembly_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_ASSEMBLY_OPS].sort());
+  });
+
+  it("each assembly operation carries an Assembly_-prefixed category", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("assembly_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^Assembly_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("getOperation('PLACE_COMPONENT') exposes 6 placement modes including by_constraint + grounded flag", () => {
+    const place = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "PLACE_COMPONENT",
+    );
+    expect(place?.python_api).toBe("AssemblyComponentDefinition.Occurrences.Add");
+    const mode = place?.tabs?.Position?.parameters?.find((p) => p.name === "Placement Mode");
+    expect(mode?.options).toEqual([
+      "free_place",
+      "at_origin",
+      "at_snap_face",
+      "at_snap_edge",
+      "at_snap_point",
+      "by_constraint",
+    ]);
+    const grounded = place?.tabs?.Position?.parameters?.find((p) => p.name === "Grounded");
+    expect(grounded?.type).toBe("checkbox");
+    expect(grounded?.default).toBe(false);
+  });
+
+  it("getOperation('CONSTRAINT_MATE') registers all 6 mate solutions including Mate-Insert variants", () => {
+    const mate = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "CONSTRAINT_MATE",
+    );
+    expect(mate?.category).toBe("Assembly_Constraint_Mate");
+    const sol = mate?.tabs?.Solution?.parameters?.find((p) => p.name === "Solution");
+    expect(sol?.options).toEqual([
+      "mate",
+      "flush",
+      "mate_tangent_outside",
+      "mate_tangent_inside",
+      "mate_insert_aligned",
+      "mate_insert_opposed",
+    ]);
+    const method = mate?.tabs?.Solution?.parameters?.find(
+      (p) => p.name === "Solution Method",
+    );
+    expect(method?.options).toEqual(["best_fit", "lock", "ignore_redundancy"]);
+  });
+
+  it("getOperation('CONSTRAINT_ANGLE') exposes 3 solution modes including explicit_reference_vector", () => {
+    const ang = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "CONSTRAINT_ANGLE",
+    );
+    const sol = ang?.tabs?.Solution?.parameters?.find((p) => p.name === "Solution");
+    expect(sol?.options).toEqual(["directed", "undirected", "explicit_reference_vector"]);
+  });
+
+  it("getOperation('CONSTRAINT_INSERT') uses 4 params (axial-alignment + face-mate combo)", () => {
+    const ins = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "CONSTRAINT_INSERT",
+    );
+    expect(ins?.parameterCount).toBe(4);
+    const sol = ins?.tabs?.Solution?.parameters?.find((p) => p.name === "Solution");
+    expect(sol?.options).toEqual(["aligned", "opposed"]);
+    const pin = ins?.tabs?.Selection?.parameters?.find((p) => p.name === "Pin Geometry");
+    expect(pin?.required).toBe(true);
+  });
+
+  it("getOperation('CONSTRAINT_ROTATION') supports rotation + rotation_translation with ratio + driving side", () => {
+    const rot = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "CONSTRAINT_ROTATION",
+    );
+    const type = rot?.tabs?.Solution?.parameters?.find((p) => p.name === "Type");
+    expect(type?.options).toEqual(["rotation", "rotation_translation"]);
+    const ratio = rot?.tabs?.Solution?.parameters?.find((p) => p.name === "Ratio");
+    expect(ratio?.required).toBe(true);
+    const drv = rot?.tabs?.Solution?.parameters?.find((p) => p.name === "Driving");
+    expect(drv?.options).toEqual(["first", "second", "either"]);
+  });
+
+  it("each of 6 classical constraint ops carries Assembly_Constraint_ category and First/Second Geometry", () => {
+    for (const opId of ASSEMBLY_CONSTRAINT_OPS) {
+      const op = InventorCADFunctionIndexEngine.getOperation("assembly_operations", opId);
+      expect.soft(op?.category, `${opId} category`).toMatch(/^Assembly_Constraint_/);
+      const allParams = Object.values(op?.tabs ?? {}).flatMap((t) => t.parameters ?? []);
+      const hasFirst = allParams.some((p) =>
+        p.name === "First Geometry" ||
+        p.name === "First Component" ||
+        p.name === "Pin Geometry",
+      );
+      const hasSecond = allParams.some((p) =>
+        p.name === "Second Geometry" ||
+        p.name === "Second Component" ||
+        p.name === "Hole Geometry",
+      );
+      expect.soft(hasFirst, `${opId} first selection`).toBe(true);
+      expect.soft(hasSecond, `${opId} second selection`).toBe(true);
+    }
+  });
+
+  it("each of 6 joint ops carries Assembly_Joint_ category, First/Second Origin, and references real kJointType", () => {
+    for (const opId of ASSEMBLY_JOINT_OPS) {
+      const op = InventorCADFunctionIndexEngine.getOperation("assembly_operations", opId);
+      expect.soft(op?.category, `${opId} category`).toMatch(/^Assembly_Joint_/);
+      expect.soft(op?.python_api, `${opId} api`).toMatch(/AssemblyJoints\.Add \(k.+JointType\)/);
+      const allParams = Object.values(op?.tabs ?? {}).flatMap((t) => t.parameters ?? []);
+      const hasFirstOrigin = allParams.some((p) => p.name === "First Origin");
+      const hasSecondOrigin = allParams.some((p) => p.name === "Second Origin");
+      expect.soft(hasFirstOrigin, `${opId} first origin`).toBe(true);
+      expect.soft(hasSecondOrigin, `${opId} second origin`).toBe(true);
+    }
+  });
+
+  it("getOperation('JOINT_ROTATIONAL') exposes limits with 4 limit-type modes + damping", () => {
+    const jr = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "JOINT_ROTATIONAL",
+    );
+    expect(jr?.python_api).toBe(
+      "AssemblyComponentDefinition.AssemblyJoints.Add (kRotationalJointType)",
+    );
+    const limType = jr?.tabs?.Limits?.parameters?.find((p) => p.name === "Limits Type");
+    expect(limType?.options).toEqual(["none", "min_only", "max_only", "both"]);
+    const damping = jr?.tabs?.Limits?.parameters?.find((p) => p.name === "Damping");
+    expect(damping?.unit).toBe("Nms/rad");
+    expect(damping?.default).toBe(0);
+  });
+
+  it("getOperation('JOINT_SLIDER') exposes friction with bounded fraction range 0..1", () => {
+    const js = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "JOINT_SLIDER",
+    );
+    const fric = js?.tabs?.Limits?.parameters?.find((p) => p.name === "Friction");
+    expect(fric?.unit).toBe("fraction");
+    expect(fric?.min).toBe(0);
+    expect(fric?.max).toBe(1);
+    expect(fric?.default).toBe(0);
+  });
+
+  it("getOperation('PATTERN_CIRCULAR') exposes 3 distribution modes with 360 default total angle", () => {
+    const pc = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "PATTERN_CIRCULAR",
+    );
+    const totalAngle = pc?.tabs?.Pattern?.parameters?.find((p) => p.name === "Total Angle");
+    expect(totalAngle?.default).toBe(360);
+    const dist = pc?.tabs?.Pattern?.parameters?.find((p) => p.name === "Distribution");
+    expect(dist?.options).toEqual(["equal", "compute_angle", "specify_angles"]);
+    const count = pc?.tabs?.Pattern?.parameters?.find((p) => p.name === "Count");
+    expect(count?.min).toBe(2);
+  });
+
+  it("getOperation('FRAME_ANALYSIS') registers 3 analysis types + bounded convergence tolerance", () => {
+    const fa = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "FRAME_ANALYSIS",
+    );
+    const type = fa?.tabs?.Setup?.parameters?.find((p) => p.name === "Analysis Type");
+    expect(type?.options).toEqual(["static", "modal", "buckling"]);
+    const beam = fa?.tabs?.Setup?.parameters?.find((p) => p.name === "Beam Element Order");
+    expect(beam?.options).toEqual(["linear", "quadratic"]);
+    const tol = fa?.tabs?.Setup?.parameters?.find((p) => p.name === "Convergence Tolerance");
+    expect(tol?.default).toBe(1e-6);
+    expect(tol?.min).toBe(1e-12);
+    expect(tol?.max).toBe(1e-2);
+  });
+
+  it("getOperation('BILL_OF_MATERIALS') exposes 3 view types + 4 standard hardware treatments + 5 output formats", () => {
+    const bom = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "BILL_OF_MATERIALS",
+    );
+    const view = bom?.tabs?.Setup?.parameters?.find((p) => p.name === "View Type");
+    expect(view?.options).toEqual(["structured", "parts_only", "compact"]);
+    const stdHw = bom?.tabs?.Setup?.parameters?.find(
+      (p) => p.name === "Standard Hardware Treatment",
+    );
+    expect(stdHw?.options).toEqual(["promote", "aggregate", "hide"]);
+    const fmt = bom?.tabs?.Output?.parameters?.find((p) => p.name === "Output Format");
+    expect(fmt?.options).toEqual(["xlsx", "csv", "xml", "drawing_table", "vault_export"]);
+  });
+
+  it("getOperation('INTERFERENCE_ANALYSIS') exposes 3 detection modes + 4 result outputs", () => {
+    const ia = InventorCADFunctionIndexEngine.getOperation(
+      "assembly_operations",
+      "INTERFERENCE_ANALYSIS",
+    );
+    const mode = ia?.tabs?.Setup?.parameters?.find((p) => p.name === "Detection Mode");
+    expect(mode?.options).toEqual([
+      "all_vs_all",
+      "selected_vs_all",
+      "selected_vs_selected",
+    ]);
+    const out = ia?.tabs?.Output?.parameters?.find((p) => p.name === "Result Output");
+    expect(out?.options).toEqual([
+      "dialog_only",
+      "csv_export",
+      "xml_export",
+      "annotated_view",
+    ]);
+  });
+
+  it("assembly_operations declares dependency on part_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("assembly_operations");
+    expect(entry?.dependencies).toEqual(["part_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within assembly_operations across constraint/joint/pattern families", () => {
+    const constraintOps = InventorCADFunctionIndexEngine.listOperations(
+      "assembly_operations",
+    ).filter((o) => o.category.startsWith("Assembly_Constraint_"));
+    expect(constraintOps.length).toBe(6);
+    const jointOps = InventorCADFunctionIndexEngine.listOperations(
+      "assembly_operations",
+    ).filter((o) => o.category.startsWith("Assembly_Joint_"));
+    expect(jointOps.length).toBe(6);
+    const patternOps = InventorCADFunctionIndexEngine.listOperations(
+      "assembly_operations",
+    ).filter((o) => o.category.startsWith("Assembly_Pattern_"));
+    expect(patternOps.length).toBe(3);
+  });
+
+  // Adversarial coverage — ensures findParameter/searchParameters tolerate edge inputs
+  // against the assembly module specifically (most parametrically complex INV module).
+  it("findParameter returns null for empty parameter name (adversarial empty)", () => {
+    expect(
+      InventorCADFunctionIndexEngine.findParameter(
+        "assembly_operations",
+        "PLACE_COMPONENT",
+        "",
+      ),
+    ).toBeNull();
+  });
+
+  it("searchParameters tolerates oversize keyword (adversarial 1000-char input)", () => {
+    const big = "x".repeat(1000);
+    expect(InventorCADFunctionIndexEngine.searchParameters(big)).toEqual([]);
+  });
+
+  it("getOperation tolerates empty string op id (adversarial empty)", () => {
+    expect(
+      InventorCADFunctionIndexEngine.getOperation("assembly_operations", ""),
+    ).toBeNull();
+  });
+});
+
 describe("InventorCADFunctionIndexEngine — surface_operations module (U-CAD-FIDX-INV-03)", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
@@ -1106,8 +1404,8 @@ describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 853 (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83 + weldment 95 + drawing 145)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(853);
+  it("getTotalParameterCount equals 983 across all 8 Phase 1 modules (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83 + weldment 95 + drawing 145 + assembly 130)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(983);
   });
 
   it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
@@ -1194,6 +1492,18 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(145);
   });
 
+  it("assembly_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("assembly_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
+      for (const tab of Object.values(op.tabs ?? {})) {
+        actual += (tab.parameters ?? tab.params ?? []).length;
+      }
+    }
+    expect(actual).toBe(130);
+    expect(mod?.metadata?.totalParameters).toBe(130);
+  });
+
   it("each per-op declared parameterCount matches actual tab-sum across all modules", () => {
     for (const moduleId of [
       "sketch_operations",
@@ -1203,6 +1513,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "frame_generator_operations",
       "weldment_operations",
       "drawing_operations",
+      "assembly_operations",
     ]) {
       const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
       for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
@@ -1233,6 +1544,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "U-CAD-FIDX-INV-05",
       "U-CAD-FIDX-INV-06",
       "U-CAD-FIDX-INV-07",
+      "U-CAD-FIDX-INV-08",
     ]);
   });
 
@@ -1269,6 +1581,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     const drawing = InventorCADFunctionIndexEngine.getModule("drawing_operations");
     expect(Object.keys(drawing?.operations ?? {}).length).toBe(19);
     expect(drawing?.metadata?.operationCount).toBe(19);
+
+    const assembly = InventorCADFunctionIndexEngine.getModule("assembly_operations");
+    expect(Object.keys(assembly?.operations ?? {}).length).toBe(21);
+    expect(assembly?.metadata?.operationCount).toBe(21);
   });
 });
 

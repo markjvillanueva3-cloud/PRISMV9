@@ -61,6 +61,14 @@
       "parameter_count_estimate": 145,
       "description": "Drawing environment — 2D output document type (.idw / .dwg) consuming 3D parts/assemblies/weldments and emitting sheet-based drawings for shop-floor delivery. 19 operations: sheet management (Sheet with ANSI A..E + ISO A0..A4 + custom formats), 7 view-creation operations (Base view from 3D source with 6 styles + 11 orientations + 4 thread-display modes, Projected from parent with 8 projection directions including iso, Section with 4 cut types Full/Half/Aligned/Offset + hatch + exclude-parts filter, Detail with circular/rectangular/sketched boundary + 3 connection styles + magnification, Auxiliary normal to selected edge, Break for long parts with rectangular/structural/curved styles, Crop to sketch boundary), 3 dimension types (General with 7 type modes Linear/Aligned/Angular/Radial/Diametric/Arc Length/Chamfer + 8 tolerance types per ASME Y14.5 + 11 precision options including fractional + Inspection-Dimension flag, Baseline chained from datum, Ordinate datum-referenced per ASME), 3 tables (Hole Table with origin indicator + 6 hole filters + 5 sort modes + tag rolling, Bend Table from flat pattern view with 3 callout styles, Parts List with structured/parts-only/compact BOM views + customizable column set + 5 grouping modes), 4 annotations (Note + Leader with field-reference embedding, Surface Texture per ASME Y14.36 + ISO 1302 with 4 symbol types + 8 lay directions, GD&T Frame per ASME Y14.5 + ISO 1101 with 16 geometric characteristics + 6 modifiers + 3 datum tiers + composite-frame second tier, Title Block with custom-field-overrides JSON), and Revision Table with 3 number formats (letters per ASME Y14.35 / no-skips / numeric) + auto-renumber. Drawing standards (ANSI/ISO/DIN/JIS/GB/BSI) carry through to symbol notation, dimension precision, projection method (1st-angle vs 3rd-angle), and table conventions. Bindings reference DrawingDocument / Sheet / DrawingViews / DrawingDimensions / HoleTables / BendTables / PartsLists / GeneralNotes / SurfaceTextureSymbols / FeatureControlFrames / RevisionTables / TitleBlock COM API.",
       "dependencies": ["part_operations", "sheet_metal_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/inventor/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-08"],
+      "parameter_count_estimate": 130,
+      "description": "Assembly environment — multi-component document type (.iam) that aggregates parts and sub-assemblies. 21 operations across 2 placement (Place Component with free-place / at-origin / at-snap / by-constraint modes + Grounded flag + Auto-Constraint, Place from Content Center with 8 standards), 3 patterns (Rectangular with two directions + counts, Circular with 360 default + Equal/Compute/Specify distribution + skip pattern, Mirror with reuse-components flag + suppressed status), 6 classical constraints (Mate with 6 solutions including Mate/Flush/Mate-Tangent/Mate-Insert + offset + solution method, Angle with directed/undirected/explicit-reference-vector solutions, Tangent with outside/inside, Insert combining axial-alignment + face-mate for fastener seating with aligned/opposed solution, Symmetry across plane, Rotation/Rotation-Translation motion with gear ratio + driving side), 6 modern joints (Rigid 0-DOF lock, Rotational 1-DOF rotation about axis with optional limits + damping, Slider 1-DOF translation with limits + friction, Cylindrical 2-DOF combined rotation+translation, Planar 3-DOF translation+normal-rotation, Ball 3-DOF spherical with pitch/yaw cone limits), Adaptivity per-component flag (Geometry/Sketch/Feature subsystem flags), Frame Analysis FEA bridge (static/modal/buckling, beam-element FEA with linear/quadratic order + convergence tolerance + load/constraint JSON), Bill of Materials (3 view types structured/parts-only/compact + 4 standard-hardware treatments + sub-assembly roll-up + 5 output formats), and Interference Analysis (3 detection modes + contact threshold + excluded-pairs list + 4 result outputs). Bindings reference real ComponentDefinition COM API (Occurrences.Add, OccurrencePatterns.AddRectangularOccurrencePattern / AddCircularOccurrencePattern / AddMirrorOccurrencePattern, AssemblyConstraints.AddMateConstraint / AddAngleConstraint / AddTangentConstraint / AddInsertConstraint / AddSymmetryConstraint / AddRotationMotionConstraint, AssemblyJoints.Add with kRigidJointType / kRotationalJointType / kSliderJointType / kCylindricalJointType / kPlanarJointType / kBallJointType, BOM, AnalyzeInterference, FrameAnalysisManager.Run).",
+      "dependencies": ["part_operations"]
     }
   ],
   "global_cross_references": {
@@ -83,7 +91,7 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 7,
+    "total_modules": 8,
     "total_units_covered": [
       "U-CAD-FIDX-INV-01",
       "U-CAD-FIDX-INV-02",
@@ -91,16 +99,15 @@
       "U-CAD-FIDX-INV-04",
       "U-CAD-FIDX-INV-05",
       "U-CAD-FIDX-INV-06",
-      "U-CAD-FIDX-INV-07"
+      "U-CAD-FIDX-INV-07",
+      "U-CAD-FIDX-INV-08"
     ],
-    "estimated_parameter_total": 853,
+    "estimated_parameter_total": 983,
     "api_surface": {
-      "coverage_state": "PARTIAL",
+      "coverage_state": "COMPLETE",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 1,
-      "phase_1_modules_pending": [
-        "assembly_operations"
-      ]
+      "phase_1_target_modules_remaining": 0,
+      "phase_1_modules_pending": []
     },
     "pdf_sources_bound": [
       "Autodesk Inventor 2025 Help — Sketch Reference",
@@ -119,12 +126,5 @@
     "ilogic": true,
     "vault": false
   },
-  "future_modules": [
-    {
-      "planned_id": "assembly_operations",
-      "scope": "Assembly: Place Component, Pattern (Component-Pattern / Mirror), Constraints (Mate / Flush / Angle / Tangent / Insert / Symmetry / Rotation), Joints (Rigid / Rotational / Slider / Cylindrical / Planar / Ball — replaces legacy constraints in modern Inventor), Adaptivity, Frame Analysis, Bill of Materials, Interference Analysis.",
-      "estimated_params": 130,
-      "deferred_to": "U-CAD-FIDX-INV-08"
-    }
-  ]
+  "future_modules": []
 }

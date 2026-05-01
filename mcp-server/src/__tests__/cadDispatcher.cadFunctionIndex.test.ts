@@ -250,7 +250,7 @@ describe("cadDispatcher — Autodesk Inventor discovery actions (U-CAD-FIDX-INV-
     expect(out.count).toBe(InventorCADFunctionIndexEngine.getLoadErrors().length);
   });
 
-  it("cad_inventor_list_modules surfaces all shipped Inventor modules", async () => {
+  it("cad_inventor_list_modules surfaces all 8 Phase 1 Inventor modules (COMPLETE)", async () => {
     const out = await invoke("cad_inventor_list_modules");
     expect(out.success).toBe(true);
     expect(out.modules).toEqual([
@@ -261,8 +261,9 @@ describe("cadDispatcher — Autodesk Inventor discovery actions (U-CAD-FIDX-INV-
       "frame_generator_operations",
       "weldment_operations",
       "drawing_operations",
+      "assembly_operations",
     ]);
-    expect(out.count).toBe(7);
+    expect(out.count).toBe(8);
   });
 
   it("cad_inventor_get_operation('sketch_operations','LINE') returns the LINE op", async () => {
