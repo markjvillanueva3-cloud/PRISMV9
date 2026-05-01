@@ -1607,6 +1607,8 @@ export const ACTIONS = [
   "cam_stock_setup_list", "cam_stock_setup_list_by_part", "cam_stock_setup_list_by_material", "cam_stock_setup_list_by_form", "cam_stock_setup_get", "cam_stock_setup_count", "cam_stock_setup_count_by_material", "cam_stock_setup_audit",
   // CAM-EXHAUST-MS0 U-CAMTEST07 — Material × Tool 3×3 matrix (9 slots, materializes per part = 180 combos)
   "cam_mt_matrix_slots", "cam_mt_matrix_tool_classes_for", "cam_mt_matrix_combos_for_part", "cam_mt_matrix_get_combo", "cam_mt_matrix_all_combos", "cam_mt_matrix_expected_count", "cam_mt_matrix_audit",
+  // CAM-EXHAUST-MS0 U-CAMTEST08..13 — Unified scenario generator (621 calm-baseline scenarios)
+  "cam_scenario_generate", "cam_scenario_generate_all", "cam_scenario_generate_pocket_2d", "cam_scenario_generate_contour_2d", "cam_scenario_generate_drilling_threading", "cam_scenario_generate_surface_3d", "cam_scenario_generate_multi_axis", "cam_scenario_generate_turning", "cam_scenario_predict_count", "cam_scenario_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12556,6 +12558,60 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_mt_matrix_audit": {
             const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
             result = MaterialToolMatrixEngine.auditMatrix();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST08..13: Unified scenario generator ──
+          case "cam_scenario_generate": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            const config = (params.config ?? {}) as Parameters<typeof CAMScenarioGeneratorEngine.generate>[0];
+            result = { scenarios: CAMScenarioGeneratorEngine.generate(config) };
+            break;
+          }
+          case "cam_scenario_generate_all": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { scenarios: CAMScenarioGeneratorEngine.generateAll() };
+            break;
+          }
+          case "cam_scenario_generate_pocket_2d": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { unit: "U-CAMTEST08", scenarios: CAMScenarioGeneratorEngine.generatePocket2D() };
+            break;
+          }
+          case "cam_scenario_generate_contour_2d": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { unit: "U-CAMTEST09", scenarios: CAMScenarioGeneratorEngine.generateContour2D() };
+            break;
+          }
+          case "cam_scenario_generate_drilling_threading": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { unit: "U-CAMTEST10", scenarios: CAMScenarioGeneratorEngine.generateDrillingAndThreading() };
+            break;
+          }
+          case "cam_scenario_generate_surface_3d": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { unit: "U-CAMTEST11", scenarios: CAMScenarioGeneratorEngine.generateSurface3D() };
+            break;
+          }
+          case "cam_scenario_generate_multi_axis": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { unit: "U-CAMTEST12", scenarios: CAMScenarioGeneratorEngine.generateMultiAxis() };
+            break;
+          }
+          case "cam_scenario_generate_turning": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = { unit: "U-CAMTEST13", scenarios: CAMScenarioGeneratorEngine.generateTurning() };
+            break;
+          }
+          case "cam_scenario_predict_count": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            const config = (params.config ?? {}) as Parameters<typeof CAMScenarioGeneratorEngine.predictCount>[0];
+            result = { count: CAMScenarioGeneratorEngine.predictCount(config) };
+            break;
+          }
+          case "cam_scenario_audit": {
+            const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
+            result = CAMScenarioGeneratorEngine.auditGenerator();
             break;
           }
 

@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 125,
+  "completed_units": 131,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -247,7 +247,13 @@
     "U-CAM-ENRICH-02",
     "U-CAMTEST05",
     "U-CAMTEST06",
-    "U-CAMTEST07"
+    "U-CAMTEST07",
+    "U-CAMTEST08",
+    "U-CAMTEST09",
+    "U-CAMTEST10",
+    "U-CAMTEST11",
+    "U-CAMTEST12",
+    "U-CAMTEST13"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6344,7 +6350,7 @@
       "title": "Scenario Generator â€” 2D Pockets (3 parts Ã— 4 hosts)",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Generate scenario definitions for rectangular, keyhole, D-shaped pockets across all 4 CAM hosts. 3 parts Ã— 9 M/T Ã— 4 hosts = 108 scenario definitions.",
       "entry_conditions": [
         "U-CAMTEST07 complete"
@@ -6357,6 +6363,20 @@
         "data/test-scenarios/2d-pockets/",
         "src/engines/CAMScenarioGenerator2DPocketsEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMScenarioGeneratorEngine.ts (unified engine — generatePocket2D() satisfies this unit)",
+        "src/__tests__/CAMScenarioGeneratorEngine.test.ts (108 count assertion + cross-engine wiring + dispatcher round-trip)",
+        "src/tools/dispatchers/camDispatcher.ts (cam_scenario_generate_pocket_2d action)"
+      ],
+      "acceptance_evidence": {
+        "scenarios_generated": 108,
+        "tests_pass": 44,
+        "tests_min_30": true,
+        "dispatcher_action": "cam_scenario_generate_pocket_2d",
+        "shared_engine_note": "Same engine satisfies U-CAMTEST09..13 — see those units for per-category counts."
+      },
+      "completion_note": "3x rule applied: instead of 6 near-clone CAMScenarioGenerator{Pockets,Contours,Drilling,Surfaces,5Axis,Turning}Engine.ts files, shipped a single CAMScenarioGeneratorEngine with category-typed convenience methods. generatePocket2D() returns 108 scenarios (3 pocket parts × 9 M/T slots × 4 hosts). Engine cross-validates the stock_id against StockWorkholdingCatalog and the (material_id, tool_id) tuple via MaterialToolMatrix per slot — every scenario is round-trip-parsed against GeneratedScenarioSchema before output. Output shape mirrors the in-host runner ScenarioDescriptorSchema so scenarios feed directly into the runners with no adapter."
+      ,
       "estimated_tokens": 16000,
       "four_loop": [
         "BUILD",
@@ -6370,7 +6390,7 @@
       "title": "Scenario Generator â€” 2D Contours",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "External profile, inside profile, helical-ramp contour scenarios across 4 hosts.",
       "entry_conditions": [
         "U-CAMTEST07 complete"
@@ -6383,6 +6403,17 @@
         "data/test-scenarios/2d-contours/",
         "src/engines/CAMScenarioGenerator2DContoursEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMScenarioGeneratorEngine.ts (generateContour2D())",
+        "src/tools/dispatchers/camDispatcher.ts (cam_scenario_generate_contour_2d action)"
+      ],
+      "acceptance_evidence": {
+        "scenarios_generated": 108,
+        "shared_engine": "CAMScenarioGeneratorEngine (see U-CAMTEST08 completion note)",
+        "dispatcher_action": "cam_scenario_generate_contour_2d"
+      },
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. generateContour2D() returns 108 scenarios (3 contour parts × 9 M/T × 4 hosts). Per-category test in CAMScenarioGeneratorEngine.test.ts asserts the count exactly."
+      ,
       "estimated_tokens": 16000,
       "four_loop": [
         "BUILD",
@@ -6396,7 +6427,7 @@
       "title": "Scenario Generator â€” Drilling + Threading",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Peck-cycle, deep-hole, single-start thread, multi-start thread scenarios across 4 hosts.",
       "entry_conditions": [
         "U-CAMTEST07 complete"
@@ -6409,6 +6440,19 @@
         "data/test-scenarios/drilling-threading/",
         "src/engines/CAMScenarioGeneratorDrillThreadEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMScenarioGeneratorEngine.ts (generateDrillingAndThreading())",
+        "src/tools/dispatchers/camDispatcher.ts (cam_scenario_generate_drilling_threading action)"
+      ],
+      "acceptance_evidence": {
+        "scenarios_generated": 126,
+        "drilling_subcount": 72,
+        "threading_subcount": 54,
+        "spec_drift_note": "spec said '144 scenarios' but actual host-filtered count is 126 = 72 drilling (2×9×4) + 54 threading (1×9×4 + 1×9×2). multi_start_leadscrew is mill-turn-only per its own catalog declaration so it can't land on 4 hosts.",
+        "dispatcher_action": "cam_scenario_generate_drilling_threading"
+      },
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. The 144 figure in the original spec assumed 4 hosts × every part, but threading parts have host restrictions: thread_multi_start_leadscrew is mill-turn-only (mastercam + hypermill), giving 1×9×4 + 1×9×2 = 54 threading scenarios. Total 126 (72 drilling + 54 threading) is the honest host-filtered count."
+      ,
       "estimated_tokens": 14000,
       "four_loop": [
         "BUILD",
@@ -6422,7 +6466,7 @@
       "title": "Scenario Generator â€” 3D Surfaces",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Bowl, boss, saddle 3D surface scenarios across 4 hosts.",
       "entry_conditions": [
         "U-CAMTEST07 complete"
@@ -6435,6 +6479,17 @@
         "data/test-scenarios/3d-surfaces/",
         "src/engines/CAMScenarioGenerator3DSurfacesEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMScenarioGeneratorEngine.ts (generateSurface3D())",
+        "src/tools/dispatchers/camDispatcher.ts (cam_scenario_generate_surface_3d action)"
+      ],
+      "acceptance_evidence": {
+        "scenarios_generated": 108,
+        "shared_engine": "CAMScenarioGeneratorEngine",
+        "dispatcher_action": "cam_scenario_generate_surface_3d"
+      },
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. 108 scenarios = 3 surface_3d parts (bowl, boss, saddle) × 9 M/T × 4 hosts."
+      ,
       "estimated_tokens": 20000,
       "four_loop": [
         "BUILD",
@@ -6448,7 +6503,7 @@
       "title": "Scenario Generator â€” 3+2 / 5-Axis",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Impeller blade, undercut, turbine hub, fillet blend scenarios across 4 hosts.",
       "entry_conditions": [
         "U-CAMTEST07 complete"
@@ -6461,6 +6516,17 @@
         "data/test-scenarios/5-axis/",
         "src/engines/CAMScenarioGenerator5AxisEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMScenarioGeneratorEngine.ts (generateMultiAxis())",
+        "src/tools/dispatchers/camDispatcher.ts (cam_scenario_generate_multi_axis action)"
+      ],
+      "acceptance_evidence": {
+        "scenarios_generated": 117,
+        "spec_drift_note": "spec said '144 scenarios' but actual host-filtered count is 117 = 3 parts × 9 × 3 hosts (impeller/undercut/hub on hypermill/fusion360/mastercam, no inventor_hsm) + 1 part × 9 × 4 (fillet_blend on all 4). Honest 5-axis-capable host filtering.",
+        "dispatcher_action": "cam_scenario_generate_multi_axis"
+      },
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. The 144 figure assumed all 4 hosts on every multi_axis part, but Inventor HSM does not handle simultaneous-5-axis impeller/undercut/turbine — those parts cite ['hypermill', 'fusion360', 'mastercam']. fillet_blend is achievable on all 4 hosts so it contributes 36; the others contribute 81 (3 × 27). Total 117 is the honest host-filtered count."
+      ,
       "estimated_tokens": 24000,
       "four_loop": [
         "BUILD",
@@ -6474,7 +6540,7 @@
       "title": "Scenario Generator â€” Turning Operations",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "OD rough, ID groove, threaded shaft turning scenarios. Mastercam + hyperMILL (if mill-turn) only.",
       "entry_conditions": [
         "U-CAMTEST07 complete"
@@ -6487,6 +6553,17 @@
         "data/test-scenarios/turning/",
         "src/engines/CAMScenarioGeneratorTurningEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMScenarioGeneratorEngine.ts (generateTurning())",
+        "src/tools/dispatchers/camDispatcher.ts (cam_scenario_generate_turning action)"
+      ],
+      "acceptance_evidence": {
+        "scenarios_generated": 54,
+        "host_invariant": "all 54 scenarios target mastercam or hypermill only (no fusion360, no inventor_hsm) — verified by cross-host invariant test",
+        "dispatcher_action": "cam_scenario_generate_turning"
+      },
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. 54 = 3 turning parts (od_rough_shaft, id_groove_sleeve, threaded_shaft) × 9 M/T × 2 mill-turn hosts (mastercam + hypermill). Cross-host invariant test asserts no turning scenario ever routes to a non-mill-turn host — auditGenerator() also catches this."
+      ,
       "estimated_tokens": 20000,
       "four_loop": [
         "BUILD",
