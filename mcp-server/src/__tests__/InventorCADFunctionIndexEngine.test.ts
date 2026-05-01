@@ -74,8 +74,17 @@ const KNOWN_SHEET_METAL_OPS = [
   "SHEET_METAL_RULE", "SHEET_METAL_DEFAULTS",
 ];
 
+const KNOWN_FRAME_GENERATOR_OPS = [
+  // member placement (4)
+  "INSERT_FRAME_MEMBER", "CHANGE", "REUSE_FRAME_MEMBER", "AUTHOR_FRAME_MEMBER",
+  // end treatments (7)
+  "MITRE", "NOTCH", "TRIM_TO_FRAME", "EXTEND_TO_FRAME",
+  "TRIM_AND_EXTEND", "LENGTHEN_SHORTEN", "REMOVE_END_TREATMENT",
+  // output (1)
+  "FRAME_BOM",
+];
+
 const PLANNED_FUTURE_MODULES = [
-  "frame_generator_operations",
   "weldment_operations",
   "drawing_operations",
   "assembly_operations",
@@ -90,15 +99,16 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(4);
+    expect(idx.modules.length).toBe(5);
   });
 
-  it("listModules surfaces sketch / part / surface / sheet_metal in registration order", () => {
+  it("listModules surfaces sketch / part / surface / sheet_metal / frame_generator in registration order", () => {
     expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
       "sketch_operations",
       "part_operations",
       "surface_operations",
       "sheet_metal_operations",
+      "frame_generator_operations",
     ]);
   });
 
@@ -114,20 +124,20 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 4 follow-ups (after INV-04 ship)", () => {
+  it("future_modules registers exactly the planned 3 follow-ups (after INV-05 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
     expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id (05..08)", () => {
+  it("each future_modules entry has scope, params, and a valid INV unit id (06..08)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(4);
+    expect(futureModules.length).toBe(3);
     for (const fm of futureModules) {
       expect(fm.scope.length).toBeGreaterThan(20);
       expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[5-8]$/);
+      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[6-8]$/);
     }
   });
 
@@ -295,8 +305,8 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 86 operations across sketch + part + surface + sheet_metal modules", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(86);
+  it("listAllOperations returns 98 operations across sketch + part + surface + sheet_metal + frame_generator modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(98);
   });
 });
 
@@ -416,6 +426,160 @@ describe("InventorCADFunctionIndexEngine — sheet_metal_operations module (U-CA
     );
     expect(flatPatternOps.length).toBe(1);
     expect(flatPatternOps[0]?.operation_id).toBe("FLAT_PATTERN");
+  });
+});
+
+describe("InventorCADFunctionIndexEngine — frame_generator_operations module (U-CAD-FIDX-INV-05)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 12 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("frame_generator_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-05");
+    expect(mod?.metadata?.operationCount).toBe(12);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(12);
+  });
+
+  it("listOperations returns exactly KNOWN_FRAME_GENERATOR_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("frame_generator_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_FRAME_GENERATOR_OPS].sort());
+  });
+
+  it("each frame generator operation carries a FrameGenerator_-prefixed category", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("frame_generator_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^FrameGenerator_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("getOperation('INSERT_FRAME_MEMBER') exposes 4 tabs and the 9-position alignment grid", () => {
+    const insert = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "INSERT_FRAME_MEMBER",
+    );
+    expect(insert?.category).toBe("FrameGenerator_Member_Insert");
+    expect(insert?.python_api).toContain("FrameMembers.Add");
+    expect(Object.keys(insert?.tabs ?? {})).toEqual(["Lines", "Family", "Orientation", "Treatments"]);
+    const align = insert?.tabs?.Orientation?.parameters?.find((p) => p.name === "Alignment Position");
+    expect(align?.options).toEqual([
+      "top_left",
+      "top",
+      "top_right",
+      "left",
+      "center",
+      "right",
+      "bottom_left",
+      "bottom",
+      "bottom_right",
+    ]);
+  });
+
+  it("getOperation('INSERT_FRAME_MEMBER') Family tab carries Content Center standard options", () => {
+    const insert = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "INSERT_FRAME_MEMBER",
+    );
+    const std = insert?.tabs?.Family?.parameters?.find((p) => p.name === "Standard");
+    expect(std?.options).toEqual([
+      "ansi",
+      "iso",
+      "din",
+      "jis",
+      "as",
+      "aisc",
+      "bsi",
+      "gb",
+      "custom",
+    ]);
+  });
+
+  it("getOperation('MITRE') supports single + double mitre with required Member 1/2 and optional Member 3", () => {
+    const mitre = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "MITRE",
+    );
+    expect(mitre?.category).toBe("FrameGenerator_Treatment_Mitre");
+    const mitreType = mitre?.tabs?.Selection?.parameters?.find((p) => p.name === "Mitre Type");
+    expect(mitreType?.options).toEqual(["single_mitre", "double_mitre"]);
+    const member1 = mitre?.tabs?.Selection?.parameters?.find((p) => p.name === "Member 1");
+    const member2 = mitre?.tabs?.Selection?.parameters?.find((p) => p.name === "Member 2");
+    const member3 = mitre?.tabs?.Selection?.parameters?.find((p) => p.name === "Member 3");
+    expect(member1?.required).toBe(true);
+    expect(member2?.required).toBe(true);
+    expect(member3?.required).not.toBe(true);
+    expect(member3?.description).toContain("Double mitre");
+  });
+
+  it("getOperation('NOTCH') registers profile / face / dual-face notch types", () => {
+    const notch = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "NOTCH",
+    );
+    const notchType = notch?.tabs?.Selection?.parameters?.find((p) => p.name === "Notch Type");
+    expect(notchType?.options).toEqual(["profile_notch", "face_notch", "dual_face_notch"]);
+    const through = notch?.tabs?.Selection?.parameters?.find((p) => p.name === "Through Cut");
+    expect(through?.type).toBe("checkbox");
+  });
+
+  it("getOperation('REMOVE_END_TREATMENT') filters across all treatment families", () => {
+    const rem = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "REMOVE_END_TREATMENT",
+    );
+    const filter = rem?.tabs?.Selection?.parameters?.find((p) => p.name === "Treatment Filter");
+    expect(filter?.options).toEqual([
+      "all",
+      "mitre_only",
+      "notch_only",
+      "trim_only",
+      "extend_only",
+      "lengthen_shorten_only",
+    ]);
+  });
+
+  it("getOperation('FRAME_BOM') emits the full output-format set including parts-list table", () => {
+    const bom = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "FRAME_BOM",
+    );
+    const fmt = bom?.tabs?.Output?.parameters?.find((p) => p.name === "Output Format");
+    expect(fmt?.options).toEqual([
+      "csv",
+      "xlsx",
+      "xml",
+      "inventor_parts_list",
+      "iam_drawing_table",
+    ]);
+  });
+
+  it("getOperation('AUTHOR_FRAME_MEMBER') splits Family and Output tabs across 10 params", () => {
+    const author = InventorCADFunctionIndexEngine.getOperation(
+      "frame_generator_operations",
+      "AUTHOR_FRAME_MEMBER",
+    );
+    expect(Object.keys(author?.tabs ?? {})).toEqual(["Family", "Output"]);
+    expect(author?.parameterCount).toBe(10);
+    const lib = author?.tabs?.Output?.parameters?.find((p) => p.name === "Library");
+    expect(lib?.options).toEqual([
+      "read_write_library",
+      "shared_content_center",
+      "project_library",
+    ]);
+  });
+
+  it("frame_generator_operations declares dependencies on sketch + part_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("frame_generator_operations");
+    expect(entry?.dependencies).toEqual(["sketch_operations", "part_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within frame_generator_operations", () => {
+    const insertOps = InventorCADFunctionIndexEngine.getOperationsByCategory(
+      "FrameGenerator_Member_Insert",
+      "frame_generator_operations",
+    );
+    expect(insertOps.length).toBe(1);
+    expect(insertOps[0]?.operation_id).toBe("INSERT_FRAME_MEMBER");
   });
 });
 
@@ -570,8 +734,8 @@ describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 530 (sketch 138 + part 178 + surface 63 + sheet_metal 151)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(530);
+  it("getTotalParameterCount equals 613 (sketch 138 + part 178 + surface 63 + sheet_metal 151 + frame_generator 83)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(613);
   });
 
   it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
@@ -622,12 +786,25 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(151);
   });
 
+  it("frame_generator_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("frame_generator_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
+      for (const tab of Object.values(op.tabs ?? {})) {
+        actual += (tab.parameters ?? tab.params ?? []).length;
+      }
+    }
+    expect(actual).toBe(83);
+    expect(mod?.metadata?.totalParameters).toBe(83);
+  });
+
   it("each per-op declared parameterCount matches actual tab-sum across all modules", () => {
     for (const moduleId of [
       "sketch_operations",
       "part_operations",
       "surface_operations",
       "sheet_metal_operations",
+      "frame_generator_operations",
     ]) {
       const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
       for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
@@ -655,6 +832,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "U-CAD-FIDX-INV-02",
       "U-CAD-FIDX-INV-03",
       "U-CAD-FIDX-INV-04",
+      "U-CAD-FIDX-INV-05",
     ]);
   });
 
@@ -679,6 +857,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     const sheetMetal = InventorCADFunctionIndexEngine.getModule("sheet_metal_operations");
     expect(Object.keys(sheetMetal?.operations ?? {}).length).toBe(21);
     expect(sheetMetal?.metadata?.operationCount).toBe(21);
+
+    const frameGen = InventorCADFunctionIndexEngine.getModule("frame_generator_operations");
+    expect(Object.keys(frameGen?.operations ?? {}).length).toBe(12);
+    expect(frameGen?.metadata?.operationCount).toBe(12);
   });
 });
 

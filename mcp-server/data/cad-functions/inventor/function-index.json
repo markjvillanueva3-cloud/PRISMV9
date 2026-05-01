@@ -37,6 +37,14 @@
       "parameter_count_estimate": 151,
       "description": "Sheet metal environment — Inventor's signature workspace with no Fusion 360 / hyperCAD-S equivalent of comparable depth. 21 operations driven by a Sheet Metal Rule that carries thickness / K-factor / bend radius / unfold method. Coverage: base creation (Face, Contour Flange, Contour Roll, Lofted Flange in 3 press modes), edge features (Flange in 12 params, Hem in 4 types, Bend, Fold in 9 params, Jog), corner treatments (Corner Seam in 5 types, Chamfer, Round, Rip), special features (Cut with affect-bend, Punch from iFeature library in 10 params, Emboss), unfold/refold workflow, and Flat Pattern (14 params) emission for downstream CAM/nesting + the Sheet Metal Rule + Defaults objects themselves.",
       "dependencies": ["sketch_operations", "part_operations"]
+    },
+    {
+      "module_id": "frame_generator_operations",
+      "path": "cad-functions/inventor/frame-generator-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-05"],
+      "parameter_count_estimate": 83,
+      "description": "Frame Generator environment — Inventor-only assembly-level workspace with no Fusion 360 / hyperCAD-S equivalent. 12 operations across member placement (Insert Frame Member with 9-position alignment grid + Custom1/Custom2 offsets + Content Center family selection, Change, Reuse, Author custom Content Center frame member from sketch profile), end treatments (Mitre single+double, Notch profile/face/dual-face, Trim-To-Frame, Extend-To-Frame, Trim-and-Extend with auto-detect, Lengthen/Shorten, Remove End Treatment), and Frame BOM emission (CSV/XLSX/XML/parts-list with cut-list grouping + end-treatment summaries). Skeleton-driven: each member is bound to a sketch line in a parent skeleton part. Bindings reference FrameComponentDefinition COM API (FrameMembers / MitreFrameMembers / NotchFrameMembers / TrimFrameMembers / ExtendFrameMembers / TrimExtendFrameMembers / LengthenShortenFrameMembers / RemoveEndTreatments collections + ContentCenterEditor.AuthorFrameMember).",
+      "dependencies": ["sketch_operations", "part_operations"]
     }
   ],
   "global_cross_references": {
@@ -59,20 +67,20 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 4,
+    "total_modules": 5,
     "total_units_covered": [
       "U-CAD-FIDX-INV-01",
       "U-CAD-FIDX-INV-02",
       "U-CAD-FIDX-INV-03",
-      "U-CAD-FIDX-INV-04"
+      "U-CAD-FIDX-INV-04",
+      "U-CAD-FIDX-INV-05"
     ],
-    "estimated_parameter_total": 530,
+    "estimated_parameter_total": 613,
     "api_surface": {
       "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 4,
+      "phase_1_target_modules_remaining": 3,
       "phase_1_modules_pending": [
-        "frame_generator_operations",
         "weldment_operations",
         "drawing_operations",
         "assembly_operations"
@@ -96,12 +104,6 @@
     "vault": false
   },
   "future_modules": [
-    {
-      "planned_id": "frame_generator_operations",
-      "scope": "Frame Generator (Inventor-only): Insert Frame Member (skeleton-driven structural shapes from Content Center), Miter, Notch, Trim/Extend, Lengthen/Shorten, Remove End Treatment, Change/Reuse Frame Member. Bind to part skeleton sketch.",
-      "estimated_params": 85,
-      "deferred_to": "U-CAD-FIDX-INV-05"
-    },
     {
       "planned_id": "weldment_operations",
       "scope": "Weldment environment: Preparations (Cope / Chamfer / Fillet for groove prep), Weld Beads (Cosmetic / Fillet / Groove with material removal), Machining (post-weld features), Weld Symbol annotation. Triggered by Convert-to-Weldment.",
