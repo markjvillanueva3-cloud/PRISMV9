@@ -5,6 +5,7 @@
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
 **Last touched:** 2026-05-01 (claude-b3e2c3e6)
 **Last commits on roadmap:**
+- `f722bd13c [MAIN] PPG-WIRE-MS0/U-PPGW11+12: Hurco UltiMotion router-infer + Okuma OSP-P*L alias-expand`
 - `0a27b63a6 [MAIN] PPG-WIRE-MS0/U-PPGM07+08: per-block S/F sidecar — schema 1.1.0`
 - `f3c2c09a6 [MAIN] PPG-WIRE-MS0/U-PPGM-SPRINT1: sidecar bridge + patent rename`
 - `0236ca452 [MAIN] PPG-WIRE-MS0/U-PPGW10: Hurco V11 branch in master_post_by_machine auto-router`
@@ -30,19 +31,24 @@ Shipped 2026-05-01 in commit `0a27b63a6`. 3 files, 543 insertions:
 - 35 new tests (PostPhysicsSidecarBlockAnnotations.test.ts); 104/104 green
   across the 4 sidecar suites.
 
-### ✗ DEFERRED — U-PPGW11/U-PPGW12 (dialect branches)
-Investigation 2026-05-01 found these units as originally described **require
-non-existent target engines**:
-- `U-PPGW11` (Hurco UltiMotion): UltiMotion is an internal `use_ultimotion?`
-  flag inside `HurcoV11MillMasterPostEngine`, not a separate post engine.
-  Existing branch already covers `HURCO/VMX24/VM30I/V11`.
-- `U-PPGW12` (Okuma OSP-P300/P500): No `OkumaOSP*MasterPostEngine` exists.
-  `OkumaB250LatheMasterPostEngine` is hardwired to OSP-P300L (P300 implicit).
-  Existing branch covers `OKUMA/LB250`.
-Wiring branches to nonexistent engines = stub creation (hook-blocked) or
-duplicate routing with no behavior change. Reopen these units only after a
-target post engine is built (e.g., a separate Okuma OSP-P500 master post
-when JM Die acquires that controller).
+### ✓ DONE — U-PPGW11/U-PPGW12 (router-side interpretation)
+Shipped 2026-05-01 in commit `f722bd13c`. 2 files, +396/-4. User chose
+router-side interpretation over building new master post engines.
+- **U-PPGW11**: Hurco alias-expand (VMX/VM10/VM20/MAX31/ULTIMAX/ULTIMOTION)
+  + UltiMotion router-infer (force `use_ultimotion=false` for ULTIMAX legacy
+  control; "ULTIMOTION" identifier wins when both substrings present).
+- **U-PPGW12**: Okuma OSP-P*L lathe alias-expand (LB200/LB300, OSP-P300L,
+  OSP-P500L with `_`/`-` separators) + OSP-P300M/P500M mill controller
+  hard-reject (precedes lathe match) with PPG-WIRE-MS5/U-PPGW-OkumaMill
+  pointer for the proper future home.
+- **Acknowledged risk**: OkumaB250 engine hardwired to LB250II-M tribal
+  knowledge; LB200/LB300 may emit slightly off codes — accepted per the
+  alias-expand interpretation.
+- 35 new tests; 141/141 across 4 routing suites. Engine round-trip NOT
+  exercised due to pre-existing HurcoV11 kc1_1 bug at line 420.
+
+### Milestone status: PPG-WIRE-MS0 — 13/13 (was 11/11)
+U-PPGW11/U-PPGW12 added to `shipped_followup[]` in milestone JSON.
 
 ---
 
