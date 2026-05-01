@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 134,
+  "completed_units": 135,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -256,7 +256,8 @@
     "U-CAMTEST13",
     "U-CAMTEST14",
     "U-CAMTEST15",
-    "U-CAMTEST16"
+    "U-CAMTEST16",
+    "U-CAMTEST17"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6704,7 +6705,7 @@
       "title": "Regression Detector vs Golden Runs",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Diffs each nightly result set against a golden baseline. Flags regressions on frame counts, band distribution shifts > 5%, latency p99 degradation, new hard-stop triggers.",
       "entry_conditions": [
         "U-CAMTEST16 complete"
@@ -6718,6 +6719,22 @@
         "src/engines/CAMInHostRegressionDetectorEngine.ts",
         "data/state/CAM_INHOST_GOLDEN_BASELINE.json"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMInHostRegressionDetectorEngine.ts",
+        "src/__tests__/CAMInHostRegressionDetectorEngine.test.ts",
+        "src/tools/dispatchers/camDispatcher.ts (cam_regression_{detect,detect_against_golden,load_golden,promote_golden,has_golden,findings_by_severity,findings_by_type,audit})"
+      ],
+      "data_state_note": "data/state/CAM_INHOST_GOLDEN_BASELINE.json is created on first promoteToGolden() call — not committed (per state/ gitignore convention).",
+      "acceptance_evidence": {
+        "tests_pass": 34,
+        "regression_types": 5,
+        "warning_threshold_pct": 5,
+        "critical_threshold_pct": 10,
+        "schema_version": "1.0.0",
+        "dispatcher_wiring": "wired (cam_regression_* — 8 actions) + 3 round-trip tests"
+      },
+      "completion_note": "Diffs current NightlyRunReport against a stored golden baseline across 5 regression types: scenario_count drift (any change), host_pass_rate drop (>5% absolute), category_pass_rate drop (>5% absolute), assertion_failure_rate rise (>5% absolute), and new_failing_family (clean-baseline → any failure = always critical). Severity mapping: |delta| ≥10% absolute → critical, ≥5% → warning, sub-threshold drops are filtered (not info-level finding rows, just dropped). Improvements never register as regressions (one-sided). Golden baseline workflow: hasGolden / loadGolden / promoteToGolden manage data/state/CAM_INHOST_GOLDEN_BASELINE.json; detectAgainstGolden does load+diff in one call. 34 tests cover happy path (identical → 0 findings), per-type detection (each of 5 types fires under right condition + boundary severity checks), severity boundaries (5pt = warning, 10pt = critical, <5pt = filtered), improvements ignored, golden file IO (write/read/missing/corrupt/parent-dir-create/round-trip), filter helpers, schema rejection, audit invariant (total_findings + by_severity sum + has_critical consistency), and 3 dispatcher round-trip tests."
+      ,
       "estimated_tokens": 18000,
       "four_loop": [
         "BUILD",

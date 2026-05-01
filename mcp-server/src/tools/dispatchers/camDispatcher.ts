@@ -1615,6 +1615,8 @@ export const ACTIONS = [
   "cam_results_bridge_ingest", "cam_results_bridge_list", "cam_results_bridge_list_failures", "cam_results_bridge_summarize", "cam_results_bridge_persist", "cam_results_bridge_load", "cam_results_bridge_reset", "cam_results_bridge_audit",
   // CAM-EXHAUST-MS0 U-CAMTEST16 — Nightly orchestrator (backend half; React dashboard deferred to Codex lane)
   "cam_nightly_run", "cam_nightly_list_recent", "cam_nightly_get_run", "cam_nightly_text_dashboard", "cam_nightly_dashboard_data", "cam_nightly_audit",
+  // CAM-EXHAUST-MS0 U-CAMTEST17 — Regression detector vs golden baseline
+  "cam_regression_detect", "cam_regression_detect_against_golden", "cam_regression_load_golden", "cam_regression_promote_golden", "cam_regression_has_golden", "cam_regression_findings_by_severity", "cam_regression_findings_by_type", "cam_regression_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12742,6 +12744,61 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMInHostNightlyOrchestratorEngine } = await import("../../engines/CAMInHostNightlyOrchestratorEngine.js");
             const report = params.report as Parameters<typeof CAMInHostNightlyOrchestratorEngine.auditOrchestrator>[0];
             result = CAMInHostNightlyOrchestratorEngine.auditOrchestrator(report);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST17: Regression detector ──
+          case "cam_regression_detect": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const current = params.current as Parameters<typeof CAMInHostRegressionDetectorEngine.detectRegressions>[0];
+            const baseline = params.baseline as Parameters<typeof CAMInHostRegressionDetectorEngine.detectRegressions>[1];
+            result = CAMInHostRegressionDetectorEngine.detectRegressions(current, baseline);
+            break;
+          }
+          case "cam_regression_detect_against_golden": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const current = params.current as Parameters<typeof CAMInHostRegressionDetectorEngine.detectAgainstGolden>[0];
+            const goldenPath = params.golden_path as string | undefined;
+            result = CAMInHostRegressionDetectorEngine.detectAgainstGolden(current, goldenPath);
+            break;
+          }
+          case "cam_regression_load_golden": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const goldenPath = params.path as string | undefined;
+            result = { golden: CAMInHostRegressionDetectorEngine.loadGolden(goldenPath) };
+            break;
+          }
+          case "cam_regression_promote_golden": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostRegressionDetectorEngine.promoteToGolden>[0];
+            const goldenPath = params.path as string | undefined;
+            result = CAMInHostRegressionDetectorEngine.promoteToGolden(report, goldenPath);
+            break;
+          }
+          case "cam_regression_has_golden": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const goldenPath = params.path as string | undefined;
+            result = { has_golden: CAMInHostRegressionDetectorEngine.hasGolden(goldenPath), path: goldenPath ?? CAMInHostRegressionDetectorEngine.DEFAULT_GOLDEN_PATH };
+            break;
+          }
+          case "cam_regression_findings_by_severity": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostRegressionDetectorEngine.findingsBySeverity>[0];
+            const severity = params.severity as Parameters<typeof CAMInHostRegressionDetectorEngine.findingsBySeverity>[1];
+            result = { findings: CAMInHostRegressionDetectorEngine.findingsBySeverity(report, severity) };
+            break;
+          }
+          case "cam_regression_findings_by_type": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostRegressionDetectorEngine.findingsByType>[0];
+            const type = params.type as Parameters<typeof CAMInHostRegressionDetectorEngine.findingsByType>[1];
+            result = { findings: CAMInHostRegressionDetectorEngine.findingsByType(report, type) };
+            break;
+          }
+          case "cam_regression_audit": {
+            const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
+            const report = params.report as Parameters<typeof CAMInHostRegressionDetectorEngine.auditReport>[0];
+            result = CAMInHostRegressionDetectorEngine.auditReport(report);
             break;
           }
 
