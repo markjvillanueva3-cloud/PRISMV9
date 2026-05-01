@@ -33,6 +33,7 @@
 
 import { log } from "../utils/Logger.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
+import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -81,6 +82,18 @@ export interface HurcoPostOutput {
     limit?: number;
   }>;
   tribal_tips_applied: string[];
+  /**
+   * Per-block S/F annotations (MS0/U-PPGM13, schema 1.1.0).
+   *
+   * One entry per operation, keyed by the Nxxx label emitted on the
+   * spindle-start line. Caller passes this array verbatim to
+   * `PhysicsSidecarBuilderEngine.buildAndSeal({ block_annotations })`
+   * to seal the post-emit telemetry alongside the canonical sidecar.
+   * The block_id matches the Nxxx label so `verifyBlockAnnotations`
+   * can cross-check emitted S/F against the physics chain at
+   * post-publish time.
+   */
+  block_annotations: BlockAnnotation[];
 }
 
 // ============================================================================
@@ -215,6 +228,7 @@ export class HurcoV11MillMasterPostEngine {
 
     // Process each operation
     let estimatedTime = 0;
+    const blockAnnotations: BlockAnnotation[] = [];
     for (let i = 0; i < operations.length; i++) {
       const op = operations[i];
       toolsUsed.add(op.tool_number);
@@ -234,8 +248,11 @@ export class HurcoV11MillMasterPostEngine {
       const toolChange = this.generateToolChange(op, cfg);
       gcode.push(...toolChange);
 
-      // Spindle start
-      const spindleStart = this.generateSpindleStart(op, cfg);
+      // Spindle start — labelled block carries the op's S/F for the sidecar
+      // gate to cross-check (U-PPGM13). block_id "N{100 + i*10}" gives stable
+      // O(1) lookup keys: N100, N110, N120, ...
+      const blockId = "N" + (100 + i * 10);
+      const spindleStart = this.generateSpindleStart(op, cfg, blockId);
       gcode.push(...spindleStart);
 
       // Apply tribal knowledge
@@ -245,6 +262,35 @@ export class HurcoV11MillMasterPostEngine {
       // Generate toolpath
       const toolpath = this.generateToolpath(op, cfg);
       gcode.push(...toolpath);
+
+      // Build per-block annotation: physics_basis="kienzle" because the
+      // engine's force gate at performPhysicsChecks() drives the S/F
+      // safety envelope from CANONICAL_KIENZLE; vc/fpt are derived from
+      // op.spindle_rpm + op.tool_diameter_mm + op.feed_mm_min + flutes
+      // (no inlined physics constants).
+      const vc_mpm = (Math.PI * op.tool_diameter_mm * op.spindle_rpm) / 1000;
+      const fpt_mm = op.feed_mm_min / (op.spindle_rpm * op.tool_flutes);
+      blockAnnotations.push({
+        block_id: blockId,
+        op_id: `op_${i + 1}_${op.operation_type}`,
+        iso_group: op.material_iso,
+        tool_material: "carbide",
+        emitted: {
+          vc_mpm,
+          fpt_mm,
+          ap_mm: op.axial_depth_mm,
+          ae_mm: op.radial_depth_mm,
+          S_rpm: op.spindle_rpm,
+          F_mmpm: op.feed_mm_min,
+        },
+        physics_basis: "kienzle",
+        confidence: 0.85,
+        safety_margin: 0.9,
+        source_constants: [
+          `CANONICAL_KIENZLE.${op.material_iso}`,
+          `CANONICAL_TAYLOR.${op.material_iso}`,
+        ],
+      });
 
       // Estimate time
       estimatedTime += this.estimateCycleTime(op);
@@ -267,6 +313,7 @@ export class HurcoV11MillMasterPostEngine {
       estimated_cycle_min: Math.round(estimatedTime * 10) / 10,
       tools_used: Array.from(toolsUsed).sort((a, b) => a - b),
       warnings,
+      block_annotations: blockAnnotations,
       physics_checks: physicsChecks,
       tribal_tips_applied: tribalTipsApplied
     };
@@ -308,10 +355,18 @@ export class HurcoV11MillMasterPostEngine {
   /**
    * Generate spindle start with appropriate dwell
    */
-  private generateSpindleStart(op: MillOperation, cfg: HurcoPostConfig): string[] {
+  private generateSpindleStart(op: MillOperation, cfg: HurcoPostConfig, blockId?: string): string[] {
     const lines: string[] = [];
 
-    lines.push(`S${op.spindle_rpm} M03 (SPINDLE CW ${op.spindle_rpm} RPM)`);
+    // U-PPGM13: emit a labelled block carrying both S and F so the
+    // sidecar gate (verifyBlockAnnotations) can cross-check both. The
+    // label MUST match the corresponding entry in block_annotations[].
+    // F is technically a feed word; setting it here is modal — first
+    // motion command after this block uses the established feed.
+    const label = blockId ? `${blockId} ` : "";
+    lines.push(
+      `${label}S${op.spindle_rpm} M03 F${op.feed_mm_min} (SPINDLE CW ${op.spindle_rpm} RPM, FEED ${op.feed_mm_min})`,
+    );
 
     // Apply tribal knowledge: dwell for heavy cuts
     if (op.axial_depth_mm > op.tool_diameter_mm * 0.5) {
@@ -417,8 +472,9 @@ export class HurcoV11MillMasterPostEngine {
     });
 
     // Depth of cut check (Kienzle force consideration)
-    const kc = CANONICAL_KIENZLE.kc1_1[op.material_iso];
-    const Fc = kc * op.axial_depth_mm * Math.pow(fz, 1 - 0.25);
+    // Fc = kc1_1 * ap * fz^(1 - mc) — Sandvik Coromant General Turning (2024), ISO 3685
+    const kienzle = CANONICAL_KIENZLE[op.material_iso];
+    const Fc = kienzle.kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - kienzle.mc);
     const maxForce = 2000; // N, rough limit for VMX24
     checks.push({
       line: startLine,
