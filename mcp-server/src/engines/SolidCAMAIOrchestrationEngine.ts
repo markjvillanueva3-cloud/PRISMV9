@@ -11,10 +11,16 @@
  *
  * @module engines/SolidCAMAIOrchestrationEngine
  * @milestone CAM-PARITY-AGI-MS0/U-CAMP-AI04
+ *
+ * // WIRE-EXEMPT: pre-existing orphan since CAM-PARITY-AGI-MS0; never imported by any
+ * dispatcher and has unresolved method-binding bugs (calls calculateOptimalLevel +
+ * selectStrategy that don't exist on the wrapped singletons — see SolidCAMAIOrchestrationEngine.ts:254,290).
+ * Touched by PPG-WIRE-MS0/U-PPGM111 only to update the renamed import — wiring/test gap is
+ * deferred to a separate cleanup unit, not in scope here.
  */
 
 import { log } from "../utils/Logger.js";
-import { solidCAMiMachiningEngine } from "./SolidCAMiMachiningEngine.js";
+import { prismPathConstantEngagementEngine } from "./PrismPathConstantEngagementEngine.js";
 import { solidCAMStrategyEngine } from "./SolidCAMStrategyEngine.js";
 
 // ============================================================================
@@ -287,7 +293,7 @@ export class SolidCAMAIOrchestrationEngine {
       const isoGroup = request.material_iso || "P";
 
       try {
-        const wizardResult = solidCAMiMachiningEngine.calculateOptimalLevel({
+        const wizardResult = prismPathConstantEngagementEngine.calculateOptimalLevel({
           material_iso: isoGroup,
           tool_diameter_mm: request.tool_diameter_mm || 12,
           machine_power_kW: request.machine_power_kW || 15,
@@ -306,7 +312,7 @@ export class SolidCAMAIOrchestrationEngine {
           wizard_recommendation: wizardResult.wizard_recommendation,
           rationale: wizardResult.rationale
         };
-        enginesInvoked.push("SolidCAMiMachiningEngine");
+        enginesInvoked.push("PrismPathConstantEngagementEngine");
       } catch {
         imachiningOpt = this.fallbackiMachining(isoGroup, request.machine_power_kW || 15, request.imachining_level);
       }
@@ -482,7 +488,7 @@ export class SolidCAMAIOrchestrationEngine {
       reasoning_modes: 8,
       tribal_tips: SOLIDCAM_TRIBAL_KNOWLEDGE.length,
       imachining_levels: 8,
-      engines_integrated: ["SolidCAMiMachiningEngine", "SolidCAMStrategyEngine", "SolidCAMSafetyHooksEngine", "SolidCAMCodeGeneratorEngine"],
+      engines_integrated: ["PrismPathConstantEngagementEngine", "SolidCAMStrategyEngine", "SolidCAMSafetyHooksEngine", "SolidCAMCodeGeneratorEngine"],
       signature_features: ["iMachining 2D/3D Technology Wizard", "SolidWorks embedded integration", "HSR/HSM finishing", "Mill-Turn coordination", "Swiss-Type support"]
     };
   }
