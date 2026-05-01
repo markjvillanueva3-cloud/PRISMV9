@@ -245,3 +245,129 @@ export function loadPhysicsSidecar(jsonText: string, opts: LoadOptions): Record<
 
   return parsed;
 }
+
+// ============================================================================
+// PER-BLOCK ANNOTATION LOOKUP — MS0/U-PPGM09 (schema 1.1.0)
+// ----------------------------------------------------------------------------
+// CPS posts emit block-level S/F. To verify each emitted block's numbers
+// against the physics chain that produced them (NoInlinePhysics gate,
+// U-PPGM10), the post needs to look up its annotation by block_id. This
+// helper is pure-JS so it runs inside Rhino without pulling Zod, Node fs,
+// or the full Node schema runtime into the post engine.
+//
+// Backward compat: pre-1.1.0 sidecars omit `block_annotations`. The helper
+// treats `undefined` as "no telemetry available" and returns null. Callers
+// that NEED telemetry must check the sidecar's meta.schema_version before
+// invoking — schema_version "1.1.0" is the lower bound.
+// ============================================================================
+
+/**
+ * Structural shape of a sidecar block annotation. Mirrors blockAnnotationSchema
+ * in mcp-server/src/schemas/postPhysicsSidecarSchema.ts but defined locally so
+ * the Rhino-side loader doesn't need Zod/the schema module at runtime.
+ */
+export interface SidecarBlockAnnotation {
+  block_id: string;
+  op_id: string;
+  iso_group: string;
+  tool_material: string;
+  emitted: {
+    vc_mpm: number;
+    fpt_mm?: number;
+    fn_mmrev?: number;
+    ap_mm?: number;
+    ae_mm?: number;
+    S_rpm: number;
+    F_mmpm: number;
+  };
+  physics_basis: string;
+  confidence: number;
+  safety_margin: number;
+  source_constants: string[];
+}
+
+/**
+ * Look up a block annotation by block_id.
+ *
+ * Returns the matching annotation, or null when:
+ *   - sidecar.block_annotations is undefined (v1.0.0 back-compat)
+ *   - sidecar.block_annotations is an empty array
+ *   - no entry has the given block_id
+ *
+ * Throws when:
+ *   - sidecar is null/undefined or not an object
+ *   - block_id is not a non-empty string
+ *   - sidecar.block_annotations exists but is not an array (shape violation)
+ *
+ * The schema's superRefine guarantees block_ids are unique within a sidecar,
+ * but this loader does NOT re-verify uniqueness — it returns the first match.
+ * Callers that need strict-uniqueness re-verification should check the sidecar
+ * with the Node-side parseSidecarStrict before persisting.
+ */
+export function getBlockAnnotation(
+  sidecar: Record<string, unknown> | null | undefined,
+  blockId: string,
+): SidecarBlockAnnotation | null {
+  if (!sidecar || typeof sidecar !== "object") {
+    throw new Error("getBlockAnnotation: sidecar must be a non-null object");
+  }
+  if (typeof blockId !== "string" || blockId.length === 0) {
+    throw new Error("getBlockAnnotation: blockId must be a non-empty string");
+  }
+
+  const blocks = (sidecar as Record<string, unknown>).block_annotations;
+  if (typeof blocks === "undefined") {
+    // v1.0.0 sidecar — no per-block telemetry. Caller must handle null.
+    return null;
+  }
+  if (Object.prototype.toString.call(blocks) !== "[object Array]") {
+    throw new Error(
+      "getBlockAnnotation: sidecar.block_annotations is present but not an array (shape violation)",
+    );
+  }
+
+  const arr = blocks as unknown[];
+  for (let i = 0; i < arr.length; i++) {
+    const entry = arr[i] as Record<string, unknown> | null;
+    if (entry && typeof entry === "object" && entry.block_id === blockId) {
+      return entry as unknown as SidecarBlockAnnotation;
+    }
+  }
+  return null;
+}
+
+/**
+ * Convenience: return all block annotations for a given op_id (operation).
+ * Operators often need to inspect every block belonging to one CAM op.
+ * Returns [] when annotations absent or no match. Same shape rules as
+ * getBlockAnnotation otherwise.
+ */
+export function getBlockAnnotationsByOp(
+  sidecar: Record<string, unknown> | null | undefined,
+  opId: string,
+): SidecarBlockAnnotation[] {
+  if (!sidecar || typeof sidecar !== "object") {
+    throw new Error("getBlockAnnotationsByOp: sidecar must be a non-null object");
+  }
+  if (typeof opId !== "string" || opId.length === 0) {
+    throw new Error("getBlockAnnotationsByOp: opId must be a non-empty string");
+  }
+
+  const blocks = (sidecar as Record<string, unknown>).block_annotations;
+  if (typeof blocks === "undefined") return [];
+  if (Object.prototype.toString.call(blocks) !== "[object Array]") {
+    throw new Error(
+      "getBlockAnnotationsByOp: sidecar.block_annotations is present but not an array (shape violation)",
+    );
+  }
+
+  const arr = blocks as unknown[];
+  const matched: SidecarBlockAnnotation[] = [];
+  for (let i = 0; i < arr.length; i++) {
+    const entry = arr[i] as Record<string, unknown> | null;
+    if (entry && typeof entry === "object" && entry.op_id === opId) {
+      matched.push(entry as unknown as SidecarBlockAnnotation);
+    }
+  }
+  return matched;
+}
