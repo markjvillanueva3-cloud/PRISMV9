@@ -57,8 +57,24 @@ const KNOWN_SURFACE_OPS = [
   "MOVE_FACE", "SILHOUETTE_CURVE", "SURFACE_INTERSECT",
 ];
 
+const KNOWN_SHEET_METAL_OPS = [
+  // base creation
+  "FACE", "CONTOUR_FLANGE", "CONTOUR_ROLL", "LOFTED_FLANGE",
+  // edge features
+  "FLANGE", "HEM", "BEND", "FOLD", "JOG",
+  // modify / cut
+  "CUT", "EMBOSS",
+  // corner treatments
+  "CORNER_SEAM", "CORNER_CHAMFER", "CORNER_ROUND", "RIP",
+  // special features
+  "PUNCH",
+  // unfold / refold / flat pattern
+  "UNFOLD", "REFOLD", "FLAT_PATTERN",
+  // style management
+  "SHEET_METAL_RULE", "SHEET_METAL_DEFAULTS",
+];
+
 const PLANNED_FUTURE_MODULES = [
-  "sheet_metal_operations",
   "frame_generator_operations",
   "weldment_operations",
   "drawing_operations",
@@ -74,14 +90,15 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(idx.module_id).toBe("cad_function_index");
     expect(idx.module_name).toBe("Autodesk Inventor CAD Unified Function Index");
     expect(idx.schema_version).toBe("1.0.0");
-    expect(idx.modules.length).toBe(3);
+    expect(idx.modules.length).toBe(4);
   });
 
-  it("listModules surfaces sketch / part / surface in registration order", () => {
+  it("listModules surfaces sketch / part / surface / sheet_metal in registration order", () => {
     expect(InventorCADFunctionIndexEngine.listModules()).toEqual([
       "sketch_operations",
       "part_operations",
       "surface_operations",
+      "sheet_metal_operations",
     ]);
   });
 
@@ -97,20 +114,20 @@ describe("InventorCADFunctionIndexEngine — index navigation", () => {
     expect(InventorCADFunctionIndexEngine.getModuleEntry("does_not_exist")).toBeNull();
   });
 
-  it("future_modules registers exactly the planned 5 follow-ups (after INV-03 ship)", () => {
+  it("future_modules registers exactly the planned 4 follow-ups (after INV-04 ship)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const planned = (idx.future_modules ?? []).map((f) => f.planned_id);
     expect(planned.sort()).toEqual([...PLANNED_FUTURE_MODULES].sort());
   });
 
-  it("each future_modules entry has scope, params, and a valid INV unit id (04..08)", () => {
+  it("each future_modules entry has scope, params, and a valid INV unit id (05..08)", () => {
     const idx = InventorCADFunctionIndexEngine.getIndex();
     const futureModules = idx.future_modules ?? [];
-    expect(futureModules.length).toBe(5);
+    expect(futureModules.length).toBe(4);
     for (const fm of futureModules) {
       expect(fm.scope.length).toBeGreaterThan(20);
       expect(fm.estimated_params).toBeGreaterThan(0);
-      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[4-8]$/);
+      expect(fm.deferred_to).toMatch(/^U-CAD-FIDX-INV-0[5-8]$/);
     }
   });
 
@@ -278,8 +295,127 @@ describe("InventorCADFunctionIndexEngine — taxonomy queries", () => {
     ).toEqual([]);
   });
 
-  it("listAllOperations returns 65 operations across sketch + part + surface modules", () => {
-    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(65);
+  it("listAllOperations returns 86 operations across sketch + part + surface + sheet_metal modules", () => {
+    expect(InventorCADFunctionIndexEngine.listAllOperations().length).toBe(86);
+  });
+});
+
+describe("InventorCADFunctionIndexEngine — sheet_metal_operations module (U-CAD-FIDX-INV-04)", () => {
+  beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
+
+  it("getModule loads catalog with metadata + 21 operations", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("sheet_metal_operations");
+    expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-INV-04");
+    expect(mod?.metadata?.operationCount).toBe(21);
+    expect(Object.keys(mod?.operations ?? {}).length).toBe(21);
+  });
+
+  it("listOperations returns exactly KNOWN_SHEET_METAL_OPS", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("sheet_metal_operations");
+    const opIds = ops.map((o) => o.operation_id).sort();
+    expect(opIds).toEqual([...KNOWN_SHEET_METAL_OPS].sort());
+  });
+
+  it("each sheet metal operation carries a SheetMetal_-prefixed category", () => {
+    const ops = InventorCADFunctionIndexEngine.listOperations("sheet_metal_operations");
+    for (const op of ops) {
+      expect.soft(op.category, `op ${op.operation_id} category`).toMatch(/^SheetMetal_/);
+      expect.soft(op.params_count, `op ${op.operation_id} params`).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("getOperation('FLANGE') exposes 4 height-datum modes + 4 edge-extents modes", () => {
+    const flange = InventorCADFunctionIndexEngine.getOperation(
+      "sheet_metal_operations",
+      "FLANGE",
+    );
+    expect(flange?.category).toBe("SheetMetal_Edge_Flange");
+    const datum = flange?.tabs?.Shape?.parameters?.find((p) => p.name === "Height Datum");
+    expect(datum?.options).toEqual([
+      "inside_to_inside",
+      "outside_to_outside",
+      "tangent_to_sketch",
+      "edge_outside",
+    ]);
+    const extents = flange?.tabs?.Shape?.parameters?.find((p) => p.name === "Edge Extents");
+    expect(extents?.options).toEqual([
+      "full_edge",
+      "from_end",
+      "two_distance_from_ends",
+      "centered",
+    ]);
+  });
+
+  it("getOperation('HEM') registers all 4 hem types", () => {
+    const hem = InventorCADFunctionIndexEngine.getOperation("sheet_metal_operations", "HEM");
+    const hemType = hem?.tabs?.Shape?.parameters?.find((p) => p.name === "Hem Type");
+    expect(hemType?.options).toEqual(["single", "teardrop", "rolled", "double"]);
+  });
+
+  it("getOperation('CORNER_SEAM') exposes all 5 seam types", () => {
+    const seam = InventorCADFunctionIndexEngine.getOperation(
+      "sheet_metal_operations",
+      "CORNER_SEAM",
+    );
+    const seamType = seam?.tabs?.Corner?.parameters?.find((p) => p.name === "Seam Type");
+    expect(seamType?.options).toEqual([
+      "no_overlap",
+      "overlap",
+      "reverse_overlap",
+      "bidirectional_overlap",
+      "rip",
+    ]);
+  });
+
+  it("getOperation('LOFTED_FLANGE') supports all 3 press methods", () => {
+    const lf = InventorCADFunctionIndexEngine.getOperation(
+      "sheet_metal_operations",
+      "LOFTED_FLANGE",
+    );
+    const press = lf?.tabs?.Shape?.parameters?.find((p) => p.name === "Output Type");
+    expect(press?.options).toEqual(["press_brake", "roll_form", "die_form"]);
+  });
+
+  it("getOperation('SHEET_METAL_RULE') exposes the 4 unfold methods", () => {
+    const rule = InventorCADFunctionIndexEngine.getOperation(
+      "sheet_metal_operations",
+      "SHEET_METAL_RULE",
+    );
+    const unfold = rule?.tabs?.Shape?.parameters?.find((p) => p.name === "Unfold Method");
+    expect(unfold?.options).toEqual([
+      "linear",
+      "bend_compensation",
+      "bend_table",
+      "custom_equation",
+    ]);
+    const kFactor = rule?.tabs?.Shape?.parameters?.find((p) => p.name === "K-Factor");
+    expect(kFactor?.default).toBe(0.44);
+    expect(kFactor?.min).toBe(0);
+    expect(kFactor?.max).toBe(0.5);
+  });
+
+  it("getOperation('FLAT_PATTERN') registers DXF/DWG/both output formats", () => {
+    const fp = InventorCADFunctionIndexEngine.getOperation(
+      "sheet_metal_operations",
+      "FLAT_PATTERN",
+    );
+    const fmt = fp?.tabs?.Unfold?.parameters?.find((p) => p.name === "Output Format");
+    expect(fmt?.options).toEqual(["dxf", "dwg", "both"]);
+    expect(fp?.tabs?.Unfold?.parameters?.length).toBe(14);
+  });
+
+  it("sheet_metal_operations declares dependencies on sketch + part_operations", () => {
+    const entry = InventorCADFunctionIndexEngine.getModuleEntry("sheet_metal_operations");
+    expect(entry?.dependencies).toEqual(["sketch_operations", "part_operations"]);
+  });
+
+  it("getOperationsByCategory restricts within sheet_metal_operations", () => {
+    const flatPatternOps = InventorCADFunctionIndexEngine.getOperationsByCategory(
+      "SheetMetal_Output_FlatPattern",
+      "sheet_metal_operations",
+    );
+    expect(flatPatternOps.length).toBe(1);
+    expect(flatPatternOps[0]?.operation_id).toBe("FLAT_PATTERN");
   });
 });
 
@@ -434,8 +570,8 @@ describe("InventorCADFunctionIndexEngine — part_operations module (U-CAD-FIDX-
 describe("InventorCADFunctionIndexEngine — drift guards", () => {
   beforeEach(() => InventorCADFunctionIndexEngine.clearCache());
 
-  it("getTotalParameterCount equals 379 (sketch 138 + part 178 + surface 63)", () => {
-    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(379);
+  it("getTotalParameterCount equals 530 (sketch 138 + part 178 + surface 63 + sheet_metal 151)", () => {
+    expect(InventorCADFunctionIndexEngine.getTotalParameterCount()).toBe(530);
   });
 
   it("sketch_operations declared totalParameters matches actual sum (drift guard)", () => {
@@ -474,8 +610,25 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     expect(mod?.metadata?.totalParameters).toBe(63);
   });
 
+  it("sheet_metal_operations declared totalParameters matches actual sum (drift guard)", () => {
+    const mod = InventorCADFunctionIndexEngine.getModule("sheet_metal_operations");
+    let actual = 0;
+    for (const op of Object.values(mod?.operations ?? {})) {
+      for (const tab of Object.values(op.tabs ?? {})) {
+        actual += (tab.parameters ?? tab.params ?? []).length;
+      }
+    }
+    expect(actual).toBe(151);
+    expect(mod?.metadata?.totalParameters).toBe(151);
+  });
+
   it("each per-op declared parameterCount matches actual tab-sum across all modules", () => {
-    for (const moduleId of ["sketch_operations", "part_operations", "surface_operations"]) {
+    for (const moduleId of [
+      "sketch_operations",
+      "part_operations",
+      "surface_operations",
+      "sheet_metal_operations",
+    ]) {
       const mod = InventorCADFunctionIndexEngine.getModule(moduleId);
       for (const [opId, op] of Object.entries(mod?.operations ?? {})) {
         const declared = op.parameterCount;
@@ -501,6 +654,7 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
       "U-CAD-FIDX-INV-01",
       "U-CAD-FIDX-INV-02",
       "U-CAD-FIDX-INV-03",
+      "U-CAD-FIDX-INV-04",
     ]);
   });
 
@@ -521,6 +675,10 @@ describe("InventorCADFunctionIndexEngine — drift guards", () => {
     const surface = InventorCADFunctionIndexEngine.getModule("surface_operations");
     expect(Object.keys(surface?.operations ?? {}).length).toBe(12);
     expect(surface?.metadata?.operationCount).toBe(12);
+
+    const sheetMetal = InventorCADFunctionIndexEngine.getModule("sheet_metal_operations");
+    expect(Object.keys(sheetMetal?.operations ?? {}).length).toBe(21);
+    expect(sheetMetal?.metadata?.operationCount).toBe(21);
   });
 });
 

@@ -1,0 +1,441 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Sheet Metal Operations — Sheet Metal Environment (Inventor strength)",
+    "description": "Parameter catalog for the Inventor Sheet Metal environment — Inventor's signature workspace with no Fusion 360 / hyperCAD-S equivalent of comparable depth. The sheet metal toolset is rule-driven: a 'Sheet Metal Rule' (Style) carries thickness, K-factor, default bend radius, gap, and unfold method (Linear / Bend Compensation / Bend Table / Custom Equation), and most features inherit from this rule rather than re-declaring it per-feature. Catalog covers ~20 operations across base creation (Face, Contour Flange, Contour Roll, Lofted Flange), edge features (Flange, Hem, Bend, Fold, Jog), corner treatments (Corner Seam, Corner Chamfer, Corner Round, Rip), special features (Cut, Punch from iFeature library, Emboss), unfold/refold workflow, and Flat Pattern emission for downstream CAM/nesting + the Sheet Metal Rule itself.",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-04",
+    "source": "Autodesk Inventor 2025 Help — Sheet Metal Reference; Inventor API Reference — SheetMetalFeatures collection (FaceFeatures, ContourFlangeFeatures, ContourRollFeatures, LoftedFlangeFeatures, FlangeFeatures, HemFeatures, BendFeatures, FoldFeatures, CutFeatures, CornerSeamFeatures, CornerChamferFeatures, CornerRoundFeatures, PunchToolFeatures, RipFeatures, UnfoldFeatures, RefoldFeatures, FlatPattern, JogFeatures, EmbossFeatures); SheetMetalStyles + SheetMetalRule",
+    "totalParameters": 151,
+    "operationCount": 21,
+    "cad_concepts_used": [
+      "SHEET_METAL_RULE",
+      "BEND_ALLOWANCE",
+      "K_FACTOR",
+      "BEND_DEDUCTION",
+      "FLAT_PATTERN_EMISSION",
+      "BEND_TABLE",
+      "UNFOLD_METHOD",
+      "GRAIN_DIRECTION",
+      "RELIEF_GEOMETRY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor sheet metal features",
+    "tabs": ["Shape", "Bend", "Corner", "Unfold"]
+  },
+  "operations": {
+    "FACE": {
+      "description": "Base sheet metal face from a closed profile sketch. Sets the active sheet metal rule's thickness as the face thickness; offset direction (Inside / Outside / Both) determines which side of the sketch plane the material grows on.",
+      "category": "SheetMetal_Base_Face",
+      "python_api": "ComponentDefinition.Features.FaceFeatures.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Closed sketch profile", "required": true},
+            {"name": "Offset Direction", "type": "dropdown", "options": ["inside", "outside", "both"], "default": "outside"},
+            {"name": "Sheet Metal Rule Override", "type": "string", "description": "Rule name override (otherwise active rule)"},
+            {"name": "Thickness Override", "type": "numeric", "unit": "mm", "description": "Per-feature thickness override (rare)"},
+            {"name": "Edge Treatment", "type": "dropdown", "options": ["square_edge", "exterior_bend_extent", "interior_bend_extent"], "default": "square_edge"},
+            {"name": "Consume Sketch", "type": "checkbox", "description": "Mark source sketch as consumed", "default": true}
+          ]
+        }
+      }
+    },
+    "CONTOUR_FLANGE": {
+      "description": "Sheet metal face from an OPEN profile sketch. Inventor sweeps the profile along the active rule's thickness to create a face plus the bend(s) implied by sketch corners. Distance vs Offset modes determine side selection; bend position controls Outside/Inside/Tangent placement.",
+      "category": "SheetMetal_Base_ContourFlange",
+      "python_api": "ComponentDefinition.Features.ContourFlangeFeatures.Add",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Open sketch profile", "required": true},
+            {"name": "Edge", "type": "selection", "description": "Edge to attach (when extending an existing face)"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Sweep length along open profile", "required": true},
+            {"name": "Offset Side", "type": "dropdown", "options": ["one_side", "two_sides", "symmetric"], "default": "one_side"},
+            {"name": "Bend Position", "type": "dropdown", "options": ["adjacent_to_sketch", "tangent_to_sketch", "outside_of_sketch", "outside_to_outside"], "default": "tangent_to_sketch"},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm", "description": "Override active rule"},
+            {"name": "Auto-Mitre", "type": "checkbox", "description": "Automatically miter at corners", "default": true},
+            {"name": "Edge Extension", "type": "numeric", "unit": "mm", "description": "Extend resulting face beyond profile endpoints", "default": 0}
+          ]
+        },
+        "Unfold": {
+          "parameters": [
+            {"name": "Unfold Rule Override", "type": "string", "description": "Override active rule's unfold method"}
+          ]
+        }
+      }
+    },
+    "CONTOUR_ROLL": {
+      "description": "Rolled cylindrical / conical contour from a sketch profile rotated about an axis. Used for cylinders, cones, and partial-rotation parts (e.g., coffee-can bodies, end caps).",
+      "category": "SheetMetal_Base_ContourRoll",
+      "python_api": "ComponentDefinition.Features.ContourRollFeatures.Add",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Open sketch profile (defines wall cross-section)", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Rotation axis (sketch line, edge, or work-axis)", "required": true},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "description": "Total roll angle (≤360)", "default": 360},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Thickness Direction", "type": "dropdown", "options": ["normal_to_axis", "tangent_to_axis"], "default": "normal_to_axis"},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "End Treatment", "type": "dropdown", "options": ["none", "miter", "lap", "stacked"], "default": "none"},
+            {"name": "Gap Resolution", "type": "dropdown", "options": ["leave_gap", "extend_to_close", "trim_to_close"], "default": "leave_gap"}
+          ]
+        }
+      }
+    },
+    "LOFTED_FLANGE": {
+      "description": "Lofted sheet metal between two open profiles. Three press methods: Press Brake (segmented bends), Roll Form (continuous rolling), Die Form (formed in a die). Press Brake mode emits explicit bend lines for unfold/flat-pattern; Roll Form / Die Form emit continuous fits.",
+      "category": "SheetMetal_Base_LoftedFlange",
+      "python_api": "ComponentDefinition.Features.LoftedFlangeFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile 1", "type": "selection", "required": true},
+            {"name": "Profile 2", "type": "selection", "required": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["press_brake", "roll_form", "die_form"], "default": "press_brake"},
+            {"name": "Bend Count", "type": "integer", "description": "Press Brake mode segment count", "min": 2, "default": 8},
+            {"name": "Material Side", "type": "dropdown", "options": ["inside", "outside"], "default": "outside"}
+          ]
+        }
+      }
+    },
+    "FLANGE": {
+      "description": "Straight flange folded off an existing edge by a bend angle. Inventor supports edge-extents (full edge / from-end / two-from-ends / centered), 4 height-positions (Inside-to-Inside, Outside-to-Outside, Tangent-to-Sketch, Edge-Outside), bend reliefs, miter at corners, and hem options at the flange tip.",
+      "category": "SheetMetal_Edge_Flange",
+      "python_api": "ComponentDefinition.Features.FlangeFeatures.Add",
+      "parameterCount": 12,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Edge", "type": "selection", "description": "Existing edge to flange off", "required": true},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Flange height", "required": true},
+            {"name": "Bend Angle", "type": "numeric", "unit": "deg", "description": "Flange bend angle (90° = right angle)", "default": 90},
+            {"name": "Height Datum", "type": "dropdown", "options": ["inside_to_inside", "outside_to_outside", "tangent_to_sketch", "edge_outside"], "default": "outside_to_outside"},
+            {"name": "Bend Position", "type": "dropdown", "options": ["adjacent", "tangent", "outside"], "default": "tangent"},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "Edge Extents", "type": "dropdown", "options": ["full_edge", "from_end", "two_distance_from_ends", "centered"], "default": "full_edge"},
+            {"name": "Edge Distance 1", "type": "numeric", "unit": "mm", "description": "From-end / centered offset"},
+            {"name": "Edge Distance 2", "type": "numeric", "unit": "mm", "description": "Second offset (two_distance mode)"},
+            {"name": "Miter Adjacent", "type": "checkbox", "description": "Auto-miter at adjacent flanges", "default": true}
+          ]
+        },
+        "Bend": {
+          "parameters": [
+            {"name": "Bend Relief", "type": "dropdown", "options": ["straight", "round", "tear", "none"], "default": "straight"},
+            {"name": "Relief Width", "type": "numeric", "unit": "mm", "description": "Width of bend relief cut"}
+          ]
+        }
+      }
+    },
+    "HEM": {
+      "description": "Folded edge (hem) on a sheet metal flange. Four hem types: Single (180° fold), Teardrop (rolled with gap), Rolled (continuous rolled), Double (single-folded twice for stiffness). Used for safety edges, stiffening, and jacketing.",
+      "category": "SheetMetal_Edge_Hem",
+      "python_api": "ComponentDefinition.Features.HemFeatures.Add",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Edge", "type": "selection", "required": true},
+            {"name": "Hem Type", "type": "dropdown", "options": ["single", "teardrop", "rolled", "double"], "default": "single"},
+            {"name": "Gap", "type": "numeric", "unit": "mm", "description": "Gap between hem fold faces (Single / Double)", "default": 0.5},
+            {"name": "Hem Length", "type": "numeric", "unit": "mm", "description": "Folded-portion length", "required": true},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "Edge Extents", "type": "dropdown", "options": ["full_edge", "from_end", "centered"], "default": "full_edge"},
+            {"name": "Edge Distance 1", "type": "numeric", "unit": "mm"},
+            {"name": "Opposite Side", "type": "checkbox", "description": "Fold to opposite side of edge", "default": false}
+          ]
+        }
+      }
+    },
+    "BEND": {
+      "description": "Add a bend between two coplanar faces or between a face and a flat. Used to convert flat sheet metal lay-ups into folded form. Inventor auto-determines bend allowance from the active rule's K-factor / bend table.",
+      "category": "SheetMetal_Edge_Bend",
+      "python_api": "ComponentDefinition.Features.BendFeatures.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Face A", "type": "selection", "required": true},
+            {"name": "Face B", "type": "selection", "required": true},
+            {"name": "Fixed Edge", "type": "selection", "description": "Which edge stays in place during bend"},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "K-Factor Override", "type": "numeric", "description": "Neutral-axis position override (0.0–0.5)", "min": 0, "max": 0.5},
+            {"name": "Transition", "type": "dropdown", "options": ["rip", "fold", "overlap", "trim_to_bend"], "default": "fold"},
+            {"name": "Relief Type", "type": "dropdown", "options": ["straight", "round", "tear", "none"], "default": "straight"}
+          ]
+        }
+      }
+    },
+    "FOLD": {
+      "description": "Fold an existing face along a sketch line by a given angle. Used to introduce bend lines at arbitrary positions (vs Bend which requires two existing faces). Direction toggle determines which side of the sketch line bends up.",
+      "category": "SheetMetal_Edge_Fold",
+      "python_api": "ComponentDefinition.Features.FoldFeatures.Add",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Sketch Line", "type": "selection", "description": "Sketch line marking the fold axis", "required": true},
+            {"name": "Fold Direction", "type": "dropdown", "options": ["up", "down"], "default": "up"},
+            {"name": "Fold Side", "type": "dropdown", "options": ["side_1", "side_2"], "default": "side_1"},
+            {"name": "Fold Angle", "type": "numeric", "unit": "deg", "default": 90, "required": true},
+            {"name": "Fold Location", "type": "dropdown", "options": ["centerline", "start_of_bend", "end_of_bend"], "default": "centerline"},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "K-Factor Override", "type": "numeric", "min": 0, "max": 0.5},
+            {"name": "Transition", "type": "dropdown", "options": ["rip", "fold", "overlap"], "default": "fold"},
+            {"name": "Relief", "type": "dropdown", "options": ["straight", "round", "tear", "none"], "default": "straight"}
+          ]
+        }
+      }
+    },
+    "CUT": {
+      "description": "Sheet metal cut feature — equivalent to part Extrude+Cut but respects sheet metal rule (cuts normal to face by default rather than along sketch normal). Critical for accurate flat-pattern emission of cuts that span bends.",
+      "category": "SheetMetal_Modify_Cut",
+      "python_api": "ComponentDefinition.Features.CutFeatures.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Termination", "type": "dropdown", "options": ["distance", "to", "to_next", "through_all", "through_face"], "default": "through_face"},
+            {"name": "Distance", "type": "numeric", "unit": "mm"},
+            {"name": "Cut Normal to Face", "type": "checkbox", "description": "Project cut perpendicular to nearest face (default for sheet metal)", "default": true},
+            {"name": "Affect Bend Region", "type": "checkbox", "description": "Allow cut to span bends (cut unfolds with the bend)", "default": false},
+            {"name": "Cut Across Bend", "type": "checkbox", "description": "Mark cut to be unfolded into flat pattern", "default": false}
+          ]
+        }
+      }
+    },
+    "CORNER_SEAM": {
+      "description": "Seam between two flanges that meet at a corner. Five seam types: No Overlap (gap), Overlap (one over the other), Reverse Overlap, Bidirectional Overlap, and Rip (split corner with gap). Configures gap distance and miter behavior.",
+      "category": "SheetMetal_Corner_Seam",
+      "python_api": "ComponentDefinition.Features.CornerSeamFeatures.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Corner": {
+          "parameters": [
+            {"name": "Edges", "type": "selection_list", "description": "Two converging flange edges", "required": true},
+            {"name": "Seam Type", "type": "dropdown", "options": ["no_overlap", "overlap", "reverse_overlap", "bidirectional_overlap", "rip"], "default": "no_overlap"},
+            {"name": "Gap", "type": "numeric", "unit": "mm", "description": "Gap distance (no_overlap / rip)", "default": 0.5},
+            {"name": "Overlap Percent", "type": "numeric", "description": "0–100% overlap (overlap modes)", "min": 0, "max": 100, "default": 50},
+            {"name": "Maximum Gap Distance", "type": "numeric", "unit": "mm", "description": "Maximum allowed corner gap"},
+            {"name": "Opposite Side", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CORNER_CHAMFER": {
+      "description": "Sheet metal corner chamfer (vs part chamfer): respects active rule's bend modeling. Two modes: Single Distance (45°) and Two Distance (independent setbacks). Used at flange corners + flat-pattern corner cuts.",
+      "category": "SheetMetal_Corner_Chamfer",
+      "python_api": "ComponentDefinition.Features.CornerChamferFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Corner": {
+          "parameters": [
+            {"name": "Corners", "type": "selection_list", "description": "Vertices to chamfer", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["single_distance", "two_distance"], "default": "single_distance"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Required for two_distance"},
+            {"name": "Reference Face", "type": "selection", "description": "Resolves orientation for two_distance"}
+          ]
+        }
+      }
+    },
+    "CORNER_ROUND": {
+      "description": "Sheet metal corner round (rounded vertex). Two modes: Single Radius and Variable Radius (per-corner). Used for safety + manufacturability + nesting clearance.",
+      "category": "SheetMetal_Corner_Round",
+      "python_api": "ComponentDefinition.Features.CornerRoundFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Corner": {
+          "parameters": [
+            {"name": "Corners", "type": "selection_list", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["single_radius", "variable_radius"], "default": "single_radius"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Variable Radius Pairs", "type": "object_list", "description": "Per-vertex {vertex, radius} for variable_radius"},
+            {"name": "Auto Chain Vertices", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "PUNCH": {
+      "description": "Insert a punch tool (iFeature, .ide file from Punch library) at sketch points. Punches are pre-defined feature templates that emit cuts + emboss + form geometry as a unit. Each punch tool exposes its own parameter set (e.g., diameter for a 'D-Sub' punch); placement allows per-instance overrides + rotation.",
+      "category": "SheetMetal_Special_Punch",
+      "python_api": "ComponentDefinition.Features.PunchToolFeatures.Add",
+      "parameterCount": 10,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Face", "type": "selection", "description": "Sheet metal face to punch", "required": true},
+            {"name": "Sketch Points", "type": "selection_list", "description": "Hole-center points (or center-of-feature for non-hole punches)", "required": true},
+            {"name": "iFeature Path", "type": "string", "description": "Path to .ide / .ifeature library file", "required": true},
+            {"name": "Punch Name", "type": "string", "description": "Named punch within the library file"},
+            {"name": "Orientation Reference", "type": "selection", "description": "Edge / axis defining punch rotation"},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Per-Instance Overrides", "type": "object_list", "description": "List of {sketch_point, parameter_overrides}"},
+            {"name": "Center Marks", "type": "checkbox", "description": "Emit center-mark annotation in flat pattern", "default": false},
+            {"name": "Update on Library Change", "type": "checkbox", "description": "Sync feature when iFeature library updates", "default": true},
+            {"name": "Suppress In Drawing", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "RIP": {
+      "description": "Split a sheet metal corner / seam to create a manufacturable separation. Used when an inferred bend cannot be physically formed (acute corners, double-folds). Rip with zero gap collapses to a face split.",
+      "category": "SheetMetal_Corner_Rip",
+      "python_api": "ComponentDefinition.Features.RipFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Corner": {
+          "parameters": [
+            {"name": "Edges", "type": "selection_list", "required": true},
+            {"name": "Gap", "type": "numeric", "unit": "mm", "description": "Rip gap width", "default": 0.5, "min": 0},
+            {"name": "Face", "type": "selection", "description": "Reference face for rip orientation"},
+            {"name": "Rip Length", "type": "numeric", "unit": "mm", "description": "Length of rip (default = full edge)"},
+            {"name": "Rip Type", "type": "dropdown", "options": ["single_point", "two_point", "from_end"], "default": "single_point"}
+          ]
+        }
+      }
+    },
+    "JOG": {
+      "description": "Jog feature — adds a Z-shaped offset bend across a sketch line, useful for stiffening ribs and step features. Two modes: Material Inside (offset into the bend) and Material Outside (offset away from the bend).",
+      "category": "SheetMetal_Edge_Jog",
+      "python_api": "ComponentDefinition.Features.JogFeatures.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Sketch Line", "type": "selection", "required": true},
+            {"name": "Offset Distance", "type": "numeric", "unit": "mm", "description": "Z-offset depth", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["material_inside", "material_outside"], "default": "material_outside"},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "Bend Position", "type": "dropdown", "options": ["centerline", "side_1", "side_2"], "default": "centerline"},
+            {"name": "Fixed Side", "type": "dropdown", "options": ["side_1", "side_2"], "default": "side_1"},
+            {"name": "Relief", "type": "dropdown", "options": ["straight", "round", "tear", "none"], "default": "straight"}
+          ]
+        }
+      }
+    },
+    "EMBOSS": {
+      "description": "Sheet metal emboss / engrave / cut feature applied to a face. Three modes: Emboss From Face (raise material — adds depth to outside), Engrave From Face (recess into face), Emboss From Plane (offset profile from a plane and raise/recess). Useful for branding + indexing features.",
+      "category": "SheetMetal_Special_Emboss",
+      "python_api": "ComponentDefinition.Features.EmbossFeatures.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Sketch profile or text", "required": true},
+            {"name": "Target Face", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["emboss_from_face", "engrave_from_face", "emboss_from_plane"], "default": "emboss_from_face"},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Wrap to Face", "type": "checkbox", "description": "Conformal projection on curved faces", "default": true},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "default": 0}
+          ]
+        }
+      }
+    },
+    "UNFOLD": {
+      "description": "Develop selected bends into the flat — used to make in-plane modifications (cuts, dimensions) before refolding. Stationary face stays put while other faces unfold around the named bends.",
+      "category": "SheetMetal_Unfold_Develop",
+      "python_api": "ComponentDefinition.Features.UnfoldFeatures.Add",
+      "parameterCount": 4,
+      "tabs": {
+        "Unfold": {
+          "parameters": [
+            {"name": "Stationary Face", "type": "selection", "description": "Reference face that does not move", "required": true},
+            {"name": "Bends to Unfold", "type": "selection_list", "description": "Specific bends (omit for all)"},
+            {"name": "Include Other Bends", "type": "checkbox", "description": "Auto-unfold dependent bends", "default": false},
+            {"name": "Output Geometry", "type": "dropdown", "options": ["work_surface", "real_geometry"], "default": "real_geometry"}
+          ]
+        }
+      }
+    },
+    "REFOLD": {
+      "description": "Re-form previously unfolded bends back to their folded state. Pairs with UNFOLD to bracket in-place modifications: unfold → cut → refold.",
+      "category": "SheetMetal_Unfold_Refold",
+      "python_api": "ComponentDefinition.Features.RefoldFeatures.Add",
+      "parameterCount": 4,
+      "tabs": {
+        "Unfold": {
+          "parameters": [
+            {"name": "Source Unfold Feature", "type": "selection", "description": "Unfold to reverse", "required": true},
+            {"name": "Refold All", "type": "checkbox", "default": true},
+            {"name": "Specific Bends", "type": "selection_list", "description": "Subset to refold (when Refold All = false)"},
+            {"name": "Stationary Face", "type": "selection", "description": "Reference face for refold geometry"}
+          ]
+        }
+      }
+    },
+    "FLAT_PATTERN": {
+      "description": "Generate the flat (developed) pattern of the part for downstream nesting / laser / waterjet / punch CAM. Inventor emits bend lines (interior + exterior), bend zones, and tool annotations (punch / center marks), and supports DXF / DWG export with grain orientation. Critical for sheet metal → CAM pipeline.",
+      "category": "SheetMetal_Output_FlatPattern",
+      "python_api": "ComponentDefinition.FlatPattern.CreateFlatPattern",
+      "parameterCount": 14,
+      "tabs": {
+        "Unfold": {
+          "parameters": [
+            {"name": "Base Face", "type": "selection", "description": "Reference face that becomes the flat-pattern up-direction", "required": true},
+            {"name": "Face Orientation", "type": "dropdown", "options": ["a_side_up", "b_side_up", "as_modeled"], "default": "a_side_up"},
+            {"name": "Grain Direction", "type": "vector2d", "description": "Material grain orientation (for nesting + bend-axis alignment)"},
+            {"name": "Plot Units", "type": "dropdown", "options": ["mm", "inch", "model_default"], "default": "mm"},
+            {"name": "A-Side Distance", "type": "numeric", "unit": "mm", "description": "Distance from base face to A-side", "default": 0},
+            {"name": "Output Format", "type": "dropdown", "options": ["dxf", "dwg", "both"], "default": "dxf"},
+            {"name": "Export Bend Lines Layer", "type": "string", "description": "Layer name for bend-line annotations", "default": "BEND_LINES"},
+            {"name": "Export Bend Notes Layer", "type": "string", "default": "BEND_NOTES"},
+            {"name": "Export Tool Centers Layer", "type": "string", "default": "TOOL_CENTERS"},
+            {"name": "Export Punches Layer", "type": "string", "default": "PUNCHES"},
+            {"name": "Include Tangent Bends", "type": "checkbox", "default": true},
+            {"name": "Include Centerlines", "type": "checkbox", "default": true},
+            {"name": "Merge Profiles into Polylines", "type": "checkbox", "default": true},
+            {"name": "Bend Up Notation", "type": "string", "description": "Annotation for up-bends (e.g. UP)", "default": "UP"}
+          ]
+        }
+      }
+    },
+    "SHEET_METAL_RULE": {
+      "description": "Apply or configure the active Sheet Metal Rule — the style object that drives thickness, K-factor, default bend radius, gap width, and unfold method (Linear / Bend Compensation / Bend Table / Custom Equation). All sheet metal features inherit from this rule unless overridden per-feature.",
+      "category": "SheetMetal_Style_Rule",
+      "python_api": "Document.SheetMetalStyles.AddOrSetActive",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Rule Name", "type": "string", "description": "Style name (e.g. 'Steel — 16 GA')", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Material", "type": "string", "description": "Material name (drives mass + cost downstream)"},
+            {"name": "K-Factor", "type": "numeric", "description": "Neutral-axis position (0.0–0.5)", "default": 0.44, "min": 0, "max": 0.5},
+            {"name": "Default Bend Radius", "type": "numeric", "unit": "mm", "default": 0.5},
+            {"name": "Default Gap", "type": "numeric", "unit": "mm", "description": "Default seam / corner gap", "default": 0.5},
+            {"name": "Unfold Method", "type": "dropdown", "options": ["linear", "bend_compensation", "bend_table", "custom_equation"], "default": "linear"},
+            {"name": "Unfold Method Value", "type": "string", "description": "Bend table file path / equation string / compensation value"}
+          ]
+        }
+      }
+    },
+    "SHEET_METAL_DEFAULTS": {
+      "description": "Set or query active sheet metal defaults applied to subsequent feature operations. Defaults override the rule's settings within the active edit session and are persisted on the Sheet Metal Defaults dialog.",
+      "category": "SheetMetal_Style_Defaults",
+      "python_api": "ComponentDefinition.SheetMetalDefaults.SetDefaults",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Active Rule", "type": "string", "description": "Reference rule name"},
+            {"name": "Use Thickness Override", "type": "checkbox", "default": false},
+            {"name": "Thickness Override", "type": "numeric", "unit": "mm"},
+            {"name": "Use Bend Radius Override", "type": "checkbox", "default": false},
+            {"name": "Bend Radius Override", "type": "numeric", "unit": "mm"},
+            {"name": "Use K-Factor Override", "type": "checkbox", "default": false},
+            {"name": "K-Factor Override", "type": "numeric", "min": 0, "max": 0.5}
+          ]
+        }
+      }
+    }
+  }
+}

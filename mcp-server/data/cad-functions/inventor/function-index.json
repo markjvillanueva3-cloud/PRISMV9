@@ -29,6 +29,14 @@
       "parameter_count_estimate": 63,
       "description": "Surface modeling environment (thinner than hyperCAD-S — Inventor's surface tools are oriented around closure, repair, and surface→solid conversion rather than primary modeling). 12 operations: Boundary Patch (G0/G1/G2 continuity), Stitch / Unstitch, Trim Surface, Extend Surface, Replace Face, Sculpt (surface→solid bridge), Ruled Surface (3 direction modes), Repair Bodies (heal/diagnose), Move Face (direct edit), Silhouette Curve, Surface Intersect.",
       "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "sheet_metal_operations",
+      "path": "cad-functions/inventor/sheet-metal-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-04"],
+      "parameter_count_estimate": 151,
+      "description": "Sheet metal environment — Inventor's signature workspace with no Fusion 360 / hyperCAD-S equivalent of comparable depth. 21 operations driven by a Sheet Metal Rule that carries thickness / K-factor / bend radius / unfold method. Coverage: base creation (Face, Contour Flange, Contour Roll, Lofted Flange in 3 press modes), edge features (Flange in 12 params, Hem in 4 types, Bend, Fold in 9 params, Jog), corner treatments (Corner Seam in 5 types, Chamfer, Round, Rip), special features (Cut with affect-bend, Punch from iFeature library in 10 params, Emboss), unfold/refold workflow, and Flat Pattern (14 params) emission for downstream CAM/nesting + the Sheet Metal Rule + Defaults objects themselves.",
+      "dependencies": ["sketch_operations", "part_operations"]
     }
   ],
   "global_cross_references": {
@@ -51,15 +59,19 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 3,
-    "total_units_covered": ["U-CAD-FIDX-INV-01", "U-CAD-FIDX-INV-02", "U-CAD-FIDX-INV-03"],
-    "estimated_parameter_total": 379,
+    "total_modules": 4,
+    "total_units_covered": [
+      "U-CAD-FIDX-INV-01",
+      "U-CAD-FIDX-INV-02",
+      "U-CAD-FIDX-INV-03",
+      "U-CAD-FIDX-INV-04"
+    ],
+    "estimated_parameter_total": 530,
     "api_surface": {
       "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 5,
+      "phase_1_target_modules_remaining": 4,
       "phase_1_modules_pending": [
-        "sheet_metal_operations",
         "frame_generator_operations",
         "weldment_operations",
         "drawing_operations",
@@ -84,12 +96,6 @@
     "vault": false
   },
   "future_modules": [
-    {
-      "planned_id": "sheet_metal_operations",
-      "scope": "Sheet metal (Inventor strength — no Fusion / hyperCAD parity): Face, Contour Flange, Contour Roll, Lofted Flange, Cut, Corner Seam, Bend, Fold, Hem, Punch (iFeature), Rip, Unfold/Refold, Flat Pattern. Driven by Sheet Metal Defaults / Style + per-face thickness rule.",
-      "estimated_params": 165,
-      "deferred_to": "U-CAD-FIDX-INV-04"
-    },
     {
       "planned_id": "frame_generator_operations",
       "scope": "Frame Generator (Inventor-only): Insert Frame Member (skeleton-driven structural shapes from Content Center), Miter, Notch, Trim/Extend, Lengthen/Shorten, Remove End Treatment, Change/Reuse Frame Member. Bind to part skeleton sketch.",
