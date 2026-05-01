@@ -28,6 +28,7 @@ import {
   buildCanonicalSidecarPayload,
   POST_PHYSICS_SIDECAR_SCHEMA_VERSION,
   type PostPhysicsSidecar,
+  type BlockAnnotation,
 } from "../schemas/postPhysicsSidecarSchema.js";
 
 // ============================================================================
@@ -41,6 +42,14 @@ export interface BuildSidecarOptions {
   constants_source?: string;
   /** Override generated_at for deterministic test snapshots. */
   generated_at?: string;
+  /**
+   * Optional per-block S/F annotations (MS0/U-PPGM08, schema 1.1.0).
+   * When provided, every entry must satisfy blockAnnotationSchema, block_ids
+   * must be unique, and operator_override blocks must have empty
+   * source_constants. The array is included in the SHA seal so any tamper to
+   * a block annotation invalidates verification.
+   */
+  block_annotations?: BlockAnnotation[];
 }
 
 export interface VerifyResult {
@@ -120,13 +129,19 @@ export class PhysicsSidecarBuilderEngine {
       source_engine_versions: { ...opts.source_engine_versions },
       constants_source,
     };
-    const sealable = { ...payload, _meta_without_sha: metaWithoutSha };
+    // Attach optional per-block annotations BEFORE SHA computation so any
+    // tamper to a block entry invalidates verification (U-PPGM08).
+    const payloadWithBlocks: Omit<PostPhysicsSidecar, "meta"> =
+      opts.block_annotations !== undefined
+        ? { ...payload, block_annotations: structuredClone(opts.block_annotations) }
+        : payload;
+    const sealable = { ...payloadWithBlocks, _meta_without_sha: metaWithoutSha };
     const sha256 = PhysicsSidecarBuilderEngine.computeSha256(
       PhysicsSidecarBuilderEngine.canonicalize(sealable),
     );
 
     const sealed: PostPhysicsSidecar = {
-      ...payload,
+      ...payloadWithBlocks,
       meta: { ...metaWithoutSha, sha256 },
     };
 
