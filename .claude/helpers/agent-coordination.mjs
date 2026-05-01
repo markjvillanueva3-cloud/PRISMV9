@@ -13,6 +13,10 @@ const FILES = {
   statusMarkdown: "H:\\prism\\state\\shared\\AGENT_COORDINATION_STATUS.md",
   cursorRoot: "H:\\prism\\state\\shared\\agent-coordination\\cursors",
   coordinationLedger: "H:\\prism\\state\\shared\\COORDINATION_LEDGER.jsonl",
+  // P4-U02: consensus gate + multi-chat lane-block / auto-fork audit log.
+  // Schema: state/shared/AGENT_CONFLICT_ARBITRATION.md.
+  arbitrationJson: "H:\\prism\\state\\shared\\AGENT_CONFLICT_ARBITRATION.json",
+  arbitrationMarkdown: "H:\\prism\\state\\shared\\AGENT_CONFLICT_ARBITRATION.md",
 };
 
 let _coordEventCounter = 0;

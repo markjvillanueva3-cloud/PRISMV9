@@ -649,4 +649,17 @@ export const ACTION_SAFETY_SCHEMAS: ActionSchemaMap = {
   analyze_liftoff_moment,
   calculate_part_deflection,
   validate_vacuum_fixture,
+  // Consensus gate (1) — P4-U02
+  consensus_gate: z.object({
+    input: z.string().min(1, "input must be non-empty"),
+    context: z
+      .object({
+        sessionId: z.string().optional(),
+        commitHash: z.string().optional(),
+        files: z.array(z.string()).optional(),
+        note: z.string().optional(),
+      })
+      .partial()
+      .optional(),
+  }),
 };
