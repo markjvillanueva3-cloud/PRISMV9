@@ -274,6 +274,184 @@ gate.
 - `mcp-server/src/physics/constants.ts` — canonical values, single source of truth
 - `mcp-server/src/schemas/postPhysicsSidecarSchema.ts` — schema + `buildCanonicalSidecarPayload`
 - `mcp-server/src/engines/PhysicsSidecarBuilderEngine.ts` — Node-side builder
-- `mcp-server/src/cps/loadPhysicsSidecar.ts` — Rhino-portable loader
+- `mcp-server/src/cps/loadPhysicsSidecar.ts` — Rhino-portable loader + (1.1.0) block lookups
+- `mcp-server/src/cps/verifyBlockAnnotations.ts` — (1.1.0) per-block S/F gate
 - `mcp-server/src/engines/NoInlinePhysicsConstantsEngine.ts` — scanner (re-export at `src/hooks/noInlinePhysicsConstants.ts`)
-- `mcp-server/src/__tests__/PostPhysicsSidecar.integration.test.ts` — round-trip coverage
+- `mcp-server/src/__tests__/PostPhysicsSidecar.integration.test.ts` — 1.0.0 round-trip coverage
+- `mcp-server/src/__tests__/PostPhysicsSidecar.blockRoundTrip.integration.test.ts` — (1.1.0) block-annotation round-trip coverage
+
+---
+
+# Schema 1.1.0 — `block_annotations[]` (MS0/U-PPGM07..U-PPGM11)
+
+The 1.0.0 sidecar carries canonical PHYSICS CONSTANTS (Kienzle, Taylor,
+EDM, tool modulus) so a slim post can pull values at runtime instead of
+inlining them. 1.1.0 adds an OPTIONAL second axis: per-block PHYSICS
+TELEMETRY — for every G-code block whose S/F was physics-derived, the
+sidecar carries the chain that produced it, the canonical constants the
+chain consulted, the confidence at emit time, and the safety margin
+applied. This lets the build pipeline VERIFY that what the post emitted
+matches what the physics chain said, and lets the closed-loop SFC compare
+emitted-vs-actual when an operator records cut outcomes.
+
+## What's added
+
+```ts
+sidecar.block_annotations?: Array<{
+  block_id: string;          // matches Nxxx label in emitted G-code
+  op_id: string;             // CAM job operation identifier
+  iso_group: "P"|"M"|"K"|"N"|"S"|"H";
+  tool_material: "carbide"|"cermet"|"ceramic"|"cbn"|"pcd"|"hss"|"diamond";
+  emitted: { vc_mpm: number; fpt_mm?: number; fn_mmrev?: number;
+             ap_mm?: number; ae_mm?: number;
+             S_rpm: number; F_mmpm: number; };
+  physics_basis: "kienzle"|"taylor"|"sle_chatter"
+                 |"empirical_table"|"operator_override";
+  confidence: number;        // 0..1
+  safety_margin: number;     // (0, 1.5]
+  source_constants: string[];// e.g. ["CANONICAL_KIENZLE.P"]
+}>
+```
+
+`SCHEMA_VERSION` bumps `1.0.0 -> 1.1.0`. The bump is **additive**:
+
+- Pre-1.1.0 sidecars omit `block_annotations` entirely; the v1.1.0 schema
+  parses them cleanly (the field is `.optional()`).
+- v1.1.0 sidecars omitting the field render byte-identically to v1.0.0
+  except for `meta.schema_version` — useful migration breadcrumb.
+- Old loaders (compiled against v1.0.0) ignore unknown fields by default.
+  New loaders consume `block_annotations` when present, `null` when absent.
+
+## Cross-field invariants (enforced by `superRefine` at the array level)
+
+1. **Unique `block_id`** within a single sidecar. Duplicate block_ids
+   would make `getBlockAnnotation()` lookup ambiguous.
+2. **`operator_override` ⇔ empty `source_constants`.** An override
+   bypasses physics by definition; if a `source_constants` reference is
+   present, it's a sign of upstream confusion. Symmetric: any non-override
+   basis (`kienzle`, `taylor`, `sle_chatter`, `empirical_table`) MUST cite
+   ≥1 canonical constant — empty source_constants on a non-override means
+   the post claims physics-derivation but can't say what physics.
+3. Bounded numerics: `confidence ∈ [0, 1]`, `safety_margin ∈ (0, 1.5]`,
+   all `emitted.*` strictly positive and finite (no NaN, no Infinity, no
+   ≤ 0).
+
+## Loader API (`mcp-server/src/cps/loadPhysicsSidecar.ts`)
+
+```ts
+// Returns the matching annotation, or null on:
+//   - sidecar.block_annotations === undefined (v1.0.0 back-compat)
+//   - empty array
+//   - block_id not in array
+// Throws on: null sidecar, empty/non-string blockId, shape violation.
+getBlockAnnotation(sidecar, blockId): SidecarBlockAnnotation | null
+
+// Returns all blocks for a given op (preserves array order — block
+// sequence is meaningful for cycle-time reconstruction).
+getBlockAnnotationsByOp(sidecar, opId): SidecarBlockAnnotation[]
+```
+
+Both are pure JS, Rhino-portable. No Zod, no Node fs. The
+`SidecarBlockAnnotation` interface is defined locally in the loader to
+avoid pulling the schema module into post-processor runtime.
+
+## Build-pipeline gate (`mcp-server/src/cps/verifyBlockAnnotations.ts`)
+
+```ts
+verifyBlockAnnotations(emittedGcode, sidecar, { tier? }): VerifyResult
+verifyOrThrow(emittedGcode, sidecar, { tier? }): VerifyResult  // throws on HARD_BLOCK
+```
+
+Walks emitted G-code line-by-line, extracts `Nxxx` labels and `S<n>/F<n>`
+tokens (parenthesis-comments stripped), and cross-references each labelled
+S/F line against `getBlockAnnotation`. Strict equality on emitted vs
+annotated values — drift is exactly the regression this gate exists to
+catch.
+
+### Verdict policy by tier
+
+| Tier        | S/F mismatch | missing_annotation | no_block_annotations |
+|-------------|--------------|--------------------|----------------------|
+| sim         | WARN         | WARN               | WARN                 |
+| proven_out  | WARN         | WARN               | WARN                 |
+| production  | HARD_BLOCK   | WARN               | WARN                 |
+| shop_floor  | HARD_BLOCK   | HARD_BLOCK         | HARD_BLOCK           |
+
+Default tier is `shop_floor` (fail-closed). `operator_override` blocks
+bypass the comparison at all tiers; they appear as informational
+`operator_override_skip` entries in `mismatches[]` only at `sim` tier.
+
+### Failure-mode catalog
+
+| Class                  | Triggered when…                                                       |
+|------------------------|-----------------------------------------------------------------------|
+| `S_mismatch`           | Block emits `S<n>` ≠ `annotation.emitted.S_rpm`                       |
+| `F_mismatch`           | Block emits `F<n>` ≠ `annotation.emitted.F_mmpm`                      |
+| `missing_annotation`   | Block emits S/F but no annotation has that `block_id`                 |
+| `no_block_annotations` | Sidecar has no `block_annotations[]` at all (pre-1.1.0)               |
+| `operator_override_skip` | Annotation `physics_basis === "operator_override"` (informational)  |
+
+### Absence vs empty array
+
+| sidecar.block_annotations  | Semantics                                       |
+|----------------------------|-------------------------------------------------|
+| `undefined` (v1.0.0)       | "No telemetry available." HARD_BLOCK at shop_floor for any emitted S/F. PASS if post emits no labelled S/F. |
+| `[]` (empty)               | "Telemetry channel exists but is empty." Per-block check fires `missing_annotation` — distinct from `no_block_annotations`. |
+| `[entry, …]`               | Standard per-block check.                       |
+
+The two states produce different SHAs (verified by test) — they are NOT
+equivalent and must never be silently coalesced.
+
+## Migration steps (1.0.0 -> 1.1.0)
+
+For sidecar EMITTERS (master post engines):
+
+1. Build per-block annotations during `generateProgram()`. For every
+   block where the engine sets a non-modal S or F, emit a corresponding
+   `BlockAnnotation` entry naming the physics chain that produced it.
+2. Pass the array to `PhysicsSidecarBuilderEngine.buildAndSeal({
+   block_annotations })`. The builder defensive-clones (caller mutation
+   after seal does not leak) and includes the array in the SHA seal.
+3. Post emit ordering: emit G-code with stable `Nxxx` labels matching
+   each annotation's `block_id`. The labels are the join key.
+
+For sidecar CONSUMERS (CPS posts + build pipelines):
+
+1. Schema-version-pin to `"1.1.0"` in `loadPhysicsSidecar` options once
+   you require per-block telemetry. Until then, keep `"1.0.0"` for
+   forward compat.
+2. Invoke `verifyBlockAnnotations` in your build pipeline AFTER the
+   post emits but BEFORE shipping. Default tier `shop_floor` for any
+   customer-bound output; downgrade to `proven_out` only for sandboxed
+   internal pilots.
+
+## What NOT to do
+
+- **Never** silently route `undefined` and `[]` to the same code path.
+  They mean different things; the gate distinguishes them.
+- **Never** widen `safety_margin` past 1.5 — that bound exists to catch
+  upstream bugs (a margin >1.5× is a sign of a calibration inversion,
+  not legitimate safety).
+- **Never** record `operator_override` with non-empty `source_constants`.
+  An override bypasses physics by definition; if you cite constants, you
+  weren't actually overriding.
+- **Never** expect `getBlockAnnotation` to ignore SHA verification — the
+  loader runs the SHA check at load time, and the gate trusts the loader.
+  Both layers are needed: SHA catches tamper, gate catches drift.
+
+## Tests covering the 1.1.0 chain
+
+- `PostPhysicsSidecarBlockAnnotations.test.ts` — 35 cases, schema +
+  builder unit coverage (entry-level + array-level invariants, SHA seal,
+  defensive cloning, v1.0.0 back-compat parse).
+- `loadPhysicsSidecar.test.ts` — extended with 24 cases for
+  `getBlockAnnotation` + `getBlockAnnotationsByOp` (back-compat, happy
+  path, deep scan, shape violation, JSON round-trip, op-grouped lookup).
+- `verifyBlockAnnotations.test.ts` — 39 cases, parser + mismatch
+  detection + operator_override semantics + no_block_annotations branch
+  + tier verdict policy + verifyOrThrow + invalid inputs.
+- `PostPhysicsSidecar.blockRoundTrip.integration.test.ts` — 10 cases,
+  full E2E through builder -> file -> loader -> lookup -> verify.
+  Includes adversarial scenarios (silent override insertion, legacy
+  v1.0.0 sidecar shipped against 1.1.0-aware post, byte-identical SHA
+  across two independent builds).
