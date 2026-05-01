@@ -67,6 +67,8 @@ const ACTIONS = [
   "lathe_safety_signals", "lathe_multi_op_plan", "lathe_sequence_optimize",
   // LATHE-WIRE-MS0/Batch3: partoff safety rail + SLO registry + job scheduling
   "lathe_partoff_safety_eval", "lathe_slo_evaluate", "lathe_job_schedule",
+  // LATHE-WIRE-MS0/Batch4: cost reconcile + job profitability + inventory upsert
+  "lathe_cost_reconcile", "lathe_job_profitability_record", "lathe_inventory_upsert",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -501,6 +503,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = latheJobSchedulingEngine.schedule(
                 input as Parameters<typeof latheJobSchedulingEngine.schedule>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_cost_reconcile": {
+            const { latheActualCostReconciliationEngine } = await import("../../engines/LatheActualCostReconciliationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ReconcileInput)" }; break; }
+            try {
+              result = latheActualCostReconciliationEngine.reconcile(
+                input as Parameters<typeof latheActualCostReconciliationEngine.reconcile>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_job_profitability_record": {
+            const { latheJobProfitabilityAnalyticsEngine } = await import("../../engines/LatheJobProfitabilityAnalyticsEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (RecordJobInput)" }; break; }
+            try {
+              result = latheJobProfitabilityAnalyticsEngine.recordJob(
+                input as Parameters<typeof latheJobProfitabilityAnalyticsEngine.recordJob>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_inventory_upsert": {
+            const { latheInventoryIntelligenceEngine } = await import("../../engines/LatheInventoryIntelligenceEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (UpsertItemInput)" }; break; }
+            try {
+              result = latheInventoryIntelligenceEngine.upsertItem(
+                input as Parameters<typeof latheInventoryIntelligenceEngine.upsertItem>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

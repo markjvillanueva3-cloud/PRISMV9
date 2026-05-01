@@ -325,4 +325,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_job_schedule: z.object({
     input: z.record(z.string(), z.unknown()).describe("ScheduleInput — jobs[], machines[], constraints for shop scheduler"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch4: cost reconcile + job profitability + inventory upsert
+  lathe_cost_reconcile: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ReconcileInput — actual vs estimated cost reconciliation context for LatheActualCostReconciliationEngine.reconcile()"),
+  }).passthrough(),
+  lathe_job_profitability_record: z.object({
+    input: z.record(z.string(), z.unknown()).describe("RecordJobInput — job financial record for LatheJobProfitabilityAnalyticsEngine.recordJob()"),
+  }).passthrough(),
+  lathe_inventory_upsert: z.object({
+    input: z.record(z.string(), z.unknown()).describe("UpsertItemInput — SKU + stock level upsert for LatheInventoryIntelligenceEngine.upsertItem()"),
+  }).passthrough(),
 };
