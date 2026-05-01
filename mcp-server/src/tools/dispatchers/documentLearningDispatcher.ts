@@ -337,7 +337,7 @@ export function registerDocumentLearningDispatcher(server: any): void {
         if (!validation.valid) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
-              error: `Invalid params for ${action}`, details: validation.errors, action,
+              error: `Invalid params for ${action}`, details: validation.error, action,
             }) }],
           };
         }

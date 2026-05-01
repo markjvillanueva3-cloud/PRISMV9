@@ -51,7 +51,7 @@ export function registerNLHookDispatcher(server: any): void {
       // SYS-MS6: Validate params against per-action Zod schema
       const validation = validateActionParams(action, params, ACTION_NL_HOOK_SCHEMAS);
       if (!validation.valid) {
-        return ok({ error: `Invalid params for ${action}`, details: validation.errors });
+        return ok({ error: `Invalid params for ${action}`, details: validation.error });
       }
       try {
         switch (action) {

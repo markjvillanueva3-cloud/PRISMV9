@@ -39,7 +39,7 @@ Actions: ${ACTIONS.join(", ")}.`,
         // SYS-MS6: Validate params against per-action Zod schema
         const validation = validateActionParams(action, params, ACTION_INDUSTRY_SCHEMAS);
         if (!validation.valid) {
-          return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+          return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.error }) }] };
         }
         switch (action) {
           case "aerospace_check": {
