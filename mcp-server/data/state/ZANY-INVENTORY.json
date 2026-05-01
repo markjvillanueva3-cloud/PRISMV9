@@ -1,0 +1,3831 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-05-01T18:48:13.884Z",
+  "source": "INTEL-OLLAMA-OBSIDIAN-MS0/P8-U01",
+  "directories_scanned": [
+    "mcp-server/src/schemas",
+    "mcp-server/src/tools/schemas"
+  ],
+  "totalOccurrences": 184,
+  "fileCount": 33,
+  "byClassification": {
+    "record_of_unknown": 110,
+    "array_of_unknown": 33,
+    "optional_unknown": 21,
+    "default": 18,
+    "unknown_value": 2
+  },
+  "byFile": [
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "count": 20
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "count": 17
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "count": 15
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "count": 11
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "count": 10
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "count": 9
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "count": 8
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "count": 8
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "count": 8
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "count": 8
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "count": 7
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "count": 7
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "count": 6
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "count": 6
+    },
+    {
+      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+      "count": 5
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
+      "count": 5
+    },
+    {
+      "file": "mcp-server/src/schemas/devActionSchemas.ts",
+      "count": 5
+    },
+    {
+      "file": "mcp-server/src/schemas/diagnosisActionSchemas.ts",
+      "count": 5
+    },
+    {
+      "file": "mcp-server/src/schemas/wedmErpActionSchemas.ts",
+      "count": 5
+    },
+    {
+      "file": "mcp-server/src/schemas/monitoringActionSchemas.ts",
+      "count": 4
+    },
+    {
+      "file": "mcp-server/src/schemas/camActionSchemas.ts",
+      "count": 3
+    },
+    {
+      "file": "mcp-server/src/schemas/atcsActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutoCADSchema.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/cadDrawingKnowledgeActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/cadOnshapeSchema.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/hookActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/integrationActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/intelligenceActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/machiningKnowledgeBaseActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/mlActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/provenPipelineActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/sessionActionSchemas.ts",
+      "count": 1
+    },
+    {
+      "file": "mcp-server/src/schemas/WiringManifest.ts",
+      "count": 1
+    }
+  ],
+  "inventory": [
+    {
+      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+      "line": 74,
+      "column": 46,
+      "fieldName": "observations",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const bayesian_calibrate = z.object({",
+        "  observations: z.array(z.record(z.string(), z.any())).optional(),",
+        "  prior: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 71
+    },
+    {
+      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+      "line": 75,
+      "column": 31,
+      "fieldName": "prior",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const bayesian_calibrate = z.object({",
+        "  observations: z.array(z.record(z.string(), z.any())).optional(),",
+        "  prior: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 72
+    },
+    {
+      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+      "line": 125,
+      "column": 39,
+      "fieldName": "machine_state",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const digital_twin_sync = z.object({",
+        "  machine_state: z.record(z.string(), z.any()).optional(),",
+        "  sensor_data: z.record(z.string(), z.any()).optional(),",
+        "  algorithm_context: z.string().optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 122
+    },
+    {
+      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+      "line": 126,
+      "column": 37,
+      "fieldName": "sensor_data",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const digital_twin_sync = z.object({",
+        "  machine_state: z.record(z.string(), z.any()).optional(),",
+        "  sensor_data: z.record(z.string(), z.any()).optional(),",
+        "  algorithm_context: z.string().optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 123
+    },
+    {
+      "file": "mcp-server/src/schemas/adaptiveControlActionSchemas.ts",
+      "line": 135,
+      "column": 31,
+      "fieldName": "state",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const digital_twin_query = z.object({",
+        "  state: z.record(z.string(), z.any()).optional(),",
+        "  algorithm: z.string(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 132
+    },
+    {
+      "file": "mcp-server/src/schemas/atcsActionSchemas.ts",
+      "line": 13,
+      "column": 61,
+      "fieldName": "batch_validate",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"approximately\": z.object({}).passthrough(),",
+        "  \"around\": z.object({}).passthrough(),",
+        "  \"assemble\": z.object({}).passthrough(),",
+        "  \"batch_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"checkpoint\": z.object({}).passthrough(),",
+        "  \"checkpoints\": z.object({}).passthrough(),",
+        "  \"completed\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 10
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 10,
+      "column": 52,
+      "fieldName": "audit",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "export const ACTION_AUTONOMOUS_SCHEMAS: Record<string, z.ZodObject<any>> = {",
+        "  \"analysis\": z.object({}).passthrough(),",
+        "  \"approximately\": z.object({}).passthrough(),",
+        "  \"audit\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"auto_configure\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"auto_dry_run\": z.object({}).passthrough(),",
+        "  \"auto_execute\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 7
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 11,
+      "column": 86,
+      "fieldName": "auto_configure",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"analysis\": z.object({}).passthrough(),",
+        "  \"approximately\": z.object({}).passthrough(),",
+        "  \"audit\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"auto_configure\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"auto_dry_run\": z.object({}).passthrough(),",
+        "  \"auto_execute\": z.object({}).passthrough(),",
+        "  \"auto_pause\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 8
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 15,
+      "column": 62,
+      "fieldName": "auto_plan",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"auto_dry_run\": z.object({}).passthrough(),",
+        "  \"auto_execute\": z.object({}).passthrough(),",
+        "  \"auto_pause\": z.object({}).passthrough(),",
+        "  \"auto_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"auto_resume\": z.object({}).passthrough(),",
+        "  \"auto_status\": z.object({}).passthrough(),",
+        "  \"auto_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),"
+      ],
+      "contextStartLine": 12
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 18,
+      "column": 60,
+      "fieldName": "auto_validate",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"auto_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"auto_resume\": z.object({}).passthrough(),",
+        "  \"auto_status\": z.object({}).passthrough(),",
+        "  \"auto_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"backend\": z.object({}).passthrough(),",
+        "  \"baseline\": z.object({}).passthrough(),",
+        "  \"calculation\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 15
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 25,
+      "column": 62,
+      "fieldName": "collision_check",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"checkpoints\": z.object({}).passthrough(),",
+        "  \"chunk_size\": z.object({}).passthrough(),",
+        "  \"collaboration\": z.object({}).passthrough(),",
+        "  \"collision_check\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"competition\": z.object({}).passthrough(),",
+        "  \"consensus\": z.object({}).passthrough(),",
+        "  \"coolant_flow\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 22
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 32,
+      "column": 94,
+      "fieldName": "enable_anti_regression",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"custom\": z.object({}).passthrough(),",
+        "  \"default_tier\": z.object({}).passthrough(),",
+        "  \"dry_run\": z.object({}).passthrough(),",
+        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
+        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),"
+      ],
+      "contextStartLine": 29
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 33,
+      "column": 88,
+      "fieldName": "enable_audit_log",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"default_tier\": z.object({}).passthrough(),",
+        "  \"dry_run\": z.object({}).passthrough(),",
+        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
+        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"ensemble\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 30
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 33,
+      "column": 138,
+      "fieldName": "enable_audit_log",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"default_tier\": z.object({}).passthrough(),",
+        "  \"dry_run\": z.object({}).passthrough(),",
+        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
+        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"ensemble\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 30
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 34,
+      "column": 89,
+      "fieldName": "enable_ralph_auto",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"dry_run\": z.object({}).passthrough(),",
+        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
+        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"ensemble\": z.object({}).passthrough(),",
+        "  \"execute\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 31
+    },
+    {
+      "file": "mcp-server/src/schemas/autonomousActionSchemas.ts",
+      "line": 35,
+      "column": 96,
+      "fieldName": "enable_safety_escalation",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"enable_anti_regression\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_audit_log\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional(), target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional(), source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
+        "  \"enable_ralph_auto\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"enable_safety_escalation\": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),",
+        "  \"ensemble\": z.object({}).passthrough(),",
+        "  \"execute\": z.object({}).passthrough(),",
+        "  \"extraction\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 32
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 1498,
+      "column": 33,
+      "fieldName": "details",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    \"cycle_time_improved\", \"material_used\",",
+        "    \"operation_used\",",
+        "  ]),",
+        "  details: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "const productivity_summary = z.object({"
+      ],
+      "contextStartLine": 1495
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 1834,
+      "column": 34,
+      "fieldName": "revision",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const portal_quote_view = z.object({",
+        "  quote_id: str.describe(\"Quote ID\"),",
+        "  revision: z.record(z.string(), z.any()).optional().describe(\"Quote revision data\"),",
+        "  status: optStr.describe(\"Quote status\"),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 1831
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 1848,
+      "column": 29,
+      "fieldName": "job",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const portal_order_status = z.object({",
+        "  job_id: str.describe(\"Job ID\"),",
+        "  job: z.record(z.string(), z.any()).optional().describe(\"Job data\"),",
+        "  timeline: z.record(z.string(), z.any()).optional().describe(\"Timeline data\"),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 1845
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 1849,
+      "column": 34,
+      "fieldName": "timeline",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const portal_order_status = z.object({",
+        "  job_id: str.describe(\"Job ID\"),",
+        "  job: z.record(z.string(), z.any()).optional().describe(\"Job data\"),",
+        "  timeline: z.record(z.string(), z.any()).optional().describe(\"Timeline data\"),",
+        "}).passthrough();",
+        "",
+        "const portal_add_quality_doc = z.object({"
+      ],
+      "contextStartLine": 1846
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 2301,
+      "column": 37,
+      "fieldName": "changes",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    }).passthrough().describe(\"Baseline job input\"),",
+        "    scenarios: z.array(z.object({",
+        "      name: str.describe(\"Scenario name\"),",
+        "      changes: z.record(z.string(), z.any()).describe(\"Parameter overrides\"),",
+        "    })).describe(\"What-if scenarios\"),",
+        "  }).passthrough(),",
+        "  // Quote Generation (QuoteEngine)"
+      ],
+      "contextStartLine": 2298
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 2368,
+      "column": 28,
+      "fieldName": "on_hand_tools",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    required_diameter: z.number().positive().describe(\"Required tool diameter in mm\"),",
+        "    required_type: z.string().describe(\"Required tool type (endmill, drill, tap, etc.)\"),",
+        "    material: z.string().describe(\"Workpiece material (ISO group or name)\"),",
+        "    on_hand_tools: z.array(z.any()).optional().describe(\"On-hand tool inventory\"),",
+        "    max_results: z.number().int().positive().optional().describe(\"Max substitutes to return (default 5)\"),",
+        "  }).passthrough(),",
+        "  tool_inv_reorder_list: z.object({"
+      ],
+      "contextStartLine": 2365
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 2372,
+      "column": 28,
+      "fieldName": "on_hand_tools",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    max_results: z.number().int().positive().optional().describe(\"Max substitutes to return (default 5)\"),",
+        "  }).passthrough(),",
+        "  tool_inv_reorder_list: z.object({",
+        "    on_hand_tools: z.array(z.any()).optional().describe(\"On-hand tool inventory\"),",
+        "    min_stock_level: z.number().int().positive().optional().describe(\"Minimum stock level per tool type (default 1)\"),",
+        "    upcoming_jobs: z.array(z.object({",
+        "      job_name: z.string().optional(),"
+      ],
+      "contextStartLine": 2369
+    },
+    {
+      "file": "mcp-server/src/schemas/businessActionSchemas.ts",
+      "line": 2389,
+      "column": 28,
+      "fieldName": "on_hand_tools",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "      jobs_completed: z.number().int().nonnegative().describe(\"Number of jobs completed\"),",
+        "      last_used: z.string().describe(\"ISO date of last usage\"),",
+        "    })).describe(\"Historical tool usage records\"),",
+        "    on_hand_tools: z.array(z.any()).optional().describe(\"On-hand tool inventory\"),",
+        "    max_tools: z.number().int().positive().optional().describe(\"Max tool crib capacity\"),",
+        "    idle_days_threshold: z.number().int().positive().optional().describe(\"Days idle before flagging for retirement (default 90)\"),",
+        "  }).passthrough(),"
+      ],
+      "contextStartLine": 2386
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 46,
+      "column": 13,
+      "fieldName": "geometry",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "",
+        "// ── Feature Actions ───────────────────────────────────────────────────────────",
+        "const featureRecognizeSchema = z.object({",
+        "  geometry: z.any().optional(),",
+        "});",
+        "",
+        "const featureEditSchema = z.object({"
+      ],
+      "contextStartLine": 43
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 51,
+      "column": 27,
+      "fieldName": "modifications",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const featureEditSchema = z.object({",
+        "  feature_id: z.string().optional(),",
+        "  modifications: z.record(z.any()).optional(),",
+        "});",
+        "",
+        "// ── Stock/WCS/DfM Actions ─────────────────────────────────────────────────────"
+      ],
+      "contextStartLine": 48
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 66,
+      "column": 13,
+      "fieldName": "geometry",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "});",
+        "",
+        "const dfmCheckSchema = z.object({",
+        "  geometry: z.any().optional(),",
+        "  process: z.string().optional(),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 63
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 137,
+      "column": 18,
+      "fieldName": "pairs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "});",
+        "",
+        "const cadRegenBatchSchema = z.object({",
+        "  pairs: z.array(z.any()).optional(),",
+        "});",
+        "",
+        "const cadRegenCompareSchema = z.object({"
+      ],
+      "contextStartLine": 134
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 141,
+      "column": 13,
+      "fieldName": "original",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "});",
+        "",
+        "const cadRegenCompareSchema = z.object({",
+        "  original: z.any().optional(),",
+        "  generated: z.any().optional(),",
+        "  thresholds: z.record(z.number()).optional(),",
+        "});"
+      ],
+      "contextStartLine": 138
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 142,
+      "column": 14,
+      "fieldName": "generated",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "",
+        "const cadRegenCompareSchema = z.object({",
+        "  original: z.any().optional(),",
+        "  generated: z.any().optional(),",
+        "  thresholds: z.record(z.number()).optional(),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 139
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 205,
+      "column": 33,
+      "fieldName": "options",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  naca4: z.string().optional().describe(\"Shortcut: 4-digit NACA designator (generates profile on the fly).\"),",
+        "  naca5: z.string().optional().describe(\"Shortcut: 5-digit NACA designator (generates profile on the fly).\"),",
+        "  uiucDat: z.string().optional().describe(\"Shortcut: raw UIUC Selig .dat content (parses on the fly).\"),",
+        "  options: z.record(z.string(), z.any()).optional().describe(\"Options forwarded to NACAAirfoilEngine when using naca4/naca5 shortcut.\"),",
+        "  chord: z.number().optional().describe(\"Chord scaling for uiucDat shortcut.\"),",
+        "  // Passthrough for a full AirfoilProfile",
+        "  name: z.string().optional(),"
+      ],
+      "contextStartLine": 202
+    },
+    {
+      "file": "mcp-server/src/schemas/cadActionSchemas.ts",
+      "line": 247,
+      "column": 14,
+      "fieldName": "profile",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "    twistRad: z.number().optional(),",
+        "    sweepOffset: z.number().optional(),",
+        "    dihedralOffset: z.number().optional(),",
+        "    profile: z.any().optional(),",
+        "  })).describe(\"Ordered spanwise sections (root→tip). Must have ≥2 entries.\"),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 244
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutoCADSchema.ts",
+      "line": 390,
+      "column": 30,
+      "fieldName": "args",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "export const AcadCallLogEntrySchema = z.object({",
+        "  command: z.enum(ACAD_COMMANDS),",
+        "  args: z.record(z.string(), z.any()),",
+        "  ok: z.boolean(),",
+        "  error: z.string().optional(),",
+        "  durationMs: z.number().nonnegative(),"
+      ],
+      "contextStartLine": 387
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
+      "line": 144,
+      "column": 26,
+      "fieldName": "lineage",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "          )",
+        "          .optional()",
+        "          .describe(\"Parameters array-of-[key, value] (Map serialization).\"),",
+        "        lineage: z.array(z.any()).optional(),",
+        "        warnings: z.array(z.any()).optional(),",
+        "      })",
+        "      .passthrough(),"
+      ],
+      "contextStartLine": 141
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
+      "line": 145,
+      "column": 27,
+      "fieldName": "warnings",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "          .optional()",
+        "          .describe(\"Parameters array-of-[key, value] (Map serialization).\"),",
+        "        lineage: z.array(z.any()).optional(),",
+        "        warnings: z.array(z.any()).optional(),",
+        "      })",
+        "      .passthrough(),",
+        "  })"
+      ],
+      "contextStartLine": 142
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
+      "line": 304,
+      "column": 13,
+      "fieldName": "intent",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "const assemblyComponentSource = z.union([",
+        "  z.object({",
+        "    kind: z.literal(\"complex_part\"),",
+        "    intent: z.any(), // ComplexPartIntent — shape mirrors plan_complex_part.intent",
+        "  }),",
+        "  z.object({",
+        "    kind: z.literal(\"import\"),"
+      ],
+      "contextStartLine": 301
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
+      "line": 390,
+      "column": 17,
+      "fieldName": "intent",
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "    intent: z",
+        "      .object({",
+        "        tier: z.enum([\"op\", \"part\", \"assembly\"]),",
+        "        intent: z.any(),",
+        "      })",
+        "      .passthrough(),",
+        "    options: z"
+      ],
+      "contextStartLine": 387
+    },
+    {
+      "file": "mcp-server/src/schemas/cadAutomationActionSchemas.ts",
+      "line": 458,
+      "column": 14,
+      "fieldName": "payload",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      \"pause\",",
+        "      \"resume\",",
+        "    ]),",
+        "    payload: z.any().optional(),",
+        "  })",
+        "  .passthrough();",
+        ""
+      ],
+      "contextStartLine": 455
+    },
+    {
+      "file": "mcp-server/src/schemas/cadDrawingKnowledgeActionSchemas.ts",
+      "line": 13,
+      "column": 95,
+      "fieldName": null,
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "const cad_design_datums = z.object({ part_type: z.string(), primary_feature: z.string().optional(), functional_requirements: z.array(z.string()).optional() }).passthrough();",
+        "const cad_plan_drawing = z.object({ part_type: z.string(), complexity: z.string().optional(), has_internal_features: z.boolean().optional(), has_threads: z.boolean().optional(), max_dimension_mm: z.number().optional() }).passthrough();",
+        "const cad_modeling_rules = z.object({}).passthrough();",
+        "const cad_dfm_check = z.object({ processes: z.array(z.string()).optional(), features: z.array(z.any()).optional() }).passthrough();",
+        "const cad_get_dfm_rules = z.object({}).passthrough();",
+        "const cad_select_fit = z.object({ application: z.string(), size_range_mm: z.number().optional() }).passthrough();",
+        "const cad_get_fits = z.object({}).passthrough();"
+      ],
+      "contextStartLine": 10
+    },
+    {
+      "file": "mcp-server/src/schemas/cadOnshapeSchema.ts",
+      "line": 193,
+      "column": 36,
+      "fieldName": "parameters",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    status: z.enum([\"OK\", \"ERROR\", \"WARNING\", \"INFO\"]),",
+        "    message: z.string().optional(),",
+        "  }),",
+        "  parameters: z.record(z.string(), z.any()).optional(),",
+        "  rollbackIndex: z.number().int().nonnegative().optional(),",
+        "});",
+        "export type OnshapeFeature = z.infer<typeof OnshapeFeatureSchema>;"
+      ],
+      "contextStartLine": 190
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 68,
+      "column": 11,
+      "fieldName": "data",
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "unknown_value",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "    batchId: z.string().min(1),",
+        "    fileId: z.string().min(1),",
+        "    kind: z.enum([\"expected_step\", \"actual_step\", \"diff_png\", \"error_log\"]),",
+        "    data: z.any(),",
+        "    root: z.string().optional(),",
+        "  })",
+        "  .passthrough();"
+      ],
+      "contextStartLine": 65
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 118,
+      "column": 23,
+      "fieldName": null,
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "",
+        "// ── CINF11 CADRegressionReportGeneratorEngine ────────────────────────────────",
+        "const cad_regression_report_snapshot = z",
+        "  .object({ snapshot: z.any() })",
+        "  .passthrough();",
+        "const cad_regression_report_diff = z",
+        "  .object({ diff: z.any(), rowLimit: z.number().int().positive().optional() })"
+      ],
+      "contextStartLine": 115
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 121,
+      "column": 19,
+      "fieldName": null,
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "  .object({ snapshot: z.any() })",
+        "  .passthrough();",
+        "const cad_regression_report_diff = z",
+        "  .object({ diff: z.any(), rowLimit: z.number().int().positive().optional() })",
+        "  .passthrough();",
+        "const cad_regression_report_trend = z",
+        "  .object({ trend: z.any() })"
+      ],
+      "contextStartLine": 118
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 124,
+      "column": 20,
+      "fieldName": null,
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "  .object({ diff: z.any(), rowLimit: z.number().int().positive().optional() })",
+        "  .passthrough();",
+        "const cad_regression_report_trend = z",
+        "  .object({ trend: z.any() })",
+        "  .passthrough();",
+        "const cad_regression_report_hotspots = z",
+        "  .object({ hotspots: z.any() })"
+      ],
+      "contextStartLine": 121
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 127,
+      "column": 23,
+      "fieldName": null,
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "  .object({ trend: z.any() })",
+        "  .passthrough();",
+        "const cad_regression_report_hotspots = z",
+        "  .object({ hotspots: z.any() })",
+        "  .passthrough();",
+        "const cad_regression_report_summary = z",
+        "  .object({"
+      ],
+      "contextStartLine": 124
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 131,
+      "column": 15,
+      "fieldName": "snapshot",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "  .passthrough();",
+        "const cad_regression_report_summary = z",
+        "  .object({",
+        "    snapshot: z.any().optional(),",
+        "    diff: z.any().optional(),",
+        "    trend: z.any().optional(),",
+        "    hotspots: z.any().optional(),"
+      ],
+      "contextStartLine": 128
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 132,
+      "column": 11,
+      "fieldName": "diff",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "const cad_regression_report_summary = z",
+        "  .object({",
+        "    snapshot: z.any().optional(),",
+        "    diff: z.any().optional(),",
+        "    trend: z.any().optional(),",
+        "    hotspots: z.any().optional(),",
+        "    rowLimit: z.number().int().positive().optional(),"
+      ],
+      "contextStartLine": 129
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 133,
+      "column": 12,
+      "fieldName": "trend",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "  .object({",
+        "    snapshot: z.any().optional(),",
+        "    diff: z.any().optional(),",
+        "    trend: z.any().optional(),",
+        "    hotspots: z.any().optional(),",
+        "    rowLimit: z.number().int().positive().optional(),",
+        "  })"
+      ],
+      "contextStartLine": 130
+    },
+    {
+      "file": "mcp-server/src/schemas/cadRegressionActionSchemas.ts",
+      "line": 134,
+      "column": 15,
+      "fieldName": "hotspots",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "    snapshot: z.any().optional(),",
+        "    diff: z.any().optional(),",
+        "    trend: z.any().optional(),",
+        "    hotspots: z.any().optional(),",
+        "    rowLimit: z.number().int().positive().optional(),",
+        "  })",
+        "  .passthrough();"
+      ],
+      "contextStartLine": 131
+    },
+    {
+      "file": "mcp-server/src/schemas/camActionSchemas.ts",
+      "line": 30,
+      "column": 39,
+      "fieldName": "constraints",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  lathe_masterpost_deep_explain: z.object({",
+        "    machineId: z.string().describe(\"Target machine ID\"),",
+        "    operation: z.string().optional().describe(\"Operation type (turning, boring, threading, etc.)\"),",
+        "    constraints: z.record(z.string(), z.any()).optional().describe(\"Additional constraints\"),",
+        "  }),",
+        "  lathe_masterpost_deep_causal: z.object({",
+        "    machineId: z.string().describe(\"Machine ID for causal inference\"),"
+      ],
+      "contextStartLine": 27
+    },
+    {
+      "file": "mcp-server/src/schemas/camActionSchemas.ts",
+      "line": 224,
+      "column": 25,
+      "fieldName": "operations",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  /** Auto-route to correct master post engine by machine model */",
+        "  master_post_by_machine: z.object({",
+        "    machine_model: z.string().describe(\"Machine model identifier (e.g., 'HURCO_VMX24', 'OKUMA_LB250', 'MITSUBISHI_MV1200R')\"),",
+        "    operations: z.array(z.any()).min(1).describe(\"Operations array (schema validated by routed engine)\"),",
+        "    config: z.record(z.string(), z.any()).optional().describe(\"Config object (schema validated by routed engine)\"),",
+        "  }),",
+        "};"
+      ],
+      "contextStartLine": 221
+    },
+    {
+      "file": "mcp-server/src/schemas/camActionSchemas.ts",
+      "line": 225,
+      "column": 34,
+      "fieldName": "config",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  master_post_by_machine: z.object({",
+        "    machine_model: z.string().describe(\"Machine model identifier (e.g., 'HURCO_VMX24', 'OKUMA_LB250', 'MITSUBISHI_MV1200R')\"),",
+        "    operations: z.array(z.any()).min(1).describe(\"Operations array (schema validated by routed engine)\"),",
+        "    config: z.record(z.string(), z.any()).optional().describe(\"Config object (schema validated by routed engine)\"),",
+        "  }),",
+        "};",
+        ""
+      ],
+      "contextStartLine": 222
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 11,
+      "column": 59,
+      "fieldName": "cam_validate",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"balanced\": z.object({}).passthrough(),",
+        "  \"bar_stock_analyze\": z.object({}).passthrough(),",
+        "  \"bar_stock_chatter\": z.object({}).passthrough(),",
+        "  \"cam_validate\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"clothoid_blend\": z.object({}).passthrough(),",
+        "  \"contact_full_integrity\": z.object({}).passthrough(),",
+        "  \"contact_hertz\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 8
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 21,
+      "column": 65,
+      "fieldName": "fixture_plan",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"dfm_analyze\": z.object({}).passthrough(),",
+        "  \"dfm_feedback\": z.object({}).passthrough(),",
+        "  \"distortion_predict\": z.object({}).passthrough(),",
+        "  \"fixture_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"function\": z.object({}).passthrough(),",
+        "  \"gcode_diff\": z.object({}).passthrough(),",
+        "  \"gdt_propagate\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 18
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 30,
+      "column": 70,
+      "fieldName": "minimum_jerk_plan",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"inverse_thermal_compensate\": z.object({}).passthrough(),",
+        "  \"inverse_thermal_warmup\": z.object({}).passthrough(),",
+        "  \"learning_corrections\": z.object({}).passthrough(),",
+        "  \"minimum_jerk_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"minimum_jerk_segment\": z.object({}).passthrough(),",
+        "  \"multi_body_frf\": z.object({}).passthrough(),",
+        "  \"multi_body_stability\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 27
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 36,
+      "column": 100,
+      "fieldName": "parallel_optimize",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"multi_body_stability\": z.object({}).passthrough(),",
+        "  \"nl_cam_command\": z.object({}).passthrough(),",
+        "  \"output_variants\": z.object({}).passthrough(),",
+        "  \"parallel_optimize\": z.object({ target: z.string().optional(), constraints: z.record(z.string(), z.any()).optional(), objective: z.string().optional() }).passthrough(),",
+        "  \"parse_dxf\": z.object({}).passthrough(),",
+        "  \"parse_svg\": z.object({}).passthrough(),",
+        "  \"ph_constant_feed\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 33
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 44,
+      "column": 64,
+      "fieldName": "rotary_axis_check",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"pipeline_calibration\": z.object({}).passthrough(),",
+        "  \"pipeline_record_predictions\": z.object({ source: z.string().optional(), interval_ms: z.number().optional() }).passthrough(),",
+        "  \"pipeline_submit_actuals\": z.object({}).passthrough(),",
+        "  \"rotary_axis_check\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"route_features\": z.object({}).passthrough(),",
+        "  \"servo_lag_compensate\": z.object({}).passthrough(),",
+        "  \"stochastic_pareto\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 41
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 48,
+      "column": 108,
+      "fieldName": "stochastic_route_optimize",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"route_features\": z.object({}).passthrough(),",
+        "  \"servo_lag_compensate\": z.object({}).passthrough(),",
+        "  \"stochastic_pareto\": z.object({}).passthrough(),",
+        "  \"stochastic_route_optimize\": z.object({ target: z.string().optional(), constraints: z.record(z.string(), z.any()).optional(), objective: z.string().optional() }).passthrough(),",
+        "  \"thermal_field_route\": z.object({}).passthrough(),",
+        "  \"thermal_field_simulate\": z.object({ material: z.string().optional(), temperature: z.number().optional(), heat_source: z.string().optional() }).passthrough(),",
+        "  \"tolerance_driven_params\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 45
+    },
+    {
+      "file": "mcp-server/src/schemas/cplActionSchemas.ts",
+      "line": 52,
+      "column": 63,
+      "fieldName": "tolerance_verify",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"thermal_field_route\": z.object({}).passthrough(),",
+        "  \"thermal_field_simulate\": z.object({ material: z.string().optional(), temperature: z.number().optional(), heat_source: z.string().optional() }).passthrough(),",
+        "  \"tolerance_driven_params\": z.object({}).passthrough(),",
+        "  \"tolerance_verify\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"trochoidal_variable_depth\": z.object({}).passthrough(),",
+        "  \"turning_profile\": z.object({}).passthrough(),",
+        "  \"voronoi_engagement\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 49
+    },
+    {
+      "file": "mcp-server/src/schemas/devActionSchemas.ts",
+      "line": 30,
+      "column": 34,
+      "fieldName": "inputs",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  // Tool call parallelization",
+        "  tool_call_record: z.object({",
+        "    tool: z.string().describe(\"Tool name (Read|Write|Edit|Glob|Grep|Bash|Agent|Other)\"),",
+        "    inputs: z.record(z.string(), z.any()).optional().describe(\"Tool input parameters\"),",
+        "    in_parallel_batch: z.boolean().optional().describe(\"Was this part of a parallel batch?\"),",
+        "    token_cost: z.number().optional().describe(\"Token cost estimate for this call\"),",
+        "  }),"
+      ],
+      "contextStartLine": 27
+    },
+    {
+      "file": "mcp-server/src/schemas/devActionSchemas.ts",
+      "line": 160,
+      "column": 43,
+      "fieldName": "preconditions",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    plan: z.object({",
+        "      planId: z.string().min(1).describe(\"Identifier of the plan being checked\"),",
+        "      createdAt: z.number().describe(\"Epoch ms when the plan was created\"),",
+        "      preconditions: z.record(z.string(), z.any()).describe(\"Facts that must hold for the plan to be valid\"),",
+        "      deadlines: z.record(z.string(), z.number()).optional().describe(\"Per-task deadline epoch ms\"),",
+        "      resources: z.array(z.string()).optional().describe(\"Named resources the plan depends on\"),",
+        "      assumptions: z.record(z.string(), z.any()).optional().describe(\"Soft assumptions that trigger patch-replan if violated\"),"
+      ],
+      "contextStartLine": 157
+    },
+    {
+      "file": "mcp-server/src/schemas/devActionSchemas.ts",
+      "line": 163,
+      "column": 41,
+      "fieldName": "assumptions",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      preconditions: z.record(z.string(), z.any()).describe(\"Facts that must hold for the plan to be valid\"),",
+        "      deadlines: z.record(z.string(), z.number()).optional().describe(\"Per-task deadline epoch ms\"),",
+        "      resources: z.array(z.string()).optional().describe(\"Named resources the plan depends on\"),",
+        "      assumptions: z.record(z.string(), z.any()).optional().describe(\"Soft assumptions that trigger patch-replan if violated\"),",
+        "    }),",
+        "    currentState: z.record(z.string(), z.any()).describe(\"Observed facts for precondition + assumption comparison\"),",
+        "    currentTime: z.number().optional(),"
+      ],
+      "contextStartLine": 160
+    },
+    {
+      "file": "mcp-server/src/schemas/devActionSchemas.ts",
+      "line": 165,
+      "column": 40,
+      "fieldName": "currentState",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      resources: z.array(z.string()).optional().describe(\"Named resources the plan depends on\"),",
+        "      assumptions: z.record(z.string(), z.any()).optional().describe(\"Soft assumptions that trigger patch-replan if violated\"),",
+        "    }),",
+        "    currentState: z.record(z.string(), z.any()).describe(\"Observed facts for precondition + assumption comparison\"),",
+        "    currentTime: z.number().optional(),",
+        "    lostResources: z.array(z.string()).optional(),",
+        "    externalEvents: z.array(z.string()).optional(),"
+      ],
+      "contextStartLine": 162
+    },
+    {
+      "file": "mcp-server/src/schemas/devActionSchemas.ts",
+      "line": 177,
+      "column": 11,
+      "fieldName": "data",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "unknown_value",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "  // (registerMigration/migrate/rollback NOT dispatched — they require runtime-registered callables)",
+        "  schema_snapshot: z.object({",
+        "    target: z.string().min(1).describe(\"State file or component identifier\"),",
+        "    data: z.any().describe(\"State payload to snapshot (JSON-serializable)\"),",
+        "    version: z.number().int().describe(\"Schema version the data conforms to\"),",
+        "    label: z.string().optional().describe(\"Optional human-readable label\"),",
+        "  }),"
+      ],
+      "contextStartLine": 174
+    },
+    {
+      "file": "mcp-server/src/schemas/diagnosisActionSchemas.ts",
+      "line": 387,
+      "column": 41,
+      "fieldName": "original_params",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  actionPath: z.string().optional().describe(\"Alias for action_path\"),",
+        "  error_code: z.string().optional().describe(\"Machine-readable error code from the engine\"),",
+        "  errorCode: z.string().optional().describe(\"Alias for error_code\"),",
+        "  original_params: z.record(z.string(), z.any()).optional().describe(\"Original input params\"),",
+        "  originalParams: z.record(z.string(), z.any()).optional().describe(\"Alias for original_params\"),",
+        "  response_level,",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 384
+    },
+    {
+      "file": "mcp-server/src/schemas/diagnosisActionSchemas.ts",
+      "line": 388,
+      "column": 40,
+      "fieldName": "originalParams",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  error_code: z.string().optional().describe(\"Machine-readable error code from the engine\"),",
+        "  errorCode: z.string().optional().describe(\"Alias for error_code\"),",
+        "  original_params: z.record(z.string(), z.any()).optional().describe(\"Original input params\"),",
+        "  originalParams: z.record(z.string(), z.any()).optional().describe(\"Alias for original_params\"),",
+        "  response_level,",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 385
+    },
+    {
+      "file": "mcp-server/src/schemas/diagnosisActionSchemas.ts",
+      "line": 394,
+      "column": 41,
+      "fieldName": "original_params",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "/** error_remediation_apply — Apply suggested adjustments to params */",
+        "const error_remediation_apply = z.object({",
+        "  original_params: z.record(z.string(), z.any()).optional().describe(\"Original input params to adjust\"),",
+        "  originalParams: z.record(z.string(), z.any()).optional().describe(\"Alias for original_params\"),",
+        "  adjustments: z.record(z.string(), z.any()).optional().describe(\"Adjustments map from a suggestion\"),",
+        "  response_level,"
+      ],
+      "contextStartLine": 391
+    },
+    {
+      "file": "mcp-server/src/schemas/diagnosisActionSchemas.ts",
+      "line": 395,
+      "column": 40,
+      "fieldName": "originalParams",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "/** error_remediation_apply — Apply suggested adjustments to params */",
+        "const error_remediation_apply = z.object({",
+        "  original_params: z.record(z.string(), z.any()).optional().describe(\"Original input params to adjust\"),",
+        "  originalParams: z.record(z.string(), z.any()).optional().describe(\"Alias for original_params\"),",
+        "  adjustments: z.record(z.string(), z.any()).optional().describe(\"Adjustments map from a suggestion\"),",
+        "  response_level,",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 392
+    },
+    {
+      "file": "mcp-server/src/schemas/diagnosisActionSchemas.ts",
+      "line": 396,
+      "column": 37,
+      "fieldName": "adjustments",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const error_remediation_apply = z.object({",
+        "  original_params: z.record(z.string(), z.any()).optional().describe(\"Original input params to adjust\"),",
+        "  originalParams: z.record(z.string(), z.any()).optional().describe(\"Alias for original_params\"),",
+        "  adjustments: z.record(z.string(), z.any()).optional().describe(\"Adjustments map from a suggestion\"),",
+        "  response_level,",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 393
+    },
+    {
+      "file": "mcp-server/src/schemas/hookActionSchemas.ts",
+      "line": 186,
+      "column": 34,
+      "fieldName": "metadata",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const extraction_enforce = z.object({",
+        "  operation: z.string().optional().describe(\"Operation to check (build, commit, deploy)\"),",
+        "  phase: z.string().optional().describe(\"Phase (pre, post)\"),",
+        "  metadata: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "/** extraction_enforce_check — Dry-run enforcement check */"
+      ],
+      "contextStartLine": 183
+    },
+    {
+      "file": "mcp-server/src/schemas/integrationActionSchemas.ts",
+      "line": 317,
+      "column": 28,
+      "fieldName": "optimized_steps",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    tools: optStr,",
+        "    notes: optStr,",
+        "  })).optional(),",
+        "  optimized_steps: z.array(z.any()).optional(),",
+        "  timeout_ms: optNum,",
+        "  company_id: optStr,",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 314
+    },
+    {
+      "file": "mcp-server/src/schemas/intelligenceActionSchemas.ts",
+      "line": 468,
+      "column": 107,
+      "fieldName": null,
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "",
+        "// AutonomousAIOrchestrationEngine (11)",
+        "const ai_orchestrate_autonomous = z.object({ intent: z.string().describe(\"Intent to execute\"), mode: z.enum([\"full_auto\",\"supervised\",\"advisory\",\"learning\"]).optional() }).passthrough().describe(\"Execute autonomous AI orchestration\");",
+        "const ai_select_skills = z.object({ intent: z.string().describe(\"Intent for skill selection\"), reasoning: z.any().optional() }).passthrough().describe(\"Select skill chain for intent\");",
+        "const ai_select_algorithms = z.object({ intent: z.string().describe(\"Intent for algorithm selection\") }).passthrough().describe(\"Select algorithms for intent\");",
+        "const ai_select_formulas = z.object({ intent: z.string().describe(\"Intent for formula selection\") }).passthrough().describe(\"Select formulas for intent\");",
+        "const ai_knowledge_plan = z.object({ intent: z.string().describe(\"Intent for knowledge planning\") }).passthrough().describe(\"Plan knowledge utilization\");"
+      ],
+      "contextStartLine": 465
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "line": 195,
+      "column": 34,
+      "fieldName": "metadata",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  text: z.string().optional().describe(\"Alias for content\"),",
+        "  source: optStr.describe(\"Source attribution (e.g., 'Facebook/mr.cnc2', 'Haas YouTube')\"),",
+        "  title: optStr.describe(\"Optional title for the tip\"),",
+        "  metadata: z.record(z.string(), z.any()).optional().describe(\"Additional metadata\"),",
+        "}).passthrough();",
+        "",
+        "const learn_ingest_video = z.object({"
+      ],
+      "contextStartLine": 192
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "line": 202,
+      "column": 34,
+      "fieldName": "metadata",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  file_path: z.string().min(1).describe(\"Path to video file (MP4, MKV, MOV)\"),",
+        "  content: z.string().optional().describe(\"Alias for file_path\"),",
+        "  source: optStr.describe(\"Source attribution\"),",
+        "  metadata: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "const learn_ingest_document = z.object({"
+      ],
+      "contextStartLine": 199
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "line": 209,
+      "column": 34,
+      "fieldName": "metadata",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  file_path: z.string().min(1).describe(\"Path to document file (PDF, TXT, MD)\"),",
+        "  content: z.string().optional().describe(\"Alias for file_path\"),",
+        "  source: optStr.describe(\"Source attribution\"),",
+        "  metadata: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "const learn_ingest_url = z.object({"
+      ],
+      "contextStartLine": 206
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "line": 216,
+      "column": 34,
+      "fieldName": "metadata",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  url: z.string().min(1).describe(\"URL to fetch and ingest\"),",
+        "  content: z.string().optional().describe(\"Alias for url\"),",
+        "  source: optStr.describe(\"Source attribution\"),",
+        "  metadata: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "const learn_auto_tag = z.object({"
+      ],
+      "contextStartLine": 213
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "line": 286,
+      "column": 38,
+      "fieldName": "parameters",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  actions: z.array(z.object({",
+        "    action_type: z.string().describe(\"CAD action type (extrude, fillet, sketch_line, etc.)\"),",
+        "    step_number: z.number().int().describe(\"Step number in sequence\"),",
+        "    parameters: z.record(z.string(), z.any()).optional().describe(\"Action parameters\"),",
+        "    confidence: z.number().min(0).max(1).optional().describe(\"Extraction confidence (0-1)\"),",
+        "  })).min(1).describe(\"Extracted actions from video to review\"),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 283
+    },
+    {
+      "file": "mcp-server/src/schemas/knowledgeActionSchemas.ts",
+      "line": 297,
+      "column": 38,
+      "fieldName": "parameters",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  action: z.enum([\"confirm\", \"correct\", \"skip\"]).describe(\"What to do with this step\"),",
+        "  correction: z.object({",
+        "    action_type: z.string().optional().describe(\"Corrected action type\"),",
+        "    parameters: z.record(z.string(), z.any()).optional().describe(\"Corrected parameters\"),",
+        "    confidence: z.number().min(0).max(1).optional().describe(\"Corrected confidence\"),",
+        "  }).optional().describe(\"Correction data (required when action=correct)\"),",
+        "  reason: optStr.describe(\"Reason for skip or correction\"),"
+      ],
+      "contextStartLine": 294
+    },
+    {
+      "file": "mcp-server/src/schemas/machiningKnowledgeBaseActionSchemas.ts",
+      "line": 51,
+      "column": 56,
+      "fieldName": "kb_optimize_hole_sequence",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  kb_get_lathe_strategy: z.object({ iso_group: isoGroupZ }).passthrough(),",
+        "  kb_get_all_lathe_strategies: z.object({}).passthrough(),",
+        "  kb_get_vtl_rules: z.object({}).passthrough(),",
+        "  kb_optimize_hole_sequence: z.object({ holes: z.array(z.any()).optional(), machine_power_kW: z.number().optional(), spindle_max_torque_Nm: z.number().optional(), iso_group: isoGroupZ, part_length_mm: z.number().optional() }).passthrough(),",
+        "};",
+        ""
+      ],
+      "contextStartLine": 48
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 597,
+      "column": 35,
+      "fieldName": "context",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      ])",
+        "      .describe(\"Which AI/ML sub-engine to route to.\"),",
+        "    intent: z.string().optional().describe(\"Natural-language intent (for ai_reasoning).\"),",
+        "    context: z.record(z.string(), z.any()).optional().describe(\"Domain context.\"),",
+        "    dataset_id: z.string().optional().describe(\"Dataset identifier (for pattern_mine, rl_train).\"),",
+        "    episode_count: z.number().int().nonnegative().optional().describe(\"RL training episodes.\"),",
+        "    reward: z.number().optional().describe(\"RL reward signal.\"),"
+      ],
+      "contextStartLine": 594
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 602,
+      "column": 36,
+      "fieldName": "features",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    episode_count: z.number().int().nonnegative().optional().describe(\"RL training episodes.\"),",
+        "    reward: z.number().optional().describe(\"RL reward signal.\"),",
+        "    query: z.string().optional().describe(\"Query string (for strategy_lookup, reasoning_trace).\"),",
+        "    features: z.record(z.string(), z.any()).optional().describe(\"Feature vector for prediction.\"),",
+        "    model_id: z.string().optional().describe(\"Model identifier.\"),",
+        "  })",
+        "  .passthrough();"
+      ],
+      "contextStartLine": 599
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 616,
+      "column": 41,
+      "fieldName": "part_geometry",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      .enum([\"integrex\", \"swiss\", \"lb_series\", \"ctx\", \"wt_series\", \"generic\"])",
+        "      .optional()",
+        "      .describe(\"Mill-turn machine class.\"),",
+        "    part_geometry: z.record(z.string(), z.any()).optional().describe(\"Part geometry description.\"),",
+        "    operations: z.array(z.record(z.string(), z.any())).optional().describe(\"Operation list.\"),",
+        "    bar_diameter_mm: z.number().positive().optional().describe(\"Bar stock diameter in mm.\"),",
+        "    bar_length_mm: z.number().positive().optional().describe(\"Bar stock length in mm.\"),"
+      ],
+      "contextStartLine": 613
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 617,
+      "column": 46,
+      "fieldName": "operations",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      .optional()",
+        "      .describe(\"Mill-turn machine class.\"),",
+        "    part_geometry: z.record(z.string(), z.any()).optional().describe(\"Part geometry description.\"),",
+        "    operations: z.array(z.record(z.string(), z.any())).optional().describe(\"Operation list.\"),",
+        "    bar_diameter_mm: z.number().positive().optional().describe(\"Bar stock diameter in mm.\"),",
+        "    bar_length_mm: z.number().positive().optional().describe(\"Bar stock length in mm.\"),",
+        "    sub_spindle_enabled: z.boolean().optional().describe(\"Sub-spindle transfer enabled.\"),"
+      ],
+      "contextStartLine": 614
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 646,
+      "column": 32,
+      "fieldName": "part",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      .enum([\"head_head\", \"head_table\", \"table_table\", \"gantry\", \"generic\"])",
+        "      .optional()",
+        "      .describe(\"5-axis kinematics configuration.\"),",
+        "    part: z.record(z.string(), z.any()).optional().describe(\"Part definition.\"),",
+        "    tool: z.record(z.string(), z.any()).optional().describe(\"Tool definition.\"),",
+        "    lead_angle_deg: z.number().optional().describe(\"Lead angle in degrees.\"),",
+        "    tilt_angle_deg: z.number().optional().describe(\"Tilt angle in degrees.\"),"
+      ],
+      "contextStartLine": 643
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 647,
+      "column": 32,
+      "fieldName": "tool",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      .optional()",
+        "      .describe(\"5-axis kinematics configuration.\"),",
+        "    part: z.record(z.string(), z.any()).optional().describe(\"Part definition.\"),",
+        "    tool: z.record(z.string(), z.any()).optional().describe(\"Tool definition.\"),",
+        "    lead_angle_deg: z.number().optional().describe(\"Lead angle in degrees.\"),",
+        "    tilt_angle_deg: z.number().optional().describe(\"Tilt angle in degrees.\"),",
+        "    tool_axis: z.tuple([z.number(), z.number(), z.number()]).optional().describe(\"Tool axis vector [i, j, k].\"),"
+      ],
+      "contextStartLine": 644
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 675,
+      "column": 32,
+      "fieldName": "part",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      })",
+        "      .optional()",
+        "      .describe(\"Target TCP pose (for IK).\"),",
+        "    part: z.record(z.string(), z.any()).optional().describe(\"Part definition.\"),",
+        "    machine: z.record(z.string(), z.any()).optional().describe(\"Machine configuration.\"),",
+        "  })",
+        "  .passthrough();"
+      ],
+      "contextStartLine": 672
+    },
+    {
+      "file": "mcp-server/src/schemas/millActionSchemas.ts",
+      "line": 676,
+      "column": 35,
+      "fieldName": "machine",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "      .optional()",
+        "      .describe(\"Target TCP pose (for IK).\"),",
+        "    part: z.record(z.string(), z.any()).optional().describe(\"Part definition.\"),",
+        "    machine: z.record(z.string(), z.any()).optional().describe(\"Machine configuration.\"),",
+        "  })",
+        "  .passthrough();",
+        ""
+      ],
+      "contextStartLine": 673
+    },
+    {
+      "file": "mcp-server/src/schemas/mlActionSchemas.ts",
+      "line": 877,
+      "column": 32,
+      "fieldName": "params",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "export const mlActionSchema = z.object({",
+        "  action: z.enum(ML_ACTIONS).describe(\"ML pipeline action\"),",
+        "  params: z.record(z.string(), z.any()).optional().describe(\"Action parameters\"),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 874
+    },
+    {
+      "file": "mcp-server/src/schemas/monitoringActionSchemas.ts",
+      "line": 20,
+      "column": 37,
+      "fieldName": null,
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const optStr = z.string().optional();",
+        "const optNum = z.number().optional();",
+        "const optObj = z.record(z.string(), z.any()).optional();",
+        "",
+        "const metricSample = z.object({",
+        "  name: z.string().min(1),"
+      ],
+      "contextStartLine": 17
+    },
+    {
+      "file": "mcp-server/src/schemas/monitoringActionSchemas.ts",
+      "line": 96,
+      "column": 42,
+      "fieldName": "simulationResult",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "}).passthrough();",
+        "",
+        "const grafana_export_simulation = z.object({",
+        "  simulationResult: z.record(z.string(), z.any()),",
+        "  machine: optStr,",
+        "  program: optStr,",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 93
+    },
+    {
+      "file": "mcp-server/src/schemas/monitoringActionSchemas.ts",
+      "line": 102,
+      "column": 35,
+      "fieldName": "spcResult",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "}).passthrough();",
+        "",
+        "const grafana_export_spc = z.object({",
+        "  spcResult: z.record(z.string(), z.any()),",
+        "  operation: optStr,",
+        "  characteristic: optStr,",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 99
+    },
+    {
+      "file": "mcp-server/src/schemas/monitoringActionSchemas.ts",
+      "line": 108,
+      "column": 40,
+      "fieldName": "toolLifeResult",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "}).passthrough();",
+        "",
+        "const grafana_export_tool_life = z.object({",
+        "  toolLifeResult: z.record(z.string(), z.any()),",
+        "  tool_id: optStr,",
+        "  material: optStr,",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 105
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 20,
+      "column": 34,
+      "fieldName": "geometry",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const rest_analyze = z.object({",
+        "  geometry: z.record(z.string(), z.any()).optional(),",
+        "  previous_tool: z.record(z.string(), z.any()).optional(),",
+        "  new_tool: z.record(z.string(), z.any()).optional(),",
+        "  material: z.string().optional(),"
+      ],
+      "contextStartLine": 17
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 21,
+      "column": 39,
+      "fieldName": "previous_tool",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const rest_analyze = z.object({",
+        "  geometry: z.record(z.string(), z.any()).optional(),",
+        "  previous_tool: z.record(z.string(), z.any()).optional(),",
+        "  new_tool: z.record(z.string(), z.any()).optional(),",
+        "  material: z.string().optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 18
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 22,
+      "column": 34,
+      "fieldName": "new_tool",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const rest_analyze = z.object({",
+        "  geometry: z.record(z.string(), z.any()).optional(),",
+        "  previous_tool: z.record(z.string(), z.any()).optional(),",
+        "  new_tool: z.record(z.string(), z.any()).optional(),",
+        "  material: z.string().optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 19
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 31,
+      "column": 34,
+      "fieldName": "geometry",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const rest_quick_check = z.object({",
+        "  geometry: z.record(z.string(), z.any()).optional(),",
+        "  previous_tool: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 28
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 32,
+      "column": 39,
+      "fieldName": "previous_tool",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const rest_quick_check = z.object({",
+        "  geometry: z.record(z.string(), z.any()).optional(),",
+        "  previous_tool: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 29
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 40,
+      "column": 44,
+      "fieldName": "operations",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const operation_sequence = z.object({",
+        "  operations: z.array(z.record(z.string(), z.any())).optional(),",
+        "  constraints: z.record(z.string(), z.any()).optional(),",
+        "  material: z.string().optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 37
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 41,
+      "column": 37,
+      "fieldName": "constraints",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const operation_sequence = z.object({",
+        "  operations: z.array(z.record(z.string(), z.any())).optional(),",
+        "  constraints: z.record(z.string(), z.any()).optional(),",
+        "  material: z.string().optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 38
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 50,
+      "column": 33,
+      "fieldName": "from_op",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const transition_plan = z.object({",
+        "  from_op: z.record(z.string(), z.any()).optional(),",
+        "  to_op: z.record(z.string(), z.any()).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 47
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 51,
+      "column": 31,
+      "fieldName": "to_op",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const transition_plan = z.object({",
+        "  from_op: z.record(z.string(), z.any()).optional(),",
+        "  to_op: z.record(z.string(), z.any()).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 48
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 52,
+      "column": 33,
+      "fieldName": "machine",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const transition_plan = z.object({",
+        "  from_op: z.record(z.string(), z.any()).optional(),",
+        "  to_op: z.record(z.string(), z.any()).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 49
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 60,
+      "column": 45,
+      "fieldName": "transitions",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const transition_batch = z.object({",
+        "  transitions: z.array(z.record(z.string(), z.any())).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 57
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 61,
+      "column": 33,
+      "fieldName": "machine",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const transition_batch = z.object({",
+        "  transitions: z.array(z.record(z.string(), z.any())).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 58
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 69,
+      "column": 34,
+      "fieldName": "toolpath",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const adaptive_refine = z.object({",
+        "  toolpath: z.record(z.string(), z.any()).optional(),",
+        "  feedback: z.record(z.string(), z.any()).optional(),",
+        "  tolerance: z.number().positive().optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 66
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 70,
+      "column": 34,
+      "fieldName": "feedback",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const adaptive_refine = z.object({",
+        "  toolpath: z.record(z.string(), z.any()).optional(),",
+        "  feedback: z.record(z.string(), z.any()).optional(),",
+        "  tolerance: z.number().positive().optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 67
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 79,
+      "column": 30,
+      "fieldName": "part",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const multi_setup_plan = z.object({",
+        "  part: z.record(z.string(), z.any()).optional(),",
+        "  features: z.array(z.record(z.string(), z.any())).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 76
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 80,
+      "column": 42,
+      "fieldName": "features",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const multi_setup_plan = z.object({",
+        "  part: z.record(z.string(), z.any()).optional(),",
+        "  features: z.array(z.record(z.string(), z.any())).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 77
+    },
+    {
+      "file": "mcp-server/src/schemas/multiOpActionSchemas.ts",
+      "line": 81,
+      "column": 33,
+      "fieldName": "machine",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const multi_setup_plan = z.object({",
+        "  part: z.record(z.string(), z.any()).optional(),",
+        "  features: z.array(z.record(z.string(), z.any())).optional(),",
+        "  machine: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 78
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 33,
+      "column": 17,
+      "fieldName": "jobs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "",
+        "const shell_employee_bootstrap = z.object({",
+        "  profileId: z.string().optional().describe(\"Role profile ID: machinist, programmer, lead, quality, manager, engineer\"),",
+        "  jobs: z.array(z.any()).optional().describe(\"Active job records\"),",
+        "  hotJobs: z.array(z.any()).optional().describe(\"Hot job records\"),",
+        "  approvalCount: optNum.describe(\"Pending approval count\"),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 30
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 34,
+      "column": 20,
+      "fieldName": "hotJobs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "const shell_employee_bootstrap = z.object({",
+        "  profileId: z.string().optional().describe(\"Role profile ID: machinist, programmer, lead, quality, manager, engineer\"),",
+        "  jobs: z.array(z.any()).optional().describe(\"Active job records\"),",
+        "  hotJobs: z.array(z.any()).optional().describe(\"Hot job records\"),",
+        "  approvalCount: optNum.describe(\"Pending approval count\"),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 31
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 41,
+      "column": 17,
+      "fieldName": "jobs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "// ─── Desk (1) ─────────────────────────────────────────────────────────────────",
+        "",
+        "const desk_counts = z.object({",
+        "  jobs: z.array(z.any()).optional().describe(\"Active job records for count derivation\"),",
+        "  approvalCount: optNum.describe(\"Pending approval count\"),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 38
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 54,
+      "column": 22,
+      "fieldName": "routing",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    customer: optStr,",
+        "    part_number: optStr,",
+        "    due_date: optStr,",
+        "    routing: z.array(z.any()).optional(),",
+        "    status_history: z.array(z.any()).optional(),",
+        "  }).describe(\"Job record with routing\"),",
+        "  hotJobIds: z.array(z.string()).optional().describe(\"Hot job IDs\"),"
+      ],
+      "contextStartLine": 51
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 55,
+      "column": 29,
+      "fieldName": "status_history",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    part_number: optStr,",
+        "    due_date: optStr,",
+        "    routing: z.array(z.any()).optional(),",
+        "    status_history: z.array(z.any()).optional(),",
+        "  }).describe(\"Job record with routing\"),",
+        "  hotJobIds: z.array(z.string()).optional().describe(\"Hot job IDs\"),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 52
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 77,
+      "column": 18,
+      "fieldName": "jobShopResult",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "// ─── Scheduling (1) ──────────────────────────────────────────────────────────",
+        "",
+        "const scheduling_studies = z.object({",
+        "  jobShopResult: z.any().optional().describe(\"Job-shop scheduling result\"),",
+        "  singleResult: z.any().optional().describe(\"Single-machine scheduling result\"),",
+        "  johnsonsResult: z.any().optional().describe(\"Johnson's two-machine result\"),",
+        "  cpmResult: z.any().optional().describe(\"CPM analysis result\"),"
+      ],
+      "contextStartLine": 74
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 78,
+      "column": 17,
+      "fieldName": "singleResult",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "",
+        "const scheduling_studies = z.object({",
+        "  jobShopResult: z.any().optional().describe(\"Job-shop scheduling result\"),",
+        "  singleResult: z.any().optional().describe(\"Single-machine scheduling result\"),",
+        "  johnsonsResult: z.any().optional().describe(\"Johnson's two-machine result\"),",
+        "  cpmResult: z.any().optional().describe(\"CPM analysis result\"),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 75
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 79,
+      "column": 19,
+      "fieldName": "johnsonsResult",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "const scheduling_studies = z.object({",
+        "  jobShopResult: z.any().optional().describe(\"Job-shop scheduling result\"),",
+        "  singleResult: z.any().optional().describe(\"Single-machine scheduling result\"),",
+        "  johnsonsResult: z.any().optional().describe(\"Johnson's two-machine result\"),",
+        "  cpmResult: z.any().optional().describe(\"CPM analysis result\"),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 76
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 80,
+      "column": 14,
+      "fieldName": "cpmResult",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "  jobShopResult: z.any().optional().describe(\"Job-shop scheduling result\"),",
+        "  singleResult: z.any().optional().describe(\"Single-machine scheduling result\"),",
+        "  johnsonsResult: z.any().optional().describe(\"Johnson's two-machine result\"),",
+        "  cpmResult: z.any().optional().describe(\"CPM analysis result\"),",
+        "}).passthrough();",
+        "",
+        "// ─── Shop Floor (1) ──────────────────────────────────────────────────────────"
+      ],
+      "contextStartLine": 77
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 96,
+      "column": 19,
+      "fieldName": "jobs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "const desk_payload = z.object({",
+        "  role: deskRoleEnum.describe(\"Desk role: admin, engineer, operator, viewer\"),",
+        "  data: z.object({",
+        "    jobs: z.array(z.any()).optional().describe(\"Active job records\"),",
+        "    quotes: z.array(z.any()).optional().describe(\"Active quote records\"),",
+        "    machines: z.array(z.any()).optional().describe(\"Machine status records\"),",
+        "    ncrs: z.array(z.any()).optional().describe(\"NCR records\"),"
+      ],
+      "contextStartLine": 93
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 97,
+      "column": 21,
+      "fieldName": "quotes",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  role: deskRoleEnum.describe(\"Desk role: admin, engineer, operator, viewer\"),",
+        "  data: z.object({",
+        "    jobs: z.array(z.any()).optional().describe(\"Active job records\"),",
+        "    quotes: z.array(z.any()).optional().describe(\"Active quote records\"),",
+        "    machines: z.array(z.any()).optional().describe(\"Machine status records\"),",
+        "    ncrs: z.array(z.any()).optional().describe(\"NCR records\"),",
+        "    invoices: z.array(z.any()).optional().describe(\"Invoice records\"),"
+      ],
+      "contextStartLine": 94
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 98,
+      "column": 23,
+      "fieldName": "machines",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  data: z.object({",
+        "    jobs: z.array(z.any()).optional().describe(\"Active job records\"),",
+        "    quotes: z.array(z.any()).optional().describe(\"Active quote records\"),",
+        "    machines: z.array(z.any()).optional().describe(\"Machine status records\"),",
+        "    ncrs: z.array(z.any()).optional().describe(\"NCR records\"),",
+        "    invoices: z.array(z.any()).optional().describe(\"Invoice records\"),",
+        "    programs: z.array(z.any()).optional().describe(\"Program records\"),"
+      ],
+      "contextStartLine": 95
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 99,
+      "column": 19,
+      "fieldName": "ncrs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    jobs: z.array(z.any()).optional().describe(\"Active job records\"),",
+        "    quotes: z.array(z.any()).optional().describe(\"Active quote records\"),",
+        "    machines: z.array(z.any()).optional().describe(\"Machine status records\"),",
+        "    ncrs: z.array(z.any()).optional().describe(\"NCR records\"),",
+        "    invoices: z.array(z.any()).optional().describe(\"Invoice records\"),",
+        "    programs: z.array(z.any()).optional().describe(\"Program records\"),",
+        "    operator_id: optStr.describe(\"Operator ID for operator desk\"),"
+      ],
+      "contextStartLine": 96
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 100,
+      "column": 23,
+      "fieldName": "invoices",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    quotes: z.array(z.any()).optional().describe(\"Active quote records\"),",
+        "    machines: z.array(z.any()).optional().describe(\"Machine status records\"),",
+        "    ncrs: z.array(z.any()).optional().describe(\"NCR records\"),",
+        "    invoices: z.array(z.any()).optional().describe(\"Invoice records\"),",
+        "    programs: z.array(z.any()).optional().describe(\"Program records\"),",
+        "    operator_id: optStr.describe(\"Operator ID for operator desk\"),",
+        "    clock_in_time: optStr.describe(\"Clock-in timestamp\"),"
+      ],
+      "contextStartLine": 97
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 101,
+      "column": 23,
+      "fieldName": "programs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    machines: z.array(z.any()).optional().describe(\"Machine status records\"),",
+        "    ncrs: z.array(z.any()).optional().describe(\"NCR records\"),",
+        "    invoices: z.array(z.any()).optional().describe(\"Invoice records\"),",
+        "    programs: z.array(z.any()).optional().describe(\"Program records\"),",
+        "    operator_id: optStr.describe(\"Operator ID for operator desk\"),",
+        "    clock_in_time: optStr.describe(\"Clock-in timestamp\"),",
+        "  }).optional().describe(\"Live data sources\"),"
+      ],
+      "contextStartLine": 98
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 109,
+      "column": 19,
+      "fieldName": "jobs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "",
+        "const desk_kpi_counts = z.object({",
+        "  data: z.object({",
+        "    jobs: z.array(z.any()).optional(),",
+        "    quotes: z.array(z.any()).optional(),",
+        "    ncrs: z.array(z.any()).optional(),",
+        "    invoices: z.array(z.any()).optional(),"
+      ],
+      "contextStartLine": 106
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 110,
+      "column": 21,
+      "fieldName": "quotes",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "const desk_kpi_counts = z.object({",
+        "  data: z.object({",
+        "    jobs: z.array(z.any()).optional(),",
+        "    quotes: z.array(z.any()).optional(),",
+        "    ncrs: z.array(z.any()).optional(),",
+        "    invoices: z.array(z.any()).optional(),",
+        "  }).optional().describe(\"Data for count derivation\"),"
+      ],
+      "contextStartLine": 107
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 111,
+      "column": 19,
+      "fieldName": "ncrs",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  data: z.object({",
+        "    jobs: z.array(z.any()).optional(),",
+        "    quotes: z.array(z.any()).optional(),",
+        "    ncrs: z.array(z.any()).optional(),",
+        "    invoices: z.array(z.any()).optional(),",
+        "  }).optional().describe(\"Data for count derivation\"),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 108
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 112,
+      "column": 23,
+      "fieldName": "invoices",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "    jobs: z.array(z.any()).optional(),",
+        "    quotes: z.array(z.any()).optional(),",
+        "    ncrs: z.array(z.any()).optional(),",
+        "    invoices: z.array(z.any()).optional(),",
+        "  }).optional().describe(\"Data for count derivation\"),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 109
+    },
+    {
+      "file": "mcp-server/src/schemas/operatingSystemActionSchemas.ts",
+      "line": 222,
+      "column": 53,
+      "fieldName": "description",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const preset_save = z.object({",
+        "  user_id: z.string(), preset_type: presetTypeEnum, name: z.string(),",
+        "  description: optStr, params: z.record(z.string(), z.any()),",
+        "  tags: z.array(z.string()).optional(), machine_id: optStr, material_id: optStr, operation: optStr,",
+        "}).passthrough();",
+        "const preset_get = z.object({ preset_id: z.string(), user_id: optStr }).passthrough();"
+      ],
+      "contextStartLine": 219
+    },
+    {
+      "file": "mcp-server/src/schemas/provenPipelineActionSchemas.ts",
+      "line": 189,
+      "column": 18,
+      "fieldName": "source_recipe",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "",
+        "const pipeline_adapt = z.object({",
+        "  source_recipe_id: z.string().optional(),",
+        "  source_recipe: z.any().optional(),",
+        "  target_spec: partSpecZ,",
+        "  similarity_score: z.number().optional(),",
+        "  aggressiveness: z.number().min(0).max(1).optional(),"
+      ],
+      "contextStartLine": 186
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 55,
+      "column": 42,
+      "fieldName": "segments",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const optimal_control = z.object({",
+        "  method: z.enum([\"pontryagin\", \"lqr\", \"hjb\"]).optional(),",
+        "  segments: z.array(z.record(z.string(), z.any())).optional(),",
+        "  constraints: z.record(z.string(), z.any()).optional(),",
+        "  Q_diag: z.array(z.number()).optional(),",
+        "  R_scalar: z.number().optional(),"
+      ],
+      "contextStartLine": 52
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 56,
+      "column": 37,
+      "fieldName": "constraints",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const optimal_control = z.object({",
+        "  method: z.enum([\"pontryagin\", \"lqr\", \"hjb\"]).optional(),",
+        "  segments: z.array(z.record(z.string(), z.any())).optional(),",
+        "  constraints: z.record(z.string(), z.any()).optional(),",
+        "  Q_diag: z.array(z.number()).optional(),",
+        "  R_scalar: z.number().optional(),",
+        "  dt_sec: z.number().positive().optional(),"
+      ],
+      "contextStartLine": 53
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 68,
+      "column": 39,
+      "fieldName": "nodes",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const graph_solve = z.object({",
+        "  method: z.enum([\"topological_sort\", \"critical_path\", \"mst\", \"tsp\", \"coloring\"]).optional(),",
+        "  nodes: z.array(z.record(z.string(), z.any())).optional(),",
+        "  edges: z.array(z.record(z.string(), z.any())).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 65
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 69,
+      "column": 39,
+      "fieldName": "edges",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const graph_solve = z.object({",
+        "  method: z.enum([\"topological_sort\", \"critical_path\", \"mst\", \"tsp\", \"coloring\"]).optional(),",
+        "  nodes: z.array(z.record(z.string(), z.any())).optional(),",
+        "  edges: z.array(z.record(z.string(), z.any())).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 66
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 78,
+      "column": 40,
+      "fieldName": "inputs",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const fuzzy_neural = z.object({",
+        "  method: z.enum([\"anfis\", \"fuzzy_taguchi\", \"fuzzy_ahp\"]).optional(),",
+        "  inputs: z.array(z.record(z.string(), z.any())).optional(),",
+        "  rules: z.array(z.record(z.string(), z.any())).optional(),",
+        "  training_data: z.array(z.record(z.string(), z.any())).optional(),",
+        "  criteria: z.array(z.record(z.string(), z.any())).optional(),"
+      ],
+      "contextStartLine": 75
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 79,
+      "column": 39,
+      "fieldName": "rules",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const fuzzy_neural = z.object({",
+        "  method: z.enum([\"anfis\", \"fuzzy_taguchi\", \"fuzzy_ahp\"]).optional(),",
+        "  inputs: z.array(z.record(z.string(), z.any())).optional(),",
+        "  rules: z.array(z.record(z.string(), z.any())).optional(),",
+        "  training_data: z.array(z.record(z.string(), z.any())).optional(),",
+        "  criteria: z.array(z.record(z.string(), z.any())).optional(),",
+        "  comparison_matrix: z.array(z.array(z.number())).optional(),"
+      ],
+      "contextStartLine": 76
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 80,
+      "column": 47,
+      "fieldName": "training_data",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  method: z.enum([\"anfis\", \"fuzzy_taguchi\", \"fuzzy_ahp\"]).optional(),",
+        "  inputs: z.array(z.record(z.string(), z.any())).optional(),",
+        "  rules: z.array(z.record(z.string(), z.any())).optional(),",
+        "  training_data: z.array(z.record(z.string(), z.any())).optional(),",
+        "  criteria: z.array(z.record(z.string(), z.any())).optional(),",
+        "  comparison_matrix: z.array(z.array(z.number())).optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 77
+    },
+    {
+      "file": "mcp-server/src/schemas/scientificMathActionSchemas.ts",
+      "line": 81,
+      "column": 42,
+      "fieldName": "criteria",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  inputs: z.array(z.record(z.string(), z.any())).optional(),",
+        "  rules: z.array(z.record(z.string(), z.any())).optional(),",
+        "  training_data: z.array(z.record(z.string(), z.any())).optional(),",
+        "  criteria: z.array(z.record(z.string(), z.any())).optional(),",
+        "  comparison_matrix: z.array(z.array(z.number())).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 78
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "line": 31,
+      "column": 48,
+      "fieldName": "reference_data",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "const calibration_run = z.object({",
+        "  model: z.string().optional(),",
+        "  reference_data: z.array(z.record(z.string(), z.any())).optional(),",
+        "  parameters: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        ""
+      ],
+      "contextStartLine": 28
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "line": 32,
+      "column": 36,
+      "fieldName": "parameters",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const calibration_run = z.object({",
+        "  model: z.string().optional(),",
+        "  reference_data: z.array(z.record(z.string(), z.any())).optional(),",
+        "  parameters: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 29
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "line": 42,
+      "column": 36,
+      "fieldName": "parameters",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const benchmark_run = z.object({",
+        "  scenario: z.string().optional(),",
+        "  category: z.string().optional(),",
+        "  parameters: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 39
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "line": 58,
+      "column": 44,
+      "fieldName": "parameters",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const uncertainty_quantify = z.object({",
+        "  parameters: z.array(z.record(z.string(), z.any())).optional(),",
+        "  model: z.string().optional(),",
+        "  samples: z.number().int().positive().optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 55
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "line": 68,
+      "column": 38,
+      "fieldName": "process_data",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "// ============================================================================",
+        "",
+        "const improvement_run = z.object({",
+        "  process_data: z.record(z.string(), z.any()).optional(),",
+        "  target: z.string().optional(),",
+        "  constraints: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 65
+    },
+    {
+      "file": "mcp-server/src/schemas/sciValidationActionSchemas.ts",
+      "line": 70,
+      "column": 37,
+      "fieldName": "constraints",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "const improvement_run = z.object({",
+        "  process_data: z.record(z.string(), z.any()).optional(),",
+        "  target: z.string().optional(),",
+        "  constraints: z.record(z.string(), z.any()).optional(),",
+        "}).passthrough();",
+        "",
+        "// ============================================================================"
+      ],
+      "contextStartLine": 67
+    },
+    {
+      "file": "mcp-server/src/schemas/sessionActionSchemas.ts",
+      "line": 352,
+      "column": 33,
+      "fieldName": "payload",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    \"conflict_detected\",",
+        "  ]).describe(\"Event kind\"),",
+        "  target: z.string().min(1).describe(\"Target resource (file path, milestone id, etc.)\"),",
+        "  payload: z.record(z.string(), z.any()).optional().describe(\"Optional structured payload\"),",
+        "  at: z.union([z.string(), z.number()]).optional().describe(\"Epoch ms; defaults to now\"),",
+        "  ledger_path: optStr.describe(\"Override ledger JSONL path (default: state/shared/COORDINATION_LEDGER.jsonl)\"),",
+        "}).passthrough();"
+      ],
+      "contextStartLine": 349
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 12,
+      "column": 62,
+      "fieldName": "cognitive_check",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"brainstorm\": z.object({}).passthrough(),",
+        "  \"child_process\": z.object({}).passthrough(),",
+        "  \"cognitive_bayes\": z.object({}).passthrough(),",
+        "  \"cognitive_check\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"cognitive_init\": z.object({}).passthrough(),",
+        "  \"cognitive_rl\": z.object({}).passthrough(),",
+        "  \"combination_ilp\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 9
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 18,
+      "column": 102,
+      "fieldName": "context_kv_optimize",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"combination_ilp\": z.object({}).passthrough(),",
+        "  \"context_attention_anchor\": z.object({}).passthrough(),",
+        "  \"context_error_preserve\": z.object({}).passthrough(),",
+        "  \"context_kv_optimize\": z.object({ target: z.string().optional(), constraints: z.record(z.string(), z.any()).optional(), objective: z.string().optional() }).passthrough(),",
+        "  \"coordination\": z.object({}).passthrough(),",
+        "  \"debug\": z.object({}).passthrough(),",
+        "  \"deep\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 15
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 38,
+      "column": 96,
+      "fieldName": "optimize_full",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"mitigation\": z.object({}).passthrough(),",
+        "  \"name\": z.object({}).passthrough(),",
+        "  \"none\": z.object({}).passthrough(),",
+        "  \"optimize_full\": z.object({ target: z.string().optional(), constraints: z.record(z.string(), z.any()).optional(), objective: z.string().optional() }).passthrough(),",
+        "  \"opus\": z.object({}).passthrough(),",
+        "  \"orchestration\": z.object({}).passthrough(),",
+        "  \"path\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 35
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 43,
+      "column": 64,
+      "fieldName": "phased_plan",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"orchestration\": z.object({}).passthrough(),",
+        "  \"path\": z.object({}).passthrough(),",
+        "  \"phase\": z.object({}).passthrough(),",
+        "  \"phased_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"physics\": z.object({}).passthrough(),",
+        "  \"plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"problem\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 40
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 45,
+      "column": 57,
+      "fieldName": "plan",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"phase\": z.object({}).passthrough(),",
+        "  \"phased_plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"physics\": z.object({}).passthrough(),",
+        "  \"plan\": z.object({ jobs: z.array(z.record(z.string(), z.any())).optional(), horizon_hours: z.number().optional() }).passthrough(),",
+        "  \"problem\": z.object({}).passthrough(),",
+        "  \"quick\": z.object({}).passthrough(),",
+        "  \"recommended_approach\": z.object({}).passthrough(),"
+      ],
+      "contextStartLine": 42
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 62,
+      "column": 66,
+      "fieldName": "validate_gates_full",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"synthesis\": z.object({}).passthrough(),",
+        "  \"tooling\": z.object({}).passthrough(),",
+        "  \"unknown\": z.object({}).passthrough(),",
+        "  \"validate_gates_full\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"validate_mathplan\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "};",
+        ""
+      ],
+      "contextStartLine": 59
+    },
+    {
+      "file": "mcp-server/src/schemas/spActionSchemas.ts",
+      "line": 63,
+      "column": 64,
+      "fieldName": "validate_mathplan",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  \"tooling\": z.object({}).passthrough(),",
+        "  \"unknown\": z.object({}).passthrough(),",
+        "  \"validate_gates_full\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "  \"validate_mathplan\": z.object({ target: z.record(z.string(), z.any()).optional(), rules: z.array(z.string()).optional() }).passthrough(),",
+        "};",
+        ""
+      ],
+      "contextStartLine": 60
+    },
+    {
+      "file": "mcp-server/src/schemas/wedmErpActionSchemas.ts",
+      "line": 33,
+      "column": 19,
+      "fieldName": "program_result",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "",
+        "/** POST /quote/from-program — quote directly from generated program */",
+        "export const wedmFromProgramSchema = z.object({",
+        "  program_result: z.any(), // WEDMProgramResult shape — engine validates",
+        "  quantity: z.number().int().min(1).default(1),",
+        "  customer: z.string().min(1).optional(),",
+        "  margin_pct: z.number().min(0).max(0.5).optional(),"
+      ],
+      "contextStartLine": 30
+    },
+    {
+      "file": "mcp-server/src/schemas/wedmErpActionSchemas.ts",
+      "line": 41,
+      "column": 18,
+      "fieldName": "cost_estimate",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "",
+        "/** POST /quote/quantity-breaks — cost per part for multiple quantities */",
+        "export const wedmQuantityBreaksSchema = z.object({",
+        "  cost_estimate: z.any(), // CostEstimate from prior estimate call",
+        "  quantities: z.array(z.number().int().min(1)).min(1).max(20),",
+        "  learning_rate: z.number().min(0.5).max(1).optional(),",
+        "});"
+      ],
+      "contextStartLine": 38
+    },
+    {
+      "file": "mcp-server/src/schemas/wedmErpActionSchemas.ts",
+      "line": 116,
+      "column": 18,
+      "fieldName": "cost_estimate",
+      "wrapperToken": null,
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "  customer: z.string().min(1),",
+        "  part_name: z.string().min(1),",
+        "  part_number: z.string().optional(),",
+        "  cost_estimate: z.any(),",
+        "  quantity: z.number().int().min(1).default(1),",
+        "  quote_number: z.string().optional(),",
+        "  lead_time_days: z.number().int().min(1).default(7),"
+      ],
+      "contextStartLine": 113
+    },
+    {
+      "file": "mcp-server/src/schemas/wedmErpActionSchemas.ts",
+      "line": 129,
+      "column": 19,
+      "fieldName": "program_result",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "",
+        "/** POST /job/create — create job packet from generated program */",
+        "export const wedmJobCreateSchema = z.object({",
+        "  program_result: z.any(),",
+        "  options: z.object({",
+        "    customer: z.string().optional(),",
+        "    part_number: z.string().optional(),"
+      ],
+      "contextStartLine": 126
+    },
+    {
+      "file": "mcp-server/src/schemas/wedmErpActionSchemas.ts",
+      "line": 141,
+      "column": 10,
+      "fieldName": "quote",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "    operator: z.string().optional(),",
+        "    notes: z.string().optional(),",
+        "  }).optional(),",
+        "  quote: z.any().optional(),",
+        "});",
+        "",
+        "/** POST /job/:id/complete — mark job complete with actual metrics */"
+      ],
+      "contextStartLine": 138
+    },
+    {
+      "file": "mcp-server/src/schemas/WiringManifest.ts",
+      "line": 156,
+      "column": 34,
+      "fieldName": "defaults",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "  field_mappings: z.record(z.string(), z.string()),",
+        "",
+        "  /** Default values for missing fields */",
+        "  defaults: z.record(z.string(), z.any()).optional(),",
+        "",
+        "  /** Validation rules */",
+        "  validations: z.array(z.string()).optional(),"
+      ],
+      "contextStartLine": 153
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 42,
+      "column": 20,
+      "fieldName": "speed_feed_data",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "// ── BOX-MS5: Calibration ────────────────────────────────────",
+        "",
+        "export const BoxCalibrateFromShopSchema = z.object({",
+        "  speed_feed_data: z.any().optional().describe(\"SpeedFeedMineResult from box_mine_speed_feed\"),",
+        "  tool_data: z.any().optional().describe(\"ToolMineResult from box_mine_tool_patterns\"),",
+        "  sequence_data: z.any().optional().describe(\"SequenceMineResult from box_mine_operation_sequences\"),",
+        "  macro_data: z.any().optional().describe(\"MacroMineResult from box_mine_macro_patterns\"),"
+      ],
+      "contextStartLine": 39
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 43,
+      "column": 14,
+      "fieldName": "tool_data",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "",
+        "export const BoxCalibrateFromShopSchema = z.object({",
+        "  speed_feed_data: z.any().optional().describe(\"SpeedFeedMineResult from box_mine_speed_feed\"),",
+        "  tool_data: z.any().optional().describe(\"ToolMineResult from box_mine_tool_patterns\"),",
+        "  sequence_data: z.any().optional().describe(\"SequenceMineResult from box_mine_operation_sequences\"),",
+        "  macro_data: z.any().optional().describe(\"MacroMineResult from box_mine_macro_patterns\"),",
+        "  safety_data: z.any().optional().describe(\"SafetyMineResult from box_mine_safety_patterns\"),"
+      ],
+      "contextStartLine": 40
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 44,
+      "column": 18,
+      "fieldName": "sequence_data",
+      "wrapperToken": "z.object",
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "export const BoxCalibrateFromShopSchema = z.object({",
+        "  speed_feed_data: z.any().optional().describe(\"SpeedFeedMineResult from box_mine_speed_feed\"),",
+        "  tool_data: z.any().optional().describe(\"ToolMineResult from box_mine_tool_patterns\"),",
+        "  sequence_data: z.any().optional().describe(\"SequenceMineResult from box_mine_operation_sequences\"),",
+        "  macro_data: z.any().optional().describe(\"MacroMineResult from box_mine_macro_patterns\"),",
+        "  safety_data: z.any().optional().describe(\"SafetyMineResult from box_mine_safety_patterns\"),",
+        "});"
+      ],
+      "contextStartLine": 41
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 45,
+      "column": 15,
+      "fieldName": "macro_data",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "  speed_feed_data: z.any().optional().describe(\"SpeedFeedMineResult from box_mine_speed_feed\"),",
+        "  tool_data: z.any().optional().describe(\"ToolMineResult from box_mine_tool_patterns\"),",
+        "  sequence_data: z.any().optional().describe(\"SequenceMineResult from box_mine_operation_sequences\"),",
+        "  macro_data: z.any().optional().describe(\"MacroMineResult from box_mine_macro_patterns\"),",
+        "  safety_data: z.any().optional().describe(\"SafetyMineResult from box_mine_safety_patterns\"),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 42
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 46,
+      "column": 16,
+      "fieldName": "safety_data",
+      "wrapperToken": null,
+      "isOptionalChained": true,
+      "classification": "optional_unknown",
+      "suggestedReplacement": "z.unknown().optional()",
+      "context": [
+        "  tool_data: z.any().optional().describe(\"ToolMineResult from box_mine_tool_patterns\"),",
+        "  sequence_data: z.any().optional().describe(\"SequenceMineResult from box_mine_operation_sequences\"),",
+        "  macro_data: z.any().optional().describe(\"MacroMineResult from box_mine_macro_patterns\"),",
+        "  safety_data: z.any().optional().describe(\"SafetyMineResult from box_mine_safety_patterns\"),",
+        "});",
+        "",
+        "// ── BOX-MS5: Full Program Audit ──────────────────────────────"
+      ],
+      "contextStartLine": 43
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 65,
+      "column": 12,
+      "fieldName": "program",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "// ── BOX-MS3: Key existing action schemas ─────────────────────",
+        "",
+        "export const BoxOptimizeProgramSchema = z.object({",
+        "  program: z.any().describe(\"Parsed OkumaProgram object from box_parse_okuma\"),",
+        "  unit_system: UnitSystem.default(\"imperial\"),",
+        "  machine_max_power_kw: z.number().positive().optional(),",
+        "  machine_max_rpm: z.number().positive().optional(),"
+      ],
+      "contextStartLine": 62
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 75,
+      "column": 21,
+      "fieldName": "original_program",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "});",
+        "",
+        "export const BoxSafetyCheckSchema = z.object({",
+        "  original_program: z.any().describe(\"Original parsed program\"),",
+        "  optimized_program: z.any().describe(\"Optimized program to validate\"),",
+        "  machine_max_power_kw: z.number().positive().optional(),",
+        "  machine_max_rpm: z.number().positive().optional(),"
+      ],
+      "contextStartLine": 72
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 76,
+      "column": 22,
+      "fieldName": "optimized_program",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "",
+        "export const BoxSafetyCheckSchema = z.object({",
+        "  original_program: z.any().describe(\"Original parsed program\"),",
+        "  optimized_program: z.any().describe(\"Optimized program to validate\"),",
+        "  machine_max_power_kw: z.number().positive().optional(),",
+        "  machine_max_rpm: z.number().positive().optional(),",
+        "});"
+      ],
+      "contextStartLine": 73
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 84,
+      "column": 14,
+      "fieldName": "program",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "export const BoxBatchOptimizeSchema = z.object({",
+        "  programs: z.array(z.object({",
+        "    filename: z.string(),",
+        "    program: z.any(),",
+        "  })).min(1).describe(\"Array of parsed programs to optimize\"),",
+        "  unit_system: UnitSystem.default(\"imperial\"),",
+        "  machine_max_power_kw: z.number().positive().optional(),"
+      ],
+      "contextStartLine": 81
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 94,
+      "column": 12,
+      "fieldName": "program",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "});",
+        "",
+        "export const BoxResolveMaterialSchema = z.object({",
+        "  program: z.any().describe(\"Parsed OkumaProgram object\"),",
+        "  customer_name: z.string().optional(),",
+        "  unit_system: UnitSystem.default(\"imperial\"),",
+        "});"
+      ],
+      "contextStartLine": 91
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 100,
+      "column": 12,
+      "fieldName": "program",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "});",
+        "",
+        "export const BoxResolveToolsSchema = z.object({",
+        "  program: z.any().describe(\"Parsed OkumaProgram object\"),",
+        "  unit_system: UnitSystem.default(\"imperial\"),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 97
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 170,
+      "column": 15,
+      "fieldName": "extraction",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "});",
+        "",
+        "export const BoxFusionSetupDocSchema = z.object({",
+        "  extraction: z.any().describe(\"CAMExtractionResult from box_fusion_extract_cam\"),",
+        "  render_text: z.boolean().default(true).describe(\"Include rendered text report\"),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 167
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 182,
+      "column": 18,
+      "fieldName": "tools",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "});",
+        "",
+        "export const BoxToolCalloutsSchema = z.object({",
+        "  tools: z.array(z.any()).min(1).describe(\"AnalyzedTool[] from box_upload_analyze\"),",
+        "  speed_feeds: z.array(z.any()).describe(\"SpeedFeedEntry[] from box_upload_analyze\"),",
+        "  material: z.string().nullable().optional(),",
+        "  machine_type: z.string().nullable().optional(),"
+      ],
+      "contextStartLine": 179
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 183,
+      "column": 24,
+      "fieldName": "speed_feeds",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "",
+        "export const BoxToolCalloutsSchema = z.object({",
+        "  tools: z.array(z.any()).min(1).describe(\"AnalyzedTool[] from box_upload_analyze\"),",
+        "  speed_feeds: z.array(z.any()).describe(\"SpeedFeedEntry[] from box_upload_analyze\"),",
+        "  material: z.string().nullable().optional(),",
+        "  machine_type: z.string().nullable().optional(),",
+        "  unit_system: z.enum([\"imperial\", \"metric\"]).default(\"imperial\"),"
+      ],
+      "contextStartLine": 180
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/boxAuditActionSchemas.ts",
+      "line": 221,
+      "column": 13,
+      "fieldName": "parsed",
+      "wrapperToken": "z.object",
+      "isOptionalChained": false,
+      "classification": "default",
+      "suggestedReplacement": "z.unknown()",
+      "context": [
+        "  programs: z.array(z.object({",
+        "    filename: z.string(),",
+        "    controller: z.enum([\"haas\", \"hurco\", \"rokuroku\"]),",
+        "    parsed: z.any().describe(\"Parsed program object from the appropriate parser\"),",
+        "  })).min(1).describe(\"Array of parsed mill programs to mine\"),",
+        "});",
+        ""
+      ],
+      "contextStartLine": 218
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 132,
+      "column": 35,
+      "fieldName": "turning",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    id: z.string().min(1),",
+        "    type: z.string().min(1),",
+        "    process: z.enum([\"milling\", \"turning\", \"drilling\", \"wire_edm\", \"sinker_edm\", \"grinding\", \"laser\", \"waterjet\", \"additive\"]).optional(),",
+        "    turning: z.record(z.string(), z.any()).optional(),",
+        "    edm: z.record(z.string(), z.any()).optional(),",
+        "    grinding: z.record(z.string(), z.any()).optional(),",
+        "    cutting: z.record(z.string(), z.any()).optional(),"
+      ],
+      "contextStartLine": 129
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 133,
+      "column": 31,
+      "fieldName": "edm",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    type: z.string().min(1),",
+        "    process: z.enum([\"milling\", \"turning\", \"drilling\", \"wire_edm\", \"sinker_edm\", \"grinding\", \"laser\", \"waterjet\", \"additive\"]).optional(),",
+        "    turning: z.record(z.string(), z.any()).optional(),",
+        "    edm: z.record(z.string(), z.any()).optional(),",
+        "    grinding: z.record(z.string(), z.any()).optional(),",
+        "    cutting: z.record(z.string(), z.any()).optional(),",
+        "    dimensions: DimensionsSchema,"
+      ],
+      "contextStartLine": 130
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 134,
+      "column": 36,
+      "fieldName": "grinding",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    process: z.enum([\"milling\", \"turning\", \"drilling\", \"wire_edm\", \"sinker_edm\", \"grinding\", \"laser\", \"waterjet\", \"additive\"]).optional(),",
+        "    turning: z.record(z.string(), z.any()).optional(),",
+        "    edm: z.record(z.string(), z.any()).optional(),",
+        "    grinding: z.record(z.string(), z.any()).optional(),",
+        "    cutting: z.record(z.string(), z.any()).optional(),",
+        "    dimensions: DimensionsSchema,",
+        "    tolerance_mm: z.number().positive().optional(),"
+      ],
+      "contextStartLine": 131
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 135,
+      "column": 35,
+      "fieldName": "cutting",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "    turning: z.record(z.string(), z.any()).optional(),",
+        "    edm: z.record(z.string(), z.any()).optional(),",
+        "    grinding: z.record(z.string(), z.any()).optional(),",
+        "    cutting: z.record(z.string(), z.any()).optional(),",
+        "    dimensions: DimensionsSchema,",
+        "    tolerance_mm: z.number().positive().optional(),",
+        "    surface_finish_Ra: z.number().positive().optional(),"
+      ],
+      "contextStartLine": 132
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 192,
+      "column": 32,
+      "fieldName": "config",
+      "wrapperToken": "z.record",
+      "isOptionalChained": false,
+      "classification": "record_of_unknown",
+      "suggestedReplacement": "z.record(z.string(), z.unknown())",
+      "context": [
+        "",
+        "export const cam_advanced_strategy = z.object({",
+        "  strategy: z.enum([\"flowline\", \"geodesic\", \"constant_scallop\", \"swarf\", \"thread_mill\", \"chamfer\"]),",
+        "  config: z.record(z.string(), z.any()).optional(),",
+        "  surface_points: z.array(z.any()).optional(),",
+        "  start_curve: z.array(z.any()).optional(),",
+        "  end_curve: z.array(z.any()).optional(),"
+      ],
+      "contextStartLine": 189
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 193,
+      "column": 27,
+      "fieldName": "surface_points",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "export const cam_advanced_strategy = z.object({",
+        "  strategy: z.enum([\"flowline\", \"geodesic\", \"constant_scallop\", \"swarf\", \"thread_mill\", \"chamfer\"]),",
+        "  config: z.record(z.string(), z.any()).optional(),",
+        "  surface_points: z.array(z.any()).optional(),",
+        "  start_curve: z.array(z.any()).optional(),",
+        "  end_curve: z.array(z.any()).optional(),",
+        "  top_curve: z.array(z.any()).optional(),"
+      ],
+      "contextStartLine": 190
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 194,
+      "column": 24,
+      "fieldName": "start_curve",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  strategy: z.enum([\"flowline\", \"geodesic\", \"constant_scallop\", \"swarf\", \"thread_mill\", \"chamfer\"]),",
+        "  config: z.record(z.string(), z.any()).optional(),",
+        "  surface_points: z.array(z.any()).optional(),",
+        "  start_curve: z.array(z.any()).optional(),",
+        "  end_curve: z.array(z.any()).optional(),",
+        "  top_curve: z.array(z.any()).optional(),",
+        "  bottom_curve: z.array(z.any()).optional(),"
+      ],
+      "contextStartLine": 191
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 195,
+      "column": 22,
+      "fieldName": "end_curve",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  config: z.record(z.string(), z.any()).optional(),",
+        "  surface_points: z.array(z.any()).optional(),",
+        "  start_curve: z.array(z.any()).optional(),",
+        "  end_curve: z.array(z.any()).optional(),",
+        "  top_curve: z.array(z.any()).optional(),",
+        "  bottom_curve: z.array(z.any()).optional(),",
+        "  center: z.object({ x: z.number(), y: z.number() }).optional(),"
+      ],
+      "contextStartLine": 192
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 196,
+      "column": 22,
+      "fieldName": "top_curve",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  surface_points: z.array(z.any()).optional(),",
+        "  start_curve: z.array(z.any()).optional(),",
+        "  end_curve: z.array(z.any()).optional(),",
+        "  top_curve: z.array(z.any()).optional(),",
+        "  bottom_curve: z.array(z.any()).optional(),",
+        "  center: z.object({ x: z.number(), y: z.number() }).optional(),",
+        "  edges: z.array(z.any()).optional(),"
+      ],
+      "contextStartLine": 193
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 197,
+      "column": 25,
+      "fieldName": "bottom_curve",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  start_curve: z.array(z.any()).optional(),",
+        "  end_curve: z.array(z.any()).optional(),",
+        "  top_curve: z.array(z.any()).optional(),",
+        "  bottom_curve: z.array(z.any()).optional(),",
+        "  center: z.object({ x: z.number(), y: z.number() }).optional(),",
+        "  edges: z.array(z.any()).optional(),",
+        "  num_passes: z.number().int().positive().optional(),"
+      ],
+      "contextStartLine": 194
+    },
+    {
+      "file": "mcp-server/src/tools/schemas/camKernelActionSchemas.ts",
+      "line": 199,
+      "column": 18,
+      "fieldName": "edges",
+      "wrapperToken": "z.array",
+      "isOptionalChained": false,
+      "classification": "array_of_unknown",
+      "suggestedReplacement": "z.array(z.unknown())",
+      "context": [
+        "  top_curve: z.array(z.any()).optional(),",
+        "  bottom_curve: z.array(z.any()).optional(),",
+        "  center: z.object({ x: z.number(), y: z.number() }).optional(),",
+        "  edges: z.array(z.any()).optional(),",
+        "  num_passes: z.number().int().positive().optional(),",
+        "  target_scallop_mm: z.number().positive().optional(),",
+        "  direction: z.object({ x: z.number(), y: z.number() }).optional(),"
+      ],
+      "contextStartLine": 196
+    }
+  ]
+}

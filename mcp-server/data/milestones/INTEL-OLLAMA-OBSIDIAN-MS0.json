@@ -1244,7 +1244,7 @@
               "description": "Find + classify all z.any() instances"
             },
             {
-              "path": "ZANY-INVENTORY.json",
+              "path": "mcp-server/data/state/ZANY-INVENTORY.json",
               "type": "state",
               "description": "Categorized z.any() inventory"
             }
@@ -1256,7 +1256,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete"
+          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete",
+          "status": "complete",
+          "shipped_at": "2026-05-01T18:50:00.000Z",
+          "shipped_by": "claude-ba192f8a",
+          "ship_notes": "184 occurrences across 33 files (drift from envelope's 161 baseline). Classifications: record_of_unknown=110 (60%), array_of_unknown=33, optional_unknown=21, default=18, unknown_value=2. AuditZany.test.ts: 22/22 green (3 strip-comments-and-strings tests + classification + aggregation + real-repo sanity)."
         },
         {
           "id": "P8-U02",
